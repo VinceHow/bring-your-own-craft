@@ -20,7 +20,10 @@ async function redecide(run, tasteMd, { idea, flow }) {
   // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.
   const settled = new Set(readEvents(run).filter(e => e.type === 'answer.mapped').flatMap(m => (m.decisions || []).map(d => d.id)));
   const out = await decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' });
-  return Array.isArray(out) ? out : (out?.decided || []);
+  // What the team agreed in the team space (lib/joint.js) isn't re-decided (loadRest skips it); it reaches the page as agreed.
+  const joint = [...new Map(readEvents(run).filter(e => e.type === 'decided' && e.round === 'joint')
+    .map(({ id, seat, decision, choice, cites }) => [id, { id, seat, decision, choice, cites }])).values()];
+  return [...joint, ...(Array.isArray(out) ? out : (out?.decided || []))];
 }
 
 const building = new Set();

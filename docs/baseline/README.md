@@ -25,3 +25,7 @@ On stage: **"A default coding agent asked 0 questions and guessed 22 things abou
 listed one by one, with evidence, in [`GUESSES.md`](GUESSES.md) (counted by hand from run 2).
 Caveat, said plainly if asked: both runs were in a claude.ai cloud container, so the agent had that environment's
 page-publishing tools; a laptop install could behave differently.
+
+## Run 3: bakery (the stage prompt since Sat 16:00)
+Interactive, same method as run 2: **0 questions, 24 guesses, 20 approvals**. Itemised in
+[`run-3-bakery/GUESSES.md`](run-3-bakery/GUESSES.md). This is the close's number now; 22 was yoga-only.
