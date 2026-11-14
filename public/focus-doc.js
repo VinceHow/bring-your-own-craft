@@ -18,27 +18,29 @@
   const CHIME_GAP_MS = 1000;
 
   const doc = h('section', 'focus-doc'); doc.id = 'focus-doc'; doc.hidden = true;
+  doc.dataset.component = 'focus-doc'; doc.dataset.state = 'asking';
   doc.setAttribute('aria-label', 'Your focus');
   doc.innerHTML = `
-    <header class="fd-head"><span class="fd-kicker"></span><span class="fd-by"></span>
-      <button type="button" class="fd-close">Back to the room</button></header>
+    <header class="fd-head" data-slot="head"><span class="fd-kicker" data-slot="kicker"></span><span class="fd-by" data-slot="by"></span>
+      <button type="button" class="fd-close" data-slot="close">Back to the room</button></header>
     <div class="fd-main">
-      <div class="fd-work"></div>
-      <h2 class="fd-question"></h2>
-      <div class="fd-said"></div>
+      <div class="fd-work" data-slot="work"></div>
+      <h2 class="fd-question" data-slot="question"></h2>
+      <div class="fd-said" data-component="her-answer" data-state="speaking"></div>
       <form class="fd-form" autocomplete="off">
-        <textarea class="fd-input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Enter when you’re done."></textarea>
+        <textarea class="fd-input" data-slot="input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Take your time; send when you’re ready."></textarea>
+        <button type="submit" class="fd-send" data-slot="send">Send</button>
       </form>
     </div>
     <aside class="fd-side">
-      <ol class="fd-chimes"></ol>
-      <div class="fd-brief" hidden>
-        <div class="brief-part brief-believe"><span class="brief-label">What I believe</span><p class="brief-text" data-k="believe"></p></div>
-        <div class="brief-part brief-why"><span class="brief-label">Why</span><p class="brief-text" data-k="why"></p></div>
-        <div class="brief-part brief-guidance"><span class="brief-label">Guidance to the team</span><p class="brief-text" data-k="guidance"></p></div>
-        <button type="button" class="fd-keep">Keep it</button>
+      <ol class="fd-chimes" data-slot="chimes"></ol>
+      <div class="fd-brief" data-component="takeaways" data-state="hidden" hidden>
+        <div class="brief-head" data-slot="head">Takeaways</div>
+        <div class="brief-part brief-believe"><span class="brief-label" data-slot="label">What I believe about this</span><p class="brief-text" data-slot="believe" data-k="believe"></p></div>
+        <div class="brief-part brief-guidance"><span class="brief-label" data-slot="label">Guidance to the team</span><p class="brief-text" data-slot="guidance" data-k="guidance"></p></div>
+        <button type="button" class="fd-keep" data-slot="keep">Keep</button>
       </div>
-      <div class="fd-team"></div>
+      <div class="fd-team" data-slot="team"></div>
     </aside>`;
   room.appendChild(doc);
   const $ = sel => doc.querySelector(sel);
@@ -115,8 +117,9 @@
     if (cur && cur.id === ask.id && !doc.hidden) return;
     if (cur) close(true);
     cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose);
-    const seat = ask.seat, name = ask.by || AGENT(seat);
-    $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : SEAT_NAME(seat);
+    // Who asked shows only when it's a named teammate (Noor · Research); otherwise no "by" at all.
+    const seat = ask.seat, named = AGENT(seat), name = named && (!ask.by || ask.by === named) ? named : null;
+    $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : '';
     const proposers = (ask.artifact && Array.isArray(ask.artifact.by) && ask.artifact.by.length) ? ask.artifact.by : null;
     $('.fd-by').textContent = proposers ? `proposed by ${proposers.join(' and ')}` : '';
     $('.fd-question').textContent = ask.question || ask.decision || '';
@@ -124,7 +127,8 @@
     $('.fd-chimes').innerHTML = ''; $('.fd-team').textContent = '';
     $('.fd-brief').hidden = true; doc.querySelectorAll('.brief-text').forEach(p => { p.textContent = ''; p.contentEditable = 'false'; });
     $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay;
-    doc.dataset.seat = seat || '';
+    doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
+    $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
     doc.hidden = false;
     document.body.classList.add('focus-open');
     renderWork();
@@ -151,19 +155,21 @@
   function landSaid(text) {
     const said = $('.fd-said');
     said.innerHTML = '';
-    const q = h('blockquote', 'fd-words', text);
-    said.appendChild(q);
+    const q = h('blockquote', 'fd-words', text); q.dataset.slot = 'words';
+    said.appendChild(q); said.dataset.state = 'landed'; doc.dataset.state = 'answered';
     if (M) M.animate(q, { y: [10, 0] }, SPRING);
   }
   $('.fd-input').addEventListener('input', e => {
     // As she speaks or types, the words show on the document.
     const t = e.target.value.trim();
     $('.fd-said').classList.toggle('speaking', !!t);
+    if (!sent) doc.dataset.state = t ? 'speaking' : 'asking';
   });
   $('.fd-input').addEventListener('keydown', e => {
     e.stopPropagation();
     if (e.key === 'Escape') { e.target.blur(); return; }
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    // Her pace: nothing sends on silence; she sends when she's ready (Enter, Send, or the clicker's forward key).
+    if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'PageDown') { e.preventDefault(); send(); }
   });
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
   async function send() {
@@ -187,9 +193,10 @@
   function pumpChimes() {
     if (chimeTimer || !chimeQ.length) { if (!chimeQ.length && !chimeTimer && briefPending) { const b = briefPending; briefPending = null; showBrief(b); } return; }
     const ev = chimeQ.shift();
-    const li = h('li', 'chime'); li.dataset.seat = ev.seat || '';
-    li.appendChild(h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`));
-    li.appendChild(h('span', 'chime-text', ev.text || ''));
+    const li = h('li', 'chime'); li.dataset.seat = ev.seat || ''; li.dataset.component = 'chime'; li.dataset.state = 'in';
+    const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
+    const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
+    li.append(w, t); doc.dataset.state = 'chiming';
     $('.fd-chimes').appendChild(li);
     if (M) M.animate(li, { x: [24, 0], y: [-6, 0] }, SPRING);
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
@@ -199,18 +206,19 @@
   B.on('brief', onTakeaways); B.on('takeaways', onTakeaways); // the server logs 'takeaways' (po/takeaways); 'brief' kept for old replays
   function showBrief(ev) {
     const box = $('.fd-brief');
-    for (const k of ['believe', 'why', 'guidance']) {
+    for (const k of ['believe', 'guidance']) {
       const p = box.querySelector(`.brief-text[data-k="${k}"]`);
       p.textContent = ev[k] || '';
       p.closest('.brief-part').hidden = !ev[k];
       p.contentEditable = B.replay ? 'false' : 'true';
       p.spellcheck = false;
     }
-    box.hidden = false;
+    box.hidden = false; box.dataset.state = 'shown'; doc.dataset.state = 'takeaways';
     $('.fd-keep').hidden = !!B.replay;
     if (M) M.animate(box, { y: [16, 0] }, SPRING);
     if (B.replay) { clearTimeout(replayClose); replayClose = setTimeout(() => close(true), 3500); }
   }
+  doc.querySelectorAll('.brief-text').forEach(p => p.addEventListener('focus', () => { if (!kept) $('.fd-brief').dataset.state = 'editing'; }));
   doc.querySelectorAll('.brief-text').forEach(p => p.addEventListener('keydown', e => {
     e.stopPropagation();
     if (e.key === 'Escape') { p.blur(); return; }
@@ -222,13 +230,13 @@
     kept = true;
     const body = { askId: cur.id };
     doc.querySelectorAll('.brief-text').forEach(p => { if (!p.closest('.brief-part').hidden) body[p.dataset.k] = p.textContent.trim(); p.contentEditable = 'false'; });
-    $('.fd-keep').hidden = true;
+    $('.fd-keep').hidden = true; $('.fd-brief').dataset.state = 'kept';
     try { await B.api(`/api/run/${encodeURIComponent(B.run)}/takeaways`, body, { step: false }); }
     catch (e) { kept = false; $('.fd-keep').hidden = false; doc.querySelectorAll('.brief-text').forEach(p => { p.contentEditable = 'true'; }); $('.fd-team').textContent = `Not kept (${e.status || e.message}).`; }
   }
 
   // ---- the team gets to work; the document updates ----------------------------------------------
-  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; });
+  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; doc.dataset.state = 'working'; });
   const refreshJourney = () => { if (cur && $('.fd-work').dataset.kind === 'journey') setTimeout(renderWork, 60); };
   B.on('flow.line', refreshJourney);
   B.on('flow.reset', refreshJourney);

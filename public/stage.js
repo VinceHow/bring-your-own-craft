@@ -4,8 +4,8 @@
 //   Left / PageUp            : previous beat (a clicker's back button)
 //   Home or 0                : reset to the empty room
 //   S                        : stage mode (body >= 20px, no chrome, no help card)
-//   R                        : replay the rehearsal run; in the close, replay the cafe run's three questions
-//   C                        : replay the cafe run (in the close: its three questions)
+//   R                        : replay the rehearsal run; in the close, replay the yoga run's check-in
+//   C                        : replay the yoga run (in the close: its check-in)
 //   J                        : the close: type a judge's idea
 //   B                        : build her page (same as moving on to the build beat)
 //   F                        : play the fake fixture run (labelled FAKE)
@@ -23,8 +23,8 @@
     ['← · PageUp', 'previous beat (clicker back)'],
     ['Home · 0', 'reset to the empty room'],
     ['S', 'stage mode: big type, no chrome'],
-    ['R', 'replay the rehearsal (in the close: the café run)'],
-    ['C', 'replay the café run'],
+    ['R', 'replay the rehearsal (in the close: the yoga run)'],
+    ['C', 'replay the yoga run (the judge’s-idea fallback)'],
     ['J', 'the close: type a judge’s idea'],
     ['B', 'build her page'],
     ['F', 'fake fixture run (labelled FAKE)'],
@@ -84,13 +84,13 @@
     else if (k === 'ArrowLeft' || k === 'PageUp') { if (inClose()) { BYOC.close.close(); if (BYOC.beat === 11) BYOC.stage(10); } else BYOC.stage(BYOC.beat - 1); }
     else if (k === 'Home' || k === '0') BYOC.reset();
     else if (k === 's' || k === 'S') setStageMode(!document.body.classList.contains('stage'));
-    else if (k === 'r' || k === 'R') inClose() ? BYOC.close?.replay('cafe') : BYOC.replayRun?.(q.get('replay') || 'rehearsal');
-    else if (k === 'c' || k === 'C') inClose() ? BYOC.close?.replay('cafe') : BYOC.replayRun?.('cafe');
+    else if (k === 'r' || k === 'R') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.(q.get('replay') || 'rehearsal');
+    else if (k === 'c' || k === 'C') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.('yoga');
     else if (k === 'f' || k === 'F') BYOC.playFixture && BYOC.playFixture();
     else if (k === 'j' || k === 'J') BYOC.close?.open();
     else if (k === 'b' || k === 'B') { if (BYOC.beat < 8) BYOC.stage(8); else BYOC.build?.(); }
     else if (k === '?') toggleHelp();
-    else if (k === 'Enter') focusInput();
+    else if (k === 'Enter') { if (BYOC.introShown && BYOC.introShown()) BYOC.introDone(); else focusInput(); }
     else handled = false;
     if (handled) e.preventDefault();
   });

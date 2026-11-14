@@ -1,50 +1,56 @@
 {
   "business": {
-    "text": "She wants a booking page for a small yoga studio where people find classes and reserve a spot, with regulars attending the same class weekly. The studio is probably hers or one she knows closely, though that's not confirmed.",
-    "confidence": "medium"
-  },
-  "positioning": {
-    "text": "Her words \"small and warm\" make it explicit that the studio competes on being personal and welcoming rather than scale, against big chains and apps like ClassPass or Mindbody. Booking and cancelling should feel quick and looked-after, never processed.",
+    "text": "She is building a simple ordering website for her friend's small bakery so customers can order bread ahead for pickup. She is building it for the friend, not running the bakery herself.",
     "confidence": "high"
   },
+  "positioning": {
+    "text": "The edge is being known: the site and bakery treat a regular like the baker already knows them, holding their usual and telling them early when a loaf is running out, unlike walk-in queues, DM orders or generic ordering apps. A sold-out loaf should feel like care, not a dead end.",
+    "confidence": "medium"
+  },
   "customers": {
-    "text": "Regulars who attend the same class every week (e.g. Tuesday) and shouldn't have to hunt for it. Newcomers and drop-ins are likely also part of the mix and most will probably book from their phones, but those are the team's assumptions.",
+    "text": "Morning regulars who plan their morning around a particular loaf, especially the sourdough that sells out first, often opening the site in a rush on a busy morning. Neighbours, families and busy people are likely too, but we don't yet know what a regular's week looks like.",
     "confidence": "medium"
   },
   "whatSells": {
-    "text": "Regulars come back because their spot feels theirs, a reliable recurring place in their usual class. Her own words add that nobody should feel turned away: a full class points them to the next one. Memberships or packs are possible, but pricing is unknown.",
+    "text": "Certainty of getting their usual loaf, with almost no effort: the site already knows them, remembers their usual and doesn't ask for what it knows. Early heads-up when it's running low, and warm bread, keep them coming back.",
     "confidence": "high"
   },
   "brandFeel": {
-    "text": "Small and warm (her words): welcoming, calm, uncluttered and personal, like being recognised. Fast and light-touch, never corporate, never interrogating, and never makes anyone feel turned away.",
-    "confidence": "high"
+    "text": "Warm, personal, local and unfussy: recognised and looked after, with no form-filling friction.",
+    "confidence": "medium"
   },
   "strengths": {
-    "text": "She loves getting the journey right before anyone draws a screen, and thinks in whole customer paths, especially the regular's and moments where someone could feel turned away or put to effort. Ask her about steps, moments, feelings and what the customer is trying to do, not colours or layouts.",
+    "text": "She loves the customer journey, understanding customer problems and building products that solve them, and has a sharp feel for what regulars experience. Her latest answer shows it: she names the feeling (being known) and the design rule (never ask what you already know). Frame questions around what the customer is trying to do and where it gets hard, not around tech.",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "She wants the flow settled before any screen is drawn, so show her the journey first and screens after. The team can decide visual and detail questions itself and bring her only path-changing decisions, such as how a regular holds a spot, what happens when they skip a week, when a spot is released, and what a full class offers next. Cancelling is settled by her own words: one tap, no reason asked,",
-    "confidence": "medium"
+    "text": "Assumed: she wants a say in customer-facing decisions like the ordering flow, early alerts and the hold-my-usual experience, and is happy for the team to settle technical and routine details. Her answers are brief and principle-driven, so she likely does best with concrete options tied to a regular's busy morning rather than open-ended questions.",
+    "confidence": "low"
   },
+  "domains": [
+    "customer problem",
+    "user journey",
+    "target customer",
+    "what success looks like"
+  ],
   "philosophy": [
     {
       "id": "L3",
-      "believe": "People come back when they know their spot is theirs, so my regulars shouldn't have to hunt for their usual Tuesday class.",
-      "guidance": "Design the journey for regulars first: rebooking their usual class should be the quickest path, with 'Book your usual' placed above the schedule. Keep the full schedule below for browsing and first-timers.",
-      "askId": "c9"
+      "believe": "Regulars want warm bread and to be known, and they hate finding their sourdough gone by nine, so a sold-out loaf should feel like the bakery looking after them, not a dead end.",
+      "guidance": "Show sold-out loaves greyed out, never hidden, with a clear Pick another day button that offers the next available day. Make sure the first confirmed order wins so nobody is promised bread that isn't there.",
+      "askId": "c19"
     },
     {
       "id": "L4",
-      "believe": "Booking should feel small and warm: a spot is promised to you, and nobody should ever feel turned away.",
-      "guidance": "When a class is full, point people to the next class (and the waitlist) instead of a dead end. Keep the tone warm and low-pressure; the team decides payment and cancellation rules separately.",
-      "askId": "c6"
+      "believe": "I believe our first customers are the regulars who plan their morning around a particular loaf, and the bakery should look after them when it sells out.",
+      "guidance": "Build for local regulars first: let them hold their usual loaf for a set pickup time, and tell them early when something is running low or sold out. Keep everything else out of the first version.",
+      "askId": "c14"
     },
     {
       "id": "L5",
-      "believe": "Never ask for anything you could remember or skip.",
-      "guidance": "Design the cancel step as a single tap with no reason prompt and no re-asking for details we already hold. Money rules (refund or credit around the cutoff) are not settled by this, so the team decides them and keeps them from slowing or complicating the cancel.",
-      "askId": "c7"
+      "believe": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
+      "guidance": "Design the returning-regular path as quick and remembered: their usual loaf up front, a prominent Book your usual button, and no re-asking for details we already have.",
+      "askId": "c9"
     }
   ],
   "tag": null,

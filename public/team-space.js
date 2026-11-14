@@ -90,13 +90,21 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
   function render() {
     if (!mount()) return;
     const evs = typeof B.events === 'function' ? B.events() : [];
-    const agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()];
+    // A card her takeaways revisited at Build (`joint.revised`) shows the new agreement, with her takeaways in mind.
+    const revised = new Map(evs.filter(e => e.type === 'joint.revised').map(e => [e.id, e]));
+    const agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()]
+      .map(a => (revised.has(a.id) ? { ...a, headline: revised.get(a.id).headline || a.headline, withTakeaways: true, revised: true } : a));
+    for (const c of [...list.children]) {
+      const a = agreed.find(x => x.id === c.dataset.joint);
+      if (!a || (a.revised && c.dataset.revised !== '1')) c.remove();
+    }
     const have = new Set([...list.children].map(c => c.dataset.joint));
-    for (const c of [...list.children]) if (!agreed.some(a => a.id === c.dataset.joint)) c.remove();
     for (const a of agreed) {
       if (have.has(a.id)) continue;
       const li = card(a);
-      list.appendChild(li);
+      if (a.revised) li.dataset.revised = '1';
+      const next = [...list.children].find(c => agreed.findIndex(x => x.id === c.dataset.joint) > agreed.indexOf(a));
+      list.insertBefore(li, next || null);
       if (typeof li.animate === 'function' && !B.replay) li.animate([{ transform: 'translateY(14px) rotate(-1.5deg)', opacity: 0 },
         { transform: 'translateY(0) rotate(0deg)', opacity: 1 }], { duration: 140, easing: 'ease-out' });
     }
@@ -106,6 +114,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
   B.teamSpace = { render, count: 0 };
   if (typeof B.on === 'function') {
     B.on('joint.agreed', () => requestAnimationFrame(render));
+    B.on('joint.revised', () => requestAnimationFrame(render));
     B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; } B.teamSpace.count = 0; });
     B.on('run.start', () => requestAnimationFrame(render));
   }
