@@ -27,15 +27,9 @@
   <div class="seat seat-research" data-seat="research" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Research</div></div>
   <div class="seat seat-strategy" data-seat="strategy" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Strategy</div></div>
   <div class="seat seat-engineering" data-seat="engineering" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Engineering</div></div>
-  <div class="seat seat-product" data-seat="product" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Your seat</div></div>
-  <!-- Her seat's pick card: "What do you bring to the table?" Product, or her own craft (name tag: name-tag.js) -->
-  <aside class="pick-card" id="pick-card" data-component="pick-card" data-state="hidden" hidden>
-    <p class="pick-q" data-slot="question">What do you bring to the table?</p>
-    <div class="pick-options" data-slot="options">
-      <button type="button" class="pick-option" data-pick="product" data-slot="option">Product</button>
-      <button type="button" class="pick-option" data-pick="craft" data-slot="option">Your own craft</button>
-    </div>
-  </aside>
+  <div class="seat seat-product" data-seat="product" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Product</div></div>
+  <!-- The setup (room.js): her name tag on paper, then the team one by one; the room stays hidden until the reveal -->
+  <section id="setup" class="setup" data-component="setup" data-step="nametag" aria-label="Before the room"><div class="setup-stage" id="setup-stage" data-slot="stage"></div></section>
 
   <!-- Teammates' small sheets, one in front of each seat -->
   <section class="mini-sheet" data-sheet="design" hidden></section>

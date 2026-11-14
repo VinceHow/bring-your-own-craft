@@ -62,7 +62,7 @@ async function openPage({ voice }) {
 }
 const waitFor = (page, fn, ms, what) => page.waitForFunction(fn, null, { timeout: ms }).catch(() => { throw new Error('timed out: ' + what); });
 async function toHerCard(page) {
-  await page.evaluate(() => BYOC.stage(1));
+  await page.evaluate(() => document.getElementById('intro-input').focus()); // her paper name tag, before the room
   await waitFor(page, () => document.activeElement?.id === 'intro-input', 20000, 'her card open');
 }
 
