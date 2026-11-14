@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · sea glass</title>
+<!-- Direction "Sea glass": every surface is a smooth, softly frosted pebble of coloured glass, worn round by the tide.
+     A teammate's pill or note is a pebble tinted in their ink, with a soft inner glow, a highlight across the top and a
+     shadow on the table. Reading surfaces (her sheet, the focus document) are clear milky glass, dense enough to read.
+     One radius scale of pebble shapes (small / medium / large), never a box.
+     Signature motion: each pebble is set down on the table, a soft settle with its shadow drawing in under it, then a
+     catch of light slides across it once. Views: ?view=parts|room|focus · ?still=1 end state. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --ink: #241A13; --ink-2: #47372A; --ink-3: #5E4B3C;
+  --mika: #3E5C8E; --noor: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
+  --mika-t: #213A66; --noor-t: #7A321D; --theo-t: #304D2C; --ines-t: #5C3D0E; --bo-t: #563F06; --her-t: #85304A;
+  /* milky glass: a pale, slightly cool white, so it reads as glass against the warm painting */
+  --milk: rgba(250,249,244,.84); --milk-dense: rgba(252,251,247,.92); --milk-soft: rgba(248,246,240,.58);
+  --frost: blur(14px) saturate(1.25);
+  /* the frosted, tide-worn skin: a very faint grain so the glass reads as sanded, not plastic */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  /* the pebble: highlight across the top, soft inner glow, a darker worn rim at the bottom */
+  --sheen: radial-gradient(130% 70% at 46% -18%, rgba(255,255,255,.72), rgba(255,255,255,.18) 46%, rgba(255,255,255,0) 64%);
+  --glow: inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 14px rgba(255,255,255,.55), inset 0 -3px 6px rgba(70,50,30,.10), inset 0 0 0 1px rgba(255,255,255,.38);
+  --rest: 0 3px 4px -2px rgba(60,38,18,.28), 0 14px 22px -12px rgba(60,38,18,.42);
+  --held: 0 18px 22px -10px rgba(60,38,18,.14), 0 34px 40px -16px rgba(60,38,18,.18);
+  --lifted: 0 6px 8px -3px rgba(60,38,18,.24), 0 22px 30px -12px rgba(60,38,18,.44);
+  /* one radius scale, pebble-shaped: never two equal corners */
+  --peb-s: 22px 30px 26px 20px / 20px 24px 22px 26px;
+  --peb-m: 40px 58px 46px 34px / 34px 44px 58px 40px;
+  --peb-l: 56px 72px 60px 48px / 48px 58px 70px 52px;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --land: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-who="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-who="ines"] { --c: var(--ines); --t: var(--ines-t); }
+[data-who="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-who="her"] { --c: var(--her); --t: var(--her-t); }
+.lab { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+
+/* ---------- the one pebble every part is made of ---------- */
+.pill, .bubble, .note, .decision, .sheet, .pop, .tag, .btn, .doc, .board .cell, .b-head {
+  position: relative; isolation: isolate;
+  /* tinted pebbles: the teammate's ink mixed into milky glass; untinted parts stay milk */
+  --tint: var(--milk);
+  background: var(--sheen), var(--grain), var(--tint);
+  -webkit-backdrop-filter: var(--frost); backdrop-filter: var(--frost);
+  box-shadow: var(--glow), var(--rest);
+  transition: box-shadow 700ms var(--land), transform 300ms var(--land); }
+.pill[data-who], .bubble[data-who], .note[data-who] { --tint: color-mix(in srgb, var(--c) 30%, rgba(250,248,242,.86));
+  box-shadow: var(--glow), inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), var(--rest); }
+.pill[data-who="bo"], .bubble[data-who="bo"], .pill[data-who="ines"] { --tint: color-mix(in srgb, var(--c) 38%, rgba(250,248,242,.86)); }
+/* the decision is the one clear sea-green piece: what the team settled on */
+.decision { --tint: color-mix(in srgb, #7FA897 16%, rgba(251,250,246,.9)); }
+/* a pebble a hand has just put down: the shadow is wide and faint, and draws in under it as it settles */
+.held { box-shadow: var(--glow), var(--held) !important; }
+/* the catch of light: one bright band slides across the glass, once */
+.pill::after, .bubble::after, .note::after, .decision::after, .sheet::after, .pop::after, .doc::after, .btn::after, .tag::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2; opacity: 0;
+  background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.75) 48%, rgba(255,252,240,.35) 53%, rgba(255,255,255,0) 62%) 130% 0 / 260% 100% no-repeat;
+  mix-blend-mode: soft-light; }
+.catch::after { animation: catch 1100ms cubic-bezier(.4,0,.2,1) both; }
+@keyframes catch { 0% { opacity: 0; background-position: 130% 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; background-position: -30% 0; } }
+
+/* pills: small pebbles, tinted */
+.pill { display: inline-flex; align-items: center; gap: 9px; height: 42px; padding: 0 16px 0 10px; border: 0; border-radius: var(--peb-s); cursor: pointer;
+  font: 500 18px/1 var(--serif); color: var(--t, var(--ink)); white-space: nowrap; }
+/* the dot is a little glass bead in their ink */
+.pill .dot { width: 22px; height: 22px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 600 13px/1 var(--sans); color: #fff;
+  background: radial-gradient(60% 50% at 38% 28%, rgba(255,255,255,.7), rgba(255,255,255,0) 70%), var(--c);
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,.2), 0 1px 2px rgba(40,25,10,.25); }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-2); padding-left: 9px; border-left: 1px solid color-mix(in srgb, var(--c) 40%, rgba(70,50,30,.2)); }
+.pill:hover, .pill.is-hover { transform: translateY(-2px); box-shadow: var(--glow), var(--lifted); }
+.pill:active { transform: translateY(0) scale(.98); }
+.pill:focus-visible, .btn:focus-visible { outline: 2px solid var(--c, var(--ink)); outline-offset: 3px; }
+.pill.is-talking .dot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 32%, transparent), inset 0 -2px 3px rgba(0,0,0,.2); }
+.pill.is-open { --tint: color-mix(in srgb, var(--c) 30%, rgba(252,250,244,.9)); box-shadow: var(--glow), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 60%, transparent), var(--lifted); }
+.pill.is-her { --tint: color-mix(in srgb, var(--her) 26%, rgba(252,249,246,.88)); }
+.pill.is-her .dot { background: radial-gradient(60% 50% at 38% 28%, rgba(255,255,255,.3), rgba(255,255,255,0) 60%), #973C54; }
+.pill.is-her .agent { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pill.is-invite { --tint: color-mix(in srgb, var(--her) 26%, rgba(252,249,246,.88)); color: var(--her-t); }
+.pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; }
+
+/* chatter: a pebble in the speaker's tint */
+.bubble { display: block; max-width: 300px; padding: 15px 22px 16px; border-radius: var(--peb-m); font: italic 400 18px/1.35 var(--serif); color: var(--ink); }
+.bubble b { display: flex; align-items: center; gap: 7px; font: 600 13px/1 var(--sans); font-style: normal; color: var(--t); margin-bottom: 6px; }
+.bubble b::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -1px 2px rgba(0,0,0,.2); }
+/* note for her: a Noor pebble */
+.note { display: block; width: 244px; padding: 16px 22px 18px; border-radius: var(--peb-m); font: 400 17px/1.35 var(--serif); }
+.note .lab { display: flex; align-items: center; gap: 7px; color: var(--t); margin-bottom: 6px; font-weight: 600; }
+.note .lab i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+/* decision: milky, its makers as beads */
+.decision { display: block; width: 256px; padding: 18px 22px 17px; border-radius: var(--peb-m); font: 400 18px/1.32 var(--serif); }
+.decision .by { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.decision .by .lab { color: var(--ink-2); }
+.marks { display: inline-flex; } .marks i { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(252,251,247,.95), inset 0 -2px 2px rgba(0,0,0,.18);
+  background: radial-gradient(60% 50% at 38% 28%, rgba(255,255,255,.6), rgba(255,255,255,0) 70%), var(--c); }
+.marks i + i { margin-left: -5px; }
+/* her sheet: clear milky glass, dense */
+.sheet { width: 380px; padding: 17px 22px 17px; border-radius: var(--peb-l); --tint: var(--milk-dense); }
+.sheet h3 { margin: 5px 0 10px; font: 400 21px/1.2 var(--serif); letter-spacing: -.01em; }
+.steps { display: flex; gap: 6px; margin-bottom: 12px; }
+.step { padding: 7px 12px; border-radius: var(--peb-s); background: rgba(255,255,255,.7); font: 400 14px/1.2 var(--sans); color: var(--ink);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 2px rgba(70,50,30,.10), 0 1px 2px rgba(60,38,18,.12); }
+.step.hers { background: color-mix(in srgb, var(--her) 22%, #fff); color: var(--her-t); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--peb-s); background: rgba(70,52,36,.08); box-shadow: inset 0 1px 2px rgba(70,50,30,.12); }
+.tabs span { padding: 7px 14px; border-radius: var(--peb-s); font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { background: radial-gradient(130% 70% at 46% -18%, #fff, rgba(255,255,255,0) 64%), #F6F4EE; color: var(--ink); box-shadow: inset 0 -1px 2px rgba(70,50,30,.12), 0 2px 4px rgba(60,38,18,.2); }
+/* a teammate's work: large milky pebble, Noor's bead and ink */
+.pop { width: 320px; padding: 18px 22px 20px; border-radius: var(--peb-l); --tint: var(--milk-dense); }
+.pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding-bottom: 11px; border-bottom: 1px solid color-mix(in srgb, var(--c) 30%, transparent); }
+.pop .pop-head .dot { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(60% 50% at 38% 28%, rgba(255,255,255,.7), rgba(255,255,255,0) 70%), var(--c); }
+.pop .pop-head .nm { font: 500 20px/1 var(--serif); color: var(--t); }
+.pop .t { margin: 3px 0 12px; font: 400 18px/1.35 var(--serif); }
+.pop ul { margin: 5px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pop li { display: flex; gap: 9px; font: 400 15px/1.35 var(--sans); }
+.pop li::before { content: ''; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--c); flex: none; }
+/* buttons: one pair. Dark bottle glass, and a milky pebble */
+.btns { display: flex; gap: 10px; }
+.btn { height: 48px; padding: 0 24px; border: 0; border-radius: var(--peb-s); font: 500 16px/1 var(--sans); cursor: pointer; color: #FBF6EC;
+  --tint: rgba(34,44,38,.9); box-shadow: inset 0 1px 1px rgba(255,255,255,.35), inset 0 0 12px rgba(150,190,165,.18), var(--rest); }
+.btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(120% 60% at 46% -20%, rgba(200,230,210,.35), rgba(255,255,255,0) 60%); pointer-events: none; }
+.btn.quiet { color: var(--ink); --tint: var(--milk-dense); box-shadow: var(--glow), var(--rest); }
+.btn.quiet::before { display: none; }
+.btn:hover { transform: translateY(-2px); box-shadow: inset 0 1px 1px rgba(255,255,255,.35), var(--lifted); }
+.btn.quiet:hover { box-shadow: var(--glow), var(--lifted); }
+.btn:active { transform: translateY(0) scale(.98); }
+/* quiet labels */
+.tag { display: inline-flex; align-items: baseline; gap: 5px; padding: 10px 16px; border-radius: var(--peb-s); font: 400 14px/1 var(--sans); color: var(--ink-2); --tint: var(--milk-dense); }
+.tag b { font: 500 16px/1 var(--serif); color: var(--ink); }
+.tag.replay { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 18px 11px; --tint: rgba(34,44,38,.86); color: #FBF6EC; font: 500 16px/1 var(--serif);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.3), inset 0 0 12px rgba(150,190,165,.18), var(--rest); }
+.tag.replay small { font: 400 13px/1 var(--sans); color: #E6E2D6; }
+
+/* ---------- the room ---------- */
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,240,215,.5), rgba(255,226,190,.2) 60%, rgba(255,210,170,0)); }
+/* the speech trail: two small pebbles instead of a pointed tail */
+.a-pop .pop::before { content: ''; position: absolute; width: 13px; height: 11px; border-radius: 50%; background: inherit;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 4px 6px -2px rgba(60,38,18,.35), 9px 13px 0 -2px color-mix(in srgb, var(--c) 20%, rgba(250,248,242,.9)); }
+.a-pop .pop::before { right: 70px; bottom: -14px; background: var(--milk-dense); box-shadow: inset 0 1px 1px #fff, 0 4px 6px -2px rgba(60,38,18,.35), -9px 13px 0 -2px rgba(252,251,247,.9); }
+.a-note .note { rotate: -2deg; } .a-dec .decision { rotate: 1.5deg; }
+.a-sheet .sheet { width: 420px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; padding: 13px 18px 15px 22px; }
+.a-sheet .sheet .tabs { grid-column: 2; grid-row: 1; } .a-sheet .sheet .tabs span { padding: 6px 11px; font-size: 13px; }
+.a-sheet .sheet h3, .a-sheet .sheet .steps { grid-column: 1 / -1; } .a-sheet .sheet h3 { font-size: 19px; margin: 6px 0 9px; } .a-sheet .steps { margin: 0; }
+
+/* ---------- the parts board ---------- */
+.board { position: absolute; inset: 34px 40px; align-content: start; display: grid; grid-template-columns: 1fr 1fr 1fr 1.05fr; gap: 18px; }
+.b-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 22px; padding: 18px 28px; border-radius: var(--peb-l); --tint: var(--milk-dense); }
+.b-title { margin: 0; font: 400 32px/1 var(--serif); letter-spacing: -.015em; }
+.b-lede { margin: 0; font: 400 16px/1.4 var(--sans); color: var(--ink-2); max-width: 74ch; }
+.board .cell { padding: 18px 22px 22px; border-radius: var(--peb-l); --tint: var(--milk-soft); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.board .cell h2 { margin: 0; font: 600 14px/1 var(--sans); color: var(--ink-2); }
+.board .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.board .cap { margin: 0; font: 400 13px/1.3 var(--sans); color: var(--ink-2); }
+.c-pills { grid-column: 1 / 4; grid-row: 2; } .c-chat { grid-column: 1; } .c-note { grid-column: 2; } .c-dec { grid-column: 3; }
+.c-chat, .c-note, .c-dec { grid-row: 3; } .c-act { grid-column: 1 / 4; grid-row: 4; flex-direction: row; align-items: center; gap: 22px; align-self: start; }
+.c-sheet { grid-column: 4; grid-row: 2 / 4; } .c-pop { grid-column: 4; grid-row: 4; }
+.c-sheet .sheet, .c-pop .pop { width: 100%; }
+
+/* ---------- the focus document: one big milky pane, the reading surface densest ---------- */
+.doc { position: absolute; left: 70px; top: 52px; right: 70px; bottom: 44px; display: grid; grid-template-columns: 1fr 390px; gap: 26px; padding: 26px;
+  border-radius: 60px 72px 64px 56px / 56px 64px 72px 60px; --tint: rgba(248,246,240,.72); }
+.doc .main { padding: 20px 30px; border-radius: var(--peb-l); background: var(--sheen), rgba(253,252,249,.94); box-shadow: var(--glow), 0 2px 4px rgba(60,38,18,.08); }
+.doc h1 { margin: 8px 0 18px; font: 400 34px/1.15 var(--serif); letter-spacing: -.015em; max-width: 26ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 8px 10px; padding: 14px; border-radius: var(--peb-m); background: rgba(70,52,36,.05); box-shadow: inset 0 1px 3px rgba(70,50,30,.08); }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.doc .q { margin: 22px 0 10px; font: 400 30px/1.2 var(--serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { margin: 0; padding-left: 18px; border-left: 3px solid var(--her); font: italic 400 22px/1.45 var(--serif); color: var(--ink); max-width: 52ch; }
+.side { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
+.side .bubble { max-width: none; }
+.take { margin-top: 4px; padding: 17px 20px; border-radius: var(--peb-m); background: var(--sheen), color-mix(in srgb, var(--her) 18%, rgba(253,251,248,.94)); box-shadow: var(--glow), 0 8px 16px -10px rgba(60,38,18,.35); }
+.take .lab { color: var(--her-t); font-weight: 600; }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--serif); }
+.take .b { font-style: italic; font-size: 21px; }
+.take em { display: block; font: normal 500 13px/1.2 var(--sans); color: var(--ink-2); margin: 10px 0 3px; }
+.side .btns { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .catch::after { animation: none; } .held { box-shadow: var(--glow), var(--rest) !important; } }
+</style>
+</head>
+<body>
+<div class="canvas" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+// Signature motion: each pebble is set down on the table. It comes in a touch high and a touch large, settles with no
+// bounce while its shadow draws in tight beneath it, then a catch of light slides across the glass once.
+(function () {
+  const { view, still, c } = window.UIW;
+  const head = c.querySelector('.b-head');
+  if (head) { head.querySelector('.b-title').textContent = 'Sea glass'; head.querySelector('.b-lede').textContent = 'Smooth frosted pebbles of coloured glass, worn by the tide: each teammate tinted in their ink, the reading surfaces clear milky glass.'; }
+  if (still || !window.Motion || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const { animate } = Motion;
+  const settle = { type: 'spring', visualDuration: .75, bounce: 0 };
+  const order = view === 'room'
+    ? ['.at[data-in] .pill', '.a-her .pill', '.a-sheet .sheet', '.a-bubble .bubble', '.a-dec .decision', '.a-note .note', '.a-pop .pop']
+    : view === 'focus' ? ['.doc', '.side .bubble', '.take'] : ['.b-head', '.cell'];
+  let t = .3;
+  order.forEach(sel => c.querySelectorAll(sel).forEach(el => {
+    el.style.opacity = 0; el.classList.add('held');
+    const d = t; t += sel.includes('pill') ? .14 : .5;
+    setTimeout(() => {
+      requestAnimationFrame(() => el.classList.remove('held'));   // the shadow draws in as it lands (CSS transition, 700ms)
+      animate(el, { opacity: [0, 1], y: [-12, 0], scale: [1.04, 1] }, settle).then(() => { el.style.transform = 'none'; });
+      setTimeout(() => el.classList.add('catch'), 380);
+    }, d * 1000);
+  }));
+})();
+</script>
+</body>
+</html>
