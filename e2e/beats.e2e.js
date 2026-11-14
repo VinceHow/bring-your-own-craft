@@ -289,6 +289,13 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.ok(await page.evaluate(() => BYOC.events().some(e => e.type === 'reshape' && e.askId === 'first')), 'Design redrew the journey from her answer');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 5000, 'back in the room');
   await waitFor(n => document.querySelectorAll('.mini-sheet li[data-state="decided"]').length >= n, 6000, 'the decisions on their sketchpads', first.length);
+  // 2. A quick unblock (DEMO 0:50, builder 1's card): Bo's blocked on when orders close; the clicker opens it, Enter says Yes.
+  await waitFor(() => /^u-engineering/.test(document.querySelector('#inbox .inbox-now')?.dataset.ask || ''), 10000, 'the unblock in her inbox');
+  await page.keyboard.press('PageDown');
+  await waitFor(() => document.activeElement?.classList.contains('inbox-unblock-yes'), 3000, 'Yes, ready');
+  assert.match(await page.textContent('#inbox .inbox-unblock'), /Bo's blocked: when do orders close\?[\s\S]*We suggest 8pm the night before/);
+  await page.keyboard.press('Enter');
+  await waitFor(() => BYOC.events().some(e => e.type === 'decided' && e.unblock && e.choice === '8pm the night before'), 5000, 'her yes, decided');
   await page.waitForTimeout(800);
   await page.locator('#her-input').focus();
   // The clicker's forward button from her empty input: the team goes.
@@ -302,9 +309,9 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
   // The stage path: the selector brings one focus moment (the first decision was the other ask so far; the quick
   // unblock keeps the third).
-  const asks = evs.filter(e => e.type === 'ask' && !e.first);
+  const asks = evs.filter(e => e.type === 'ask' && !e.first && !e.unblock);
   assert.strictEqual(asks.length, 1, `one focus moment on the stage path, got ${asks.length}`);
-  assert.ok(evs.filter(e => e.type === 'ask').length <= MAX_ASKS);
+  assert.deepStrictEqual(evs.filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : 'focus'), ['first', 'unblock', 'focus'], 'the three, in order');
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
   assert.ok(await onScreen('#her-flow .fl-box'), 'her flow is on screen at 1280x720');
