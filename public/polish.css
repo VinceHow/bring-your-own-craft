@@ -243,3 +243,4 @@ body.stage #room .slip-text { font-size: 15px; }
 #room .table::after { content: ''; position: absolute; left: 26px; bottom: 14px; width: 170px; height: 22px; background: var(--pencil) no-repeat;
   transform: rotate(-4deg); pointer-events: none; filter: drop-shadow(3px 3px 0 #141414); }
 #room .mini-sheet .mini-head { flex: none; padding-top: 14px; padding-bottom: 6px; align-items: baseline; }
+#room .symphony-slip::before { display: none; } /* the ink edge is the border, not a second bar */
