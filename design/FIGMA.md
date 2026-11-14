@@ -40,6 +40,19 @@ Nothing back yet. When Vincent tweaks the file, each change read back from Figma
 | Small sheets | Titles stay on one line; the "to her" tag is pinned right and never clipped (it read "t…" before) | Clipped labels |
 | (removed) | The `.fl-box` stopgap is gone: main's flow.js fix (b2f4f46) brings the boxes and their landing motion back |
 
+
+### Six seats (Strategy added), 14 Nov afternoon
+| Area | Change | Why |
+|---|---|---|
+| Empty seats (walk-in) | Each empty seat is a blank paper place card, its name near the top | The table's edge ran straight through the seat names |
+| Seat cards | Ink band never shrinks; stance 19px | At six-across, Research's stance wrapped and squashed its band |
+| Small sheets | Title stays whole, the step line gives way | "ENGINE…" was cut |
+| Her three arrive | The Data, Research and Strategy sheets hide under her grown sheet | Torn slivers ("DA", "iting") peeked out from under it |
+| Her file + "Sounds like" | Head and "Sounds like" always show; her lines get smaller, then clip | In a live run, focusing "Sounds like" scrolled "HER FILE" out of the card |
+| Her card and big cards | Empty stance at 4.5:1; big card names printed with the second ink | Contrast; the same riso look as the seat cards |
+
+Checked on `/?fixture=1` at 1600×900 and 1280×720, and in one live run (`npm run e2e`, real model backend: 15/15 pass).
+
 taste-skill rules and its checker results: `design/TASTE.md`.
 
 Banned list checked: no gradients, glass, purple, emoji, sparkles, chat bubbles, spinners or pop-ups added.
