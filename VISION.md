@@ -81,7 +81,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | Focus moment 3 | 1:35–2:00 | Wireframes + a question about the feel; the takeaways |
 | Symphony | 2:00–2:20 | One press; her page appears |
 | Her page | 2:20–2:34 | The page they built, clean: the product is just the product |
-| Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, N guessed (re-run on the bakery prompt) |
+| Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, 24 guessed, 20 approvals (bakery baseline) |
 
 **Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted; the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
 
