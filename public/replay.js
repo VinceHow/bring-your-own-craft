@@ -10,9 +10,11 @@
   let timers = [];
 
   function clear() { timers.forEach(clearTimeout); timers = []; }
-  BYOC.on('reset', () => { clear(); label.hidden = true; label.className = 'replay-label'; });
+  BYOC.on('reset', () => { clear(); BYOC.replayName = null; label.hidden = true; label.className = 'replay-label'; });
 
-  function showLabel(kind, name, firstT) {
+  // showLabel(kind, name, firstT, note): kind 'fixture' -> FAKE; 'recorded' -> REPLAY; null hides it.
+  function showLabel(kind, name, firstT, note) {
+    if (!kind) { label.hidden = true; label.className = 'replay-label'; return; }
     label.hidden = false;
     if (kind === 'fixture') {
       label.className = 'replay-label fake';
@@ -20,9 +22,10 @@
     } else {
       label.className = 'replay-label';
       const when = firstT ? new Date(firstT).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-      label.innerHTML = `Replay<small>recorded run “${name}”${when ? ' · ' + when : ''}</small>`;
+      label.innerHTML = `Replay<small>recorded run “${name}”${when ? ' · ' + when : ''}${note ? ' · ' + note : ''}</small>`;
     }
   }
+  BYOC.replayLabel = showLabel;
 
   // Taste lines written during the run are removed from the opening file, so they appear when their event plays.
   function openingFile(md, events) {
@@ -36,6 +39,7 @@
     if (!events.length) { BYOC.status(`run "${name}" has no events`); return; }
     BYOC.replay = true;
     BYOC.replayKind = kind;
+    BYOC.replayName = name;
     BYOC.run = events[0].run || name;
     showLabel(kind, name, events[0].t);
     BYOC.stage(2, { instant: true }); // the team is already seated when a replay starts

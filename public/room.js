@@ -6,15 +6,19 @@
   const SPRING = { type: 'spring', stiffness: 500, damping: 30 };
   const QUICK = { duration: 0.12, ease: 'linear' }; // nothing fades for longer than 150ms
 
-  const SEATS = ['product', 'design', 'data', 'research', 'engineering'];
-  const TEAM = ['design', 'data', 'research', 'engineering'];
+  const SEATS = ['product', 'design', 'data', 'research', 'strategy', 'engineering'];
+  const TEAM = ['design', 'data', 'research', 'strategy', 'engineering'];
+  // Loves / Brings / Stance: copied exactly from DEMO.md, "The team cards". Brings stays true of what each runs on.
   const INFO = {
-    product: { name: 'Product' },
-    design: { name: 'Design', stance: 'sketch first, polish last' },
-    data: { name: 'Data', stance: 'only what we’ll measure' },
-    research: { name: 'Research', stance: 'what’s known, with sources' },
-    engineering: { name: 'Engineering', stance: 'boring and correct' },
+    product: { name: 'Product', brings: 'product: user journeys and the calls that shape them' },
+    design: { name: 'Design', stance: 'sketch first, polish last', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing' },
+    data: { name: 'Data', stance: 'only what we’ll measure', loves: 'One number that says it worked.', brings: 'what to measure at each step' },
+    research: { name: 'Research', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
+    strategy: { name: 'Strategy', stance: 'who pays, and why now', loves: 'Knowing who pays before we build.', brings: 'pricing and payment calls' },
+    engineering: { name: 'Engineering', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
+  // How long each teammate's big card holds mid-table (DEMO 0:06-0:26: about 2 s). ?hold=<ms> for tests.
+  const HOLD_MS = Number(new URLSearchParams(location.search).get('hold')) || 2000;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -22,8 +26,9 @@
     data: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="4.5" height="8" fill="currentColor"/><rect x="9.75" y="8" width="4.5" height="13" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" fill="currentColor"/></svg>',
     research: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>',
     engineering: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
+    strategy: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 12V3.3A8.7 8.7 0 0 1 20.7 12z" fill="currentColor"/></svg>',
   };
-  const BEATS = ['empty room', 'her seat', 'team arrives', 'first move', 'her journey', 'team works', 'her three',
+  const BEATS = ['empty room', 'her seat', 'team assembles, her card', 'first move', 'her journey', 'team works', 'her three',
     'her taste', 'build', 'her page', 'not scripted', 'close'];
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -38,7 +43,8 @@
       el.style.transform = t; if (to.opacity != null) el.style.opacity = last(to.opacity); return Promise.resolve();
     }
     const opts = animate ? { ...SPRING, opacity: QUICK, ...extra } : { duration: 0 };
-    return M.animate(el, to, opts);
+    const a = M.animate(el, to, opts);
+    return a && a.finished ? a.finished : Promise.resolve(a);
   }
   const last = v => Array.isArray(v) ? v[v.length - 1] : v;
   const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -90,15 +96,71 @@
       try { fn(payload); } catch (e) { console.error('BYOC handler', type, e); }
     }
   }
-  BYOC.api = async function (path, body) {
-    const res = await fetch(path, body === undefined ? {} : {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = { text }; }
-    if (!res.ok) { const e = new Error((data && data.error) || `HTTP ${res.status}`); e.status = res.status; e.data = data; throw e; }
-    return data;
+  // BYOC.api(path, body?, { step }): every live call she waits on shows as a step on the table (never a spinner).
+  // step: a label, or false for background calls. Unset: a label from the path (see stepFor), or none.
+  BYOC.api = async function (path, body, opts = {}) {
+    const label = opts.step === undefined ? stepFor(path) : opts.step;
+    const id = label ? stepBegin(label) : null;
+    try {
+      const res = await fetch(path, body === undefined ? {} : {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = { text }; }
+      if (!res.ok) { const e = new Error((data && data.error) || `HTTP ${res.status}`); e.status = res.status; e.data = data; throw e; }
+      if (id) stepEnd(id);
+      return data;
+    } catch (e) { if (id) stepEnd(id, e); throw e; }
   };
+
+  // ---- the live step: what the room is waiting on, with its seconds ----------------------------
+  // Over SLOW_MS (25 s; ?slow=<ms> to test) or on a failure it says so, and that R swaps in the rehearsal.
+  const SLOW_MS = Number(new URLSearchParams(location.search).get('slow')) || 25000;
+  BYOC.SLOW_MS = SLOW_MS;
+  function stepFor(p) {
+    const m = String(p).match(/^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|build)$/);
+    if (p === '/api/run') return 'Opening her sheet';
+    if (!m) return null;
+    return { line: 'Drawing her step', propose: 'The team is starting', answer: 'Noting her call',
+      pin: 'The team is naming her taste', taste: 'Writing it into her file', build: 'Engineering is building' }[m[1]];
+  }
+  const steps = new Map(); // id -> { label, t0 }
+  let stepSeq = 0, stepFail = null, stepTick = null;
+  const stepEl = document.createElement('div');
+  stepEl.id = 'live-step'; stepEl.className = 'live-step'; stepEl.hidden = true;
+  stepEl.setAttribute('aria-live', 'polite');
+  function stepBegin(label) {
+    const id = ++stepSeq; steps.set(id, { label, t0: Date.now() }); stepFail = null;
+    if (!stepTick) stepTick = setInterval(renderStep, 500);
+    renderStep(); return id;
+  }
+  function stepSet(id, label) { const s = steps.get(id); if (s) { s.label = label; renderStep(); } }
+  function stepEnd(id, err) {
+    const s = steps.get(id); if (!s) return;
+    steps.delete(id);
+    if (err && err.status !== 404 && err.status !== 409) stepFail = { label: s.label, why: err.status ? `error ${err.status}` : 'no answer' };
+    if (!steps.size && !stepFail) { clearInterval(stepTick); stepTick = null; }
+    renderStep();
+  }
+  function stepClear() { steps.clear(); stepFail = null; clearInterval(stepTick); stepTick = null; renderStep(); }
+  function renderStep() {
+    if (BYOC.replay) { stepEl.hidden = true; return; }
+    const now = Date.now();
+    // The newest step she is waiting on; quick ones (under 0.8 s) never flash up.
+    const cur = [...steps.values()].filter(s => now - s.t0 > 800).at(-1);
+    stepEl.classList.toggle('failed', !!stepFail && !cur);
+    if (cur) {
+      const ms = now - cur.t0, slow = ms > SLOW_MS;
+      stepEl.classList.toggle('slow', slow);
+      stepEl.innerHTML = `<b>${esc(cur.label)}</b> <span>${Math.floor(ms / 1000)} s</span>${slow ? '<em>slow · R replays the rehearsal</em>' : ''}`;
+      stepEl.hidden = false; return;
+    }
+    stepEl.classList.remove('slow');
+    if (stepFail) { stepEl.innerHTML = `<b>${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.hidden = false; return; }
+    stepEl.hidden = true;
+  }
+  BYOC.step = { begin: stepBegin, set: stepSet, end: stepEnd, clear: stepClear, get state() {
+    return { steps: [...steps.values()].map(s => ({ ...s })), failed: stepFail }; } };
   BYOC.run = null;
   BYOC.replay = false;      // true while a recorded (or fake) run is on screen
   BYOC.replayKind = null;   // 'recorded' | 'fixture'
@@ -127,6 +189,7 @@
     seatSheet: {},
     seat: {},
   };
+  el.room.appendChild(stepEl);
   for (const s of SEATS) el.seat[s] = $(`.seat[data-seat="${s}"]`);
   // Product's own teammate (the spec drafter) gets a small sheet too, tucked beside her file.
   const productSheet = h('section', 'mini-sheet'); productSheet.dataset.sheet = 'product'; productSheet.hidden = true;
@@ -146,8 +209,10 @@
     const i = INFO[seat];
     const c = h('div', 'card');
     if (seat === 'product') {
-      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span>
-        <span class="card-who">Priya<br>your seat</span></div>`;
+      // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
+      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span></div>
+        <div class="card-her"><span class="card-who">Priya · your seat</span>
+        <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
     } else {
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
         <div class="card-stance">${esc(i.stance)}</div>
@@ -156,7 +221,15 @@
     return c;
   }
   // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
-  const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, engineering: 2.6 };
+  const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, strategy: 1.8, engineering: 2.6 };
+  let herStance = '';
+  function setHerStance(text, animate) {
+    herStance = text || '';
+    const st = document.getElementById('her-stance'); if (!st) return;
+    st.textContent = herStance || 'We’ll find out today.';
+    st.classList.toggle('empty', !herStance);
+    if (herStance && animate) place(st, { y: [-8, 0], opacity: [0, 1] }, true);
+  }
 
   function seatCard(seat, animate) {
     const s = el.seat[seat];
@@ -174,7 +247,7 @@
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
     const sh = el.seatSheet[seat];
-    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec draft' : INFO[seat].name + '’s sheet'}</span>
+    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec' : INFO[seat].name}</span>
       <span class="mini-step">waiting</span></div><ul class="mini-lines"></ul><div class="mini-more"></div>`;
     sh._items = new Map(); sh._count = 0;
   }
@@ -182,7 +255,7 @@
     const sh = el.seatSheet[seat];
     if (!sh.hidden) return;
     sheetInit(seat); sh.hidden = false;
-    const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, engineering: -1.1 }[seat];
+    const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, strategy: -0.6, engineering: -1.1 }[seat];
     place(sh, { y: animate ? [-40, 0] : 0, rotate: tilt, opacity: animate ? [0, 1] : 1 }, animate);
   }
   function sheetStep(seat, text) {
@@ -190,7 +263,7 @@
     if (sh.hidden) sheetShow(seat, !instantMode);
     $('.mini-step', sh).textContent = text;
   }
-  const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, engineering: 6 };
+  const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, strategy: 6, engineering: 6 };
   function sheetAdd(seat, id, text) {
     const sh = el.seatSheet[seat]; if (!sh) return;
     if (sh.hidden) sheetShow(seat, !instantMode);
@@ -198,7 +271,8 @@
     const ul = $('.mini-lines', sh);
     const li = h('li', null, esc(text)); li.title = text;
     if (id) sh._items.set(id, li);
-    if (ul.children.length < MAX_LINES[seat]) {
+    // Stage type is bigger, so one line fewer fits each sheet.
+    if (ul.children.length < MAX_LINES[seat] - (document.body.classList.contains('stage') ? 1 : 0)) {
       ul.appendChild(li);
       if (!instantMode) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
     }
@@ -251,7 +325,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', { idea });
+      const r = await BYOC.api('/api/run', BYOC.intro ? { idea, intro: BYOC.intro } : { idea });
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -279,11 +353,20 @@
     try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/line`, { text }); }
     catch (e) { status(`line not logged (${e.status || e.message})`); }
   }
+  // The team's work arrives as events; the step stays up until the selector is done (or the team stops).
+  let teamStep = null;
   async function teamGo() {
     if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); return; }
-    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}); }
-    catch (e) { status(`propose failed (${e.status || e.message})`); }
+    teamStep = stepBegin('The team is proposing');
+    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}, { step: false }); }
+    catch (e) { status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; } }
   }
+  function teamProgress() {
+    if (!teamStep) return;
+    const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
+    stepSet(teamStep, done >= SEATS.length ? 'The team is choosing her three' : `The team is proposing · ${done} of ${SEATS.length} done`);
+  }
+  let buildStep = null;
   el.herForm.addEventListener('submit', e => {
     e.preventDefault();
     const text = el.herInput.value.trim();
@@ -406,7 +489,7 @@
       const live = !BYOC.replay && BYOC.run && !BYOC.run.startsWith('local-');
       if (live && serverTally !== false) {
         try {
-          const t = await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/tally`);
+          const t = await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/tally`, undefined, { step: false });
           serverTally = true; renderTally({ ...t, meter: t.meter || tallyFromEvents(seen).meter }); tallySource('server'); return;
         } catch (e) { if (e.status === 404) serverTally = false; }
       }
@@ -432,7 +515,7 @@
     if (BYOC.replay || sk.req || !BYOC.run || BYOC.run.startsWith('local-')) return;
     const asks = seen.filter(e => e.type === 'ask').length;
     const answered = new Set(seen.filter(e => e.type === 'answer').map(e => e.askId)).size;
-    if (asks && answered >= asks) { sk.req = BYOC.api(sketchUrl()); sk.req.catch(() => { sk.req = null; }); }
+    if (asks && answered >= asks) { sk.req = BYOC.api(sketchUrl(), undefined, { step: false }); sk.req.catch(() => { sk.req = null; }); }
   }
   async function showSketches(data) {
     sk.wait.textContent = '';
@@ -449,11 +532,13 @@
     if (sk.inner.children.length) return;
     sk.wait.textContent = 'Design is sketching the screens of her journey';
     const t0 = performance.now();
+    const sid = stepBegin('Design is sketching');
     try {
-      const data = await (sk.req || (sk.req = BYOC.api(sketchUrl())));
+      const data = await (sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false })));
       BYOC.timings.sketchesWaitMs = Math.round(performance.now() - t0);
+      stepEnd(sid);
       await showSketches(data);
-    } catch (e) { sk.wait.textContent = `Sketches failed (${e.status || e.message})`; sk.req = null; }
+    } catch (e) { stepEnd(sid, e); sk.wait.textContent = `Sketches stopped (${e.status || e.message}). R replays the rehearsal.`; sk.req = null; }
   }
 
   // Scale content down (never up) so it fits its sheet; no scrolling on stage.
@@ -495,6 +580,7 @@
   function react(ev, source) {
     switch (ev.type) {
       case 'run.start':
+        if (ev.intro) BYOC.intro = ev.intro;
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
@@ -516,8 +602,10 @@
         break;
       case 'teammate.done':
         sheetStep(ev.seat, `${ev.count ?? ''} proposed${ev.ms ? ' · ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        if (source === 'live') teamProgress();
         break;
       case 'select.done':
+        if (teamStep) { stepEnd(teamStep); teamStep = null; }
         refreshTally();
         break;
       case 'ask': {
@@ -534,7 +622,7 @@
         break;
       }
       case 'ask.refused': case 'stamp': case 'pin': case 'taste.written':
-        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); }
+        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); setHerStance(ev.text, !instantMode); }
         refreshTally();
         break;
       case 'taste.suggested':
@@ -551,15 +639,22 @@
         break;
       case 'teammate.error':
         sheetStep(ev.seat, 'stopped: model error');
+        if (source === 'live') teamProgress();
         break;
       case 'propose.error':
         status(`the team stopped: ${ev.error || 'error'}`);
+        if (teamStep) { stepEnd(teamStep, { status: 500 }); teamStep = null; }
         break;
       case 'build.step':
         sheetStep('engineering', `building: ${ev.step}`);
+        if (source === 'live') { if (!buildStep) buildStep = stepBegin('Engineering is building'); stepSet(buildStep, `Engineering is building: ${ev.step}`); }
         break;
       case 'build.done':
         sheetStep('engineering', `built${ev.ms ? ' in ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        if (buildStep) { stepEnd(buildStep); buildStep = null; }
+        break;
+      case 'build.error':
+        if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; }
         break;
     }
   }
@@ -574,16 +669,106 @@
   // stage(n): move the room forward to beat n, playing each beat's entrance in order.
   // stage(n, {instant:true}) jumps there with no motion. Going back to 0-3 rebuilds instantly.
   let walkToken = 0;
+
+  // ---- assembling the team (DEMO 0:06-0:26) and her card (0:26-0:34) ------------------------------
+  // Each teammate's card lands big mid-table (Loves / Brings / Stance), holds, then shrinks into its seat.
+  let assembling = false, assembleSkip = false, introCard = null;
+  function bigCard(seat) {
+    const i = INFO[seat];
+    const c = h('div', 'big-card'); c.dataset.seat = seat;
+    const loves = seat === 'product'
+      ? `<span class="bc-love-start">I love</span><textarea class="bc-love-input" id="intro-input" rows="2" spellcheck="false" maxlength="160" placeholder="…" aria-label="I love…"></textarea>`
+      : `“${esc(i.loves)}”`;
+    c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">${seat === 'product' ? 'your seat' : 'teammate'}</span></div>
+      <dl class="bc-body"><dt>Loves</dt><dd class="bc-loves">${loves}</dd>
+      <dt>Brings</dt><dd class="bc-brings">${esc(i.brings)}</dd>
+      <dt>Stance</dt><dd class="bc-stance${i.stance ? '' : ' empty'}">${i.stance ? esc(i.stance) : 'We’ll find out today.'}</dd></dl>`;
+    el.room.appendChild(c);
+    return c;
+  }
+  // Shrink a big card into its seat, then the seat's own card takes over.
+  async function flyToSeat(c, seat, animate) {
+    const s = el.seat[seat];
+    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
+    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
+    if (animate) await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT[seat] }, true)).catch(() => {});
+    c.remove();
+    seatCard(seat, false);
+  }
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !assembleSkip) await wait(50); }
+  async function assemble(animate, tok) {
+    if (!animate) { for (const s of TEAM) seatCard(s, false); return; }
+    assembling = true; assembleSkip = false;
+    try {
+      for (const s of TEAM) {
+        if (tok !== walkToken) return;
+        if (el.seat[s].querySelector('.card')) continue;
+        if (assembleSkip) { seatCard(s, false); continue; }
+        const c = bigCard(s);
+        await Promise.resolve(place(c, { y: [260, 0], scale: [0.6, 1], rotate: [4, TILT[s] * 0.5] }, true)).catch(() => {});
+        await holdFor(HOLD_MS);
+        if (tok !== walkToken) { c.remove(); return; }
+        await flyToSeat(c, s, !assembleSkip);
+      }
+    } finally { assembling = false; }
+    if (tok !== walkToken || assembleSkip || BYOC.beat !== 2 || BYOC.replay) return;
+    openIntro();
+  }
+  // Her card lifts mid-table, same layout: she finishes "I love…" (typed; voice can fill the same input).
+  function openIntro() {
+    const prod = el.seat.product.querySelector('.card');
+    if (prod) prod.style.visibility = 'hidden';
+    introCard = bigCard('product');
+    place(introCard, { y: [300, 0], scale: [0.6, 1], rotate: [-3, -0.6] }, true);
+    const inp = $('#intro-input', introCard);
+    inp.value = BYOC.intro ? String(BYOC.intro).replace(/^i love\s*/i, '') : '';
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+    });
+    setTimeout(() => inp.focus(), 30);
+  }
+  // Her line is kept (sent as intro with the run; it becomes L1 of her file), and her card settles into her seat.
+  async function introDone() {
+    if (!introCard) return;
+    const c = introCard; introCard = null;
+    const said = $('#intro-input', c).value.trim();
+    BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
+    $('#intro-input', c).blur();
+    const tok = walkToken;
+    const s = el.seat.product;
+    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
+    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
+    await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT.product }, !instantMode)).catch(() => {});
+    c.remove();
+    const prod = s.querySelector('.card'); if (prod) prod.style.visibility = '';
+    emit('intro', { intro: BYOC.intro });
+    if (tok === walkToken && BYOC.beat === 2) stage(3);
+  }
+  BYOC.introOpen = () => !!introCard;
+  BYOC.introDone = introDone;
+  // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
+  BYOC.typeInto = function (text) {
+    const t = document.activeElement;
+    const target = (t && (t.id === 'intro-input' || t.id === 'her-input' || t.id === 'close-input')) ? t
+      : introCard ? $('#intro-input', introCard) : (!el.herForm.hidden ? el.herInput : null);
+    if (!target) return false;
+    target.value = String(text || ''); target.focus();
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  };
+  // She takes her seat herself: a click on the empty Product seat.
+  el.seat.product.addEventListener('click', () => { if (BYOC.beat === 0 && !BYOC.replay) stage(1); });
+
   async function enter(b, animate) {
     const tok = walkToken;
     switch (b) {
-      case 1: seatCard('product', animate); break;
+      case 1:
+        seatCard('product', animate);
+        // She took her seat; the team assembles on its own (DEMO 0:06).
+        if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 1) stage(2); }
+        break;
       case 2:
-        for (const s of TEAM) {
-          if (tok !== walkToken) return;
-          seatCard(s, animate);
-          if (animate) await wait(650);
-        }
+        await assemble(animate, tok);
         break;
       case 3:
         el.herSheet.hidden = false; el.fileCard.hidden = false;
@@ -617,6 +802,7 @@
   function stage(n, opts = {}) {
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
+    if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
     if (n < BYOC.beat) {
       if (n <= 3 && !BYOC.replay && !el.herIdea.textContent) { reset(); const prev = instantMode; instantMode = true; for (let b = 1; b <= n; b++) enter(b, false); instantMode = prev; }
       BYOC.beat = n;
@@ -638,7 +824,9 @@
     walkToken++;
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
-    seen = []; pending = []; serverTally = null;
+    BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null;
+    el.room.querySelectorAll('.big-card').forEach(c => c.remove());
+    seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {
       el.seat[s].classList.remove('filled');
       el.seat[s].querySelector('.card')?.remove();
