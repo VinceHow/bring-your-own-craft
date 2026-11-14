@@ -1,64 +1,63 @@
 {
   "business": {
-    "text": "She is building a simple ordering website for her friend's small bakery so customers can order bread ahead for pickup. She is building it for the friend, not running the bakery herself.",
+    "text": "A pre-order website for her friend's small bakery so customers can order bread ahead for pickup. She is building it for the friend, not running the bakery herself.",
     "confidence": "high"
   },
   "positioning": {
-    "text": "The edge is being known: the site and bakery treat a regular like the baker already knows them, holding their usual and telling them early when a loaf is running out, unlike walk-in queues, DM orders or generic ordering apps. A sold-out loaf should feel like care, not a dead end.",
+    "text": "Against turning up and finding the sourdough gone, or ordering by phone or DM, it lets a regular reserve their usual as if the baker already knows them. The edge is an ordering journey that never asks for what the bakery already knows.",
     "confidence": "medium"
   },
   "customers": {
-    "text": "Morning regulars who plan their morning around a particular loaf, especially the sourdough that sells out first, often opening the site in a rush on a busy morning. Neighbours, families and busy people are likely too, but we don't yet know what a regular's week looks like.",
-    "confidence": "medium"
-  },
-  "whatSells": {
-    "text": "Certainty of getting their usual loaf, with almost no effort: the site already knows them, remembers their usual and doesn't ask for what it knows. Early heads-up when it's running low, and warm bread, keep them coming back.",
+    "text": "Morning regulars who come in every day for their usual, especially the sourdough, and hate finding it gone by nine. They want to be recognised and have their bread set aside without repeating themselves.",
     "confidence": "high"
   },
+  "whatSells": {
+    "text": "Warm bread and being known: their usual set aside and ready when they arrive, with no form-filling. Her words say it should feel like the baker already knows you, so ordering must be easier than just turning up.",
+    "confidence": "medium"
+  },
   "brandFeel": {
-    "text": "Warm, personal, local and unfussy: recognised and looked after, with no form-filling friction.",
+    "text": "Warm, personal, local and friendly, like a neighbourhood baker who already knows you. Effortless, never form-like.",
     "confidence": "medium"
   },
   "strengths": {
-    "text": "She loves the customer journey, understanding customer problems and building products that solve them, and has a sharp feel for what regulars experience. Her latest answer shows it: she names the feeling (being known) and the design rule (never ask what you already know). Frame questions around what the customer is trying to do and where it gets hard, not around tech.",
+    "text": "She loves the customer journey, understanding customer problems, and building products that solve them, and she knows these regulars' frustrations. Frame questions around what customers feel and do, such as what the baker already knows and what asking would feel like, not technical or finance detail.",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "Assumed: she wants a say in customer-facing decisions like the ordering flow, early alerts and the hold-my-usual experience, and is happy for the team to settle technical and routine details. Her answers are brief and principle-driven, so she likely does best with concrete options tied to a regular's busy morning rather than open-ended questions.",
+    "text": "Assumed: she is product-minded and wants to own customer and problem decisions, and is happy for the team to handle implementation and tradeoffs. Her answer was short and principle-led, so bring short questions tied to customer behaviour, each with a recommended default.",
     "confidence": "low"
   },
   "domains": [
+    "target customer",
     "customer problem",
     "user journey",
-    "target customer",
     "what success looks like"
   ],
   "philosophy": [
     {
       "id": "L3",
-      "believe": "Regulars want warm bread and to be known, and they hate finding their sourdough gone by nine, so a sold-out loaf should feel like the bakery looking after them, not a dead end.",
-      "guidance": "Show sold-out loaves greyed out, never hidden, with a clear Pick another day button that offers the next available day. Make sure the first confirmed order wins so nobody is promised bread that isn't there.",
-      "askId": "c19"
+      "believe": "I believe the customer who'd be most upset is the morning regular who wants their usual sourdough and hates finding it gone by nine, because they want to be known and have their bread set aside.",
+      "guidance": "Build for the regulars first: make their usual loaf one tap to reserve, so it's held before the sourdough sells out. New-customer browsing stays simple and comes second.",
+      "askId": "c9"
     },
     {
       "id": "L4",
-      "believe": "I believe our first customers are the regulars who plan their morning around a particular loaf, and the bakery should look after them when it sells out.",
-      "guidance": "Build for local regulars first: let them hold their usual loaf for a set pickup time, and tell them early when something is running low or sold out. Keep everything else out of the first version.",
-      "askId": "c14"
+      "believe": "The loaf that sells out first is the one people plan their morning around, so a regular should hear early that it's going and have their usual held for them.",
+      "guidance": "Show sold-out loaves clearly and early, greyed out with a link to another pickup day, never a surprise after ordering. Let regulars reserve their usual so it's set aside for them.",
+      "askId": "c10"
     },
     {
       "id": "L5",
-      "believe": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
-      "guidance": "Design the returning-regular path as quick and remembered: their usual loaf up front, a prominent Book your usual button, and no re-asking for details we already have.",
-      "askId": "c9"
+      "believe": "Ordering should feel like being known: never ask for anything you could remember or skip.",
+      "guidance": "Make ordering quick and remembered: pre-fill the regular's usual loaf, pickup time and details, and skip any question we can already answer. Keep the tone warm and personal, like a baker who knows their name.",
+      "askId": "c21"
     }
   ],
   "tag": null,
-  "version": 4,
+  "version": 3,
   "from": [
     "intro",
     "idea",
-    "answer",
     "answer",
     "answer"
   ]

@@ -44,7 +44,7 @@ on screen.
 
 | Time | What she sees and does | How it should feel | The presenter says | Live? |
 |---|---|---|---|---|
-| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; she picks her craft (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
+| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; her stool glows warm, and its pick card asks *"What do you bring to the table?"* with **Product** or **"Your own craft"**. She **clicks Product**. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
 | **0:05–0:18** The team appears | One by one, each teammate **pops into its chair** in the painting (no walking), and its card shows big for a moment, then settles. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:18–0:26** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
 | **0:26–0:31** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A website for a small bakery, so customers can order bread ahead." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
@@ -178,6 +178,13 @@ explains the future vision may come back (parked in `NEXT.md`).
 **Music she chooses** (Vincent, 14 Nov). A record player in the studio with three tracks (piano, electronic,
 chiptune). Only a deliberate click on it starts music; it never autoplays and ducks during her focus. Otherwise the
 room is quiet.
+
+**The painted look's UI** (design studio, Vincent 14 Nov; design notes, `design/studio`): "ink-paper" overlays (cream
+paper, hand-inked wobbly outline, a crayon layer in the teammate's colour underneath); a name pill by each teammate's
+head opens their work; her seat is a warm light on the pink stool plus her own pill, which opens her workspace. **Night
+mode** (moon/sun pill or the laptop's dark mode): a dark, rainy, lamp-lit room; soft rain plays under the music only
+when the record player is on. **"Your own craft"** lives in her seat's pick card ("What do you bring to the table?" ·
+Product · Your own craft), not as a separate seat.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
 turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make

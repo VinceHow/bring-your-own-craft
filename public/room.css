@@ -486,3 +486,6 @@ body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
 .ws-takeaway { display: flex; flex-direction: column; gap: 2px; }
 .ws-believe { font-weight: 600; }
 .seat .card { cursor: pointer; }
+
+/* Her idea sheet, opened large by a click (data-open, room.js). Layout only: looks come from the studio. */
+#room .her-sheet[data-open="true"] { left: 120px; top: 60px; width: 1360px; height: 790px; z-index: 30; }

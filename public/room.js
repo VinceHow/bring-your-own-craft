@@ -232,6 +232,9 @@
     const t = BYOC.herTag; if (!c || !t) return;
     const ti = c.querySelector('.card-title'), tr = c.querySelector('.card-traits');
     if (ti) ti.textContent = t.title || ''; if (tr) tr.textContent = (t.traits || []).join(' · ');
+    // Once she has a character, her card says who she is: "Priya" and the title, not "Priya · your seat".
+    const who = c.querySelector('.card-who');
+    if (who && c.dataset.component === 'her-place-card' && BYOC.herSeat !== 'diy') who.textContent = t.title ? 'Priya' : 'Priya · your seat';
     c.dataset.state = t.title || (t.traits || []).length ? 'named' : 'empty';
   }
   // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
@@ -363,6 +366,20 @@
   }
   BYOC.openWorkspace = openWorkspace;
   BYOC.closePanel = closePanel;
+  // A click on the idea sheet's paper (not a box, a tab or a button, which keep their own clicks) opens it large;
+  // another click, Esc, or the beat moving puts it back. idea-sheet.js owns the sheet's data-state (blank, rough,
+  // sketched...), so open is its own attribute: data-open="true" (docs/COMPONENTS.md).
+  function setSheetOpen(on) {
+    const sh = el.herSheet; if (!sh || on === (sh.dataset.open === 'true')) return;
+    if (on) sh.dataset.open = 'true'; else delete sh.dataset.open;
+    emit(on ? 'sheet.open' : 'sheet.close', {});
+  }
+  BYOC.sheetOpen = setSheetOpen;
+  BYOC.isSheetOpen = () => el.herSheet && el.herSheet.dataset.open === 'true';
+  el.herSheet.addEventListener('click', e => {
+    if (e.target.closest('button, input, textarea, a, [contenteditable], [data-node], .fl-item, .fd-form')) return;
+    setSheetOpen(el.herSheet.dataset.open !== 'true');
+  });
   // Clicks: a teammate's card (or its name) opens its sketchpad; her own place card opens her workspace.
   el.room.addEventListener('click', e => {
     const card = e.target.closest('.seat .card'); if (!card) return;
@@ -1166,6 +1183,7 @@
     }
   }
   function stage(n, opts = {}) {
+    setSheetOpen(false);
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
     if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
@@ -1190,6 +1208,7 @@
   // reset(): back to the empty room, live, no run.
   function reset() {
     walkToken++;
+    setSheetOpen(false);
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
