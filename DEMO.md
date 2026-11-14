@@ -86,8 +86,13 @@ the claim.
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
+     **Her pace, their speed** (Vincent, 14 Nov). Nothing rushes her: she can think, pause, speak, edit and pause
+     again; nothing is cut off by silence, and **she submits when she's ready**. The real-time part is the team: the
+     instant she submits, the first reaction lands (aim: under a second) and the thread follows, so she feels heard
+     and the room is visibly excited with her. Warm and genuine, never sycophantic: excitement carried by substance
+     ("Love that. Then no logins, I'll remember them."), not empty praise.
      Build: each turn is its own fast call that gets her answer plus the thread so far, so they genuinely see each
-     other (3–4 turns, ~1 s each). Chiming in mid-sentence is the vision, not tonight.
+     other (3–4 turns, ~1 s each, fastest model; start the first call the moment she submits).
   3. **The meeting's takeaways appear**: a short, beautiful summary of *this* meeting, in her voice, that she can
      reword: **what I believe** about this, and **guidance to the team** for it. Not a template look; it should read
      like the best summary a great colleague would write.

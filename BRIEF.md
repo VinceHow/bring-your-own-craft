@@ -74,7 +74,8 @@ real run.
    Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
    teammate reactions as a short meeting thread: 3–4 turns, each its own fast call that sees her answer and the
    thread so far, so teammates build on, agree with or push back on each other; spoken, ≤15 words, nothing AI-sounding;
-   only promising what the build will show; streamed as she finishes, and (c)
+   only promising what the build will show; she submits when ready (nothing cut off by silence, no rush), and the
+   first reaction lands within ~1 s of submit (fastest model), warm and excited but never sycophantic; and (c)
    writes the meeting's takeaways (what I believe about this / guidance to the team for it), user-facing and
    rewordable; separately updates the hidden philosophy (profile + `taste.md`), never shown unless she asks. No
    stance slot; the "Sounds like" step is gone. The work updates. Polish goes into her engagement with the document, not
