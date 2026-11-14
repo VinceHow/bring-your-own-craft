@@ -177,9 +177,42 @@ body.stage .meter-counts { font-size: 15px; }
   padding: var(--s3) var(--s4) var(--s4); transform: rotate(1.4deg); font-family: var(--ui); color: var(--ink); max-width: 320px; }
 #room .guest-tag { display: inline-block; padding: 2px 7px 1px; font: 600 11px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase;
   border: 1.5px dashed var(--ink); border-radius: 3px; background: var(--paper); }
-#room .guest-who { margin-top: var(--s2); font: 600 16px/1.25 var(--ui); }
+#room .guest-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+#room .guest-who { font: 600 16px/1.25 var(--ui); }
+#room .guest-card.fs-in { animation-fill-mode: backwards; } /* the landing lets go, so the resting tilt shows */
+#room .guest-says { margin-bottom: var(--s3); }
+/* its points, each with its id; a point it isn't sure of says so, in quieter type */
+#room .guest-points { gap: 6px; }
+#room .guest-points li { font: 400 13px/1.35 var(--ui); padding-left: 0; }
+#room .guest-points b { display: inline-block; min-width: 22px; padding: 0 3px; margin-right: 6px; font: 600 11px/1.5 var(--mono); text-align: center;
+  border: 1.5px dashed var(--ink); border-radius: 2px; background: var(--paper); }
+#room .guest-points i { color: rgba(20,20,20,.75); font-size: 12px; }
 #room .guest-note { margin-top: 2px; font: 400 12.5px/1.3 var(--mono); color: rgba(20,20,20,.78); }
 #room .guest-says { margin-top: var(--s3); padding-left: var(--s3); border-left: 3px solid var(--ink); font: italic 400 18px/1.35 var(--ui); }
-#room .guest-says::before { content: '\201C'; } #room .guest-says::after { content: '\201D'; }
 body.stage #room .guest-says { font-size: 20px; }
 #room .fs-user.fs-in { animation-fill-mode: backwards; } /* the landing animation lets go, so the resting tilt shows */
+
+/* ---- studio: the idea sheet in the middle of the table. Its progress shows only in the paper and the work on it
+   (rough sentence -> first sketch -> reshaped -> wireframes -> page); never a bar, number or progress object.
+   Hooks agreed with the room: .idea-sheet with data-step = rough | sketched | reshaped | wires | page. ---- */
+:root {
+  --dotgrid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='1.5' cy='1.5' r='1.1' fill='%23141414' fill-opacity='.13'/%3E%3C/svg%3E");
+  --finegrid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M16 0H0V16' fill='none' stroke='%230078BF' stroke-opacity='.10' stroke-width='1'/%3E%3C/svg%3E");
+}
+#room .idea-sheet { transition: transform 420ms cubic-bezier(.2,.8,.2,1); }
+/* rough: a scrap as she said it, a touch askew, her words a size up */
+#room .idea-sheet[data-step="rough"] { transform: rotate(-.7deg); }
+#room .idea-sheet[data-step="rough"] .her-idea { font-size: 1.5em; line-height: 1.25; }
+/* first sketch and its reshape: pencil dot-grid paper; once reshaped it settles straight */
+#room .idea-sheet[data-step="sketched"] { background-image: var(--dotgrid); background-size: 20px 20px; transform: rotate(-.3deg); }
+#room .idea-sheet[data-step="reshaped"] { background-image: var(--dotgrid); background-size: 20px 20px; transform: none; }
+/* wireframes: fine blue grid, Design's paper */
+#room .idea-sheet[data-step="wires"] { background-image: var(--finegrid); background-size: 16px 16px; }
+/* page: a crisp, clean sheet with a deeper shadow; the work has become one thing */
+#room .idea-sheet[data-step="page"] { background-image: none; background-color: #FFFEFB; box-shadow: 6px 6px 0 var(--ink); }
+
+/* ---- studio: the symphony. Each sketchpad slides its part in, calmly, one after another (the room times them);
+   the other seats stay lit: everyone is playing. ---- */
+#room.symphony .handing { box-shadow: 4px 4px 0 var(--ink); border: var(--line); border-radius: var(--r); background: var(--sheet); }
+#room.symphony .mini-sheet { opacity: 1 !important; filter: none; }
+@media (prefers-reduced-motion: reduce) { #room .idea-sheet { transition: none; } }
