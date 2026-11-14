@@ -63,6 +63,28 @@ if (onPath) {
   say(ok, ok ? `Claude Code is logged in and answers (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `Claude Code did not answer: ${why}`,
     'run `claude` in a terminal and log in; if it says you hit a usage limit, set MODEL_BACKEND=fal in .env.local');
 }
+// 2b. The room's real call, through lib/model.js itself (the server's spawn, env, flags and the name tag's time limit),
+// with its time. An older Claude Code that doesn't know a flag is said here; the server drops it and carries on.
+if (onPath && (process.env.MODEL_BACKEND || 'claude-code') === 'claude-code') {
+  const M = await import('../lib/model.js');
+  const { TAG_MODEL, TAG_EFFORT, TAG_LIMIT_MS } = await import('../lib/tag.js');
+  process.env.MODEL_QUIET = '1'; // the doctor says it in its own words below
+  const t0 = Date.now();
+  let ok = false, why = '';
+  try {
+    await M.callModel({ system: 'Reply with JSON.', user: 'Say ok.', schema: { type: 'object', properties: { ok: { type: 'string' } }, required: ['ok'] },
+      model: TAG_MODEL, effort: TAG_EFFORT, timeoutMs: TAG_LIMIT_MS, label: 'doctor' });
+    ok = true;
+  } catch (e) { why = short(e); }
+  delete process.env.MODEL_QUIET;
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  const dropped = [...M.droppedFlags];
+  say(ok ? (dropped.length ? 'warn' : true) : false,
+    ok ? `The room's call works (${TAG_MODEL}, JSON schema, through lib/model.js): ${secs} s of ${TAG_LIMIT_MS / 1000} s allowed${dropped.length ? `, but this Claude Code doesn't know ${dropped.join(', ')}` : ''}`
+      : `The room's call failed after ${secs} s: ${why}`,
+    dropped.length ? 'update Claude Code: npm i -g @anthropic-ai/claude-code (the room drops the flag and carries on, but slower)'
+      : 'run `claude` in a terminal and log in; if it keeps failing or is slow, set MODEL_BACKEND=fal in .env.local');
+}
 
 }
 
