@@ -51,6 +51,31 @@ Returns `200` with the same shape as a created order, or `404`.
 Returns `200 { date, loaves: [{ loaf_id, name, qty }] }`. Each loaf's `qty` is the sum of that day's held orders
 for it. It lists every seeded loaf, with `0` where nothing is ordered.
 
+### `GET /api/orders/:id/status`: the customer's status page
+Returns `200 { id, status, message }`. `status` is `held` until the baker delivers, then `delivered`.
+- **When held,** `message` names the pickup window.
+- **When delivered,** it reads `Delivered: your <loaves> is here`, with the loaf names in lower case and joined with
+  " and ". For example: `Delivered: your sourdough is here`. Use "are" for more than one loaf.
+- **Never** includes anything personal beyond `first_name`.
+
+### Admin routes: the baker's
+Every `/api/admin/*` route needs `Authorization: Bearer <ADMIN_TOKEN>`.
+- **Wrong or missing token:** `401`.
+- **`ADMIN_TOKEN` unset in the app's environment:** every admin route refuses (`401` or `503`) whatever is sent. It
+  fails closed, never open.
+
+The routes:
+- `GET /api/admin/orders?date=YYYY-MM-DD` returns `200 { date, orders: [{ id, status, pickup_date, items, total_pence, first_name? }] }`.
+- `GET /api/admin/stock?date=YYYY-MM-DD` returns `200 { date, loaves: [{ id, name, limit, left }] }`.
+- `POST /api/admin/restock` with body `{ date, loaf_id, qty }` (where `qty` ≥ 1) raises that day's stock of that loaf
+  by `qty`. Returns `200 { date, loaf_id, left }`. An unknown loaf or a bad `qty` is `400`.
+- `POST /api/admin/deliver` with body `{ date }` flips every held order for that pickup date to `delivered`. Returns
+  `200 { date, delivered: <count> }`.
+
+**What is stored:** only a first name is ever stored about a customer, and nothing else personal. Over HTTP the suite
+checks what the app can still show about an order: the admin order list and the customer's status page. It can't
+see inside the database, so a code review of the app's schema has to back this up.
+
 ## The rules the suite checks
 | Rule | The decision behind it | Author |
 |---|---|---|
@@ -61,11 +86,18 @@ for it. It lists every seeded loaf, with `0` where nothing is ordered.
 | `stock` | Decided as "Cap each loaf per pickup day and show 'sold out' on the page" (Bo · Engineering) and "Guaranteed up to a daily limit per loaf" (Noor · Research; team space: Noor, Bo, Ines). A sold-out loaf links to a different day (Mika · Design). | Bo · Engineering, Noor · Research |
 | `bake-list` | Decided as "Both totals and list" for how the baker sees orders (Noor · Research), and "Simple daily order list page" (Bo · Engineering). | Noor · Research |
 | `personal-data` | Her takeaway: "Never ask for what we could remember." Contact stays on her device, never the server, decided as "Pay at pickup, remember name and contact on this device" (Bo · Engineering). | Priya (her takeaways), Bo · Engineering |
+| `restock` | The baker can add loaves for a day, and the stock left goes up by that much. This is the other half of "Cap each loaf per pickup day". | Bo · Engineering |
+| `deliver` | "Deliver" flips every held order to delivered, and her customers see "Delivered: your sourdough is here" (Vincent's stage flow). | Vincent (stage flow), Bo · Engineering |
+| `admin-auth` | The baker's routes (orders, stock, restock, deliver) need `ADMIN_TOKEN`, and are closed when it's unset. Never open by default. | the build's security rule (BRIEF: secrets server-side only) |
+| `first-name-only` | Only a first name is stored about a customer. Checked through the admin order list and the status page. | her takeaway "Never ask for what we could remember"; Bo · Engineering |
 
 ## Running it
 ```
-TEST_MODE=1 PORT=8787 node server.js          # the bakery app
-BASE_URL=http://localhost:8787 node --test deploy/acceptance/bakery.acceptance.js
+TEST_MODE=1 ADMIN_TOKEN=<token> PORT=8787 node server.js   # the bakery app
+BASE_URL=http://localhost:8787 ADMIN_TOKEN=<the app's token> node --test deploy/acceptance/bakery.acceptance.js
 ```
+Without `ADMIN_TOKEN` in the suite's environment, the suite assumes the app has none either. It checks that every
+admin route stays closed, and skips the restock and deliver tests, saying why.
+
 `test/acceptance.test.js` proves the suite against a throwaway stub (`test/fixtures/bakery-stub.mjs`). It also checks
 that the suite fails against deliberately broken stubs.
