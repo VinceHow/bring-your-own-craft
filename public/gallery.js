@@ -95,8 +95,8 @@
     { name: 'her-place-card', sel: '.seat-product .card', states: [
       { state: 'empty', src: F, run: async h => { h.play('fixture'); } },
     ] },
-    { name: 'teammate-card', sel: '.big-card', note: 'Caught mid-assembly: the card holds mid-table before it shrinks into its seat.', states: [
-      { state: 'holding', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); await wait(900); } },
+    { name: 'teammate-card', sel: '.big-card:not([data-seat="product"])', note: 'Caught mid-assembly: the card holds mid-table before it shrinks into its seat.', states: [
+      { state: 'holding', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); await wait(300); } },
     ] },
     { name: 'character-card', sel: '.big-card[data-seat="product"]', note: 'Planned: the character card markup is not built yet; this is her card as it is today.', states: [
       { state: 'asking', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); for (let i = 0; i < 80 && !(h.B.introOpen && h.B.introOpen()); i++) await wait(250); await wait(500); } },
@@ -119,8 +119,8 @@
       { state: 'drawn', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); } },
       { state: 'drawn, with her pin', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'sketches' }); } },
     ] },
-    { name: 'check-in', sel: '.fl-item[data-ask]', states: [
-      { state: 'open', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'answer' }); } },
+    { name: 'check-in', sel: '.fl-lens .fl-item, .fl-item[data-ask]', states: [
+      { state: 'open', src: F, run: async h => { h.play('fixture'); } },
       { state: 'answered', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'sketches' }); } },
     ] },
     { name: 'wireframes', sel: '.sk-host', states: [
@@ -134,7 +134,7 @@
       { state: 'filled', src: R, run: async h => { h.play('rehearsal'); } },
     ] },
     { name: 'tally', sel: '#tally', states: [
-      { state: 'settled', src: R, run: async h => { h.play('rehearsal'); await wait(1500); } },
+      { state: 'settled', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.done' }); await wait(1500); } },
     ] },
     { name: 'tray', sel: '#tray', states: [
       { state: 'waiting', src: F, run: async h => { h.play('fixture'); } },
@@ -214,12 +214,23 @@
     return bits.join(' · ');
   }
 
+  let roomSrc = null;
+  function roomHtml() {
+    if (!roomSrc) roomSrc = fetch('/').then(r => r.text()).then(html => {
+      const pre = '<base href="/"><script>window.EventSource = undefined;</script>' +
+        (/^[a-z0-9-]{1,40}$/.test(look) ? `<link rel="stylesheet" href="/looks/${look}.css" data-gallery-look>` : '');
+      return html.replace(/<head([^>]*)>/i, m => m + pre);
+    });
+    return roomSrc;
+  }
   async function runJob({ c, s, fig }) {
     const frame = fig.querySelector('.frame'), msg = frame.querySelector('.msg');
     const iframe = document.createElement('iframe');
     iframe.title = `${c.name}: ${s.state}`;
     iframe.setAttribute('tabindex', '-1');
-    iframe.src = '/' + (look ? '?look=' + encodeURIComponent(look) : '');
+    // The room as served, with its live event stream switched off: a browser allows six open connections per host,
+    // and every frame of the room would otherwise hold one open forever (nothing live comes to the gallery anyway).
+    iframe.srcdoc = await roomHtml();
     frame.appendChild(iframe);
     msg.textContent = 'loading the room…';
     await new Promise(r => iframe.addEventListener('load', r, { once: true }));
@@ -246,7 +257,12 @@
     await loadData();
     if (!data.rehearsal) document.querySelector('header p').textContent += ' (The rehearsal recording didn’t load: states from it will be missing.)';
     let next = 0;
-    const worker = async () => { while (next < jobs.length) await runJob(jobs[next++]); };
+    // A state that hangs (a script waiting on something that never comes) gives up after 20 s and says so.
+    const timed = job => Promise.race([runJob(job), wait(20000).then(() => {
+      const fr = job.fig.querySelector('.frame');
+      if (!fr.classList.contains('ready')) { fr.classList.add('missing'); fr.querySelector('.msg').textContent = 'Not drawn: timed out after 20 s'; }
+    })]);
+    const worker = async () => { while (next < jobs.length) await timed(jobs[next++]); };
     await Promise.all([worker(), worker(), worker()]);
     document.body.dataset.done = '1';
   })();
