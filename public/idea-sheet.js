@@ -42,10 +42,10 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
   function adopt() {
     const sheet = document.getElementById('her-sheet');
     if (!sheet) return null;
-    sheet.classList.add('idea-sheet');
+    sheet.classList.add('idea-sheet'); sheet.dataset.component = 'idea-sheet'; // docs/COMPONENTS.md hooks for looks
     for (const id of ['sketch-sheet', 'page-sheet']) {
       const layer = document.getElementById(id);
-      if (layer && layer.parentNode !== sheet) { layer.classList.add('idea-layer'); sheet.appendChild(layer); }
+      if (layer && layer.parentNode !== sheet) { layer.classList.add('idea-layer'); layer.dataset.component = 'idea-layer'; sheet.appendChild(layer); }
     }
     return sheet;
   }
@@ -75,9 +75,9 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
   function updateTabs() {
     const sheet = adopt(); if (!sheet) return;
     if (!tabs || !tabs.isConnected) {
-      tabs = h('nav', 'idea-tabs'); tabs.setAttribute('aria-label', 'Pages of her idea');
+      tabs = h('nav', 'idea-tabs'); tabs.dataset.slot = 'tabs'; tabs.setAttribute('aria-label', 'Pages of her idea');
       for (const [view, label] of VIEWS) {
-        const b = h('button', 'idea-tab', label); b.type = 'button'; b.dataset.view = view;
+        const b = h('button', 'idea-tab', label); b.type = 'button'; b.dataset.slot = 'tab'; b.dataset.view = view;
         b.addEventListener('click', e => { e.stopPropagation(); sheet.dataset.view = view; b.blur(); updateTabs(); step(); });
         tabs.appendChild(b);
       }
@@ -103,6 +103,8 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
       : evs.some(e => e.type === 'flow.line') ? 'sketched'
       : idea && idea.textContent.trim() ? 'rough' : null;
     if (st) sheet.dataset.step = st; else delete sheet.dataset.step;
+    sheet.dataset.state = st || 'blank';
+    for (const id of ['sketch-sheet', 'page-sheet']) { const l = document.getElementById(id); if (l) l.dataset.state = l.hidden ? 'off' : 'on'; }
     updateTabs();
   }
 

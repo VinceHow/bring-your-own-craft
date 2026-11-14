@@ -1,6 +1,6 @@
 # Components: the contract between the room's code and its looks
 
-**Status: first draft (names, states, slots, events).** It's based on the markup on `main` (593d900) and on
+**Status: first draft (names, states, slots, events).** ✅ means the attributes are in the code. It's based on the markup on `main` (593d900) and on
 `build/beats` (71e4ccc). Markup skeletons and the `/gallery` page come next.
 
 **Why it exists:** visuals now come only from the design studio (`?look=<name>`, layered from `public/looks/`). A look
@@ -53,12 +53,12 @@ Who adds the attributes, file by file:
 | Component | Root hook | `data-state` | `data-slot`s | Events |
 |---|---|---|---|---|
 | `sketchpad` (a teammate's own calls) | `.mini-sheet[data-sheet]` | `waiting` · `working` · `done` · `error` | `head` (`.mini-head`), `title` (`.mini-title`), `step` (`.mini-step`), `lines` (`.mini-lines`), `more` (`.mini-more`) | on `candidate`, `decided`, `teammate.*`, `lean`, `stamp` |
-| `idea-sheet` (the middle sheet) | `.idea-sheet` | `rough` · `sketched` · `reshaped` · `wires` · `page` (already `data-step`; mirror it to `data-state`) | `tabs` (`.idea-tabs`), `tab` (`.idea-tab`) | on `run.start`, `stage`, `reset` |
-| `idea-layer` | `.idea-layer` (`#her-sheet`, `#sketch-sheet`, `#page-sheet`) | `on` · `off` (`.is-on`) | (none) | (none) |
+| `idea-sheet` (the middle sheet) | `.idea-sheet` ✅ | `blank` · `rough` · `sketched` · `reshaped` · `wires` · `page` (same as `data-step`) | `tabs` (`.idea-tabs`), `tab` (`.idea-tab`) | on `run.start`, `stage`, `reset` |
+| `idea-layer` | `.idea-layer` (`#sketch-sheet`, `#page-sheet`) ✅ | `on` · `off` | (none) | (none) |
 | `her-idea` (her rough sentence) | `#her-sheet .her-q` + `.her-idea` + `.her-form` | `asking` · `said` | `question` (`.her-q`), `idea` (`.her-idea`), `input` (`.her-form input`), `hint` (`.her-hint`) | on `stage` |
-| `journey` (the rough journey) | `.fl-wrap` inside `#her-flow` | `drawing` · `drawn` · `redrawing` | `box` (`.fl-box`, with `data-node`), `arrow`, `label` (`.fl-label`), `note` (`.her-notes`) | on `flow.line`, `flow.reset`, `pin` |
+| `journey` (the rough journey) | `.fl-wrap` inside `#her-flow` ✅ | `empty` · `drawing` (new boxes landing, ~0.6 s) · `drawn` | `box` (`.fl-box`, with `data-node`), `arrow`, `label` (`.fl-label`), `note` (`.her-notes`) | on `flow.line`, `flow.reset`, `pin` |
 | `first-sketch` (her journey sketched by Noor and Mika) | `.fs-box` / `.fs-users` | `drawing` · `drawn` · `reshaping` | `user` (`.fs-user`), `box` (`.fs-box`), `arrow` (`.fs-arrow`), `said` (`.fs-said`), `who` (`.fs-who`) | on `sketch.user`, `sketch.done`, `reshape`, `sketch.error` |
-| `wireframes` | `.sk-host` | `waiting` (`#sketch-wait`) · `drafting` (`data-drafting`) · `shown` | `frame` (`.sk-frame`), `screen` (`.sk-screen`), `head` (`.sk-head`), `title` (`.sk-title`), `caption` (`.sk-cap`), `tag` (`.sk-tag`), `note` (`.sk-note`), `pinned` (`.sk-pinned`) | on `sketches` |
+| `wireframes` | `.sk-host` ✅ | `shown` · `drafting` (she is pinning a note); the wait before them is `#sketch-wait` in room.js | `frame` (`.sk-frame`), `screen` (`.sk-screen`), `head` (`.sk-head`), `title` (`.sk-title`), `caption` (`.sk-cap`), `tag` (`.sk-tag`), `note` (`.sk-note`), `row` (`.sk-row`), `pinned` (`.sk-pinned`) | on `sketches` |
 | `page-frame` (her page) | `.page-frame` in `#page-sheet` | `building` · `built` · `error` | `head` (`.page-head`), `title` (`.page-title`), `url` (`.page-url`), `frame` (`iframe`) | on `build.step`, `build.done`, `build.error` |
 | `her-file` (taste.md) | `#file-card.file-card` | `empty` · `filled` | `name` (`.file-name`), `path` (`.file-path`), `lines` (`.file-lines`), `line` (`.file-lines li`), `note` (`.file-note`), `sounds-like` (`.sounds-like`, to be removed) | on `taste.suggested`, `taste.written` |
 | `tally` (counter and meter) | `#tally.tally` | `hidden` · `counting` · `settled` | `came` (`#came`), `brought` (`#brought`), `pct` (`#pct`), `bar` (`.meter-bar`), `counts` (`.meter-counts`) | on `decided`, `ask`, `select.done`; emit `counter.tap` |
@@ -80,9 +80,9 @@ Who adds the attributes, file by file:
 |---|---|---|---|---|
 | `chatter` (container) | `.chatter` | (none) | (none) | on `chatter` |
 | `chatter-line` | `.chatter-line[data-seat]` | `in` · `leaving` | `who` (`.chatter-who`), `text` (`.chatter-text`) | on `chatter` |
-| `team-space` | `section.team-space` | `empty` (hidden) · `shown` | `title` (`.ts-title`), `cards` (`.ts-cards`) | on `joint.agreed`, `run.start`, `reset` |
-| `decision-card` | `li.ts-card[data-joint]` | `closed` · `open` (mirrors `aria-expanded`) | `marks` (`.ts-marks`), `mark` (`.ts-mark[data-seat]`), `headline` (`.ts-headline`), `takeaways-note` (`.ts-takeaways`), `label` (`.ts-label`), `exchange` (`.ts-exchange`), `turn` (`.ts-turn[data-seat]`) | on `joint.agreed` |
-| `check-in` (older in-sheet question card; may retire in favour of the tray) | `.fl-q` / `.checkin-open` | `open` · `answered` · `chosen` · `dropped` · `rec` (from `is-*`) | `question` (`.fl-qtext`), `options` (`.fl-opts`), `option` (`.fl-opt`), `why` (`.fl-why`), `source` (`.fl-src`) | on `ask`, `answer`; emit `checkin.open`, `checkin.close` |
+| `team-space` | `section.team-space` ✅ | `empty` (hidden) · `shown` | `title` (`.ts-title`), `cards` (`.ts-cards`) | on `joint.agreed`, `run.start`, `reset` |
+| `decision-card` | `li.ts-card[data-joint]` ✅ | `closed` · `open` (mirrors `aria-expanded`) | `marks` (`.ts-marks`), `mark` (`.ts-mark[data-seat]`), `headline` (`.ts-headline`), `takeaways-note` (`.ts-takeaways`), `label` (`.ts-label`), `exchange` (`.ts-exchange`), `turn` (`.ts-turn[data-seat]`) > `by` (`.ts-by`), `text` (`.ts-text`) | on `joint.agreed` |
+| `check-in` (older in-sheet question card; may retire in favour of the tray) | `.fl-item[data-ask]` ✅ | `waiting` · `open` · `answered` (each option keeps `is-rec` / `is-chosen` / `is-dropped`) | `question` (`.fl-qtext`), `options` (`.fl-opts`), `option` (`.fl-opt`), `why` (`.fl-why`), `source` (`.fl-src`) | on `ask`, `answer`; emit `checkin.open`, `checkin.close` |
 | `guest-card` (optional) | `.guest-card` | `in` · `shown` | `tag` (`.guest-tag`), `head` (`.guest-head`), `who` (`.guest-who`), `says` (`.guest-says`), `points` (`.guest-points`), `note` (`.guest-note`) | on `guest` |
 
 ## 6. The close and labels
@@ -95,6 +95,20 @@ Who adds the attributes, file by file:
 | `live-step` (a call she's waiting on; never a spinner) | `.live-step` | `running` · `slow` · `failed` · `done` | `label` | `BYOC.api(…, { step })` |
 
 ---
+
+## The gallery: `/gallery`
+`public/gallery.html` + `public/gallery.js`. One section per component, its states side by side.
+- **How it's drawn:** each state is the real room in its own iframe, so states never leak into each other.
+  `gallery.js` plays recorded events into `BYOC` instantly, then zooms the frame onto the component.
+  - The recordings are the rehearsal run in `runs/` and the fake fixture.
+  - No model calls, no flow.
+- **Sample events:** where no recording has a state yet (chime-ins, takeaways, team space, chatter), the gallery
+  sends a few made-up events and says so under that state.
+- **Under each state,** it shows whether the root carries `data-component` / `data-state` yet, and how many
+  `data-slot`s it holds, so builders can see what's left to add.
+- `?look=<name>` passes through to every frame, so the design studio sees a look on every component at once.
+- A state whose markup isn't on this branch shows as "Not drawn" with the reason, never as a broken frame.
+- **To add a state:** add an entry to `CATALOGUE` in `gallery.js`, with the events that reach it.
 
 ## Next in this doc
 - A markup skeleton per component, taken from the live DOM in `/gallery`.

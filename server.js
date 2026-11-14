@@ -53,7 +53,7 @@ const server = http.createServer(async (req, res) => {
       if (!f.startsWith(path.join(ROOT, 'runs'))) { res.writeHead(403); return res.end(); }
       return serveFile(res, fs.statSync(f, { throwIfNoEntry: false })?.isDirectory() ? path.join(f, 'index.html') : f);
     }
-    const f = path.normalize(path.join(ROOT, 'public', p === '/' ? 'index.html' : p));
+    const f = path.normalize(path.join(ROOT, 'public', p === '/' ? 'index.html' : p === '/gallery' ? 'gallery.html' : p));
     if (!f.startsWith(path.join(ROOT, 'public'))) { res.writeHead(403); return res.end(); }
     return serveFile(res, f);
   } catch (e) {
