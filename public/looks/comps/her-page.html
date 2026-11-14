@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>Her focus · capture and conversation</title>
+<link rel="stylesheet" href="../ink-paper.css">
+<!-- Round 3 of the engagement loop (Vincent's refinements, 14 Nov). She stays on her page, with her and the one document.
+     CAPTURE: just her and the work. The right column is her capture space (her words, as pieces on one sheet of her paper,
+       tidied before Send). No teammates, no thread activity, no changes to the work.
+     CONVERSATION (after Send): her comment pins to the work; only the teammates whose craft it touches reply, each as a
+       short inked note beside its pin. It stays about 5 s (paused while hovered), then folds into its pin; the change it
+       made to the work stays. Her capture space is ready again at once. The full thread and the growing takeaways are a
+       view she opens ("Read the conversation", or a pin), never a column always on screen.
+     ?w=mika|noor  &s=0..5  (0 capture · 1 sent, Mika's note · 2 Bo's note · 3 settled, ready again · 4 round 2, Mika alone · 5 conversation open)
+     &play=1 for the flow. Guardrails: no reply ends in a question to her; no "your turn" prompt; folds summarise only
+     what was said; silent teammates stay quiet (no "seen" marks).
+     Round 1 copy for the wireframes is from DEMO.md; round 2, and her note for Noor's finding, are sketch copy. -->
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; filter: blur(4px) brightness(.92); transform: scale(1.02); }
+.canvas .abs { position: absolute; }
+.hide { display: none !important; }
+.label { font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
+.tag.replay { right: 20px; top: 18px; z-index: 9; }
+
+.doc { left: 48px; top: 28px; width: 1504px; height: 844px; z-index: 5; }
+.head { position: absolute; left: 44px; right: 44px; top: 30px; display: flex; align-items: flex-start; gap: 24px; }
+.head .from { display: flex; align-items: center; gap: 8px; font: 500 14px/1 var(--ip-sans); color: var(--t); }
+.head .from i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.head .q { margin-top: 8px; font: 400 30px/1.18 var(--ip-serif); letter-spacing: -.01em; }
+.head .acts { margin-left: auto; display: flex; gap: 10px; flex: none; }
+
+/* the work, always in view */
+.art { position: absolute; left: 44px; top: 130px; width: 940px; bottom: 30px; border-radius: 30px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(84,58,38,.13); }
+.art .cap { position: absolute; left: 22px; top: 18px; }
+.art .stage { position: absolute; inset: 0; display: grid; place-items: center; padding-right: 160px; }
+.wire { position: relative; zoom: 1.16; width: 380px; padding: 18px; border-radius: 28px; background: #F1ECE4; box-shadow: inset 0 0 0 1.5px rgba(84,58,38,.22); font: 400 15px/1.2 var(--ip-sans); color: #5B5048; }
+.wire .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font: 500 16px/1 var(--ip-serif); color: #4A4038; }
+.wire .bar i { width: 30px; height: 9px; border-radius: 5px; background: #D4CCC1; }
+.wire .usual { padding: 14px; border-radius: 18px; background: #E4DDD2; margin-bottom: 10px; }
+.wire .usual small { display: block; font-size: 13px; color: #6B5F55; margin-bottom: 4px; }
+.wire .usual .b { margin-top: 10px; height: 34px; border-radius: 17px; background: #CFC6BA; display: grid; place-items: center; font-size: 14px; color: #4A4038; }
+.wire .weekly { display: flex; align-items: center; gap: 8px; padding: 0 4px 0 6px; height: 0; overflow: hidden; font-size: 14px; transition: height .6s var(--ip-land), padding .6s var(--ip-land); }
+.wire .weekly.on { height: 26px; padding-bottom: 12px; }
+.wire .weekly i { width: 14px; height: 14px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px #8E8378; }
+.wire .f { position: relative; height: 40px; margin-bottom: 9px; padding: 0 13px; display: flex; align-items: center; border-radius: 13px; background: #FBF8F3; box-shadow: inset 0 0 0 1px #D9D1C6; font-size: 14px; color: #6B5F55; }
+.wire .f s { position: absolute; left: 7px; right: 7px; top: 50%; height: 2.2px; background: var(--ip-mika-t); border-radius: 2px; transform-origin: left; transform: scaleX(0); transition: transform .7s var(--ip-land); }
+.wire .f.cut s { transform: scaleX(1); } .wire .f.cut { color: #A79B90; }
+.wire .go { height: 42px; border-radius: 21px; background: #8E8378; color: #fff; display: grid; place-items: center; font: 500 15px/1 var(--ip-sans); margin-top: 4px; }
+.finding { width: 600px; padding: 30px 34px; border-radius: 28px; background: rgba(255,255,255,.8); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
+.finding .big { font: 400 32px/1.25 var(--ip-serif); padding-right: 30px; }
+.finding .by { margin-top: 16px; font: italic 400 18px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+.finding .src { display: flex; gap: 10px; margin-top: 20px; }
+.finding .src a { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 17px; background: rgba(201,94,56,.1); color: var(--ip-noor-t); font: 500 14px/1 var(--ip-sans); text-decoration: none; }
+.finding .held { margin-top: 22px; padding: 12px 16px; border-radius: 16px; background: rgba(226,184,58,.16); box-shadow: inset 0 0 0 1px rgba(99,74,8,.25); font: 400 18px/1.35 var(--ip-serif); }
+.finding .held b { display: block; font: 500 13px/1 var(--ip-sans); color: var(--ip-bo-t); margin-bottom: 4px; }
+
+/* pins */
+.pin { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--c); z-index: 3; cursor: pointer;
+  box-shadow: 0 0 0 2px var(--ip-paper), 1px 2px 3px rgba(60,35,15,.35); display: grid; place-items: center; transition: transform .4s var(--ip-land); }
+.pin span { rotate: 45deg; font: 600 12px/1 var(--ip-sans); color: #fff; }
+.pin[data-who="bo"] span, .pin[data-who="ines"] span { color: #2A1F12; }
+.pin.quiet { transform: scale(.42); } .pin.quiet span { opacity: 0; }
+.pin.pending { background: none; box-shadow: 0 0 0 2px var(--ip-her); animation: none; } .pin.pending span { color: var(--ip-her-t); }
+
+/* a teammate's reply: a short inked note beside its pin, lingering, then folding into it */
+.reply { position: absolute; width: 270px; z-index: 4; transform-origin: 0 50%; }
+.reply .bubble { max-width: none; font-size: 17px; }
+
+/* the capture space: her words, as pieces on one sheet of her paper (the voice designer owns the inside) */
+.side { position: absolute; left: 1012px; right: 44px; top: 130px; bottom: 30px; display: flex; flex-direction: column; gap: 12px; }
+.folded { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 16px; background: rgba(84,58,38,.06); font: italic 400 16px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.folded .dots { display: inline-flex; flex: none; } .folded .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); margin-right: -3px; box-shadow: 0 0 0 1.5px var(--ip-paper-deep); }
+.capture { flex: 1; display: flex; flex-direction: column; }
+.capture .take { flex: 1; display: flex; flex-direction: column; padding: 18px 20px; }
+.capture .lab { display: flex; justify-content: space-between; }
+.pieces { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.piece { padding: 8px 12px; border-radius: 14px; background: rgba(255,255,255,.55); font: italic 400 17px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.tidy { margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(147,55,79,.35); font: 400 19px/1.4 var(--ip-serif); color: var(--ip-ink); }
+.tidy small { display: block; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); margin-bottom: 6px; }
+.anchor { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); }
+.anchor i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 2px var(--ip-her); }
+.ready { margin-top: 8px; font: italic 400 18px/1.4 var(--ip-serif); color: var(--ip-ink-3); }
+.capbar { margin-top: auto; display: flex; align-items: center; gap: 10px; }
+.mic { width: 46px; height: 46px; border-radius: 50%; background: var(--ip-her-t); display: grid; place-items: center; flex: none; }
+.mic svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.capbar .hint { font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
+.capbar .btn { margin-left: auto; }
+.readlink { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); padding: 9px 14px; border-radius: 18px; background: rgba(84,58,38,.06); }
+.readlink .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; margin-right: -3px; box-shadow: 0 0 0 1.5px var(--ip-paper-deep); }
+
+/* the conversation, when she opens it: slides over the capture space */
+.conv { position: absolute; left: 1000px; right: 30px; top: 118px; bottom: 18px; z-index: 6; padding: 20px 22px; border-radius: 30px; display: flex; flex-direction: column; gap: 10px; }
+.conv .ch { display: flex; justify-content: space-between; align-items: center; }
+.conv .x { font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.round .rh { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); margin: 4px 0 6px; }
+.round .rh::after { content: ''; flex: 1; height: 1px; background: var(--ip-rule); }
+.e { position: relative; margin: 0 0 6px calc(var(--d, 0) * 20px); padding: 8px 12px 9px; border-radius: 15px; background: rgba(255,255,255,.66); box-shadow: inset 0 0 0 1px rgba(84,58,38,.1); }
+.e[data-d="1"] { --d: 1; } .e[data-d="2"] { --d: 2; }
+.e::before { content: ''; position: absolute; left: -12px; top: -6px; width: 9px; height: 24px; border-left: 1.5px solid rgba(74,48,32,.35); border-bottom: 1.5px solid rgba(74,48,32,.35); border-bottom-left-radius: 8px; }
+.e[data-d="0"]::before { display: none; }
+.e b { display: flex; align-items: center; gap: 6px; font: 500 13px/1 var(--ip-sans); color: var(--t); margin-bottom: 3px; }
+.e b i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.e p { margin: 0; font: italic 400 16px/1.35 var(--ip-serif); }
+.e.hers { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1px rgba(212,114,136,.4); } .e.hers p { font-style: normal; }
+.e .did { display: block; margin-top: 3px; font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
+.conv .take { margin-top: auto; padding: 14px 16px; }
+.conv .take p { margin: 5px 0 0; font: 400 16px/1.38 var(--ip-serif); }
+.conv .take p b { display: block; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); margin-bottom: 2px; }
+.conv .take .new { background: rgba(212,114,136,.16); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div>
+  <div class="abs doc" id="doc"></div>
+  <div class="abs tag replay"><span>Replay</span><small>recorded run</small></div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+const q = new URLSearchParams(location.search);
+const W = q.get('w') || 'mika', S = q.has('s') ? +q.get('s') : 0, PLAY = q.get('play') === '1';
+const c = document.getElementById('c');
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const { animate } = Motion; const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+const NAME = { her: 'You', mika: 'Mika', noor: 'Noor', theo: 'Theo', ines: 'Ines', bo: 'Bo' };
+const MIC = '<svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg>';
+const LINK = '<svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>';
+
+// Only the teammates whose craft her comment touches reply; one reply is normal. Nobody ends on a question to her.
+const WORK = {
+  mika: {
+    from: 'From Mika · grey wireframes of ordering', q: 'If ordering could feel like one thing, what should it feel like?',
+    art: `<div class="wire"><div class="bar">Morning loaves<i></i></div>
+      <div class="usual" data-a="usual"><small>Your usual</small>Sourdough, sliced<div class="b">Order again</div></div>
+      <div class="weekly" data-a="weekly" id="weekly"><i></i>Every Monday? Set it up once</div>
+      <div class="f" data-a="name">Name<s></s></div><div class="f" data-a="phone">Phone<s></s></div><div class="f" data-a="login">Sign in or make an account<s></s></div>
+      <div class="f" data-a="time">Pick-up time</div><div class="go">Place order</div></div>`,
+    rounds: [
+      { pieces: ['like the baker already… knows you', 'the usual, right there', 'don’t ask for stuff you already know'], anchorName: 'Your usual',
+        her: { a: 'usual', t: 'Like the baker already knows you. Don’t ask for anything you already know.' },
+        replies: [ { who: 'mika', a: 'phone', t: 'Then the phone field goes, and so does every question we can remember.', did: 'Crossed out the phone field', fx: () => cut('phone') },
+                   { who: 'bo', a: 'login', t: 'Then no logins. I’ll remember them.', did: 'Took out sign-in', fx: () => cut('login') } ],
+        sum: 'You: like the baker knows you. Mika cut the phone field; Bo took out sign-in.' },
+      { pieces: ['regulars come every week anyway', 'a weekly order, but quiet', 'under their usual'], anchorName: 'Your usual',
+        her: { a: 'usual', t: 'Regulars come every week anyway. Offer a weekly order, but quietly, under their usual.' },
+        replies: [ { who: 'mika', a: 'weekly', t: 'Added it as a small line under their usual, not a second button.', did: 'Added a weekly line', fx: () => $('#weekly').classList.add('on') } ],
+        sum: 'You: a quiet weekly order. Mika added a small line under their usual.' } ],
+    take: { believe: 'Ordering should feel like being known. Never ask for what we could remember.', guide: ['Their usual loaf first, cut every field we already know.', 'Offer a weekly order quietly, under their usual.'] },
+  },
+  noor: {
+    from: 'From Noor · what sells out first', q: 'What sells out first, and what should we do about it?',
+    art: `<div class="finding"><span class="label">Noor’s finding</span><div class="big" data-a="f1" style="margin-top:8px">Sourdough and morning buns go before 9am.</div>
+      <div class="by">From two baker interviews and a bakery forum thread.</div>
+      <div class="src"><a href="#" data-a="s1">${LINK}Baker interviews</a><a href="#" data-a="s2">${LINK}Bakery forum thread</a></div>
+      <div class="held hide" id="held" data-a="held"><b>Bo, now</b>Their usual loaf is held for them till ten.</div></div>`,
+    rounds: [
+      { pieces: ['that’s the heartbreak', 'hold one back for the regulars', 'and just… say what’s left'], anchorName: 'Noor’s finding',
+        her: { a: 'f1', t: 'That’s the heartbreak. Hold one back for the regulars, and say plainly what’s left.' },
+        replies: [ { who: 'bo', a: 'held', t: 'Then we hold it for them till ten.', did: 'Added a hold till ten', fx: () => $('#held').classList.remove('hide') } ],
+        sum: 'You: hold one back. Bo holds their usual till ten.' } ],
+    take: { believe: 'A regular should never find their bread gone.', guide: ['Hold their usual till ten; say plainly what’s left.'] },
+  },
+};
+const M = WORK[W];
+function cut(a) { $(`.wire [data-a="${a}"]`)?.classList.add('cut'); }
+
+function build() {
+  $('#doc').innerHTML = `<div class="head"><div><div class="from" data-who="${W}"><i></i>${M.from}</div><div class="q">${M.q}</div></div>
+      <div class="acts"><button class="btn quiet">Back to the room</button></div></div>
+    <div class="art" id="art"><span class="cap label">The work</span><div class="stage">${M.art}</div></div>
+    <div class="side" id="side"></div>`;
+  InkPaper.dress(c);
+}
+// the capture space. state: 'speaking' (pieces landing), 'tidy' (ready to send), 'ready' (after send: empty, for her next thought)
+function capture(r, state, folds = []) {
+  const R = M.rounds[r];
+  const fold = folds.map(i => { const F = M.rounds[i]; const who = [...new Set(['her', ...F.replies.map(x => x.who)])];
+    return `<div class="folded"><span class="dots">${who.map(w => `<i data-who="${w}"></i>`).join('')}</span><span>Round ${i + 1} · ${F.sum}</span></div>`; }).join('');
+  const body = state === 'ready'
+    ? `<div class="ready">Ready for your next thought. Or close; your takeaways are kept as they are.</div>`
+    : `<div class="pieces">${R.pieces.map(p => `<div class="piece">${p}</div>`).join('')}</div>
+       ${state === 'tidy' ? `<div class="tidy"><small>Tidied, in your words</small>${R.her.t}</div>` : ''}
+       <span class="anchor"><i></i>On: ${R.anchorName}</span>`;
+  const bar = state === 'ready' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to speak</span>`
+    : state === 'tidy' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to add more</span><button class="btn" id="send">Send</button>`
+    : `<span class="mic" style="box-shadow:0 0 0 5px rgba(212,114,136,.3)">${MIC}</span><span class="hint">Listening</span>`;
+  const link = state === 'ready' ? `<span class="readlink" id="readlink"><span class="dots">${['her', 'mika', 'bo'].map(w => `<i data-who="${w}"></i>`).join('')}</span>Read the conversation</span>` : '';
+  $('#side').innerHTML = `${fold}<div class="capture"><div class="take" data-who="her"><span class="lab"><span>Your thoughts</span></span>${body}<div class="capbar">${bar}</div></div></div>${link}`;
+  InkPaper.dress($('#side'));
+  requestAnimationFrame(() => $$('#side .pane').forEach(InkPaper.redraw));
+}
+function at(a) { const art = $('#art'), ab = art.getBoundingClientRect(), t = $(`[data-a="${a}"]`, art).getBoundingClientRect(); return { x: t.right - ab.left, y: t.top - ab.top + 10, h: t.height }; }
+function pin(who, a, k, cls = '') {
+  const art = $('#art'); const n = $$(`.pin[data-a="${a}"]`, art).length;
+  const p = document.createElement('div'); p.className = 'pin ' + cls; p.dataset.who = who; p.dataset.a = a; p.dataset.k = k;
+  p.innerHTML = `<span>${who === 'her' ? 'P' : NAME[who][0]}</span>`; const o = at(a); p.style.left = (o.x + 8 + n * 22) + 'px'; p.style.top = o.y + 'px'; art.appendChild(p); return p;
+}
+function reply(R, k) {   // a short inked note beside its pin
+  const o = at(R.a), d = document.createElement('div'); d.className = 'reply'; d.dataset.k = k;
+  d.innerHTML = `<div class="bubble" data-who="${R.who}"><b>${NAME[R.who]}</b>${R.t}</div>`;
+  d.style.left = (o.x + 48) + 'px'; d.style.top = (o.y - 26) + 'px'; $('#art').appendChild(d); InkPaper.dress(d); return d;
+}
+async function linger(d, ms = 5000) {   // stays long enough to read, paused while hovered, then folds into its pin
+  let left = ms; const step = 100; while (left > 0) { await wait(step); if (!d.matches(':hover')) left -= step; }
+  const p = $(`.pin[data-k="${d.dataset.k}"]`), pb = p.getBoundingClientRect(), db = d.getBoundingClientRect();
+  await animate(d, { scale: [1, .08], x: [0, pb.left - db.left - 6], opacity: [1, 0] }, spring(.55)).finished; d.remove();
+}
+function conversation(rounds) {   // the view she opens: thread with rounds, and the takeaways growing from it
+  const host = document.createElement('div'); host.className = 'abs conv card'; host.id = 'conv'; host.dataset.who = 'her';
+  const th = rounds.map(i => { const R = M.rounds[i];
+    return `<div class="round"><div class="rh">Round ${i + 1}</div>
+      <div class="e hers" data-who="her" data-d="0"><b><i></i>You</b><p>${R.her.t}</p></div>
+      ${R.replies.map((x, j) => `<div class="e" data-who="${x.who}" data-d="${Math.min(j + 1, 2)}"><b><i></i>${NAME[x.who]}</b><p>${x.t}</p><span class="did">${x.did}</span></div>`).join('')}</div>`; }).join('');
+  const g = M.take.guide.slice(0, rounds.length).map((t, i) => i === rounds.length - 1 && i > 0 ? `<span class="new">${t}</span>` : t).join(' ');
+  host.innerHTML = `<div class="ch"><span class="label">The conversation · kept as meeting notes</span><span class="x">Close</span></div>${th}
+    <div class="take" data-who="her"><span class="lab">Your takeaways · growing as you talk</span><p><b>What I believe</b>${M.take.believe}</p><p><b>Guidance</b>${g}</p></div>`;
+  $('#doc').appendChild(host); InkPaper.dress(host); requestAnimationFrame(() => $$('.pane', host).forEach(InkPaper.redraw));
+  return host;
+}
+function sendRound(r, show = true) {   // her pin, then the replies' pins and their changes
+  const R = M.rounds[r]; pin('her', R.her.a, `${r}-h`);
+  R.replies.forEach((x, j) => { x.fx && x.fx(); pin(x.who, x.a, `${r}-${j}`); });   // the change first, so the pin finds its part
+}
+
+// ---------- stills ----------
+function still(s) {
+  build();
+  const two = M.rounds.length > 1;
+  if (s === 0) { capture(0, 'tidy'); pin('her', M.rounds[0].her.a, 'p', 'pending'); }
+  if (s >= 1) sendRound(0);
+  if (s === 1 || s === 2) { capture(0, 'ready'); const R = M.rounds[0];
+    reply(R.replies[0], '0-0'); if (s === 2 && R.replies[1]) { $('.reply').remove(); reply(R.replies[1], '0-1'); } }
+  if (s === 3) capture(0, 'ready');
+  if (s >= 4 && two) { $$('.pin').forEach(p => p.classList.add('quiet')); sendRound(1); capture(1, 'ready', [0]); if (s === 4) reply(M.rounds[1].replies[0], '1-0'); }
+  if (s === 4 && !two) capture(0, 'ready');
+  if (s === 5) { if (!two) capture(0, 'ready'); conversation(two ? [0, 1] : [0]); }
+  requestAnimationFrame(() => $$('.pane').forEach(InkPaper.redraw));
+}
+
+// ---------- the flow ----------
+async function play() {
+  build(); const R = M.rounds[0];
+  capture(0, 'speaking'); $$('.piece').forEach(p => p.style.opacity = 0);
+  for (const p of $$('.piece')) { await wait(700); animate(p, { opacity: [0, 1], y: [6, 0] }, spring(.4)); }
+  const pend = pin('her', R.her.a, 'p', 'pending'); await wait(1200);
+  capture(0, 'tidy'); animate('.tidy', { opacity: [0, 1] }, { duration: .6 }); await wait(2000);
+  $('#send').classList.add('is-pressed'); await wait(160);
+  // Send: her pin lands, her capture space is ready again at once; the first reply lands within a second
+  pend.remove(); const hp = pin('her', R.her.a, '0-h'); animate(hp, { scale: [.4, 1] }, spring(.4)); capture(0, 'ready');
+  for (const [j, x] of R.replies.entries()) {
+    await wait(j === 0 ? 600 : 1500);
+    x.fx && x.fx(); const p = pin(x.who, x.a, `0-${j}`); animate(p, { scale: [.4, 1], opacity: [0, 1] }, spring(.4));
+    const d = reply(x, `0-${j}`); InkPaper.lay($('.bubble', d)); linger(d, 5000);
+  }
+  await wait(6400);
+  if (M.rounds[1]) {
+    const R2 = M.rounds[1]; $$('.pin').forEach(p => p.classList.add('quiet'));
+    capture(1, 'speaking', [0]); $$('.piece').forEach(p => p.style.opacity = 0);
+    for (const p of $$('.piece')) { await wait(600); animate(p, { opacity: [0, 1], y: [6, 0] }, spring(.4)); }
+    await wait(800); capture(1, 'tidy', [0]); await wait(1600);
+    pin('her', R2.her.a, '1-h'); capture(1, 'ready', [0]);
+    await wait(600); const x = R2.replies[0]; x.fx(); await wait(650); pin(x.who, x.a, '1-0'); const d = reply(x, '1-0'); InkPaper.lay($('.bubble', d)); await linger(d, 4500);
+  }
+  await wait(600); const cv = conversation(M.rounds[1] ? [0, 1] : [0]); animate(cv, { opacity: [0, 1], x: [30, 0] }, spring(.5));
+}
+PLAY ? play() : still(S);
+</script>
+</body>
+</html>
