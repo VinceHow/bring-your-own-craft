@@ -54,3 +54,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 15:02 | agents (lead) | Guest chair accepted (~1 h, builder 6); citable as G-points like L-lines | fits 0:45–1:05 beat |
 | Sat 15:28 | agents (lead) | The bar (po/tray): new selector score 'expertise'; a question reaches her only if it changes the build AND needs her expertise; ceiling of 3 and its test unchanged. Real yoga run: 3 brought (full class/waitlist, account, Book your usual), 21 decided | docs/dry-runs/bar-yoga-1.md |
 | Sat 15:45 | agents (lead) | Close fast path: 2 candidates per seat (10.8 s) instead of 3 (18.9 s) | 'within seconds' |
+| Sat 15:55 | agents (lead) | po/questions accepted: ~9–10 builder-hours over 4 builders (~3–3.5 h); new path lands ~19:30; 20:00 rough demo may mix old and new; core 00:00 safe. New builder 7 for the question bar + Ask shape | |
