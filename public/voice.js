@@ -22,23 +22,30 @@
     const f = document.getElementById('her-form'), idea = document.getElementById('her-idea');
     return !!(f && !f.hidden && idea && !idea.textContent.trim());
   };
+  // Any other spoken field opts in with data-voice="<name>" (e.g. her reaction to Design's first sketch):
+  // the mic mark appears right after it, and the words land in it as editable text.
+  const shown = el => !!(el && el.isConnected && el.offsetParent !== null && !el.disabled && !el.readOnly);
+  const extras = () => [...document.querySelectorAll('[data-voice]')].filter(shown);
   function fieldFor(el) {
     if (el && el.id === 'intro-input') return 'intro';
     if (el && el.id === 'her-input') return 'idea';
+    if (el && el.dataset && el.dataset.voice) return String(el.dataset.voice).toLowerCase().replace(/[^a-z]/g, '').slice(0, 20) || null;
     return null;
   }
   function currentTarget() {
     const a = document.activeElement;
     if (fieldFor(a) === 'intro' || (fieldFor(a) === 'idea' && ideaOpen())) return a;
+    if (a && a.dataset && a.dataset.voice && shown(a)) return a;
     if (intro()) return intro();
+    const x = extras(); if (x.length) return x[x.length - 1]; // the newest open spoken field
     if (ideaOpen()) return herInput();
     return null;
   }
 
   // ---- the mic marks --------------------------------------------------------------------------
-  function mark(field) {
+  function mark(field, el) {
     const b = document.createElement('span');
-    b.className = 'voice-mic'; b.dataset.field = field;
+    b._field = el; b.className = 'voice-mic'; b.dataset.field = field;
     b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Hold to speak');
     b.title = 'Hold to speak (or hold `)';
     b.innerHTML = MIC + '<span class="voice-word">hold to speak</span>';
@@ -46,8 +53,7 @@
       if (!available || state !== 'idle') return;
       e.preventDefault(); // keep the caret where it is
       try { b.setPointerCapture(e.pointerId); } catch {}
-      const f = field === 'intro' ? intro() : herInput();
-      start(f);
+      start(b._field && b._field.isConnected ? b._field : field === 'intro' ? intro() : herInput());
     });
     const up = () => { if (state === 'listening') stop(); };
     b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
@@ -56,10 +62,13 @@
   }
   function sync() {
     const i = intro();
-    if (i && !i.parentNode.querySelector('.voice-mic')) { i.after(mark('intro')); recheck(); }
+    if (i && !i.parentNode.querySelector('.voice-mic')) { i.after(mark('intro', i)); recheck(); }
+    for (const x of document.querySelectorAll('[data-voice]')) {
+      if (!(x.nextElementSibling && x.nextElementSibling._field === x)) { x.after(mark(fieldFor(x) || 'other', x)); recheck(); }
+    }
     const f = document.getElementById('her-form');
     if (f && !f.querySelector('.voice-mic')) {
-      const m = mark('idea'); const hint = document.getElementById('her-hint');
+      const m = mark('idea', herInput()); const hint = document.getElementById('her-hint');
       hint ? f.insertBefore(m, hint) : f.appendChild(m);
     }
     if (f) f.classList.toggle('voice-idea', ideaOpen());
@@ -67,7 +76,7 @@
     document.body.classList.toggle('voice-on', available === true);
     for (const m of document.querySelectorAll('.voice-mic')) {
       const w = m.querySelector('.voice-word');
-      const mine = target && fieldFor(target) === m.dataset.field;
+      const mine = target && (m._field ? m._field === target : fieldFor(target) === m.dataset.field);
       const s = available === false ? 'typed' : mine && state !== 'idle' ? state : 'idle';
       const word = s === 'typed' ? 'typed' : s === 'listening' ? 'listening' : s === 'writing' ? 'writing it down' : 'hold to speak';
       // Write only on a change: these writes are inside the observed room, and must not wake the observer forever.
@@ -131,7 +140,12 @@
       text = text.replace(/[.]$/, '');
       if (text && field && document.contains(field)) {
         field.focus();
-        BYOC.typeInto ? BYOC.typeInto(text) : (field.value = text);
+        const own = fieldFor(field) === 'intro' || fieldFor(field) === 'idea';
+        if (own && BYOC.typeInto) BYOC.typeInto(text);
+        else { // a data-voice field: typeInto only knows her card and sheet, so the words go straight in, as typing would
+          if ('value' in field) field.value = text; else field.textContent = text;
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+        }
         // Caret at the end, so she can fix a word and press Enter.
         try { field.setSelectionRange(field.value.length, field.value.length); } catch {}
       }

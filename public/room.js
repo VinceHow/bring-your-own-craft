@@ -144,7 +144,7 @@
   }
   function stepClear() { steps.clear(); stepFail = null; clearInterval(stepTick); stepTick = null; renderStep(); }
   function renderStep() {
-    if (BYOC.replay) { stepEl.hidden = true; return; }
+    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) { stepEl.hidden = true; return; } // no timers in her focus time
     const now = Date.now();
     // The newest step she is waiting on; quick ones (under 0.8 s) never flash up.
     const cur = [...steps.values()].filter(s => now - s.t0 > 800).at(-1);
@@ -274,7 +274,7 @@
     // Stage type is bigger, so one line fewer fits each sheet.
     if (ul.children.length < MAX_LINES[seat] - (document.body.classList.contains('stage') ? 1 : 0)) {
       ul.appendChild(li);
-      if (!instantMode) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
+      if (!instantMode && !(BYOC.focus && BYOC.focus.open)) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
     }
     const hiddenCount = sh._count - ul.children.length;
     $('.mini-more', sh).textContent = hiddenCount > 0 ? `+${hiddenCount} more` : '';
@@ -499,6 +499,7 @@
   let serverTally = null; // null: unknown, false: endpoint missing, true: in use
   let tallyTimer = null;
   function refreshTally() {
+    if (BYOC.focus && BYOC.focus.open) { focusHeld = true; return; } // nothing counts up during her focus time
     clearTimeout(tallyTimer);
     tallyTimer = setTimeout(async () => {
       const live = !BYOC.replay && BYOC.run && !BYOC.run.startsWith('local-');
@@ -570,6 +571,39 @@
     requestAnimationFrame(() => { fitQueued = false; fitInto(el.herFlow.querySelector('.fl-wrap'), el.herFlow.clientHeight); });
   }
   new MutationObserver(refit).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+
+  // ---- focus time (DEMO 1:15-1:50) -------------------------------------------------------------
+  // While a check-in is open: the other seats dim and stop moving, the counter and meter hold still, no step line or
+  // seconds show, and nothing says how many questions wait. Between check-ins (a ~1 s breath, set in flow.js) the
+  // tray at her seat shows the notes still waiting, as plain notes: no number, no red, no pulse. She can pick one.
+  BYOC.focus = { open: null, waiting: [] };
+  const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true;
+  tray.setAttribute('aria-label', 'Notes from your team');
+  el.room.appendChild(tray);
+  let focusHeld = false; // a tally change that arrived during focus, shown after it
+  function setFocus(d) {
+    const was = !!BYOC.focus.open;
+    BYOC.focus = { open: d.open || null, waiting: d.waiting || [] };
+    document.body.classList.toggle('focus', !!d.open);
+    renderTray();
+    renderStep();
+    if (was && !d.open && focusHeld) { focusHeld = false; refreshTally(); }
+    emit('focus', BYOC.focus); // the gem listens: it holds still while a check-in is open
+  }
+  function renderTray() {
+    const w = BYOC.focus.waiting;
+    const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 6 && BYOC.beat < 8;
+    tray.hidden = !show;
+    if (!show) return;
+    // Wording is a placeholder until the PO's lands: one note per teammate with something for her.
+    tray.innerHTML = w.map(n => `<button type="button" class="tray-note" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
+      <span class="tray-seat">${esc((INFO[n.seat] || { name: n.seat }).name)}</span><span class="tray-text">has a note for you</span></button>`).join('');
+  }
+  tray.addEventListener('click', e => {
+    const b = e.target.closest('.tray-note'); if (!b) return;
+    if (BYOC.flow && BYOC.flow.openCheckin) BYOC.flow.openCheckin(b.dataset.ask);
+  });
+  document.addEventListener('byoc:checkin', e => setFocus(e.detail || {}));
 
   // ---- build (her one press) and her page --------------------------------------------------------
   // Entering the build beat live is her press (or B). Engineering's sheet ticks through build.step events; the
@@ -870,6 +904,7 @@
     }
     document.body.dataset.beat = String(n);
     emit('stage', { beat: n, name: BEATS[n] });
+    renderTray();
     return n;
   }
   BYOC.stage = stage;

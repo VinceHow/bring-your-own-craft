@@ -117,13 +117,8 @@
 .fl-fork.is-open > .fl-q { max-width: 580px; }
 .fl-item.is-open .fl-why { max-width: 600px; }
 
-/* Waiting asks: a badge on the box's top edge (seat tag + "next"); the question shows when she opens it. */
-.fl-item.is-waiting { width: auto !important; max-width: none !important; padding: 0; border: 0; box-shadow: none; background: none; }
-.fl-item.is-waiting > .fl-q { display: inline-block; padding: 3px 6px 3px 3px; background: var(--note); border: 2px solid var(--ink);
-  border-radius: 3px; box-shadow: 2px 2px 0 var(--ink); font-size: 13px !important; white-space: nowrap; max-width: none !important; }
-.fl-item.is-waiting .fl-qtext, .fl-item.is-waiting .fl-pinhead { display: none; }
-.fl-item.is-waiting > .fl-q::after { content: 'next' !important; font: 700 12px var(--mono) !important; }
-.fl-item.is-waiting .fl-q .fl-tag { margin-right: 6px; }
+/* Waiting asks are not on her flow during focus time: they wait in the tray at her seat (room.css). */
+.fl-item.is-waiting { display: none !important; }
 /* Answered: her call and the struck recommendation, under the seat tag; the question is in its title */
 .fl-item.is-answered:not(.is-open) .fl-qtext { display: none; }
 .fl-item.is-answered:not(.is-open) > .fl-q { padding: 3px 6px; }

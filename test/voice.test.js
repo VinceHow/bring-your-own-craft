@@ -112,7 +112,7 @@ test('bad input: no audio is a 400 and never calls ElevenLabs; a local run id lo
   assert.equal((await post({ audio: '' })).status, 400);
   assert.equal(seen.length, 0);
   upstream = () => new Response('{"text":"x"}', { status: 200 });
-  await post({ audio: AUDIO, run: 'local-123', field: 'nonsense' });
+  await post({ audio: AUDIO, run: 'local-123', field: 'not a field!' });
   const ev = events('voice').at(-1);
   assert.equal(ev.ok, true); assert.equal(ev.field, 'intro');
   const n = events('voice').length;
