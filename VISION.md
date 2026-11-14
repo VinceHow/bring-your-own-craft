@@ -42,7 +42,7 @@ The product has two moments: a short setup that ends in her first question, then
 **1. The setup: walking in to the first question** (under a minute)
 
 1. **Take a seat.** Like building a character: six ready-made crafts, or "Your own craft". Priya picks Product.
-2. **The team walks in.** Mika, Noor, Theo, Ines and Bo, each showing what they love and what they bring.
+2. **The team appears.** Mika, Noor, Theo, Ines and Bo pop into their chairs at the round table, one by one (no walking), each card showing what they love and what they bring.
 3. **She introduces herself in one sentence.** *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts its own fun spin on it to make her character card, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
 4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
 5. **The team gets going.** Within seconds, Noor and Mika put a rough journey on the table: who the users are, the stages they go through, no screens.
@@ -65,7 +65,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | Beat | Time | What she sees |
 | --- | --- | --- |
 | Take her seat | 0:00–0:05 | Six seats plus "Your own craft"; she picks Product |
-| Team walks in | 0:05–0:22 | Mika, Noor, Theo, Ines, Bo: what they love and bring |
+| Team appears | 0:05–0:18 | Mika, Noor, Theo, Ines, Bo pop into their chairs: what they love and bring |
 | Her character | 0:22–0:30 | She builds her character: one sentence becomes her card |
 | The idea | 0:30–0:35 | One spoken sentence lands on the table |
 | Team gets going | 0:35–0:45 | Noor and Mika's rough journey draws in (~4 s, measured) |
@@ -81,18 +81,19 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 
 **Smoke and mirrors (labelled where it shows):** only the documents she reviews have real depth; the room's chatter is light; the motion; the page template, prepared ahead; a prepared bakery journey if the live one is slow (PREPARED); recorded runs as fallbacks (REPLAY).
 
-**Said, not built:** multiplayer (the open seats read "Seat open: invite a teammate"); the team chiming in mid-sentence; sound. **Only if time at the end:** a guest chair for a stand-in customer.
+**Said, not built:** multiplayer (the open seats read "Seat open: invite a teammate"); the team chiming in mid-sentence. **Only if time at the end:** a guest chair for a stand-in customer.
 
 ## The studio: where the design taste goes
 
 Most of our design effort goes into the studio, because feeling settled and safe is what lets creativity flow. Everything else can be rough.
 
-- **Settled, not busy.** A warm, lamp-lit table on riso paper. Teammates' work sits on sketchpads, not paperwork. Calm motion, nothing flashing.
+- **Settled, not busy.** A cosy, hand-painted studio seen in 3/4 view: one round table, a living painting that shifts with the light (morning, afternoon, building, evening). Her seat is the one empty pink stool. Teammates' work sits on sketchpads, not paperwork. Calm motion, nothing flashing. The real site growing on the table is the progress.
+- **Music she chooses.** A record player with three tracks (piano, electronic, chiptune). She starts it with a deliberate click; it never autoplays, and it ducks during her focus.
 - **Polish goes into her focus moment.** The document, her words landing on it, the team chiming in, and the takeaways reading like the best summary a great colleague would write.
 - **No pressure, ever.** No timers, no counters ticking at her, no urgent interruptions. Waiting questions sit in a calm tray (no numbers, no red) and arrive only at natural pauses. Opening one turns the view into just her and one document: no dimming, no spotlight, nobody visibly waiting.
 - **No ceremony; keep what matters.** No logs, approvals or status in the room. The work that matters (her journey, Design's key screens) stays on the table, and the team decides what's worth keeping.
-- **Warm, not childish.** Ink and riso colours; no points, levels, leaderboards, gradients or sparkles. Progress is about her (her takeaways) and the idea (the work itself getting sharper), never a score. The rough gem is a metaphor; nothing on screen is a gem or a progress bar.
-- **A team you'd love.** Mika, Noor, Theo, Ines and Bo, each with a small "agent" mark and never a pronoun. Personality lives in a few words: what each loves, their light chatter in the room, and how they respond when she speaks. No faces.
+- **Warm, not childish.** Calm, mature and tasteful; no points, levels, leaderboards, gradients or sparkles. Progress is about her (her takeaways) and the idea (the work itself getting sharper), never a score. The rough gem is a metaphor; nothing on screen is a gem or a progress bar.
+- **A team you'd love.** Mika, Noor, Theo, Ines and Bo are painted creature teammates with faces, each with a name, a small "agent" mark and never a pronoun. They stay seated; their moods come only from real events in the run. Personality lives in a few words: what each loves, their light chatter in the room, and how they respond when she speaks.
 - **Real reactions only.** A line of chatter or a chime-in appears only when it really happened in the run, and a teammate only promises what the build will really show. Fake warmth would break trust.
 
 ## Still open

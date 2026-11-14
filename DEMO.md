@@ -29,8 +29,9 @@ moving; it never waits on her for an input it could reasonably assume. She says 
 the team deduces the rest (her ways of working, her customers, her positioning) into a private profile it keeps
 updating. Only a few big questions are hers.
 
-**The feel: a cozy studio, not a meeting.** Same table, same seats, same riso paper, but warmer: teammates' sheets are
-sketchpads, nobody is waiting on anyone, no timers, no pressure. Nothing childish: ink and riso colours, no points,
+**The feel: a cozy studio, not a meeting.** A hand-painted studio in 3/4 view around one round table (design/studio,
+Vincent 14 Nov): teammates' sheets are sketchpads, nobody is waiting on anyone, no timers, no pressure. Nothing
+childish: calm, mature and tasteful, no points,
 levels or leaderboards. Progress is about her (her takeaways) and the idea (the work itself getting sharper), never a score. "A rough gem polished together" is a metaphor only: **nothing on screen is a gem, a meter or a progress object.**
 
 ## 1. The experience, beat by beat (about 3:00)
@@ -43,8 +44,8 @@ on screen.
 
 | Time | What she sees and does | How it should feel | The presenter says | Live? |
 |---|---|---|---|---|
-| **0:00–0:05** Taking her seat | An empty table seen from above, inked on paper, six empty seats (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
-| **0:05–0:18** Assembling the team | One by one, each teammate's card lands **big in the middle of the table**, holds ~1.5 s, then slides into its seat. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
+| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; she picks her craft (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
+| **0:05–0:18** The team appears | One by one, each teammate **pops into its chair** in the painting (no walking), and its card shows big for a moment, then settles. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:18–0:26** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
 | **0:26–0:31** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A website for a small bakery, so customers can order bread ahead." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
 | **0:31–0:38** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (2.7 s measured on the bakery): **who the users are** (morning regulars, the weekend pastry crowd, the bakers) and **the stages they go through** (choose → order → pick up). No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero." | live |
@@ -173,14 +174,15 @@ questions but no built page. **Cut line:** a visible label, "Your own craft: com
 **Seats she isn't in** read: *"Seat open: invite a teammate. Your agents hold it until they arrive."* A label, not a
 button. Real multiplayer is the vision we say out loud, not something we build.
 
-**The room is silent.** No sound (noisy hall). One soft chord at the symphony is the first optional extra, only if
-time is left at the end.
+**Music she chooses** (Vincent, 14 Nov). A record player in the studio with three tracks (piano, electronic,
+chiptune). Only a deliberate click on it starts music; it never autoplays and ducks during her focus. Otherwise the
+room is quiet.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
 turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make
 it fun"): a playful title, two or three traits, maybe one "superpower" line, each swappable. Examples: Priya, *the
 Customer Whisperer* (customer-obsessed, hands-on builder, problem hunter); a baker, *the Dawn Baker* (dough whisperer,
-first batch at 6am, knows every regular by name). Witty, warm, never childish: riso card, no points or stats. Picking a seat and making the card is one
+first batch at 6am, knows every regular by name). Witty, warm, never childish: no points or stats. Picking a seat and making the card is one
 "build your character" moment. Her sentence becomes **L1 of her file** (hidden).
 
 **The private profile** (never shown unless she asks). From her sentence and her idea, one call deduces what the team
@@ -217,7 +219,8 @@ in, labelled REPLAY, and the presenter says what was replayed.
 ## 2. How it works, in brief
 - **The room is the frame, a cozy studio.** Her work lies in front of her seat, full size. Each teammate's work sits
   as a sketchpad in front of its seat, to glance at or open, never to approve. Teammates are flat printed cards (role,
-  glyph, the craft's ink, a name, a small "agent" mark): no faces; their personality is the name, the "loves"
+  glyph, the craft's ink, a name, a small "agent" mark); in the painted look they are creature teammates with faces
+  (Vincent, 14 Nov), always named, never a pronoun; their personality is the name, the "loves"
   line, their light chatter in the room and their responses in her focus moments. **Names only, never pronouns**, anywhere in the room.
   Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
   (Engineering). Check-ins read *"Noor (Research): …"*.
@@ -269,7 +272,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 - a build that writes new code from scratch;
 - any question shown as a pop-up card, and any question with options or branches;
 - real multiplayer (said in the close, not built), including a real customer in the guest chair;
-- sound (optional extra only).
+- music autoplay (the record player only plays when she starts it).
 
 **Build order:**
 1. event log and meter;
