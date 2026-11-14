@@ -39,6 +39,10 @@ html, body { margin: 0; background: #120C08; }
 .say .mic svg { width: 16px; height: 16px; fill: none; stroke: var(--ip-her-t); stroke-width: 1.6; stroke-linecap: round; }
 .say .ph { color: var(--ip-ink-3); }
 .row-end { display: flex; justify-content: flex-end; gap: 10px; }
+.nmf { margin: 0 0 10px; } .nmf .lab { display: block; margin-bottom: 5px; color: var(--ip-ink-2); }
+.nmbox { position: relative; display: flex; align-items: center; height: 42px; padding: 0 70px 0 14px; border-radius: 999px; background: var(--ip-inset);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: 400 18px/1 var(--ip-serif); color: var(--ip-ink); }
+.nmbox .skip { position: absolute; right: 6px; top: 5px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
 /* her character card: the team's playful spin */
 .char .who { display: flex; align-items: center; gap: 14px; margin: 10px 0 14px; }
 .char .seal { width: 52px; height: 52px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 23px/1 var(--ip-serif); flex: none; }
@@ -113,6 +117,7 @@ html, body { margin: 0; background: #120C08; }
   const QUESTION = `<span class="lab q-lab">This seat is yours</span><h3>What do you bring to the table?</h3><p class="sub">Pick a craft. The team fills every other seat.</p>
     <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own">Your own craft</button></div>`;
   const SAY = `<span class="lab q-lab">Product, the customer side</span><h3>What do you love about it?</h3><p class="sub">One sentence. Say it or type it.</p>
+    <div class="nmf"><span class="lab">What should the team call you?</span><div class="nmbox">Priya<button class="skip">Skip</button></div></div>
     <div class="say"><span class="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>
     <div class="row-end"><button class="btn" id="make">That’s me</button></div>`;
   const CARD = `<span class="lab q-lab">The team’s spin on you</span>
