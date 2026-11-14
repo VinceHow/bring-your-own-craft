@@ -105,6 +105,9 @@ html, body { margin: 0; background: #2B1F17; }
 .e b { display: flex; align-items: center; gap: 6px; font: 500 13px/1 var(--ip-sans); color: var(--t); margin-bottom: 3px; }
 .e b i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
 .e p { margin: 0; font: italic 400 16px/1.35 var(--ip-serif); }
+.e.lit { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 60%, transparent), 0 2px 8px -2px rgba(60,35,15,.3); }
+.pin.lit { transform: scale(1.25); box-shadow: 0 0 0 3px var(--ip-paper), 0 0 0 7px color-mix(in srgb, var(--c) 35%, transparent); }
+.readlink, #conv .x { cursor: pointer; }
 .e.hers { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1px rgba(212,114,136,.4); } .e.hers p { font-style: normal; }
 .e .did { display: block; margin-top: 3px; font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
 .conv .take { margin-top: auto; padding: 14px 16px; }
@@ -215,8 +218,8 @@ function conversation(rounds) {   // the view she opens: thread with rounds, and
   const host = document.createElement('div'); host.className = 'abs conv card'; host.id = 'conv'; host.dataset.who = 'her';
   const th = rounds.map(i => { const R = M.rounds[i];
     return `<div class="round"><div class="rh">Round ${i + 1}</div>
-      <div class="e hers" data-who="her" data-d="0"><b><i></i>You</b><p>${R.her.t}</p></div>
-      ${R.replies.map((x, j) => `<div class="e" data-who="${x.who}" data-d="${Math.min(j + 1, 2)}"><b><i></i>${NAME[x.who]}</b><p>${x.t}</p><span class="did">${x.did}</span></div>`).join('')}</div>`; }).join('');
+      <div class="e hers" data-who="her" data-d="0" data-k="${i}-h"><b><i></i>You</b><p>${R.her.t}</p></div>
+      ${R.replies.map((x, j) => `<div class="e" data-who="${x.who}" data-d="${Math.min(j + 1, 2)}" data-k="${i}-${j}"><b><i></i>${NAME[x.who]}</b><p>${x.t}</p><span class="did">${x.did}</span></div>`).join('')}</div>`; }).join('');
   const g = M.take.guide.slice(0, rounds.length).map((t, i) => i === rounds.length - 1 && i > 0 ? `<span class="new">${t}</span>` : t).join(' ');
   host.innerHTML = `<div class="ch"><span class="label">The conversation · kept as meeting notes</span><span class="x">Close</span></div>${th}
     <div class="take" data-who="her"><span class="lab">Your takeaways · growing as you talk</span><p><b>What I believe</b>${M.take.believe}</p><p><b>Guidance</b>${g}</p></div>`;
@@ -269,7 +272,27 @@ async function play() {
   }
   await wait(600); const cv = conversation(M.rounds[1] ? [0, 1] : [0]); animate(cv, { opacity: [0, 1], x: [30, 0] }, spring(.5));
 }
+// The conversation is closed by default. A pin or "Read the conversation" slides it open over her capture space,
+// lighting the entry that pin belongs to; Close brings her capture space back. Pins and entries light each other on hover.
+function openConv(key) {
+  let cv = $('#conv');
+  if (!cv) { const rs = [...new Set($$('.pin:not(.pending)').map(p => +p.dataset.k.split('-')[0]))].sort(); cv = conversation(rs.length ? rs : [0]);
+    animate(cv, { opacity: [0, 1], x: [30, 0] }, spring(.45)); $('#side').style.visibility = 'hidden'; }
+  $$('.lit').forEach(x => x.classList.remove('lit'));
+  if (key) { const e = $(`#conv .e[data-k="${key}"]`); if (e) { e.classList.add('lit'); e.scrollIntoView({ block: 'nearest' }); } }
+}
+function closeConv() { const cv = $('#conv'); if (!cv) return; animate(cv, { opacity: 0, x: 30 }, spring(.35)).finished.then(() => cv.remove()); $('#side').style.visibility = ''; }
+c.addEventListener('click', ev => {
+  const pin = ev.target.closest('.pin:not(.pending)'); if (pin) return openConv(pin.dataset.k);
+  if (ev.target.closest('#readlink')) return openConv();
+  if (ev.target.closest('#conv .x')) return closeConv();
+});
+c.addEventListener('mouseover', ev => {
+  const k = ev.target.closest('.pin, #conv .e')?.dataset.k; $$('.pin.lit, #conv .e.lit').forEach(x => x.classList.remove('lit'));
+  if (k) $$(`.pin[data-k="${k}"], #conv .e[data-k="${k}"]`).forEach(x => x.classList.add('lit'));
+});
 PLAY ? play() : still(S);
+if (q.get('open')) setTimeout(() => openConv(q.get('open')), 900);
 </script>
 </body>
 </html>
