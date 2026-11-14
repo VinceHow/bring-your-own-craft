@@ -219,6 +219,28 @@ test('a different idea changes the picks (offline: picks come from what the team
   assert.notDeepEqual(a.asks.map(x => x.decision), b.asks.map(x => x.decision));
   assert.equal(a.came, 12); // six seats x 2
   assert.equal(loadRest(a.run).length, a.came - a.brought);
+  // The close returns once her questions are logged; the team's decisions all land behind it, select.done last.
+  await a.pending;
+  const evs = readEvents(a.run);
+  assert.equal(new Set(evs.filter(e => e.type === 'decided').map(e => e.id)).size, a.came - a.brought);
+  assert.equal(evs.at(-1).type, 'select.done');
+});
+
+test('the close does not wait on the team\'s decisions: her questions return while decide is still running', async () => {
+  let release;
+  const gate = new Promise(r => { release = r; });
+  const team = system => ({ note: 'n', candidates: [{ decision: `${(system.match(/You are the (\w+) teammate/) || [])[1]} topic`, options: ['A', 'B'],
+    recommendation: 'A', reason: 'r', cost: 'high', undoable: true, attachTo: null, usesFinding: false,
+    question: 'What makes someone come back to a studio week after week?' }] });
+  const base = fakeModel({ team, score: items => ({ scores: items.map(c => ({ ...strong(c), question: null })) }) });
+  const callModel = async args => (/^# Task: decide/m.test(args.system) ? (await gate, base(args)) : base(args));
+  const r = await selectForIdea('A booking page for a small yoga studio.', ['classes'], { callModel, count: 1 });
+  assert.equal(r.brought, 1);
+  assert.equal(r.asks[0].question, 'What makes someone come back to a studio week after week?');
+  assert.ok(!readEvents(r.run).some(e => e.type === 'select.done'), 'decide has not landed yet');
+  release();
+  await r.pending;
+  assert.equal(readEvents(r.run).filter(e => e.type === 'decided').length, r.came - r.brought);
 });
 
 test('LIVE: a different idea changes the picks (real model, fast path)', { skip: !process.env.LIVE && 'set LIVE=1 to call the real model' }, async () => {

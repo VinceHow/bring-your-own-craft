@@ -202,17 +202,8 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   assert.ok((await cited.count()) >= 1, `the page's decisions include one citing ${written.id}`);
   assert.ok(!(await pg.locator('#decided').isVisible()), 'no "decided for you" list or credits on screen');
   assert.strictEqual(await pg.locator('.decided__seat, [data-yours]').count(), 0, 'no seat tags, no credits');
-  // Exactly one margin note on the cancel step, when a logged decision about cancelling cites her new line.
-  const cancelCites = redecided.some(d => d.cites === written.id && /cancel/i.test(`${d.decision} ${d.choice}`));
-  const note = pg.locator('[data-note="cancel"]');
-  if (cancelCites) {
-    assert.strictEqual(await note.count(), 1, 'one margin note on the cancel step');
-    assert.ok(await note.isVisible(), 'and it shows');
-    assert.match(await note.innerText(), /follows your line, “Never ask for anything you could remember or skip\.”/);
-  } else {
-    assert.strictEqual(await note.count(), 0, 'no decision about cancelling cites her line, so no note');
-  }
-  console.log(`her page: cancel note ${cancelCites ? 'shown' : 'not shown (no cancel decision cites ' + written.id + ')'}`);
+  // The product is just the product: no margin notes on her page (the cancel note is cut).
+  assert.strictEqual(await pg.locator('[data-note], .margin-note').count(), 0, 'no notes on her page');
   assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
   // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
   const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
