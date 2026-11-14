@@ -202,8 +202,8 @@ body { background: var(--cream); }
     bo:   async el => { await wait(250); pose('bo', 1, .6); await wait(2300); pose('bo', 0, .9); },             // opens one eye, slowly; back to bliss
     noor: async el => { pose('noor', 1, .4); await animate(el, { y: [0, -5], rotate: [0, -3] }, settle(.6)); await wait(1900);
       pose('noor', 0, .6); animate(el, { y: 0, rotate: 0 }, settle(.9)); },                                     // peers over the glasses, holds up a tab
-    ines: async el => { await wait(150); pose('ines', 1, .55); await animate(el, { y: [0, -3] }, settle(.8)); await wait(2000);
-      pose('ines', 0, .7); animate(el, { y: 0 }, settle(1)); },                                                 // raises the teacup, a gentle toast
+    ines: async el => { await wait(150); pose('ines', 1, .7); await animate(el, { rotate: [0, -4], x: [0, -4] }, settle(.9)); await wait(2100);
+      pose('ines', 0, .8); animate(el, { rotate: 0, x: 0 }, settle(1)); },                                     // points ahead with a slow, knowing wink
     theo: async el => { await wait(400); pose('theo', 1, .45); await animate(el, { rotate: [0, 2, 0] }, { duration: .9, ...glide }); await wait(1800);
       pose('theo', 0, .6); }                                                                                     // holds the one card up, small proud nod
   };
