@@ -6,7 +6,7 @@ No pronouns, as the vision asks.
 
 | | Mika · Design | Noor · Research | Theo · Data | Ines · Strategy | Bo · Engineering |
 |---|---|---|---|---|---|
-| Shape | Tall, wobbly teardrop, ink blue | Perfectly round, terracotta, round glasses | Small, neat, upright, sage; exactly two arms | Wide, grounded pear, gold ochre; a knitted mustard shawl, one eyebrow raised | Chunky soft loaf, butter yellow, half-lidded eyes |
+| Shape | Tall, wobbly teardrop, ink blue | Perfectly round, terracotta, round glasses | Small, neat, upright, sage | Wide, grounded pear, gold ochre; a knitted mustard shawl, one eyebrow raised | Chunky soft loaf, butter yellow, half-lidded eyes |
 | Personality | Quick, playful, restless; always doodling | Curious, careful, warm; a source for every claim | Calm, precise, quiet, tidy; one number that says it worked | Witty, quietly confident deal-maker; warm; who pays and why now | Chill, unbothered, dependable; boring, correct, shipped |
 | Prop | Stubby yellow pencil and a small sketchbook | Book bristling with sticky tabs, magnifying glass | A card with one bar; tally counter on the hip | Teacup and saucer; a gold coin always at hand; ledger | Big coffee mug; tiny tool belt; small laptop |
 | Idle | Doodles a star on its own tummy | Reads, turns a page | Squares a little stack of cards | Flips the gold coin with a little smirk | Slow sip of coffee, eyes closed in bliss |
@@ -17,4 +17,4 @@ No pronouns, as the vision asks.
 
 Every character also breathes at its own pace and blinks at its own rhythm; whoever speaks, the others glance at.
 
-Vincent, 14 Nov: the afternoon studio (coffee machine on the left) is the preferred room. Ines got more personality; Theo always has two arms.
+Vincent, 14 Nov: the afternoon studio (coffee machine on the left) is the preferred room. Theo stays as first drawn (theo.jpg). Ines needs more personality and no scarf: three options in ines-option-*.jpg (captain, chess, explorer), Vincent to pick. Day cycle: studio-morning.jpg, studio-building.jpg (product being built), studio-afternoon.jpg (idle), studio-evening-day.jpg.
