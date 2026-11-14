@@ -55,7 +55,7 @@ test('the fake run at 20x settles the counter and meter on the log\'s numbers, d
     label: !document.getElementById('replay-label').hidden,
     hasFlow: !!(BYOC.flow && BYOC.flow.addLine),
     boxes: document.querySelectorAll('#her-flow .fl-box').length,
-    asks: document.querySelectorAll('#tray .tray-note').length,
+    asks: BYOC.inbox ? BYOC.inbox.shown.length : 0,
     plain: document.querySelectorAll('#her-flow .plain-line').length,
     notes: document.querySelectorAll('#her-notes .note').length,
   }));

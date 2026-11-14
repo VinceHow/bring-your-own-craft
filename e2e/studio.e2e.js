@@ -170,8 +170,8 @@ test('6. she opens each note from her tray and says her piece in the document', 
   const asks = (await events()).filter(e => e.type === 'ask');
   for (let i = 0; i < asks.length; i++) {
     // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
-    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-    await page.locator('#tray .tray-note').first().click();
+    await page.waitForSelector('#inbox:not([hidden])[data-needs="yes"] .inbox-now', { timeout: 5000 });
+    await page.locator('#inbox .inbox-now').click();
     await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
     await page.locator('#focus-doc .fd-input').fill('Regulars first. Their usual class should be one tap away.');
     await page.keyboard.press('Enter');

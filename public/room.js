@@ -769,36 +769,11 @@
     return true;
   }
   BYOC.openNote = openNote;
-  // The tray: a small stack of notes at the edge of her seat, each in its teammate's ink: "Noor · Research" and a few
-  // words of the question. The top note is the team's suggestion; she picks which to open. Notes slide in only at a
-  // natural pause, about 1 s after it, never while she's typing or speaking. No number, no red, no pulse.
-  const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true; tray.dataset.component = 'tray'; tray.dataset.state = 'empty';
-  tray.setAttribute('aria-label', 'Notes from your team');
-  el.room.appendChild(tray);
-  let trayTimer = null;
-  const isTypingNow = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); };
-  const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
-  function renderTray() {
-    const w = BYOC.focus.waiting;
-    const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 5 && BYOC.beat < 8;
-    clearTimeout(trayTimer);
-    if (!show) { tray.hidden = true; tray.dataset.state = 'empty'; return; }
-    const ids = w.map(n => n.id).join(',');
-    if (!tray.hidden && tray.dataset.ids === ids) return;
-    trayTimer = setTimeout(function slideIn() {
-      if (isTypingNow()) { trayTimer = setTimeout(slideIn, 500); return; }
-      if (BYOC.focus.open) return;
-      tray.dataset.ids = ids;
-      tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-component="tray-note" data-state="${i ? 'waiting' : 'top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
-        <span class="tray-seat" data-slot="seat">${esc(who(n))}</span><span class="tray-text" data-slot="text">${esc(fewWords(n.question))}</span></button>`).join('');
-      tray.dataset.state = 'waiting';
-      const was = tray.hidden; tray.hidden = false;
-      if (was && !instantMode) place(tray, { y: [24, 0], opacity: [0, 1] }, true);
-    }, instantMode || BYOC.replay ? 0 : 1000);
-  }
-  // The clicker's forward key opens the top note when the tray is out (stage.js asks first).
-  BYOC.openTopNote = () => { const top = tray.hidden ? null : tray.querySelector('.tray-note'); return top ? openNote(top.dataset.ask) : false; };
-  tray.addEventListener('click', e => { const b = e.target.closest('.tray-note'); if (b) openNote(b.dataset.ask); });
+  // Her inbox (public/inbox.js) replaced the tray: it shows what waits here (BYOC.focus.waiting), with the tray's
+  // arrival rules (a natural pause, never while she types; no number, no red), plus Things only you can do and Past meetings.
+  function renderTray() { if (BYOC.inbox) BYOC.inbox.render(); }
+  // The clicker's forward key opens the item that needs her now (stage.js asks first).
+  BYOC.openTopNote = () => (BYOC.inbox ? BYOC.inbox.openTop() : false);
 
   // ---- the room's chatter (DEMO focus rules): the team talking about its own work, never to her ----------
   // chatter { by, seat, text } events (written by the server from real run events). Each line shows a few seconds

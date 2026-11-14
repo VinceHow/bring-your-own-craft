@@ -42,7 +42,7 @@ before(async () => {
 });
 after(async () => { await browser?.close(); srv?.kill(); fs.rmSync(RUNS, { recursive: true, force: true }); });
 
-async function openPage({ voice }) {
+async function openPage({ voice, query = '' }) {
   const page = await ctx.newPage();
   page.on('pageerror', e => errors.push(String(e)));
   const sent = [];
@@ -57,7 +57,7 @@ async function openPage({ voice }) {
   } else {
     await page.route('**/api/voice/status', r => r.fulfill({ json: { available: false } }));
   }
-  await page.goto(BASE + '/?hold=50');
+  await page.goto(BASE + '/?hold=50' + query);
   return { page, sent };
 }
 const waitFor = (page, fn, ms, what) => page.waitForFunction(fn, null, { timeout: ms }).catch(() => { throw new Error('timed out: ' + what); });
@@ -165,5 +165,73 @@ test('any field with data-voice gets the mic: her reaction lands there, and nowh
   await page.keyboard.type(' yes');
   assert.match(await page.inputValue('#test-reaction'), / yes$/);
   assert.deepStrictEqual(errors, []);
+  await page.close();
+});
+
+test('tap ` to start, tap again to stop: it keeps listening between taps, and the words land', async () => {
+  const { page, sent } = await openPage({ voice: true });
+  await toHerCard(page);
+  await waitFor(page, () => document.body.classList.contains('voice-on'), 3000, 'voice on');
+  await page.keyboard.press('Backquote'); // a tap: well under 300 ms
+  await waitFor(page, () => BYOC.voice.state === 'listening' && BYOC.voice.toggled, 3000, 'toggled on');
+  const m = page.locator('.big-card .voice-mic');
+  assert.strictEqual(await m.getAttribute('data-mode'), 'toggle');
+  assert.strictEqual((await m.textContent()).trim(), 'listening · tap to stop');
+  await page.waitForTimeout(1500);
+  assert.strictEqual(await page.evaluate(() => BYOC.voice.state), 'listening', 'still listening after release');
+  assert.strictEqual(sent.length, 0, 'nothing sent before the second tap');
+  await page.keyboard.press('Backquote'); // the second tap stops it
+  await waitFor(page, () => document.getElementById('intro-input')?.value.length > 0, 8000, 'transcript in her field');
+  assert.strictEqual(sent.length, 1);
+  assert.ok(sent[0].audio.length > 1000, 'the 1.5 s between taps was recorded');
+  assert.strictEqual(await m.getAttribute('data-state'), 'idle');
+  assert.strictEqual(await m.getAttribute('data-mode'), null);
+  assert.deepStrictEqual(errors, []);
+  await page.close();
+});
+
+test('click the mic to start, click again to stop', async () => {
+  const { page, sent } = await openPage({ voice: true });
+  await toHerCard(page);
+  await waitFor(page, () => document.body.classList.contains('voice-on'), 3000, 'voice on');
+  const m = page.locator('.big-card .voice-mic');
+  await m.click();
+  await waitFor(page, () => BYOC.voice.state === 'listening' && BYOC.voice.toggled, 3000, 'toggled on by a click');
+  await page.waitForTimeout(1200);
+  await m.click();
+  await waitFor(page, () => document.getElementById('intro-input')?.value.length > 0, 8000, 'transcript in her field');
+  assert.strictEqual(sent.length, 1);
+  await page.close();
+});
+
+test('Esc cancels a tapped recording: nothing is sent, the field keeps what she had', async () => {
+  const { page, sent } = await openPage({ voice: true });
+  await toHerCard(page);
+  await waitFor(page, () => document.body.classList.contains('voice-on'), 3000, 'voice on');
+  await page.keyboard.type('maps');
+  await page.keyboard.press('Backquote');
+  await waitFor(page, () => BYOC.voice.toggled, 3000, 'toggled on');
+  await page.waitForTimeout(800);
+  await page.keyboard.press('Escape');
+  await waitFor(page, () => BYOC.voice.state === 'idle', 3000, 'cancelled');
+  await page.waitForTimeout(500);
+  assert.strictEqual(sent.length, 0);
+  assert.strictEqual(await page.inputValue('#intro-input'), 'maps');
+  await page.close();
+});
+
+test('the recording limit never stops silently: it sends what she said and the mic says so', async () => {
+  const { page, sent } = await openPage({ voice: true, query: '&voicemax=1500' });
+  await page.unroute('**/api/voice/stt');
+  let release; const held = new Promise(r => (release = r));
+  await page.route('**/api/voice/stt', async r => { sent.push(r.request().postDataJSON()); await held; await r.fulfill({ json: { text: 'Fast.', ms: 300 } }); });
+  await toHerCard(page);
+  await waitFor(page, () => document.body.classList.contains('voice-on'), 3000, 'voice on');
+  await page.keyboard.press('Backquote');
+  await waitFor(page, () => BYOC.voice.state === 'writing', 4000, 'stopped at the limit');
+  assert.match((await page.locator('.big-card .voice-mic').textContent()).trim(), /2 minutes/);
+  release();
+  await waitFor(page, () => document.getElementById('intro-input')?.value === 'Fast', 8000, 'what she said lands');
+  assert.strictEqual(sent.length, 1);
   await page.close();
 });

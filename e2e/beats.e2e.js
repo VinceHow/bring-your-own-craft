@@ -250,20 +250,20 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // seat ~1 s after the pause: "<Name> · <Seat>" and a few words, in the teammate's ink, no number, no "waiting".
   assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), 0, 'no forks or pins on her flow');
   assert.ok(!(await page.evaluate(() => BYOC.focusDoc.isOpen())), 'nothing opens by itself');
-  await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray at her seat');
-  const notes = await page.locator('#tray .tray-note').allInnerTexts();
+  await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox at her seat');
+  const notes = await page.locator('#inbox [data-part="needs"] .inbox-item').allTextContents();
   assert.strictEqual(notes.length, asks.length, 'one note per question');
   for (const t of notes) assert.match(t.replace(/\s+/g, ' ').trim(), /^(\w+ · )?(Design|Data|Research|Strategy|Engineering|Product) ?.+\?$/i, `a note's face: ${t}`);
-  assert.ok(!(await page.locator('#tray').innerText()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
+  assert.ok(!(await page.locator('#inbox').textContent()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
   // Her focus: the clicker opens the top note; the view becomes just her and that one document.
-  const top = await page.locator('#tray .tray-note').first().getAttribute('data-ask');
+  const top = await page.locator('#inbox .inbox-now').getAttribute('data-ask');
   await page.keyboard.press('PageDown');
   await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
   assert.strictEqual(await page.evaluate(() => BYOC.focusDoc.openId()), top, 'the top note opened');
   assert.strictEqual(await page.evaluate(() => BYOC.beat), 6, 'the beat did not move');
   assert.ok(await page.evaluate(() => document.body.classList.contains('focus-open')), 'body.focus-open');
   assert.ok(!(await page.isVisible('.seat-design .card')), 'the room is gone from view');
-  assert.ok(!(await page.isVisible('#tray')), 'and so is the tray');
+  assert.ok(!(await page.isVisible('#inbox')), 'and so is her inbox');
   assert.ok(await page.isVisible('#focus-doc .fd-work'), 'the work, large');
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
   const ask = asks.find(a => a.id === top);
@@ -296,8 +296,8 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.ok(await page.isVisible('.seat-design .card'), 'the room is back');
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in the room');
   if (asks.length > 1) {
-    await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray again');
-    assert.strictEqual(await page.locator('#tray .tray-note').count(), asks.length - 1, 'the rest wait in the tray');
+    await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox again');
+    assert.strictEqual(await page.evaluate(() => BYOC.inbox.shown.length), asks.length - 1, 'the rest wait in her inbox');
   }
   assert.deepStrictEqual(errors, []);
 });
@@ -316,12 +316,12 @@ test('2b. her document: words land, the team chimes in one after another, the ta
     BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
-  await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the note', null, p);
-  assert.match((await p.locator('#tray .tray-note').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
+  await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
+  assert.match((await p.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
-  await p.locator('#tray .tray-note').click();
+  await p.locator('#inbox .inbox-now').click();
   await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'the document', null, p);
   assert.ok(!(await p.isVisible('.chatter-line')), 'the room and its chatter are gone from view');
   assert.match(await p.textContent('#focus-doc .fd-kicker'), /Noor · Research/);

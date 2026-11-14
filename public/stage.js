@@ -28,6 +28,7 @@
     ['J', 'the close: type a judge’s idea'],
     ['B', 'build her page'],
     ['F', 'fake fixture run (labelled FAKE)'],
+    ['V · `', 'speak: hold to talk, or tap to start and tap to stop (Esc cancels)'],
     ['Enter', 'back to her input'],
     ['Esc', 'leave the input'],
     ['?', 'this card (hidden in stage mode)'],
