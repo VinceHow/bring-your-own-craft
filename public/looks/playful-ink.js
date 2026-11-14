@@ -6,7 +6,9 @@
      cast/music/rain.mp3 when present, else made in code. Ducks while a focus document is open: api.duck(true), or a
      `studio:focus` event with detail { open: true }.
    - Owns every playful object in the painted look; the living layer owns the backdrop and moods. They share the time of
-     day through a `studio:time` event { time } (either side may fire it), or api.setNight(on).
+     day through a `studio:time` event { time } (either side may fire it), or api.setNight(on). A click on the record
+     player, cat or coffee machine also fires `studio:poke` { obj: 'record'|'cat'|'coffee' }, so the painted layer plays
+     that object's clip while this layer draws the ink and plays the sound.
    - Cat: two ink-drawn hearts rise when you pet it.
    - Coffee machine: a click sends up inked steam; on its own, only a tiny curl now and then.
    - String lights: a click toggles a soft glow (on by default at night).
@@ -139,7 +141,9 @@
     // the pill shows only after a click, says what is playing, and fades a few seconds later
     let hideT = 0;
     const flashTrack = (ms = 3200) => { track.classList.remove('is-hidden'); inkPill(track); clearTimeout(hideT); if (!o.still) hideT = setTimeout(() => track.classList.add('is-hidden'), ms); };
-    sRecord.addEventListener('click', () => { cycle(); flashTrack(); });
+    // the painted layer plays the object's own clip; this layer adds the ink and the sound
+    const poke = obj => document.dispatchEvent(new CustomEvent('studio:poke', { detail: { obj, from: 'playful-ink' } }));
+    sRecord.addEventListener('click', () => { poke('record'); cycle(); flashTrack(); });
     track.addEventListener('click', () => { cycle(); flashTrack(); });
     function noteFloat() {   // one small inked note rises from the record when a track starts
       const s = svgEl(20, 26, '<path d="M7 20 V5 L17 3 V17"/><path d="M7 20 a3 2.4 -20 1 1 -1 -1 M17 17 a3 2.4 -20 1 1 -1 -1"/>', 'pi-draw');
@@ -161,7 +165,7 @@
       });
     }
     let petting = false;
-    sCat.addEventListener('click', () => { if (petting) return; petting = true; hearts(); setTimeout(() => petting = false, 1600); });
+    sCat.addEventListener('click', () => { if (petting) return; petting = true; poke('cat'); hearts(); setTimeout(() => petting = false, 1600); });
 
     // ---------- coffee: inked steam curls ----------
     const curls = ['M10 60 C 2 48, 18 40, 10 28 S 4 10, 12 2', 'M10 60 C 18 50, 4 40, 12 28 S 18 12, 10 2'];
@@ -173,7 +177,7 @@
       p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1400, fill: 'forwards', easing: 'ease-out' });
       s.animate([{ transform: 'translateY(8px)', opacity: 0 }, { opacity: strong ? 1 : .45, offset: .3 }, { transform: 'translateY(-26px)', opacity: 0 }], { duration: o.still ? 1e9 : 3200, easing: 'ease-out' }).onfinish = () => s.remove();
     }
-    sCoffee.addEventListener('click', () => { steamOnce(.064, true); setTimeout(() => steamOnce(.072, true), 300); });
+    sCoffee.addEventListener('click', () => { poke('coffee'); steamOnce(.064, true); setTimeout(() => steamOnce(.072, true), 300); });
     // on its own: only a tiny, faint curl from the cup, every 9 to 15 s
     if (!o.still) (function loop() { setTimeout(() => { steamOnce(.066, false, .47, true); loop(); }, 9000 + Math.random() * 6000); })();
     else steamOnce(.064, true);
