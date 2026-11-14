@@ -216,6 +216,10 @@ body { background: var(--cream); }
     react[n](c.querySelector('.act'));
   };
 
+  // The sheet arrives blank and its words follow once it has landed, so no text ghosts over the room.
+  const inked = $$('.doc > :not(.take), .top');
+  inked.forEach(el => el.style.opacity = 0);
+
   (async () => {
     startBreathing();
     await wait(1200);
@@ -225,7 +229,9 @@ body { background: var(--cream); }
     animate('.focus', { opacity: [0, 1] }, { duration: .8, delay: .4, ...glide });
     animate('.wash', { scale: [1.04, 1] }, { duration: 1.4, ...glide });
     animate('.doc', { y: [36, 0] }, { ...settle(1), delay: .4 });
-    await wait(1800);
+    await wait(1250);
+    animate(inked, { opacity: [0, 1] }, { duration: .5, ...glide });
+    await wait(700);
     // her words land as she says them
     const ws = $$('.words span');
     animate(ws, { opacity: [0, 1], y: [5, 0] }, { ...settle(.45), delay: stagger(.115) });
