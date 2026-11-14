@@ -412,7 +412,10 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   const want = countFromLog(readLog(RUN));
   if (want.fromFile > 0) {
     assert.ok(await page.isVisible('#close-her'), 'her line shows');
-    assert.strictEqual(await page.textContent('#close-decided'), String(want.fromFile), 'M is counted from her run’s log');
+    // her log can still grow for a few seconds (a revisit against her line): the close keeps up with it
+    let shown = '', now = want;
+    for (let i = 0; i < 40; i++) { now = countFromLog(readLog(RUN)); shown = await page.textContent('#close-decided'); if (shown === String(now.fromFile)) break; await new Promise(r => setTimeout(r, 500)); }
+    assert.strictEqual(shown, String(now.fromFile), 'M is counted from her run’s log');
     assert.strictEqual(await page.textContent('#close-asked'), String(want.asked), 'asked is her run’s asks');
   } else {
     assert.ok(!(await page.isVisible('#close-her')), 'M = 0: her line is not shown');
