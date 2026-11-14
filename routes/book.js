@@ -7,7 +7,7 @@ import { RUNS_DIR } from '../lib/events.js';
 import { sendJson } from '../lib/http.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
-const FIELDS = ['run', 'page', 'name', 'email', 'class', 'item', 'pastry', 'order', 'quantity', 'time', 'phone', 'remember'];
+const FIELDS = ['run', 'page', 'name', 'email', 'class', 'item', 'pastry', 'bread', 'order', 'quantity', 'time', 'phone', 'remember', 'weekly'];
 
 // server.js parses bodies as JSON or urlencoded. A multipart body (FormData) arrives mangled by URLSearchParams,
 // so rebuild the text and read its parts back out. Lossy only for '+' and '%' inside values.
@@ -30,8 +30,8 @@ export function storeBooking(form) {
   const booking = { at: new Date().toISOString(), ref: crypto.randomBytes(3).toString('hex').toUpperCase() };
   for (const k of FIELDS) if (form[k] != null && form[k] !== '') booking[k] = String(form[k]).slice(0, 200);
   fs.appendFileSync(path.join(RUNS_DIR, run, 'bookings.jsonl'), JSON.stringify(booking) + '\n');
-  const what = booking.class || booking.pastry || booking.item || 'your booking';
-  return { code: 200, body: { ok: true, ref: booking.ref, confirmation: `Booked: ${what}, ${usual ? '(your usual)' : `for ${booking.name}`}. Reference ${booking.ref}.${booking.email ? ` A confirmation is on its way to ${booking.email}.` : ''}` } };
+  const what = booking.class || booking.pastry || booking.bread || booking.item || 'your booking';
+  return { code: 200, body: { ok: true, ref: booking.ref, confirmation: `${booking.page === 'bakery' ? 'Ordered' : 'Booked'}: ${what}, ${usual ? '(your usual)' : `for ${booking.name}`}${booking.weekly ? ', every week' : ''}. Reference ${booking.ref}.${booking.email ? ` A confirmation is on its way to ${booking.email}.` : ''}` } };
 }
 
 export default [{

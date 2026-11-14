@@ -34,20 +34,27 @@ before(async () => {
 });
 after(async () => { await browser?.close(); srv?.kill(); });
 
-test('1. her name tag: her words in, craft · good at · loves out, every word editable', async () => {
+test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
   await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(800);
   await page.evaluate(() => { window.__tag = BYOC.nameTag.open(); });
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
-  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 15000, 'her tag');
+  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 15000, 'her card');
   assert.match(await page.locator('.tag-craft').innerText(), /tattoo/i);
-  assert.match(await page.locator('.tag-loves').innerText(), /stencil/);
-  await page.click('.tag-good'); await page.keyboard.press('End'); await page.keyboard.type(' and lettering');
+  assert.match(await page.locator('.tag-title').innerText(), /^the /);
+  assert.ok((await page.locator('.tag-trait').count()) >= 2, 'two or three traits');
+  const before = await page.locator('.tag-trait').first().innerText();
+  await page.locator('.tag-trait').first().click();
+  const after = await page.locator('.tag-trait').first().innerText();
+  assert.notStrictEqual(after, before, 'a click swaps a trait');
   await page.keyboard.press('Enter');
+  await waitFor(() => !document.querySelector('.name-tag'), 3000, 'her card kept');
   const tag = await page.evaluate(() => window.__tag);
-  assert.match(tag.goodAt, /and lettering$/, 'her edit kept');
+  assert.strictEqual(tag.traits[0], after, 'her swap kept');
+  assert.ok(!('alternates' in tag), 'the pools stay behind');
+  console.log('card:', JSON.stringify(tag));
   assert.deepStrictEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft]), ['diy', tag.craft]);
 });
 
@@ -73,12 +80,15 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   assert.ok(asks.length <= 3, `at most 3 check-ins, got ${asks.length}`);
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
-    // After her first answer nothing opens by itself (DEMO focus rules): she picks the next note from her tray.
-    if (i > 0) { await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 }); await page.locator('#tray .tray-note').first().click(); }
-    await waitFor(() => !!document.querySelector('#her-flow .fl-item.is-open'), 8000, 'an open check-in');
-    await page.locator('#her-flow .fl-item.is-open .fl-opt').first().click();
+    // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
+    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
+    await page.locator('#tray .tray-note').first().click();
+    await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
+    await page.locator('#focus-doc .fd-input').fill('Clear and kind. Say what to do next in plain words.');
+    await page.keyboard.press('Enter');
     await waitFor(n => BYOC.events().filter(e => e.type === 'answer').length >= n, 5000, 'answer', i + 1);
-    await page.waitForTimeout(1300);
+    await page.keyboard.press('Escape');
+    await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
   }
   await page.keyboard.press('Escape');
   await page.keyboard.press('ArrowRight'); // Design's screens

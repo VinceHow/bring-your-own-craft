@@ -123,12 +123,32 @@ const researchSays = decision => async ({ system }) => seatOf(system) === 'resea
       attachTo: null, usesFinding: true }] }
   : { note: 'n', candidates: [] };
 
-test('the finding attaches only on its topic: a café idea gets no yoga source, even when the model claims it', async () => {
+const YOGA_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url))).url;
+const BAKERY_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).url;
+
+test('the finding fits the idea: bakery ideas get the bakery finding, class ideas the yoga one, others none', async () => {
+  const run = newRun();
+  const bakery = 'A website for a small bakery, so customers can order bread ahead.';
+  const b = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('How many loaves to bake from orders placed ahead') });
+  assert.equal(b.candidates[0].source?.url, BAKERY_URL);
+  assert.match(systemFor('research', { ...ctx(run), idea: bakery }), /guess how many loaves/);
+  assert.doesNotMatch(systemFor('research', { ...ctx(run), idea: bakery }), /Active Monash/);
+  const off = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('Which colour the logo is') });
+  assert.equal(off.candidates[0].source, undefined, 'bakery idea, off-topic decision');
+  const bikes = await propose({ run, idea: 'A shop for second-hand bikes.', flow, taste: readTaste(run), callModel: researchSays('Whether bikes sell out') });
+  assert.equal(bikes.candidates[0].source, undefined);
+  assert.match(systemFor('research', { ...ctx(run), idea: 'A shop for second-hand bikes.' }), /no prepared finding/);
+  // every word the bakery file says it fits is recognised
+  const fits = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).fits;
+  for (const w of fits) assert.ok(findingFits(`An idea about ${w}`, { decision: 'How many to bake', options: [] }), w);
+});
+
+test('the finding attaches only on its topic: a café idea never gets the yoga source, even when the model claims it', async () => {
   const run = newRun();
   const cafe = await propose({ run, idea: "A pre-order page for a café's morning pastries.", flow, taste: readTaste(run),
     callModel: researchSays('Whether sold-out pastries get a waitlist') });
   assert.equal(cafe.candidates.length, 1);
-  assert.equal(cafe.candidates[0].source, undefined);
+  assert.notEqual(cafe.candidates[0].source?.url, YOGA_URL);
   const yoga = await propose({ run, ...ctx(run), callModel: researchSays('Whether full classes get a waitlist') });
   assert.ok(yoga.candidates[0].source?.prepared, 'on topic, it still cites the finding');
   const off = await propose({ run, ...ctx(run), callModel: researchSays('How late a customer can cancel') });
@@ -139,7 +159,7 @@ test('the finding attaches only on its topic: a café idea gets no yoga source, 
     assert.equal(findingFits(idea, { decision: d, options: [] }), want, `${idea} / ${d}`);
 });
 
-test('the finding attaches only on its topic: end to end, a café run asks nothing backed by the yoga source', async () => {
+test('the finding attaches only on its topic: end to end, a café run asks nothing backed by the yoga source (the bakery one may)', async () => {
   const task = system => (system.match(/^# Task: ([\w-]+)/m) || [])[1];
   const callModel = async args => {
     const t = task(args.system);
@@ -152,9 +172,9 @@ test('the finding attaches only on its topic: end to end, a café run asks nothi
   };
   const r = await selectForIdea("A pre-order page for a café's morning pastries.", ["today's pastries", 'pick a pastry'], { callModel });
   assert.ok(r.brought >= 1);
-  assert.ok(r.asks.every(a => !a.source && !/backed by/.test(a.why)), JSON.stringify(r.asks.map(a => a.why)));
+  assert.ok(r.asks.every(a => a.source?.url !== YOGA_URL), JSON.stringify(r.asks.map(a => a.why)));
   const cands = readEvents(r.run).filter(e => e.type === 'candidate');
-  assert.ok(cands.every(c => !c.source));
+  assert.ok(cands.every(c => c.source?.url !== YOGA_URL));
 });
 
 test('each candidate lists every seat it touches, its own first, real seats only', async () => {

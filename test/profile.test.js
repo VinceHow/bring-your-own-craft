@@ -52,12 +52,23 @@ test('a failed call: logged, and the team works without it (never waited on)', a
   assert.match(formatProfile(null), /assume, and keep moving/);
 });
 
+test('her character card: the team\'s playful read (title, 2-3 traits, maybe a superpower), each swappable; her craft and words kept', async () => {
+  const { cleanTag } = await import('../lib/tag.js');
+  const card = cleanTag({ craft: 'baker', title: 'Dawn Baker', traits: ['dough whisperer', 'first batch at 6am', 'knows every regular', 'one too many'],
+    superpower: 'knows every regular by name', goodAt: "I'm good at mixing dough", loves: 'I love the first batch out at 6am',
+    alternates: { titles: ['the Sourdough Sage', 'the Dawn Baker', 'Crust Captain'], traits: ['flour-dusted', 'dough whisperer'], superpowers: ['smells a good proof from the door'] } });
+  assert.deepEqual([card.craft, card.title, card.traits, card.superpower, card.goodAt, card.loves],
+    ['Baker', 'the Dawn Baker', ['dough whisperer', 'first batch at 6am', 'knows every regular'], 'knows every regular by name', 'mixing dough', 'the first batch out at 6am']);
+  assert.deepEqual(card.alternates, { titles: ['the Sourdough Sage', 'the Crust Captain'], traits: ['flour-dusted'], superpowers: ['smells a good proof from the door'] }, 'swaps never repeat what is on the card');
+});
+
 test('her name tag from her intro knows her seat: in Product, her craft is Product unless she says otherwise', async () => {
   let seen;
   const r = await nameTag('I love working on the customer journey, understanding the problems customers face', {
-    seat: 'product', callModel: async a => { seen = a; return { craft: 'Product manager', goodAt: 'understanding the problems customers face', loves: 'working on the customer journey' }; } });
+    seat: 'product', callModel: async a => { seen = a; return { craft: 'Product manager', title: 'the Customer Whisperer', traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: '', goodAt: 'understanding the problems customers face', loves: 'working on the customer journey' }; } });
   assert.match(seen.user, /Her seat at the table: Product/);
   assert.equal(r.body.craft, 'Product', 'her seat, in code, whatever the model calls it');
+  assert.equal(r.body.title, 'the Customer Whisperer');
   const diy = await nameTag("I'm good at mixing dough", { seat: 'diy', callModel: async a => { seen = a; return { craft: 'Baker', goodAt: 'mixing dough', loves: '' }; } });
   assert.ok(!/Her seat/.test(seen.user), 'her own craft: no seat hint');
   assert.equal(diy.body.craft, 'Baker');
