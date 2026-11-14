@@ -340,3 +340,8 @@ body[data-beat="0"] .seat-product:hover .seat-empty { background: rgba(255,72,17
 body[data-beat="6"] .her-sheet.big { width: 1130px; z-index: 7; }
 /* Stage mode: her journey's boxes a size up */
 body.stage .fl-box { font-size: 19px; }
+/* Her three on stage: the question is the thing to read from the back (>= 18 px at 1600, >= 14 px at 1280) */
+body.stage .fl-item.is-open .fl-q { font-size: 25px; line-height: 1.22; }
+body.stage .fl-item:not(.is-open):not(.fl-mine) .fl-q { font-size: 24px; line-height: 1.2; }
+body.stage .fl-item.fl-fork:not(.is-open), body.stage .fl-item.fl-pin:not(.is-open), body.stage .fl-fork:not(.is-open) > .fl-q { max-width: 340px; }
+body.stage .fl-item .fl-q .fl-tag { font-size: 13px; }

@@ -144,9 +144,21 @@
       const ids = new Set(boxes.map(b => b.id));
       // Notes go first so they stay on their box; forks have a stem, so they can move.
       const mine = S.items.filter(i => ids.has(i.nodeId));
-      for (const it of [...mine.filter(i => i.kind !== 'fork'), ...mine.filter(i => i.kind === 'fork')]) {
+      // The open ask is placed first (it's the biggest); the short notes fit around it.
+      const isOpen = i => i.el.classList.contains('is-open');
+      const waiting = i => i.ask && !i.answered && !isOpen(i);
+      for (const it of [...mine.filter(isOpen), ...mine.filter(waiting), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind !== 'fork'), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind === 'fork')]) {
         const b = S.nodes.get(it.nodeId);
         const w = it.el.offsetWidth, ih = it.el.offsetHeight;
+        // An ask still waiting is a small badge on its box's top edge: no room taken; a click opens it.
+        it.badge = it.ask && !it.answered && !isOpen(it);
+        if (it.badge) {
+          const n = placed.filter(p => p.badge && p.nodeId === it.nodeId).length;
+          it.left = b.x + b.w - w + 10 - n * (w + 8); it.top = b.y - ih + 8; it.w = w; it.h = ih; it.side = false;
+          Object.assign(it.el.style, { left: it.left + 'px', top: it.top + 'px' });
+          placed.push(it);
+          continue;
+        }
         let left = it.kind === 'fork' ? b.x + b.w / 2 - 40 : b.x + 24;
         let top = it.kind === 'fork' ? b.y + b.h + 30 : b.y + b.h - 16;
         // A closed note goes beside its box when nothing sits to its right in that row: the flow stays short.
@@ -158,11 +170,11 @@
         const maxW = Math.max(PAD * 2 + BOX_W + COL * Math.max(0, ...[...S.nodes.values()].map(n => n.col || 0)), (S.host.clientWidth || 0));
         if (left + w + PAD > maxW) left = Math.max(PAD, maxW - w - PAD);
         for (let guard = 0; guard < 20; guard++) {
-          const hit = placed.find(p => left < p.left + p.w + 14 && p.left < left + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14);
+          const hit = placed.find(p => !p.badge && left < p.left + p.w + 14 && p.left < left + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14);
           if (!hit) break;
           const right = hit.left + hit.w + 24, back = hit.left - w - 24;
           if (right + w + PAD <= maxW) left = right;
-          else if (back >= PAD && !placed.some(p => back < p.left + p.w + 14 && p.left < back + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14)) left = back;
+          else if (back >= PAD && !placed.some(p => !p.badge && back < p.left + p.w + 14 && p.left < back + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14)) left = back;
           else top = hit.top + hit.h + 18;
         }
         Object.assign(it.el.style, { left: left + 'px', top: top + 'px' });
@@ -231,7 +243,7 @@
 
   function drawFork(it) {
     const b = S.nodes.get(it.nodeId);
-    if (!b || it.left == null) return;
+    if (!b || it.left == null || it.badge) return;
     const q = off(it.el.querySelector('.fl-q'));
     const ink = seatInk(it.ask.seat);
     const stem = it.side
@@ -271,8 +283,10 @@
     const kind = ask.kind === 'pin' ? 'pin' : 'fork';
     const el = h('div', 'fl-item fl-' + kind);
     el.dataset.seat = ask.seat || '';
+    el.dataset.ask = ask.id;
     el.style.setProperty('--seat', seatInk(ask.seat));
     const q = h('div', 'fl-q');
+    q.title = ask.decision;
     q.appendChild(h('span', 'fl-tag', seatName(ask.seat)));
     q.appendChild(h('span', 'fl-qtext', ask.decision));
     if (kind === 'pin') el.appendChild(h('span', 'fl-pinhead'));
@@ -316,7 +330,10 @@
   function refocus(doLayout = true) {
     const open = S.items.filter(i => i.ask && !i.answered);
     const cur = open.find(i => i.ask.id === S.focus) || open[0] || null;
-    for (const i of S.items) if (i.ask) i.el.classList.toggle('is-open', i === cur);
+    for (const i of S.items) if (i.ask) {
+      i.el.classList.toggle('is-open', i === cur);
+      i.el.classList.toggle('is-waiting', !i.answered && i !== cur);
+    }
     layout();
   }
 
