@@ -216,7 +216,7 @@
     } else {
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
         <div class="card-stance">${esc(i.stance)}</div>
-        <div class="card-note">Your team sits here today. Own mode for this seat: coming.</div>`;
+        <div class="card-note">Seat open: invite a teammate. Your agents hold it until they arrive.</div>`;
     }
     return c;
   }
