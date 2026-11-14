@@ -543,7 +543,7 @@ html #room :is(.seat .card, .seat-product .seat-empty, .seat-diy .seat-empty, .t
   .focus-doc .chime, .focus-doc .fd-work, .room-panel, .counter, .big-card, .name-tag, .page-sheet, .close-sheet, .team-space .ts-title)::after,
 html .replay-label::after {
   content: '' !important; display: block !important; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
-  background: var(--paper, var(--sheet)) var(--tooth) !important; background-size: auto, 260px 260px !important; background-clip: padding-box !important;
+  background: var(--pp, var(--sheet)) var(--tooth) !important; background-size: auto, 260px 260px !important; background-clip: padding-box !important;
   border-style: solid !important; border-width: 2px !important; border-color: transparent !important; border-image: var(--ink-card) 34 / 34px / 2px stretch !important;
   box-shadow: var(--paper-shadow); transition: box-shadow 300ms var(--ease-land); }
 /* small things get the lighter pen line, documents the heavier */
@@ -565,11 +565,11 @@ html #room .seat .card[data-state="working"] .card-band::before, html #room .sea
 html #room .seat .card .card-character { position: absolute; }   /* the character slot belongs to the loops designer; never clipped by the pill */
 
 /* ---- (e) her pill on the stool ---- */
-html #room .seat-product .card, html #room .seat-diy .card { border-radius: 999px; --paper: var(--sheet-her); --cx: 3px; --cy: 4px; --crot: -1deg; cursor: pointer; }
+html #room .seat-product .card, html #room .seat-diy .card { border-radius: 999px; --pp: var(--sheet-her); --cx: 3px; --cy: 4px; --crot: -1deg; cursor: pointer; }
 html #room .seat-product .card-band::before { -webkit-mask: none; mask: none; width: 20px; height: 20px; border-radius: 50%; background: var(--product-t); }
 html #room .seat-product .card-her .card-who { color: var(--product-t); }
 html #room .seat-product .card-her .card-title { color: var(--ink-2); }
-html #room .seat-product .seat-empty { border-radius: 999px; --paper: var(--sheet-her); --cx: 3px; --cy: 4px; --crot: -1deg; box-shadow: none; }
+html #room .seat-product .seat-empty { border-radius: 999px; --pp: var(--sheet-her); --cx: 3px; --cy: 4px; --crot: -1deg; box-shadow: none; }
 html #room .seat-product .seat-empty::before { -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; animation: none; }
 html #room .seat-product .seat-empty { font-size: 19px; color: transparent; }
 html #room .seat-product .seat-empty > * { display: none; }
@@ -603,8 +603,8 @@ html #room .her-sheet::before { width: auto !important; left: -2px !important; t
 
 /* ---- the quiet tally and the run label ---- */
 html #room .counter { border-radius: var(--r-sm); --cx: 3px; --cy: 4px; }
-html .replay-label { --cc: var(--cr-strategy); --paper: var(--sheet-dark); --cx: 3px; --cy: 4px; border-radius: var(--r-sm) !important; color: #FFF6EA !important; }
-html .replay-label.fake { --paper: #F5DB8E; color: var(--ink) !important; }
+html .replay-label { --cc: var(--cr-strategy); --pp: var(--sheet-dark); --cx: 3px; --cy: 4px; border-radius: var(--r-sm) !important; color: #FFF6EA !important; }
+html .replay-label.fake { --pp: #F5DB8E; color: var(--ink) !important; }
 
 /* ---- a teammate's sketchpad, opened from its pill: a paper popover near them ---- */
 html #room .room-panel { border-radius: var(--r-lg); color: var(--ink); --cx: 8px; --cy: 8px; --crot: 1.2deg; }
@@ -634,7 +634,7 @@ html #room .ws-believe { font: italic 500 18px/1.3 var(--display); }
 /* ---- focus: the document, the work, her takeaways, the team's chime-ins as small papers ---- */
 html #room .focus-doc { border-radius: 40px 34px 42px 32px / 34px 42px 32px 40px; --cx: 10px; --cy: 10px; --crot: .6deg; }
 html #room .focus-doc .fd-work { border-radius: var(--r-md); --cc: var(--kraft); --cx: 5px; --cy: 6px; }
-html #room .focus-doc .fd-brief { border-radius: var(--r-md); --cc: var(--cr-product); --paper: #FDF0F2; }
+html #room .focus-doc .fd-brief { border-radius: var(--r-md); --cc: var(--cr-product); --pp: #FDF0F2; }
 html #room .focus-doc .fd-brief::before { font-size: 0; }
 html #room .focus-doc .chime { padding: 10px 14px 11px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); --cx: 5px; --cy: 5px; --crot: 1.4deg; grid-template-columns: 1fr; }
 html #room .focus-doc .chime-who { grid-column: 1; color: var(--ct, var(--ink-2)); }
@@ -659,3 +659,13 @@ html #room .seat-diy:not(.filled)::after { content: 'Your own craft'; position: 
   z-index: 8; font: italic 400 18px/1 var(--display); color: var(--ink-2); pointer-events: none; }
 html body:not([data-beat="0"]) #room .seat-diy:not(.filled) { display: none; }
 html #room .seat-diy.filled { left: 622px; top: 676px; }
+html #room .focus-doc .chime { padding: 11px 18px 12px 20px; }
+html #room .focus-doc .brief-head { text-transform: none; letter-spacing: 0; font: 500 22px/1 var(--display); color: var(--product-t); }
+/* projector: the 13px labels a step darker */
+html #room .seat .card-band .agent-mark, html #room .tray-seat, html #room .chime-who, html #room .chatter-who { color: var(--ink-2) !important; }
+html #room .tray-note[data-seat] .tray-seat { color: var(--ct, var(--ink-2)) !important; filter: brightness(.85); }
+/* the "who" chips on her sheet: soft pills, no riso box */
+html #room .fs-user { border: 0 !important; border-radius: 999px; padding: 6px 13px 7px; font: 500 14px/1 var(--ui); color: var(--ink);
+  background: #FFFDF8; box-shadow: inset 0 0 0 1px rgba(80,55,35,.22), 2px 3px 6px -3px rgba(60,35,15,.3) !important; }
+html #room .fs-who { font: 500 14px var(--ui); color: var(--ink-2); }
+html #room .fs-who::before { border: 0 !important; border-radius: 50%; }
