@@ -28,4 +28,5 @@ Shots are in `design/studio/shots/cast-living/`. Tools are in this folder: `qc.p
 ## Not tested
 - Safari and Firefox.
 - Long runs.
-- The cat, coffee and record clicks were not recorded. Their clips and code are in, but I have not looked at them by eye in the page.
+- Clicks checked once in Chromium (`step4-clicks.jpg`): the cat stretches with no seam, the coffee machine steams, the record player's arm moves and the string lights glow.
+- Music: playback starts on the click in code, but sound can't be heard in a headless browser, so it is unconfirmed by ear.
