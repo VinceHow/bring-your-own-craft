@@ -1,7 +1,7 @@
 # Bring your own craft: how agents work here
 
 A one-off hackathon build. Core done by 00:00 Saturday night; Devpost submission at 11:30 Sunday 15 Nov (it closes 12:00).
-`BRIEF.md` is what we build and the schedule; `DEMO.md` is the 3-minute script it serves. When they disagree,
+Read `VISION.md` first: the agreed picture (locked by Vincent, Sat). `BRIEF.md` is what we build and the schedule; `DEMO.md` is the 3-minute script it serves. When they disagree,
 `DEMO.md` wins on what the audience sees, and `BRIEF.md` on how it's built. Vincent (the owner) is a product
 person: write to him in plain English, recommendation first.
 
