@@ -357,6 +357,21 @@ function wrapup(rounds) {
   $('#doc').appendChild(host); InkPaper.dress(host); requestAnimationFrame(() => $$('.pane').forEach(InkPaper.redraw));
   return host;
 }
+// "Looks right" files the review. Her inbox (design/cast-toys, her-inbox.html) owns Past meetings: it listens for
+// 'studio:filed' and flies the card into the first row of #past. The entry is the agreed Meeting notes shape.
+const TITLE = { mika: 'How ordering should feel', noor: 'Holding the regulars’ loaves' };
+function filed() {
+  const rounds = $$('#wrapup .rd').length || 1;
+  const entry = { id: `${W}-review`, when: 'Today', question: M.q, title: TITLE[W],
+    artifact: { kind: W === 'mika' ? 'wireframes' : 'finding', title: M.from.split(' · ')[1].replace(/^./, ch => ch.toUpperCase()), by: [W], thumb: null },
+    belief: $('#wrapup .big')?.textContent.trim() || M.take.believe,
+    guidance: $$('#wrapup .g').map(g => g.textContent.trim()),
+    changes: CHANGES[W].map(([who, kind, text]) => ({ who, kind, text })),
+    rounds: M.rounds.slice(0, rounds).map(R => ({ line: R.sum })), transcriptUrl: null };
+  document.dispatchEvent(new CustomEvent('studio:filed', { detail: { entry, card: $('#wrapup') } }));
+  return entry;
+}
+c.addEventListener('click', ev => { if (ev.target.closest('#looks')) filed(); });
 function rewordDemo() {   // rewording one line, inline
   const e = $('#wrapup .big .ed'); e.classList.add('editing');
   e.firstChild.textContent = 'Ordering should feel like being known. Never ask for anything we could remember or skip.';
@@ -620,7 +635,7 @@ async function playEnd() {
   $('#side').style.opacity = 0; await wait(200);
   const w = wrapup(M.rounds.length > 1 ? [0, 1] : [0]); InkPaper.lay(w); await wait(3200);
   rewordDemo(); await wait(2600); $('.ed.editing')?.classList.remove('editing'); await wait(800);
-  $('#looks').classList.add('is-pressed'); await wait(200);
+  $('#looks').classList.add('is-pressed'); filed(); await wait(200);
   await animate($('#doc'), { opacity: 0, scale: .97 }, spring(.45)).finished;
   roomAfter(); const rv = $('#reviewed'); animate(rv, { opacity: [0, 1], scale: [1.3, 1], rotate: [14, 6] }, spring(.5)); await wait(3000);
   notesList(); InkPaper.lay($('#notes'));
