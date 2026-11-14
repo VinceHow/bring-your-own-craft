@@ -80,8 +80,8 @@ p(`## Her ${r.asks.length}`);
 for (const a of r.asks) {
   p(`- **${a.by}:** "${a.question}"${r.scores.get(a.id)?.domain ? ` (her domain: ${r.scores.get(a.id).domain})` : ''}`);
   p(`  - on: ${a.artifact.kind}${a.artifact.ref ? ` (${a.artifact.ref})` : ''} · settles: ${a.decisionIds.join(', ')} · valid Ask: ${validAsk(a)}`);
-  p(`  - from ${a.id}: ${a.decision} (team's recommendation if she skips it: ${a.recommendation})`);
-  p(`  - why (logged only): ${a.why}`);
+  const c = r.candidates.find(x => x.id === a.id) || {};
+  p(`  - from ${a.id}: ${a.decision} (team's recommendation if she skips it: ${c.recommendation})`);
 }
 const refused = readEvents(run).filter(e => e.type === 'ask.refused');
 if (refused.length) {

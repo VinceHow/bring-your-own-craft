@@ -300,3 +300,18 @@ test('what she settled in a focus moment (answer.mapped) is never re-decided at 
   assert.ok(!seen.includes('c2'));
   assert.ok(!readEvents(run).some(e => e.type === 'decided' && e.id === 'c2'));
 });
+
+test('the logged ask carries the Ask and its decision, never options, recommendation, kind or why', async () => {
+  const run = newRun();
+  const r = await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: [cand(1), cand(2)], callModel: fakeModel() });
+  const evs = readEvents(run).filter(e => e.type === 'ask');
+  assert.equal(evs.length, 2);
+  for (const e of [...evs, ...r.asks]) {
+    for (const k of ['options', 'recommendation', 'kind', 'why', 'reason']) assert.equal(e[k], undefined, k);
+    for (const k of ['id', 'seat', 'by', 'question', 'artifact', 'decisionIds', 'decision']) assert.ok(e[k] !== undefined, k);
+  }
+  // Offline (no run) the asks have the same shape.
+  const off = await select({ idea: 'x', flow, taste: [], candidates: [cand(3)], callModel: fakeModel() });
+  assert.equal(off.asks[0].options, undefined);
+  assert.equal(off.asks[0].question, 'What does c3 mean to the people who book?');
+});
