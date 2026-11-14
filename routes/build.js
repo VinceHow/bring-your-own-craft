@@ -66,6 +66,9 @@ export default [{ method: 'GET', match: url => url.pathname.startsWith('/runs/')
     const run = decodeURIComponent(url.pathname.match(BUILD)[1]);
     if (!RUN_ID.test(run) || !fs.existsSync(path.join(RUNS_DIR, run))) return sendJson(res, 404, { error: 'unknown run' });
     if (building.has(run)) return sendJson(res, 409, { error: 'already building' });
+    // "Your own craft" (known limit): two prepared templates; a DIY idea neither fits gets no page, never the wrong one.
+    const start = readEvents(run).find(e => e.type === 'run.start');
+    if (start?.seat === 'diy' && start.template === null) return sendJson(res, 409, { error: 'no page template for this idea', noTemplate: true });
     building.add(run);
     try {
       sendJson(res, 200, await buildRun(run));

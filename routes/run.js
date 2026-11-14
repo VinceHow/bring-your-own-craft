@@ -9,6 +9,9 @@ import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../
 import { tally } from '../lib/tally.js';
 import { parseFlow } from '../lib/flow.js';
 import { currentLines } from '../lib/sketch.js';
+import { cleanTag, templateFor } from '../lib/craft.js';
+import { SEATS } from '../lib/teammates.js';
+const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
 const running = new Set();
@@ -20,7 +23,7 @@ function state(run) {
   const evs = readEvents(run);
   const start = evs.find(e => e.type === 'run.start');
   const lines = currentLines(evs); // journey lines since the last flow.reset (a reshape or box edit replaces them)
-  return { evs, idea: start?.idea, seat: start?.seat || 'product', lines, flow: parseFlow(lines) };
+  return { evs, idea: start?.idea, seat: start?.seat || 'product', tag: start?.tag || null, lines, flow: parseFlow(lines) };
 }
 const validRun = id => /^[\w-]{1,80}$/.test(id) && fs.existsSync(path.join(RUNS_DIR, id, 'events.jsonl'));
 
@@ -38,7 +41,7 @@ const handlers = {
     const s = state(run);
     if (running.has(run) || s.evs.some(e => e.type === 'select.done')) return [409, { error: 'already proposed for this run' }];
     running.add(run);
-    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat })
+    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag })
       .catch(e => { logEvent(run, 'propose.error', { error: scrub(e.message) }); return null; })
       .finally(() => running.delete(run));
     if (!body?.wait) return [202, { started: true }];
@@ -103,7 +106,10 @@ export default [
       const run = newRunId();
       const intro = String(body?.intro || '').trim();
       initTaste(run, { intro });
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat: body?.seat || 'product', ...(intro ? { intro } : {}) });
+      // "Your own craft": her seat is 'diy' and her name tag travels with the run (lib/craft.js).
+      const seat = SEAT_IDS.includes(body?.seat) ? body.seat : 'product';
+      const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}) });
       return sendJson(res, 200, { run });
     },
   },
