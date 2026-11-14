@@ -1068,23 +1068,50 @@
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>`;
+      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>
+      <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
+      <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
-      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
     });
+    // The click path, as well as Enter: "Make my tag", then "Meet your team" once it's made; "Try again" after a failure.
+    $('.nt-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); introDone(); });
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
   // traits, maybe a superpower, each swappable with a click (builder 6's POST /api/name-tag, as on the craft seat).
+  // What the card is doing, always visible (never silence): 'thinking' within a frame of Enter, 'slow' after a while,
+  // 'failed' with a plain line and Try again. Hooks: [data-slot="status"][data-state], [data-slot="make"].
+  const TAG_LIMIT_MS = 25000, TAG_SLOW_MS = 6000;
+  function tagStatus(c, state, text, button) {
+    const st = $('.nt-status', c), mk = $('.nt-make', c);
+    if (st) { st.dataset.state = state; st.textContent = text || ''; }
+    if (mk) { mk.textContent = button || 'Make my tag'; mk.disabled = state === 'thinking' || state === 'slow'; }
+  }
   async function makeCharacter(c, said) {
     c.dataset.state = 'thinking';
-    let r = null;
-    try { r = await BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }); } catch { r = null; }
+    let r = null, failed = false;
+    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'thinking') tagStatus(c, 'slow', 'Still making your name tag… the team is warming up.'); }, TAG_SLOW_MS);
+    try {
+      r = await Promise.race([
+        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }),
+        new Promise((_, no) => setTimeout(() => no(new Error('timeout')), TAG_LIMIT_MS)),
+      ]);
+    } catch { failed = true; r = null; }
+    clearTimeout(slow);
     if (introCard !== c) return;
+    // Nothing usable back (an error, a timeout, or no title and no traits): say so plainly, and let her try again.
+    if (failed || !r || (!r.title && !(Array.isArray(r.traits) && r.traits.length))) {
+      c.dataset.state = 'asking';
+      const inp = $('#intro-input', c); if (inp) { inp.readOnly = false; inp.focus(); }
+      tagStatus(c, 'failed', 'The team couldn’t make your name tag just now. Press Enter or Try again.', 'Try again');
+      return;
+    }
+    tagStatus(c, 'done', '', 'Meet your team');
     const cur = { craft: 'Product', title: r?.title || '', traits: Array.isArray(r?.traits) ? r.traits.slice(0, 3) : [], superpower: r?.superpower || '',
       loves: said, alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
     c._char = cur;
@@ -1114,8 +1141,9 @@
     const raw = inp.value.trim();
     if (raw && c.dataset.state === 'asking') {
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
+      tagStatus(c, 'thinking', 'The team is making your name tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro' }) || raw).trim() || raw; } catch { said = raw; } }
+      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
