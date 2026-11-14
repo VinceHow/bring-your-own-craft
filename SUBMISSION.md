@@ -58,6 +58,10 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she can speak her intro, her idea and her answers (ElevenLabs speech-to-text).
+- A second model backend on fal: Claude through fal's OpenRouter router (`MODEL_BACKEND=fal`), tested 9/9
+  schema-valid against Claude Code on 3 real calls per step. It's slower (the team works in about 33 s against about
+  20 s), so the demo's teammates stay on Claude Code and fal is the fallback.
+- Brand images for the bakery site: planned with fal flux/schnell (timed at a median 2.2 s, about 0.3¢ an image).
 - One event log per run; every number on screen comes from it. Anything prepared ahead is labelled PREPARED or REPLAY.
 - We built it the same way. Vincent sat in the Product seat; a product-owner agent shaped the experience with him; a
   lead agent split the work across up to eight builder agents in parallel; every change was reviewed by an agent that
@@ -95,7 +99,8 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
 
 ## Built with
 Node.js, JavaScript, HTML, CSS, Claude (via Claude Code, headless), Anthropic product-management plugin (`write-spec`),
-taste-skill, ElevenLabs (speech-to-text), motion, Playwright. (fal: planned as a second backend, not used.)
+taste-skill, ElevenLabs (speech-to-text), fal (Claude via OpenRouter as the fallback model backend; flux/schnell
+planned for the bakery's brand images), motion, Playwright.
 
 ## Try it
 Repo: **TBD** (public repo URL). Run `npm start`, open http://localhost:3000. Tests: `npm test`, `npm run e2e`.

@@ -7,3 +7,4 @@ runs/*
 *.log
 .env
 .claude/worktrees/
+.env.local
