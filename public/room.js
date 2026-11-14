@@ -90,15 +90,71 @@
       try { fn(payload); } catch (e) { console.error('BYOC handler', type, e); }
     }
   }
-  BYOC.api = async function (path, body) {
-    const res = await fetch(path, body === undefined ? {} : {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = { text }; }
-    if (!res.ok) { const e = new Error((data && data.error) || `HTTP ${res.status}`); e.status = res.status; e.data = data; throw e; }
-    return data;
+  // BYOC.api(path, body?, { step }): every live call she waits on shows as a step on the table (never a spinner).
+  // step: a label, or false for background calls. Unset: a label from the path (see stepFor), or none.
+  BYOC.api = async function (path, body, opts = {}) {
+    const label = opts.step === undefined ? stepFor(path) : opts.step;
+    const id = label ? stepBegin(label) : null;
+    try {
+      const res = await fetch(path, body === undefined ? {} : {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = { text }; }
+      if (!res.ok) { const e = new Error((data && data.error) || `HTTP ${res.status}`); e.status = res.status; e.data = data; throw e; }
+      if (id) stepEnd(id);
+      return data;
+    } catch (e) { if (id) stepEnd(id, e); throw e; }
   };
+
+  // ---- the live step: what the room is waiting on, with its seconds ----------------------------
+  // Over SLOW_MS (25 s; ?slow=<ms> to test) or on a failure it says so, and that R swaps in the rehearsal.
+  const SLOW_MS = Number(new URLSearchParams(location.search).get('slow')) || 25000;
+  BYOC.SLOW_MS = SLOW_MS;
+  function stepFor(p) {
+    const m = String(p).match(/^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|build)$/);
+    if (p === '/api/run') return 'Opening her sheet';
+    if (!m) return null;
+    return { line: 'Drawing her step', propose: 'The team is starting', answer: 'Noting her call',
+      pin: 'The team is naming her taste', taste: 'Writing it into her file', build: 'Engineering is building' }[m[1]];
+  }
+  const steps = new Map(); // id -> { label, t0 }
+  let stepSeq = 0, stepFail = null, stepTick = null;
+  const stepEl = document.createElement('div');
+  stepEl.id = 'live-step'; stepEl.className = 'live-step'; stepEl.hidden = true;
+  stepEl.setAttribute('aria-live', 'polite');
+  function stepBegin(label) {
+    const id = ++stepSeq; steps.set(id, { label, t0: Date.now() }); stepFail = null;
+    if (!stepTick) stepTick = setInterval(renderStep, 500);
+    renderStep(); return id;
+  }
+  function stepSet(id, label) { const s = steps.get(id); if (s) { s.label = label; renderStep(); } }
+  function stepEnd(id, err) {
+    const s = steps.get(id); if (!s) return;
+    steps.delete(id);
+    if (err && err.status !== 404 && err.status !== 409) stepFail = { label: s.label, why: err.status ? `error ${err.status}` : 'no answer' };
+    if (!steps.size && !stepFail) { clearInterval(stepTick); stepTick = null; }
+    renderStep();
+  }
+  function stepClear() { steps.clear(); stepFail = null; clearInterval(stepTick); stepTick = null; renderStep(); }
+  function renderStep() {
+    if (BYOC.replay) { stepEl.hidden = true; return; }
+    const now = Date.now();
+    // The newest step she is waiting on; quick ones (under 0.8 s) never flash up.
+    const cur = [...steps.values()].filter(s => now - s.t0 > 800).at(-1);
+    stepEl.classList.toggle('failed', !!stepFail && !cur);
+    if (cur) {
+      const ms = now - cur.t0, slow = ms > SLOW_MS;
+      stepEl.classList.toggle('slow', slow);
+      stepEl.innerHTML = `<b>${esc(cur.label)}</b> <span>${Math.floor(ms / 1000)} s</span>${slow ? '<em>slow · R replays the rehearsal</em>' : ''}`;
+      stepEl.hidden = false; return;
+    }
+    stepEl.classList.remove('slow');
+    if (stepFail) { stepEl.innerHTML = `<b>${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.hidden = false; return; }
+    stepEl.hidden = true;
+  }
+  BYOC.step = { begin: stepBegin, set: stepSet, end: stepEnd, clear: stepClear, get state() {
+    return { steps: [...steps.values()].map(s => ({ ...s })), failed: stepFail }; } };
   BYOC.run = null;
   BYOC.replay = false;      // true while a recorded (or fake) run is on screen
   BYOC.replayKind = null;   // 'recorded' | 'fixture'
@@ -127,6 +183,7 @@
     seatSheet: {},
     seat: {},
   };
+  el.room.appendChild(stepEl);
   for (const s of SEATS) el.seat[s] = $(`.seat[data-seat="${s}"]`);
   // Product's own teammate (the spec drafter) gets a small sheet too, tucked beside her file.
   const productSheet = h('section', 'mini-sheet'); productSheet.dataset.sheet = 'product'; productSheet.hidden = true;
@@ -279,11 +336,20 @@
     try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/line`, { text }); }
     catch (e) { status(`line not logged (${e.status || e.message})`); }
   }
+  // The team's work arrives as events; the step stays up until the selector is done (or the team stops).
+  let teamStep = null;
   async function teamGo() {
     if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); return; }
-    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}); }
-    catch (e) { status(`propose failed (${e.status || e.message})`); }
+    teamStep = stepBegin('The team is proposing');
+    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}, { step: false }); }
+    catch (e) { status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; } }
   }
+  function teamProgress() {
+    if (!teamStep) return;
+    const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
+    stepSet(teamStep, done >= SEATS.length ? 'The team is choosing her three' : `The team is proposing · ${done} of ${SEATS.length} done`);
+  }
+  let buildStep = null;
   el.herForm.addEventListener('submit', e => {
     e.preventDefault();
     const text = el.herInput.value.trim();
@@ -406,7 +472,7 @@
       const live = !BYOC.replay && BYOC.run && !BYOC.run.startsWith('local-');
       if (live && serverTally !== false) {
         try {
-          const t = await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/tally`);
+          const t = await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/tally`, undefined, { step: false });
           serverTally = true; renderTally({ ...t, meter: t.meter || tallyFromEvents(seen).meter }); tallySource('server'); return;
         } catch (e) { if (e.status === 404) serverTally = false; }
       }
@@ -432,7 +498,7 @@
     if (BYOC.replay || sk.req || !BYOC.run || BYOC.run.startsWith('local-')) return;
     const asks = seen.filter(e => e.type === 'ask').length;
     const answered = new Set(seen.filter(e => e.type === 'answer').map(e => e.askId)).size;
-    if (asks && answered >= asks) { sk.req = BYOC.api(sketchUrl()); sk.req.catch(() => { sk.req = null; }); }
+    if (asks && answered >= asks) { sk.req = BYOC.api(sketchUrl(), undefined, { step: false }); sk.req.catch(() => { sk.req = null; }); }
   }
   async function showSketches(data) {
     sk.wait.textContent = '';
@@ -449,11 +515,13 @@
     if (sk.inner.children.length) return;
     sk.wait.textContent = 'Design is sketching the screens of her journey';
     const t0 = performance.now();
+    const sid = stepBegin('Design is sketching');
     try {
-      const data = await (sk.req || (sk.req = BYOC.api(sketchUrl())));
+      const data = await (sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false })));
       BYOC.timings.sketchesWaitMs = Math.round(performance.now() - t0);
+      stepEnd(sid);
       await showSketches(data);
-    } catch (e) { sk.wait.textContent = `Sketches failed (${e.status || e.message})`; sk.req = null; }
+    } catch (e) { stepEnd(sid, e); sk.wait.textContent = `Sketches stopped (${e.status || e.message}). R replays the rehearsal.`; sk.req = null; }
   }
 
   // Scale content down (never up) so it fits its sheet; no scrolling on stage.
@@ -516,8 +584,10 @@
         break;
       case 'teammate.done':
         sheetStep(ev.seat, `${ev.count ?? ''} proposed${ev.ms ? ' · ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        if (source === 'live') teamProgress();
         break;
       case 'select.done':
+        if (teamStep) { stepEnd(teamStep); teamStep = null; }
         refreshTally();
         break;
       case 'ask': {
@@ -551,15 +621,22 @@
         break;
       case 'teammate.error':
         sheetStep(ev.seat, 'stopped: model error');
+        if (source === 'live') teamProgress();
         break;
       case 'propose.error':
         status(`the team stopped: ${ev.error || 'error'}`);
+        if (teamStep) { stepEnd(teamStep, { status: 500 }); teamStep = null; }
         break;
       case 'build.step':
         sheetStep('engineering', `building: ${ev.step}`);
+        if (source === 'live') { if (!buildStep) buildStep = stepBegin('Engineering is building'); stepSet(buildStep, `Engineering is building: ${ev.step}`); }
         break;
       case 'build.done':
         sheetStep('engineering', `built${ev.ms ? ' in ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        if (buildStep) { stepEnd(buildStep); buildStep = null; }
+        break;
+      case 'build.error':
+        if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; }
         break;
     }
   }
@@ -638,7 +715,7 @@
     walkToken++;
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
-    seen = []; pending = []; serverTally = null;
+    seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {
       el.seat[s].classList.remove('filled');
       el.seat[s].querySelector('.card')?.remove();
