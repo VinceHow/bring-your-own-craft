@@ -55,6 +55,25 @@ if (onPath) {
   say(ok, ok ? `Claude Code is logged in and answers (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `Claude Code did not answer: ${why}`,
     'run `claude` in a terminal and log in; if it says you hit a usage limit, set MODEL_BACKEND=fal in .env.local');
 }
+// 2b. The room's real call shape (the name tag's: --json-schema, --effort, its model). An older Claude Code that doesn't
+// know a flag fails here loudly; the server would drop the flag and carry on (lib/model.js), slower and looser.
+if (onPath) {
+  const t0 = Date.now();
+  const tagModel = process.env.TAG_MODEL || 'haiku', tagEffort = process.env.TAG_EFFORT || 'low';
+  const r = await run('claude', ['-p', 'Say ok.', '--system-prompt', 'Reply with JSON.', '--tools', '', '--setting-sources', '',
+    '--strict-mcp-config', '--output-format', 'json', '--no-session-persistence', '--json-schema',
+    JSON.stringify({ type: 'object', properties: { ok: { type: 'string' } }, required: ['ok'] }), '--model', tagModel, '--effort', tagEffort], 90000);
+  const unknown = String(r.err || r.out || '').match(/unknown option ['"`]?(--[a-z-]+)/i)?.[1];
+  let ok = false, why = '';
+  if (unknown) why = `this Claude Code (${ver.out.trim().split('\n')[0]}) doesn't know ${unknown}`;
+  else if (r.timeout) why = 'no answer in 90 s';
+  else if (r.error) why = short(r.error);
+  else { try { const d = JSON.parse(r.out); ok = !d.is_error && !!(d.structured_output || d.result); if (!ok) why = short(d.result || d.terminal_reason || 'error'); } catch { why = short(r.err || r.out || `exit ${r.code}`); } }
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  say(ok, ok ? `The room's call shape works (JSON schema, --effort ${tagEffort}, ${tagModel}): ${secs} s` : `The room's call shape failed: ${why}`,
+    unknown ? 'update Claude Code: npm i -g @anthropic-ai/claude-code (the room drops the flag and carries on, but slower)'
+      : 'run `claude` in a terminal and log in; if it keeps failing, set MODEL_BACKEND=fal in .env.local');
+}
 
 // 3. Keys: set or missing (never the value), and 4. each works, with one cheap call
 const set = k => !!process.env[k];

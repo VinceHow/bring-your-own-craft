@@ -5,7 +5,8 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { onEvent } from './lib/events.js';
-import { scrub } from './lib/model.js';
+import { scrub, warmUp } from './lib/model.js';
+import { TAG_MODEL, TAG_EFFORT } from './lib/tag.js';
 import { sendJson } from './lib/http.js';
 
 const PORT = Number(process.env.PORT || 3000);
@@ -97,6 +98,11 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.join(ROOT, 'server.js')) {
-  server.listen(PORT, () => console.log(`room on http://localhost:${PORT}`));
+  server.listen(PORT, () => {
+    console.log(`room on http://localhost:${PORT}`);
+    // claude-code backend: the CLI's version, and one tiny call so the first live call isn't cold (lib/model.js).
+    // Not under node --test (unit and e2e servers): no extra model call there.
+    if (process.env.WARM_UP !== '0' && !process.env.NODE_TEST_CONTEXT) warmUp({ model: TAG_MODEL, effort: TAG_EFFORT }).catch(() => {});
+  });
 }
 export default server;
