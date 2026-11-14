@@ -13,8 +13,8 @@
   const BYOC = window.BYOC;
   const M = window.Motion || null;
   const SPRING = { type: 'spring', stiffness: 500, damping: 30 };
-  const SEAT_INK = { product: '#FF48B0', design: '#0078BF', data: '#00A95C', research: '#FF6C2F', engineering: '#FFE800' };
-  const BUILT = 'And this project was built the same way: I sat in the Product seat.';
+  const SEAT_INK = { product: '#FF48B0', design: '#0078BF', data: '#00A95C', research: '#FF6C2F', strategy: '#BB8B41', engineering: '#FFE800' };
+  const BUILT = 'This project was built the same way. Tomorrow, the engineer at this table is a person, with their own team.';
 
   const room = document.getElementById('room');
   const sheet = document.createElement('section');
@@ -29,7 +29,7 @@
       </div>
       <div class="close-her" id="close-her" hidden>
         <div class="close-label">Her, in the Product seat</div>
-        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> <b id="close-decided"></b> decided from her file</div>
+        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> the rest handled by her team</div>
         <div class="close-src" id="close-her-src"></div>
       </div>
       <p class="close-built" id="close-built" hidden>${BUILT}</p>
@@ -38,6 +38,7 @@
       <div class="close-label">A judge’s idea</div>
       <form id="close-form" autocomplete="off"><input id="close-input" class="close-input" spellcheck="false" placeholder="Type the idea"></form>
       <div class="close-step" id="close-step"></div>
+      <div class="close-sketch" id="close-sketch"></div>
       <div class="close-count" id="close-count"></div>
       <ol class="close-asks" id="close-asks"></ol>
     </div>`;
@@ -94,6 +95,7 @@
     sheet.dataset.phase = 'idea';
     $('close-her').hidden = true; $('close-built').hidden = true;
     $('close-asks').innerHTML = ''; $('close-asks').style.transform = ''; $('close-count').innerHTML = ''; $('close-step').textContent = '';
+    $('close-sketch').innerHTML = '';
     $('close-step').classList.remove('slow');
   }
   function close() {
@@ -115,14 +117,18 @@
   function landAsks(r, my) {
     BYOC.timings.asksAt = Date.now();
     sheet.dataset.phase = 'landed';
-    $('close-count').innerHTML = `<b>${r.came}</b> decisions came up · <b class="pink">${r.brought}</b> brought to her`;
-    (r.asks || []).forEach((a, i) => {
+    $('close-count').innerHTML = `<b>${Math.max(0, r.came - r.brought)}</b> handled by the team · <b class="pink">${r.brought}</b> for her`;
+    // One check-in at a time (DEMO 2:38): the team's first lands, in its teammate's voice, on Design's sketch.
+    (r.asks || []).slice(0, 1).forEach((a, i) => {
       const li = document.createElement('li');
+      li.dataset.ask = a.id || '';
       li.style.setProperty('--seat', SEAT_INK[a.seat] || '#141414');
-      li.innerHTML = `<span class="close-seat">${esc(a.seat)}</span><span class="close-q">${esc(a.decision)}</span>
-        <span class="close-rec">recommends: ${esc(a.recommendation)}</span>${a.why ? `<span class="close-why">why her: ${esc(a.why)}</span>` : ''}`;
+      const node = a.attachTo && document.querySelector(`#close-sketch .fs-box[data-node="${a.attachTo}"]`);
+      if (node) node.classList.add('close-on');
+      li.innerHTML = `<span class="close-seat">${esc(a.seat)}${node ? ` · on “${esc(node.textContent)}”` : ''}</span><span class="close-q">${esc(a.decision)}</span>
+        <span class="close-rec">recommends: ${esc(a.recommendation)}</span>${a.reason ? `<span class="close-why">${esc(a.reason)}</span>` : ''}`;
       $('close-asks').appendChild(li);
-      if (M) M.animate(li, { x: [60, 0], y: [-20, 0], rotate: [4, (i % 2 ? 0.8 : -0.8)] }, { ...SPRING, delay: i * 0.25 });
+      if (M) M.animate(li, { x: [60, 0], y: [-20, 0], rotate: [4, -0.8] }, SPRING);
     });
     fitAsks(); setTimeout(fitAsks, 120);
     // Then her line, then the last line.
@@ -132,8 +138,8 @@
       const h = her || await herNumbers();
       if (my !== token) return;
       if (h && h.fromFile > 0) {
-        $('close-asked').textContent = h.asked; $('close-decided').textContent = h.fromFile;
-        $('close-her-src').textContent = `counted from this run’s log${h.replay ? ' · REPLAY' : ''}`;
+        $('close-asked').textContent = h.asked;
+        $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from her file${h.replay ? ' · REPLAY' : ''}`;
         $('close-her').hidden = false;
         if (M) M.animate($('close-her'), { x: [-40, 0] }, SPRING);
         await wait(1200);
@@ -174,9 +180,19 @@
     if (my !== token) return;
     showContrast();
     const t0 = Date.now();
-    tick(t0, my, 'The team is on it: proposing and choosing');
+    // Design's first sketch of their idea draws in; its stages are what the team's first check-in lands on.
+    let lines = [];
+    $('close-sketch').innerHTML = '';
+    if (BYOC.firstSketch && BYOC.firstSketch.forIdea) {
+      tick(t0, my, 'Design is sketching it');
+      const sk = await BYOC.firstSketch.forIdea(idea, $('close-sketch')).catch(() => null);
+      if (my !== token) return;
+      BYOC.timings.closeSketchMs = Date.now() - t0;
+      if (sk && Array.isArray(sk.stages)) lines = sk.stages;
+    }
+    tick(t0, my, 'The team is on it');
     let r;
-    try { r = await BYOC.api('/api/select-for-idea', { idea }, { step: false }); }
+    try { r = await BYOC.api('/api/select-for-idea', lines.length ? { idea, lines } : { idea }, { step: false }); }
     catch (e) {
       clearInterval(ticker);
       if (my === token) { $('close-step').classList.add('slow'); $('close-step').textContent = `The team stopped (${e.status || e.message}). R replays the café run.`; }
@@ -206,6 +222,7 @@
     BYOC.closeReplayLabel = true;
     BYOC.replayLabel?.('recorded', name, evs[0]?.t, 'the judge’s-idea fallback');
     $('close-input').value = start?.idea || ''; $('close-input').readOnly = true; $('close-input').blur();
+    $('close-sketch').innerHTML = '';
     $('close-asks').innerHTML = ''; $('close-count').innerHTML = '';
     $('close-her').hidden = true; $('close-built').hidden = true;
     await loadBaseline();

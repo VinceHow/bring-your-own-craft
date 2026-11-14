@@ -355,11 +355,7 @@ body.stage .fl-item .fl-q .fl-tag { font-size: 13px; }
 .page-frame { flex: 1; position: relative; overflow: hidden; }
 .page-frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 702px; border: 0; transform: scale(0.7833); transform-origin: 0 0; background: #fff; }
 
-/* Focus time: while a check-in is open the room goes quiet around her. Other seats and sheets dim and stop moving;
-   the counter and meter hold (room.js); no step line or seconds. Fades stay under 150ms. */
-.seat, .mini-sheet, .tally, .file-card { transition: opacity 140ms linear, filter 140ms linear; }
-body.focus .seat:not(.seat-product), body.focus .mini-sheet, body.focus .tally { opacity: .32 !important; filter: saturate(.25); }
-body.focus .seat:not(.seat-product) *, body.focus .mini-sheet *, body.focus .tally * { animation-play-state: paused !important; transition: none !important; }
+/* Focus time: the room sets #room.focus (and body.focus) while a check-in is open; polish.css styles it. */
 
 /* The tray: notes still waiting for her, at her seat, shown only between check-ins. No number, no red, no pulse. */
 .tray { position: absolute; left: 1052px; top: 806px; width: 216px; z-index: 9; display: flex; flex-direction: column; gap: 6px; }
@@ -381,3 +377,5 @@ body.stage .tray-note { font-size: 16px; }
 .lean-mark[data-seat="design"] { --seat-ink: var(--design); } .lean-mark[data-seat="data"] { --seat-ink: var(--data); }
 .lean-mark[data-seat="research"] { --seat-ink: var(--research); } .lean-mark[data-seat="strategy"] { --seat-ink: var(--strategy); }
 .lean-mark[data-seat="engineering"] { --seat-ink: var(--engineering); }
+.close-sketch:empty { display: none; }
+.close-sketch .fs-box.close-on { box-shadow: 0 0 0 3px var(--product), 3px 3px 0 var(--ink); }

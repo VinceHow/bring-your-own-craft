@@ -150,7 +150,10 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
     assert.ok(await page.evaluate(() => document.body.classList.contains('focus')), 'the room is in focus time while it is open');
     assert.ok(await page.evaluate(() => document.getElementById('tray').hidden), 'no tray during a check-in');
     assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'no step line or seconds during a check-in');
-    assert.ok(+(await page.evaluate(() => getComputedStyle(document.querySelector('.seat-design')).opacity)) < 0.5, 'the other seats dim');
+    await page.waitForTimeout(400); // the dim fades in (under 150ms)
+    assert.ok(await page.evaluate(() => document.getElementById('room').classList.contains('focus')), '#room.focus while a check-in is open');
+    assert.strictEqual(await page.locator('#her-flow .checkin-open').count(), 1, 'the open check-in is marked .checkin-open');
+    assert.ok(+(await page.evaluate(() => getComputedStyle(document.querySelector('.seat-design')).opacity)) < 0.6, 'the other seats dim');
   }
   await checkSizes('after her first answer');
   assert.deepStrictEqual(errors, []);
@@ -168,17 +171,25 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   await waitFor(() => document.querySelector('.close-left').classList.contains('on'), 3000, 'the contrast');
   assert.strictEqual(await page.locator('#close-asks li').count(), 0, 'the contrast shows before the questions land');
   assert.strictEqual(await page.textContent('#close-b-guessed'), '22', 'guessed, counted from docs/baseline/GUESSES.md');
-  assert.match(await page.textContent('#close-step'), /The team is on it/);
-  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0 || /stopped/.test(document.getElementById('close-step').textContent), 90000, 'the judge’s questions');
+  assert.match(await page.textContent('#close-step'), /Design is sketching it|The team is on it/);
+  // Design's first sketch of their idea draws in while the contrast shows.
+  await waitFor(() => document.querySelectorAll('#close-sketch .fs-box').length > 0, 30000, 'Design’s sketch of the judge’s idea');
+  assert.strictEqual(await page.locator('#close-asks li').count(), 0, 'the sketch draws before the check-in lands');
+  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0 || /stopped/.test(document.getElementById('close-step').textContent), 90000, 'the first check-in');
   const n = await page.locator('#close-asks li').count();
-  assert.ok(n >= 1 && n <= MAX_ASKS, `1 to ${MAX_ASKS} questions (the cap in lib/policy.js), got ${n}`);
+  assert.strictEqual(n, 1, 'one check-in at a time: the first lands');
   const tm = await page.evaluate(() => BYOC.timings);
-  assert.ok(tm.contrastAt < tm.asksAt, 'contrast before the questions');
-  // The judge's run was logged, and its questions are its asks.
+  assert.ok(tm.contrastAt < tm.asksAt, 'contrast before the check-in');
+  // The judge's run was logged with the sketch's stages as its flow, capped, and the check-in shown is its first ask.
   const judgeLog = readLog(tm.closeRun);
   assert.ok(judgeLog.some(e => e.type === 'run.start' && e.idea === JUDGE_IDEA), 'the judge’s run is logged with the idea');
-  assert.strictEqual(judgeLog.filter(e => e.type === 'ask').length, n, 'the questions shown are the run’s asks');
-  assert.ok(await page.locator('#close-asks .close-why').count() >= 1, 'each comes with its why');
+  assert.ok(judgeLog.filter(e => e.type === 'flow.line').length >= 2, 'the sketch’s stages went in as her flow');
+  const jAsks = judgeLog.filter(e => e.type === 'ask');
+  assert.ok(jAsks.length >= 1 && jAsks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks (the cap in lib/policy.js), got ${jAsks.length}`);
+  assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), jAsks[0].id, 'the first check-in is the run’s first ask');
+  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for her/);
+  assert.ok(cm, 'the caption'); assert.strictEqual(+cm[2], jAsks.length, '"for her" is the run’s asks');
+  assert.strictEqual(+cm[1], judgeLog.filter(e => e.type === 'candidate').length - jAsks.length, '"handled" is the rest, from the log');
   // Her line, from her run's log.
   await waitFor(() => !document.getElementById('close-built').hidden, 8000, 'the built-this-way line');
   const want = countFromLog(readLog(RUN));
@@ -189,8 +200,8 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   } else {
     assert.ok(!(await page.isVisible('#close-her')), 'M = 0: her line is not shown');
   }
-  console.log(`close: ${n} questions in ${(tm.closeMs / 1000).toFixed(1)} s; her ${want.asked} asked, ${want.fromFile} decided from her file`);
-  assert.match(await page.textContent('#close-built'), /built the same way: I sat in the Product seat/);
+  console.log(`close: sketch in ${(tm.closeSketchMs / 1000).toFixed(1)} s, first check-in at ${(tm.closeMs / 1000).toFixed(1)} s (${jAsks.length} asks); her ${want.asked} asked, ${want.fromFile} decided from her file`);
+  assert.match(await page.textContent('#close-built'), /built the same way\. Tomorrow, the engineer at this table is a person/);
   assert.ok(await onScreen('#close-asks li, #close-built, #close-her:not([hidden])'), 'the close fits the screen at 1280x720');
   assert.ok(!(await page.isVisible('#replay-label')), 'nothing replayed, no label');
 });
@@ -215,8 +226,8 @@ test('4. replays: record-run, R in stage mode, the café fallback in the close; 
   assert.ok(await page.isVisible('#replay-label'), 'REPLAY still on screen in the close');
   await page.keyboard.press('c');
   await waitFor(() => /cafe/.test(document.getElementById('replay-label').textContent), 3000, 'the café label');
-  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0, 10000, 'the café questions');
-  assert.strictEqual(await page.locator('#close-asks li').count(), readLog('cafe').filter(e => e.type === 'ask').length);
+  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0, 10000, 'the café check-in');
+  assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), readLog('cafe').find(e => e.type === 'ask').id, 'the café run’s first ask');
   assert.match(await page.inputValue('#close-input'), /café/);
   await waitFor(() => !document.getElementById('close-built').hidden, 8000, 'the last line');
   const want = countFromLog(readLog('rehearsal'));
@@ -234,6 +245,7 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   // Opening her run hangs, then fails; the slow threshold is 1.5 s for the test (25 s on stage).
   await p.route('**/api/run', async r => { await new Promise(f => setTimeout(f, 3500)); await r.fulfill({ status: 500, body: '{"error":"model down"}' }); });
+  await p.route('**/api/sketch-for-idea', r => r.fulfill({ status: 502, body: '{"error":"no sketch"}' }));
   await p.route('**/api/select-for-idea', async r => { await new Promise(f => setTimeout(f, 3000)); await r.fulfill({ status: 502, body: '{"error":"bad gateway"}' }); });
   await p.goto(BASE + '/?stage=1&slow=1500');
   await p.waitForTimeout(300);

@@ -39,7 +39,7 @@
 }
 </style>
 <style>:root { {{{raw.tokens}}} }</style>
-<style>.decided__seat { display: inline-block; font-size: 13px; line-height: 20px; font-weight: 500; padding: 0 6px; margin-right: 6px; border: 1px solid currentColor; border-radius: 2px; color: var(--ink, inherit); vertical-align: 1px; }</style>
+<style>.margin-note { margin: 6px 0 0; padding-left: 10px; border-left: 2px solid currentColor; font-size: 14px; line-height: 20px; font-style: italic; opacity: .85; }</style>
 <script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
 <script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
 <link rel="modulepreload" href="assets/moments/moments.js">
@@ -242,14 +242,14 @@
           <ul class="rows">
             <li><span class="rows__name">Confirmation</span><p>An email with your pastries, the collection time and a cancel link.</p></li>
             <li><span class="rows__name">Collection</span><p>Your bag waits at the counter under your name.</p></li>
-            <li><span class="rows__name">Cancelling</span><!--if:oneTapCancel--><p data-switch="cancel">{{words.cancelLine}}</p><!--/if:oneTapCancel--><!--if:cancelReason--><p class="rows__note" data-switch="cancel-reason">{{words.cancelReasonLine}}</p><!--/if:cancelReason--></li>
+            <li><span class="rows__name">Cancelling</span><!--if:oneTapCancel--><p data-switch="cancel">{{words.cancelLine}}</p><!--/if:oneTapCancel--><!--if:cancelReason--><p class="rows__note" data-switch="cancel-reason">{{words.cancelReasonLine}}</p><!--/if:cancelReason-->{{{raw.cancelNoteP}}}</li>
           </ul>
         </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1"><img src="img/photo-m28989985-1200.webp" srcset="img/photo-m28989985-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="857" alt="A hand holding a small white cup under the machine as espresso runs" loading="lazy" decoding="async" data-source="library-057" data-subject="bar" style="--pos: 62% 62%"></figure>
     </div>
   </section><!--/step:booked-->
 
-  <section class="section g2m" id="decided" data-step="decided" aria-labelledby="decided-h">
+  <section class="section g2m" id="decided" hidden data-step="decided" aria-labelledby="decided-h">
     <div class="wrap grid grid--top split">
         <div class="span-6">
       <div class="section-head">

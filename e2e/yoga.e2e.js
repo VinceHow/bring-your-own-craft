@@ -198,14 +198,22 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   const pg = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: SCREENS ? 2 : 1 });
   await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
   assert.strictEqual(await pg.locator('input[type=tel]').count(), 0, 'no phone field (her pin)');
+  // The page cites her new line (in its hidden markup, from the log), and shows no credits or list of who did what.
   const cited = pg.locator(`#decided [data-decided][data-cites="${written.id}"]`);
-  assert.ok((await cited.count()) >= 1, `"decided for you" shows a decision citing ${written.id}`);
-  assert.match(await cited.first().innerText(), /remember or skip/i, 'with her line quoted');
-  // Credits, not "decided for you": her calls marked YOUR CALL, and Engineering applying her new line.
-  assert.match(await pg.locator('#decided-h').innerText(), /^Credits$/);
-  assert.ok((await pg.locator('#decided [data-yours]').count()) >= 1, 'her calls are credited');
-  assert.match(await pg.locator('#decided [data-yours]').first().innerText(), /YOUR CALL/);
-  assert.match(await cited.first().innerText(), /Engineering applied your line/);
+  assert.ok((await cited.count()) >= 1, `the page's decisions include one citing ${written.id}`);
+  assert.ok(!(await pg.locator('#decided').isVisible()), 'no "decided for you" list or credits on screen');
+  assert.strictEqual(await pg.locator('.decided__seat, [data-yours]').count(), 0, 'no seat tags, no credits');
+  // Exactly one margin note on the cancel step, when a logged decision about cancelling cites her new line.
+  const cancelCites = redecided.some(d => d.cites === written.id && /cancel/i.test(`${d.decision} ${d.choice}`));
+  const note = pg.locator('[data-note="cancel"]');
+  if (cancelCites) {
+    assert.strictEqual(await note.count(), 1, 'one margin note on the cancel step');
+    assert.ok(await note.isVisible(), 'and it shows');
+    assert.match(await note.innerText(), /follows your line, “Never ask for anything you could remember or skip\.”/);
+  } else {
+    assert.strictEqual(await note.count(), 0, 'no decision about cancelling cites her line, so no note');
+  }
+  console.log(`her page: cancel note ${cancelCites ? 'shown' : 'not shown (no cancel decision cites ' + written.id + ')'}`);
   assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
   // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
   const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));

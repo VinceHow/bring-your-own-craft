@@ -582,9 +582,14 @@
   el.room.appendChild(tray);
   let focusHeld = false; // a tally change that arrived during focus, shown after it
   function setFocus(d) {
-    const was = !!BYOC.focus.open;
+    const was = !!BYOC.focus.open, before = BYOC.focus.open;
     BYOC.focus = { open: d.open || null, waiting: d.waiting || [] };
     document.body.classList.toggle('focus', !!d.open);
+    el.room.classList.toggle('focus', !!d.open); // the hook polish.css styles (#room.focus)
+    // checkin.open / checkin.close as room events (BYOC.on). Not written to the run's log: no route takes them, and
+    // the log's own ask/answer events already say when each check-in started and ended.
+    if (before && before !== d.open) emit('checkin.close', { askId: before });
+    if (d.open && d.open !== before) emit('checkin.open', { askId: d.open });
     renderTray();
     renderStep();
     if (was && !d.open && focusHeld) { focusHeld = false; refreshTally(); }
