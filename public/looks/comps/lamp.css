@@ -1,0 +1,57 @@
+/* Lamplight v2: shared tokens and surfaces for the comps (and later the look).
+   Type dealt by taste-skill for a calm studio: Newsreader (text serif) + Hanken Grotesk (labels). */
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-style: normal; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+
+:root {
+  --night: #17110D;
+  --wood: #3A2A1F;
+  --paper: #F5EEE2;
+  --paper-2: #EFE6D6;
+  --ink: #2A211B;
+  --ink-2: #5E5045;
+  --ink-3: #8C7D70;
+  --rule: rgba(42,33,27,.12);
+  --product: #C9506F;
+  --design: #3D6C9E;
+  --research: #C8662F;
+  --data: #3C855B;
+  --strategy: #9C7A45;
+  --engineering: #C99A22;
+  --serif: 'Newsreader', Georgia, serif;
+  --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  /* light from one lamp above the middle: sheets cast long soft shadows away from it */
+  --lift: 0 1px 1px rgba(20,12,6,.25), 0 6px 12px -4px rgba(20,12,6,.35), 0 24px 48px -16px rgba(10,6,3,.55);
+  --lift-sm: 0 1px 1px rgba(20,12,6,.22), 0 4px 10px -4px rgba(20,12,6,.35), 0 14px 28px -12px rgba(10,6,3,.45);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--night); color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+
+/* The table: walnut grain (SVG noise stretched along the grain) under one lamp */
+.table { position: absolute; inset: 0; background-color: var(--wood);
+  background-image:
+    radial-gradient(ellipse 58% 64% at 50% 48%, rgba(255,200,130,.30) 0%, rgba(255,175,95,.12) 40%, rgba(0,0,0,0) 66%),
+    radial-gradient(ellipse 110% 105% at 50% 48%, rgba(0,0,0,0) 40%, rgba(8,4,2,.72) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0018 .09' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .16 0 0 0 0 .09 0 0 0 0 .05 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, auto, 1600px 900px, 300px 300px; }
+
+/* Paper: a faint tooth, warm white, lit from above */
+.paper { background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  border-radius: 3px; box-shadow: var(--lift); }
+
+/* A teammate's mark: never a face. A small disc in their ink with their initial */
+.mark { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--c); color: #FFF8EE;
+  font: 500 11px/1 var(--sans); letter-spacing: 0; flex: none; }
+.mark.sm { width: 16px; height: 16px; font-size: 9px; }
+[data-seat="design"] { --c: var(--design); } [data-seat="research"] { --c: var(--research); } [data-seat="data"] { --c: var(--data); }
+[data-seat="strategy"] { --c: var(--strategy); } [data-seat="engineering"] { --c: var(--engineering); } [data-seat="product"] { --c: var(--product); }
+.label { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+
+/* Motion: one easing family for the whole studio. Things settle like paper on a table: quick start, long soft landing. */
+:root { --settle: cubic-bezier(.16,1,.3,1); --glide: cubic-bezier(.45,0,.15,1); --t-fast: 220ms; --t-mid: 520ms; --t-slow: 900ms; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }

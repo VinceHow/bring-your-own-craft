@@ -128,3 +128,13 @@ test('tidyText, shared (her name-tag sentence): the tidy, or her raw words on an
   const short = 'I love bread.';
   assert.equal((await tidyText({ text: short, callModel: async () => { throw new Error('never called'); } })).text, short);
 });
+
+test('a tidy that only changes case or punctuation keeps her words; a lower-case fragment stays lower-case', async () => {
+  const raw = 'getting the journey right before anyone draws a screen, always';
+  const r = await tidyText({ text: raw, callModel: async () => ({ text: 'Getting the journey right before anyone draws a screen, always.' }) });
+  assert.equal(r.text, raw); assert.equal(r.tidied, false);
+  const frag = 'getting the um journey right before anyone uh draws a screen';
+  const f = await tidyText({ text: frag, callModel: async () => ({ text: 'Getting the journey right before anyone draws a screen.' }) });
+  assert.equal(f.tidied, true);
+  assert.equal(f.text, 'getting the journey right before anyone draws a screen.');
+});

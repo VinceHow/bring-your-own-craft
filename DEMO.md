@@ -44,9 +44,9 @@ on screen.
 
 | Time | What she sees and does | How it should feel | The presenter says | Live? |
 |---|---|---|---|---|
-| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; her stool glows warm, and its pick card asks *"What do you bring to the table?"* with **Product** or **"Your own craft"**. She **clicks Product**. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
-| **0:05–0:18** The team appears | One by one, each teammate **pops into its chair** in the painting (no walking), and its card shows big for a moment, then settles. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
-| **0:18–0:26** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
+| **0:00–0:10** Her name tag | **No room yet**: it's saved for the reveal (Vincent, 14 Nov evening). A paper card, ink on cream: her **name**, her **role** (any craft, or her own; she picks **Product**), and, **spoken in her own words**, what she loves and brings: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* Her ums and ahs are tidied into a clean sentence, and the team puts **its own fun spin** on it as her **name tag**: e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | "You don't open a tool. You introduce yourself." | live |
+| **0:10–0:22** Meet the team | One by one, each teammate is **met up close**, personably: a close-up of their face, **name and role** (*Mika · Design*), **a line in their own voice**, and what they **bring** (true), with a small "agent" mark. The teammate fitted to this idea comes **last**. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
+| **0:22–0:26** The reveal | **The living studio**, for the first time: the painted room in 3/4 view, everyone already seated round the table, her pink stool glowing warm. **She takes her seat.** | The wow: a place, and a team, that's hers. | (silence) | live |
 | **0:26–0:31** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A website for a small bakery, so customers can order bread ahead." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
 | **0:31–0:38** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (2.7 s measured on the bakery): **who the users are** (morning regulars, the weekend pastry crowd, the bakers) and **the stages they go through** (choose → order → pick up). No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero." | live |
 | **0:38–0:50** Her reaction | She reacts to the rough journey out loud, like she would with a real team: *"It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine."* The journey **redraws from what she said** (2.7 s measured): regulars first, "Reserve your usual". She can also rename or add a box directly. | The idea sharpens fast. | "She narrows the customer and the problem. That's her craft." | live |
@@ -77,7 +77,16 @@ the claim.
   No dimming, no spotlight, nobody visibly waiting: simply a quiet, focused view where the team is there to listen
   and respond on this one document. Closing it brings the room back.
 - **Nothing ever breaks her focus.** No exception for "urgent"; nothing counts up; no timers anywhere.
-- **The tray.** Questions that clear the bar wait as a small stack of notes at the edge of her seat, each in the ink
+- **Her inbox** (Vincent, 14 Nov evening; replaces the loose tray and the reviewed cards on the wall). One component
+  by her seat. **Collapsed**, it shows only the one item that needs her now, or *"Nothing needs you right now"*.
+  **Expanded**, it's a drawer with three parts: **Needs you** (one at a time; the next ones folded), **Things only
+  you can do**, and **Past meetings** (her editable write-ups, the "Meeting notes"). *Things only you can do:* when the
+  agents hit something only a human can do (sign up for an account, provide a key), they write a short, plain task
+  with steps, she does it, and they carry on. **For the hackathon this part is "said, not built" for secrets:** the
+  section exists, but nothing in it asks her to paste a key. A key would have to stay server-side only, never in
+  `runs/`, logs, the browser or the repo, and always masked; that's a Milestone 2 piece with its own security test. A
+  task appears there only if the run truly hit one; otherwise it reads *"Nothing only you can do."*
+- **The tray (inside her inbox).** Questions that clear the bar wait in Needs you, each in the ink
   of the teammate who left it. Calm: no number, no red, no pulsing, no "waiting for you" state. New notes slide in
   only at natural pauses (right after she answers, after the shape redraws), never while she's typing or speaking,
   about 1 s after the pause. The team suggests the order (top note); **she picks which to open**.
@@ -90,13 +99,18 @@ the claim.
   who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
-  1. **She speaks her piece**, a real paragraph (or types it). Her raw words land first; then a fast tidy call turns
-     them into a composed note in her voice (Vincent, 14 Nov). The tidy only cleans: no new claims or content. It shows
+  1. **She speaks her piece**, a real paragraph (or types it). **While she captures, the team is out of view and
+     doesn't react at all** (Vincent, 14 Nov; this replaces any "team visibly listening" idea). She speaks in pieces,
+     pauses as long as she likes, and can remove or redo a piece. **One Send gathers it**, and only then do the
+     relevant teammates arrive and act. Each piece's raw words land first; then a fast tidy call turns
+     them into a composed note in her voice (Vincent, 14 Nov), piece by piece as it lands. The tidy only cleans: no new claims or content. It shows
      as a visible moment, with "See what you said" and "Use mine". The raw words stay in the log, and the tidy never
-     delays the room: it runs in parallel with the first chime-in.
-     **Layout:** the work stays in view on the left with inked pins where her notes apply; the meeting thread on the
-     right is the record (her note, then teammates' replies; earlier rounds fold into honest one-line summaries); the
-     takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
+     delays the room: each piece is tidied while she carries on, so Send is never waiting on it.
+     **Layout:** the work fills the view, with inked pins where her notes apply. **After Send she stays on her page,
+     in flow** (Vincent, 14 Nov): the relevant replies appear briefly beside their pins (readable for a few seconds),
+     then fade into the pins; the changes to the work stay. The full conversation is recorded but opens only when she
+     asks ("Read the conversation"; earlier rounds fold into honest one-line summaries). The goal: encouragement
+     without breaking her focus until she has said everything about the document. The takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
      her, and she can close at any time. On close, the meeting is kept in her workspace as "Meeting notes"
      (conversation + takeaways only; her philosophy stays hidden).
   2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
@@ -197,8 +211,24 @@ room is quiet.
 paper, hand-inked wobbly outline, a crayon layer in the teammate's colour underneath); a name pill by each teammate's
 head opens their work; her seat is a warm light on the pink stool plus her own pill, which opens her workspace. **Night
 mode** (moon/sun pill or the laptop's dark mode): a dark, rainy, lamp-lit room; soft rain plays under the music only
-when the record player is on. **"Your own craft"** lives in her seat's pick card ("What do you bring to the table?" ·
-Product · Your own craft), not as a separate seat.
+when the record player is on. **"Your own craft"** is one of the role choices on her paper card (any craft · Your own craft), not a separate
+seat. **The setup order (Vincent, 14 Nov evening; replaces "the team walks in to the room"):** her name tag on paper,
+then meeting the team one by one, then the reveal of the room with everyone seated, then she takes her seat.
+
+**Any seat is hers (Vincent, 14 Nov evening; logic in `design/studio/SEATS.md`).** The role choice on her paper card offers every craft
+(Product first and prefilled on the stage path; Design, Research, Engineering, Data, Strategy) plus Your own craft.
+The five teammates are people, not titles: they keep their names, faces and personalities and wear the role the table
+needs. **Core crafts are always at the table** (Product, Design, Research, Engineering); the flex seat fits the idea
+(Data or Strategy by default; e.g. Operations for a bakery). **The rule:** the teammate whose craft she takes moves to
+Product; if she takes a flex seat or her own craft, Ines moves to Product. In "meet the team", fixed teammates are introduced first while
+one fast call writes the flex teammate's card; it's introduced last. **No fallback role** (Vincent, 14 Nov): if the
+card isn't ready when the intro reaches it, the room is honest, with humour: a small inked note on the empty chair
+(*"Theo's running a little late: we're finding you someone who knows morning bake lists."*). The flow never waits,
+with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
+fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
+stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and the
+hidden ceiling of 3 stands. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
+**Cut line:** if it isn't ready, the role choice stays Product · Your own craft.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
 turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make

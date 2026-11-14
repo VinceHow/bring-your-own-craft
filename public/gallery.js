@@ -90,7 +90,7 @@
       { state: 'her', src: F, sel: '.seat-product', run: async h => { h.play('fixture'); } },
     ] },
     { name: 'pick-card', sel: '#pick-card', note: 'Her first choice: sit in Product, or bring her own craft. (picked is a moment: the card hides as she chooses.)', states: [
-      { state: 'open', src: '', run: async h => { if (!h.B.pick) throw new Error('missing: the pick card is not on this branch yet'); h.B.reset(); h.B.pick.open(); await wait(400); } },
+      { state: 'open', src: '', run: async h => { if (!h.B.pick || typeof h.B.pick.open !== 'function') throw new Error('missing: no stand-alone pick card on this branch (with the setup reveal it lives inside her paper name tag)'); h.B.reset(); h.B.pick.open(); await wait(400); } },
     ] },
     { name: 'place-card', sel: '.seat-design .card', states: [
       { state: 'thinking', src: F, run: async h => { h.play('fixture', { until: ev => ev.type === 'candidate' }); } },
@@ -100,8 +100,14 @@
     { name: 'her-place-card', sel: '.seat-product .card', states: [
       { state: 'empty', src: F, run: async h => { h.play('fixture'); } },
     ] },
-    { name: 'teammate-card', sel: '.big-card:not([data-seat="product"])', note: 'Caught mid-assembly: the card holds mid-table before it shrinks into its seat.', states: [
+    { name: 'teammate-card', sel: '.big-card:not([data-seat="product"])', note: 'Retired with the setup reveal (beats 82119af: teammates are met, then revealed seated); shows only on branches before it.', states: [
       { state: 'holding', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); await wait(300); } },
+    ] },
+    { name: 'character-card (her name tag on paper)', sel: '#setup .nt-paper', note: 'The setup: her name tag on paper, before the room is ever shown (beats 82119af).', states: [
+      { state: 'asking', src: '', run: async h => { h.B.reset(); await wait(500); if (!h.doc.querySelector('#setup .nt-paper')) throw new Error('missing: the paper name tag is not on this branch yet'); } },
+    ] },
+    { name: 'meet-card', sel: '#setup .meet-card', note: 'Meeting the team one by one, up close; the face slot is empty, waiting for art.', states: [
+      { state: 'meeting', src: '', run: async h => { h.B.reset(); await wait(200); if (!h.B.meetNext) throw new Error('missing: meeting the team is not on this branch yet'); h.B.stage(1); await wait(500); } },
     ] },
     { name: 'character-card', sel: '.name-tag', note: 'The DIY path (name-tag.js). Her seat path (.big-card[data-seat="product"]) joins once beats builds it.', states: [
       { state: 'asking', src: '', run: async h => { if (!h.B.nameTag) throw new Error('missing: name-tag.js'); h.B.reset(); h.stage(3); h.B.nameTag.open(); } },
@@ -138,11 +144,12 @@
     { name: 'workspace', sel: '#room-panel', note: 'The same panel holding her workspace: her character, the idea, the team space, her takeaways.', states: [
       { state: 'open', src: R, run: async h => { h.play('rehearsal'); if (!h.B.openWorkspace) throw new Error('missing: the room panel is not on this branch yet'); h.B.openWorkspace(); await wait(300); } },
     ] },
-    { name: 'tray', sel: '#tray', states: [
-      { state: 'waiting', src: F, run: async h => { h.play('fixture'); } },
-    ] },
-    { name: 'tray-note', sel: '.tray-note', states: [
-      { state: 'top', src: F, run: async h => { h.play('fixture'); } },
+    { name: 'inbox', sel: '#inbox', note: 'Her inbox by her seat (replaced the tray): collapsed, the one item that needs her; expanded, Needs you · Things only you can do · Past meetings.', states: [
+      { state: 'collapsed, nothing waiting', src: '', run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.B.reset(); h.stage(5); await wait(200); } },
+      { state: 'collapsed, one needs her', src: F, run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.play('fixture'); await wait(300); } },
+      { state: 'expanded', src: F + ' + ' + S, run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.play('fixture');
+        h.dispatch({ type: 'owner.task', id: 'g-t1', title: 'Make a Stripe account for the studio', steps: ['Sign up with the studio email', 'Confirm the email', 'Tell the team it’s done'] });
+        await wait(300); h.B.inbox.expand(true); await wait(200); } },
     ] },
     { name: 'focus-doc', sel: '#focus-doc', states: [
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },
