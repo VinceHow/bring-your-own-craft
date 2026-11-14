@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · film subtitles</title>
+<!-- Direction D, "Film subtitles": almost no containers. Names and lines sit straight on the painting like subtitles in an
+     animated film: cream type with a soft dark halo, a small coloured dot for who is speaking, and a feathered shadow under
+     a line only where the painting is busy. Documents (her sheet, the focus document) are the only solid paper.
+     Signature motion: lines arrive word by word, like a subtitle. Views: ?view=parts|room|focus · ?still=1 end state. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --cream: #FFF7EA; --cream-2: #F5E7D2;
+  --ink: #2C2018; --ink-2: #54402F; --ink-3: #6E5847;
+  --mika: #7B9BD6; --noor: #F09A74; --theo: #9CC497; --ines: #E7BA6A; --bo: #F6DA7A; --her: #F2A3B5;   /* dots, brightened to read on the painting */
+  --mika-p: #3E5C8E; --noor-p: #C0603F; --theo-p: #6B8C67; --ines-p: #B4843A; --bo-p: #C99A22; --her-p: #B04E69; /* the same inks on paper */
+  /* the subtitle halo: a tight dark edge and a soft wide glow, warm brown never black */
+  --halo: 0 1px 1px rgba(30,16,8,.9), 0 0 3px rgba(30,16,8,.85), 0 0 10px rgba(30,16,8,.6), 0 0 22px rgba(30,16,8,.45);
+  --r-sm: 14px; --r-md: 22px; --r-lg: 30px;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --land: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--cream); -webkit-font-smoothing: antialiased; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+[data-who="mika"] { --c: var(--mika); --p: var(--mika-p); } [data-who="noor"] { --c: var(--noor); --p: var(--noor-p); }
+[data-who="theo"] { --c: var(--theo); --p: var(--theo-p); } [data-who="ines"] { --c: var(--ines); --p: var(--ines-p); }
+[data-who="bo"] { --c: var(--bo); --p: var(--bo-p); } [data-who="her"] { --c: var(--her); --p: var(--her-p); }
+.lab { font: 500 14px/1.2 var(--sans); color: var(--cream-2); text-shadow: var(--halo); }
+
+/* the feathered shadow under a line: a blurred dark pebble, no edge, only as big as the words */
+.pill, .bubble, .note, .decision, .pop, .tag { position: relative; isolation: isolate; text-shadow: var(--halo); }
+.bubble::before, .note::before, .decision::before, .pop::before, .tag::before, .pill::before {
+  content: ''; position: absolute; inset: -8px -16px; z-index: -1; border-radius: 999px; pointer-events: none;
+  background: rgba(36,22,12,.62); filter: blur(14px); }
+
+/* names: just the name and a dot, set on the painting */
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px; border: 0; background: none; cursor: pointer; border-radius: 999px;
+  font: 500 20px/1 var(--serif); color: var(--cream); white-space: nowrap; transition: transform 300ms var(--land), color 300ms; }
+.pill .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(30,16,8,.35), 0 0 8px rgba(30,16,8,.5); flex: none;
+  display: grid; place-items: center; font: 600 0px/1 var(--sans); }
+.pill .agent { font: italic 400 15px/1 var(--serif); color: var(--cream-2); opacity: .9; }
+/* a thin line draws under the name on hover and focus: the only chrome a name gets */
+.pill .nm { background: linear-gradient(var(--c), var(--c)) 0 100% / 0 2px no-repeat; padding-bottom: 3px; transition: background-size 380ms var(--land); }
+.pill:hover .nm, .pill.is-hover .nm, .pill:focus-visible .nm, .pill.is-open .nm { background-size: 100% 2px; }
+.pill:hover, .pill.is-hover { transform: translateY(-2px); }
+.pill:active { transform: translateY(0) scale(.98); }
+.pill:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+.pill.is-talking .dot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 35%, transparent), 0 0 10px rgba(30,16,8,.5); }
+.pill.is-her .dot { width: 22px; height: 22px; font-size: 12px; color: #4A1E2A; background: var(--her); text-shadow: none; }
+.pill.is-her .agent { color: #FBE3E9; }
+.pill.is-invite .nm { color: #FFE6EC; }
+
+/* a line of chatter: a subtitle */
+.bubble { display: block; max-width: 340px; font: italic 400 22px/1.35 var(--serif); color: var(--cream); }
+.bubble b { display: flex; align-items: center; gap: 8px; font: 500 14px/1 var(--sans); font-style: normal; color: var(--cream-2); margin-bottom: 6px; }
+.bubble b::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px rgba(30,16,8,.6); }
+/* a note for her: a subtitle with her ink edge */
+.note { display: block; width: 250px; padding-left: 14px; font: 400 19px/1.35 var(--serif); color: var(--cream); }
+.note::after { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; border-radius: 3px; background: var(--c); box-shadow: 0 0 6px rgba(30,16,8,.5); }
+.note .lab { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; } .note .lab i { display: none; }
+/* decided together */
+.decision { display: block; width: 280px; font: 400 21px/1.3 var(--serif); color: var(--cream); }
+.decision .by { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.marks { display: inline-flex; } .marks i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(30,16,8,.35); }
+.marks i + i { margin-left: -3px; }
+/* a teammate's work: the most text there is outside a document, so the deepest shadow under it */
+.pop { width: 330px; font: 400 17px/1.4 var(--sans); }
+.pop::before { inset: -20px -24px; border-radius: var(--r-lg); background: rgba(36,22,12,.68); filter: blur(18px); }
+.pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.pop .pop-head .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--c); }
+.pop .pop-head .nm { font: 500 22px/1 var(--serif); } .pop .pop-head .lab { font-style: italic; font-family: var(--serif); font-size: 16px; }
+.pop .t { margin: 2px 0 12px; font: italic 400 20px/1.35 var(--serif); }
+.pop ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.pop li { display: flex; gap: 9px; } .pop li::before { content: ''; width: 6px; height: 6px; margin-top: 9px; border-radius: 50%; background: var(--c); flex: none; }
+/* quiet labels */
+.tag { display: inline-flex; align-items: baseline; gap: 5px; font: 400 15px/1 var(--sans); color: var(--cream-2); }
+.tag b { font: 500 18px/1 var(--serif); color: var(--cream); }
+.tag.replay { flex-direction: column; gap: 4px; font: 500 18px/1 var(--serif); color: var(--cream); letter-spacing: .02em; }
+.tag.replay small { font: 400 13px/1 var(--sans); color: var(--cream-2); }
+/* buttons: one solid cream pill, one quiet line */
+.btns { display: flex; gap: 14px; align-items: center; }
+.btn { height: 46px; padding: 0 22px; border: 0; border-radius: 999px; font: 500 16px/1 var(--sans); cursor: pointer; color: var(--ink); background: var(--cream);
+  box-shadow: 0 6px 18px -6px rgba(30,16,8,.55); transition: transform 240ms var(--land), box-shadow 240ms var(--land); }
+.btn.quiet { color: var(--cream); background: rgba(255,247,234,.0); box-shadow: inset 0 0 0 1.5px rgba(255,247,234,.75), 0 0 12px rgba(30,16,8,.25); text-shadow: var(--halo); }
+.btn:hover { transform: translateY(-2px); } .btn:active { transform: translateY(0) scale(.98); }
+
+/* the only solid paper: her sheet */
+.sheet { width: 420px; padding: 14px 18px 14px 20px; border-radius: var(--r-lg); background: #FBF5EA; color: var(--ink); box-shadow: 0 2px 4px rgba(60,30,10,.18), 0 20px 40px -16px rgba(60,30,10,.5);
+  display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; }
+.sheet .lab { color: var(--ink-3); text-shadow: none; font-size: 13px; }
+.sheet h3 { grid-column: 1 / -1; margin: 6px 0 9px; font: 400 19px/1.2 var(--serif); letter-spacing: -.01em; }
+.steps { grid-column: 1 / -1; display: flex; gap: 6px; }
+.step { padding: 6px 11px; border-radius: var(--r-sm); background: #F3EADB; font: 400 14px/1.2 var(--sans); color: var(--ink); }
+.step.hers { background: #FBE3E9; box-shadow: inset 0 0 0 1px rgba(210,122,141,.5); }
+.tabs { display: inline-flex; gap: 14px; grid-column: 2; grid-row: 1; }
+.tabs span { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-bottom: 4px; } .tabs span.on { color: var(--ink); box-shadow: inset 0 -2px 0 var(--her-p); }
+
+/* ---------- the room ---------- */
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,240,215,.5), rgba(255,226,190,.2) 60%, rgba(255,210,170,0)); }
+
+/* ---------- the parts board: parts set on the painting itself, a soft vignette under each column ---------- */
+[data-view="parts"] .painting::after { content: ''; position: absolute; inset: 0; background: rgba(34,20,10,.58); }
+.board { position: absolute; inset: 40px 56px; display: grid; grid-template-columns: 1fr 1fr 1fr 1.1fr; align-content: start; gap: 34px 40px; }
+.b-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 24px; text-shadow: var(--halo); }
+.b-title { margin: 0; font: italic 400 36px/1 var(--serif); letter-spacing: -.01em; }
+.b-lede { margin: 0; font: 400 17px/1.4 var(--sans); color: var(--cream-2); max-width: 72ch; }
+.board .cell { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.board .cell h2 { margin: 0; font: 500 14px/1 var(--sans); color: var(--cream-2); text-shadow: var(--halo); letter-spacing: .02em; }
+.board .row { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+.board .cap { margin: 0; font: 400 14px/1.3 var(--sans); color: var(--cream-2); text-shadow: var(--halo); }
+.c-pills { grid-column: 1 / 4; } .c-sheet { grid-column: 4; grid-row: 2; } .c-pop { grid-column: 4; grid-row: 3 / 5; padding: 14px 18px; }
+.c-chat { grid-column: 1; grid-row: 3; } .c-note { grid-column: 2; grid-row: 3; } .c-dec { grid-column: 3; grid-row: 3; }
+.c-act { grid-column: 1 / 4; grid-row: 4; flex-direction: row; align-items: center; gap: 30px; } .c-act .row { gap: 30px; }
+.c-sheet .sheet { width: 100%; }
+
+/* ---------- the focus document: paper for her and the work; the team's lines stay subtitles on the painting ---------- */
+.doc { position: absolute; left: 60px; top: 50px; width: 1010px; bottom: 44px; display: block; padding: 34px 44px; border-radius: 34px; background: #FBF5EA; color: var(--ink);
+  box-shadow: 0 2px 6px rgba(60,30,10,.2), 0 30px 60px -24px rgba(60,30,10,.6); }
+.doc .lab { color: var(--ink-3); text-shadow: none; }
+.doc h1 { margin: 8px 0 18px; font: 400 32px/1.15 var(--serif); letter-spacing: -.015em; max-width: 30ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 8px 10px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.doc .q { margin: 26px 0 12px; font: 400 32px/1.2 var(--serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { margin: 0; padding-left: 18px; border-left: 3px solid var(--her-p); font: italic 400 23px/1.45 var(--serif); max-width: 54ch; }
+.side { position: absolute; left: 1050px; top: 20px; width: 440px; bottom: 50px; display: flex; flex-direction: column; gap: 26px; }
+.side > .lab { font-size: 15px; position: relative; isolation: isolate; align-self: flex-start; }
+.side > .lab::before { content: ''; position: absolute; inset: -6px -12px; z-index: -1; border-radius: 999px; background: rgba(36,22,12,.6); filter: blur(10px); }
+.side .bubble { max-width: none; font-size: 21px; }
+/* her takeaways belong to her document: paper, in her ink */
+.take { position: absolute; left: 44px; right: auto; width: 922px; bottom: 82px; padding: 18px 22px; border-radius: var(--r-md); background: #FBE9EC; color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(210,122,141,.35); }
+.take .lab { color: var(--her-p); text-shadow: none; }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--serif); } .take .b { font-style: italic; font-size: 22px; }
+.take em { display: inline; font: normal 500 13px/1.2 var(--sans); color: var(--ink-3); margin-right: 10px; }
+.side .btns { margin-top: auto; }
+/* the subtitle words, for the signature motion */
+.w { display: inline-block; white-space: pre; }
+@media (prefers-reduced-motion: reduce) { .w { opacity: 1 !important; filter: none !important; transform: none !important; } }
+</style>
+</head>
+<body>
+<div class="canvas" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+(function () {
+  const { view, still, c } = window.UIW;
+  const head = c.querySelector('.b-head');
+  if (head) { head.querySelector('.b-title').textContent = 'Film subtitles'; head.querySelector('.b-lede').textContent = 'Names and lines set straight on the painting, like subtitles in an animated film. Only her sheet and her document are paper.'; }
+  // the takeaways sit inside her paper document
+  const take = c.querySelector('.side .take'); if (take) c.querySelector('.doc').appendChild(take);
+  // Signature motion: each line arrives word by word, softly out of focus, like a subtitle being read.
+  const lines = [...c.querySelectorAll('.bubble .t, .note .t, .decision .t, .pop .t, .doc .said')];
+  lines.forEach(el => { const ws = el.textContent.split(/(?<= )/); el.textContent = ''; ws.forEach(w => { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; el.appendChild(s); }); });
+  if (still || !window.Motion || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const { animate, stagger } = Motion;
+  const fadeIn = (sel, d) => c.querySelectorAll(sel).forEach((el, i) => { el.style.opacity = 0; setTimeout(() => animate(el, { opacity: [0, 1], y: [6, 0] }, { duration: .7, ease: [.16, 1, .3, 1] }), (d + i * .12) * 1000); });
+  const sub = (el, d) => { const ws = el.querySelectorAll('.w'); ws.forEach(w => w.style.opacity = 0);
+    const box = el.closest('.bubble, .note, .decision, .pop'); if (box) { box.style.opacity = 0; setTimeout(() => animate(box, { opacity: [0, 1] }, { duration: .35 }), d * 1000); }
+    setTimeout(() => animate(ws, { opacity: [0, 1], filter: ['blur(4px)', 'blur(0px)'], y: [3, 0] }, { duration: .5, delay: stagger(.09), ease: [.16, 1, .3, 1] }), (d + .15) * 1000);
+    return d + .15 + ws.length * .09 + .5; };
+  if (view === 'room') {
+    fadeIn('.at[data-in] .pill', .3); fadeIn('.a-her .pill', .9); fadeIn('.a-sheet .sheet', 1.3);
+    let t = 2.0;
+    ['.a-bubble .t', '.a-dec .t', '.a-note .t', '.a-pop .t'].forEach(s => { const el = c.querySelector(s); if (el) t = sub(el, t) + .2; });
+  } else if (view === 'focus') {
+    fadeIn('.doc', .2); let t = sub(c.querySelector('.doc .said'), 1.0) + .3;
+    c.querySelectorAll('.side .bubble .t').forEach(el => { t = sub(el, t) + .25; });
+    fadeIn('.take', t);
+  } else {
+    let t = .4; lines.forEach(el => { t = sub(el, t) + .1; });
+  }
+})();
+</script>
+</body>
+</html>

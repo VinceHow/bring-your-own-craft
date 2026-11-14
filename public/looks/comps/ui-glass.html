@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · warm frosted glass</title>
+<!-- Direction C, "Warm frosted glass": surfaces like frosted window glass in afternoon light. Translucent warm panels
+     (backdrop blur plus a cream tint) let the painting glow through; a soft light rim; big soft radii (16 / 24 / 32, pill).
+     Signature motion: panels fade up out of the blur, and light runs once along their rim, like sun catching the edge.
+     Views: ?view=parts|room|focus · ?still=1 end state. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --ink: #2C2018; --ink-2: #54402F; --ink-3: #6E5847;
+  --mika: #3E5C8E; --noor: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
+  --mika-t: #2F4A78; --noor-t: #93432A; --theo-t: #43633F; --ines-t: #7A5217; --bo-t: #6E520B; --her-t: #9C3F59;
+  /* the glass: a warm cream frost over a blurred painting */
+  --frost: rgba(255,247,234,.62); --frost-strong: rgba(255,248,238,.80); --frost-soft: rgba(255,246,232,.44);
+  --blur: blur(22px) saturate(1.35) brightness(1.04);
+  --rim: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.42), inset 0 -1px 0 rgba(160,110,60,.10);
+  --lift: 0 2px 6px rgba(80,45,15,.10), 0 18px 40px -16px rgba(80,45,15,.38);
+  --lift-hi: 0 4px 10px rgba(80,45,15,.12), 0 26px 50px -16px rgba(80,45,15,.46);
+  --r-sm: 16px; --r-md: 24px; --r-lg: 32px;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --land: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-who="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-who="ines"] { --c: var(--ines); --t: var(--ines-t); }
+[data-who="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-who="her"] { --c: var(--her); --t: var(--her-t); }
+.lab { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+
+/* ---------- the one glass surface every part is made of ---------- */
+.pill, .bubble, .note, .decision, .sheet, .pop, .tag, .btn, .doc, .board .cell, .b-head {
+  position: relative; background: var(--frost); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  box-shadow: var(--rim), var(--lift); }
+/* the rim light: a thin bright line along the edge, which the signature motion sweeps once */
+.pill::after, .bubble::after, .note::after, .decision::after, .sheet::after, .pop::after, .doc::after, .btn::after, .tag::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,0) 35%, rgba(255,246,222,.95) 50%, rgba(255,255,255,0) 65%) 120% 0 / 300% 100% no-repeat;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; }
+.shine::after { animation: rim 1300ms var(--land) both; }
+@keyframes rim { 0% { opacity: 0; background-position: 120% 0; } 20% { opacity: 1; } 100% { opacity: 0; background-position: -20% 0; } }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 14px 0 9px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 500 18px/1 var(--serif); color: var(--ink); white-space: nowrap; transition: transform 300ms var(--land), box-shadow 300ms var(--land), background-color 300ms; }
+.pill .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -2px 3px rgba(0,0,0,.14), inset 0 2px 2px rgba(255,255,255,.35); flex: none;
+  display: grid; place-items: center; font: 600 13px/1 var(--sans); color: #fff; }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 9px; border-left: 1px solid rgba(84,58,38,.18); }
+.pill:hover, .pill.is-hover { transform: translateY(-2px); background: var(--frost-strong); box-shadow: var(--rim), var(--lift-hi); }
+.pill:active { transform: translateY(0) scale(.98); }
+.pill:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+.pill.is-talking .dot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent), inset 0 -2px 3px rgba(0,0,0,.14); }
+.pill.is-open { background: var(--frost-strong); box-shadow: var(--rim), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent), var(--lift-hi); }
+.pill.is-her { background: rgba(253,236,240,.72); }
+.pill.is-her .nm { color: var(--her-t); }
+.pill.is-her .agent { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pill.is-invite { background: rgba(253,236,240,.72); color: var(--her-t); }
+.pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; }
+
+/* chatter */
+.bubble { display: block; max-width: 300px; padding: 12px 16px 13px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); font: italic 400 18px/1.35 var(--serif); color: var(--ink); }
+.bubble b { display: flex; align-items: center; gap: 7px; font: 500 13px/1 var(--sans); font-style: normal; color: var(--t); margin-bottom: 5px; }
+.bubble b::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+/* note for her */
+.note { display: block; width: 236px; padding: 13px 16px 15px; border-radius: var(--r-md); font: 400 17px/1.35 var(--serif); }
+.note .lab { display: flex; align-items: center; gap: 7px; color: var(--t); margin-bottom: 5px; }
+.note .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.note::before { content: ''; position: absolute; left: 16px; right: 16px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--c); opacity: .8; }
+/* decision */
+.decision { display: block; width: 250px; padding: 15px 17px 14px; border-radius: var(--r-md); font: 400 18px/1.32 var(--serif); }
+.decision .by { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.marks { display: inline-flex; } .marks i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(255,248,238,.9); }
+.marks i + i { margin-left: -5px; }
+/* her sheet */
+.sheet { width: 380px; padding: 16px 20px 16px; border-radius: var(--r-lg); background: var(--frost-strong); }
+.sheet h3 { margin: 5px 0 10px; font: 400 21px/1.2 var(--serif); letter-spacing: -.01em; }
+.steps { display: flex; gap: 6px; margin-bottom: 12px; }
+.step { padding: 7px 11px; border-radius: var(--r-sm); background: rgba(255,255,255,.55); font: 400 14px/1.2 var(--sans); box-shadow: inset 0 0 0 1px rgba(84,58,38,.10); }
+.step.hers { background: rgba(253,228,234,.85); box-shadow: inset 0 0 0 1px rgba(210,122,141,.45); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(84,58,38,.08); }
+.tabs span { padding: 7px 14px; border-radius: 999px; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { background: rgba(255,255,255,.85); color: var(--ink); box-shadow: 0 1px 3px rgba(80,45,15,.18); }
+/* a teammate's work */
+.pop { width: 320px; padding: 16px 20px 18px; border-radius: var(--r-lg); background: var(--frost-strong); }
+.pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding-bottom: 11px; border-bottom: 1px solid rgba(84,58,38,.12); }
+.pop .pop-head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); }
+.pop .pop-head .nm { font: 500 20px/1 var(--serif); color: var(--t); }
+.pop .t { margin: 3px 0 12px; font: 400 18px/1.35 var(--serif); }
+.pop ul { margin: 5px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pop li { display: flex; gap: 9px; font: 400 15px/1.35 var(--sans); }
+.pop li::before { content: ''; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: var(--c); flex: none; }
+/* buttons */
+.btns { display: flex; gap: 10px; }
+.btn { height: 46px; padding: 0 22px; border: 0; border-radius: 999px; font: 500 16px/1 var(--sans); cursor: pointer; color: #FFF8EE;
+  background: rgba(54,38,28,.88); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), var(--lift); transition: transform 240ms var(--land), box-shadow 240ms var(--land); }
+.btn.quiet { color: var(--ink); background: var(--frost); box-shadow: var(--rim), var(--lift); }
+.btn:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), var(--lift-hi); }
+.btn:active { transform: translateY(0) scale(.98); }
+/* quiet labels */
+.tag { display: inline-flex; align-items: baseline; gap: 5px; padding: 9px 15px; border-radius: 999px; font: 400 14px/1 var(--sans); color: var(--ink-2); }
+.tag b { font: 500 16px/1 var(--serif); color: var(--ink); }
+.tag.replay { flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 16px 10px; border-radius: var(--r-sm); background: rgba(48,34,24,.72); color: #FFF6EA; font: 500 16px/1 var(--serif); }
+.tag.replay small { font: 400 13px/1 var(--sans); opacity: .9; }
+
+/* ---------- the room ---------- */
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,240,215,.55), rgba(255,226,190,.22) 60%, rgba(255,210,170,0)); }
+.a-bubble .bubble::before { content: ''; position: absolute; left: 20px; bottom: -7px; width: 14px; height: 14px; rotate: 45deg; border-radius: 3px;
+  background: inherit; -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.a-bubble .bubble { border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; }
+.a-pop .pop { box-shadow: var(--rim), var(--lift-hi); }
+.a-pop .pop::before { content: ''; position: absolute; right: 64px; bottom: -8px; width: 16px; height: 16px; rotate: 45deg; border-radius: 4px; background: var(--frost-strong); }
+.a-note .note { rotate: -2deg; } .a-dec .decision { rotate: 1.5deg; }
+
+/* her sheet on the table: tabs up beside the label, so it lies low and wide */
+.a-sheet .sheet { width: 420px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; padding: 12px 16px 14px 20px; }
+.a-sheet .sheet .tabs { grid-column: 2; grid-row: 1; } .a-sheet .sheet .tabs span { padding: 6px 11px; font-size: 13px; }
+.a-sheet .sheet h3, .a-sheet .sheet .steps { grid-column: 1 / -1; } .a-sheet .sheet h3 { font-size: 19px; margin: 6px 0 9px; } .a-sheet .steps { margin: 0; }
+/* ---------- the parts board ---------- */
+.board { position: absolute; inset: 34px 40px; align-content: start; display: grid; grid-template-columns: 1.15fr 1fr 1fr; grid-template-rows: auto auto auto; gap: 18px; }
+.b-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 22px; padding: 18px 26px; border-radius: var(--r-lg); }
+.b-title { margin: 0; font: 400 32px/1 var(--serif); letter-spacing: -.015em; }
+.b-lede { margin: 0; font: 400 16px/1.4 var(--sans); color: var(--ink-2); max-width: 70ch; }
+.board .cell { padding: 18px 22px 20px; border-radius: var(--r-lg); background: var(--frost-soft); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.board .cell h2 { margin: 0; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.board .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.board .cap { margin: 0; font: 400 13px/1.3 var(--sans); color: var(--ink-3); }
+.c-pills { grid-column: 1 / 3; } .c-sheet { grid-column: 3; grid-row: 2 / 4; } .c-pop { grid-column: 3; grid-row: 2 / 4; }
+.c-sheet .sheet, .c-pop .pop { width: 100%; }
+.board { grid-template-columns: 1fr 1fr 1fr 1.05fr; }
+.c-pills { grid-column: 1 / 4; } .c-chat { grid-column: 1; } .c-note { grid-column: 2; } .c-dec { grid-column: 3; }
+.c-sheet { grid-column: 4; grid-row: 2 / 3; } .c-pop { grid-column: 4; grid-row: 3 / 4; } .c-act { grid-column: 1 / 4; }
+.c-pills { grid-row: 2; } .c-chat, .c-note, .c-dec { grid-row: 3; } .c-act { grid-row: 4; }
+.c-sheet { grid-row: 2 / 4; } .c-pop { grid-row: 4; }
+.c-sheet { justify-content: flex-start; } .c-pop .pop { width: 100%; }
+.c-act { flex-direction: row; align-items: center; gap: 22px; align-self: start; } .c-act h2 { margin-right: 6px; }
+
+/* ---------- the focus document: one big pane of frost over the room ---------- */
+.v-focus .painting { filter: saturate(1.05); }
+.doc { position: absolute; left: 70px; top: 52px; right: 70px; bottom: 44px; display: grid; grid-template-columns: 1fr 390px; gap: 26px; padding: 26px;
+  border-radius: 40px; background: rgba(255,248,238,.66); }
+.doc .main { padding: 18px 26px; border-radius: var(--r-lg); background: rgba(255,252,246,.88); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 1px 2px rgba(80,45,15,.06); }
+.doc h1 { margin: 8px 0 18px; font: 400 34px/1.15 var(--serif); letter-spacing: -.015em; max-width: 26ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 8px 10px; padding: 14px; border-radius: var(--r-md); background: rgba(84,58,38,.05); }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.doc .q { margin: 22px 0 10px; font: 400 30px/1.2 var(--serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { margin: 0; padding-left: 18px; border-left: 3px solid var(--her); font: italic 400 22px/1.45 var(--serif); color: var(--ink); max-width: 52ch; }
+.side { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
+.side .bubble { max-width: none; background: rgba(255,251,244,.78); }
+.take { margin-top: 4px; padding: 16px 18px; border-radius: var(--r-md); background: rgba(253,236,240,.85); box-shadow: inset 0 0 0 1px rgba(210,122,141,.35); }
+.take .lab { color: var(--her-t); }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--serif); }
+.take .b { font-style: italic; font-size: 21px; }
+.take em { display: block; font: normal 500 13px/1.2 var(--sans); color: var(--ink-3); margin: 10px 0 3px; }
+.side .btns { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .shine::after { animation: none; } }
+</style>
+</head>
+<body>
+<div class="canvas" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+// Signature motion: each pane fades up out of the blur, then light runs once along its rim.
+(function () {
+  const { view, still, c } = window.UIW;
+  const head = c.querySelector('.b-head');
+  if (head) { head.querySelector('.b-title').textContent = 'Warm frosted glass'; head.querySelector('.b-lede').textContent = 'Frosted window glass in afternoon light: the painting glows through every pane, a soft light rim, big soft corners.'; }
+  if (still || !window.Motion || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const { animate } = Motion;
+  const land = { type: 'spring', visualDuration: .8, bounce: 0 };
+  const order = view === 'room'
+    ? ['.at[data-in] .pill', '.a-her .pill', '.a-sheet .sheet', '.a-bubble .bubble', '.a-dec .decision', '.a-note .note', '.a-pop .pop']
+    : view === 'focus' ? ['.doc', '.side .bubble', '.take'] : ['.b-head', '.cell'];
+  let t = .3;
+  order.forEach(sel => c.querySelectorAll(sel).forEach(el => {
+    el.style.opacity = 0;
+    const d = t; t += sel.includes('pill') ? .12 : .55;
+    setTimeout(() => {
+      animate(el, { opacity: [0, 1], y: [16, 0], filter: ['blur(6px)', 'blur(0px)'] }, land).then(() => { el.style.filter = 'none'; el.style.transform = 'none'; });  // a filter left on breaks the frost behind it
+      setTimeout(() => el.classList.add('shine'), 260);
+    }, d * 1000);
+  }));
+})();
+</script>
+</body>
+</html>
