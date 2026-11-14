@@ -100,10 +100,20 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 (async () => {
   const q = new URLSearchParams(location.search);
   const still = q.get('still') === '1', notes = q.get('notes') === '1';
+  // ?embed=1: the room's backdrop (public/looks/painted-living.js). No sample run, no slips (the room's UI draws
+  // those), no clicks; scaled to cover the frame.
+  const embed = q.get('embed') === '1';
   const { animate } = window.Motion;
   const $ = (s, r = document) => r.querySelector(s);
   const canvas = $('#canvas');
   if (notes) canvas.classList.add('notes');
+  if (embed) {
+    document.documentElement.style.background = 'transparent'; document.body.style.background = 'transparent';
+    canvas.style.position = 'fixed'; canvas.style.left = '50%'; canvas.style.top = '50%'; canvas.style.transformOrigin = '50% 50%';
+    const fit = () => { const k = Math.max(innerWidth / 1600, innerHeight / 900); canvas.style.transform = `translate(-50%, -50%) scale(${k})`; };
+    fit(); addEventListener('resize', fit);
+    canvas.style.pointerEvents = 'none';
+  }
   const spring = (d = .7) => ({ type: 'spring', bounce: 0, duration: d });
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const BASE = '../cast/living/';
@@ -216,6 +226,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   // ---- slips
   function headPoint(id) { return P2(...CAST[id].head); }
   function say(id, text) {
+    if (embed) return null;
     const [x, y] = headPoint(id);
     const b = document.createElement('div');
     b.className = 'say'; b.style.setProperty('--c', CAST[id].c);
@@ -262,9 +273,16 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
       case 'done':  speakWhenOn(id, 'signature', ev.text); want(id, 'signature');
                     for (const o of Object.keys(CAST)) if (o !== id) want(o, 'delighted'); break;
       case 'milestone': for (const o of Object.keys(CAST)) want(o, 'celebrating'); break;
+      case 'agree': for (const o of (ev.seats || [])) nod(o); break;   // drawn in code: a small nod, no clip
     }
     return true;
   };
+
+  // a nod: the whole patch dips 4 px and comes back (agreeing, in code; no clip)
+  function nod(id) {
+    const p = P[id]; if (!p || !p.live) return;
+    animate(p.el, { y: [0, 4, 0, 2.5, 0] }, { duration: 1.4, ease: 'easeInOut' });
+  }
 
   // ---- focus wins: no new moods, nothing to click, music ducks
   function focus(on) {
@@ -420,7 +438,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   for (const id of Object.keys(CAST)) { P[id].base = START[id]; play(id, START[id]); }
 
   // A prepared sample run (not live), so the comp shows events driving moods. Lines from DEMO.md where they exist.
-  let sample = q.get('run') !== '0';
+  let sample = q.get('run') !== '0' && !embed;
   const SAMPLE = [
     [3000,  { type: 'start', who: 'ines' }],
     [5000,  { type: 'found', who: 'noor', text: 'Found a source on what sells out first.' }],
