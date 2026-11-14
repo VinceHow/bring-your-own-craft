@@ -135,3 +135,29 @@ body.stage .meter-counts { font-size: 15px; }
 #room .file-card:has(.sounds-like:not([hidden])) .file-note { display: none; }
 #room .file-card:has(.sounds-like:not([hidden])) { height: 284px; }
 #room .sounds-like { padding: var(--s2) 10px; font-size: 13.5px; line-height: 1.4; margin-bottom: var(--s2); }
+
+/* ---- the gem (public/gem.js): the idea as a stone on the table, cut face by face in the seat inks ---- */
+#room .gem { position: absolute; left: var(--gem-x, 1052px); top: var(--gem-y, 770px); z-index: 14;
+  display: flex; flex-direction: row; align-items: center; gap: var(--s2); pointer-events: none; }
+#room .gem[hidden] { display: none; }
+.gem-stone { width: 124px; height: 124px; flex: none; overflow: visible; transform: rotate(-4deg); }
+.gem-shadow polygon { fill: var(--ink); }
+.gem-face { fill: color-mix(in srgb, var(--ink) calc(var(--cut, 0) * 100%), #CFC8BA);
+  stroke: #141414; stroke-width: 2; stroke-linejoin: round; }
+.gem-facet { fill: #FBF9F4; pointer-events: none; }
+.gem-face[data-seat="design"] { --ink: #0078BF; }
+/* rough: the stone is uncut paper-grey with a printed hatch; it loses the hatch as faces are cut */
+.gem-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* for screen readers; the stone speaks for itself */
+.gem-label:empty { display: none; }
+/* the bars: a quiet legend under the gem; on their own (?gem=bars) they are the whole thing */
+.gem-bars { list-style: none; margin: 0; padding: 0; display: none; width: 100%; }
+.gem[data-mode="bars"] { padding: var(--s2) var(--s3); background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+.gem[data-mode="bars"] .gem-bars { display: flex; gap: 6px; align-items: flex-end; }
+.gem-bars li { display: flex; flex-direction: column; align-items: center; gap: 3px; font: 600 10px/1 var(--mono); }
+.gem-bar-name { width: 18px; overflow: hidden; white-space: nowrap; text-align: center; }
+.gem-bar { width: 18px; height: 64px; border: 2px solid #141414; border-radius: 2px; background: var(--paper); overflow: hidden; display: flex; align-items: flex-end; }
+.gem-bar i { display: block; width: 100%; height: 100%; background: var(--ink); transform-origin: center bottom; transform: scaleY(0); }
+/* the symphony: the stone settles flat, every face in full ink; then it is her page */
+.gem[data-stage="symphony"] .gem-stone { transform: rotate(0deg) scale(1.06); transition: transform 900ms cubic-bezier(.2,.8,.2,1); }
+.gem[data-stage="page"] { transform: translateY(-40px) scale(0); transform-origin: left center; transition: transform 700ms cubic-bezier(.5,0,.75,0) 600ms; }
+@media (prefers-reduced-motion: reduce) { .gem-stone { transition: none !important; } }

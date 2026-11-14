@@ -125,3 +125,10 @@ via `/api/run/:id/answer` flow: no new route).
 
 **The gem** is a pure function of the log in the browser: face per seat = count of `decided` with that seat (+ its asks
 answered); her face = her `answer`s and `reshape`s. No server state.
+
+**Guest chair (po/guest-chair, owner: BYOC builder 6):** after the first sketch, `POST /api/run/:id/guest` (or chained
+inside `/sketch`) runs one teammate-style call whose persona is the sketch's main user type. Returns
+`{ persona, reaction, points: [{ id:'G1', text, confidence: 'high'|'medium'|'low' }] }`; low-confidence points carry
+"check with a real <persona>". Logs `guest { persona, reaction, points }`. It never creates an `ask` and never
+overrides her. `decideRest` may cite `G<n>` like a file line (validated against the logged points, as L-lines are).
+The room shows it as a dashed-border GUEST card: "a stand-in for your customer, not a real one". Budget ~3 s.
