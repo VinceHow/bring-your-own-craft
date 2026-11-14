@@ -44,7 +44,7 @@
 }
 </style>
 <style>:root { {{{raw.tokens}}} }</style>
-<style>.decided__seat { display: inline-block; font-size: 13px; line-height: 20px; font-weight: 500; padding: 0 6px; margin-right: 6px; border: 1px solid currentColor; border-radius: 2px; color: var(--ink, inherit); vertical-align: 1px; }</style>
+<style>.margin-note { margin: 6px 0 0; padding-left: 10px; border-left: 2px solid currentColor; font-size: 14px; line-height: 20px; font-style: italic; opacity: .85; }</style>
 <script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
 <script src="assets/backgrounds/backgrounds.js"></script>
 <script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
@@ -264,12 +264,12 @@
       <p class="mo-wh__text">{{words.bookedBody}}</p>
       <ul class="rows booked__rows">
         <!--if:oneTapCancel--><li data-switch="cancel"><span class="rows__name">{{words.cancelLine}}</span><span class="rows__value" data-assumed>{{words.cancelWindow}}</span></li><!--/if:oneTapCancel-->
-        <!--if:cancelReason--><li data-switch="cancel-reason"><span class="rows__name">{{words.cancelReasonLine}}</span><span class="rows__value">One line, if you like</span></li><!--/if:cancelReason-->
+        <!--if:cancelReason--><li data-switch="cancel-reason"><span class="rows__name">{{words.cancelReasonLine}}</span><span class="rows__value">One line, if you like</span></li><!--/if:cancelReason-->{{{raw.cancelNoteLi}}}
       </ul>
     </div>
   </section><!--/step:booked-->
 
-  <section class="section" id="decided" data-step="decided" aria-labelledby="decided-h">
+  <section class="section" id="decided" hidden data-step="decided" aria-labelledby="decided-h">
     <div class="wrap">
       <div class="grid grid--top">
       <div class="section-head span-5">

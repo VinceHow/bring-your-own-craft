@@ -69,6 +69,9 @@ test('the fake run at 20x settles the counter and meter on the log\'s numbers, d
     notes: document.querySelectorAll('#her-notes .note').length,
   }));
   assert.ok(d.label, 'FAKE label on screen');
+  // Leaning in: the fixture's two lean events mark the boxes their teammates picked up, in their ink.
+  assert.deepStrictEqual(await page.evaluate(() => [...document.querySelectorAll('#her-flow .lean-mark')].map(m => `${m.dataset.seat}:${m.closest('.fl-box').dataset.node}`).sort()),
+    ['data:n6', 'design:n5']);
   if (d.hasFlow) {
     assert.deepStrictEqual({ boxes: d.boxes, asks: d.asks, plain: d.plain, notes: d.notes }, { boxes: 6, asks: 3, plain: 0, notes: 0 });
   } else {

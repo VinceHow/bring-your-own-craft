@@ -582,9 +582,14 @@
   el.room.appendChild(tray);
   let focusHeld = false; // a tally change that arrived during focus, shown after it
   function setFocus(d) {
-    const was = !!BYOC.focus.open;
+    const was = !!BYOC.focus.open, before = BYOC.focus.open;
     BYOC.focus = { open: d.open || null, waiting: d.waiting || [] };
     document.body.classList.toggle('focus', !!d.open);
+    el.room.classList.toggle('focus', !!d.open); // the hook polish.css styles (#room.focus)
+    // checkin.open / checkin.close as room events (BYOC.on). Not written to the run's log: no route takes them, and
+    // the log's own ask/answer events already say when each check-in started and ended.
+    if (before && before !== d.open) emit('checkin.close', { askId: before });
+    if (d.open && d.open !== before) emit('checkin.open', { askId: d.open });
     renderTray();
     renderStep();
     if (was && !d.open && focusHeld) { focusHeld = false; refreshTally(); }
@@ -604,6 +609,40 @@
     if (BYOC.flow && BYOC.flow.openCheckin) BYOC.flow.openCheckin(b.dataset.ask);
   });
   document.addEventListener('byoc:checkin', e => setFocus(e.detail || {}));
+
+  // ---- leaning in (DEMO 0:45-1:05) ----------------------------------------------------------------
+  // A real `lean {seat, nodeId, reason}` (a teammate picked up her change): its card nudges toward her work and its ink
+  // marks the box it picked up. Never during her focus time: a lean that arrives then waits until the check-in closes.
+  let leanQueue = [];
+  function leanIn(ev) {
+    if (!ev || !el.seat[ev.seat] || ev.seat === 'product') return;
+    if (BYOC.focus && BYOC.focus.open) { leanQueue.push(ev); return; }
+    const card = el.seat[ev.seat].querySelector('.card');
+    if (card && !instantMode) {
+      const s = el.seat[ev.seat], her = el.herSheet;
+      const dx = (her.offsetLeft + her.offsetWidth / 2) - (s.offsetLeft + s.offsetWidth / 2);
+      const dy = (her.offsetTop + 40) - (s.offsetTop + s.offsetHeight / 2);
+      const d = Math.hypot(dx, dy) || 1, k = 22 / d; // a nudge, not a move: about 22px toward her sheet
+      card.classList.add('leaning');
+      place(card, { x: [0, dx * k, dx * k, 0], y: [0, dy * k, dy * k, 0], rotate: [TILT[ev.seat], TILT[ev.seat] * 0.3, TILT[ev.seat] * 0.3, TILT[ev.seat]], scale: [1, 1.04, 1.04, 1] },
+        true, { type: 'tween', duration: 1.6, times: [0, 0.15, 0.8, 1], ease: 'easeOut' })
+        .then(() => card.classList.remove('leaning'), () => card.classList.remove('leaning'));
+    }
+    // Its ink on the box it picked up (stays: a quiet record of who's on it).
+    const box = el.herFlow.querySelector(`.fl-box[data-node="${CSS.escape(String(ev.nodeId || ''))}"]`);
+    if (box) {
+      let marks = box.querySelector('.lean-marks');
+      if (!marks) { marks = h('span', 'lean-marks'); box.appendChild(marks); }
+      if (!marks.querySelector(`[data-seat="${ev.seat}"]`)) {
+        const m = h('i', 'lean-mark'); m.dataset.seat = ev.seat; m.title = `${INFO[ev.seat].name} picked this up${ev.reason ? ': ' + ev.reason : ''}`;
+        marks.appendChild(m);
+        if (!instantMode) place(m, { scale: [0, 1] }, true);
+      }
+    }
+    emit('leaned', ev);
+  }
+  BYOC.leanIn = leanIn;
+  BYOC.on('focus', f => { if (!f.open && leanQueue.length) { const q = leanQueue; leanQueue = []; q.forEach(leanIn); } });
 
   // ---- build (her one press) and her page --------------------------------------------------------
   // Entering the build beat live is her press (or B). Engineering's sheet ticks through build.step events; the
@@ -717,6 +756,9 @@
       case 'sketches':
         // Live, the room renders what its own request returns; a replay shows the frames from the log.
         if (source !== 'live') { if (BYOC.beat < 7) stage(7); showSketches(ev); }
+        break;
+      case 'lean':
+        leanIn(ev, source);
         break;
       case 'teammate.error':
         sheetStep(ev.seat, 'stopped: model error');
@@ -914,7 +956,7 @@
     walkToken++;
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
-    BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null;
+    BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {

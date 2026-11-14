@@ -153,8 +153,25 @@ test('"decided for you" tags each row with its seat, and a Strategy payment deci
   assert.ok(r.slots.decided.some(x => x.id === 's1'), 'the Strategy decision is shown');
   assert.deepEqual(r.slots.decided.map(x => x.id), ['d', 'e', 'f', 's1'], 'at most three newest-line rows (her picks first), then Strategy');
   const html = read(out);
-  assert.match(html, /data-decided="s1"[^>]*data-seat="strategy"><span class="rows__name">[^<]*<\/span><p><span class="decided__seat">Strategy<\/span>/);
-  assert.match(html, /<span class="decided__seat">Design<\/span>/);
+  // No credits on her page (DEMO 2:26): the rows stay in the markup for these checks, hidden, with no seat tags.
+  assert.match(html, /<li data-decided="s1" data-cites="team default" data-seat="strategy">/);
+  assert.match(html, /id="decided" hidden/);
+  assert.doesNotMatch(html, /decided__seat/);
+});
+
+test('one margin note on the cancel step, only when a decision about cancelling cites her newest line', async () => {
+  const cancel = [{ id: 'c4', seat: 'engineering', decision: 'Does cancel ask for a reason?', choice: 'No, one tap', cites: 'L3' }];
+  const on = tmp();
+  await fillPage({ run: 'r', outDir: on, idea: 'x', taste: TASTE, decided: cancel, newestLine: 'L3', template: 'yoga', call: fakeModel({ decidedShown: [] }) });
+  const html = read(on);
+  const line = TASTE.find(l => l.id === 'L3').text;
+  assert.strictEqual((html.match(/data-note="cancel"/g) || []).length, 1, 'exactly one note');
+  assert.ok(html.includes(`One tap, no reason asked: follows your line, “${line}”`), 'its words, quoting her line');
+  // Not about cancelling, or citing an older line: no note at all.
+  const off = tmp();
+  await fillPage({ run: 'r', outDir: off, idea: 'x', taste: TASTE, newestLine: 'L3', template: 'yoga', call: fakeModel({ decidedShown: [] }),
+    decided: [{ id: 'g1', seat: 'engineering', decision: 'Guest booking?', choice: 'Yes', cites: 'L3' }, { id: 'c5', seat: 'engineering', decision: 'Cancel by link?', choice: 'Yes', cites: 'L1' }] });
+  assert.doesNotMatch(read(off), /data-note="cancel"/);
 });
 
 test('she overrules cancel-by-link with "contact the studio": the one-tap cancel line goes', async () => {

@@ -395,6 +395,7 @@
     const moves = [];
     for (const i of S.items) if (i.ask) {
       i.el.classList.toggle('is-open', i === cur);
+      i.el.classList.toggle('checkin-open', i === cur); // polish's hook: the one thing lit in her focus time
       i.el.classList.toggle('is-waiting', !i.answered && i !== cur);
       const want = i === cur ? S.lens : S.canvas;
       if (want && i.el.parentNode !== want) { moves.push([i.el, i.el.isConnected ? i.el.getBoundingClientRect() : null]); want.appendChild(i.el); }
