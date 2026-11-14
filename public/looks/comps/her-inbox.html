@@ -6,7 +6,8 @@
 <!-- Her inbox: one calm component by her stool that replaces the loose tray notes and the reviewed cards in the room.
      Collapsed: one item only, the one that needs her now (or "Nothing needs you right now"). No counts, no red.
      Expanded (click; Esc or click to close): a drawer of her paper with Needs you · Things only you can do · Past meetings.
-     ?st=collapsed|empty|open|task|done|landing|m2 &still=1. No st: the flow autoplays.
+     ?st=collapsed|empty|open|task|done|landing|m2 &still=1. No st: the flow autoplays. ?st=event fires a sample 'studio:filed'.
+     Listens for document 'studio:filed' { entry, card } from the wrap-up page (design/loop) and files the meeting.
      Hackathon build: no secret or key entry (PO). The key field exists only as the Milestone 2 still (?st=m2):
      masked, server-side, never shown back beyond "Saved · ••••4f2a". -->
 <link rel="stylesheet" href="../ink-paper.css">
@@ -178,6 +179,27 @@ html, body { margin: 0; background: #1A120D; }
     await wait(1600);
     if (!instant) await animate('#task', { opacity: 0, height: 0 }, { duration: .4 }).finished; hide($('#task')); show($('#nothing'));
   }
+  // the wrap-up page (design/loop her-page.html) fires 'studio:filed' { entry, card } on "Looks right". The inbox
+  // opens, flies their card (measured, not moved by them) into the top of Past meetings, and writes the row from entry.
+  document.addEventListener('studio:filed', async e => {
+    const { entry, card } = e.detail || {}; if (!entry) return;
+    if (!open) await expand();
+    const row = document.createElement('div'); row.className = 'prow'; row.dataset.who = (entry.artifact && entry.artifact.by && entry.artifact.by[0]) || 'her'; row.style.opacity = 0;
+    const esc = t => String(t || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg></span></span>' +
+      `<span class="tt">${esc(entry.title)}<small>${esc(entry.artifact && entry.artifact.title)}${entry.rounds ? ' · ' + (entry.rounds.length > 1 ? 'two rounds' : 'one round') : ''}</small></span><span class="bel">${esc(entry.belief)}</span>`;
+    $('#past').prepend(row);
+    if (card && !instant) {
+      const a = card.getBoundingClientRect(), b = row.getBoundingClientRect(), ghost = card.cloneNode(true);
+      Object.assign(ghost.style, { position: 'fixed', left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', margin: 0, zIndex: 60, pointerEvents: 'none' });
+      document.body.appendChild(ghost); card.style.visibility = 'hidden';
+      await animate(ghost, { x: b.left - a.left, y: b.top - a.top, scale: [1, b.width / a.width], opacity: [1, .3] }, { type: 'spring', visualDuration: .9, bounce: 0 }).finished;
+      ghost.remove();
+    }
+    if (card) card.style.visibility = 'hidden';  // the wrap-up page brings the room back itself
+    animate(row, { opacity: [0, 1] }, { duration: instant ? 0 : .3 });
+    const tk = row.querySelector('path'); tk.style.strokeDasharray = 1; animate(tk, { strokeDashoffset: [1, 0] }, { duration: instant ? 0 : .5, delay: .2 });
+  });
   // the write-up card lands in Past meetings: it shrinks, flies down into the open drawer and becomes the top row
   async function land() {
     const w = $('#writeup'); const fresh = w.classList.contains('hide'); show(w); redrawAll(w); if (!instant && fresh) { InkPaper.lay(w); await wait(1800); }
@@ -202,6 +224,13 @@ html, body { margin: 0; background: #1A120D; }
     if (ST === 'task') { await expand(); return; }
     if (ST === 'done') { await expand(); $('#taskRow').innerHTML = '<span class="ok"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>Bo’s on it. Thank you.</span>'; InkPaper.redraw($('#task')); return; }
     if (ST === 'landing') { $('#writeup').style.cssText += ';'; await expand(); await land(); hide($('#task')); show($('#nothing')); redrawAll($('#drawer')); return; }
+    if (ST === 'event') {
+      const w = $('#writeup'); show(w); redrawAll(w);
+      setTimeout(() => document.dispatchEvent(new CustomEvent('studio:filed', { detail: { card: w, entry: { id: 'm3', when: 'Today', question: 'If ordering could feel like one thing, what should it feel like?',
+        title: 'How ordering should feel', artifact: { kind: 'wireframes', title: 'Mika’s wireframes', by: ['mika'], thumb: null }, belief: 'Ordering should feel like being known.',
+        guidance: ['Their usual loaf first, one tap away'], changes: [{ who: 'mika', kind: 'cut', text: 'The phone field' }], rounds: [{ line: 'a' }, { line: 'b' }], transcriptUrl: null } } })), instant ? 0 : 1500);
+      return;
+    }
     if (ST === 'm2') {
       // Milestone 2 only: a key, pasted once, masked, kept on the server. Never shown back beyond the last four.
       await expand();
