@@ -1,1 +1,81 @@
-<!doctype html><meta charset="utf-8"><title>Bring your own craft</title><body style="background:#F2EEE6">Room coming.</body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bring your own craft</title>
+<link rel="stylesheet" href="room.css">
+<link rel="stylesheet" href="flow.css">
+</head>
+<body data-beat="0">
+<!-- Chrome: hidden in stage mode -->
+<div id="chrome" class="chrome">
+  <span class="chrome-title">Bring your own craft</span>
+  <span class="chrome-keys"><kbd>&rarr;</kbd> next beat <kbd>Home</kbd> reset <kbd>S</kbd> stage mode <kbd>R</kbd> replay rehearsal <kbd>C</kbd> replay caf&eacute; <kbd>F</kbd> fake run <kbd>Esc</kbd> leave typing</span>
+  <span id="status" class="chrome-status"></span>
+</div>
+
+<!-- Labels shown for as long as a replayed or fake run is on screen -->
+<div id="replay-label" class="replay-label" hidden></div>
+
+<div id="viewport">
+<main id="room" aria-label="The room, seen from above">
+  <div class="table" id="table"></div>
+
+  <!-- Seats: empty outlines until the cards land -->
+  <div class="seat seat-design" data-seat="design"><div class="seat-empty">Design</div></div>
+  <div class="seat seat-data" data-seat="data"><div class="seat-empty">Data</div></div>
+  <div class="seat seat-research" data-seat="research"><div class="seat-empty">Research</div></div>
+  <div class="seat seat-engineering" data-seat="engineering"><div class="seat-empty">Engineering</div></div>
+  <div class="seat seat-product" data-seat="product"><div class="seat-empty">Product</div></div>
+
+  <!-- Teammates' small sheets, one in front of each seat -->
+  <section class="mini-sheet" data-sheet="design" hidden></section>
+  <section class="mini-sheet" data-sheet="data" hidden></section>
+  <section class="mini-sheet" data-sheet="research" hidden></section>
+  <section class="mini-sheet" data-sheet="engineering" hidden></section>
+
+  <!-- Her file card -->
+  <section id="file-card" class="file-card" hidden>
+    <header class="file-head"><span class="file-name">her file</span><span class="file-path">taste.md</span></header>
+    <ol class="file-lines" id="file-lines"></ol>
+    <div class="sounds-like" id="sounds-like" hidden></div>
+    <div class="file-note" id="file-note"></div>
+  </section>
+
+  <!-- Her full-size sheet -->
+  <section id="her-sheet" class="her-sheet" hidden>
+    <h1 class="her-q">What are we building today?</h1>
+    <p class="her-idea" id="her-idea"></p>
+    <div class="her-flow" id="her-flow"></div>
+    <div class="her-notes" id="her-notes"></div>
+    <form id="her-form" class="her-form" autocomplete="off">
+      <input id="her-input" class="her-input" type="text" spellcheck="false" placeholder="Write the idea">
+      <span class="her-hint" id="her-hint">Enter to write it down</span>
+    </form>
+  </section>
+
+  <!-- Counter and meter -->
+  <section id="tally" class="tally" hidden>
+    <button class="counter" id="counter" type="button">
+      <span class="counter-row"><span class="roll" id="came"></span><span class="counter-label">decisions came up</span></span>
+      <span class="counter-row"><span class="roll roll-pink" id="brought"></span><span class="counter-label">brought to you</span></span>
+    </button>
+    <div class="meter" id="meter">
+      <div class="meter-label">In your craft</div>
+      <div class="meter-num"><span class="roll" id="pct"></span><span class="meter-unit">%</span></div>
+      <div class="meter-bar"><span class="meter-craft" id="meter-craft"></span><span class="meter-stamp" id="meter-stamp"></span></div>
+      <div class="meter-counts" id="meter-counts"></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<script src="vendor/motion/motion.js"></script>
+<script src="room.js"></script>
+<script src="stage.js"></script>
+<script src="replay.js"></script>
+<script src="flow.js"></script>
+<script src="sketches.js"></script>
+</body>
+</html>
