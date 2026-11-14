@@ -123,8 +123,8 @@ html, body { margin: 0; background: #1A120D; }
 .door .gap { position: absolute; left: 536px; top: 150px; width: 538px; height: 612px; border-radius: 269px 269px 0 0 / 232px 232px 0 0; overflow: hidden; background: #F3D9A8; }
 .door .gap .inroom { position: absolute; left: -531px; top: -150px; width: 1600px; height: 893px; background: url(first-open/cast/painting-afternoon.jpg) center top / 1600px 893px; transform-origin: 805px 480px; transform: scale(.62); filter: brightness(1.05); }
 .blurwrap { position: absolute; inset: 0; z-index: 9; }
-.blurwrap.soft { filter: blur(9px) saturate(.9) brightness(1.02); }
-.warmth { position: absolute; inset: 0; z-index: 10; pointer-events: none; background: radial-gradient(80% 80% at 50% 45%, rgba(255,238,210,.42), rgba(239,220,190,.62)); }
+.blurwrap.soft { filter: blur(8px); }
+.warmth { position: absolute; inset: 0; z-index: 10; pointer-events: none; background: radial-gradient(80% 80% at 50% 45%, rgba(255,238,210,.08), rgba(239,220,190,.2)); }
 .sign { position: absolute; left: 645px; top: 64px; width: 320px; height: 98px; display: grid; place-items: center; z-index: 2; pointer-events: none; }
 .sign svg { width: 316px; height: 80px; overflow: visible; }
 .sign text { font: italic 400 40px var(--ip-serif); fill: #2E1B0E; letter-spacing: -.01em; }
@@ -197,6 +197,9 @@ html, body { margin: 0; background: #1A120D; }
   const instant = still || STEP != null, N = STEP == null ? 99 : +STEP;
   // &door=code: the older in-code door (door.jpg split at the seam). Default: the painted door-open.mp4.
   // &taps=1: the recorded run taps Mika and Theo once, to show the reactions. &tap=<who> with &step: a still mid-reaction.
+  // Pace: the stage pace is the default (about 2.2 s a teammate, about 3.5 s from the door sign to her seat, per DEMO.md);
+  // &pace=slow is the older, roomier pace for people exploring. Taps only add time when someone actually taps.
+  const SLOW = q.get('pace') === 'slow';
   const CODE = q.get('door') === 'code', TAPDEMO = q.get('taps') === '1', TAPSTILL = q.get('tap');
   const c = document.getElementById('c'), ground = document.getElementById('ground'), $ = s => c.querySelector(s), { animate } = Motion;
   const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
@@ -208,10 +211,15 @@ html, body { margin: 0; background: #1A120D; }
   // one sheet on the paper at a time: the old one lifts away, the new one is laid with the ink gesture
   let cur = null;
   async function sheet(html, cls = 'stepcard', who = 'her') {
-    if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, y: -14 }, { duration: .35, ease: [.4, 0, .6, 1] }).finished; old.remove(); }
+    const old = cur; cur = null;
     const el = document.createElement('div'); el.className = 'abs card ' + cls; el.dataset.who = who; el.innerHTML = html; ground.appendChild(el);
     InkPaper.dress(el); InkPaper.redraw(el); el.querySelectorAll('.pane').forEach(InkPaper.redraw);
-    if (!instant) InkPaper.lay(el); cur = el; return el;
+    if (old && !instant) {
+      // one sheet becomes the next: the words crossfade, never an empty card
+      animate(old, { opacity: 0 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished.then(() => old.remove());
+      await animate(el, { opacity: [0, 1] }, { duration: .4, ease: [.4, 0, .6, 1] }).finished;
+    } else { if (old) old.remove(); if (!instant) InkPaper.lay(el); }
+    cur = el; return el;
   }
   const typeIn = async (el, text, ms = 70) => { if (instant) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(ms); } };
   const ptr = $('#pointer');
@@ -305,7 +313,7 @@ html, body { margin: 0; background: #1A120D; }
     if (N < 5) return;
     await wait(2600); await tap(s.querySelector('#go4')); hidePtr();
     // her tag goes small to the top left, and stays with her while she meets the team
-    if (!instant) await animate(s, { opacity: 0, scale: .9 }, { duration: .4 }).finished; s.remove(); cur = null;
+    if (SLOW || instant) { if (!instant) await animate(s, { opacity: 0, scale: .9 }, { duration: .4 }).finished; s.remove(); cur = null; } // stage: Mika crossfades over it
     const mini = document.createElement('button'); mini.className = 'abs pill is-her'; mini.dataset.who = 'her'; mini.id = 'mini';
     mini.style.cssText = 'left:22px;top:18px;z-index:12'; mini.innerHTML = '<span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span>';
     ground.appendChild(mini); InkPaper.dress(mini); InkPaper.redraw(mini); if (!instant) InkPaper.lay(mini);
@@ -313,8 +321,10 @@ html, body { margin: 0; background: #1A120D; }
     // ---- 5..9 meet the team, one by one; the flex teammate last ----
     for (let k = 0; k < TEAM.length && 5 + k <= N; k++) {
       const t = TEAM[k];
-      if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, x: -40 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished; old.remove(); }
+      if (cur && SLOW) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, x: -40 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished; old.remove(); }
+      const prev = cur;
       const m = document.createElement('div'); m.className = 'abs meet'; m.dataset.who = t.who; ground.appendChild(m); cur = m;
+      if (!SLOW && !instant) m.style.opacity = 0;
       const late = t.flex && LATE && !lateDone;
       m.innerHTML = `<div class="card frame" data-who="${t.who}" title="${t.name}"><div class="vid">` +
         (late ? `<div class="late"><div class="note2"><b>A note on Theo’s chair</b><p>Theo’s running a little late. We’re finding you someone who knows morning bake lists.</p></div></div>`
@@ -328,37 +338,45 @@ html, body { margin: 0; background: #1A120D; }
       const v = fr.querySelector('video'); if (v) wireTap(m, t, fr, v);
       if (v && t.who === 'theo' && lateDone) { fr._busy = !instant; v.addEventListener('ended', () => { v.src = '../cast/intro/wave-theo.mp4'; v.loop = true; v.play().catch(() => {}); fr._busy = false; }, { once: true }); }
       if (v && instant) { v.pause(); }
-      if (!instant) { InkPaper.lay(fr); if (card) InkPaper.lay(card, .45); }
-      if (late) { await wait(3600); if (N === 9 && STEP != null) return;
+      if (!instant && SLOW) { InkPaper.lay(fr); if (card) InkPaper.lay(card, .45); }
+      if (!instant && !SLOW) {
+        // stage pace: the next teammate's wave starts unseen, so their hand is up when they appear; then a crossfade
+        if (card) { card.querySelector('.line').textContent = t.line; InkPaper.redraw(card); }
+        await wait(v ? 800 : 0);
+        if (prev) animate(prev, { opacity: 0 }, { duration: .35 }).finished.then(() => prev.remove());
+        await animate(m, { opacity: [0, 1] }, { duration: .35 }).finished;
+      } else if (prev) prev.remove();
+      if (late) { await wait(SLOW ? 3600 : 2600); if (N === 9 && STEP != null) return;
         // the role is ready: the note lifts away and Theo hurries in
-        if (!instant) await animate(m, { opacity: 0 }, { duration: .4 }).finished; m.remove(); cur = null; lateDone = true; k--; continue; }
+        if (SLOW) { if (!instant) await animate(m, { opacity: 0 }, { duration: .4 }).finished; m.remove(); cur = null; }
+        lateDone = true; k--; continue; }
       const rr = card.querySelector('.rr'), ln = card.querySelector('.line');
-      if (t.flex) { await wait(800); await typeIn(rr, t.role === 'Data' ? 'Morning bake list' : t.role, 55); }
-      await wait(500); await typeIn(ln, t.line, 20); InkPaper.redraw(card);
+      if (t.flex) { await wait(SLOW ? 800 : 150); await typeIn(rr, t.role === 'Data' ? 'Morning bake list' : t.role, SLOW ? 55 : 32); }
+      if (SLOW || instant) { await wait(500); await typeIn(ln, t.line, 20); InkPaper.redraw(card); }
       if (instant && TAPSTILL === t.who && N === 5 + k) { fr._react(2.6); return; }
       if (TAPDEMO && !instant && (t.who === 'mika' || t.who === 'theo')) {
         while (fr._busy) await wait(200);
         await wait(900); await tap(fr); fr._react(); hidePtr(); await wait(5800);
       }
-      if (k < TEAM.length - 1) await wait(1900);
+      if (k < TEAM.length - 1) await wait(SLOW ? 1900 : (t.flex ? 1300 : 1050));
     }
     if (N < 10) return;
     // ---- 10 THE REVEAL: the paper parts, the room is there, she sits down ----
-    await wait(2000);
+    await wait(SLOW ? 2000 : 1500);
     if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, scale: .97 }, { duration: .5 }).finished; old.remove(); }
     dots.remove();
     const tag = $('#mini'); const vid = $('#scene'); vid.play().catch(() => {});
     const room = $('#room'), door = $('#door'), bw = $('#blurwrap');
-    room.style.opacity = 0;
+    room.style.opacity = 0; let bwKeep = false;
     // the blur clears and we're at the door; the sign letters itself in ink, her tag hangs below it
     if (!instant) {
-      await animate(tag, { opacity: 0 }, { duration: .4 }).finished;
-      bw.classList.remove('soft'); animate(bw, { filter: ['blur(9px) saturate(.9) brightness(1.02)', 'blur(0px) saturate(1) brightness(1)'] }, { duration: 1.4, ease: [.33, 0, .2, 1] });
-      animate('#warmth', { opacity: 0 }, { duration: 1.4 });
-      await wait(1200);
-      await animate($('#signrect'), { width: [0, 330] }, { duration: 1.6, ease: [.45, .05, .3, 1] }).finished;
-      animate('#htag', { opacity: [0, 1], rotate: [8, -3, 0] }, { duration: 1.4, ease: [.33, 0, .2, 1] });
-      await wait(1800);
+      if (SLOW) await animate(tag, { opacity: 0 }, { duration: .4 }).finished; else animate(tag, { opacity: 0 }, { duration: .3 });
+      bw.classList.remove('soft'); animate(bw, { filter: ['blur(8px)', 'blur(0px)'] }, { duration: SLOW ? 1.4 : .7, ease: [.33, 0, .2, 1] });
+      animate('#warmth', { opacity: 0 }, { duration: SLOW ? 1.4 : .7 });
+      await wait(SLOW ? 1200 : 300);
+      await animate($('#signrect'), { width: [0, 330] }, { duration: SLOW ? 1.6 : .8, ease: [.45, .05, .3, 1] }).finished;
+      animate('#htag', { opacity: [0, 1], rotate: [8, -3, 0] }, { duration: SLOW ? 1.4 : .8, ease: [.33, 0, .2, 1] });
+      await wait(SLOW ? 1800 : 100);
       if (CODE) {
         // the two halves swing open onto the room, then we walk in
         animate('#dl', { rotateY: [0, -104] }, { duration: 1.4, ease: [.2, .6, .25, 1] });
@@ -367,16 +385,18 @@ html, body { margin: 0; background: #1A120D; }
         animate('#inroom', { scale: [.62, 1] }, { duration: 1.8, ease: [.55, 0, .25, 1] });
         await animate(door, { scale: [1, 2.3], opacity: [1, 1, 0] }, { duration: 1.8, ease: [.55, 0, .25, 1], times: [0, .75, 1] }).finished;
       } else {
-        // the painted doors open (door-open.mp4); the sign and her tag fade as they part; in the last 0.6 s the
-        // living room, everyone seated, comes up through it
-        const dv = $('#dv'); await dv.play().catch(() => {});
-        setTimeout(() => { animate('#sign', { opacity: 0 }, { duration: .7 }); animate('#htag', { opacity: 0 }, { duration: .7 }); }, 800);
+        // the painted doors open (door-open.mp4); the sign and her tag fade as they part; the moment the doors are
+        // fully apart (2.3 s into the clip) our living room, everyone seated, blends up through it, so the clip's
+        // own room is barely seen. Stage pace plays the clip a little quicker, and she starts for her seat in the blend.
+        const dv = $('#dv'); dv.playbackRate = SLOW ? 1 : 1.2; await dv.play().catch(() => {});
+        setTimeout(() => { animate('#sign', { opacity: 0 }, { duration: .6 }); animate('#htag', { opacity: 0 }, { duration: .6 }); }, SLOW ? 800 : 600);
         const t0 = performance.now();
-        await new Promise(r => { const f = () => (dv.ended || (dv.duration && dv.currentTime >= dv.duration - .6) || performance.now() - t0 > 7000) ? r() : requestAnimationFrame(f); f(); });
+        await new Promise(r => { const f = () => (dv.ended || dv.currentTime >= 2.3 || performance.now() - t0 > 6000) ? r() : requestAnimationFrame(f); f(); });
         room.style.opacity = 1;
-        await animate(bw, { opacity: [1, 0] }, { duration: .6, ease: [.4, 0, .6, 1] }).finished;
+        const blend = animate(bw, { opacity: [1, 0] }, { duration: .7, ease: [.4, 0, .6, 1] }).finished;
+        if (SLOW) await blend; else { await wait(250); blend.then(() => bw.style.display = 'none'); bwKeep = true; }
       }
-      room.style.opacity = 1; bw.style.display = 'none';
+      room.style.opacity = 1; if (!bwKeep) bw.style.display = 'none';
       tag.style.left = '640px'; tag.style.top = '430px';
     } else if (STEP != null && +STEP === 10) {
       bw.classList.remove('soft'); $('#warmth').style.opacity = 0; $('#signrect').setAttribute('width', 330); $('#htag').style.opacity = 1; tag.style.opacity = 0;
@@ -385,12 +405,16 @@ html, body { margin: 0; background: #1A120D; }
     $('#replay').style.opacity = 1;
     if (N < 12) { if (instant && N === 11) { tag.style.left = '640px'; tag.style.top = '430px'; tag.style.transform = 'scale(1.25)'; } return; }
     // hold the whole room for a beat, so everyone at the table is seen first; then she sits
-    await wait(1800);
-    if (!instant) await animate(tag, { opacity: [0, 1], scale: [1.1, 1.25] }, { duration: .6 }).finished; tag.style.opacity = 1;
-    await wait(600);
-    A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.4, bounce: 0 });
-    await wait(700);
-    await wait(500);
+    if (SLOW || instant) {
+      await wait(1800);
+      if (!instant) await animate(tag, { opacity: [0, 1], scale: [1.1, 1.25] }, { duration: .6 }).finished; tag.style.opacity = 1;
+      await wait(600);
+      A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.4, bounce: 0 });
+      await wait(1200);
+    } else {
+      animate(tag, { opacity: [0, 1] }, { duration: .3 });
+      await animate(tag, { left: ['640px', '584px'], top: ['430px', '616px'], scale: [1.15, 1] }, { type: 'spring', visualDuration: .8, bounce: 0 }).finished;
+    }
     c.querySelectorAll('.teampills .pill').forEach((p, i) => { p.style.opacity = 1; InkPaper.redraw(p); if (!instant) InkPaper.lay(p, i * .12); });
   })();
 })();
