@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Focus comp · Lamplight</title>
+<link rel="stylesheet" href="lamp.css">
+<link rel="stylesheet" href="journey.css">
+<style>
+/* ---- the room underneath, as it was a moment ago ---- */
+.room { position: absolute; inset: 0; border: 0; width: 1600px; height: 900px; transform-origin: 50% 60%; }
+.room.away { transition: opacity 560ms var(--glide), transform 900ms var(--settle), filter 900ms var(--settle); opacity: 0; transform: scale(.975); }
+
+/* ---- focus: the view becomes one document on her desk. No dimming, no spotlight: just a quiet, lit page ---- */
+.focus { position: absolute; inset: 0; background: #E9DFCF; opacity: 0; }
+.focus.in { transition: opacity 640ms var(--glide); opacity: 1; }
+.focus::before { /* the lamp still above her, softly */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 80% at 42% 30%, rgba(255,236,205,.55), rgba(255,236,205,0) 70%); }
+.doc { position: absolute; left: 120px; top: 40px; width: 1000px; height: 820px; padding: 44px 64px 40px; opacity: 0; transform: translateY(28px); }
+.focus.in .doc { transition: opacity 700ms var(--settle) 120ms, transform 1000ms var(--settle) 120ms; opacity: 1; transform: none; }
+
+.top { position: absolute; left: 120px; right: 120px; top: 0; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+.top .label { color: var(--ink-2); }
+.back { font: 500 14px/1 var(--sans); color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.back::before { content: '←'; font-size: 15px; }
+
+.from { display: flex; align-items: center; gap: 6px; }
+.q { margin: 18px 0 0; font: 400 40px/1.14 var(--serif); letter-spacing: -.018em; max-width: 820px; color: var(--ink); }
+.work { margin-top: 30px; padding: 22px 26px 24px; border: 1px solid var(--rule); border-radius: 4px; background: rgba(255,251,244,.6);
+  --lane-w: 170px; --row-gap: 12px; --step-size: 15px; }
+.work .cap { display: flex; justify-content: space-between; margin-bottom: 14px; }
+
+/* her words */
+.say { position: relative; margin-top: 30px; padding-left: 22px; min-height: 104px; }
+.say::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px; background: var(--product); border-radius: 2px;
+  transform-origin: top; transform: scaleY(0); }
+.say.landed::before { transition: transform 600ms var(--settle); transform: scaleY(1); }
+.say .who { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.say .who .state { margin-left: 4px; color: var(--ink-3); transition: opacity 300ms; }
+.words { font: 400 23px/1.42 var(--serif); color: var(--ink); max-width: 800px; }
+.words span { opacity: 0; display: inline-block; transform: translateY(5px); transition: opacity 360ms var(--settle), transform 520ms var(--settle); white-space: pre; }
+.words span.on { opacity: 1; transform: none; }
+.caret { display: inline-block; width: 2px; height: 22px; margin-left: 2px; background: var(--product); vertical-align: -3px; opacity: .8; }
+.landed .caret { display: none; }
+.share { position: absolute; right: 64px; bottom: 40px; font: 500 15px/1 var(--sans); color: #FFF8EE; background: var(--ink); border: 0; border-radius: 4px;
+  padding: 13px 18px; box-shadow: 0 1px 0 rgba(0,0,0,.2), 0 6px 14px -6px rgba(20,12,6,.5); transition: transform 160ms var(--settle), opacity 400ms, box-shadow 160ms; }
+.share.press { transform: translateY(1px) scale(.98); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.share.gone { opacity: 0; pointer-events: none; }
+
+/* the takeaways: the meeting summed up, in her voice */
+.take { position: absolute; left: 64px; right: 64px; bottom: 36px; padding: 22px 26px 20px; border-radius: 4px; background: #F2E7D6;
+  border: 1px solid rgba(201,80,111,.28); opacity: 0; transform: translateY(14px); display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; }
+.take.in { transition: opacity 600ms var(--settle), transform 900ms var(--settle); opacity: 1; transform: none; }
+.take .head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; }
+.take .head b { font: 500 15px/1 var(--sans); color: var(--ink); }
+.take .reword { font: 500 14px/1 var(--sans); color: var(--product); }
+.take h3 { margin: 0 0 4px; font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+.take p { margin: 0; font: italic 400 19px/1.38 var(--serif); color: var(--ink); }
+.take .line { opacity: 0; transform: translateY(5px); }
+.take.in .line { transition: opacity 500ms var(--settle), transform 700ms var(--settle); opacity: 1; transform: none; }
+.take.in .line:nth-of-type(2) { transition-delay: 350ms; }
+
+/* ---- the team, in the margin: like colleagues across the table ---- */
+.thread { position: absolute; left: 1160px; top: 252px; width: 330px; }
+.thread .h { color: var(--ink-3); margin: 0 0 18px; opacity: 0; transition: opacity 500ms; }
+.thread .h.on { opacity: 1; }
+.chime { display: grid; grid-template-columns: 22px 1fr; gap: 4px 12px; margin-bottom: 22px; opacity: 0; transform: translateY(10px); }
+.chime.on { transition: opacity 480ms var(--settle), transform 700ms var(--settle); opacity: 1; transform: none; }
+.chime .n { font: 500 14px/22px var(--sans); color: var(--ink-2); }
+.chime p { grid-column: 2; margin: 0; font: 400 19px/1.36 var(--serif); color: var(--ink); }
+.chime.push p { color: var(--ink); }
+.chime .will { grid-column: 2; margin-top: 2px; font: 400 13px/1.3 var(--sans); color: var(--ink-3); }
+
+/* the work redraws to her answer */
+.step.grow { transition: border-color 600ms, box-shadow 600ms, background 600ms; }
+.step.now { border-color: var(--product) !important; border-style: solid !important; box-shadow: inset 3px 0 0 var(--product); background: rgba(246,217,222,.45) !important; }
+.step .tag { position: absolute; right: 8px; top: -9px; padding: 1px 6px; font: 500 11px/1.3 var(--sans); color: #FFF8EE; background: var(--product); border-radius: 8px;
+  opacity: 0; transition: opacity 400ms; }
+.step.now .tag { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <iframe class="room" src="room.html" title="the room" tabindex="-1"></iframe>
+
+  <div class="focus">
+    <div class="top"><span class="label">A question from Noor and Mika</span><span class="back">Back to the room</span></div>
+    <article class="doc paper">
+      <div class="from"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;About the rough journey</span></div>
+      <h1 class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</h1>
+
+      <div class="work journey-frame">
+        <div class="cap"><span class="label">Rough journey · Noor and Mika</span><span class="label">Who · stages they go through</span></div>
+        <div class="journey">
+          <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
+          <span class="who">Morning regulars</span><span class="step grow" id="s1">Browse today’s bread<span class="tag">her call</span></span><span class="step grow" id="s2">Order with an account<span class="tag">her call</span></span><span class="step end grow" id="s3">Collect at opening<span class="tag">her call</span></span>
+          <span class="who">Weekend pastry crowd</span><span class="step">Browse the pastries</span><span class="step">Order by Friday</span><span class="step end">Collect Saturday</span>
+          <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span>
+        </div>
+      </div>
+
+      <div class="say" data-seat="product">
+        <div class="who"><span class="mark sm">P</span><span class="label" style="color:var(--ink)">Priya</span><span class="label state">speaking</span></div>
+        <div class="words" id="words"></div>
+      </div>
+      <button class="share" type="button">Share with the team</button>
+
+      <section class="take">
+        <div class="head"><b>Takeaways</b><span class="reword">Reword</span></div>
+        <div class="line"><h3>What I believe</h3><p>People come for bread that’s still warm, and for being known.</p></div>
+        <div class="line"><h3>Guidance to the team</h3><p>Their usual loaf first, one tap away. Never ask for what we already know.</p></div>
+      </section>
+    </article>
+
+    <aside class="thread">
+      <p class="h label">The team</p>
+      <div class="chime" data-seat="design"><span class="mark">M</span><span class="n">Mika</span><p>Love that. Regulars first, their usual loaf one tap away.</p><span class="will">Redrawing the regulars’ row</span></div>
+      <div class="chime" data-seat="engineering"><span class="mark">B</span><span class="n">Bo</span><p>Then we hold it for them till ten. No account needed, I’ll remember them.</p></div>
+      <div class="chime" data-seat="research"><span class="mark">N</span><span class="n">Noor</span><p>Matches what small bakeries report: sourdough’s gone by nine.</p><span class="will">2 sources</span></div>
+      <div class="chime push" data-seat="strategy"><span class="mark">I</span><span class="n">Ines</span><p>Hmm, regulars might want a standing weekly order. Show that first?</p></div>
+    </aside>
+  </div>
+</div>
+<script>
+(function () {
+  const still = new URLSearchParams(location.search).get('still') === '1';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const text = 'Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.';
+  const words = $('#words');
+  text.split(/(?<= )/).forEach(w => { const s = document.createElement('span'); s.textContent = w; words.appendChild(s); });
+  const caret = document.createElement('i'); caret.className = 'caret'; words.appendChild(caret);
+  const redraw = () => { [['#s1','Their usual loaf'],['#s2','One tap, no account'],['#s3','Held till ten']].forEach(([id, t]) => {
+    const el = $(id); el.firstChild.textContent = t; el.classList.add('now'); }); };
+  const land = () => { $('.say').classList.add('landed'); $('.state').style.opacity = 0; };
+
+  if (still) {
+    $('.room').style.display = 'none'; $('.focus').classList.add('in');
+    $$('.words span').forEach(s => s.classList.add('on')); land(); $('.share').classList.add('gone');
+    $('.thread .h').classList.add('on'); $$('.chime').forEach(c => c.classList.add('on')); redraw(); $('.take').classList.add('in');
+    return;
+  }
+  const at = (ms, fn) => setTimeout(fn, ms);
+  at(1100, () => { $('.room').classList.add('away'); $('.focus').classList.add('in'); });
+  let t = 2600;
+  $$('.words span').forEach((s, i) => at(t + i * 115, () => s.classList.add('on')));
+  t += $$('.words span').length * 115 + 900;
+  at(t, () => $('.share').classList.add('press'));
+  at(t + 160, () => { $('.share').classList.remove('press'); $('.share').classList.add('gone'); land(); });
+  at(t + 500, () => $('.thread .h').classList.add('on'));
+  $$('.chime').forEach((c, i) => at(t + 600 + i * 1100, () => c.classList.add('on')));
+  at(t + 1300, redraw);
+  at(t + 600 + 4 * 1100 + 500, () => $('.take').classList.add('in'));
+})();
+</script>
+</body>
+</html>

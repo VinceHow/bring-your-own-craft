@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Character, idea, journey · Lamplight</title>
+<link rel="stylesheet" href="lamp.css">
+<link rel="stylesheet" href="journey.css">
+<style>
+/* Moments 3, 4, 5: her character card writes itself, her idea lands as a scrap, the rough journey draws in. */
+.canvas * { transition-timing-function: var(--settle); }
+.in { opacity: 0; translate: 0 6px; transition: opacity 600ms var(--settle), translate 600ms var(--settle); }
+.in.on { opacity: 1; translate: 0 0; }
+
+/* ---- the team, seated along the far side ---- */
+.seats { position: absolute; left: 64px; right: 64px; top: 40px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 28px; }
+.place { position: relative; height: 82px; padding: 14px 18px 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.place::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .85; }
+.place:nth-child(1) { rotate: -.5deg; } .place:nth-child(2) { rotate: .4deg; } .place:nth-child(3) { rotate: -.3deg; }
+.place:nth-child(4) { rotate: .5deg; } .place:nth-child(5) { rotate: -.4deg; }
+.place .row { display: flex; align-items: center; gap: 8px; }
+.place .name { font: 500 18px/1 var(--serif); }
+.place .seat { margin-left: auto; }
+.place .now { position: relative; height: 20px; font: italic 400 15px/20px var(--serif); color: var(--ink-2); }
+.place .now span { position: absolute; inset: 0; transition: opacity 500ms var(--settle), translate 500ms var(--settle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.place .now .b { opacity: 0; translate: 0 6px; color: var(--c); }
+.place.busy .now .a { opacity: 0; translate: 0 -6px; }
+.place.busy .now .b { opacity: 1; translate: 0 0; }
+/* a busy teammate's mark wears a thin ring in its own ink: there, not urgent */
+.place .mark { box-shadow: 0 0 0 0 transparent; transition: box-shadow 600ms var(--settle); }
+.place.busy .mark { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--c); }
+
+/* ---- her character card, in the light ---- */
+.char { position: absolute; left: 520px; top: 214px; width: 560px; height: 392px; padding: 34px 40px 32px; transform-origin: 50% 100%;
+  transition: transform 1100ms var(--glide), opacity 500ms var(--settle) 700ms, box-shadow 900ms var(--settle); }
+.char .head { display: flex; align-items: center; gap: 8px; }
+.char .said { margin: 18px 0 0; font: italic 400 19px/1.45 var(--serif); color: var(--ink-2); min-height: 82px; }
+.char .said .w { display: inline-block; opacity: 0; translate: 0 6px; transition: opacity 420ms var(--settle), translate 420ms var(--settle); }
+.char .said .w.on { opacity: 1; translate: 0 0; }
+.char hr { margin: 22px 0 22px; border: 0; height: 1px; background: var(--rule); transform-origin: left; scale: 0 1; transition: scale 700ms var(--settle); }
+.char hr.on { scale: 1 1; }
+.char .name { font: 400 46px/1 var(--serif); letter-spacing: -.02em; }
+.char .title { margin-top: 8px; font: italic 400 25px/1.15 var(--serif); color: var(--product); }
+.traits { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+.trait { display: inline-flex; align-items: center; gap: 10px; padding: 7px 10px 7px 14px; border: 1px solid rgba(42,33,27,.2); border-radius: 3px;
+  background: rgba(255,252,246,.7); font: 400 16px/1.2 var(--serif); color: var(--ink);
+  opacity: 0; translate: 0 -10px; rotate: -1.5deg; box-shadow: 0 8px 14px -8px rgba(20,12,6,.5);
+  transition: opacity 360ms var(--settle), translate 700ms var(--settle), rotate 700ms var(--settle), box-shadow 700ms var(--settle); }
+.trait.on { opacity: 1; translate: 0 0; rotate: 0deg; box-shadow: 0 1px 0 rgba(20,12,6,.08); }
+.trait svg { width: 14px; height: 14px; color: var(--ink-3); opacity: .7; }
+.char.away { transform: translate(-20px, 205px) scale(.4); opacity: 0; box-shadow: var(--lift-sm); }
+
+/* ---- her seat, nearest us ---- */
+.her { position: absolute; left: 600px; top: 796px; width: 400px; height: 78px; padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+  background-color: var(--paper-2); opacity: 0; translate: 0 10px; transition: opacity 600ms var(--settle), translate 800ms var(--settle); }
+.her.on { opacity: 1; translate: 0 0; }
+.her .mark { width: 30px; height: 30px; font-size: 14px; }
+.her .name { font: 500 22px/1.1 var(--serif); }
+.her .t { font: italic 400 16px/1.2 var(--serif); color: var(--ink-2); }
+.her .traits-sm { margin-left: auto; text-align: right; font: 400 13px/1.45 var(--sans); color: var(--ink-3); }
+
+/* ---- the idea sheet ---- */
+.sheet { position: absolute; left: 330px; top: 166px; width: 940px; height: 588px; padding: 38px 48px 36px;
+  opacity: 0; translate: 0 16px; box-shadow: 0 2px 2px rgba(20,12,6,.2), 0 40px 70px -24px rgba(10,6,3,.7);
+  transition: opacity 700ms var(--settle), translate 900ms var(--settle), box-shadow 900ms var(--settle); }
+.sheet.on { opacity: 1; translate: 0 0; box-shadow: var(--lift); }
+.ask { font: 400 40px/1.1 var(--serif); letter-spacing: -.02em; color: var(--ink); transition: opacity 500ms var(--settle), translate 500ms var(--settle); }
+.ask.gone { opacity: 0; translate: 0 -8px; }
+.ask-hint { margin-top: 14px; font: 400 15px/1.4 var(--sans); color: var(--ink-3); transition: opacity 400ms var(--settle); }
+.ask-hint.gone { opacity: 0; }
+
+/* her scrap: torn from her side of the table, set down a touch askew */
+.scrap { position: absolute; left: 470px; top: 980px; width: 600px; padding: 22px 28px 24px; rotate: 3deg;
+  background-color: #FBF6EC; border-radius: 2px; font: 400 28px/1.22 var(--serif); letter-spacing: -.012em; color: var(--ink);
+  box-shadow: 0 2px 2px rgba(20,12,6,.2), 0 50px 80px -24px rgba(10,6,3,.75);
+  clip-path: polygon(0 3%, 6% 0, 14% 2%, 22% 0, 31% 1.5%, 40% 0, 52% 2%, 63% .5%, 74% 2%, 85% 0, 93% 1.5%, 100% 0, 100% 100%, 0 100%);
+  transition: top 1200ms var(--settle), left 1200ms var(--settle), rotate 1200ms var(--settle), box-shadow 1200ms var(--settle),
+    background-color 800ms var(--settle), padding 900ms var(--glide), font-size 900ms var(--glide), width 900ms var(--glide), clip-path 700ms var(--settle); }
+.scrap.landed { top: 420px; rotate: -1.8deg; box-shadow: 0 1px 1px rgba(20,12,6,.2), 0 10px 18px -8px rgba(20,12,6,.45); }
+.scrap.becomes { left: 330px; top: 166px; width: 940px; padding: 38px 48px 0; rotate: 0deg; font-size: 30px; background-color: transparent; box-shadow: none;
+  clip-path: polygon(0 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+  transition-timing-function: var(--glide); transition-duration: 1000ms; }
+.scrap .t { max-width: 640px; }
+.scrap .who { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; font: 500 13px/1 var(--sans); color: var(--product);
+  transition: opacity 400ms var(--settle); }
+.scrap.becomes .who { opacity: 0; }
+
+/* ---- the rough journey, drawn in ---- */
+.by { position: absolute; left: 378px; top: 290px; display: flex; align-items: center; gap: 6px; }
+.jwrap { position: absolute; left: 378px; top: 352px; width: 844px; }
+.journey { --lane-w: 186px; --row-gap: 26px; --step-size: 16px; --step-pad: 11px 14px; --who-size: 18px; }
+.journey .stage { opacity: 0; transition: opacity 600ms var(--settle); border-bottom-color: transparent; padding-bottom: 10px; font-size: 14px; }
+.journey .stage.on { opacity: 1; }
+.journey .who { opacity: 0; translate: -6px 0; transition: opacity 600ms var(--settle), translate 600ms var(--settle); }
+.journey .who.on { opacity: 1; translate: 0 0; }
+/* each box is pencilled: its outline draws, then its words arrive */
+.journey .step { border-color: transparent; background: transparent; transition: background-color 600ms var(--settle); }
+.journey .step::before, .journey .step::after { display: none; }
+.journey .step .ol { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; pointer-events: none; }
+.journey .step .ol rect { fill: none; stroke: rgba(42,33,27,.42); stroke-width: 1.1; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 700ms var(--glide); }
+.journey .step .tx { display: block; opacity: 0; translate: 0 4px; transition: opacity 500ms var(--settle) 250ms, translate 500ms var(--settle) 250ms; }
+.journey .step .ar { position: absolute; right: -21px; top: 50%; width: 18px; height: 8px; margin-top: -4px; overflow: visible; }
+.journey .step .ar path { fill: none; stroke: rgba(42,33,27,.5); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 400ms var(--glide) 450ms; }
+.journey .step.end .ar { display: none; }
+.journey .step.on { background-color: rgba(255,252,246,.6); }
+.journey .step.on .ol rect, .journey .step.on .ar path { stroke-dashoffset: 0; }
+.journey .step.on .tx { opacity: 1; translate: 0 0; }
+.rule { position: absolute; left: 378px; right: 378px; top: 392px; height: 1px; background: var(--rule); transform-origin: left; scale: 0 1; transition: scale 900ms var(--glide); }
+.rule.on { scale: 1 1; }
+
+/* still: the end state, no motion */
+.still *, .still *::before, .still *::after { transition: none !important; }
+</style>
+</head>
+<body>
+<div class="canvas" id="c">
+  <div class="table"></div>
+
+  <div class="seats">
+    <div class="place paper" data-seat="design" id="mika"><div class="row"><span class="mark">M</span><span class="name">Mika</span><span class="label seat">Design</span></div>
+      <div class="now"><span class="a">sketch first, polish last</span><span class="b">Drawing the journey with Noor</span></div></div>
+    <div class="place paper" data-seat="research" id="noor"><div class="row"><span class="mark">N</span><span class="name">Noor</span><span class="label seat">Research</span></div>
+      <div class="now"><span class="a">what’s known, with sources</span><span class="b">Who comes to a small bakery</span></div></div>
+    <div class="place paper" data-seat="data"><div class="row"><span class="mark">T</span><span class="name">Theo</span><span class="label seat">Data</span></div>
+      <div class="now"><span class="a">only what we’ll measure</span></div></div>
+    <div class="place paper" data-seat="strategy"><div class="row"><span class="mark">I</span><span class="name">Ines</span><span class="label seat">Strategy</span></div>
+      <div class="now"><span class="a">who pays, and why now</span></div></div>
+    <div class="place paper" data-seat="engineering"><div class="row"><span class="mark">B</span><span class="name">Bo</span><span class="label seat">Engineering</span></div>
+      <div class="now"><span class="a">boring and correct</span></div></div>
+  </div>
+
+  <!-- 3. her character -->
+  <section class="char paper" id="char" data-seat="product">
+    <div class="head"><span class="mark sm">P</span><span class="label">In her words</span></div>
+    <p class="said" id="said">I love working on the customer journey, understanding the problems customers face, and building products that solve them.</p>
+    <hr id="hr">
+    <div class="name in" id="nm">Priya</div>
+    <div class="title in" id="tt">the Customer Whisperer</div>
+    <div class="traits" id="traits">
+      <span class="trait">customer-obsessed<svg viewBox="0 0 16 16" aria-label="Swap"><path d="M3 6h9l-2.5-2.5M13 10H4l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="trait">hands-on builder<svg viewBox="0 0 16 16" aria-label="Swap"><path d="M3 6h9l-2.5-2.5M13 10H4l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="trait">problem hunter<svg viewBox="0 0 16 16" aria-label="Swap"><path d="M3 6h9l-2.5-2.5M13 10H4l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </section>
+
+  <!-- 4. the idea -->
+  <section class="sheet paper" id="sheet">
+    <div class="ask" id="ask">What’s the idea?</div>
+    <div class="ask-hint" id="hint">One rough sentence is enough.</div>
+  </section>
+  <div class="scrap" id="scrap"><div class="who"><span class="mark sm" data-seat="product">P</span>Priya</div><div class="t">A website for a small bakery, so customers can order bread ahead.</div></div>
+
+  <!-- 5. the team gets going -->
+  <div class="by in" id="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;Rough journey by Noor and Mika</span></div>
+  <div class="rule" id="rule"></div>
+  <div class="jwrap"><div class="journey" id="journey">
+    <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
+    <span class="who">Morning regulars</span><span class="step">Their usual loaf</span><span class="step">Order the night before</span><span class="step end">Pick up on the way to work</span>
+    <span class="who">Weekend pastry crowd</span><span class="step">See what’s baking</span><span class="step">Reserve by Friday</span><span class="step end">Collect on Saturday</span>
+    <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Hand it over</span>
+  </div></div>
+
+  <div class="her paper" id="her" data-seat="product"><span class="mark">P</span><div><div class="name">Priya</div><div class="t">the Customer Whisperer</div></div>
+    <div class="traits-sm">customer-obsessed<br>hands-on builder · problem hunter</div></div>
+</div>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  // words of her sentence, each its own span so they arrive as she says them
+  const said = $('said');
+  said.innerHTML = said.textContent.split(' ').map(w => `<span class="w">${w}</span>`).join(' ');
+  // pencil outlines and arrows for every box
+  document.querySelectorAll('#journey .step').forEach(s => {
+    s.innerHTML = `<span class="tx">${s.textContent}</span>` +
+      `<svg class="ol" preserveAspectRatio="none"><rect x=".5" y=".5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="3" pathLength="1"/></svg>` +
+      `<svg class="ar" viewBox="0 0 18 8"><path d="M1 4h15M12.5 1l3.5 3-3.5 3" pathLength="1"/></svg>`;
+  });
+  const fix = () => document.querySelectorAll('#journey .ol rect').forEach(r => { const b = r.parentNode.getBoundingClientRect();
+    r.setAttribute('width', b.width - 1); r.setAttribute('height', b.height - 1); });
+  fix();
+
+  const on = (el) => el.classList.add('on');
+  const T = [];
+  const at = (ms, fn) => T.push([ms, fn]);
+
+  // 3. her character
+  const words = [...said.querySelectorAll('.w')];
+  words.forEach((w, i) => at(500 + i * 105, () => on(w)));
+  const wEnd = 500 + words.length * 105;
+  at(wEnd + 300, () => on($('hr')));
+  at(wEnd + 650, () => on($('nm')));
+  at(wEnd + 1100, () => on($('tt')));
+  [...document.querySelectorAll('.trait')].forEach((t, i) => at(wEnd + 1750 + i * 380, () => on(t)));
+  const cEnd = wEnd + 1750 + 3 * 380;
+  at(cEnd + 1300, () => $('char').classList.add('away'));
+  at(cEnd + 1700, () => on($('her')));
+
+  // 4. the idea
+  const iS = cEnd + 2500;
+  at(iS, () => on($('sheet')));
+  at(iS + 1100, () => $('scrap').classList.add('landed'));
+  at(iS + 2700, () => { $('ask').classList.add('gone'); $('hint').classList.add('gone'); });
+  at(iS + 2900, () => $('scrap').classList.add('becomes'));
+
+  // 5. the team gets going: Noor and Mika get busy, the journey draws in over ~4 s
+  const jS = iS + 3900;
+  at(jS - 200, () => { $('mika').classList.add('busy'); $('noor').classList.add('busy'); });
+  at(jS, () => on($('by')));
+  at(jS + 200, () => on($('rule')));
+  const stages = [...document.querySelectorAll('#journey .stage')];
+  stages.forEach((s, i) => at(jS + 300 + i * 120, () => on(s)));
+  const rows = [[...document.querySelectorAll('#journey .who')]];
+  const whos = rows[0];
+  const steps = [...document.querySelectorAll('#journey .step')];
+  whos.forEach((w, r) => {
+    at(jS + 700 + r * 1100, () => on(w));
+    steps.slice(r * 3, r * 3 + 3).forEach((s, i) => at(jS + 950 + r * 1100 + i * 330, () => on(s)));
+  });
+  at(jS + 4800, () => { document.querySelector('#mika .b').textContent = 'Rough journey on the table'; document.querySelector('#noor .b').textContent = 'Finding what sells out first'; });
+
+  if (new URLSearchParams(location.search).get('still') === '1') {
+    $('c').classList.add('still');
+    T.forEach(([, fn]) => fn());
+  } else {
+    T.forEach(([ms, fn]) => setTimeout(fn, ms));
+  }
+})();
+</script>
+</body>
+</html>

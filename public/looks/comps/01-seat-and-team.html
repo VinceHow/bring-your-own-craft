@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seat and team · Lamplight</title>
+<link rel="stylesheet" href="lamp.css">
+<style>
+/* ---- seats: empty places are just outlines on the wood; a seated card is paper ---- */
+.seat { position: absolute; border-radius: 3px; }
+.seat .outline { position: absolute; inset: 0; border: 1px solid rgba(245,238,226,.16); border-radius: 3px;
+  display: grid; place-items: center; font: italic 400 18px/1 var(--serif); color: rgba(245,238,226,.42);
+  transition: border-color var(--t-mid) var(--settle), color var(--t-mid) var(--settle), background-color var(--t-mid) var(--settle), translate var(--t-fast) var(--settle); }
+.seat.own .outline { border-style: dashed; border-color: rgba(245,238,226,.22); gap: 0; }
+.seat.own .outline span { display: flex; align-items: center; gap: 8px; }
+.seat.own .outline i { font-style: normal; font: 400 18px/1 var(--sans); opacity: .8; }
+.top { top: 44px; width: 272px; height: 116px; }
+.s-design { left: 64px; } .s-data { left: 364px; } .s-research { left: 664px; } .s-strategy { left: 964px; } .s-engineering { left: 1264px; }
+.s-product { left: 600px; top: 776px; width: 400px; height: 84px; }
+.s-own { left: 1032px; top: 776px; width: 232px; height: 84px; }
+/* hover: the place warms, as if the lamp leaned in */
+.s-product.warm .outline { border-color: rgba(201,80,111,.75); color: rgba(245,238,226,.92); background-color: rgba(201,80,111,.10); translate: 0 -2px; }
+.s-product.press .outline { translate: 0 0; transition-duration: 90ms; }
+.s-product.taken .outline, .top.taken .outline { opacity: 0; transition: opacity 300ms; }
+
+/* her card in the Product seat */
+.her { position: absolute; inset: 0; display: flex; align-items: center; gap: 14px; padding: 0 22px; background-color: var(--paper-2); }
+.her .mark { width: 32px; height: 32px; font-size: 14px; }
+.her .name { font: 500 24px/1.05 var(--serif); letter-spacing: -.01em; }
+.her .sub { margin-top: 3px; }
+
+/* a seated teammate: a compact place card */
+.place { position: absolute; inset: 0; padding: 18px 20px 14px; display: flex; flex-direction: column; gap: 9px; opacity: 0; }
+.place::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; border-radius: 3px 3px 0 0; background: var(--c); }
+.place .row { display: flex; align-items: center; gap: 9px; }
+.place .name { font: 500 20px/1 var(--serif); }
+.place .seatname { margin-left: auto; }
+.place .stance { font: italic 400 16px/1.3 var(--serif); color: var(--ink-2); }
+.place .agent { color: var(--ink-3); font: 400 13px/1 var(--sans); }
+
+/* ---- the big card, set down in the light ---- */
+.big { position: absolute; left: 470px; top: 236px; width: 660px; height: 392px; padding: 40px 48px 36px; transform-origin: 0 0;
+  display: flex; flex-direction: column; will-change: transform, opacity; opacity: 0; }
+.big::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 6px; border-radius: 3px 3px 0 0; background: var(--c); }
+.big .head { display: flex; align-items: center; gap: 10px; }
+.big .head .mark { width: 28px; height: 28px; font-size: 13px; }
+.big .head .tag { padding: 3px 9px 4px; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink-3); font: 400 13px/1 var(--sans); }
+.big .head .seatname { margin-left: auto; font: 500 14px/1 var(--sans); color: var(--c); }
+.big h2 { margin: 26px 0 0; font: 400 76px/.95 var(--serif); letter-spacing: -.035em; }
+.big .loves { margin: 22px 0 0; max-width: 520px; font: italic 400 27px/1.25 var(--serif); letter-spacing: -.01em; color: var(--ink); }
+.big .loves::before { content: '“'; margin-left: -.42em; color: var(--c); }
+.big .loves::after { content: '”'; color: var(--c); }
+.big .meta { margin-top: auto; display: grid; grid-template-columns: 1.45fr 1fr; gap: 28px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.big .meta dt { font: 500 13px/1 var(--sans); color: var(--ink-3); margin-bottom: 7px; }
+.big .meta dd { margin: 0; font: 400 15px/1.4 var(--sans); color: var(--ink-2); }
+.big .meta dd.st { font: italic 400 18px/1.3 var(--serif); color: var(--ink); }
+/* the shadow does the lifting: in the air a long soft one, on the table a short one */
+.big.air { box-shadow: 0 2px 2px rgba(20,12,6,.18), 0 30px 50px -10px rgba(10,6,3,.5), 0 70px 120px -30px rgba(10,6,3,.6); }
+
+/* a whisper of copy at the lamp's edge, for the presenter's beat */
+.caption { position: absolute; left: 0; right: 0; top: 680px; text-align: center; font: italic 400 19px/1.3 var(--serif); color: rgba(245,238,226,.6); opacity: 0; }
+</style>
+</head>
+<body>
+<div class="canvas" id="cv">
+  <div class="table"></div>
+
+  <div class="seat top s-design" data-seat="design"><div class="outline">Design</div></div>
+  <div class="seat top s-data" data-seat="data"><div class="outline">Data</div></div>
+  <div class="seat top s-research" data-seat="research"><div class="outline">Research</div></div>
+  <div class="seat top s-strategy" data-seat="strategy"><div class="outline">Strategy</div></div>
+  <div class="seat top s-engineering" data-seat="engineering"><div class="outline">Engineering</div></div>
+  <div class="seat s-product" data-seat="product" id="product"><div class="outline">Product</div></div>
+  <div class="seat s-own own"><div class="outline"><span><i>+</i>Your own craft</span></div></div>
+
+  <p class="caption" id="cap">Take a seat.</p>
+</div>
+
+<script>
+const TEAM = [
+  { seat: 'design', name: 'Mika', label: 'Design', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing', stance: 'Sketch first, polish last' },
+  { seat: 'research', name: 'Noor', label: 'Research', loves: 'A source for every claim.', brings: 'A real finding with its link, researched before the demo', stance: 'What’s known, with sources' },
+  { seat: 'data', name: 'Theo', label: 'Data', loves: 'One number that says it worked.', brings: 'What to measure at each step', stance: 'Only what we’ll measure' },
+  { seat: 'strategy', name: 'Ines', label: 'Strategy', loves: 'Knowing who pays before we build.', brings: 'Pricing and payment calls', stance: 'Who pays, and why now' },
+  { seat: 'engineering', name: 'Bo', label: 'Engineering', loves: 'Boring, correct, shipped.', brings: 'The page template and the live build', stance: 'Boring and correct' },
+];
+const cv = document.getElementById('cv');
+const still = new URLSearchParams(location.search).get('still') === '1';
+const SETTLE = 'cubic-bezier(.16,1,.3,1)', GLIDE = 'cubic-bezier(.45,0,.15,1)';
+const wait = ms => new Promise(r => setTimeout(r, still ? 0 : ms));
+const seatEl = s => document.querySelector(`.s-${s}`);
+
+function placeCard(t) {
+  const d = document.createElement('div');
+  d.className = 'place paper'; d.dataset.seat = t.seat;
+  d.innerHTML = `<div class="row"><span class="mark">${t.name[0]}</span><span class="name">${t.name}</span><span class="label seatname">${t.label}</span></div>
+    <div class="stance">${t.stance}</div><div class="agent">Agent</div>`;
+  return d;
+}
+function bigCard(t) {
+  const d = document.createElement('section');
+  d.className = 'big paper air'; d.dataset.seat = t.seat;
+  d.innerHTML = `<div class="head"><span class="mark">${t.name[0]}</span><span class="tag">Agent</span><span class="seatname">${t.label}</span></div>
+    <h2>${t.name}</h2><p class="loves">${t.loves}</p>
+    <dl class="meta"><div><dt>Brings</dt><dd>${t.brings}</dd></div><div><dt>Stance</dt><dd class="st">${t.stance}</dd></div></dl>`;
+  return d;
+}
+
+async function takeSeat() {
+  const p = document.getElementById('product');
+  const cap = document.getElementById('cap');
+  if (!still) cap.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 900, easing: SETTLE, fill: 'forwards', delay: 200 });
+  await wait(1100);
+  p.classList.add('warm');
+  await wait(700);
+  p.classList.add('press');
+  await wait(110);
+  p.classList.remove('press'); p.classList.add('taken');
+  const her = document.createElement('div');
+  her.className = 'her paper'; her.dataset.seat = 'product';
+  her.innerHTML = `<span class="mark">P</span><div><div class="name">Priya</div><div class="label sub">Product · your seat</div></div>`;
+  p.appendChild(her);
+  if (!still) {
+    cap.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
+    her.animate([
+      { transform: 'translateY(-14px) scale(1.03)', opacity: 0, boxShadow: '0 40px 70px -20px rgba(10,6,3,.6)' },
+      { transform: 'none', opacity: 1, boxShadow: 'var(--lift)' }
+    ], { duration: 760, easing: SETTLE });
+  }
+}
+
+async function walkIn(t, i) {
+  const big = bigCard(t);
+  cv.appendChild(big);
+  const seat = seatEl(t.seat);
+  if (still) { big.remove(); seat.classList.add('taken'); const pc = placeCard(t); pc.style.opacity = 1; seat.appendChild(pc); return; }
+  // set down in the light: from a little above, larger shadow, to resting
+  big.animate([
+    { opacity: 0, transform: 'translateY(-26px) scale(1.035) rotate(-.6deg)' },
+    { opacity: 1, transform: 'translateY(0) scale(1) rotate(.25deg)' }
+  ], { duration: 820, easing: SETTLE, fill: 'forwards' });
+  setTimeout(() => big.classList.remove('air'), 380);
+  big.style.transition = 'box-shadow 600ms cubic-bezier(.16,1,.3,1)';
+  // stagger the card's contents a breath behind the paper
+  [...big.querySelectorAll('.head, h2, .loves, .meta')].forEach((el, k) =>
+    el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 160 + k * 90, easing: SETTLE, fill: 'backwards' }));
+  await wait(820 + 1500);
+  // glide to the seat (FLIP): the big card shrinks onto the seat's rect, then hands over to the place card
+  const a = big.getBoundingClientRect(), b = seat.getBoundingClientRect();
+  const sx = b.width / a.width, sy = b.height / a.height, dx = b.left - a.left, dy = b.top - a.top;
+  big.classList.add('air');
+  const pc = placeCard(t);
+  seat.appendChild(pc);
+  big.animate([
+    { opacity: 1, transform: 'translate(0,0) scale(1,1) rotate(.25deg)' },
+    { opacity: 1, offset: .78, transform: `translate(${dx}px,${dy}px) scale(${sx},${sy})` },
+    { opacity: 0, transform: `translate(${dx}px,${dy}px) scale(${sx},${sy})` }
+  ], { duration: 760, easing: GLIDE, fill: 'forwards' }).finished.then(() => big.remove());
+  setTimeout(() => {
+    seat.classList.add('taken');
+    pc.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, fill: 'forwards' });
+    pc.style.opacity = 1;
+  }, 560);
+}
+
+(async () => {
+  await takeSeat();
+  await wait(900);
+  for (let i = 0; i < TEAM.length; i++) {
+    walkIn(TEAM[i], i);
+    await wait(820 + 1500 + 120); // next card is set down as the previous one glides away
+  }
+})();
+</script>
+</body>
+</html>
