@@ -776,3 +776,4 @@ html #room .close-sheet:not([hidden]) { top: 50%; height: auto; max-height: 820p
 html #room .close-sheet .close-left, html #room .close-sheet .close-right { min-height: 0; }
 /* its small labels at 16px, weight 500, one step darker so they clear 4.5 on a projector (follow-up b) */
 html #room .close-sheet :is(.close-label, .close-src, .close-step) { font-size: 16px !important; font-weight: 500 !important; color: var(--ink-2) !important; }
+html #room .close-sheet :is(.close-big b.pink, .close-count b.pink) { color: #6E2238 !important; }
