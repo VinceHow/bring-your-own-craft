@@ -41,10 +41,13 @@ Who adds the attributes, file by file:
 
 | Component | Root hook | `data-state` | `data-slot`s | Events |
 |---|---|---|---|---|
-| `place-card` (a seat's card once filled) | `.seat .card` | `idle` · `working` · `done` · `error` | `band` (`.card-band`), `name` (`.card-name`), `agent` (`.card-agent-name`), `agent-mark` (`.agent-mark`), `stance` (`.card-stance`), `note` (`.card-note`) | on `teammate.start` / `teammate.done` / `teammate.error` |
-| `her-place-card` | `.seat-product .card` | `empty` · `named` (her character is set) | `band`, `who` (`.card-who`), `title` (`.card-title`, planned), `traits` (`.card-traits`, planned); `stance` (`.card-her-stance`) is to be removed | on `intro` |
+| `place-card` (a seat's card once filled) | `.seat .card` ✅ | `idle` · `thinking` (started, nothing proposed yet) · `working` · `done` · `error` | `band` (`.card-band`), `name` (`.card-name`), `agent` (`.card-agent-name`), `agent-mark` (`.agent-mark`), `stance` (`.card-stance`), `character` (`.card-character`, empty: for the studio's character art) | on `teammate.start` / `candidate` / `teammate.done` / `teammate.error`; emit `teammate.thinking {seat}` (between its start and its first candidate). Click opens its `sketchpad-open`; emit `seat.open {seat}` |
+| `her-place-card` | `.seat-product .card` ✅ (DIY: `.seat-diy .card`) | `empty` · `named` (her character is set) | `band`, `who` (`.card-who`), `title` (`.card-title`), `traits` (`.card-traits`), `character` (`.card-character`, empty) | on `intro`. Click (once she's seated) opens her `workspace`: `BYOC.openWorkspace()`; emit `workspace.open` |
 | `teammate-card` (big, mid-table, while the team assembles) | `.big-card[data-seat]` | `arriving` · `holding` · `seating` | `band`, `loves` (`.bc-loves`), `brings` (`.bc-brings`), `stance` (`.bc-stance`, to be removed) | on `stage` (beat 2) |
 | `character-card` (her card: build your character; one component, two roots) | DIY craft: `.name-tag` ✅ (builder 6) · her seat path: `.big-card[data-seat="product"]` (beats, planned) | `asking` (her sentence) · `thinking` (the team is writing it) · `shown` (every word swappable) | `head`, `ask`, `input`, `title`, `traits` > `trait`, `superpower`, `craft`, `hint` | `BYOC.nameTag.open()`; on `stage`, `reset` |
+| `room-panel` (one panel over the room; Esc, PageUp, ← or its close return to the room) | `section#room-panel.room-panel` ✅, `data-component` is `sketchpad-open` or `workspace` | `hidden` · open | `head` (`.rp-head`), `title` (`.rp-title`), `close` (`.rp-close`), `body` (`.rp-body`) | `BYOC.closePanel()`; closes on `reset` |
+| `sketchpad-open` (a teammate's pad, opened from its card) | `#room-panel[data-component="sketchpad-open"][data-seat]` ✅ | (one state; empty shows a short line) | `items` (`ol.sp-items`) > `item` (`li.sp-item`, `data-state` `brought` · `decided` · `open`) > `decision` (`.sp-decision`), `choice` (`.sp-choice`), `reason` (`.sp-reason`) | `BYOC.openSketchpad(seat)`; emit `seat.open {seat}` |
+| `workspace` (hers: character, idea, team space, takeaways so far) | `#room-panel[data-component="workspace"]` ✅ | (one state) | `body` (`.ws-body`) > parts with `data-slot` `character` · `idea` (with its journey) · `team-space` · `takeaways` | `BYOC.openWorkspace()`; emit `workspace.open`. The tray stays the way into each question |
 | `no-page-note` (DIY idea with no page template) | `.idea-note` ✅ | (one state) | (none) | (builder 6) |
 
 ## 3. The work
@@ -124,7 +127,7 @@ inside other components. A look should always scope a state to its component, as
     </span>
   </div>
   <div class="card-stance">sketch first, polish last</div>
-  <div class="card-note">Seat open: invite a teammate. Your a…</div>
+  <span class="card-character" data-slot="character"></span>
 </div>
 ```
 

@@ -138,6 +138,58 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.close();
 });
 
+test('1d. a teammate thinking, its sketchpad opened from its card, and her workspace from hers', async () => {
+  // No model: the room's events are dispatched as a run would log them.
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  await p.goto(BASE + '/?stage=1');
+  await p.waitForTimeout(300);
+  await p.evaluate(() => {
+    window.__ev = [];
+    for (const t of ['teammate.thinking', 'seat.open', 'workspace.open']) BYOC.on(t, d => window.__ev.push([t, d]));
+    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.herTag = { title: 'the Customer Whisperer', traits: ['customer-obsessed', 'problem hunter'] };
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'replay');
+    d({ type: 'run.start', idea: "An ordering website for my friend's small bakery" });
+    d({ type: 'teammate.start', seat: 'data' });
+  });
+  assert.strictEqual(await p.locator('.seat .card [data-slot="character"]').count(), 6, 'a character slot on every seat card');
+  assert.strictEqual(await p.getByText(/Seat open: invite a teammate/).count(), 0, 'no "seat open" line');
+  assert.deepStrictEqual(await p.evaluate(() => window.__ev), [['teammate.thinking', { seat: 'data' }]]);
+  assert.strictEqual(await p.getAttribute('.mini-sheet[data-sheet="data"]', 'data-state'), 'thinking');
+  assert.strictEqual(await p.getAttribute('.seat-data .card', 'data-state'), 'thinking');
+  await p.evaluate(() => {
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'replay');
+    d({ type: 'candidate', id: 'c1', seat: 'data', decision: 'What to count first', reason: 'one number that says it worked' });
+    d({ type: 'decided', id: 'c1', seat: 'data', decision: 'What to count first', choice: 'Repeat orders a week', cites: 'team' });
+    d({ type: 'joint.agreed', id: 'j1', headline: 'Orders close at 8pm for the next morning.', seats: ['engineering', 'strategy'] });
+    d({ type: 'takeaways', askId: 'q1', believe: 'Ordering should feel like being known.', guidance: 'Their usual loaf first.' });
+  });
+  assert.strictEqual(await p.getAttribute('.mini-sheet[data-sheet="data"]', 'data-state'), 'working', 'thinking ends at its first proposal');
+  // A click on its name opens its sketchpad.
+  await p.click('.seat-data .card-agent-name');
+  await waitFor(() => !document.getElementById('room-panel').hidden, 2000, 'the sketchpad', null, p);
+  assert.strictEqual(await p.getAttribute('#room-panel', 'data-component'), 'sketchpad-open');
+  assert.match(await p.textContent('#room-panel .rp-title'), /Theo · Data/);
+  assert.match(await p.textContent('#room-panel .sp-item'), /What to count first[\s\S]*Repeat orders a week/);
+  assert.deepStrictEqual((await p.evaluate(() => window.__ev)).at(-1), ['seat.open', { seat: 'data' }]);
+  await p.keyboard.press('Escape');
+  assert.ok(await p.locator('#room-panel').isHidden(), 'Esc back to the room');
+  // A click on her place card opens her workspace.
+  await p.click('.seat-product .card');
+  await waitFor(() => document.getElementById('room-panel').dataset.component === 'workspace' && !document.getElementById('room-panel').hidden, 2000, 'her workspace', null, p);
+  const ws = await p.textContent('#room-panel');
+  assert.match(ws, /Priya, the Customer Whisperer/);
+  assert.match(ws, /An ordering website for my friend's small bakery/);
+  assert.match(ws, /Orders close at 8pm for the next morning\./);
+  assert.match(ws, /Ordering should feel like being known\./);
+  assert.ok(await p.evaluate(() => typeof BYOC.openWorkspace === 'function'));
+  await p.click('#room-panel .rp-close');
+  assert.ok(await p.locator('#room-panel').isHidden());
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
 test('2. the live path in stage mode (the bakery), driven like a clicker, as far as her document', async () => {
   await page.keyboard.press('PageDown'); // the clicker takes the Product seat (same as her click)
   await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 20000, 'the team assembled and her card open');

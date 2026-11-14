@@ -465,3 +465,24 @@ body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
 .char-label { font: 600 12px var(--mono); text-transform: uppercase; font-style: normal; }
 .char-hint { font: 400 13px var(--mono); }
 .big-card[data-state="thinking"] .char-hint::after { content: ''; }
+
+/* A teammate's open sketchpad, or her workspace: over the room. Layout only; the look comes from the studio. */
+.room-panel { position: absolute; inset: 60px 120px; z-index: 55; display: flex; flex-direction: column; gap: 14px; padding: 22px 28px;
+  background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow: auto; }
+.rp-head { display: flex; align-items: baseline; gap: 14px; }
+.rp-title { font: 600 22px var(--ui); }
+.rp-close { margin-left: auto; font: 500 14px var(--ui); padding: 6px 12px; background: var(--paper); border: var(--line); border-radius: 3px; cursor: pointer; }
+.sp-items { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font: 400 17px/1.35 var(--ui); }
+.sp-item { display: flex; flex-direction: column; gap: 2px; }
+.sp-decision { font-weight: 600; }
+.sp-choice { font-family: var(--mono); font-size: 15px; }
+.sp-reason { font-size: 14px; }
+.ws-body { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; }
+.ws-label { margin: 0 0 6px; font: 600 13px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.ws-title { margin: 0; font: 600 22px var(--ui); }
+.ws-traits, .ws-journey { margin: 4px 0 0; font: 400 16px var(--mono); }
+.ws-idea, .ws-power { margin: 4px 0 0; font: 400 18px var(--ui); }
+.ws-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font: 400 16px/1.35 var(--ui); }
+.ws-takeaway { display: flex; flex-direction: column; gap: 2px; }
+.ws-believe { font-weight: 600; }
+.seat .card { cursor: pointer; }
