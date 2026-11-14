@@ -77,7 +77,7 @@ test('the fal key appears nowhere: runs/, console, HTTP responses, SSE', async (
   const call = async (m, p, b) => { const r = await request(port, m, p, b); responses.push(r); return r; };
   try {
     await call('GET', '/api/health');
-    const { run } = JSON.parse((await call('POST', '/api/run', { idea: 'A booking page for a small yoga studio.' })).text);
+    const { run } = JSON.parse((await call('POST', '/api/run', { idea: 'A booking page for a small yoga studio.', path: 'full' })).text);
     for (const text of ['classes', 'a class', 'confirm', 'booked']) await call('POST', `/api/run/${run}/line`, { text });
     const prop = await call('POST', `/api/run/${run}/propose`, { wait: true });
     assert.equal(prop.status, 200, prop.text);

@@ -270,8 +270,8 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   assert.strictEqual(await p.locator('.team-space .ts-card[data-kind="first"][data-state="closed"]').count(), 0, 'no cascade behind her document');
   await p.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room', null, p);
-  assert.strictEqual(await p.textContent('.fs-bar .fs-user.main'), 'Morning regulars');
-  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user.later').allTextContents(), ['Weekend pastry crowd']);
+  assert.strictEqual(await p.textContent('.fs-bar .fs-user[data-state="main"]'), 'Morning regulars');
+  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user[data-state="later"]').allTextContents(), ['Weekend pastry crowd']);
   await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 5000, 'settled in the team space', null, p);
   assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
   assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');
@@ -312,7 +312,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
   await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
   await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
-  assert.match(await page.textContent('#inbox .inbox-now'), /Noor · Research[\s\S]*Who should we build this for/);
+  assert.match(await page.textContent('#inbox .inbox-now'), /Noor asks[\s\S]*Who should we build this for/);
   await page.keyboard.press('PageDown'); // the clicker opens it
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
@@ -396,7 +396,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
   await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
-  assert.match((await p.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
+  assert.match((await p.locator('#inbox .inbox-now').innerText()).trim(), /^Noor asks\s*\n\s*What makes someone come back to…\?$/i);
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);

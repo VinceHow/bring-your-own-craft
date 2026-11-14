@@ -1,30 +1,30 @@
 {
   "business": {
-    "text": "A pre-order website for her friend's small bakery so customers can order bread ahead for pickup. She is building it for the friend, not running the bakery herself.",
+    "text": "She is building an ordering website for her friend's small bakery so customers can order bread ahead. It's a help-a-friend project; the bakery owner is someone else.",
     "confidence": "high"
   },
   "positioning": {
-    "text": "Against turning up and finding the sourdough gone, or ordering by phone or DM, it lets a regular reserve their usual as if the baker already knows them. The edge is an ordering journey that never asks for what the bakery already knows.",
+    "text": "The bakery's edge is fresh, local bread, with a site that makes regulars feel the baker already knows them and secures their loaf, especially sourdough, before it sells out. Against walk-in queues and phone orders, it wins by being effortless and personal for people who already come in.",
     "confidence": "medium"
   },
   "customers": {
-    "text": "Morning regulars who come in every day for their usual, especially the sourdough, and hate finding it gone by nine. They want to be recognised and have their bread set aside without repeating themselves.",
+    "text": "First, the morning regulars who come in every day and hate finding the sourdough gone by nine. Occasional buyers, commuters and families come later.",
     "confidence": "high"
   },
   "whatSells": {
-    "text": "Warm bread and being known: their usual set aside and ready when they arrive, with no form-filling. Her words say it should feel like the baker already knows you, so ordering must be easier than just turning up.",
+    "text": "Good fresh bread, sourdough above all, the certainty it will be waiting, and the feeling of being recognised. In her words, don't ask for what you already know, so reserving the usual loaf should be near-zero effort: remembered details, one tap, repeatable.",
     "confidence": "medium"
   },
   "brandFeel": {
-    "text": "Warm, personal, local and friendly, like a neighbourhood baker who already knows you. Effortless, never form-like.",
-    "confidence": "medium"
+    "text": "Personal and familiar, like the baker already knows you. Warm, simple, local, with no needless questions.",
+    "confidence": "high"
   },
   "strengths": {
-    "text": "She loves the customer journey, understanding customer problems, and building products that solve them, and she knows these regulars' frustrations. Frame questions around what customers feel and do, such as what the baker already knows and what asking would feel like, not technical or finance detail.",
+    "text": "She loves the customer journey, understanding customers' problems and building products that solve them, and she already knows her regulars' pain point. Questions for her should be about what customers struggle with and how ordering should flow, not technical or visual detail.",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "Assumed: she is product-minded and wants to own customer and problem decisions, and is happy for the team to handle implementation and tradeoffs. Her answer was short and principle-led, so bring short questions tied to customer behaviour, each with a recommended default.",
+    "text": "Probably hands-on and customer-led, thinking in terms of principles and how it feels to the customer, and wanting to know why a choice helps them. The team should settle technical and visual details itself and bring only customer and journey questions. Still largely an assumption.",
     "confidence": "low"
   },
   "domains": [
@@ -36,21 +36,15 @@
   "philosophy": [
     {
       "id": "L3",
-      "believe": "I believe the customer who'd be most upset is the morning regular who wants their usual sourdough and hates finding it gone by nine, because they want to be known and have their bread set aside.",
-      "guidance": "Build for the regulars first: make their usual loaf one tap to reserve, so it's held before the sourdough sells out. New-customer browsing stays simple and comes second.",
-      "askId": "c9"
+      "believe": "I believe we build first for the morning regulars, the people who come every day and hate it when the sourdough is gone by nine.",
+      "guidance": "Design the first version around a regular reserving their usual loaf, sourdough above all, ahead of time so it's waiting for them. Keep browsing, picking, pickup day and confirming as quick as possible for repeat customers, and leave anything for first-time visitors until we have evidence.",
+      "askId": "first"
     },
     {
       "id": "L4",
-      "believe": "The loaf that sells out first is the one people plan their morning around, so a regular should hear early that it's going and have their usual held for them.",
-      "guidance": "Show sold-out loaves clearly and early, greyed out with a link to another pickup day, never a surprise after ordering. Let regulars reserve their usual so it's set aside for them.",
-      "askId": "c10"
-    },
-    {
-      "id": "L5",
       "believe": "Ordering should feel like being known: never ask for anything you could remember or skip.",
-      "guidance": "Make ordering quick and remembered: pre-fill the regular's usual loaf, pickup time and details, and skip any question we can already answer. Keep the tone warm and personal, like a baker who knows their name.",
-      "askId": "c21"
+      "guidance": "Remember each regular's usual loaf, pickup day and details, and prefill or skip them so reserving takes as few taps as possible. Use a warm, familiar tone, and only ask for what we truly don't know yet.",
+      "askId": "feel"
     }
   ],
   "tag": null,
