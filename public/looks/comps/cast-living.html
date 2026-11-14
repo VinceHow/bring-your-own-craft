@@ -34,6 +34,10 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 
 .patch { position: absolute; opacity: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; pointer-events: none; }
 .patch > * { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.patch { isolation: isolate; }
+.patch > video, .patch > img.rest { filter: var(--grade, none); }
+.patch > img.map { mix-blend-mode: multiply; opacity: 0; z-index: 5; }
+.patch.mapped > img.map { opacity: 1; }
 .patch video { opacity: 0; }
 .patch video.on { opacity: 1; }
 
@@ -41,6 +45,9 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 .hit { position: absolute; cursor: pointer; border-radius: 40%; }
 .canvas.focus .hit { pointer-events: none; cursor: default; }
 .glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
+.glow.night .bulb { width: 54px; height: 54px; margin: -27px 0 0 -27px; background: radial-gradient(circle, rgba(255,224,150,.85) 0, rgba(255,214,130,.35) 30%, rgba(255,206,120,0) 68%); }
+/* night: code rain on the window panes, under the patches */
+.rain { position: absolute; pointer-events: none; opacity: 0; }
 .bulb { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
   background: radial-gradient(circle, rgba(255,228,150,.8), rgba(255,214,130,0) 66%); }
 .fx { position: absolute; pointer-events: none; font: italic 400 20px/1 var(--serif); color: var(--ink); opacity: 0; }
@@ -77,6 +84,8 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   <video class="room" data-t="afternoon" muted playsinline loop preload="auto"><source src="../cast/living/scene-afternoon.webm" type="video/webm"><source src="../cast/living/scene-afternoon.mp4" type="video/mp4"></video>
   <video class="room" data-t="building"  muted playsinline loop preload="auto"><source src="../cast/living/scene-building.webm" type="video/webm"><source src="../cast/living/scene-building.mp4" type="video/mp4"></video>
   <video class="room" data-t="evening"   muted playsinline loop preload="auto"><source src="../cast/living/scene-evening.webm" type="video/webm"><source src="../cast/living/scene-evening.mp4" type="video/mp4"></video>
+  <video class="room" data-t="night"     muted playsinline loop preload="auto" poster="../cast/living/painting-night.jpg"><source src="../cast/living/scene-night.webm" type="video/webm"><source src="../cast/living/scene-night.mp4" type="video/mp4"></video>
+  <canvas class="rain" id="rain"></canvas>
   <div id="patches"></div>
   <div class="glow" id="glow"></div>
   <div id="hits"></div>
@@ -120,10 +129,11 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   const STANDIN = {};
 
   // Time of day
-  const LABEL = { morning: 'Morning', afternoon: 'Afternoon', building: 'Afternoon, building her page', evening: 'Evening' };
-  const ORDER = ['afternoon', 'building', 'evening', 'morning'];
-  const pinned = !!LABEL[q.get('time')];
-  let now = pinned ? q.get('time') : 'afternoon';
+  const LABEL = { morning: 'Morning', afternoon: 'Afternoon', building: 'Afternoon, building her page', evening: 'Evening', night: 'Night, raining' };
+  const ORDER = ['afternoon', 'building', 'evening', 'night', 'morning'];
+  const pinned = !!LABEL[q.get('time')] || q.get('night') === '1';
+  let now = q.get('night') === '1' ? 'night' : (LABEL[q.get('time')] ? q.get('time') : 'afternoon');
+  const MAPS = { night: true, evening: true };            // soft multiply light maps exist for these times
   let LIGHT = {};
   try { LIGHT = await (await fetch(BASE + 'light.json')).json(); } catch (e) { /* afternoon light only */ }
   const defs = $('#filters');
@@ -149,7 +159,8 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     const [l, t] = P2(c.x, c.y);
     Object.assign(el.style, { left: l + 'px', top: t + 'px', width: c.size * K + 'px', height: c.size * K + 'px',
       webkitMaskImage: `url(${BASE}mask-${id}.png)`, maskImage: `url(${BASE}mask-${id}.png)` });
-    const rest = new Image(); rest.src = `${BASE}rest-${id}.jpg`; rest.alt = ''; el.append(rest);
+    const rest = new Image(); rest.className = 'rest'; rest.src = `${BASE}rest-${id}.jpg`; rest.alt = ''; el.append(rest);
+    const map = new Image(); map.className = 'map'; map.alt = ''; el.append(map);
     $('#patches').append(el);
     P[id] = { el, vids: {}, cur: null, mood: 'rest', base: 'idle', queue: [], onStart: null, live: false };
   }
@@ -265,8 +276,17 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   }
 
   // ---- time of day: patches are painted in afternoon light; a fitted colour matrix tints them elsewhere
+  const LAMPCUT = new Set(['noor', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
   function lightPatches(t) {
-    for (const id of Object.keys(P)) P[id].el.style.filter = (t === 'afternoon' || !LIGHT[t] || !LIGHT[t][id]) ? '' : `url(#l-${id}-${t})`;
+    for (const id of Object.keys(P)) {
+      const el = P[id].el, graded = t !== 'afternoon' && LIGHT[t] && LIGHT[t][id];
+      el.style.setProperty('--grade', graded ? `url(#l-${id}-${t})` : 'none');
+      const map = el.querySelector('img.map');
+      if (graded && MAPS[t]) { map.src = `${BASE}lightmap-${id}-${t}.png`; el.classList.add('mapped'); } else el.classList.remove('mapped');
+      const m = (t === 'night' && LAMPCUT.has(id)) ? `mask-${id}-night.png` : `mask-${id}.png`;
+      el.style.webkitMaskImage = el.style.maskImage = `url(${BASE}${m})`;
+    }
+    nightExtras(t === 'night');
   }
   async function setTime(t, instant) {
     now = t;
@@ -278,6 +298,39 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     await wait(2700);
     lightPatches(t);
     for (const id of Object.keys(CAST)) if (P[id].live) animate(P[id].el, { opacity: 1 }, { duration: .6 });
+  }
+
+  // ---- night extras: rain on the glass (code), a brighter fairy-light glow, the electronic track
+  let lightsOn = false;
+  const rainEl = $('#rain'); let rainOn = false, rainRAF = 0;
+  { const [x0, y0] = P2(150, 40), [x1, y1] = P2(392, 392);
+    Object.assign(rainEl.style, { left: x0 + 'px', top: y0 + 'px' }); rainEl.width = Math.round(x1 - x0); rainEl.height = Math.round(y1 - y0); }
+  const rctx = rainEl.getContext('2d');
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // fixed seed: the same rain every load
+  const streaks = Array.from({ length: 70 }, () => ({ x: rnd() * rainEl.width, y: rnd() * rainEl.height, l: 8 + rnd() * 18, v: 5 + rnd() * 5 }));
+  const drops = Array.from({ length: 16 }, () => ({ x: rnd() * rainEl.width, y: rnd() * rainEl.height, r: 1.2 + rnd() * 1.6, v: .15 + rnd() * .5, hold: rnd() * 200 }));
+  function drawRain() {
+    const w = rainEl.width, h = rainEl.height; rctx.clearRect(0, 0, w, h);
+    rctx.strokeStyle = 'rgba(200,215,240,.35)'; rctx.lineWidth = 1;
+    rctx.beginPath();
+    for (const s of streaks) { s.y += s.v; s.x -= s.v * .08; if (s.y > h) { s.y = -s.l; s.x = Math.random() * w; } rctx.moveTo(s.x, s.y); rctx.lineTo(s.x - s.l * .08, s.y + s.l); }
+    rctx.stroke();
+    for (const d of drops) {
+      if (d.hold > 0) d.hold--; else { d.y += d.v; d.v = Math.min(d.v * 1.01, 2.2); }
+      if (d.y > h + 4) { d.y = Math.random() * h * .6; d.x = Math.random() * w; d.v = .15 + Math.random() * .4; d.hold = 60 + Math.random() * 240; }
+      rctx.fillStyle = 'rgba(225,235,250,.55)'; rctx.beginPath(); rctx.arc(d.x, d.y, d.r, 0, 7); rctx.fill();
+      if (d.hold <= 0) { rctx.fillStyle = 'rgba(210,225,245,.18)'; rctx.fillRect(d.x - .6, d.y - 14, 1.2, 14); }
+    }
+    if (rainOn) rainRAF = requestAnimationFrame(drawRain);
+  }
+  function nightExtras(on) {
+    animate(rainEl, { opacity: on ? 1 : 0 }, { duration: 1.2 });
+    if (on && !rainOn) { rainOn = true; if (!still) drawRain(); else drawRain(); }
+    if (!on) { rainOn = false; cancelAnimationFrame(rainRAF); }
+    $('#glow').classList.toggle('night', on);
+    lightsOn = on;                                           // the fairy lights glow brighter at night; a click still toggles them
+    animate($('#glow'), { opacity: on ? 1 : 0 }, { duration: .8 });
+    if (on && audio && TRACKS[track] !== 'electronic') { track = -1; nextTrack(); }   // electronic is the night track
   }
 
   // ---- clickable objects
@@ -310,7 +363,6 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   for (const [bx, by] of BULBS) { const [x, y] = P2(bx, by); const b = document.createElement('div'); b.className = 'bulb'; b.style.left = x + 'px'; b.style.top = y + 'px'; $('#glow').append(b); }
   { const [x, y] = P2(470, 0); const h = document.createElement('div'); h.className = 'hit'; h.title = 'The string lights';
     Object.assign(h.style, { left: x + 'px', top: y + 'px', width: 800 * K + 'px', height: 95 * K + 'px' }); h.dataset.obj = 'lights'; hits.append(h); }
-  let lightsOn = false;
 
   // music: never autoplays; each click on the record player moves to the next track, then off
   const TRACKS = ['electronic', 'chiptune', 'piano'];
