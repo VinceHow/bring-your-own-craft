@@ -40,7 +40,7 @@ after(async () => { console.log('studio timings:', JSON.stringify(T)); await bro
 
 test('1. her seat, the team, her line, then her idea', async () => {
   await page.goto(BASE + '/?hold=300');
-  await page.click('.seat-product');
+  await page.click('.seat-product'); await page.click('#pick-card [data-pick="product"]'); // her seat's pick card: Product
   await waitFor(() => document.activeElement?.id === 'intro-input', 40000, 'her card open');
   await page.keyboard.type('getting the journey right before anyone draws a screen.');
   await page.keyboard.press('Enter');

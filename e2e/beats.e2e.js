@@ -75,24 +75,30 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
   assert.ok(r[0] >= -1 && r[1] >= -1 && r[2] <= 1281 && r[3] <= 721, `the room fits the screen: ${r}`);
 });
 
-test('1b. the seventh seat, "Your own craft": her name tag, then she sits there; no separate "I love" card', async () => {
+test('1b. "Your own craft" from her seat\'s pick card: her name tag, then she sits in her seat; no separate "I love" card', async () => {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
   await p.goto(BASE + '/?stage=1&hold=300');
   await p.waitForTimeout(400);
-  assert.match(await p.locator('.seat-diy .seat-empty').innerText(), /Your own craft/i);
-  await p.click('.seat-diy');
+  assert.strictEqual(await p.locator('.seat-diy').count(), 0, 'no seventh seat');
+  await p.click('.seat-product'); // her seat opens its pick card
+  await waitFor(() => !document.getElementById('pick-card').hidden, 3000, 'the pick card', null, p);
+  assert.strictEqual(await p.textContent('#pick-card .pick-q'), 'What do you bring to the table?');
+  assert.deepStrictEqual(await p.locator('#pick-card .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
+  await p.click('#pick-card [data-pick="craft"]');
+  assert.ok(await p.locator('#pick-card').isHidden(), 'the pick card goes once she picks');
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
   await p.keyboard.type('I bake sourdough for my village and I love the 7am queue');
   await p.keyboard.press('Enter');
   await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 20000, 'her tag', null, p);
   await p.click('.name-tag .tag-craft'); await p.keyboard.press('End');
   await p.keyboard.press('Enter'); // keep it: she takes the seat
-  await waitFor(() => !!document.querySelector('.seat-diy .card'), 5000, 'her card in her own seat', null, p);
-  assert.strictEqual(await p.locator('.seat-product .card').count(), 0, 'not in Product');
+  await waitFor(() => !!document.querySelector('.seat-product .card-diy'), 5000, 'her card in her seat, in her own craft', null, p);
+  assert.strictEqual(await p.getAttribute('.seat-product .card', 'data-seat'), 'diy', 'her own craft, not Product');
+  assert.match(await p.textContent('.seat-product .card-name'), /\S/, 'her craft names her card');
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');
-  await waitFor(() => document.querySelectorAll('.seat:not(.seat-diy):not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
+  await waitFor(() => document.querySelectorAll('.seat:not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
   await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
   assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
   await p.keyboard.type('A pre-order page for my bakery.'); await p.keyboard.press('Enter');
@@ -112,7 +118,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
   await p.goto(BASE + '/?stage=1&hold=200');
   await p.waitForTimeout(300);
-  await p.click('.seat-product');
+  await p.click('.seat-product'); await p.click('#pick-card [data-pick="product"]');
   await waitFor(() => document.activeElement?.id === 'intro-input', 20000, 'her card', null, p);
   assert.strictEqual(await p.getAttribute('.big-card[data-seat="product"]', 'data-component'), 'character-card');
   assert.strictEqual(await p.getAttribute('.big-card[data-seat="product"]', 'data-state'), 'asking');
@@ -200,7 +206,9 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
 });
 
 test('2. the live path in stage mode (the bakery), driven like a clicker, as far as her document', async () => {
-  await page.keyboard.press('PageDown'); // the clicker takes the Product seat (same as her click)
+  await page.keyboard.press('PageDown'); // the clicker opens her seat's pick card
+  await waitFor(() => !document.getElementById('pick-card').hidden, 3000, 'the pick card');
+  await page.keyboard.press('PageDown'); // forward again: Product (same as her click on it)
   await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 20000, 'the team assembled and her card open');
   // From her empty card, the clicker moves on without a line (her file keeps both prepared lines).
   await page.keyboard.press('PageDown');

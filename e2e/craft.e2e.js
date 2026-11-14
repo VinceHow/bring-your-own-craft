@@ -37,7 +37,7 @@ after(async () => { await browser?.close(); srv?.kill(); });
 test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
   await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(800);
-  await page.click('.seat-diy'); // the dashed seventh seat: Your own craft
+  await page.click('.seat-product'); await page.click('#pick-card [data-pick="craft"]'); // her seat's pick card: Your own craft
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
@@ -81,8 +81,8 @@ test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward ke
 test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build press says "no page" quietly', async () => {
   // She sat in her own craft's seat in step 1; the team assembles and she goes straight to her idea.
   await waitFor(() => document.activeElement?.id === 'her-input', 40000, 'her sheet');
-  assert.ok(await page.locator('.seat-diy .card').count(), 'her card in the craft seat');
-  assert.strictEqual(await page.locator('.seat-product .card').count(), 0, 'not in Product');
+  assert.ok(await page.locator('.seat-product .card-diy').count(), 'her card in her seat, in her own craft');
+  assert.strictEqual(await page.locator('.seat-product .card:not(.card-diy)').count(), 0, 'not the Product card');
   await page.keyboard.type('Flash day sign-ups for my tattoo shop');
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run');
