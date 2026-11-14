@@ -115,7 +115,9 @@ test('4. at most three asks arrive, inside her work (fork or pin), never a pop-u
   // She overrules the team on the first, and takes the recommendation on the rest.
   let overruled = null;
   for (let i = 0; i < asks.length; i++) {
-    const item = page.locator('#her-flow .fl-fork, #her-flow .fl-pin').nth(i);
+    // The one she's on is open (zoomed next to its box); the rest wait. Follow it by its ask id once answered.
+    const id = await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask');
+    const item = page.locator(`#her-flow .fl-item[data-ask="${id}"]`);
     const rec = item.locator('.fl-opt.is-rec'), other = item.locator('.fl-opt:not(.is-rec)');
     if (!overruled && (await rec.count()) && (await other.count())) {
       overruled = i + 1;

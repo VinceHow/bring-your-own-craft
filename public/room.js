@@ -396,11 +396,25 @@
     const existing = el.fileLines.querySelector(`li[data-id="${CSS.escape(id)}"]`);
     if (existing) existing.replaceWith(li); else el.fileLines.appendChild(li);
     if (isNew && !instantMode) place(li, { y: [-14, 0], opacity: [0, 1] }, true);
+    fitFile();
+  }
+  // Her file always shows every line, newest included: the lines scale down (never up) to fit the card.
+  function fitFile() { fitFileNow(); setTimeout(fitFileNow, 350); }
+  function fitFileNow() {
+    requestAnimationFrame(() => {
+      const ol = el.fileLines; ol.style.transform = ''; ol.style.transformOrigin = '0 0';
+      const head = el.fileCard.querySelector('.file-head');
+      const others = [...el.fileCard.children].filter(c => c !== ol && c !== head && !c.hidden).reduce((a, c) => a + c.offsetHeight, 0);
+      const avail = el.fileCard.clientHeight - head.offsetHeight - others - 16;
+      const k = Math.min(1, avail / (ol.scrollHeight || 1));
+      if (k < 0.999) { ol.style.transform = `scale(${k.toFixed(3)})`; ol.style.width = `${(100 / k).toFixed(1)}%`; } else ol.style.width = '';
+    });
   }
   function fileLoad(md, note) {
     el.fileLines.innerHTML = '';
     for (const l of parseTaste(md)) fileAddLine(l, false);
     el.fileNote.textContent = note || '';
+    fitFile();
   }
   async function loadFileForRun(run, tries = 3) {
     if (!run || run.startsWith('local-')) { el.fileNote.textContent = 'Her file opens when a run starts.'; return; }
@@ -556,6 +570,38 @@
   }
   new MutationObserver(refit).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
+  // ---- build (her one press) and her page --------------------------------------------------------
+  // Entering the build beat live is her press (or B). Engineering's sheet ticks through build.step events; the
+  // live step shows under the table; build.done brings her page over the table.
+  let buildReq = null;
+  BYOC.build = async function () {
+    if (BYOC.replay || buildReq || !BYOC.run || BYOC.run.startsWith('local-')) return;
+    if (seen.some(e => e.type === 'build.done')) return;
+    if (!buildStep) buildStep = stepBegin('Engineering is building');
+    buildReq = BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/build`, {}, { step: false });
+    try { await buildReq; }
+    catch (e) { status(`build failed (${e.status || e.message})`); if (buildStep) { stepEnd(buildStep, e); buildStep = null; } }
+    finally { buildReq = null; }
+  };
+  const pageSheet = h('section', 'page-sheet'); pageSheet.id = 'page-sheet'; pageSheet.hidden = true;
+  pageSheet.innerHTML = '<div class="page-head"><span class="page-title">Her page</span><span class="page-url" id="page-url"></span></div><div class="page-frame"><iframe id="page-iframe" title="Her page" loading="eager"></iframe></div>';
+  el.room.appendChild(pageSheet);
+  BYOC.el.pageSheet = pageSheet;
+  function pageUrl() {
+    const done = [...seen].reverse().find(e => e.type === 'build.done');
+    if (!done) return null;
+    return BYOC.replay && BYOC.replayName ? `/runs/${encodeURIComponent(BYOC.replayName)}/page/` : done.url;
+  }
+  function showPage(animate) {
+    const url = pageUrl(); if (!url) return;
+    const fr = $('#page-iframe', pageSheet);
+    if (fr.getAttribute('src') !== url) fr.setAttribute('src', url);
+    $('#page-url', pageSheet).textContent = url;
+    if (!pageSheet.hidden) return;
+    pageSheet.hidden = false;
+    place(pageSheet, { y: animate ? [520, 0] : 0, rotate: animate ? [3, 0.3] : 0.3 }, animate);
+  }
+
   // ---- events ---------------------------------------------------------------------------------
   let seen = [];      // events of the run on screen, in order
   let pending = [];   // live events that arrived before we knew our run id
@@ -622,7 +668,7 @@
         break;
       }
       case 'ask.refused': case 'stamp': case 'pin': case 'taste.written':
-        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); setHerStance(ev.text, !instantMode); }
+        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fitFile(); fileAddLine({ id: ev.id, text: ev.text }, true); setHerStance(ev.text, !instantMode); }
         refreshTally();
         break;
       case 'taste.suggested':
@@ -646,12 +692,15 @@
         if (teamStep) { stepEnd(teamStep, { status: 500 }); teamStep = null; }
         break;
       case 'build.step':
+        if (BYOC.beat < 8) stage(8);
+        if (/^Build failed/.test(ev.step || '')) { sheetStep('engineering', 'stopped'); if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; } break; }
         sheetStep('engineering', `building: ${ev.step}`);
         if (source === 'live') { if (!buildStep) buildStep = stepBegin('Engineering is building'); stepSet(buildStep, `Engineering is building: ${ev.step}`); }
         break;
       case 'build.done':
         sheetStep('engineering', `built${ev.ms ? ' in ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
         if (buildStep) { stepEnd(buildStep); buildStep = null; }
+        setTimeout(() => { if (BYOC.beat < 9) stage(9, { instant: instantMode }); else showPage(!instantMode); }, instantMode ? 0 : 600);
         break;
       case 'build.error':
         if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; }
@@ -796,6 +845,10 @@
         break;
       case 8:
         sk.sheet.hidden = true; // the build takes the table
+        if (!BYOC.replay && !instantMode) BYOC.build();
+        break;
+      case 9:
+        showPage(animate);
         break;
     }
   }
@@ -803,6 +856,7 @@
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
     if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
+    if (n < 9) pageSheet.hidden = true;
     if (n < BYOC.beat) {
       if (n <= 3 && !BYOC.replay && !el.herIdea.textContent) { reset(); const prev = instantMode; instantMode = true; for (let b = 1; b <= n; b++) enter(b, false); instantMode = prev; }
       BYOC.beat = n;
@@ -837,6 +891,7 @@
     setIdea(''); el.herNotes.innerHTML = ''; el.herInput.value = ''; inputMode = 'off'; el.herForm.hidden = true;
     el.herFlow.innerHTML = ''; flowMounted = false; mountFlow();
     el.fileLines.innerHTML = ''; el.fileNote.textContent = ''; el.soundsLike.hidden = true;
+    pageSheet.hidden = true; $('#page-iframe', pageSheet).removeAttribute('src'); buildReq = null;
     sk.sheet.hidden = true; sk.inner.innerHTML = ''; sk.inner.style.transform = ''; sk.wait.textContent = ''; sk.req = null;
     BYOC.timings = {};
     for (const r of Object.values(rollers)) r.set(null, false);

@@ -11,6 +11,7 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 | `R` | Replay the rehearsal run (`runs/rehearsal`), labelled REPLAY. In the close: the café run's three questions. |
 | `C` | Replay the café run (`runs/cafe`), labelled REPLAY. In the close: its three questions. |
 | `J` | The close: type a judge's idea. |
+| `B` | Build her page (the same as moving on to the build beat). |
 | `F` | Play the fake fixture run, labelled FAKE (for building the room only). |
 | `Enter` | Back to her input (or the judge's idea, in the close). |
 | `Esc` | Leave the input, so the keys work again. |

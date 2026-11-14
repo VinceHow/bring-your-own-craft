@@ -340,3 +340,17 @@ body[data-beat="0"] .seat-product:hover .seat-empty { background: rgba(255,72,17
 body[data-beat="6"] .her-sheet.big { width: 1130px; z-index: 7; }
 /* Stage mode: her journey's boxes a size up */
 body.stage .fl-box { font-size: 19px; }
+/* Her three on stage: the question is the thing to read from the back (>= 18 px at 1600, >= 14 px at 1280) */
+body.stage .fl-item.is-open .fl-q { font-size: 25px; line-height: 1.22; }
+body.stage .fl-item:not(.is-open):not(.fl-mine) .fl-q { font-size: 24px; line-height: 1.2; }
+body.stage .fl-item.fl-fork:not(.is-open), body.stage .fl-item.fl-pin:not(.is-open), body.stage .fl-fork:not(.is-open) > .fl-q { max-width: 340px; }
+body.stage .fl-item .fl-q .fl-tag { font-size: 13px; }
+
+/* Her page: the built page slides over the table, the template's own look inside a printed frame */
+.page-sheet { position: absolute; left: 410px; top: 196px; width: 1130px; height: 604px; z-index: 8; background: var(--sheet); border: var(--line);
+  border-radius: var(--r); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+.page-head { display: flex; align-items: baseline; gap: 14px; padding: 8px 16px; border-bottom: var(--line); background: var(--engineering); }
+.page-title { font: 400 20px var(--display); text-transform: uppercase; }
+.page-url { margin-left: auto; font: 500 13px var(--mono); }
+.page-frame { flex: 1; position: relative; overflow: hidden; }
+.page-frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 702px; border: 0; transform: scale(0.7833); transform-origin: 0 0; background: #fff; }

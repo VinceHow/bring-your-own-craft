@@ -102,12 +102,49 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
   assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), 'her flow and its asks are all on screen at 1280x720');
-  // What the audience sees: the room scales her flow to fit her sheet. Only the ask she's on is open, so it stays near 1.
-  const px = await page.evaluate(() => { const rp = q => q ? +(parseFloat(getComputedStyle(q).fontSize) * q.getBoundingClientRect().height / q.offsetHeight).toFixed(1) : 0;
-    return { box: rp(document.querySelector('#her-flow .fl-box')), open: rp(document.querySelector('#her-flow .fl-item.is-open .fl-q')), k: BYOC.flow._state.k }; });
-  console.log(`asks beat at 1280x720: box text ${px.box} px, open question ${px.open} px (flow scale ${px.k.toFixed(2)})`);
-  assert.ok(px.box >= 12, `box text readable at 1280x720 (>= 12 px rendered), got ${px.box}`);
+  // What the audience sees: the question she's on, at its rendered size (the room and the flow both scale).
+  // Only that ask is open; one still waiting is a badge on its box, an answered one keeps her call.
+  // The open one zooms next to its box. Stage mode: question >= 18 px and options >= 16 px at 1280x720;
+  // >= 22 px and >= 19 px at 1600x900.
+  const questions = () => page.evaluate(() => {
+    const rp = q => +(parseFloat(getComputedStyle(q).fontSize) * q.getBoundingClientRect().height / q.offsetHeight).toFixed(1);
+    const open = document.querySelector('#her-flow .fl-item.is-open .fl-qtext');
+    const opts = [...document.querySelectorAll('#her-flow .fl-item.is-open .fl-otext')].map(rp);
+    return { min: open ? rp(open) : 0, opt: opts.length ? Math.min(...opts) : 0, n: document.querySelectorAll('#her-flow .fl-item.is-open').length,
+      waiting: document.querySelectorAll('#her-flow .fl-item.is-waiting').length,
+      box: rp(document.querySelector('#her-flow .fl-box')), k: +BYOC.flow._state.k.toFixed(2) };
+  });
+  let answered = 0;
+  const checkSizes = async when => {
+    for (const [w, h, floor, optFloor] of [[1280, 720, 18, 16], [1600, 900, 22, 19]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.waitForTimeout(500);
+      const q = await questions();
+      console.log(`asks beat, ${when}, ${w}x${h}: open question ${q.min} px, options ${q.opt} px, box ${q.box} px, flow scale ${q.k}, ${q.waiting} waiting`);
+      assert.strictEqual(q.n, 1, 'one ask open at a time');
+      assert.strictEqual(q.waiting, asks.length - 1 - answered, 'the others wait as badges on their boxes');
+      assert.ok(q.min >= floor, `${when}: question >= ${floor} px at ${w}x${h}, got ${q.min}`);
+      assert.ok(q.opt >= optFloor, `${when}: options >= ${optFloor} px at ${w}x${h}, got ${q.opt}`);
+      assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'never a modal');
+      assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), `${when}: all on screen at ${w}x${h}`);
+    }
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.waitForTimeout(300);
+  };
   assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').count(), 1, 'one ask open at a time');
+  await checkSizes('before her answers');
+  // She overrules the first; it closes to her call and the struck recommendation, and the next one opens.
+  const first = page.locator('#her-flow .fl-item.is-open');
+  const firstId = await first.getAttribute('data-ask');
+  await first.locator('.fl-opt:not(.is-rec)').first().click();
+  await waitFor(() => BYOC.events().some(e => e.type === 'answer'), 5000, 'her answer logged');
+  answered = 1;
+  await page.waitForTimeout(500);
+  const closed = page.locator(`#her-flow .fl-item.is-answered[data-ask="${firstId}"]`);
+  assert.strictEqual(await closed.locator('.fl-opt.is-chosen .fl-yours').count(), 1, 'YOUR CALL stays on the closed note');
+  assert.strictEqual(await closed.locator('.fl-opt.is-rec.is-dropped').count(), 1, 'the struck recommendation stays too');
+  if (asks.length > 1) assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').count(), 1, 'the next ask opens');
+  await checkSizes('after her first answer');
   assert.deepStrictEqual(errors, []);
 });
 

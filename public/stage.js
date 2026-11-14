@@ -7,6 +7,7 @@
 //   R                        : replay the rehearsal run; in the close, replay the cafe run's three questions
 //   C                        : replay the cafe run (in the close: its three questions)
 //   J                        : the close: type a judge's idea
+//   B                        : build her page (same as moving on to the build beat)
 //   F                        : play the fake fixture run (labelled FAKE)
 //   Enter                    : back to her sheet's input
 //   Esc                      : leave the input, so keys work again
@@ -25,6 +26,7 @@
     ['R', 'replay the rehearsal (in the close: the café run)'],
     ['C', 'replay the café run'],
     ['J', 'the close: type a judge’s idea'],
+    ['B', 'build her page'],
     ['F', 'fake fixture run (labelled FAKE)'],
     ['Enter', 'back to her input'],
     ['Esc', 'leave the input'],
@@ -76,6 +78,7 @@
     else if (k === 'c' || k === 'C') inClose() ? BYOC.close?.replay('cafe') : BYOC.replayRun?.('cafe');
     else if (k === 'f' || k === 'F') BYOC.playFixture && BYOC.playFixture();
     else if (k === 'j' || k === 'J') BYOC.close?.open();
+    else if (k === 'b' || k === 'B') { if (BYOC.beat < 8) BYOC.stage(8); else BYOC.build?.(); }
     else if (k === '?') toggleHelp();
     else if (k === 'Enter') focusInput();
     else handled = false;
