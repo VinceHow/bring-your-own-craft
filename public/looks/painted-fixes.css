@@ -1,31 +1,49 @@
 /* The painted look: bug fixes from Vincent's testing, layered after painted.css (painted.js loads this file last).
-   Selectors on data-component, data-slot and data-state only, never class names (builders rename classes).
-   Owned by the voice/bug-fix designer; tell them before changing a rule here. */
+   Selectors on ids, data-component, data-slot and data-state only, never class names (builders rename classes).
+   Owned by the voice/bug-fix designer; tell them before changing a rule here. The painted-UI designer styles what's
+   inside the panels (a pad's items, a workspace part's words); this file owns the container, frame, scroll, placement. */
 
-/* ---- Bug 1: a teammate's sketchpad, opened from its pill ----
-   The panel was a scroll box (room.css: overflow auto) and its own painted crayon layer sits 8px past its edge, so
-   every seat's panel overflowed both ways: grey browser scrollbars (Mac, scrollbars shown), the painted frame clipped,
-   and Bo's list cut off. Now the panel never scrolls and its frame shows whole; only the list scrolls, and only when it
-   truly overflows, with a thin scrollbar in the teammate's crayon. The room is a fixed 1600 x 900 stage scaled to the
-   window, so the panels' positions in painted.css fit at 1440 x 900 and 1280 x 800 alike. */
-html body #room [data-component="sketchpad-open"][data-seat] { overflow: visible; display: flex; flex-direction: column; }
-html body #room [data-component="sketchpad-open"] [data-slot="head"] { flex: none; }
-html body #room [data-component="sketchpad-open"] [data-slot="items"] {
-  flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
-  margin: 0 -10px 0 0; padding: 0 10px 0 0;
+/* ---- Bugs 1 and 2: one container rule for every panel over the room (a teammate's pad, her workspace) ----
+   The panel was a scroll box (room.css: overflow auto) and its own painted crayon layer sits 8px past its edge, so every
+   panel overflowed both ways: grey browser scrollbars (Mac, scrollbars shown), the painted frame clipped on the right and
+   bottom, a title jammed at the top. Now a panel never scrolls and its frame shows whole; it sizes to its content up to
+   the room's height; only its body scrolls, and only when it truly overflows, with a thin scrollbar in the owner's
+   crayon and a soft fade at the foot. The room is a fixed 1600 x 900 stage scaled to the window, so these positions
+   hold at every window size. */
+html body #room #room-panel[data-state="open"] {
+  overflow: visible; display: flex; flex-direction: column; gap: 14px; padding: 26px 28px 24px; }
+html body #room #room-panel[data-state="open"] > [data-slot="head"] { flex: none; align-items: center; min-height: 36px; }
+html body #room #room-panel[data-state="open"] > :not([data-slot="head"]) {
+  flex: 0 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  margin: 0 -10px 0 0; padding: 2px 10px 16px 0;
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cc, #C49A62) 75%, transparent) transparent;
   /* a soft fade at the foot, so a list that runs on reads as "there's more", never as a hard cut */
-  padding-bottom: 16px; -webkit-mask: linear-gradient(#000 calc(100% - 18px), transparent); mask: linear-gradient(#000 calc(100% - 18px), transparent); }
-/* Bo's pad ends above the Replay / Fake run label in the corner instead of running under it */
-html body #room [data-component="sketchpad-open"][data-seat="engineering"]:not([hidden]) { top: auto; bottom: 84px; max-height: 420px; }
+  -webkit-mask: linear-gradient(#000 calc(100% - 18px), transparent); mask: linear-gradient(#000 calc(100% - 18px), transparent); }
 
-/* While a teammate's sketchpad is open, its pill steps back: the panel's title already names them, and the pill no
-   longer floats above and away from it. */
-html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="design"]:not([hidden])) [data-component="place-card"][data-seat="design"],
-html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="research"]:not([hidden])) [data-component="place-card"][data-seat="research"],
-html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="data"]:not([hidden])) [data-component="place-card"][data-seat="data"],
-html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="strategy"]:not([hidden])) [data-component="place-card"][data-seat="strategy"],
-html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="engineering"]:not([hidden])) [data-component="place-card"][data-seat="engineering"] {
+/* a teammate's pad: Bo's ends above the Replay / Fake run label in the corner instead of running under it; Mika's sits
+   below the day / night pill instead of over it, with room enough that its list fits without a scrollbar */
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] { top: auto; bottom: 84px; max-height: 420px; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="design"][data-state="open"] { top: 96px; max-height: 500px; }
+
+/* While a teammate's pad is open, its pill steps back: the panel's title already names them, and the pill no longer
+   floats above and away from it. */
+html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="design"]) [data-component="place-card"][data-seat="design"],
+html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="research"]) [data-component="place-card"][data-seat="research"],
+html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="data"]) [data-component="place-card"][data-seat="data"],
+html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="strategy"]) [data-component="place-card"][data-seat="strategy"],
+html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="engineering"]) [data-component="place-card"][data-seat="engineering"] {
   opacity: 0; pointer-events: none; }
-/* Mika's pad: below the day / night pill instead of over it, with 30px more room so its list fits without a scrollbar */
-html body #room [data-component="sketchpad-open"][data-seat="design"]:not([hidden]) { top: 96px; max-height: 500px; }
+
+/* her workspace: sized to its content and centred (no more 70% empty paper), the four parts as a 2 x 2 of paper cards.
+   A filled part takes the space; an empty one stays small, its one status line in quiet italic ink. */
+html body #room #room-panel[data-component="workspace"][data-state="open"] {
+  inset: auto; top: 64px; left: calc(50% - 480px); width: 960px; max-height: calc(100% - 128px); }
+html body #room #room-panel[data-component="workspace"] > :not([data-slot="head"]) {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; align-items: start; }
+html body #room #room-panel[data-component="workspace"] :is([data-slot="character"], [data-slot="idea"], [data-slot="team-space"], [data-slot="takeaways"]) {
+  margin: 0; padding: 14px 18px 16px; border-radius: 18px; background: rgba(255, 255, 255, .55);
+  box-shadow: inset 0 0 0 1px rgba(84, 58, 38, .12); min-height: 0; }
+html body #room #room-panel[data-component="workspace"] :is([data-slot="character"], [data-slot="idea"], [data-slot="team-space"], [data-slot="takeaways"])[data-state="empty"] {
+  background: rgba(255, 255, 255, .32); box-shadow: inset 0 0 0 1px rgba(84, 58, 38, .08); }
+html body #room #room-panel[data-component="workspace"] [data-state="empty"] [data-slot="status"] {
+  font: italic 400 16px/1.4 var(--display, Georgia, serif); color: var(--ink-2, #4E3A2B); list-style: none; }
