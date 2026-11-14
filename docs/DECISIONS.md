@@ -49,3 +49,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 14:18 | agents (lead) | Browser-closed e2e failures traced to builder 4's headless café session running `pkill -f chrome` before each gate run; stopped. Beats + strategy merges pushed only after a clean 15/15 e2e | diagnosis before patch |
 | Sat 14:25 | Vincent (via PO) | Voice (ElevenLabs STT, push-to-talk) is core for her intro and idea; typed fallback always | |
 | Sat 14:25 | agents (lead) | Her open ask zooms to readable size (≥18 px at 1280) rather than trimming the selector's words | 13 px was too small on stage |
+| Sat 14:32 | agents (lead) | demo-3: both templates gate-passing (yoga 2 waivers, café 1), café build 12 s, all core pieces on main; npm test 61, e2e 15/15 | |
