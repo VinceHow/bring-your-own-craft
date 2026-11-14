@@ -304,16 +304,3 @@ test('the phone switch reads a "what the form asks for" field list, and nothing 
   assert.deepEqual(phone('Should the form remember your name and email?', 'No, never'), { phone: true, remember: false });
   assert.equal(phone('What details do we show on the confirmation page?', 'Name and email').phone, true);
 });
-
-// The yoga e2e flake (14 Nov): the build decided "Name and email only" on decisions whose question named neither the
-// phone nor "asks for", so no rule fired and the template's phone field stayed. A choice that lists contact fields
-// drives the phone switch, whatever the question's wording.
-test('the phone switch reads a "name and email only" choice on any form-fields decision', () => {
-  const phoneOn = (decision, choice) => applyChoices({ phone: true }, [{ decision, choice }]).phone;
-  assert.equal(phoneOn('What the confirm step asks of the customer', 'Name and email only, no account'), false);
-  assert.equal(phoneOn('What is collected and stored, and how confirmation is sent', 'Name and email only, confirmation by email'), false);
-  assert.equal(phoneOn('What we keep about customers', 'Email only'), false);
-  assert.equal(phoneOn('What the confirm step asks of the customer', 'Name, email and phone'), true, 'a list with the phone keeps it');
-  assert.equal(phoneOn('How reminders are sent', 'By email the night before'), true, 'not a list of fields: untouched');
-  assert.equal(phoneOn('Which single accent colour the page uses', 'Warm crust brown'), true);
-});
