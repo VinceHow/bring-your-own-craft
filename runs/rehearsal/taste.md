@@ -1,3 +1,5 @@
 - [L1] I love getting the journey right before anyone draws a screen. (her own words, today)
 - [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
-- [L3] Never ask for anything you could remember or skip.
+- [L3] People come back when they know their spot is theirs, so my regulars shouldn't have to hunt for their usual Tuesday class.
+- [L4] Booking should feel small and warm: a spot is promised to you, and nobody should ever feel turned away.
+- [L5] Never ask for anything you could remember or skip.

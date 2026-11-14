@@ -71,6 +71,7 @@
   async function focusOpen(h) {
     if (!h.B.focusDoc) throw new Error('missing: focus-doc.js is not on this branch yet');
     h.play('rehearsal', { until: ev => ev.type === 'ask' });
+    h.B.replay = false; // a replay closes her document by itself after 3.5 s; the gallery holds it open
     h.B.focusDoc.open(SAMPLE_ASK);
   }
   function said(h, text) {
@@ -116,10 +117,6 @@
       { state: 'drawn', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); } },
       { state: 'drawn, with her pin', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'sketches' }); } },
     ] },
-    { name: 'check-in', sel: '.fl-lens .fl-item, .fl-item[data-ask]', states: [
-      { state: 'open', src: F, run: async h => { h.play('fixture'); } },
-      { state: 'answered', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'sketches' }); } },
-    ] },
     { name: 'wireframes', sel: '.sk-host', states: [
       { state: 'shown', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.step' }); await wait(800); } },
     ] },
@@ -143,10 +140,10 @@
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },
       { state: 'answered', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); } },
       { state: 'chiming', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); await wait(1200); } },
-      { state: 'takeaways', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); h.emit('brief', BRIEF); h.emit('answer.mapped', { askId: 'gallery-ask' }); await wait(2600); } },
+      { state: 'takeaways', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); h.emit('takeaways', BRIEF); h.emit('answer.mapped', { askId: 'gallery-ask' }); await wait(2600); } },
     ] },
     { name: 'takeaways', sel: '.fd-brief', states: [
-      { state: 'shown', src: S, run: async h => { await focusOpen(h); said(h, HER); h.emit('brief', BRIEF); await wait(300); } },
+      { state: 'shown', src: S, run: async h => { await focusOpen(h); said(h, HER); h.emit('takeaways', BRIEF); await wait(300); } },
     ] },
     { name: 'chime', sel: '.chime', states: [
       { state: 'in', src: S, run: async h => { await focusOpen(h); h.emit('chime', CHIMES[1]); await wait(300); } },

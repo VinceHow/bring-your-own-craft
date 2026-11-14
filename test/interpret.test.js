@@ -9,7 +9,7 @@ import path from 'node:path';
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-interpret-'));
 const { interpret, saveTakeaways, saveBrief, cleanInterpret, NAMES } = await import('../lib/interpret.js');
 const { readProfile } = await import('../lib/profile.js');
-const { installChatter, lineFor, okLine, CHATTER_PER_SEAT } = await import('../lib/chatter.js');
+const { installChatter, lineFor, okLine, chatterLine, CHATTER_PER_SEAT } = await import('../lib/chatter.js');
 const { firstSketch, currentLines } = await import('../lib/sketch.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, readTaste } = await import('../lib/taste.js');
@@ -137,11 +137,13 @@ test('room chatter: from real events, by name, never to her, never a question, c
   logEvent(run, 'decided', { id: 'c5', seat: 'strategy', decision: 'Whether regulars get a class pass', choice: 'Class pass shown first', cites: 'team default' });
   for (let i = 0; i < 5; i++) logEvent(run, 'decided', { id: `d${i}`, seat: 'design', decision: `Layout ${i}`, choice: `Option ${i}`, cites: 'team default' });
   const chatter = readEvents(run).filter(e => e.type === 'chatter');
-  assert.deepEqual(chatter.slice(0, 3).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Bo: taking the booking form.',
-    'Ines: regulars get a class pass, class pass shown first.']);
+  assert.deepEqual(chatter.slice(0, 2).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Ines: class pass shown first.']);
+  assert.ok(!chatter.some(c => c.from === 'teammate.done'), 'a work note is a log, never chatter');
+  assert.ok(chatter.every(c => c.text.split(' ').length <= 15 && !/…/.test(c.text)), 'short, never cut');
+  assert.equal(lineFor({ type: 'decided', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' }), 'Bo: name and email, no account.');
+  assert.ok(!chatterLine('Ines: pricing and payment decisions for a single-bakery pre-order site: when customers pay…'), 'a log line is not chatter');
   assert.ok(chatter.every(c => okLine(c.text)));
   assert.ok(!chatter.some(c => c.seat === 'product'), 'her seat never chatters');
-  assert.ok(!chatter.some(c => c.seat === 'data'), 'a question is never chatter');
   assert.equal(chatter.filter(c => c.seat === 'design').length, CHATTER_PER_SEAT);
   assert.equal(lineFor({ type: 'decided', seat: 'design', decision: 'x', choice: 'y', cites: 'L3' }), null, 'her file deciding it is not chatter');
 });
@@ -186,7 +188,7 @@ test('the thread: lines are spoken (≤15 words, no filler, never to her); 3 tur
   assert.deepEqual(speakers(ask, evs, 'product'), ['design', 'strategy', 'engineering', 'data']);
   assert.ok(speakers({ ...ask, artifact: { kind: 'finding' } }, evs, 'product').includes('research'), 'Research speaks on her finding');
   assert.ok(!speakers(ask, evs, 'strategy').includes('strategy'), 'her seat never speaks');
-  const calm = async a => ({ text: { Mika: 'Mika here: usual class first, one tap.', Ines: 'Mika, pass price right under it, then.', Bo: 'One tap to rebook, signed in.', Theo: 'Counting rebooks from day one.' }[a.user.match(/^You are (\w+)/)[1]] });
+  const calm = async a => ({ text: { Mika: 'Mika here: usual class first, one tap.', Ines: 'Mika, then the usual class reads as theirs, by name.', Bo: 'One tap to rebook, signed in.', Theo: 'Counting rebooks from day one.' }[a.user.match(/^You are (\w+)/)[1]] });
   const t0 = Date.now();
   const thread = await runThread({ run, ask, text: 'Their spot is theirs.', callModel: calm, gapMs: 150 });
   assert.equal(thread.length, 3, 'nothing to settle: three turns');
@@ -211,4 +213,27 @@ test('each teammate only brings its own work that touches what was raised (no pe
   assert.match(w, /signed in/);
   assert.ok(!/waitlist/i.test(w), 'the waitlist was never raised, so it never comes up');
   assert.match(workOf('engineering', evs, { decisionIds: [] }, '', 'The smell of fresh bread.'), /nothing of yours touches this yet/);
+});
+
+test('seat rules: Noor only cites her prepared finding; Ines talks price only when money came up', async () => {
+  const { seatProblem, seatRule, aboutMoney, runThread } = await import('../lib/thread.js');
+  assert.match(seatProblem("I'll write up the standing-order study, with sources.", 'research', 'x'), /prepared finding/);
+  assert.equal(seatProblem('Small bakeries guess how much to bake; orders ahead fix the guess.', 'research', 'x'), null);
+  assert.ok(!aboutMoney('The smell of fresh bread at 7am.'));
+  assert.ok(aboutMoney('Regulars prepay for a weekly loaf.'));
+  assert.match(seatProblem('Then I will price the sourdough higher.', 'strategy', 'The smell of fresh bread.'), /how the offer reads/);
+  assert.equal(seatProblem('Then I will price the sourdough higher.', 'strategy', 'They prepay for it.'), null);
+  assert.match(seatRule('strategy', 'The smell.'), /how the offer reads/);
+  assert.match(seatRule('research', ''), /never promise a write-up/i);
+  // In a thread: Noor's promise is sent back once; a second promise is dropped, never said.
+  const run = newRun();
+  const ask = { ...readEvents(run).find(e => e.type === 'ask'), seat: 'research', by: 'Noor', artifact: { kind: 'finding' } };
+  const seen = [];
+  const model = async a => { const who = a.user.match(/^You are (\w+)/)[1]; seen.push(who);
+    return { text: { Noor: "I'll pull the study and write it up with sources.", Mika: 'Noor, then sold-out loaves show what is still warm.',
+      Ines: 'Mika, the warm row reads as today\'s bake, not leftovers.', Bo: 'Ines, warm row first, sold-out loaves below.' }[who] }; };
+  const thread = await runThread({ run, ask, text: 'Show what is still warm instead.', callModel: model, gapMs: 0 });
+  assert.ok(!thread.some(t => t.seat === 'research'), 'a promise the run cannot keep is never said');
+  assert.equal(seen.filter(w => w === 'Noor').length, 2, 'Noor was asked once more first');
+  assert.ok(thread.length >= 2);
 });

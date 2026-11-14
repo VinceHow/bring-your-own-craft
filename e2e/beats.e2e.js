@@ -48,6 +48,8 @@ function countFromLog(evs) {
   return { asked: asked.size, fromFile: [...latest.values()].filter(d => /^L\d+$/.test(String(d.cites))).length };
 }
 // Every box is on screen (inside the viewport), so nothing on a beat is cut off.
+// No pronouns anywhere in the room (the PO's own "until they arrive" / "their own team" aside): he, she, his, him, her, hers.
+const pronouns = pg => pg.evaluate(() => (document.body.innerText.match(/\b(he|she|his|him|her|hers)\b/gi) || []));
 const onScreen = sel => page.evaluate(sel => [...document.querySelectorAll(sel)].every(e => {
   const r = e.getBoundingClientRect();
   return r.width > 0 && r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1;
@@ -70,6 +72,34 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
   // The 1600x900 room fits the 1280x720 screen, centred.
   const r = await page.evaluate(() => { const b = document.getElementById('room').getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom]; });
   assert.ok(r[0] >= -1 && r[1] >= -1 && r[2] <= 1281 && r[3] <= 721, `the room fits the screen: ${r}`);
+});
+
+test('1b. the seventh seat, "Your own craft": her name tag, then she sits there; no separate "I love" card', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
+  await p.goto(BASE + '/?stage=1&hold=300');
+  await p.waitForTimeout(400);
+  assert.match(await p.locator('.seat-diy .seat-empty').innerText(), /Your own craft/i);
+  await p.click('.seat-diy');
+  await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
+  await p.keyboard.type('I bake sourdough for my village and I love the 7am queue');
+  await p.keyboard.press('Enter');
+  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 20000, 'her tag', null, p);
+  await p.click('.name-tag .tag-craft'); await p.keyboard.press('End');
+  await p.keyboard.press('Enter'); // keep it: she takes the seat
+  await waitFor(() => !!document.querySelector('.seat-diy .card'), 5000, 'her card in her own seat', null, p);
+  assert.strictEqual(await p.locator('.seat-product .card').count(), 0, 'not in Product');
+  assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');
+  await waitFor(() => document.querySelectorAll('.seat:not(.seat-diy):not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
+  await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
+  assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
+  await p.keyboard.type('A pre-order page for my bakery.'); await p.keyboard.press('Enter');
+  await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run', null, p);
+  assert.strictEqual(runs.at(-1).seat, 'diy', 'the run is in her own craft');
+  assert.match(String(runs.at(-1).intro || ''), /^I love /, 'her loves line goes as her intro');
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
 });
 
 test('2. the live path in stage mode, driven like a clicker, as far as the three asks', async () => {
@@ -120,6 +150,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.ok(!(await page.isVisible('.seat-design .card')), 'the room is gone from view');
   assert.ok(!(await page.isVisible('#tray')), 'and so is the tray');
   assert.ok(await page.isVisible('#focus-doc .fd-work'), 'the work, large');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
   const ask = asks.find(a => a.id === top);
   assert.strictEqual((await page.textContent('#focus-doc .fd-question')).trim(), (ask.question || ask.decision).trim(), 'its one question');
   assert.strictEqual(await page.locator('#focus-doc .fl-opt, #focus-doc .fl-yours, #focus-doc .is-dropped').count(), 0, 'no options, no YOUR CALL, no strike-through');
@@ -141,6 +172,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   await page.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room');
   assert.ok(await page.isVisible('.seat-design .card'), 'the room is back');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in the room');
   if (asks.length > 1) {
     await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray again');
     assert.strictEqual(await page.locator('#tray .tray-note').count(), asks.length - 1, 'the rest wait in the tray');
@@ -148,13 +180,13 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.deepStrictEqual(errors, []);
 });
 
-test('2b. her document: words land, the team chimes in one after another, her brief, kept into her file', async () => {
+test('2b. her document: words land, the team chimes in one after another, the takeaways, kept', async () => {
   // The server's answer and brief routes (builder 6) are stubbed here; the events are the contract's shapes.
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posted = [];
   await p.route('**/api/run/*/answer', async r => { posted.push(['answer', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"ok":true}' }); });
-  await p.route('**/api/run/*/brief', async r => { posted.push(['brief', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
+  await p.route('**/api/run/*/takeaways', async r => { posted.push(['takeaways', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
   await p.goto(BASE + '/?stage=1');
   await p.waitForTimeout(300);
   await p.evaluate(() => {
@@ -182,29 +214,39 @@ test('2b. her document: words land, the team chimes in one after another, her br
   await p.evaluate(() => {
     BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Noor', seat: 'research', text: 'That matches what small studios report.' }, 'replay');
     BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Mika', seat: 'design', text: 'Then their usual class goes first, one tap.' }, 'replay');
-    BYOC.dispatch({ run: 'stub-run', type: 'brief', askId: 'q1', believe: 'Regulars should never have to hunt for their class.', why: 'They come back for the same slot.', guidance: 'Put their usual class first, one tap to book.' }, 'replay');
+    BYOC.dispatch({ run: 'stub-run', type: 'takeaways', askId: 'q1', believe: 'Regulars should never have to hunt for their class.', guidance: 'Put their usual class first, one tap to book.' }, 'replay');
   });
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length === 1, 1000, 'the first chime', null, p);
   assert.strictEqual(await p.locator('#focus-doc .chime').count(), 1, 'one at a time');
-  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'the brief waits for the chimes');
+  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'the takeaways wait for the chimes');
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length === 2, 2500, 'the second chime', null, p);
   assert.ok(Date.now() - t0 >= 800, 'about a second apart');
   assert.match(await p.locator('#focus-doc .chime').first().innerText(), /Noor · Research[\s\S]*small studios report/i);
-  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 2500, 'her brief', null, p);
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 2500, 'the takeaways', null, p);
   assert.match(await p.textContent('#focus-doc .brief-believe .brief-text'), /never have to hunt/);
+  assert.ok(await p.locator('#focus-doc .brief-why').isHidden(), 'two parts: what I believe, guidance to the team');
   // She rewords "what I believe" and keeps it; Enter sends the brief.
   await p.locator('#focus-doc .brief-believe .brief-text').click();
   await p.keyboard.press('End'); await p.keyboard.type(' Ever.'); await p.keyboard.press('Enter');
   await waitFor(() => true, 300, '', null, p);
-  const brief = posted.find(x => x[0] === 'brief');
-  assert.ok(brief, 'the brief was kept');
+  const brief = posted.find(x => x[0] === 'takeaways');
+  assert.ok(brief, 'the takeaways were kept');
+  assert.deepStrictEqual(Object.keys(brief[1]).sort(), ['askId', 'believe', 'guidance']);
   assert.strictEqual(brief[1].askId, 'q1');
   assert.match(brief[1].believe, /never have to hunt for their class\. Ever\.$/);
-  // Her Stance fills from "what I believe" when the file write lands (taste.written).
-  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'taste.written', id: 'L3', text: 'Regulars should never have to hunt for their class. Ever.' }, 'replay'));
+  // Her philosophy is the team's to keep (hidden): no stance slot on her card, nothing added to the file card.
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'taste.written', id: 'L3', text: 'Regulars should never have to hunt for their class. Ever.', hidden: true }, 'replay'));
   await p.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room', null, p);
-  assert.match(await p.textContent('#her-stance'), /never have to hunt/);
+  assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot');
+  assert.strictEqual(await p.locator('#file-lines li[data-id="L3"]').count(), 0, 'the hidden line stays off the card');
+  // Straight into the next note: its chimes still land (a quick close mid-thread must not stall the next document).
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q2', seat: 'design', by: 'Mika', question: 'If booking could feel like one thing, what should it feel like?', artifact: { kind: 'journey' } }, 'replay'));
+  await p.evaluate(() => { BYOC.openNote('q2'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Mika', seat: 'design', text: 'One.' }, 'replay'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Bo', seat: 'engineering', text: 'Two.' }, 'replay'); });
+  await p.waitForTimeout(150);
+  await p.evaluate(() => { BYOC.focusDoc.close(true); BYOC.openNote('q2'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Mika', seat: 'design', text: 'Again.' }, 'replay'); });
+  await waitFor(() => document.querySelectorAll('#focus-doc .chime').length >= 1, 2500, 'a chime after a quick reopen', null, p);
+  await p.evaluate(() => BYOC.focusDoc.close(true));
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });
@@ -237,7 +279,7 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   const jAsks = judgeLog.filter(e => e.type === 'ask');
   assert.ok(jAsks.length >= 1 && jAsks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks (the cap in lib/policy.js), got ${jAsks.length}`);
   assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), jAsks[0].id, 'the first check-in is the run’s first ask');
-  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for her/);
+  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for you/);
   assert.ok(cm, 'the caption'); assert.strictEqual(+cm[2], jAsks.length, '"for her" is the run’s asks');
   assert.strictEqual(+cm[1], judgeLog.filter(e => e.type === 'candidate').length - jAsks.length, '"handled" is the rest, from the log');
   // Her line, from her run's log.
@@ -303,7 +345,7 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   await p.waitForTimeout(100);
   await p.keyboard.type('A booking page for a small yoga studio.');
   await p.keyboard.press('Enter');
-  await waitFor(() => /Opening her sheet/.test(document.getElementById('live-step').textContent) && !document.getElementById('live-step').hidden, 3000, 'the step', null, p);
+  await waitFor(() => /Opening the sheet/.test(document.getElementById('live-step').textContent) && !document.getElementById('live-step').hidden, 3000, 'the step', null, p);
   await waitFor(() => /slow · R replays the rehearsal/.test(document.getElementById('live-step').textContent), 3000, 'the slow note', null, p);
   await waitFor(() => /stopped/.test(document.getElementById('live-step').textContent), 4000, 'the failure', null, p);
   assert.match(await p.textContent('#live-step'), /R replays the rehearsal/);

@@ -58,6 +58,26 @@ test('1. her character card: the team\'s fun read of her words, each piece swapp
   assert.deepStrictEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft]), ['diy', tag.craft]);
 });
 
+test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward key, keeps it without a click (faked reply)', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  await p.route('**/api/name-tag', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ craft: 'Baker', title: 'the Dawn Baker',
+    traits: ['dough whisperer', 'up at 4am'], superpower: 'knows every regular', goodAt: 'mixing dough', loves: 'the first batch out', alternates: { titles: [], traits: [], superpowers: [] }, ms: 5 }) }));
+  await p.goto(BASE + '/?hold=300');
+  await p.waitForTimeout(500);
+  for (const key of ['Enter', 'PageDown']) {
+    await p.evaluate(() => { window.__tag = BYOC.nameTag.open(); });
+    await p.waitForFunction(() => document.activeElement?.classList.contains('tag-input'));
+    await p.keyboard.type('I mix dough and love the first batch');
+    await p.keyboard.press('Enter');
+    await p.waitForFunction(() => document.querySelector('.name-tag')?.dataset.state === 'shown');
+    assert.ok(await p.evaluate(() => document.activeElement?.classList.contains('name-tag')), 'focus on the card');
+    await p.keyboard.press(key);
+    await p.waitForFunction(() => !document.querySelector('.name-tag'), null, { timeout: 2000 });
+    assert.strictEqual((await p.evaluate(() => window.__tag)).title, 'the Dawn Baker', `${key} kept it`);
+  }
+  await p.close();
+});
+
 test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build press says "no page" quietly', async () => {
   await page.click('.seat-product'); // until the dashed seat is on the table
   await waitFor(() => document.activeElement?.id === 'intro-input' || document.activeElement?.id === 'her-input', 40000, 'her card or her sheet');

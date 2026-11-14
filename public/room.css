@@ -129,7 +129,7 @@ body:not(.stage) #viewport { top: 30px; }
 .mini-lines li { font: 400 12.5px/1.3 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 12px; position: relative; }
 .mini-lines li::before { content: ''; position: absolute; left: 0; top: 5px; width: 6px; height: 6px; background: var(--seat-ink); border: 1px solid var(--ink); }
 .mini-lines li.brought { font-weight: 600; }
-.mini-lines li.brought::after { content: 'to her'; margin-left: 6px; padding: 0 4px; font: 600 10.5px var(--mono); background: var(--product); border: 1px solid var(--ink); }
+.mini-lines li.brought::after { content: 'to you'; margin-left: 6px; padding: 0 4px; font: 600 10.5px var(--mono); background: var(--product); border: 1px solid var(--ink); }
 .mini-lines li .cite { color: rgba(20,20,20,.6); }
 .mini-more { margin-top: auto; padding: 3px 10px 5px; font: 500 11.5px var(--mono); color: rgba(20,20,20,.7); }
 
@@ -430,3 +430,25 @@ body.focus-open #room > :not(.focus-doc):not(.replay-label) { visibility: hidden
   font: 400 13px/1.3 var(--ui); box-shadow: 2px 2px 0 var(--ink); }
 .chatter-who { font-weight: 600; }
 body.stage .chatter-line { font-size: 15px; }
+
+/* Her own craft: the dashed seventh seat, beside Product at the table's edge. Layout only; polish.css owns the look. */
+.seat-diy { left: 120px; top: 806px; width: 330px; height: 86px; }
+.seat-diy .seat-empty { border-style: dashed; border-width: 2.5px; font-size: 16px; }
+body[data-beat="0"] .seat-diy { cursor: pointer; }
+body[data-beat="0"] .seat-diy:hover .seat-empty { background: rgba(255,72,176,.12); }
+body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
+.seat-diy .card { flex-direction: row; --seat-ink: var(--product); }
+.seat-diy .card-band { height: auto; flex: none; max-width: 160px; border-bottom: 0; border-right: var(--line); padding: 0 12px; gap: 8px; }
+.seat-diy .card-band svg { width: 24px; height: 24px; }
+.seat-diy .card-name { font-size: 18px; line-height: 1.05; }
+.seat-diy .card-who { margin: 0; font: 500 12px var(--mono); }
+/* her tray sits by whichever seat is hers */
+#room[data-her-seat="diy"] .tray { left: 470px; }
+.seat-diy .card-band { width: 150px; max-width: none; }
+.seat-diy .card-name { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.seat-diy .card-her { flex: 1; min-width: 0; }
+.seat-diy .card-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat:not(.seat-product):not(.seat-diy) .card-band { gap: 8px; }
+.seat:not(.seat-product):not(.seat-diy) .card-name { font-size: 19px; }
+.seat .agent-mark { padding: 0 3px; font-size: 9px; }
+.seat .card-agent-name { font-size: 13px; }

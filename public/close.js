@@ -28,8 +28,8 @@
         <div class="close-src" id="close-b-src"></div>
       </div>
       <div class="close-her" id="close-her" hidden>
-        <div class="close-label">Her, in the Product seat</div>
-        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> the rest handled by her team</div>
+        <div class="close-label">In the Product seat</div>
+        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> the rest handled by the team</div>
         <div class="close-src" id="close-her-src"></div>
       </div>
       <p class="close-built" id="close-built" hidden>${BUILT}</p>
@@ -117,7 +117,7 @@
   function landAsks(r, my) {
     BYOC.timings.asksAt = Date.now();
     sheet.dataset.phase = 'landed';
-    $('close-count').innerHTML = `<b>${Math.max(0, r.came - r.brought)}</b> handled by the team · <b class="pink">${r.brought}</b> for her`;
+    $('close-count').innerHTML = `<b>${Math.max(0, r.came - r.brought)}</b> handled by the team · <b class="pink">${r.brought}</b> for you`;
     // One check-in at a time (DEMO 2:38): the team's first lands, in its teammate's voice, on Design's sketch.
     (r.asks || []).slice(0, 1).forEach((a, i) => {
       const li = document.createElement('li');
@@ -139,7 +139,7 @@
       if (my !== token) return;
       if (h && h.fromFile > 0) {
         $('close-asked').textContent = h.asked;
-        $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from her file${h.replay ? ' · REPLAY' : ''}`;
+        $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from the file${h.replay ? ' · REPLAY' : ''}`;
         $('close-her').hidden = false;
         if (M) M.animate($('close-her'), { x: [-40, 0] }, SPRING);
         await wait(1200);
