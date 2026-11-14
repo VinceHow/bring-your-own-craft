@@ -37,7 +37,7 @@ after(async () => { await browser?.close(); srv?.kill(); });
 test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
   await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(800);
-  await page.click('.seat-product'); await page.click('#pick-card [data-pick="craft"]'); // her seat's pick card: Your own craft
+  await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');

@@ -58,21 +58,26 @@ test('2. six seats; she clicks Product, the team assembles, her card takes her l
     assert.ok(await page.locator(`[data-seat="${s}"]`).count(), `seat ${s} on the table`);
   tBeat = Date.now();
   assert.strictEqual(await page.locator('.seat .card').count(), 0, 'six empty seats at the start');
-  await page.click('.seat-product'); // her seat's pick card: "What do you bring to the table?"
-  assert.match(await page.textContent('#pick-card'), /What do you bring to the table\?[\s\S]*Product[\s\S]*Your own craft/);
+  // The setup: her name tag on paper first, the room hidden until the reveal.
+  assert.ok(await page.isVisible('#setup'), 'the room is hidden behind her paper name tag');
+  assert.match(await page.textContent('.nt-paper'), /Your name[\s\S]*What do you bring to the table\?[\s\S]*Product[\s\S]*Your own craft/);
   assert.strictEqual(await page.locator('.seat-diy').count(), 0, 'no seventh seat');
-  await page.click('#pick-card [data-pick="product"]'); // she takes the Product seat herself
-  // The team assembles: each card big mid-table, then into its seat. Then her card lifts for her "I love..." line.
-  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 40000, 'the team seated and her card open');
-  lap('0:00 walk-in + assembling');
+  await page.keyboard.press('Enter'); // to her words (Product is prefilled)
+  await waitFor(() => document.activeElement?.id === 'intro-input', 5000, 'her words');
+  await page.keyboard.type('getting the journey right before anyone draws a screen.');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her name tag, then she meets the team
+  await waitFor(() => !!document.querySelector('.meet-card'), 5000, 'meet the team');
+  assert.ok(await page.isVisible('#setup'), 'still no room while she meets the team');
+  // The reveal: the studio, everyone seated, she takes her seat.
+  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'her-input', 40000, 'the reveal: everyone seated, her idea next');
+  lap('0:00 name tag, team, reveal');
+  assert.ok(!(await page.isVisible('#setup')), 'the room is revealed');
   assert.ok(await page.locator('.seat-product .card').count(), 'her card in Product');
   for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'who pays, and why now', 'boring and correct'])
     assert.ok(await page.locator('.seat .card-stance', { hasText: stance }).count(), `stance "${stance}" on a place card`);
   assert.strictEqual(await page.getByText(/Seat open: invite a teammate/).count(), 0, 'the teammates are real members of her team: no "seat open" line');
   assert.strictEqual(await page.locator('.seat .card [data-slot="character"]').count(), 6, 'a character slot on every seat card');
-  await page.keyboard.type('getting the journey right before anyone draws a screen.');
-  await page.keyboard.press('Enter');
-  await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her character card, then she takes the seat
   for (const k of ['api', 'on', 'stage', 'el']) assert.ok(await has(`!!BYOC.${k}`), `BYOC.${k}`);
   await shot('live-walk-in.png');
 });
