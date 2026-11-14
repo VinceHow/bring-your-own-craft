@@ -65,7 +65,7 @@ test('2. six seats; she clicks Product, the team assembles, her card takes her l
   assert.ok(await page.locator('.seat-product .card').count(), 'her card in Product');
   for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'who pays, and why now', 'boring and correct'])
     assert.ok(await page.locator('.seat .card-stance', { hasText: stance }).count(), `stance "${stance}" on a place card`);
-  assert.strictEqual(await page.getByText('Own mode for this seat: coming.').count(), 5);
+  assert.strictEqual(await page.getByText('Seat open: invite a teammate. Your agents hold it until they arrive.').count(), 5);
   await page.keyboard.type('getting the journey right before anyone draws a screen.');
   await page.keyboard.press('Enter');
   for (const k of ['api', 'on', 'stage', 'el']) assert.ok(await has(`!!BYOC.${k}`), `BYOC.${k}`);
@@ -77,7 +77,7 @@ test('3. she writes the idea and her journey; lines become boxes', async t => {
   if (!(await has('fetch("/api/run",{method:"POST",body:"{}"}).then(r=>r.status!==404)'))) return t.todo('run routes not merged');
   // Her card settles and her sheet opens on its own.
   await waitFor(() => document.activeElement && document.activeElement.id === 'her-input', 3000, 'her input focused');
-  assert.ok(await page.getByText('What are we building today?').count());
+  assert.ok(await page.getByText('What’s the idea?').count());
   await page.keyboard.type('A booking page for a small yoga studio.');
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run id');
@@ -201,6 +201,11 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   const cited = pg.locator(`#decided [data-decided][data-cites="${written.id}"]`);
   assert.ok((await cited.count()) >= 1, `"decided for you" shows a decision citing ${written.id}`);
   assert.match(await cited.first().innerText(), /remember or skip/i, 'with her line quoted');
+  // Credits, not "decided for you": her calls marked YOUR CALL, and Engineering applying her new line.
+  assert.match(await pg.locator('#decided-h').innerText(), /^Credits$/);
+  assert.ok((await pg.locator('#decided [data-yours]').count()) >= 1, 'her calls are credited');
+  assert.match(await pg.locator('#decided [data-yours]').first().innerText(), /YOUR CALL/);
+  assert.match(await cited.first().innerText(), /Engineering applied your line/);
   assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
   // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
   const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
