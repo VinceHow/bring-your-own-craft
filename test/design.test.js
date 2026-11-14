@@ -57,6 +57,8 @@ test('a deal runs in a fresh temp folder outside the repo, removed after; palett
   assert.ok(seen.every(s => s.exists && !s.cwd.startsWith(REPO) && s.cwd.startsWith(os.tmpdir())), 'outside the repo, in the temp dir');
   assert.equal(seen[0].cwd, seen[1].cwd, 'one folder for both steps');
   assert.ok(!fs.existsSync(seen[0].cwd), 'removed after');
+  assert.ok(!fs.existsSync(path.dirname(path.dirname(path.dirname(seen[0].cwd)))), 'its whole temp folder removed');
+  assert.match(seen[0].cwd, /byoc-deal-[^/]+\/a\/b\/c$/, 'three deep, so the script sees only our folders');
   assert.equal(d.tokens['p-bg'], '#f8f5ef');
   assert.equal(d.tokens['font-display'], '"Fraunces", Georgia, serif');
   assert.deepEqual(d.faces, ['Fraunces', 'Figtree']);
@@ -72,6 +74,11 @@ test('a dealt face with no bundled font: the palette still changes, the type sta
   assert.equal(d.tokens['p-accent'], '#b8381f');
   assert.ok(!('font-display' in d.tokens) && !('font-text' in d.tokens));
   assert.deepEqual(d.faces, []);
+});
+
+test('palette values are colours only: anything else is dropped', () => {
+  const d = D.designFrom({ 'p-bg': 'url(https://example.com/x.png)', 'p-ink': '#1f1b18' });
+  assert.deepEqual(d.tokens, { 'p-ink': '#1f1b18' });
 });
 
 test('no scripts, a failing script or an unknown template: skipped with a reason, never a throw', async () => {
