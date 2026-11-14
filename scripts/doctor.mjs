@@ -3,7 +3,7 @@
 import { spawn } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
-import { loadEnvLocal, describe, KEYS } from './env-local.mjs';
+import { loadEnvLocal, describe, KEYS, pickPort, portFree, PORT_FROM, PORT_TO } from './env-local.mjs';
 
 // Behind an HTTPS proxy (cloud sessions) Node's fetch needs NODE_USE_ENV_PROXY=1 at start-up, as server.js does.
 if ((process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_USE_ENV_PROXY) {
@@ -13,19 +13,26 @@ if ((process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_US
 }
 
 const env = loadEnvLocal();
+// --only port: just the port check (the tests use it; no model call, no network).
+const ONLY = (process.argv.find(a => a.startsWith('--only=')) || '').split('=')[1] || (process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : '');
+const want = k => !ONLY || ONLY === k;
 const { scrub: scrubModel, FAL_URL } = await import('../lib/model.js');
 const secrets = () => KEYS.filter(k => k !== 'MODEL_BACKEND').map(k => process.env[k]).filter(v => v && v.length >= 4);
 const scrub = s => { let o = scrubModel(s); for (const v of secrets()) o = o.split(v).join('[key]'); return o; };
 const proxied = !!(process.env.HTTPS_PROXY || process.env.https_proxy);
 const results = [];
-const say = (ok, what, fix) => { results.push(ok); console.log(`${ok === true ? 'PASS' : ok === null ? 'NOTE' : 'FAIL'}  ${what}`); if (fix && ok !== true) console.log(`      fix: ${fix}`); };
+// ok: true PASS, false FAIL (required: the exit code is 1), null NOTE, 'warn' WARN (a key that doesn't work: the room
+// still runs, on Claude Code and typed answers).
+const say = (ok, what, fix) => { results.push(ok); console.log(`${ok === true ? 'PASS' : ok === null ? 'NOTE' : ok === 'warn' ? 'WARN' : 'FAIL'}  ${what}`); if (fix && ok !== true) console.log(`      fix: ${fix}`); };
 const short = (e, n = 140) => scrub(e?.message || e).replace(/\s+/g, ' ').slice(0, n);
 
 console.log(`Bring your own craft: doctor\n${describe(env)}\n`);
 
 // 1. Node
+if (want('node')) {
 const major = Number(process.versions.node.split('.')[0]);
 say(major >= 22, `Node ${process.versions.node} (22 or newer needed)`, 'install Node 22 from nodejs.org, then open a new terminal');
+}
 
 // 2. Claude Code: on PATH, and logged in (one tiny call, the same flags lib/model.js uses)
 function run(cmd, args, timeoutMs) {
@@ -40,6 +47,7 @@ function run(cmd, args, timeoutMs) {
     p.on('close', code => { if (!done) { done = true; clearTimeout(t); resolve({ code, out, err }); } });
   });
 }
+if (want('claude')) {
 const ver = await run('claude', ['--version'], 15000);
 const onPath = !ver.error && !ver.timeout && ver.code === 0;
 say(onPath, onPath ? `Claude Code installed (${ver.out.trim().split('\n')[0]})` : 'Claude Code (`claude`) not found on PATH',
@@ -78,8 +86,11 @@ if (onPath && (process.env.MODEL_BACKEND || 'claude-code') === 'claude-code') {
       : 'run `claude` in a terminal and log in; if it keeps failing or is slow, set MODEL_BACKEND=fal in .env.local');
 }
 
+}
+
 // 3. Keys: set or missing (never the value), and 4. each works, with one cheap call
 const set = k => !!process.env[k];
+if (want('keys')) {
 for (const k of KEYS.filter(k => k !== 'MODEL_BACKEND')) {
   say(set(k) ? true : null, `${k}: ${set(k) ? 'set' : proxied ? 'not set here (a cloud proxy may inject it)' : 'missing'}`,
     `add a line ${k}=... to .env.local (see docs/RUN-LOCALLY.md)`);
@@ -87,8 +98,8 @@ for (const k of KEYS.filter(k => k !== 'MODEL_BACKEND')) {
 console.log(`NOTE  MODEL_BACKEND: ${process.env.MODEL_BACKEND || 'claude-code (default)'}`);
 async function call(name, fn, fix) {
   const t0 = Date.now();
-  try { const why = await fn(); say(why === true, why === true ? `${name} works (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `${name}: ${why}`, fix); }
-  catch (e) { say(false, `${name}: ${e?.name === 'TimeoutError' ? 'no answer in 20 s' : short(e)}`, fix); }
+  try { const why = await fn(); say(why === true ? true : 'warn', why === true ? `${name} works (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `${name}: ${why}`, fix); }
+  catch (e) { say('warn', `${name}: ${e?.name === 'TimeoutError' ? 'no answer in 20 s' : short(e)}`, fix); }
 }
 const tryKey = k => set(k) || proxied;
 if (tryKey('FAL_KEY')) await call('fal (Claude through the OpenRouter router)', async () => {
@@ -113,14 +124,23 @@ if (tryKey('LINKUP_API_KEY')) await call('Linkup (search)', async () => {
   return r.ok ? true : `HTTP ${r.status} ${short(t, 100)}`;
 }, 'check LINKUP_API_KEY in .env.local; Research falls back to its prepared finding without it');
 
-// 5. The port
-const port = Number(process.env.PORT || 3000);
-const free = await new Promise(res => { const s = net.createServer().once('error', () => res(false)).once('listening', () => s.close(() => res(true))).listen(port); });
-say(free, `port ${port} ${free ? 'is free' : 'is in use'}`, `stop whatever runs on ${port} (another npm run local?), or start with PORT=3001 npm run local`);
+}
+
+// 5. The port: 3000, or the first free one up to 3010 (another app may hold 3000; we never touch it)
+let port = Number(process.env.PORT || 0) || null;
+if (!want('port')) {}
+else if (port) say(await portFree(port), `port ${port} (from PORT) ${await portFree(port) ? 'is free' : 'is in use'}`, `stop what runs on ${port}, or unset PORT so a free one is picked`);
+else {
+  port = await pickPort();
+  if (!port) say(false, `ports ${PORT_FROM} to ${PORT_TO} are all in use`, 'close one of those apps (or a second copy of this one), or set PORT=... in .env.local');
+  else if (port === PORT_FROM) say(true, `port ${port} is free`);
+  else say(null, `port ${PORT_FROM} is busy (another app), so we'll use ${port}`);
+}
 
 // 6. The browser
-console.log('NOTE  browser: Chrome is recommended. Safari plays the clips too (Range requests), but asks for the mic differently.');
+if (!ONLY) console.log('NOTE  browser: Chrome is recommended. Safari plays the clips too (Range requests), but asks for the mic differently.');
 
-const failed = results.filter(r => r === false).length;
-console.log(`\n${failed ? `${failed} check${failed > 1 ? 's' : ''} failed: see the fix lines above.` : 'All good: run `npm run local`, then open http://localhost:' + port}`);
+const failed = results.filter(r => r === false).length, warned = results.filter(r => r === 'warn').length;
+console.log(`\n${failed ? `${failed} required check${failed > 1 ? 's' : ''} failed: see the fix lines above.`
+  : `All required checks pass${warned ? ` (${warned} warning${warned > 1 ? 's' : ''}: the room still runs)` : ''}: run \`npm run local\`, then open the URL it prints (http://localhost:${port || PORT_FROM})`}`);
 process.exit(failed ? 1 : 0);

@@ -1,8 +1,13 @@
 # Run it on your Mac
 
 1. **Get the latest:** in Terminal, in the project folder, run `git pull`.
-2. **Check the machine:** `npm run doctor`. Every line should say PASS (NOTE is fine). Each FAIL comes with a fix line.
-3. **Start it:** `npm run local`, then open **http://localhost:3000** in Chrome. Ctrl-C in Terminal stops it.
+2. **Check the machine:** `npm run doctor`. Every line should say PASS (NOTE and WARN are fine: the room still runs). Each FAIL comes with a fix line.
+3. **Start it:** `npm run local`, then open **the URL it prints** in Chrome (usually http://localhost:3000; if another
+   app already uses 3000, it picks the next free port, such as 3001, and never touches the other app). Ctrl-C stops it.
+
+**Or double-click:** `Start BYOC.command` (in the project folder) checks the Mac, starts the room and opens it in
+Chrome at the right URL; close its Terminal window to stop. `Stop BYOC.command` stops it too. The first time, macOS may say it "can't be
+opened": right-click it → Open → Open, once. (Not yet tried on a Mac.)
 
 **Your keys** go in a file called `.env.local` in the project folder. Git never commits it, and the app never prints the
 values. Create it in TextEdit (Format → Make Plain Text), save it as `.env.local`, with one key per line:

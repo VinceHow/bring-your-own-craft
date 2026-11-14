@@ -39,7 +39,7 @@ before(async () => {
 after(async () => { console.log('studio timings:', JSON.stringify(T)); await browser?.close(); srv?.kill(); });
 
 test('1. her seat, the team, her line, then her idea', async () => {
-  await page.goto(BASE + '/?hold=300');
+  await page.goto(BASE + '/?hold=300&path=full'); // all three focus moments (off the stage path)
   await page.keyboard.press('Enter'); // her paper name tag (Product prefilled): Enter goes to her words
   await waitFor(() => document.activeElement?.id === 'intro-input', 40000, 'her card open');
   await page.keyboard.type('getting the journey right before anyone draws a screen.');

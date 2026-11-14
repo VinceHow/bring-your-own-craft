@@ -14,6 +14,7 @@ import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
 import { makeCast, castOf, arrival } from '../lib/cast.js';
+import { selectorMax } from '../lib/first.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
@@ -44,7 +45,8 @@ const handlers = {
     const s = state(run);
     if (running.has(run) || s.evs.some(e => e.type === 'select.done')) return [409, { error: 'already proposed for this run' }];
     running.add(run);
-    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag })
+    // On the stage path the selector brings one focus moment; asks already made (the first decision) count (lib/first.js).
+    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag, max: selectorMax(run, s.evs) })
       .catch(e => { logEvent(run, 'propose.error', { error: scrub(e.message) }); return null; })
       .finally(() => running.delete(run));
     if (!body?.wait) return [202, { started: true }];
@@ -148,7 +150,7 @@ export default [
       const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
       // Any seat is hers (lib/cast.js): a craft other than Product records its cast on run.start; Product adds nothing.
       const cast = makeCast(seat === 'diy' ? 'diy' : String(body?.craft || 'product'), body?.flex);
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(cast ? { cast } : {}) });
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(body?.stagePath ? { stagePath: true } : {}), ...(cast ? { cast } : {}) });
       if (intro || tag) buildProfile(run).catch(() => {}); // her sentence + idea: the private profile starts, never waited on
       return sendJson(res, 200, { run });
     },

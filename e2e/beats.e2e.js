@@ -218,6 +218,85 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
   await p.close();
 });
 
+test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade into the team space, then Focus 2 with Mika\'s journey in words', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const posts = [];
+  await p.route('**/api/run/stub-run/**', r => { posts.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); return r.fulfill({ json: { ok: true } }); });
+  await p.goto(BASE + '/?stage=1');
+  await p.waitForTimeout(300);
+  assert.ok(await p.evaluate(() => BYOC.stagePath), 'the stage path is the default');
+  await p.evaluate(() => {
+    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
+    d({ type: 'run.start', idea: "An ordering website for my friend's small bakery", stagePath: true });
+    d({ type: 'sketch.user', id: 'u1', label: 'Morning regulars' });
+    d({ type: 'sketch.user', id: 'u2', label: 'Weekend pastry crowd' });
+    d({ type: 'sketch.done', seat: 'design', ms: 10 });
+  });
+  await p.waitForTimeout(500);
+  assert.deepStrictEqual(posts.filter(x => x[0] === 'first'), [['first', {}]], 'the room asks for Focus 1 once the sketch is down');
+  // Focus 1: Noor's finding, quoted with its source.
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor',
+    question: 'Who should we build this for first?', users: ['Morning regulars', 'Weekend pastry crowd'], decisionIds: [],
+    artifact: { kind: 'finding', ref: { title: 'A third of artisan-bakery visitors buy bread there every week', quote: 'A third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week',
+      url: 'https://example.org/report', site: 'Bakery Business', fetched: '2026-11-14', label: 'researched before the demo', users: ['Morning regulars', 'Weekend pastry crowd'] } } }, 'live'));
+  assert.strictEqual(await p.evaluate(() => BYOC.beat), 4, 'Focus 1 waits in her inbox where she is');
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 4000, 'in her inbox', null, p);
+  await p.keyboard.press('PageDown');
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'open', null, p);
+  assert.strictEqual(await p.getAttribute('#focus-doc', 'data-doc'), 'finding');
+  assert.strictEqual(await p.textContent('#focus-doc .ff .ff-prepared'), 'researched before the demo');
+  assert.match(await p.textContent('#focus-doc .ff .ff-claim'), /A third \(33%\) of UK adults/);
+  assert.strictEqual(await p.getAttribute('#focus-doc .ff a.ff-src', 'href'), 'https://example.org/report');
+  assert.match(await p.textContent('#focus-doc .ff .ff-src-site'), /Bakery Business · read 2026-11-14/);
+  await p.locator('#focus-doc .fd-input').fill("It's really for the regulars.");
+  await p.keyboard.press('Enter');
+  await p.waitForTimeout(400);
+  assert.deepStrictEqual(posts.find(x => x[0] === 'answer'), ['answer', { askId: 'first', text: "It's really for the regulars." }], 'Focus 1 is a meeting: her answer goes to /answer');
+  await p.evaluate(() => {
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
+    d({ type: 'answer', askId: 'first', text: "It's really for the regulars." });
+    d({ type: 'reshape', askId: 'first', text: "It's really for the regulars." });
+    d({ type: 'flow.reset', by: 'design', reason: 'reshape' });
+    d({ type: 'sketch.user', id: 'u1', label: 'Morning regulars' });
+    d({ type: 'sketch.user', id: 'u2', label: 'The bakers' });
+    d({ type: 'sketch.done', seat: 'design', ms: 10, reshape: true });
+    d({ type: 'decided', id: 'first-d1', seat: 'design', by: 'Mika', decision: 'Home', choice: 'Their usual loaf one tap away', cites: 'her answer', follows: 'first', round: 'first' });
+    d({ type: 'decided', id: 'first-d2', seat: 'engineering', by: 'Bo', decision: 'Holds', choice: 'Held until 10am', cites: 'her answer', follows: 'first', round: 'first' });
+    d({ type: 'first.done', askId: 'first', decided: 2, reshaped: true });
+    d({ type: 'takeaways', askId: 'first', believe: 'Regulars first.', guidance: 'Their usual loaf one tap away.' });
+  });
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 4000, 'her takeaways', null, p);
+  // The cascade waits for her: nothing settles while her document covers the room.
+  assert.strictEqual(await p.locator('.team-space .ts-card[data-kind="first"][data-state="closed"]').count(), 0, 'no cascade behind her document');
+  await p.keyboard.press('Escape');
+  await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room', null, p);
+  assert.strictEqual(await p.textContent('.fs-bar .fs-user.main'), 'Morning regulars');
+  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user.later').allTextContents(), ['Weekend pastry crowd']);
+  await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 5000, 'settled in the team space', null, p);
+  assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
+  assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');
+  assert.strictEqual(await p.locator('.mini-sheet li[data-state="decided"]').count(), 2, 'and on their sketchpads');
+  // Focus 2: Mika's rough morning journey in words; her answer; Mika rewrites the step it changes.
+  const steps = [{ step: 1, time: '7:05', text: 'Sam leaves for work' }, { step: 2, time: '7:10', text: 'Sam reserves the usual on the bus' }, { step: 3, time: '7:40', text: 'Sam picks it up, still warm' }];
+  await p.evaluate(st => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'feel', feel: true, seat: 'design', by: 'Mika', question: 'What should this feel like for a regular?',
+    artifact: { kind: 'journey-words', ref: 'feel' }, steps: st, decisionIds: [] }, 'live'), steps);
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'feel', 4000, 'Focus 2 in her inbox', null, p);
+  await p.keyboard.press('PageDown');
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'feel', 3000, 'Focus 2 open', null, p);
+  assert.strictEqual(await p.getAttribute('#focus-doc', 'data-doc'), 'journey-words');
+  assert.deepStrictEqual(await p.locator('#focus-doc .jw .jw-step').evaluateAll(ls => ls.map(l => l.dataset.state)), ['draft', 'draft', 'draft']);
+  assert.match(await p.textContent('#focus-doc .jw-step[data-step="2"]'), /7:10[\s\S]*reserves the usual/);
+  await p.evaluate(st => BYOC.dispatch({ run: 'stub-run', type: 'journey.words.rewritten', id: 'feel', steps: st.map(x => x.step === 2 ? { ...x, new: 'Sam does nothing: the usual is already held' } : x) }, 'live'), steps);
+  await waitFor(() => document.querySelector('#focus-doc .jw-step[data-step="2"]')?.dataset.state === 'rewritten', 3000, 'Mika rewrote it', null, p);
+  assert.strictEqual(await p.textContent('#focus-doc .jw-step[data-step="2"] s'), 'Sam reserves the usual on the bus');
+  assert.strictEqual(await p.textContent('#focus-doc .jw-step[data-step="2"] .jw-new'), 'Sam does nothing: the usual is already held');
+  assert.strictEqual(await p.evaluate(() => BYOC.beat), 4, 'the beat never moved');
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
 test('2. the live path in stage mode (the bakery), driven like a clicker, as far as her document', async () => {
   // From her empty paper name tag, the clicker moves on without a line (her file keeps both prepared lines).
   await page.keyboard.press('PageDown');
@@ -232,45 +311,16 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   RUN = await page.evaluate(() => BYOC.run);
   await waitFor(() => BYOC.events().some(e => e.type === 'sketch.done'), 30000, 'the first sketch');
   await waitFor(() => document.querySelectorAll('#her-flow .fl-box').length >= 2, 5000, 'the journey on her sheet');
-  await page.waitForTimeout(800);
-  await page.locator('#her-input').focus();
-  // The clicker's forward button from her empty input: the team goes.
-  await page.keyboard.press('PageDown');
-  await waitFor(() => BYOC.beat >= 5, 2000, 'the team works beat');
-  // No paperwork in the room: while the team works normally, no step line or seconds (only a slow call shows one).
-  await page.waitForTimeout(2000);
-  assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'no step line while the team works');
-  await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');
-  const evs = await page.evaluate(() => BYOC.events());
-  assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
-  const asks = evs.filter(e => e.type === 'ask');
-  assert.ok(asks.length >= 1 && asks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks, got ${asks.length}`);
-  await page.waitForTimeout(1200);
-  assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
-  assert.ok(await onScreen('#her-flow .fl-box'), 'her flow is on screen at 1280x720');
-  // The room: nothing opens by itself, nothing on her flow asks her anything; her questions wait in the tray at her
-  // seat ~1 s after the pause: "<Name> · <Seat>" and a few words, in the teammate's ink, no number, no "waiting".
-  assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), 0, 'no forks or pins on her flow');
-  assert.ok(!(await page.evaluate(() => BYOC.focusDoc.isOpen())), 'nothing opens by itself');
-  await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox at her seat');
-  const notes = await page.locator('#inbox [data-part="needs"] .inbox-item').allTextContents();
-  assert.strictEqual(notes.length, asks.length, 'one note per question');
-  for (const t of notes) assert.match(t.replace(/\s+/g, ' ').trim(), /^(\w+ · )?(Design|Data|Research|Strategy|Engineering|Product) ?.+\?$/i, `a note's face: ${t}`);
-  assert.ok(!(await page.locator('#inbox').textContent()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
-  // Her focus: the clicker opens the top note; the view becomes just her and that one document.
-  const top = await page.locator('#inbox .inbox-now').getAttribute('data-ask');
-  await page.keyboard.press('PageDown');
-  await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
-  assert.strictEqual(await page.evaluate(() => BYOC.focusDoc.openId()), top, 'the top note opened');
-  assert.strictEqual(await page.evaluate(() => BYOC.beat), 6, 'the beat did not move');
-  assert.ok(await page.evaluate(() => document.body.classList.contains('focus-open')), 'body.focus-open');
-  assert.ok(!(await page.isVisible('.seat-design .card')), 'the room is gone from view');
-  assert.ok(!(await page.isVisible('#inbox')), 'and so is her inbox');
-  assert.ok(await page.isVisible('#focus-doc .fd-work'), 'the work, large');
+  // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
+  await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
+  assert.match(await page.textContent('#inbox .inbox-now'), /Noor · Research[\s\S]*Who should we build this for/);
+  await page.keyboard.press('PageDown'); // the clicker opens it
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
+  assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
+  assert.match(await page.textContent('#focus-doc .ff-claim'), /A third \(33%\) of UK adults who visit artisan bakeries/);
+  assert.match(await page.getAttribute('#focus-doc a.ff-src', 'href'), /^https:\/\/bakerybusiness\.com\//);
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
-  const ask = asks.find(a => a.id === top);
-  assert.strictEqual((await page.textContent('#focus-doc .fd-question')).trim(), (ask.question || ask.decision).trim(), 'its one question');
-  assert.strictEqual(await page.locator('#focus-doc .fl-opt, #focus-doc .fl-yours, #focus-doc .is-dropped').count(), 0, 'no options, no YOUR CALL, no strike-through');
   // Readable at both sizes: the question >= 18 px at 1280x720 and >= 22 px at 1600x900, rendered.
   for (const [w, hgt, floor] of [[1280, 720, 18], [1600, 900, 22]]) {
     await page.setViewportSize({ width: w, height: hgt }); await page.waitForTimeout(300);
@@ -280,27 +330,56 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
     assert.ok(await onScreen('#focus-doc'), `the document fits the screen at ${w}x${hgt}`);
   }
   await page.setViewportSize({ width: 1280, height: 720 }); await page.waitForTimeout(200);
-  // She says her piece; it lands on the document and is logged as her answer.
-  await page.locator('#focus-doc .fd-input').fill('Knowing their spot is theirs. My regulars do the same class every week and hate hunting for it.');
+  await page.locator('#focus-doc .fd-input').fill("It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.");
   await page.keyboard.press('Enter');
-  await waitFor(id => BYOC.events().some(e => e.type === 'answer' && e.askId === id), 8000, 'her answer logged', top);
-  assert.match(await page.textContent('#focus-doc .fd-said'), /Knowing their spot is theirs/);
-  // The team chimes in, then her takeaways show in the document: what I believe / guidance to the team.
-  await waitFor(() => document.querySelectorAll('#focus-doc .chime').length >= 1, 30000, 'a chime-in');
-  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 30000, 'her takeaways');
-  assert.ok((await page.textContent('#focus-doc .brief-believe .brief-text')).trim().length > 0, 'what I believe');
-  assert.ok((await page.textContent('#focus-doc .brief-guidance .brief-text')).trim().length > 0, 'guidance to the team');
-  assert.strictEqual(await page.locator('#focus-doc .brief-why').count(), 0, 'no "why" part');
-  assert.strictEqual(await page.getAttribute('#focus-doc', 'data-state'), 'takeaways');
-  // Closing it brings the room back; the tray holds the rest.
+  // A real meeting (her takeaways), and alongside it the journey redraws and a run of decisions settles.
+  await waitFor(() => BYOC.events().some(e => e.type === 'first.done'), 40000, 'Focus 1 followed');
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 40000, 'her takeaways');
+  const first = await page.evaluate(() => BYOC.events().filter(e => e.type === 'decided' && e.round === 'first'));
+  console.log('first decision:', first.map(d => `${d.by}: ${d.choice}`).join(' | '));
+  assert.ok(first.length >= 3, `a run of decisions, got ${first.length}`);
+  assert.ok(first.every(d => d.cites === 'her answer' && d.follows === 'first' && d.by), 'each cites her answer, with its teammate');
+  assert.ok(!first.some(d => /\bphone\b/i.test(d.choice) && !/\bno\b/i.test(d.choice)), 'no phone field brought back');
+  assert.ok(await page.evaluate(() => BYOC.events().some(e => e.type === 'reshape' && e.askId === 'first')), 'Design redrew the journey from her answer');
   await page.keyboard.press('Escape');
-  await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room');
+  await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
+  await waitFor(n => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length >= n, 8000, 'the cascade settled in the team space', first.length);
+  // 2. A quick unblock (builder 1's card): Bo's blocked on when orders close; the clicker opens it, Enter says Yes.
+  await waitFor(() => /^u-engineering/.test(document.querySelector('#inbox .inbox-now')?.dataset.ask || ''), 12000, 'the unblock in her inbox');
+  await page.keyboard.press('PageDown');
+  await waitFor(() => document.activeElement?.classList.contains('ia-yes'), 3000, 'Yes, ready');
+  assert.match(await page.textContent('#inbox .inbox-action'), /when do orders close\?[\s\S]*8pm the night before/i);
+  await page.keyboard.press('Enter');
+  await waitFor(() => BYOC.events().some(e => e.type === 'decided' && e.unblock && e.choice === '8pm the night before'), 5000, 'her yes, decided');
+  // 3. Focus 2 (DEMO 1:08): Mika's rough morning journey in words; she says what it should feel like; Mika rewrites.
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'feel', 30000, 'Focus 2 in her inbox');
+  await page.keyboard.press('PageDown');
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'feel', 3000, 'Focus 2 open');
+  assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'journey-words');
+  const n = await page.locator('#focus-doc .jw-step').count();
+  console.log('Mika\'s morning:', (await page.locator('#focus-doc .jw-step').allTextContents()).join(' | '));
+  assert.ok(n >= 3 && n <= 6, `3 to 6 steps, got ${n}`);
+  assert.strictEqual(await page.locator('#focus-doc .fd-wires, #focus-doc .sk-frame').count(), 0, 'no screens');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in Mika\'s morning');
+  await page.locator('#focus-doc .fd-input').fill("Like the baker already knows you. Don't ask for anything you already know.");
+  await page.keyboard.press('Enter');
+  await waitFor(() => BYOC.events().some(e => e.type === 'journey.words.rewritten'), 40000, 'Mika rewrote the steps');
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 40000, 'her takeaways');
+  assert.ok((await page.textContent('#focus-doc .brief-believe .brief-text')).trim().length > 0, 'what I believe');
+  assert.strictEqual(await page.getAttribute('#focus-doc', 'data-state'), 'takeaways');
+  await page.keyboard.press('Escape');
+  await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
   assert.ok(await page.isVisible('.seat-design .card'), 'the room is back');
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in the room');
-  if (asks.length > 1) {
-    await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox again');
-    assert.strictEqual(await page.evaluate(() => BYOC.inbox.shown.length), asks.length - 1, 'the rest wait in her inbox');
-  }
+  // The team goes; on the stage path the selector brings nothing more: the three were Focus 1, the unblock, Focus 2.
+  await page.locator('#her-input').focus();
+  await page.keyboard.press('PageDown');
+  await waitFor(() => BYOC.beat >= 5, 2000, 'the team works beat');
+  await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');
+  const evs = await page.evaluate(() => BYOC.events());
+  assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
+  assert.deepStrictEqual(evs.filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel'], 'the three, in order');
+  assert.ok(evs.filter(e => e.type === 'ask').length <= MAX_ASKS);
   assert.deepStrictEqual(errors, []);
 });
 

@@ -268,6 +268,14 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
       case 'start': want(id, 'working'); break;
       case 'think': want(id, 'thinking'); break;
       case 'idle':  want(id, 'idle'); break;
+      case 'delighted': if (P[id]) {                      // she said Yes to its ask (painted-living.js: action.yes)
+        P[id].queue = P[id].queue.filter(m => m !== 'delighted');
+        play(id, 'delighted', .35).then(() => {               // at once; the clip smiles from ~1.5 s to ~3.5 s:
+          const v = P[id].cur; if (!v || P[id].mood !== 'delighted') return;   // hold the top of the smile 1.5 s more (~2.75 s in all)
+          const peak = () => { if (P[id].cur !== v) return; if (v.currentTime >= 2.4) { v.pause(); setTimeout(() => { if (P[id].cur === v) v.play().catch(() => {}); }, 1500); } else requestAnimationFrame(peak); };
+          requestAnimationFrame(peak);
+        });
+      } break;   // she said Yes to its ask (painted-living.js: action.yes): at once, and the whole 5 s clip plays
       case 'say':   listening(id); speakWhenOn(id, 'talking', ev.text); want(id, 'talking'); break;
       case 'found': listening(id); speakWhenOn(id, 'note', ev.text); want(id, 'note'); break;
       case 'done':  speakWhenOn(id, 'signature', ev.text); want(id, 'signature');

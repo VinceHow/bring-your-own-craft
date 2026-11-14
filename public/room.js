@@ -411,6 +411,10 @@
   BYOC.takeDiySeat = takeDiySeat;
 
   const thinking = new Set(); // teammates started but with no proposal yet (teammate.thinking)
+  // The stage path (DEMO stage flow): the first decision, one quick unblock and one focus moment reach her; ?path=full
+  // keeps the three focus moments (the run's stagePath setting; lib/first.js).
+  BYOC.stagePath = new URLSearchParams(location.search).get('path') !== 'full';
+  let firstAskedFor = null, firstSettled = 0;
 
   // ---- a teammate's sketchpad, open (seat.open), and her workspace (BYOC.openWorkspace) ----------------
   // A click on a teammate's card or name opens its sketchpad in full: every call it made, with the choice and what it
@@ -592,7 +596,7 @@
     try {
       // Any seat is hers: a craft other than Product travels with the run, with its flex card (the Product path sends nothing new).
       const castBody = BYOC.cast ? { ...(BYOC.cast.craft !== 'diy' ? { craft: BYOC.cast.craft } : {}), ...(BYOC.cast.flex ? { flex: BYOC.cast.flex } : {}) } : {};
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : {}), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       if (BYOC.cast && BYOC.cast.flex && !castBody.flex) postArrive(); // the flex card landed while the run was starting
       status(`run ${r.run}`);
@@ -867,7 +871,7 @@
   function syncFocus() {
     const open = BYOC.focusDoc && BYOC.focusDoc.openId ? BYOC.focusDoc.openId() : null;
     const waiting = [...asks.values()].filter(a => !answeredIds.has(a.id) && a.id !== open)
-      .map(a => ({ id: a.id, seat: a.seat, by: a.by || null, question: askText(a) }));
+      .map(a => ({ id: a.id, seat: a.seat, by: a.by || null, question: askText(a), ...(a.unblock ? { unblock: true, suggestion: a.suggestion } : {}) }));
     BYOC.focus = { open, waiting };
     renderTray();
     renderStep();
@@ -876,6 +880,7 @@
   BYOC.asks = () => [...asks.values()];
   function openNote(id) {
     const a = asks.get(id);
+    if (a && a.unblock) return BYOC.inbox ? BYOC.inbox.showUnblock(id) : false; // a quick unblock is answered in her inbox
     if (!a || !BYOC.focusDoc) return false;
     BYOC.focusDoc.open(a);
     return true;
@@ -1055,13 +1060,21 @@
         refreshTally();
         break;
       case 'ask': {
-        if (BYOC.beat < 6) stage(6);
+        // The first decision (0:38) and a quick unblock wait in her inbox where she is: neither moves the beat.
+        if (BYOC.beat < 6 && !ev.first && !ev.unblock && !ev.feel) stage(6); // Act 2's three wait in her inbox where she is
+        // An empty input she isn't using shouldn't hold them back (the inbox waits while she types).
+        if ((ev.first || ev.unblock || ev.feel) && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
         const it = findItem(ev.id); if (it) it.classList.add('brought');
         asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
         break;
       }
       case 'decided': {
+        if (ev.round === 'first' && el.seat[ev.seat]) { // settled by her first answer: lands with its teammate, staggered
+          const i = firstSettled++;
+          const land = () => { sheetAdd(ev.seat, ev.id, ev.choice); const it = findItem(ev.id); if (it) it.dataset.state = 'decided'; }; // and a card in the team space (team-space.js)
+          if (instantMode || source !== 'live') land(); else setTimeout(land, i * 450);
+        }
         const it = findItem(ev.id);
         if (it) { let c = it.querySelector('.cite'); if (!c) { c = h('span', 'cite'); it.append(' ', c); } c.textContent = `\u00b7 ${ev.cites}`; }
         refreshTally();
@@ -1090,6 +1103,32 @@
       case 'chatter':
         chat(ev);
         break;
+      // The first decision (lib/first.js): once Design's first sketch is down, "Who is this really for?" is asked from
+      // its shape and lands in her inbox like any ask. Her answer redraws the journey and settles a run of decisions,
+      // each with its teammate: a line on its sketchpad and a word under its card, one after another.
+      case 'sketch.done':
+        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) {
+          firstAskedFor = BYOC.run;
+          BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
+        }
+        break;
+      case 'first.done': {
+        // On Design's redrawn sketch: the user type her answer picked (.fs-user.main, the first Design drew) and the
+        // ones set aside (.fs-user.later, struck through); her words show as .fs-said (public/first-sketch.js).
+        const list = document.querySelector('.fs-bar .fs-users');
+        const at = seen.findIndex(x => x.type === 'reshape' && x.askId === ev.askId);
+        if (ev.reshaped && list && at > 0) {
+          const now = [...list.querySelectorAll('.fs-user:not(.later)')];
+          now.forEach((u, i) => u.classList.toggle('main', i === 0));
+          const norm = t => String(t || '').trim().toLowerCase();
+          const kept = new Set(now.map(u => norm(u.textContent)));
+          for (const e of seen.slice(0, at)) if (e.type === 'sketch.user' && !kept.has(norm(e.label)) && !list.querySelector(`.fs-user.later[data-user="${CSS.escape(e.id || '')}"]`)) {
+            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
+          }
+        }
+        emit('first.settled', { askId: ev.askId, decided: ev.decided });
+        break;
+      }
       case 'teammate.error':
         sheetStep(ev.seat, '', 'error');
         if (source === 'live') teamProgress();
@@ -1360,6 +1399,7 @@
     setSheetOpen(false);
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
+    firstAskedFor = null; firstSettled = 0;
     BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
     delete el.room.dataset.herSeat; BYOC.herSeat = null; castAsk++; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; BYOC.castP = null;
     el.room.querySelectorAll('.late-note').forEach(n => n.remove());

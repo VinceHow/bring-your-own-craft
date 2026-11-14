@@ -151,6 +151,14 @@
         h.dispatch({ type: 'owner.task', id: 'g-t1', title: 'Make a Stripe account for the studio', steps: ['Sign up with the studio email', 'Confirm the email', 'Tell the team it’s done'] });
         await wait(300); h.B.inbox.expand(true); await wait(200); } },
     ] },
+    { name: 'inbox-action', sel: '#inbox article.inbox-action', note: 'A quick unblock (DEMO 0:50): always a named teammate blocked; Yes takes the suggestion, or "Say something else" (her words replace it).', states: [
+      { state: 'asking', src: F + ' + ' + S, run: async h => { if (!h.B.inbox || !h.B.inbox.showUnblock) throw new Error('missing: quick unblocks are not on this branch yet'); h.play('fixture', { until: ev => ev.type === 'ask' });
+        h.dispatch({ type: 'ask', id: 'g-u1', unblock: true, seat: 'engineering', by: 'Bo', question: 'When do orders close?', decision: 'When do orders close.', suggestion: '8pm the night before', doing: 'Setting up ordering', topic: 'Orders close', kind: 'call' });
+        await wait(300); h.B.inbox.showUnblock('g-u1'); await wait(200); } },
+      { state: 'speaking', src: F + ' + ' + S, run: async h => { if (!h.B.inbox || !h.B.inbox.showUnblock) throw new Error('missing: quick unblocks are not on this branch yet'); h.play('fixture', { until: ev => ev.type === 'ask' });
+        h.dispatch({ type: 'ask', id: 'g-u1', unblock: true, seat: 'engineering', by: 'Bo', question: 'When do orders close?', decision: 'When do orders close.', suggestion: '8pm the night before', doing: 'Setting up ordering', topic: 'Orders close', kind: 'call' });
+        await wait(300); h.B.inbox.showUnblock('g-u1'); await wait(200); h.doc.querySelector('.ia-say').click(); const p = h.doc.querySelector('.ia-hers'); if (p) { p.textContent = 'Seven the night before. We start baking at four.'; p.dispatchEvent(new Event('input', { bubbles: true })); } await wait(150); } },
+    ] },
     { name: 'focus-doc', sel: '#focus-doc', states: [
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },
       { state: 'answered (her words placed by the gallery; data-state stays as the code left it)', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); } },
