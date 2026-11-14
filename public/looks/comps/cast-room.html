@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>The studio, alive</title>
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-style: normal; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --serif: 'Newsreader', Georgia, serif;
+  --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #3A2A1E; --ink-2: #6B5644; --paper: #FFF8EC; --edge: rgba(92,62,38,.28);
+  --design: #3F5A8C; --research: #C8643F; --data: #6F9273; --strategy: #B68A2E; --engineering: #C9A227;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1E15; }
+body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #E9D2AE; }
+
+/* The painted room, pixel-aligned with the cast: everything inside .scene is in source pixels (2752 x 1536) */
+.scene { position: absolute; left: -6.25px; top: 0; width: 2752px; height: 1536px; transform-origin: 0 0; transform: scale(.5859375); }
+.scene > img.room { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* afternoon light: one slow warm breath from the window, nothing flickers */
+.sun { position: absolute; left: 0; top: 0; width: 1500px; height: 1300px; pointer-events: none; mix-blend-mode: soft-light;
+  background: radial-gradient(60% 55% at 22% 22%, rgba(255,214,140,.75), rgba(255,214,140,0) 70%); opacity: .55; }
+.mote { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: rgba(255,240,200,.85); filter: blur(1.2px); pointer-events: none; opacity: 0; }
+.bulb { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,226,150,.75), rgba(255,216,130,0) 65%); mix-blend-mode: screen; opacity: .5; }
+.steam { position: absolute; width: 40px; height: 90px; pointer-events: none; overflow: visible; }
+.steam path { fill: none; stroke: rgba(255,255,255,.7); stroke-width: 4; stroke-linecap: round; opacity: 0; }
+
+/* teammates: who (place) > lean (glances) > breath (own pace) > frames */
+.who { position: absolute; }
+.lean, .breath { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.who img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; user-select: none; -webkit-user-drag: none; }
+.who img.base { opacity: 1; }
+.cat { cursor: pointer; }
+
+/* a line said aloud: small paper slip near the speaker, never addressed to her */
+.say { position: absolute; z-index: 5; padding: 10px 15px 11px; background: var(--paper); border-radius: 14px;
+  box-shadow: 0 1px 0 var(--edge), 0 10px 24px -14px rgba(60,36,18,.55); opacity: 0; pointer-events: none; transform-origin: var(--ox, 50%) 100%; }
+.say::after { content: ''; position: absolute; bottom: -7px; left: var(--tail, 50%); width: 14px; height: 14px; margin-left: -7px; background: var(--paper); transform: rotate(45deg); border-radius: 0 0 3px 0; }
+.say .n { display: flex; align-items: center; gap: 6px; font: 500 13px/1 var(--sans); color: var(--ink-2); margin-bottom: 5px; }
+.say .n i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.say p { margin: 0; font: 400 19px/1.25 var(--serif); color: var(--ink); white-space: nowrap; }
+
+/* her seat: the empty chair nearest us */
+.seat { position: absolute; left: 651px; top: 762px; padding: 5px 12px 6px; border-radius: 999px; background: rgba(255,248,236,.9); box-shadow: 0 6px 14px -8px rgba(60,36,18,.6);
+  font: italic 400 16px/1 var(--serif); color: var(--ink-2); opacity: 0; pointer-events: none; }
+.purr { position: absolute; font: italic 400 18px/1 var(--serif); color: var(--ink); opacity: 0; pointer-events: none; text-shadow: 0 0 8px rgba(255,248,236,.9); }
+
+html.still *, html.still *::before, html.still *::after { transition: none !important; animation: none !important; }
+</style>
+</head>
+<body>
+<div class="canvas" id="canvas">
+  <div class="scene" id="scene">
+    <img class="room" src="../cast/room-afternoon.webp" alt="">
+    <div class="sun" id="sun"></div>
+
+    <div class="who cat" id="cat" style="left:550px;top:1170px;width:340px;height:225px" title="Pet the cat">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/cat.webp" alt=""><img class="pet" src="../cast/cat-pet.webp" alt=""></div></div>
+    </div>
+    <div class="who" id="noor" style="left:985px;top:540px;width:360px;height:340px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/noor.webp" alt=""><img class="blink" src="../cast/noor-blink.webp" alt=""><img class="sig" src="../cast/noor-sig.webp" alt=""></div></div>
+    </div>
+    <div class="who" id="theo" style="left:1345px;top:585px;width:190px;height:225px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/theo.webp" alt=""><img class="blink" src="../cast/theo-blink.webp" alt=""><img class="sig" src="../cast/theo-sig.webp" alt=""></div></div>
+    </div>
+    <div class="who" id="ines" style="left:1580px;top:515px;width:350px;height:330px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/ines.webp" alt=""><img class="blink" src="../cast/ines-blink.webp" alt=""><img class="sig" src="../cast/ines-sig.webp" alt=""></div></div>
+    </div>
+    <div class="who" id="mika" style="left:670px;top:590px;width:370px;height:570px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/mika.webp" alt=""><img class="blink" src="../cast/mika-blink.webp" alt=""><img class="work" src="../cast/mika-work.webp" alt=""><img class="sig" src="../cast/mika-sig.webp" alt=""></div></div>
+    </div>
+    <div class="who" id="bo" style="left:1855px;top:695px;width:405px;height:440px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/bo.webp" alt=""><img class="sig" src="../cast/bo-sig.webp" alt=""></div></div>
+    </div>
+  </div>
+  <div class="seat" id="seat">her seat</div>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+(() => {
+  const still = new URLSearchParams(location.search).get('still') === '1';
+  if (still) document.documentElement.classList.add('still');
+  const { animate } = window.Motion;
+  const S = 0.5859375, OX = -6.25;                  // scene px -> page px
+  const $ = (s, r = document) => r.querySelector(s);
+  const scene = $('#scene'), canvas = $('#canvas');
+  const spring = (d = .7) => ({ type: 'spring', bounce: 0, duration: d });
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  // Who they are, in motion. Breath: period (s) and depth. Blink: gap range (s) and how long the lids stay down.
+  const CAST = {
+    mika: { name: 'Mika', c: 'var(--design)',      breath: [2.6, .016], blink: [2.4, 4.2, 110], head: [205, 18] },
+    noor: { name: 'Noor', c: 'var(--research)',    breath: [3.6, .012], blink: [4, 6.5, 140],   head: [180, 30] },
+    theo: { name: 'Theo', c: 'var(--data)',        breath: [3.1, .010], blink: [5.5, 7.5, 100], head: [95, 20] },
+    ines: { name: 'Ines', c: 'var(--strategy)',    breath: [4.6, .011], blink: [5, 8, 220],     head: [150, 25] },
+    bo:   { name: 'Bo',   c: 'var(--engineering)', breath: [5.2, .014], blink: null,            head: [175, 20], side: 'right' },
+  };
+  const el = id => $('#' + id);
+  const frame = (id, f) => $('img.' + f, el(id));
+
+  // Show one frame of a teammate (base underneath always stays, so a swap never shows the room through)
+  function show(id, f, ms = 0) {
+    const w = el(id);
+    w.querySelectorAll('img:not(.base)').forEach(img => {
+      const on = img.classList.contains(f);
+      if (ms) animate(img, { opacity: on ? 1 : 0 }, { duration: ms / 1000, ease: [.3, 0, .2, 1] });
+      else img.style.opacity = on ? 1 : 0;
+    });
+  }
+
+  // --- the end state (?still=1): Bo has said it, Ines answers, everyone has turned to listen
+  if (still) {
+    say('bo', 'Orders after 8pm miss the morning bake.', true, 0);
+    say('ines', 'Then a cut-off, and say it plainly.', true, 1);
+    glanceAt('ines', true);
+    $('#seat').style.opacity = 1;
+    return;
+  }
+
+  // Breathing: each at its own pace, never in sync
+  for (const [id, c] of Object.entries(CAST)) {
+    const [p, d] = c.breath;
+    $('.breath', el(id)).animate(
+      [{ transform: 'scale(1,1)' }, { transform: `scale(${1 - d * .35},${1 + d})` }],
+      { duration: p * 500, direction: 'alternate', iterations: Infinity, easing: 'cubic-bezier(.45,0,.55,1)', delay: -rnd(0, p * 1000) });
+  }
+  // The cat sleeps deeper and slower
+  $('.breath', el('cat')).animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.012,1.03)' }],
+    { duration: 2600, direction: 'alternate', iterations: Infinity, easing: 'cubic-bezier(.45,0,.55,1)' });
+
+  // Blinking at each one's rhythm (Bo's eyes are already half-lidded: Bo doesn't blink, Bo rests)
+  const busy = {};
+  for (const [id, c] of Object.entries(CAST)) {
+    if (!c.blink) continue;
+    const [a, b, hold] = c.blink;
+    (async function loop() {
+      await wait(rnd(a, b) * 1000 * (Math.random() < .5 ? .4 : 1));
+      for (;;) {
+        if (!busy[id]) {
+          frame(id, 'blink').style.opacity = 1; await wait(hold); frame(id, 'blink').style.opacity = 0;
+          if (id === 'mika' && Math.random() < .3) { await wait(160); frame(id, 'blink').style.opacity = 1; await wait(hold); frame(id, 'blink').style.opacity = 0; }
+        }
+        await wait(rnd(a, b) * 1000);
+      }
+    })();
+  }
+
+  // Working: Mika scribbles in bursts (tongue out), the rest of the time just draws
+  (async function mikaWork() {
+    await wait(1200);
+    for (;;) {
+      if (!busy.mika) {
+        busy.mika = 'work'; show('mika', 'work', 280);
+        const j = $('.lean', el('mika')).animate([{ translate: '0 0' }, { translate: '1.5px -1px' }, { translate: '-1px .5px' }, { translate: '0 0' }],
+          { duration: 360, iterations: 7, easing: 'linear' });
+        await wait(2600); j.cancel(); show('mika', 'base', 320); busy.mika = null;
+      }
+      await wait(rnd(5500, 8500));
+    }
+  })();
+
+  // Ines: slow sip, cup rises a little with the breath. Noor: reading, a tiny page-turn nod.
+  (async function noorRead() {
+    for (;;) {
+      await wait(rnd(7000, 10000));
+      if (!busy.noor) await animate($('.lean', el('noor')), { rotate: [0, -1.4, 0], y: [0, 4, 0] }, { duration: 1.6, ease: 'easeInOut' });
+    }
+  })();
+  (async function theoTidy() {
+    for (;;) {
+      await wait(rnd(8000, 12000));
+      if (!busy.theo) await animate($('.lean', el('theo')), { y: [0, -5, 0, -3, 0] }, { duration: 1.1, ease: 'easeInOut' });
+    }
+  })();
+
+  // Signature moves: crossfade into the pose, hold, settle back
+  async function signature(id, hold = 2400) {
+    if (busy[id] && busy[id] !== 'talk') return;
+    const was = busy[id]; busy[id] = 'sig';
+    show(id, 'sig', 420);
+    if (id === 'theo') animate($('.lean', el(id)), { rotate: [0, 0, 2, 0] }, { duration: 1.6, delay: .5 });
+    await wait(hold);
+    show(id, 'base', 520); await wait(520); busy[id] = was === 'talk' ? 'talk' : null;
+  }
+
+  // A line said aloud, near the speaker
+  function headPoint(id) {
+    const w = el(id), [hx, hy] = CAST[id].head;
+    return [(w.offsetLeft + hx) * S + OX, (w.offsetTop + hy) * S];
+  }
+  function say(id, text, instant, stack = 0) {
+    const [x, y] = headPoint(id);
+    const b = document.createElement('div');
+    b.className = 'say';
+    b.style.setProperty('--c', CAST[id].c);
+    b.innerHTML = `<div class="n"><i></i>${CAST[id].name}</div><p></p>`;
+    b.querySelector('p').textContent = text;
+    canvas.appendChild(b);
+    const w = b.offsetWidth, h = b.offsetHeight;
+    const anchor = CAST[id].side === 'right' ? x - 34 : x - w * .5;
+    let left = Math.max(16, Math.min(1600 - 16 - w, anchor));
+    b.style.left = left + 'px'; b.style.top = (y - h - 16) + 'px';
+    const tail = Math.max(20, Math.min(w - 20, x - left));
+    b.style.setProperty('--tail', tail + 'px'); b.style.setProperty('--ox', tail + 'px');
+    if (instant) { b.style.opacity = 1; return b; }
+    animate(b, { opacity: [0, 1], y: [8, 0], scale: [.96, 1] }, spring(.6));
+    return b;
+  }
+  async function unsay(b) { await animate(b, { opacity: 0, y: -4 }, { duration: .5, ease: 'easeOut' }); b.remove(); }
+
+  // Everyone else turns a little toward whoever is talking
+  function glanceAt(id, instant) {
+    const [sx] = headPoint(id);
+    for (const other of Object.keys(CAST)) {
+      if (other === id) continue;
+      const [ox] = headPoint(other), dir = Math.sign(sx - ox);
+      const t = { rotate: dir * (other === 'theo' ? .8 : 1.6), x: dir * 5 };
+      const lean = $('.lean', el(other));
+      if (instant) lean.style.transform = `translateX(${t.x}px) rotate(${t.rotate}deg)`;
+      else animate(lean, t, spring(.9));
+    }
+    // the speaker leans in a touch
+    const lean = $('.lean', el(id));
+    if (instant) lean.style.transform = 'translateY(-4px)'; else animate(lean, { y: -4, rotate: 0, x: 0 }, spring(.7));
+  }
+  function settle() {
+    for (const id of Object.keys(CAST)) animate($('.lean', el(id)), { rotate: 0, x: 0, y: 0 }, spring(1.1));
+  }
+
+  // The room's light chatter, from the demo script; one exchange about every 15 s
+  const EXCHANGES = [
+    [['bo', 'Orders after 8pm miss the morning bake.'], ['ines', 'Then a cut-off, and say it plainly.', 'ines'], ['mika', 'I’ll put 8pm right on the button.', 'mika']],
+    [['noor', 'Found a source on what sells out first.', 'noor'], ['theo', 'Sourdough, gone by ten. Every week.', 'theo'], ['bo', 'I’ll take the booking form.', 'bo']],
+  ];
+  async function exchange(lines) {
+    let prev = null;
+    for (const [id, text, sig] of lines) {
+      busy[id] = busy[id] || 'talk';
+      glanceAt(id);
+      await wait(260);
+      const b = say(id, text);
+      if (sig) signature(id, 2600);
+      if (prev) unsay(prev);
+      await wait(3000);
+      prev = b;
+      if (busy[id] === 'talk') busy[id] = null;
+    }
+    await wait(600);
+    if (prev) unsay(prev);
+    settle();
+  }
+  (async function chatter() {
+    await wait(1400);
+    for (let i = 0; ; i++) {
+      await exchange(EXCHANGES[i % EXCHANGES.length]);
+      await wait(rnd(5500, 7000));
+    }
+  })();
+
+  // Her seat: named once, quietly, then it stays
+  animate($('#seat'), { opacity: [0, 1] }, { duration: 1.2, delay: 2.2 });
+
+  // Afternoon light
+  animate($('#sun'), { opacity: [.45, .7, .45] }, { duration: 14, repeat: Infinity, ease: 'easeInOut' });
+  const BULBS = [[495,38],[565,73],[651,73],[722,45],[787,22],[873,58],[954,62],[1032,45],[1110,25],[1190,22],[1249,28]];
+  BULBS.forEach(([x, y], i) => {
+    const g = document.createElement('div'); g.className = 'bulb';
+    g.style.left = (x - OX) / S + 'px'; g.style.top = y / S + 'px'; scene.appendChild(g);
+    g.animate([{ opacity: .35 }, { opacity: .6 }], { duration: 3000 + i * 370, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out', delay: -i * 900 });
+  });
+  for (let i = 0; i < 16; i++) {                       // dust drifting in the window light
+    const m = document.createElement('div'); m.className = 'mote'; scene.appendChild(m);
+    const x0 = rnd(260, 900), y0 = rnd(150, 800), dur = rnd(14000, 24000);
+    m.animate([
+      { transform: `translate(${x0}px,${y0}px)`, opacity: 0 },
+      { opacity: rnd(.35, .8), offset: .3 }, { opacity: rnd(.35, .8), offset: .7 },
+      { transform: `translate(${x0 + rnd(60, 160)}px,${y0 - rnd(40, 140)}px)`, opacity: 0 }],
+      { duration: dur, iterations: Infinity, delay: -rnd(0, dur), easing: 'ease-in-out' });
+  }
+  // steam from Bo's coffee and the mug by Mika
+  function steam(x, y) {
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 40 90'); s.setAttribute('class', 'steam');
+    s.style.left = (x - OX) / S - 20 + 'px'; s.style.top = y / S - 90 + 'px';
+    s.innerHTML = '<path d="M20 86 C10 70, 30 58, 20 44 S 12 20, 22 6"/><path d="M26 86 C18 72, 34 62, 26 50 S 20 30, 28 18"/>';
+    scene.appendChild(s);
+    s.querySelectorAll('path').forEach((p, i) => p.animate([
+      { opacity: 0, transform: 'translateY(10px) scaleY(.9)' }, { opacity: .55, offset: .4 }, { opacity: 0, transform: 'translateY(-14px) scaleY(1.1)' }],
+      { duration: 4200, iterations: Infinity, delay: -i * 2100, easing: 'ease-out' }));
+  }
+  steam(1053, 562); steam(697, 528);
+
+  // The cat: pet it and it purrs
+  const cat = el('cat');
+  let petting = false;
+  cat.addEventListener('click', async () => {
+    if (petting) return; petting = true;
+    show('cat', 'pet', 380);
+    const lean = $('.lean', cat);
+    const purr = lean.animate([{ translate: '0 0' }, { translate: '0 -1.2px' }, { translate: '0 0' }], { duration: 90, iterations: 30 });
+    for (let i = 0; i < 3; i++) {
+      const p = document.createElement('div'); p.className = 'purr'; p.textContent = 'prrr';
+      p.style.left = (cat.offsetLeft * S + OX + 60 + i * 34) + 'px'; p.style.top = (cat.offsetTop * S + 10) + 'px';
+      canvas.appendChild(p);
+      animate(p, { opacity: [0, .85, 0], y: [0, -36] }, { duration: 2.2, delay: i * .5, ease: 'easeOut' }).then(() => p.remove());
+    }
+    await wait(2700); purr.cancel(); show('cat', 'base', 600); await wait(600); petting = false;
+  });
+})();
+</script>
+</body>
+</html>
