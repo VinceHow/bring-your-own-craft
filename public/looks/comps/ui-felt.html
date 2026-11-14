@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · Felt and stitch</title>
+<!-- Wide UI exploration (felt). Same content as painted-system.html so directions compare fairly.
+     ?view=parts|room|focus, &still=1 for the settled state. Generated from one shared body; edit the direction's CSS here. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #392A20; --ink-2: #66503F; --ink-3: #85705D;
+  --cream: #F4ECDE; --oat: #E9DDC7; --wool: #DCCCB1; --bark: #4A3426;
+  --mika: #4B6597; --noor: #C8633C; --theo: #7FA58A; --ines: #BF8F3C; --bo: #DDB843; --her: #D3869A; --her-deep: #9E4760;
+  --mika-soft: #D9E0EE; --noor-soft: #F3D8CB; --theo-soft: #DCEADF; --ines-soft: #F0E1C2; --bo-soft: #F6EABE; --her-soft: #F5D6DE;
+  /* felt: fine fibres, a little cloud, nothing shiny */
+  --felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1 .75' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .14 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --puff: inset 0 2px 1px rgba(255,255,255,.45), inset 0 -4px 6px rgba(90,60,30,.10);
+  --rest: 0 1px 2px rgba(60,35,15,.20), 5px 9px 18px -9px rgba(60,35,15,.42);
+  --raised: 0 2px 3px rgba(60,35,15,.20), 8px 15px 28px -12px rgba(60,35,15,.48);
+}
+
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.view { display: none; position: absolute; inset: 0; }
+[data-view="parts"] .v-parts, [data-view="room"] .v-room, [data-view="focus"] .v-focus { display: block; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.abs { position: absolute; }
+button { font: inherit; color: inherit; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.board { position: absolute; inset: 40px 52px; display: grid; grid-template-columns: 400px 1fr; gap: 52px; }
+.board h1 { margin: 0 0 6px; font: 400 38px/1.1 var(--serif); letter-spacing: -.015em; }
+.board .lede { margin: 0 0 26px; font: italic 400 18px/1.4 var(--serif); color: var(--ink-2); }
+.board h2 { margin: 0 0 12px; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+.intro h2 { margin-top: 4px; }
+.inks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 26px; }
+.ink { display: flex; flex-direction: column; gap: 6px; font: 500 13px/1 var(--sans); color: var(--ink-2); }
+.typeset { display: grid; gap: 10px; margin-bottom: 28px; }
+.typeset div { display: flex; align-items: baseline; gap: 14px; }
+.typeset small { width: 80px; flex: none; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+.t-title { font: 400 27px/1.15 var(--serif); letter-spacing: -.01em; }
+.t-her { font: italic 400 19px/1.45 var(--serif); }
+.t-body { font: 400 16px/1.45 var(--serif); }
+.t-label { font: 500 13px/1.2 var(--sans); color: var(--ink-3); letter-spacing: .01em; }
+.parts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; align-content: start; }
+.part { display: flex; flex-direction: column; }
+.part.wide { grid-column: span 2; gap: 0; }
+.part.wide .row + .row { margin-top: 12px; }
+[data-who="mika"] { --c: var(--mika); --soft: var(--mika-soft); } [data-who="noor"] { --c: var(--noor); --soft: var(--noor-soft); }
+[data-who="theo"] { --c: var(--theo); --soft: var(--theo-soft); } [data-who="ines"] { --c: var(--ines); --soft: var(--ines-soft); }
+[data-who="bo"] { --c: var(--bo); --soft: var(--bo-soft); } [data-who="her"] { --c: var(--her); --soft: var(--her-soft); }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 15px 0 7px; border: 0; cursor: pointer; white-space: nowrap; font: 500 15px/1 var(--sans); position: relative; }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 8px; }
+.pill.invite { padding: 0 18px; }
+.btn { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border: 0; cursor: pointer; font: 500 15px/1 var(--sans); position: relative; }
+.tag { display: inline-flex; align-items: center; height: 34px; padding: 0 15px; font: 500 13px/1 var(--sans); color: var(--ink-2); position: relative; z-index: 9; }
+.tag b { font-weight: 500; color: var(--ink); }
+.bubble { position: relative; max-width: 300px; padding: 11px 15px 12px; font: italic 400 16px/1.35 var(--serif); }
+.bubble b { display: block; font: 500 13px/1.2 var(--sans); font-style: normal; margin-bottom: 3px; color: var(--c); filter: brightness(.78); }
+.note { position: relative; width: 240px; padding: 15px 17px 16px; font: 400 16px/1.35 var(--serif); }
+.note .lab { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: var(--ink-2); }
+.note .lab i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.decision { position: relative; padding: 14px 17px 14px; font: 400 16px/1.32 var(--serif); }
+.decision .who { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.decision .marks { display: flex; } .decision .marks i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); margin-right: -5px; }
+.pop { position: relative; padding: 16px 18px 18px; }
+.pop .head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.pop .head .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--c); }
+.pop .head b { font: 500 16px/1 var(--sans); } .pop .head .craft { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pop .t-label { display: block; margin: 10px 0 4px; }
+.pop .on { font: 400 16px/1.32 var(--serif); } .pop .on.small { font-size: 15px; }
+.pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; font: 400 15px/1.32 var(--serif); }
+.pop li { display: grid; grid-template-columns: 12px 1fr; } .pop li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); margin-top: 8px; }
+.sheet { position: relative; display: flex; gap: 22px; align-items: center; padding: 18px 22px; }
+.sheet .sh-text { flex: 1; } .sh-title { font: 400 20px/1.2 var(--serif); margin-top: 4px; }
+.sheet.small { display: block; padding: 15px 17px 16px; } .sheet.small .sh-title { font-size: 17px; margin: 4px 0 12px; }
+.tabs { display: inline-flex; gap: 4px; padding: 4px; position: relative; }
+.tabs span { padding: 8px 14px; font: 500 13px/1 var(--sans); color: var(--ink-2); position: relative; }
+.v-focus .veil { position: absolute; inset: 0; background: rgba(43,31,23,.28); }
+.v-focus .doc { left: 170px; top: 36px; width: 1260px; height: 828px; padding: 46px 56px; display: grid; grid-template-columns: 1fr 370px; gap: 46px; }
+.doc h1 { margin: 6px 0 4px; font: 400 34px/1.15 var(--serif); letter-spacing: -.012em; }
+.doc .q { margin: 26px 0 20px; padding: 20px 24px; font: 400 24px/1.3 var(--serif); position: relative; }
+.doc .main { display: flex; flex-direction: column; }
+.doc .q { margin-top: auto !important; }
+.doc .said { padding: 2px 0 2px 18px; position: relative; font-size: 21px; margin-bottom: 4px; }
+.doc .side { display: flex; flex-direction: column; gap: 12px; }
+.doc .side .bubble { max-width: none; }
+.doc .ta { padding: 16px 18px 17px; position: relative; } .doc .ta p { margin: 4px 0 0; font: 400 17px/1.4 var(--serif); }
+.doc .ta em { display: block; margin-top: 10px; font: 500 13px/1 var(--sans); font-style: normal; color: var(--her-deep); }
+.doc .acts { margin-top: auto; display: flex; gap: 10px; }
+.jr { display: grid; grid-template-columns: 160px repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 2px 2px; } .jr .who { font: 400 15px/1.2 var(--serif); align-self: center; }
+.step { padding: 14px 14px; font: 400 15px/1.25 var(--sans); position: relative; }
+.room-sheet, .room-dec { z-index: 2; }
+.glow { position: absolute; left: 540px; top: 620px; width: 300px; height: 230px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,226,196,.6), rgba(255,214,180,.2) 62%, rgba(255,200,160,0)); mix-blend-mode: screen; }
+
+.v-parts { background-color: var(--oat); background-image: var(--felt); }
+.mat { background: var(--cream); background-image: var(--felt); box-shadow: var(--puff), var(--rest); position: relative;
+  transition: translate .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), scale .18s cubic-bezier(.16,1,.3,1); }
+.abs.mat { position: absolute; }
+button.mat:hover, .note:hover, .decision:hover { translate: 0 -2px; box-shadow: var(--puff), var(--raised); }
+button.mat:active { scale: .97; translate: 0 0; }
+.stitch { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* inks as felt rounds */
+.ink i { display: block; height: 54px; border-radius: 50%; width: 54px; background-color: var(--c); background-image: var(--felt); box-shadow: var(--puff), var(--rest); outline: 1.5px dashed rgba(255,255,255,.6); outline-offset: -7px; }
+/* pills: little cushions */
+.pill { border-radius: 999px; height: 40px; }
+.pill .dot { width: 26px; height: 26px; border-radius: 50%; background-color: var(--c); background-image: var(--felt); box-shadow: inset 0 2px 1px rgba(255,255,255,.35), inset 0 -3px 3px rgba(0,0,0,.12);
+  outline: 1.3px dashed rgba(255,255,255,.7); outline-offset: -5px; flex: none; }
+.pill .agent { border-left: 1.5px dotted rgba(57,42,32,.3); }
+.pill.her { background-color: var(--her); color: #fff; }
+.pill.her .dot { background-color: var(--cream); color: var(--her-deep); display: grid; place-items: center; font: 500 14px/1 var(--serif); outline-color: rgba(211,134,154,.6); }
+.pill.her .agent { color: rgba(255,255,255,.92); border-color: rgba(255,255,255,.5); font: italic 400 14px/1 var(--serif); }
+.pill.invite { color: var(--her-deep); }
+.pill.is-open { box-shadow: var(--puff), 0 0 0 2.5px var(--c), var(--raised); }
+.bubble { border-radius: 20px 22px 22px 8px; }
+/* notes: an embroidered tag with a punched eyelet and its thread */
+.note { border-radius: 18px 18px 22px 18px; padding-right: 30px; }
+.note::after { content: ''; position: absolute; right: 12px; top: 13px; width: 11px; height: 11px; border-radius: 50%; background: var(--oat);
+  box-shadow: inset 1px 2px 2px rgba(60,35,15,.4), 0 0 0 2px var(--c); }
+.note .lab { color: var(--c); filter: brightness(.8); }
+.decision { border-radius: 22px; }
+.decision .marks i { background-color: var(--c); background-image: var(--felt); box-shadow: 0 0 0 2.5px var(--cream); outline: 1px dashed rgba(255,255,255,.7); outline-offset: -4px; }
+.pop { border-radius: 26px; }
+.pop .head .dot { background-color: var(--c); background-image: var(--felt); outline: 1.3px dashed rgba(255,255,255,.7); outline-offset: -5px; }
+.sheet { border-radius: 28px; }
+.tabs { border-radius: 999px; background-color: var(--wool); background-image: var(--felt); box-shadow: inset 0 2px 4px rgba(60,35,15,.22); }
+.tabs span { border-radius: 999px; }
+.tabs span.on { background-color: var(--cream); background-image: var(--felt); color: var(--ink); box-shadow: var(--puff), 0 1px 2px rgba(60,35,15,.25); }
+.btn { border-radius: 999px; background-color: var(--bark); color: var(--cream); }
+.btn.quiet { background-color: var(--cream); color: var(--ink); }
+.tag { border-radius: 999px; }
+.tag.replay { background-color: #E8C878; color: #4A3510; }
+.doc { border-radius: 42px; }
+.doc .q { border-radius: 24px; background-color: var(--oat); background-image: var(--felt); box-shadow: inset 0 2px 5px rgba(60,35,15,.16); }
+.doc .said::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; border-left: 2.5px dashed var(--her); }
+.doc .ta { border-radius: 24px; background-color: var(--her-soft); }
+.step { border-radius: 14px; background-color: #FBF6EC; background-image: var(--felt); box-shadow: var(--puff), 0 1px 2px rgba(60,35,15,.15); }
+.step.hers { background-color: var(--her-soft); }
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"></svg>
+
+
+<div class="canvas" id="c">
+  <!-- ===================== PARTS ===================== -->
+  <section class="view v-parts">
+    <div class="board">
+      <div class="intro">
+        <h1>Felt and stitch</h1>
+        <p class="lede">Soft wool cut to shape and sewn by hand, like the pink cushion. Quiet, tactile, made to last.</p>
+        <h2>Inks</h2>
+        <div class="inks">
+          <span class="ink" data-who="mika"><i></i>Mika</span><span class="ink" data-who="noor"><i></i>Noor</span><span class="ink" data-who="theo"><i></i>Theo</span>
+          <span class="ink" data-who="ines"><i></i>Ines</span><span class="ink" data-who="bo"><i></i>Bo</span><span class="ink" data-who="her"><i></i>Her</span>
+        </div>
+        <h2>Type</h2>
+        <div class="typeset">
+          <div><small>Title</small><span class="t-title">A website for a small bakery</span></div>
+          <div><small>Her words</small><span class="t-her">Bread that’s still warm, and being known.</span></div>
+          <div><small>Body</small><span class="t-body">Orders close at 8pm for the next morning.</span></div>
+          <div><small>Label</small><span class="t-label">Decided by Bo, Ines and Mika</span></div>
+        </div>
+        <h2>Actions and quiet labels</h2>
+        <div class="row"><button class="btn mat">Build it</button><button class="btn quiet mat">Back to the room</button></div>
+        <div class="row" style="margin-top:14px"><span class="tag mat"><b>24</b>&nbsp;handled by your team&nbsp;·&nbsp;<b>3</b>&nbsp;for you</span><span class="tag replay mat">Replay</span></div>
+      </div>
+      <div class="parts">
+        <div class="part wide"><h2>Who’s who: a pill by every head</h2>
+          <div class="row">
+            <button class="pill mat" data-who="mika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="noor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="theo"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="ines"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="bo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+          </div>
+          <div class="row"><button class="pill invite mat" data-who="her">Take your seat</button>
+            <button class="pill her mat" data-who="her"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button></div>
+        </div>
+        <div class="part"><h2>Chatter</h2><div class="bubble mat" data-who="bo"><b>Bo</b>Orders after 8pm miss the morning bake.</div></div>
+        <div class="part"><h2>A note for her</h2><div class="note mat" data-who="noor"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div></div>
+        <div class="part"><h2>Decided together</h2><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
+        <div class="part"><h2>A teammate’s work</h2><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+  <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
+  <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
+        <div class="part wide"><h2>Her sheet</h2><div class="sheet mat"><div class="sh-text"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+  <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div></div>
+  <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROOM ===================== -->
+  <section class="view v-room">
+    <div class="room"></div>
+    <div class="glow"></div>
+    <button class="abs pill mat" data-who="mika" style="left:420px;top:306px"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+    <button class="abs pill mat is-open" data-who="noor" style="left:612px;top:290px"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="theo" style="left:790px;top:322px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+    <div class="abs bubble mat" data-who="bo" style="left:1296px;top:430px;width:262px"><b>Bo</b>Orders after 8pm miss the morning bake.</div>
+    <div class="abs room-sheet" style="left:22px;top:560px;width:340px"><div class="sheet mat small"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+  <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div>
+  <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
+    <div class="abs room-dec" style="left:850px;top:528px;width:240px;rotate:1.5deg"><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
+    <button class="abs pill her mat" data-who="her" style="left:584px;top:616px"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button>
+    <div class="abs note mat" data-who="noor" style="left:806px;top:766px;width:250px;rotate:-2.5deg"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+    <div class="abs" style="left:226px;top:20px;width:372px"><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+  <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
+  <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
+    <span class="abs tag mat" style="right:22px;bottom:18px"><b>24</b>&nbsp;handled by your team&nbsp;·&nbsp;<b>3</b>&nbsp;for you</span>
+    <span class="abs tag replay mat" style="right:22px;top:18px">Replay</span>
+  </section>
+
+  <!-- ===================== FOCUS ===================== -->
+  <section class="view v-focus">
+    <div class="room"></div>
+    <div class="veil"></div>
+    <div class="abs doc mat">
+      <div class="main">
+        <span class="t-label">From Noor and Mika · the rough journey</span>
+        <h1>A website for a small bakery, so customers can order bread ahead.</h1>
+        <div class="jr">
+          <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+          <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span>
+          <span class="who">Weekend crowd</span><span class="step">Browse pastries</span><span class="step">Order by Friday</span><span class="step">Collect Saturday</span>
+        </div>
+        <div class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</div>
+        <div class="said t-her">Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.</div>
+      </div>
+      <div class="side">
+        <span class="t-label">The team</span>
+        <div class="bubble mat" data-who="mika"><b>Mika</b>Love that. Regulars first, their usual loaf one tap away.</div>
+        <div class="bubble mat" data-who="bo"><b>Bo</b>Then we hold it for them till ten.</div>
+        <div class="bubble mat" data-who="ines"><b>Ines</b>Hmm, regulars might want a standing weekly order. Show that first?</div>
+        <div class="ta mat"><span class="t-label">Your takeaways</span>
+          <p>People come for bread that’s still warm, and for being known.</p>
+          <p><em>Guidance</em>Their usual loaf first, one tap away.</p></div>
+        <div class="acts"><button class="btn mat">Send to the team</button><button class="btn quiet mat">Back to the room</button></div>
+      </div>
+    </div>
+    <span class="abs tag replay mat" style="right:22px;top:18px">Replay</span>
+  </section>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+
+const q = new URLSearchParams(location.search);
+const c = document.getElementById('c'); c.dataset.view = q.get('view') || 'parts';
+const still = q.get('still') === '1';
+
+// Every felt piece gets a running stitch just inside its edge. The signature: as a piece arrives, the stitch sews
+// itself around it, starting at the top left and going clockwise, like a hand at work. Drawn in SVG, masked so the
+// dashes appear in sewing order.
+let n = 0;
+function stitch(el, colour) {
+  const w = el.offsetWidth, h = el.offsetHeight, cs = getComputedStyle(el);
+  const r = Math.min(parseFloat(cs.borderTopLeftRadius) || 0, h / 2, w / 2);
+  const inset = el.matches('.pill, .tag, .btn, .step, .tabs span') ? 4.5 : 7;
+  const rx = Math.max(0, r - inset), id = 'st' + (n++);
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'stitch');
+  svg.innerHTML = `<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-4" y="-4" width="${w + 8}" height="${h + 8}"><rect class="rev" x="${inset}" y="${inset}" width="${w - inset * 2}" height="${h - inset * 2}" rx="${rx}" fill="none" stroke="#fff" stroke-width="6" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="${still ? 0 : 1}"/></mask></defs>
+    <rect x="${inset}" y="${inset}" width="${w - inset * 2}" height="${h - inset * 2}" rx="${rx}" fill="none" stroke="${colour}" stroke-width="1.6" stroke-dasharray="5 4.5" stroke-linecap="round" mask="url(#${id})"/>`;
+  el.appendChild(svg);
+  return svg.querySelector('.rev');
+}
+const thread = el => {
+  if (el.matches('.pill.her')) return 'rgba(255,255,255,.75)';
+  if (el.matches('.pill.invite')) return 'var(--her)';
+  if (el.matches('.btn:not(.quiet)')) return 'rgba(244,236,222,.7)';
+  if (el.matches('.note, .bubble, .pop')) return 'var(--c)';
+  if (el.matches('.tag.replay')) return 'rgba(74,53,16,.45)';
+  return 'rgba(57,42,32,.38)';
+};
+const view = c.querySelector('.v-' + c.dataset.view);
+const sewn = new Map();
+view.querySelectorAll('.mat, .step').forEach(el => sewn.set(el, stitch(el, thread(el))));
+const sew = (el, delay = 0) => { const r = sewn.get(el); if (r) Motion.animate(r, { strokeDashoffset: [1, 0] }, { duration: .9 + el.offsetWidth / 900, delay, ease: [.45, .05, .35, 1] }); };
+const arrive = (els, gap = .12) => els.forEach((el, i) => {
+  Motion.animate(el, { opacity: [0, 1], y: [10, 0] }, { type: 'spring', visualDuration: .5, bounce: 0, delay: i * gap });
+  sew(el, i * gap + .15);
+});
+if (!still) {
+  const all = [...view.querySelectorAll(':scope > .mat, :scope > .abs > .mat, .board .mat, .doc, .doc .mat')];
+  all.forEach(el => el.style.opacity = 0);
+  view.querySelectorAll('.step').forEach(el => sew(el, 1));
+  if (c.dataset.view === 'room') {
+    const pick = s => [...view.querySelectorAll(s)];
+    (async () => {
+      const w = ms => new Promise(r => setTimeout(r, ms));
+      await w(400); arrive(pick(':scope > .pill:not(.her)'));
+      await w(900); arrive(pick('.room-sheet .mat, .room-dec .mat'), .4);
+      await w(1100); arrive(pick(':scope > .bubble'));
+      await w(1200); arrive(pick(':scope > .pill.her, :scope > .note'), .5);
+      await w(1300); arrive(pick('.abs > .pop'));
+      arrive(pick(':scope > .tag'), .1);
+    })();
+  } else arrive(all, .07);
+}
+
+</script>
+</body>
+</html>

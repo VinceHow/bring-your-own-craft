@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Focus · the cast</title>
+<link rel="stylesheet" href="lamp.css">
+<link rel="stylesheet" href="journey.css">
+<style>
+/* The cast's world: warm gouache paper, afternoon light. Her focus is one document on the table;
+   the team stays close, small and alive in the margin, and each reacts in its own way when it speaks. */
+:root {
+  --cream: #F6ECDB; --sheet: #FBF5EA; --ink: #3A2C22; --ink-2: #6A5646; --ink-3: #94806C;
+  --rule: rgba(84,58,38,.16); --cushion: #CF6A82; --cushion-soft: rgba(232,170,184,.32);
+  --mika: #44608F; --noor: #C8673F; --theo: #6F9271; --ines: #B98A3E; --bo: #D6AE3A;
+}
+body { background: var(--cream); }
+
+/* ---- the room, as it was a moment ago ---- */
+.room { position: absolute; inset: 0; background: url(../cast/room-afternoon.jpg) center / cover; transform-origin: 46% 78%; }
+
+/* ---- focus: the room softens into warm paper light; no dimming, no spotlight ---- */
+.focus { position: absolute; inset: 0; opacity: 0; }
+.wash { position: absolute; inset: 0; background: url(../cast/room-wash.jpg) center / cover; }
+.wash::after { /* afternoon light from the window, top left; the margin kept quiet so the team reads clearly */
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 18% 10%, rgba(255,232,190,.45), rgba(255,232,190,0) 70%),
+    linear-gradient(to left, rgba(249,242,229,.62), rgba(249,242,229,.5) 28%, rgba(249,242,229,0) 40%); }
+
+.top { position: absolute; left: 96px; right: 40px; top: 0; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+.top .label { color: var(--ink-2); }
+.back { font: 500 14px/1 var(--sans); color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.back::before { content: '←'; font-size: 15px; }
+
+.doc { position: absolute; left: 96px; top: 52px; width: 1010px; height: 820px; padding: 40px 60px 36px; border-radius: 10px;
+  background-color: var(--sheet);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .15 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  box-shadow: 0 1px 0 rgba(120,80,40,.10), 0 10px 24px -10px rgba(110,70,30,.28), 0 34px 60px -30px rgba(110,70,30,.35); }
+
+/* who asked: their faces, tiny */
+.from { display: flex; align-items: center; gap: 4px; }
+.face { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); flex: none; box-shadow: 0 0 0 2px var(--sheet); }
+.face img { width: 100%; height: 100%; display: block; }
+.face + .face { margin-left: -8px; }
+.from .label { margin-left: 8px; }
+.q { margin: 16px 0 0; font: 400 40px/1.14 var(--serif); letter-spacing: -.018em; max-width: 840px; color: var(--ink); }
+
+.work { margin-top: 28px; padding: 20px 24px 22px; border-radius: 8px; background: rgba(255,250,240,.75); border: 1px solid var(--rule);
+  --lane-w: 170px; --row-gap: 12px; --step-size: 15px; }
+.work .cap { display: flex; justify-content: space-between; margin-bottom: 14px; }
+.journey .step { border-radius: 7px; border-color: rgba(84,58,38,.28); background: #FFFBF3; }
+.journey .stage { border-color: var(--rule); }
+
+/* her words */
+.say { position: relative; margin-top: 28px; padding-left: 22px; min-height: 104px; }
+.say::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--cushion); border-radius: 3px;
+  transform-origin: top; transform: scaleY(0); }
+.say.landed::before { transition: transform 600ms var(--settle); transform: scaleY(1); }
+.say .who { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cushion { width: 18px; height: 12px; border-radius: 7px 7px 5px 5px; background: var(--cushion); box-shadow: inset 0 -2px 0 rgba(120,30,50,.18); }
+.say .who .state { margin-left: 2px; color: var(--ink-3); }
+.words { font: 400 23px/1.42 var(--serif); color: var(--ink); max-width: 820px; }
+.words span { opacity: 0; display: inline-block; white-space: pre; }
+.caret { display: inline-block; width: 2px; height: 22px; margin-left: 2px; background: var(--cushion); vertical-align: -3px; opacity: .8; }
+.landed .caret { display: none; }
+.share { position: absolute; right: 60px; bottom: 36px; font: 500 15px/1 var(--sans); color: #FFF8EE; background: var(--ink); border: 0; border-radius: 22px;
+  padding: 13px 20px; box-shadow: 0 6px 14px -6px rgba(60,30,10,.5); }
+
+/* the takeaways: the meeting summed up, in her voice */
+.take { position: absolute; left: 60px; right: 60px; bottom: 36px; padding: 22px 28px 24px; border-radius: 10px; background: #F7E6E0;
+  border: 1px solid rgba(207,106,130,.30); opacity: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; }
+.take .head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; }
+.take .head b { font: 500 15px/1 var(--sans); color: var(--ink); }
+.take .reword { font: 500 14px/1 var(--sans); color: #B0506A; }
+.take h3 { margin: 0 0 4px; font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+.take p { margin: 0; font: italic 400 21px/1.36 var(--serif); color: var(--ink); text-wrap: pretty; }
+.take .line { opacity: 0; }
+
+/* ---- the team, in the margin: small, alive, at the same table ---- */
+.thread { position: absolute; left: 1134px; top: 84px; width: 430px; }
+.thread .h { color: var(--ink-2); margin: 0 0 14px 4px; opacity: 0; }
+.chime { position: relative; display: grid; grid-template-columns: 100px 1fr; column-gap: 16px; align-items: end; margin-bottom: 10px; opacity: 0; }
+.mate { position: relative; height: 118px; width: 100px; }
+.mate::after { /* a soft gouache shadow where it sits */
+  content: ''; position: absolute; left: 14%; right: 14%; bottom: -3px; height: 9px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(110,70,30,.22), rgba(110,70,30,0)); }
+.act, .body { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.body img { position: absolute; bottom: 0; left: 50%; height: 100%; transform: translateX(-50%); transition: none; }
+.body .react { opacity: 0; }
+.note { padding-bottom: 8px; }
+.note .n { font: 500 14px/1.2 var(--sans); color: var(--c); }
+.note p { margin: 4px 0 0; font: 400 18px/1.36 var(--serif); color: var(--ink); text-wrap: pretty; }
+.note .will { margin-top: 4px; font: 400 13px/1.3 var(--sans); color: var(--ink-3); }
+.chime.quiet .mate { height: 92px; }
+
+.chime.quiet .note p { font: 400 15px/1.35 var(--sans); color: var(--ink-2); }
+[data-mate="mika"] { --c: var(--mika); } [data-mate="noor"] { --c: var(--noor); } [data-mate="theo"] { --c: #4F7552; }
+[data-mate="ines"] { --c: #946A28; } [data-mate="bo"] { --c: #A57F15; }
+
+/* the work redraws to her answer */
+.step.now { border-color: var(--cushion) !important; box-shadow: inset 3px 0 0 var(--cushion); background: #FBEAEC !important; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="room" role="img" aria-label="The studio: five teammates around the round table"></div>
+
+  <div class="focus">
+    <div class="wash"></div>
+    <div class="top"><span class="label">A question from Noor and Mika</span><span class="back">Back to the table</span></div>
+    <article class="doc">
+      <div class="from">
+        <span class="face" data-mate="noor" style="--c:#E7B49A"><img src="../cast/noor-face.webp" alt=""></span>
+        <span class="face" data-mate="mika" style="--c:#B9C3D6"><img src="../cast/mika-face.webp" alt=""></span>
+        <span class="label">About the rough journey</span>
+      </div>
+      <h1 class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</h1>
+
+      <div class="work journey-frame">
+        <div class="cap"><span class="label">Rough journey · Noor and Mika</span><span class="label">Who · stages they go through</span></div>
+        <div class="journey">
+          <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
+          <span class="who">Morning regulars</span><span class="step" id="s1">Browse today’s bread</span><span class="step" id="s2">Order with an account</span><span class="step end" id="s3">Collect at opening</span>
+          <span class="who">Weekend pastry crowd</span><span class="step">Browse the pastries</span><span class="step">Order by Friday</span><span class="step end">Collect Saturday</span>
+          <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span>
+        </div>
+      </div>
+
+      <div class="say">
+        <div class="who"><span class="cushion"></span><span class="label" style="color:var(--ink)">Priya</span><span class="label state">speaking</span></div>
+        <div class="words" id="words"></div>
+      </div>
+      <button class="share" type="button">Share with the team</button>
+
+      <section class="take">
+        <div class="head"><b>Takeaways</b><span class="reword">Reword</span></div>
+        <div class="line"><h3>What I believe</h3><p>People come for bread that’s still warm, and for being known.</p></div>
+        <div class="line"><h3>Guidance to the team</h3><p>Their usual loaf first, one tap away. Never ask for what we already know.</p></div>
+      </section>
+    </article>
+
+    <aside class="thread">
+      <p class="h label">Round the table</p>
+      <div class="chime" data-mate="mika"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/mika-rest.webp" alt=""><img class="react" src="../cast/mika-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Mika</span><p>Love that. Regulars first, their usual loaf one tap away.</p><div class="will">Redrawing the regulars’ row</div></div></div>
+      <div class="chime" data-mate="bo"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/bo-rest.webp" alt=""><img class="react" src="../cast/bo-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Bo</span><p>Then we hold it for them till ten. No account needed, I’ll remember them.</p></div></div>
+      <div class="chime" data-mate="noor"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/noor-rest.webp" alt=""><img class="react" src="../cast/noor-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Noor</span><p>Matches what small bakeries report: sourdough’s gone by nine.</p><div class="will">2 sources</div></div></div>
+      <div class="chime" data-mate="ines"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/ines-rest.webp" alt=""><img class="react" src="../cast/ines-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Ines</span><p>Hmm, regulars might want a standing weekly order. Show that first?</p></div></div>
+      <div class="chime quiet" data-mate="theo"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/theo-rest.webp" alt=""><img class="react" src="../cast/theo-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Theo</span><p>Counting who comes before nine</p></div></div>
+    </aside>
+  </div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+(function () {
+  const still = new URLSearchParams(location.search).get('still') === '1';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const text = 'Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.';
+  const words = $('#words');
+  text.split(/(?<= )/).forEach(w => { const s = document.createElement('span'); s.textContent = w; words.appendChild(s); });
+  const caret = document.createElement('i'); caret.className = 'caret'; words.appendChild(caret);
+  const rows = [['#s1','Their usual loaf'],['#s2','One tap, no account'],['#s3','Held till ten']];
+  const mate = n => $(`.chime[data-mate="${n}"]`);
+
+  // Each teammate breathes at its own pace (and Bo slowest of all). Tiny, endless, never in step.
+  const breathe = { mika: 2.7, noor: 3.5, theo: 4.3, ines: 3.9, bo: 5.2 };
+  const startBreathing = () => Object.entries(breathe).forEach(([n, s], i) =>
+    mate(n).querySelector('.body').animate(
+      [{ transform: 'scale(1,1)' }, { transform: 'scale(1.012,.985)' }, { transform: 'scale(1,1)' }],
+      { duration: s * 1000, iterations: Infinity, easing: 'ease-in-out', delay: i * 370 }));
+
+  if (still) {
+    $('.room').style.display = 'none';
+    Object.assign($('.focus').style, { opacity: 1 });
+    $$('.words span').forEach(s => s.style.opacity = 1); $('.say').classList.add('landed'); $('.state').style.opacity = 0;
+    $('.share').style.opacity = 0; $('.thread .h').style.opacity = 1; $$('.chime').forEach(c => c.style.opacity = 1);
+    rows.forEach(([id, t]) => { $(id).textContent = t; $(id).classList.add('now'); });
+    $('.take').style.opacity = 1; $$('.take .line').forEach(l => l.style.opacity = 1);
+    startBreathing();
+    return;
+  }
+
+  // Choreography with the room's own Motion library: springs with no overshoot, so paper settles and never bounces.
+  const { animate, stagger } = window.Motion;
+  const settle = (d = .7) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const glide = { ease: [.45, 0, .15, 1] };
+
+  // Swap to the reaction pose, then (some of them) settle back to rest.
+  const pose = (n, on, d = .35) => {
+    const b = mate(n).querySelector('.body');
+    animate(b.querySelector('.react'), { opacity: on ? 1 : 0 }, { duration: d });
+    animate(b.querySelector('.rest'), { opacity: on ? 0 : 1 }, { duration: d });
+  };
+  // Each one's own way of chiming in
+  const react = {
+    mika: async el => { pose('mika', 1, .2); await animate(el, { rotate: [0, -7], x: [0, -8] }, settle(.35)); await wait(1600);
+      pose('mika', 0, .5); animate(el, { rotate: 0, x: 0 }, settle(.9)); },                                      // leans in fast, pencil ready
+    bo:   async el => { await wait(250); pose('bo', 1, .6); await wait(2300); pose('bo', 0, .9); },             // opens one eye, slowly; back to bliss
+    noor: async el => { pose('noor', 1, .4); await animate(el, { y: [0, -5], rotate: [0, -3] }, settle(.6)); await wait(1900);
+      pose('noor', 0, .6); animate(el, { y: 0, rotate: 0 }, settle(.9)); },                                     // peers over the glasses, holds up a tab
+    ines: async el => { await wait(150); pose('ines', 1, .7); await animate(el, { rotate: [0, -4], x: [0, -4] }, settle(.9)); await wait(2100);
+      pose('ines', 0, .8); animate(el, { rotate: 0, x: 0 }, settle(1)); },                                     // points ahead with a slow, knowing wink
+    theo: async el => { await wait(400); pose('theo', 1, .45); await animate(el, { rotate: [0, 2, 0] }, { duration: .9, ...glide }); await wait(1800);
+      pose('theo', 0, .6); }                                                                                     // holds the one card up, small proud nod
+  };
+  const chime = n => {
+    const c = mate(n), note = c.querySelector('.note');
+    animate(c, { opacity: [0, 1] }, { duration: .5 });
+    animate(c.querySelector('.mate'), { y: [14, 0] }, settle(.7));
+    animate(note, { opacity: [0, 1], y: [10, 0] }, { ...settle(.7), delay: .15 });
+    // the reaction plays on a wrapper so the breathing underneath never stops
+    react[n](c.querySelector('.act'));
+  };
+
+  // The sheet arrives blank and its words follow once it has landed, so no text ghosts over the room.
+  const inked = $$('.doc > :not(.take), .top');
+  inked.forEach(el => el.style.opacity = 0);
+
+  (async () => {
+    startBreathing();
+    await wait(1200);
+    // the room gives way: a slow lean toward her chair, the scene softens into paper light, the page is set down
+    animate('.room', { scale: [1, 1.07] }, { duration: 1.3, ...glide });
+    animate('.room', { opacity: [1, 0] }, { duration: .7, delay: .45, ...glide });
+    animate('.focus', { opacity: [0, 1] }, { duration: .8, delay: .4, ...glide });
+    animate('.wash', { scale: [1.04, 1] }, { duration: 1.4, ...glide });
+    animate('.doc', { y: [36, 0] }, { ...settle(1), delay: .4 });
+    await wait(1250);
+    animate(inked, { opacity: [0, 1] }, { duration: .5, ...glide });
+    await wait(700);
+    // her words land as she says them
+    const ws = $$('.words span');
+    animate(ws, { opacity: [0, 1], y: [5, 0] }, { ...settle(.45), delay: stagger(.115) });
+    await wait(ws.length * 115 + 900);
+    // she shares: the button presses and goes, a rule draws beside her words
+    await animate('.share', { scale: [1, .96, 1] }, { duration: .24 });
+    animate('.share', { opacity: 0 }, { duration: .3 });
+    $('.say').classList.add('landed');
+    animate('.state', { opacity: 0 }, { duration: .3 });
+    await wait(300);
+    animate('.thread .h', { opacity: [0, 1] }, { duration: .5 });
+    // the team chimes in, one after another; the first in under a second
+    chime('mika');
+    await wait(700);
+    // Mika redraws the regulars' row to her answer, box by box
+    rows.forEach(([id, t], i) => setTimeout(() => {
+      const el = $(id);
+      animate(el, { opacity: [1, 0] }, { duration: .18 }).then(() => {
+        el.textContent = t; el.classList.add('now');
+        animate(el, { opacity: [0, 1], y: [4, 0] }, settle(.5));
+      });
+    }, i * 260));
+    await wait(500); chime('bo');
+    await wait(1100); chime('noor');
+    await wait(1100); chime('ines');
+    await wait(1100); chime('theo');
+    await wait(900);
+    // the takeaways: the meeting summed up, in her voice
+    animate('.take', { opacity: [0, 1], y: [14, 0] }, settle(.9));
+    animate('.take .line', { opacity: [0, 1], y: [5, 0] }, { ...settle(.6), delay: stagger(.35, { startDelay: .25 }) });
+  })();
+})();
+</script>
+</body>
+</html>

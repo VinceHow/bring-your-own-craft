@@ -8,11 +8,13 @@ Vincent, in a back-and-forth with the product-owner session; the build lead pric
 written into `DEMO.md` / `BRIEF.md`; the conversation behind it was a few minutes earlier). Times before 12:28 come
 from `docs/DECISIONS.md`.
 
-## The six turns
+## The turns
 
 1. **A tool with a rule** (morning, to ~12:10). We started from a contrast: AI builders guess everything, coding
    agents ask about everything. Our answer was a cap: at most three questions, enforced in code. The baseline proved
-   the point: a default agent asked 0 questions and guessed 22 things about a yoga studio (`docs/baseline/`).
+   the point: a default agent asked 0 questions and guessed its way through a yoga studio (`docs/baseline/`). That
+   count was retired at 16:20, when the demo moved to the bakery: on the bakery prompt it asked 0, guessed 24 and
+   stopped for 20 approvals.
 2. **A room of crafts** (12:28–13:19). The cap became a room. You take the seat of the craft you love and agents fill
    the other seats. She picks her own seat, the team assembles with what each loves and brings, and a Strategy seat is
    added so commercial judges see themselves at the table. Her own card follows, and voice moves into core.
@@ -31,6 +33,17 @@ from `docs/DECISIONS.md`.
    between teammates and land in a team space; the product is just the product. Priya, a product manager, building an
    ordering site for a friend's bakery, is locked in as the persona and the demo idea, and `VISION.md` becomes the
    one-pager every session reads. Vincent declared the vision final at about 15:51.
+
+7. **A painted studio** (17:48–18:54). Within the locked vision, the look settled: a cosy, hand-painted studio in
+   3/4 view, painted creature teammates, a record player she starts herself, ink-paper cards and a night mode. The
+   "Seat open" label went (an invite button is parked in `NEXT.md`), and "Your own craft" moved to her own stool.
+8. **The job it does** (18:56–19:10). Early user feedback reframed the pitch, not the product: most projects don't
+   die from bad ideas, they die in the questions nobody signed up for. The job became "help people with a craft
+   actually get their idea built", and `SUBMISSION.md` was rewritten to lead with it.
+9. **She stays in flow** (19:31–19:37). Her answer became a capture: she speaks in pieces, the team is out of view and
+   quiet until her one Send, and a quick tidy turns her raw words into her own composed note. Only the teammates her
+   words touch reply, often just one. After Send she stays on her page: replies appear briefly beside their pins on
+   the work and fold into them, and the full conversation opens only when she asks.
 
 ## Timeline (UTC)
 
@@ -60,9 +73,22 @@ from `docs/DECISIONS.md`.
 | 15:44 | The bakery is locked in; questions route by her domains |
 | 15:50 | `VISION.md`, the one-pager, for every session to read |
 | ~15:51 | Vision declared final |
+| 16:31 | `NEXT.md`: polish parked until the build is wired up (one question at a time; the room's real timing) |
+| 17:48 | `DEMO.md` timing and order match the build |
+| 17:52 | The painted studio, creature teammates, music she chooses |
+| 17:55 | The "Seat open" label dropped; an invite button parked |
+| 18:54 | Ink-paper UI, night mode, "Your own craft" at her stool |
+| 18:56 | The job it does (pitch framing only) |
+| 19:10 | `SUBMISSION.md` rewritten from `VISION.md`, leading with the job |
+| 19:11 | Milestone 2 candidates ranked in `NEXT.md`, costs from the build lead |
+| 19:31 | Voice tidy-up, and the focus review layout |
+| 19:33 | Chime-ins: only the teammates her words touch reply |
+| 19:35 | Capture: the team out of view and quiet until her one Send |
+| 19:37 | After Send she stays on her page; replies by their pins; the conversation on request |
 
 ## Tried and dropped
 
 A hard "at most three" promise (now a hidden ceiling), forks and pins with a recommendation, the "she overrules once"
-beat, a visible gem, credits and a "decided for you" list, a cancel margin note on the page, a guest chair (kept only if
-time), dimming the room during focus, a yoga studio as the demo idea.
+beat, a visible gem, credits and a "decided for you" list, a cancel margin note on the page, a guest chair (kept only
+if time), dimming the room during focus, a yoga studio as the demo idea, the "Seat open" label, a meeting thread
+always open beside her answer, a round-robin of every teammate replying.

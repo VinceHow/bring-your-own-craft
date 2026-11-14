@@ -4,7 +4,7 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 
 | Key | What it does |
 |---|---|
-| `→` · `PageDown` · `Space` | Next beat (a clicker's forward button). |
+| `→` · `PageDown` · `Space` | Next beat (a clicker's forward button). On her name tag: make it, then meet the team; then one teammate at a time, then the reveal. |
 | `←` · `PageUp` | Previous beat (a clicker's back button). |
 | `Home` · `0` | Reset to the empty room. |
 | `S` | Stage mode: body text 20px and up, no chrome, no help card. |
@@ -13,6 +13,7 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 | `J` | The close: type a judge's idea. |
 | `B` | Build her page (the same as moving on to the build beat). |
 | `F` | Play the fake fixture run, labelled FAKE (for building the room only). |
+| `V` · `` ` `` | Speak into the open field. Hold to talk and release to send, or tap to start and tap again to stop (for a long answer). `Esc` cancels; the mic shows "listening · tap to stop" while a tap is recording. A recording stops at 2 minutes and says so; it never stops silently. `V` only when no field is focused; `` ` `` anywhere. |
 | `Enter` | Back to her input (or the judge's idea, in the close). |
 | `Esc` | Leave the input, so the keys work again. |
 | `?` | Toggle the help card (never in stage mode). |

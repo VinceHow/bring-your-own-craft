@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seat and team · Lamplight</title>
+<link rel="stylesheet" href="lamp.css">
+<style>
+/* Moments 1 and 2: take a seat, then the team walks in. Geometry follows room.html so the end state hands over to the room. */
+.mark { width: 24px; height: 24px; font-size: 13px; }
+
+/* ---- places at the table. An empty place is a blank card, unlit: a ghost of paper on the wood ---- */
+.place { position: absolute; border-radius: 3px; }
+.blank { position: absolute; inset: 0; border-radius: 3px; display: grid; place-items: center;
+  background: rgba(245,238,226,.045); box-shadow: inset 0 0 0 1px rgba(245,238,226,.13), 0 1px 0 rgba(0,0,0,.18);
+  font: italic 400 19px/1 var(--serif); color: rgba(245,238,226,.46);
+  transition: background-color 600ms var(--settle), box-shadow 600ms var(--settle), color 600ms var(--settle), opacity 420ms var(--glide), transform 260ms var(--settle); }
+.blank::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .32; }
+.place.taken .blank { opacity: 0; }
+.p-top { top: 44px; width: 272px; height: 136px; }
+.p-design { left: 64px; } .p-research { left: 364px; } .p-data { left: 664px; } .p-strategy { left: 964px; } .p-engineering { left: 1264px; }
+.p-product { left: 560px; top: 792px; width: 400px; height: 78px; perspective: 1400px; }
+.p-own { left: 988px; top: 792px; width: 232px; height: 78px; }
+.p-own .blank { background: none; box-shadow: none; border: 1px dashed rgba(245,238,226,.24); font-size: 18px; color: rgba(245,238,226,.42); }
+.p-own .blank::before { display: none; }
+/* the hover: the place warms, as if the lamp leaned in */
+.p-product.warm .blank { background: rgba(201,80,111,.13); color: rgba(245,238,226,.94); transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(214,120,146,.7), 0 10px 24px -12px rgba(201,80,111,.45); }
+.p-product.warm .blank::before { opacity: .9; }
+.p-product.press .blank { transform: scale(.985); transition-duration: 90ms; }
+
+/* ---- her card: turns over and settles into the Product seat (as in room.html) ---- */
+.her { position: absolute; inset: 0; transform-style: preserve-3d; }
+.her .face, .her .back { position: absolute; inset: 0; border-radius: 3px; backface-visibility: hidden; }
+.her .face { display: flex; align-items: center; gap: 14px; padding: 0 20px; background-color: var(--paper-2); }
+.her .back { transform: rotateY(180deg); background: #B9475F; box-shadow: var(--lift);
+  background-image: radial-gradient(circle at 50% 50%, rgba(255,248,238,.16) 0 15px, transparent 16px); }
+.her .mark { width: 30px; height: 30px; font-size: 14px; }
+.her .name { font: 500 22px/1.1 var(--serif); }
+.her .char { font: 400 13px/1.3 var(--sans); color: var(--ink-3); margin-top: 3px; }
+.her .yours { margin-left: auto; font: italic 400 15px/1 var(--serif); color: var(--ink-3); }
+
+/* ---- a seated teammate: a compact pad in the room's language ---- */
+.pad { position: absolute; inset: 0; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 10px; transform-origin: 0 0; }
+.pad::before, .big::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .85; }
+.p-design .pad { rotate: -.6deg; } .p-research .pad { rotate: .4deg; } .p-data .pad { rotate: -.3deg; } .p-strategy .pad { rotate: .5deg; } .p-engineering .pad { rotate: -.4deg; }
+.who-row { display: flex; align-items: center; gap: 8px; }
+.who-row .name { font: 500 18px/1 var(--serif); }
+.who-row .label { margin-left: auto; }
+.pad .stance { font: 400 16px/1.3 var(--serif); color: var(--ink); }
+.pad .stance small { display: block; margin-top: 4px; font: 400 13px/1.35 var(--sans); color: var(--ink-3); }
+
+/* ---- the big card, set down in the lamp light ---- */
+.big { position: absolute; left: 390px; top: 232px; width: 820px; padding: 36px 48px 40px; transform-origin: 0 0; rotate: .3deg;
+  display: grid; grid-template-columns: 1fr 252px; column-gap: 44px; will-change: transform, opacity; }
+.big .main { display: flex; flex-direction: column; }
+.big .head { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; }
+.big .head .agent { margin-left: auto; font: 400 13px/1 var(--sans); color: var(--ink-3); }
+.big .head .mark { width: 30px; height: 30px; font-size: 14px; }
+.big .head .seat { font: 500 15px/1 var(--sans); color: var(--c); }
+.big h2 { margin: 26px 0 0; font: 400 92px/.9 var(--serif); letter-spacing: -.035em; color: var(--ink); }
+.big .loves { margin: 30px 0 0; }
+.big .loves q { display: block; font: italic 400 29px/1.24 var(--serif); letter-spacing: -.012em; color: var(--ink); quotes: none; text-indent: -.42em; text-wrap: balance; }
+.big .loves q::before { content: '“'; color: var(--c); }
+.big .loves q::after { content: '”'; color: var(--c); }
+.big dl { margin: 34px 0 0; align-self: end; padding: 2px 0 4px 28px; border-left: 1px solid var(--rule); display: flex; flex-direction: column; }
+.big dt { font: 500 13px/1 var(--sans); color: var(--ink-3); margin-bottom: 8px; }
+.big dd { margin: 0 0 24px; font: 400 15px/1.45 var(--sans); color: var(--ink-2); }
+.big dd.st { margin: 0; font: italic 400 20px/1.3 var(--serif); color: var(--ink); }
+.big .fade { opacity: 0; }
+
+/* ---- the pointer that sits down for her (a simulated hover and click) ---- */
+.cursor { position: absolute; left: 0; top: 0; width: 22px; height: 26px; opacity: 0; pointer-events: none; transform-origin: 3px 2px;
+  filter: drop-shadow(0 3px 4px rgba(8,4,2,.5)); }
+
+/* a line of copy at the lamp's edge for the presenter's beat */
+.caption { position: absolute; left: 0; right: 0; top: 420px; text-align: center; font: italic 400 30px/1.2 var(--serif); letter-spacing: -.01em;
+  color: rgba(245,238,226,.86); opacity: 0; }
+.caption small { display: block; margin-top: 12px; font: 400 15px/1.3 var(--sans); font-style: normal; letter-spacing: 0; color: rgba(245,238,226,.52); }
+</style>
+</head>
+<body>
+<div class="canvas" id="cv">
+  <div class="table"></div>
+
+  <div class="place p-top p-design" data-seat="design"><div class="blank">Design</div></div>
+  <div class="place p-top p-research" data-seat="research"><div class="blank">Research</div></div>
+  <div class="place p-top p-data" data-seat="data"><div class="blank">Data</div></div>
+  <div class="place p-top p-strategy" data-seat="strategy"><div class="blank">Strategy</div></div>
+  <div class="place p-top p-engineering" data-seat="engineering"><div class="blank">Engineering</div></div>
+  <div class="place p-product" data-seat="product" id="product"><div class="blank">Product</div></div>
+  <div class="place p-own"><div class="blank">Your own craft</div></div>
+
+  <p class="caption" id="cap1">Take a seat.<small>Your craft sits at the head of the table.</small></p>
+  <p class="caption" id="cap2">Your team is here.<small>Bring them an idea, however rough.</small></p>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 22 26"><path d="M3 2 L3 21 L8 16.5 L11.6 24 L14.6 22.6 L11 15.4 L18 15.4 Z" fill="#FFF8EE" stroke="#2A211B" stroke-width="1.3" stroke-linejoin="round"/></svg>
+</div>
+
+<script>
+const TEAM = [
+  { seat: 'design', name: 'Mika', label: 'Design', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing', stance: 'Sketch first, polish last' },
+  { seat: 'research', name: 'Noor', label: 'Research', loves: 'A source for every claim.', brings: 'A real finding with its link, researched before the demo', stance: 'What’s known, with sources' },
+  { seat: 'data', name: 'Theo', label: 'Data', loves: 'One number that says it worked.', brings: 'What to measure at each step', stance: 'Only what we’ll measure' },
+  { seat: 'strategy', name: 'Ines', label: 'Strategy', loves: 'Knowing who pays before we build.', brings: 'Pricing and payment calls', stance: 'Who pays, and why now' },
+  { seat: 'engineering', name: 'Bo', label: 'Engineering', loves: 'Boring, correct, shipped.', brings: 'The page template and the live build', stance: 'Boring and correct' },
+];
+const cv = document.getElementById('cv');
+const $ = s => document.querySelector(s);
+const still = new URLSearchParams(location.search).get('still') === '1';
+const SETTLE = 'cubic-bezier(.16,1,.3,1)', GLIDE = 'cubic-bezier(.45,0,.15,1)';
+const AIR = '0 2px 3px rgba(20,12,6,.16), 0 34px 54px -12px rgba(10,6,3,.5), 0 80px 130px -34px rgba(10,6,3,.62)';
+const REST = '0 1px 1px rgba(20,12,6,.25), 0 6px 12px -4px rgba(20,12,6,.35), 0 24px 48px -16px rgba(10,6,3,.55)';
+const SMALL = '0 1px 1px rgba(20,12,6,.22), 0 4px 10px -4px rgba(20,12,6,.35), 0 14px 28px -12px rgba(10,6,3,.45)';
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const fadeUp = (el, delay = 0, dur = 700) => el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
+  { duration: dur, delay, easing: SETTLE, fill: 'both' });
+const fadeOut = (el, dur = 420) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: dur, easing: GLIDE, fill: 'forwards' });
+
+function herCard() {
+  const d = document.createElement('div');
+  d.className = 'her';
+  d.innerHTML = `<div class="face paper" data-seat="product"><span class="mark">P</span><div><div class="name">Priya</div><div class="char">Product</div></div><span class="yours">your seat</span></div><div class="back"></div>`;
+  return d;
+}
+function padCard(t) {
+  const d = document.createElement('div');
+  d.className = 'pad paper'; d.dataset.seat = t.seat;
+  d.innerHTML = `<div class="who-row"><span class="mark">${t.name[0]}</span><span class="name">${t.name}</span><span class="label">${t.label}</span></div>
+    <div class="stance">${t.stance}<small>${t.brings}</small></div>`;
+  return d;
+}
+function bigCard(t) {
+  const d = document.createElement('section');
+  d.className = 'big paper'; d.dataset.seat = t.seat;
+  d.innerHTML = `<div class="head fade"><span class="mark">${t.name[0]}</span><span class="seat">${t.label}</span><span class="agent">Agent</span></div>
+    <div class="main">
+      <h2 class="fade">${t.name}</h2>
+      <div class="loves fade"><q>${t.loves}</q></div>
+    </div>
+    <dl class="fade"><dt>Brings</dt><dd>${t.brings}</dd><dt>Stance</dt><dd class="st">${t.stance}</dd></dl>`;
+  return d;
+}
+
+function seatHer(animate) {
+  const p = $('#product');
+  p.classList.add('taken');
+  const her = herCard();
+  p.appendChild(her);
+  if (!animate) { her.querySelector('.face').style.boxShadow = REST; return; }
+  // turned over in the air above the seat, then laid down: lifted shadow to resting
+  her.animate([
+    { transform: 'translateY(-46px) scale(1.06) rotateY(180deg)' },
+    { transform: 'translateY(-18px) scale(1.03) rotateY(40deg)', offset: .55 },
+    { transform: 'none' }
+  ], { duration: 1050, easing: SETTLE, fill: 'both' });
+  her.querySelector('.face').animate([{ boxShadow: AIR }, { boxShadow: REST }], { duration: 1050, easing: SETTLE, fill: 'both' });
+  her.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 90, fill: 'backwards' });
+}
+
+function seatTeammate(t, pad, blankAfter = 0) {
+  const place = $(`.p-${t.seat}`);
+  setTimeout(() => place.classList.add('taken'), blankAfter);
+  pad.style.boxShadow = SMALL;
+  place.appendChild(pad);
+}
+
+async function walkIn(t) {
+  const big = bigCard(t);
+  cv.appendChild(big);
+  // set down big in the lamp light: from a little above with a long soft shadow, to resting
+  big.animate([
+    { opacity: 0, transform: 'translateY(-30px) scale(1.04)', boxShadow: AIR },
+    { opacity: 1, offset: .14 },
+    { opacity: 1, transform: 'none', boxShadow: REST }
+  ], { duration: 860, easing: SETTLE, fill: 'both' });
+  [...big.querySelectorAll('.fade')].forEach((el, k) => fadeUp(el, 90 + k * 90, 700));
+  await wait(860 + 1350);
+
+  // glide to its seat, FLIP-style: the big card shrinks onto the place while the pad grows out of it, crossfading mid-flight
+  const place = $(`.p-${t.seat}`);
+  const pad = padCard(t);
+  const D = 900;
+  seatTeammate(t, pad, D * .45);
+  const a = { x: big.offsetLeft, y: big.offsetTop, w: big.offsetWidth, h: big.offsetHeight };
+  const b = { x: place.offsetLeft, y: place.offsetTop, w: place.offsetWidth, h: place.offsetHeight };
+  const s = b.w / a.w;
+  const bigTo = `translate(${b.x - a.x}px, ${b.y + (b.h - a.h * s) / 2 - a.y}px) scale(${s})`;
+  const padFrom = `translate(${a.x - b.x}px, ${a.y + (a.h - b.h / s) / 2 - b.y}px) scale(${1 / s})`;
+  big.animate([
+    { transform: 'none', boxShadow: REST, opacity: 1 },
+    { transform: 'translateY(-10px) scale(1.01)', boxShadow: AIR, opacity: 1, offset: .12 },
+    { opacity: 1, offset: .5 },
+    { opacity: 0, offset: .7 },
+    { transform: bigTo, boxShadow: SMALL, opacity: 0 }
+  ], { duration: D, easing: GLIDE, fill: 'forwards' }).finished.then(() => big.remove());
+  pad.animate([
+    { transform: padFrom, opacity: 0, boxShadow: AIR },
+    { opacity: 0, offset: .48 },
+    { opacity: 1, offset: .7 },
+    { transform: 'none', opacity: 1, boxShadow: SMALL }
+  ], { duration: D, easing: GLIDE, fill: 'backwards' });
+}
+
+if (still) {
+  seatHer(false);
+  TEAM.forEach(t => seatTeammate(t, padCard(t)));
+  $('#cap2').style.opacity = 1;
+} else (async () => {
+  const cur = $('#cursor'), cap1 = $('#cap1');
+  fadeUp(cap1, 300, 1000);
+  await wait(900);
+  // the pointer drifts in from the right and comes to rest on the Product seat
+  cur.animate([
+    { opacity: 0, transform: 'translate(1180px, 700px)' },
+    { opacity: 1, offset: .25 },
+    { opacity: 1, transform: 'translate(806px, 836px)' }
+  ], { duration: 900, easing: GLIDE, fill: 'forwards' });
+  await wait(620);
+  $('#product').classList.add('warm');
+  await wait(700);
+  cur.animate([{ transform: 'translate(806px, 836px) scale(1)' }, { transform: 'translate(806px, 836px) scale(.92)' }, { transform: 'translate(806px, 836px) scale(1)' }],
+    { duration: 220, easing: 'ease-out', fill: 'forwards' });
+  $('#product').classList.add('press');
+  await wait(110);
+  $('#product').classList.remove('press', 'warm');
+  seatHer(true);
+  fadeOut(cap1, 500);
+  cur.animate([{ opacity: 1, transform: 'translate(806px, 836px)' }, { opacity: 0, transform: 'translate(800px, 850px)' }], { duration: 600, delay: 250, easing: GLIDE, fill: 'forwards' });
+  await wait(1000);
+  for (const t of TEAM) { walkIn(t); await wait(860 + 1350 + 460); } // the next card comes down once the last has left the light
+  await wait(500);
+  fadeUp($('#cap2'), 0, 1100);
+})();
+</script>
+</body>
+</html>

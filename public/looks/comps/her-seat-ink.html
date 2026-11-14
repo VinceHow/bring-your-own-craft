@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Her seat · ink and paper</title>
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+/* Her seat, the teammate popover and her workspace, in ink and paper (../ink-paper.css, ../ink-paper.js).
+   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays;
+   ?flow=own autoplays the "your own craft" path (pick, her name once, one sentence, the team's spin as her card, seated).
+   &name=Sam sets the name; &name= (empty) shows the skipped case, where the card says "You".
+   Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
+.ink-paper { --ps-paper: var(--ip-paper); --ps-paper-2: #F3E8D4; --ps-linen: #EFE3CD; --ps-ink: var(--ip-ink); --ps-ink-2: var(--ip-ink-2); --ps-ink-3: var(--ip-ink-3);
+  --ps-rule: var(--ip-rule); --ps-her: var(--ip-her); --ps-her-deep: var(--ip-her-t); --ps-her-soft: var(--ip-paper-her);
+  --ps-serif: var(--ip-serif); --ps-sans: var(--ip-sans); --ps-r-pill: 999px; --ps-r-sm: var(--ip-r-sm); --ps-r-md: var(--ip-r-md); --ps-r-lg: var(--ip-r-lg);
+  --ps-pebble: var(--ip-r-md); --ps-lift-1: var(--ip-lift); --ps-lift-2: var(--ip-lift-hi); --ps-lift-3: var(--ip-lift-hi);
+  --ps-settle: var(--ip-land); --ps-t-fast: 180ms; --ps-t-mid: 420ms; --ps-tooth: var(--ip-tooth); }
+/* positioned parts stay positioned once dressed (the system makes every surface position: relative) */
+.canvas .abs, .canvas .team .pill, .canvas .rest .note { position: absolute; }
+.canvas .pane { box-shadow: none; }
+.canvas.ink-paper .ws { display: grid; padding: 34px 40px 28px; }
+.canvas.ink-paper .pick { padding: 16px 18px 18px; }
+.ink-paper .by { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.ps-her-words { font: italic 400 19px/1.45 var(--ip-serif); color: var(--ip-ink); }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--ps-sans); color: var(--ps-ink); -webkit-font-smoothing: antialiased; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.abs { position: absolute; }
+.hide { display: none !important; }
+
+/* ---------- the stool: shared ---------- */
+.stool-hit { position: absolute; left: 590px; top: 676px; width: 200px; height: 90px; border-radius: 50%; cursor: pointer; z-index: 2; }
+/* A: warm light pooling on the stool, like the window found it */
+.pool { position: absolute; left: 520px; top: 600px; width: 340px; height: 250px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,232,200,.78), rgba(255,220,186,.32) 58%, rgba(255,210,170,0)); mix-blend-mode: screen; }
+/* B: a soft pink thread drawn round the cushion */
+.thread { position: absolute; left: 570px; top: 660px; width: 240px; height: 120px; pointer-events: none; overflow: visible; opacity: 0; }
+.thread path { fill: none; stroke: var(--ps-her); stroke-width: 3; stroke-linecap: round; }
+/* C: the cushion itself brightens, and a soft halo settles on the rug under the stool */
+.cushion-glow { position: absolute; left: 600px; top: 684px; width: 180px; height: 62px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,236,240,.85), rgba(250,210,220,.45) 60%, rgba(250,200,214,0)); mix-blend-mode: screen; }
+.halo { position: absolute; left: 560px; top: 820px; width: 270px; height: 70px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,214,224,.75), rgba(255,214,224,0)); mix-blend-mode: screen; }
+
+/* her pill and the invite share one spot per version; the invite breathes once in a while, never pulses */
+#herPill, #invite { z-index: 3; }
+#invite { font-size: 15px; height: 40px; }
+#herPill { height: 40px; }
+
+/* the small rounded card that opens from the pill: pick a craft */
+.pick { width: 316px; padding: 16px 18px 18px; border-radius: var(--ps-r-lg); z-index: 4; transform-origin: 0 50px; box-shadow: var(--ps-lift-3); }
+.pick .lab { color: var(--ps-her-deep); }
+.pick h3 { margin: 6px 0 4px; font: 400 21px/1.2 var(--ps-serif); letter-spacing: -.005em; }
+.pick p { margin: 0 0 14px; font: italic 400 15px/1.35 var(--ps-serif); color: var(--ps-ink-2); }
+.choices { display: flex; gap: 8px; }
+.choice { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 8px; border-radius: var(--ps-r-pill); border: 0; cursor: pointer;
+  font: 500 15px/1 var(--ps-sans); color: var(--ps-ink); background: #FFFDF8; box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.18);
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), background var(--ps-t-mid); }
+.choice i { width: 24px; height: 24px; border-radius: 50%; background: var(--ps-her-soft); box-shadow: inset 0 0 0 1.5px var(--ps-her); }
+.choice.own { padding-left: 16px; box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.18); color: var(--ps-ink-2); font-style: italic; font-family: var(--ps-serif); font-weight: 400; }
+.choice:hover, .choice.is-hover { translate: 0 -2px; box-shadow: inset 0 0 0 1.5px var(--ps-her), var(--ps-lift-1); }
+.choice:active { scale: .97; }
+.choice.on { background: var(--ps-her-soft); box-shadow: inset 0 0 0 1.5px var(--ps-her); }
+.choice.on i { background: var(--ps-her); }
+.pick .tail { position: absolute; width: 18px; height: 18px; background: var(--ps-paper); border-radius: 4px; rotate: 45deg; left: -8px; top: 40px; }
+
+/* your own craft: the sentence, then her character card */
+.pick .say { position: relative; display: flex; align-items: center; gap: 2px; min-height: 76px; padding: 12px 52px 12px 14px; margin: 0 0 14px; border-radius: var(--ip-r-sm);
+  background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: italic 400 17px/1.35 var(--ip-serif); color: var(--ip-ink); }
+.pick .say .caret { width: 1.5px; height: 20px; background: var(--ip-her-t); align-self: flex-end; margin-bottom: 2px; }
+.pick .say .mic { position: absolute; right: 10px; top: 50%; translate: 0 -50%; width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5); display: grid; place-items: center; }
+.pick .say .mic svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 1.6; stroke-linecap: round; }
+.pick .row-end { display: flex; justify-content: flex-end; }
+.pick .btn { height: 42px; font-size: 15px; }
+.char { width: 356px; z-index: 5; }
+.canvas.ink-paper .char { padding: 18px 20px 18px; }
+.char > .gl { --sheet: var(--ip-paper-her); }
+.char .lab { color: var(--ip-her-t); }
+.char .who { display: flex; align-items: center; gap: 12px; margin: 10px 0 12px; }
+.char .seal { width: 46px; height: 46px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 21px/1 var(--ip-serif); flex: none; }
+.char .name { font: 400 26px/1.05 var(--ip-serif); }
+.char .title { font: italic 400 19px/1.2 var(--ip-serif); color: var(--ip-her-t); margin-top: 3px; }
+.char .traits { display: flex; flex-wrap: wrap; gap: 6px; }
+.char .traits span { height: 28px; padding: 0 11px; display: inline-flex; align-items: center; border-radius: 999px; background: rgba(255,253,248,.85); font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.char .from { margin: 12px 0 14px; font: italic 400 14px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.char .acts { display: flex; gap: 8px; } .char .btn { height: 40px; padding: 0 16px; font-size: 15px; white-space: nowrap; }
+
+.pick .nmf { margin: 0 0 10px; }
+.pick .nmf .lab { display: block; margin-bottom: 5px; color: var(--ip-ink-2); }
+.pick .nmbox { position: relative; display: flex; align-items: center; height: 42px; padding: 0 70px 0 14px; border-radius: 999px; background: var(--ip-inset);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: 400 18px/1 var(--ip-serif); color: var(--ip-ink); }
+.pick .nmbox .caret2 { width: 1.5px; height: 18px; background: var(--ip-her-t); margin-left: 1px; }
+.pick .nmbox .skip { position: absolute; right: 6px; top: 5px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.pick .nmbox .skip:hover { background: rgba(84,58,38,.08); }
+/* notes waiting, resting beside the stool: in the ink of who left them, no number */
+.rest { z-index: 2; }
+.rest .note { position: absolute; width: 168px; padding: 10px 12px 11px; font-size: 14px; line-height: 1.3; }
+.rest .note .lab { margin-bottom: 3px; }
+
+/* ---------- teammate pills ---------- */
+.team .pill { position: absolute; z-index: 3; }
+.team .pill.is-open { box-shadow: 0 0 0 2px var(--c), var(--ps-lift-2); translate: 0 -2px; }
+
+/* ---------- the teammate popover ---------- */
+.pop { width: 360px; padding: 16px 18px 18px; border-radius: var(--ps-r-lg); z-index: 5; box-shadow: var(--ps-lift-3); }
+.pop .head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.pop .head .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.25); }
+.pop .head b { font: 500 17px/1.1 var(--ps-sans); }
+.pop .head .craft { font: italic 400 15px/1.1 var(--ps-serif); color: var(--ps-ink-2); }
+.pop .head .x { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--ps-paper-2); cursor: pointer; display: grid; place-items: center;
+  transition: translate var(--ps-t-fast) var(--ps-settle), background var(--ps-t-fast); }
+.pop .head .x:hover { translate: 0 -2px; background: var(--ps-linen); }
+.pop .head .x svg { width: 12px; height: 12px; stroke: var(--ps-ink-2); stroke-width: 2; stroke-linecap: round; }
+.pop .sec { padding: 10px 0 0; margin-top: 10px; box-shadow: inset 0 1px 0 var(--ps-rule); }
+.pop .sec:first-of-type { margin-top: 0; padding-top: 0; box-shadow: none; }
+.pop .sec > .lab { display: block; margin-bottom: 5px; }
+.pop .on { font: 400 17px/1.32 var(--ps-serif); }
+.pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.pop li { display: grid; grid-template-columns: 10px 1fr; gap: 8px; font: 400 15px/1.32 var(--ps-serif); }
+.pop li::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); margin-top: 7px; }
+.src { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+.src a { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: var(--ps-r-pill); background: var(--soft);
+  font: 500 13px/1 var(--ps-sans); color: var(--ps-ink); text-decoration: none; transition: translate var(--ps-t-fast) var(--ps-settle); }
+.src a:hover { translate: 0 -2px; }
+.src a svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+.pop .left-note { margin-top: 2px; padding: 10px 12px 11px; border-radius: var(--ps-pebble); background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--ps-rule), inset 4px 0 0 var(--c);
+  font: 400 15px/1.32 var(--ps-serif); }
+.pop .none { font: italic 400 15px/1.3 var(--ps-serif); color: var(--ps-ink-2); }
+.pop .tail { position: absolute; width: 18px; height: 18px; background: var(--ps-paper); border-radius: 4px; rotate: 45deg; }
+
+/* ---------- her workspace: one full rounded document ---------- */
+.veil { position: absolute; inset: 0; background: rgba(43,31,23,.34); opacity: 0; pointer-events: none; z-index: 6; }
+.ws { position: absolute; left: 96px; top: 34px; width: 1408px; height: 832px; border-radius: 36px; padding: 34px 40px 28px; z-index: 7;
+  display: grid; grid-template-columns: 300px 1fr 330px; grid-template-rows: 1fr auto; gap: 26px 34px; box-shadow: var(--ps-lift-3); }
+.ws h4 { margin: 0 0 10px; font: 500 13px/1.2 var(--ps-sans); color: var(--ps-ink-3); }
+.ws .col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.ws .me { padding: 18px 18px 18px; border-radius: var(--ps-r-md); background: var(--ps-her-soft); }
+.ws .me .row { display: flex; align-items: center; gap: 12px; }
+.ws .me .seal { width: 44px; height: 44px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 20px/1 var(--ps-serif); box-shadow: inset 0 -3px 0 rgba(0,0,0,.1); }
+.ws .me .name { font: 400 24px/1.1 var(--ps-serif); }
+.ws .me .char { font: italic 400 16px/1.2 var(--ps-serif); color: var(--ps-her-deep); margin-top: 2px; }
+.ws .traits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.ws .traits span { height: 28px; padding: 0 11px; display: inline-flex; align-items: center; border-radius: var(--ps-r-pill); background: rgba(255,253,248,.8); font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-2); }
+.ws .note { width: auto; font-size: 15px; padding: 12px 14px 13px; }
+.ws .gap { height: 6px; }
+.ws .mid { display: flex; flex-direction: column; min-width: 0; }
+.ws .mid .lab { display: block; }
+.ws .mid h2 { margin: 6px 0 4px; font: 400 32px/1.15 var(--ps-serif); letter-spacing: -.012em; max-width: 640px; }
+.ws .mid .by { font: italic 400 16px/1.3 var(--ps-serif); color: var(--ps-ink-2); }
+.ws .mid .tabs { margin: 20px 0 16px; align-self: flex-start; }
+.ws .board { padding: 20px; border-radius: var(--ps-r-lg); background: var(--ps-paper-2); }
+.ws .said { margin-top: 18px; padding: 16px 20px 17px; border-radius: var(--ps-r-md); background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--ps-rule), inset 4px 0 0 var(--ps-her); }
+.ws .said .ps-her-words { margin-top: 6px; font-size: 18px; }
+.ws .said .re { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.ws .said .re span { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px 0 6px; border-radius: var(--ps-r-pill); background: var(--soft); font: 400 14px/1 var(--ps-serif); }
+.ws .said .re span i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); }
+.jr { display: grid; grid-template-columns: 170px repeat(3, 1fr); gap: 10px; }
+.jr .h { font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-3); padding: 0 4px 2px; }
+.jr .who { font: 400 16px/1.2 var(--ps-serif); align-self: center; }
+.jr .step { padding: 11px 13px; font-size: 14px; border-radius: var(--ps-r-sm); }
+.ws .foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding-top: 18px; box-shadow: inset 0 1px 0 var(--ps-rule); }
+.ws .foot .close { margin-left: auto; }
+.ws .foot .lab { font-size: 14px; }
+.ws .decision { width: auto; font-size: 15px; padding: 12px 14px 12px; }
+.ws .decision .by { margin-top: 7px; }
+.ws .decision .by .marks i { width: 16px; height: 16px; }
+.ws .ta { padding: 14px 16px 15px; border-radius: var(--ps-r-md); background: var(--ps-her-soft); }
+.ws .ta p { margin: 0; font: italic 400 16px/1.38 var(--ps-serif); }
+.ws .ta em { display: block; margin-top: 8px; font: 500 13px/1 var(--ps-sans); font-style: normal; color: var(--ps-her-deep); }
+.ws .ta p + p { margin-top: 4px; font-style: normal; }
+
+/* the demo pointer */
+#pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
+#pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.8); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(60,35,15,.3); }
+.tag.replay { z-index: 8; }
+@media (prefers-reduced-motion: reduce) { .choice, .src a, .pop .head .x { transition: none; } }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div>
+
+  <!-- her seat: the three looks share one stool -->
+  <div class="pool" id="pool"></div>
+  <svg class="thread" id="thread" viewBox="0 0 240 120"><path id="threadPath" d="M120 16c42-2 92 6 104 34 10 26-38 46-104 48C58 100 10 88 10 62 10 34 64 18 116 16"/></svg>
+  <div class="halo" id="halo"></div>
+  <div class="cushion-glow" id="cushion"></div>
+  <div class="stool-hit" id="stool" aria-label="Her seat"></div>
+
+  <button class="abs pill is-invite" data-who="her" id="invite">Take your seat</button>
+  <button class="abs pill is-her" data-who="her" id="herPill"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+
+  <div class="abs card pick" data-who="her" id="pick">
+    <div class="p1"><span class="lab">This seat is yours</span>
+    <h3>What do you bring to the table?</h3>
+    <p>Pick a craft. The team fills every other seat.</p>
+    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own" id="own">Your own craft</button></div></div>
+    <!-- your own craft: one sentence, typed or said -->
+    <div class="p2 hide"><span class="lab">Your own craft</span>
+    <h3>What do you love doing?</h3>
+    <p>One sentence is plenty. Say it or type it.</p>
+    <div class="nmf"><span class="lab">What should the team call you?</span><div class="nmbox"><span id="nameTyped"></span><span class="caret2"></span><button class="skip" id="skipName">Skip</button></div></div>
+    <div class="say"><span class="typed" id="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it instead"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>
+    <div class="row-end"><button class="btn" id="makeCard">Make my card</button></div></div>
+    <span class="tail"></span>
+  </div>
+
+  <!-- the team's playful spin on her sentence: her character card, before she sits -->
+  <div class="abs card char hide" data-who="her" id="charCard">
+    <span class="lab">The team’s spin on you</span>
+    <div class="who"><span class="seal">P</span><div><div class="name">Priya</div><div class="title">the Dawn Baker</div></div></div>
+    <div class="traits"><span>up before the ovens</span><span>crust perfectionist</span><span>knows every regular</span></div>
+    <p class="from">From: “I bake sourdough before sunrise and love knowing my regulars’ orders by heart.”</p>
+    <div class="acts"><button class="btn" id="sit">Take my seat</button><button class="btn quiet">Change a word</button></div>
+  </div>
+
+  <div class="abs rest" id="rest">
+    <div class="note" data-who="noor" style="left:0;top:0;rotate:-3deg"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+    <div class="note" data-who="mika" style="left:178px;top:14px;rotate:2.5deg"><span class="lab"><i></i>Mika</span>If ordering could feel like one thing…</div>
+  </div>
+
+  <!-- the team: a pill by every head -->
+  <div class="team" id="team">
+    <button class="pill" data-who="mika" style="left:420px;top:306px"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+    <button class="pill" data-who="noor" style="left:612px;top:290px" id="pNoor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="pill" data-who="theo" style="left:790px;top:322px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+    <button class="pill" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+    <button class="pill" data-who="bo" style="left:1150px;top:372px" id="pBo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+  </div>
+
+  <!-- Noor's popover: opens above the window, clear of every face -->
+  <div class="abs card pop hide" data-who="noor" id="popNoor" style="left:226px;top:22px;width:372px">
+    <div class="head"><span class="dot"></span><div><b>Noor</b> <span class="craft">· Research</span></div>
+      <button class="x" data-close aria-label="Close Noor’s work"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></div>
+    <div class="sec"><span class="lab">On now</span><div class="on">What sells out first at small bakeries</div></div>
+    <div class="sec"><span class="lab">Settled</span>
+      <ul><li><div>Sourdough and morning buns go first, often before nine.
+        <div class="src"><a href="#"><svg viewBox="0 0 12 12"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>Baker interviews</a><a href="#"><svg viewBox="0 0 12 12"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>Bakery forum thread</a></div></div></li></ul></div>
+    <div class="sec"><span class="lab">Left for you</span><div class="left-note">What sells out first, and what should we do about it?</div></div>
+    <span class="tail" style="right:-8px;top:282px"></span>
+  </div>
+
+  <!-- Bo's popover: opens over the shelves on the right -->
+  <div class="abs card pop hide" data-who="bo" id="popBo" style="left:1290px;top:96px;width:292px">
+    <div class="head"><span class="dot"></span><div><b>Bo</b> <span class="craft">· Engineering</span></div>
+      <button class="x" data-close aria-label="Close Bo’s work"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></div>
+    <div class="sec"><span class="lab">On now</span><div class="on">The order form and the 8pm cut-off</div></div>
+    <div class="sec"><span class="lab">Settled</span>
+      <ul><li>Orders after 8pm roll to the day after.</li><li>Payment on pickup, no accounts.</li><li>A one-tap cancel until the cut-off.</li></ul></div>
+    <div class="sec"><span class="lab">Left for you</span><div class="none">Nothing. All mine to sort.</div></div>
+    <span class="tail" style="left:-8px;top:286px"></span>
+  </div>
+
+  <!-- her workspace -->
+  <div class="veil" id="veil"></div>
+  <div class="card ws hide" id="ws">
+    <div class="col">
+      <h4>You</h4>
+      <div class="me"><div class="row"><div class="seal">P</div><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
+        <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
+      <div class="gap"></div>
+      <h4>Waiting for you, when you’re ready</h4>
+      <div class="note" data-who="noor"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="note" data-who="mika"><span class="lab"><i></i>Mika</span>If ordering could feel like one thing, what should it feel like?</div>
+    </div>
+    <div class="mid">
+      <span class="lab">Your idea</span>
+      <h2>A website for a small bakery, so customers can order bread ahead.</h2>
+      <div class="by">Rough journey by Noor and Mika</div>
+      <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
+      <div class="board">
+        <div class="jr">
+          <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+          <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span>
+          <span class="who">Weekend pastry crowd</span><span class="step">Browse pastries</span><span class="step">Order by Friday</span><span class="step">Collect Saturday</span>
+          <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step">Mark collected</span>
+        </div>
+      </div>
+      <div class="said"><span class="lab">You said, in the first meeting</span>
+        <div class="ps-her-words">Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.</div>
+        <div class="re"><span data-who="mika"><i></i>Regulars first, their usual loaf one tap away</span><span data-who="bo"><i></i>We hold it for them till ten</span></div></div>
+    </div>
+    <div class="col">
+      <h4>Decided by the team</h4>
+      <div class="decision">Orders close at 8pm for the next morning.<div class="by"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lab" style="margin-left:6px">Bo, Ines and Mika</span></div></div>
+      <div class="decision" style="--c:var(--ip-ines);--c2:var(--ip-bo);--c3:transparent">Regulars cancel in one tap, up to the cut-off.<div class="by"><span class="marks"><i data-who="ines"></i><i data-who="bo"></i></span><span class="lab" style="margin-left:6px">Ines and Bo</span></div></div>
+      <div class="decision" style="--c:var(--ip-noor);--c2:var(--ip-mika);--c3:transparent">Sold out shows as sold out, never hidden.<div class="by"><span class="marks"><i data-who="noor"></i><i data-who="mika"></i></span><span class="lab" style="margin-left:6px">Noor and Mika</span></div></div>
+      <div class="gap"></div>
+      <h4>Your takeaways</h4>
+      <div class="take ta"><p>People come for bread that’s still warm, and for being known.</p><em>Guidance</em><p>Their usual loaf first, one tap away.</p></div>
+    </div>
+    <div class="foot"><button class="btn">Build it</button><span class="lab">When you’re happy, the team builds the page.</span>
+      <button class="btn quiet close" id="wsClose">Back to the room</button></div>
+  </div>
+
+  <span class="abs tag replay" style="right:22px;top:18px">Replay<small>recorded run</small></span>
+  <div id="pointer"></div>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(() => {
+  const { animate } = Motion;
+  InkPaper.dress(document.getElementById('c'));
+  const q = new URLSearchParams(location.search);
+  const still = q.get('still') === '1';
+  const auto = !q.get('seat') && !q.get('pop') && !q.get('ws');
+  const $ = s => document.querySelector(s);
+  const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, still ? 0 : ms));
+  const go = (el, kf, opt) => animate(el, kf, still ? { duration: 0 } : opt);
+  const show = el => el.classList.remove('hide'), hide = el => el.classList.add('hide');
+
+  /* ---------- the three seat looks: where the pill, the card and the notes sit ---------- */
+  const SEATS = {
+    a: { invite: [626, 616], her: [584, 616], pick: [790, 600], rest: [806, 760], marks: ['#pool'] },        // warm light on the stool, pill floats above the cushion
+    b: { invite: [826, 690], her: [826, 690], pick: [990, 640], rest: [806, 760], marks: ['#thread'] },      // a pink thread round the cushion, pill rests beside it
+    c: { invite: [624, 832], her: [582, 832], pick: [800, 706], rest: [820, 724], marks: ['#cushion', '#halo'] } // the cushion brightens, pill on the rug in front
+  };
+  const seat = SEATS[q.get('seat') || 'a'] || SEATS.a;
+  const place = (el, [x, y]) => Object.assign(el.style, { left: x + 'px', top: y + 'px' });
+  place($('#invite'), seat.invite); place($('#herPill'), seat.her); place($('#pick'), seat.pick); place($('#rest'), seat.rest);
+  /* the card's tail points back at the pill, from the card's left edge */
+  $('#pick .tail').style.top = (seat.invite[1] + 20 - seat.pick[1] - 9) + 'px';
+  const thread = $('#threadPath'), tlen = thread.getTotalLength();
+  thread.style.strokeDasharray = tlen; thread.style.strokeDashoffset = tlen;
+
+  function marks(on, soft) {
+    // the seat's own mark: soft before she sits (an invitation), full once it's hers
+    const op = on ? (soft ? .7 : 1) : 0;
+    seat.marks.forEach(m => {
+      if (m === '#thread') {
+        go('#thread', { opacity: on ? 1 : 0 }, { duration: .4 });
+        go(thread, { strokeDashoffset: on ? 0 : tlen }, { duration: still ? 0 : 1.6, ease: [.16, 1, .3, 1] });
+        thread.style.strokeDasharray = soft ? '5 9' : tlen;
+        if (soft) thread.style.strokeDashoffset = 0;
+      } else go(m, { opacity: op }, { duration: 1.2, ease: 'easeInOut' });
+    });
+  }
+  // hovering the stool or the invite brightens the seat a touch
+  ['#stool', '#invite'].forEach(s => {
+    $(s).addEventListener('pointerenter', () => { if (state === 'setup') seat.marks.forEach(m => m !== '#thread' && animate(m, { opacity: 1 }, { duration: .4 })); });
+    $(s).addEventListener('pointerleave', () => { if (state === 'setup') seat.marks.forEach(m => m !== '#thread' && animate(m, { opacity: .7 }, { duration: .6 })); });
+  });
+
+  let state = 'setup';
+  function setup() {
+    state = 'setup'; show($('#invite')); hide($('#herPill')); $('#pick').style.opacity = 0; $('#pick').style.pointerEvents = 'none';
+    $('#rest').style.opacity = 0; $('#team').style.opacity = still ? 1 : 0; marks(true, true);
+  }
+  async function openPick() {
+    state = 'choose'; $('#pick').style.pointerEvents = 'auto';
+    await go('#pick', { opacity: [0, 1], y: [10, 0], scale: [.96, 1] }, spring(.45)).finished;
+  }
+  async function choose() {
+    $('#product').classList.add('on');
+    await wait(500);
+    go('#pick', { opacity: 0, y: 8, scale: .97 }, { duration: .35 }); $('#pick').style.pointerEvents = 'none';
+    await wait(250);
+    hide($('#invite')); show($('#herPill')); InkPaper.redraw($('#herPill'));
+    go('#herPill', { opacity: [0, 1], scale: [.94, 1] }, spring(.5));
+    marks(true, false); state = 'after';
+    go('#team', { opacity: 1 }, { duration: .8 });
+    await wait(1100);
+    // notes the team left come to rest beside the stool, at a pause
+    go('#rest', { opacity: [0, 1], x: [-40, 0], y: [-30, 0] }, spring(.8));
+  }
+  function after() { state = 'after'; hide($('#invite')); show($('#herPill')); requestAnimationFrame(() => InkPaper.redraw($('#herPill'))); $('#pick').style.opacity = 0; $('#rest').style.opacity = 1; $('#team').style.opacity = 1; marks(true, false); }
+  $('#invite').addEventListener('click', openPick);
+  $('#stool').addEventListener('click', () => state === 'setup' ? openPick() : openWs());
+  $('#product').addEventListener('click', choose);
+
+  /* ---------- your own craft: one sentence, then the team's spin as her card, then she sits ---------- */
+  const SENTENCE = 'I bake sourdough before sunrise and love knowing my regulars’ orders by heart.';
+  // asked once, inline, before the sentence; skippable (the card then says "You")
+  const NAME = q.has('name') ? q.get('name') : 'Sam';
+  function setName(n) {
+    const shown = n || 'You', init = (n || 'You')[0].toUpperCase();
+    $('#charCard .name').textContent = shown; $('#charCard .seal').textContent = init;
+    $('#herPill .nm').textContent = shown; $('#herPill .dot').textContent = init;
+  }
+  async function ownCraft() {
+    $('#own').classList.add('on'); await wait(350);
+    hide($('#pick .p1')); show($('#pick .p2'));
+    // taller now, so it moves over the kitchen counter on the left, clear of every character, tail pointing back to her seat
+    const pk = $('#pick'), tl = $('#pick .tail'); Object.assign(pk.style, { left: '14px', top: '392px' }); Object.assign(tl.style, { left: 'auto', right: '-8px', top: (seat.invite[1] + 20 - 392 - 9) + 'px' });
+    InkPaper.redraw(pk);
+    go('#pick .p2', { opacity: [0, 1] }, { duration: .3 });
+  }
+  async function typeIt() {
+    const t = $('#typed');
+    const nt = $('#nameTyped');
+    if (still) { nt.textContent = NAME; t.textContent = SENTENCE; setName(NAME); return; }
+    for (let i = 1; i <= NAME.length; i++) { nt.textContent = NAME.slice(0, i); await wait(90); }
+    setName(NAME); await wait(400);
+    for (let i = 1; i <= SENTENCE.length; i++) { t.textContent = SENTENCE.slice(0, i); await wait(SENTENCE[i - 1] === ' ' ? 55 : 32); }
+  }
+  async function makeCard() {
+    go('#pick', { opacity: 0, y: 8, scale: .97 }, { duration: .3 }); $('#pick').style.pointerEvents = 'none';
+    await wait(300);
+    const cc = $('#charCard'); show(cc); InkPaper.redraw(cc); cc.querySelectorAll('.pane').forEach(InkPaper.redraw);
+    if (still) return;
+    InkPaper.lay(cc, 0); cc.querySelectorAll('.btn').forEach((b, i) => InkPaper.lay(b, .5 + i * .1));
+  }
+  async function sit() {
+    $('#herPill .agent').textContent = 'the Dawn Baker';
+    await go('#charCard', { opacity: 0, scale: .9, y: 30 }, { duration: .4 }).finished; hide($('#charCard'));
+    hide($('#invite')); show($('#herPill')); InkPaper.redraw($('#herPill'));
+    go('#herPill', { opacity: [0, 1], scale: [.94, 1] }, spring(.5));
+    marks(true, false); state = 'after'; go('#team', { opacity: 1 }, { duration: .8 });
+  }
+  $('#own').addEventListener('click', async () => { await ownCraft(); typeIt(); });
+  $('#skipName').addEventListener('click', () => { $('#nameTyped').textContent = ''; setName(''); });
+  $('#makeCard').addEventListener('click', makeCard);
+  $('#sit').addEventListener('click', sit);
+  place($('#charCard'), [744, seat.pick[1] - 60]);
+
+  /* ---------- the popover: opens beside the teammate, closes back into the pill ---------- */
+  let openPop = null;
+  async function popover(who) {
+    if (openPop) await closePop();
+    const pop = who === 'noor' ? $('#popNoor') : $('#popBo'), pill = who === 'noor' ? $('#pNoor') : $('#pBo');
+    show(pop); InkPaper.redraw(pop); pill.classList.add('is-open'); openPop = [pop, pill];
+    const r = pill.getBoundingClientRect(), p = pop.getBoundingClientRect();
+    pop.style.transformOrigin = `${r.left + r.width / 2 - p.left}px ${r.top + r.height / 2 - p.top}px`;
+    await go(pop, { opacity: [0, 1], scale: [.6, 1] }, spring(.5)).finished;
+  }
+  async function closePop() {
+    if (!openPop) return; const [pop, pill] = openPop; openPop = null;
+    await go(pop, { opacity: 0, scale: .6 }, { duration: .28, ease: [.4, 0, .6, 1] }).finished;
+    hide(pop); pill.classList.remove('is-open');
+  }
+  $('#pNoor').addEventListener('click', () => popover('noor'));
+  $('#pBo').addEventListener('click', () => popover('bo'));
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closePop));
+
+  /* ---------- her workspace ---------- */
+  async function openWs() {
+    await closePop(); show($('#ws')); $('#ws').querySelectorAll('.pane').forEach(InkPaper.redraw); InkPaper.redraw($('#ws'));
+    go('#veil', { opacity: 1 }, { duration: .5 });
+    const r = $('#herPill').getBoundingClientRect(), w = $('#ws').getBoundingClientRect();
+    $('#ws').style.transformOrigin = `${r.left + r.width / 2 - w.left}px ${r.top - w.top}px`;
+    await go('#ws', { opacity: [0, 1], scale: [.2, 1] }, spring(.6)).finished;
+  }
+  async function closeWs() {
+    go('#veil', { opacity: 0 }, { duration: .4 });
+    await go('#ws', { opacity: 0, scale: .2 }, { duration: .35, ease: [.4, 0, .6, 1] }).finished; hide($('#ws'));
+  }
+  $('#herPill').addEventListener('click', openWs);
+  $('#wsClose').addEventListener('click', closeWs);
+
+  /* ---------- views ---------- */
+  const st = q.get('st');
+  if (st === 'own' || st === 'card' || st === 'seated') {
+    setup(); $('#team').style.opacity = 1; place($('#charCard'), [744, seat.pick[1] - 60]);
+    if (st === 'own') { openPick(); ownCraft().then(typeIt); }
+    if (st === 'card') { $('#typed').textContent = SENTENCE; $('#nameTyped').textContent = NAME; setName(NAME); makeCard(); }
+    if (st === 'seated') { setName(NAME); $('#herPill .agent').textContent = 'the Dawn Baker'; after(); }
+    return;
+  }
+  if (q.get('flow') === 'own') {
+    // the walk-through for "your own craft": a baker tries it live in seconds
+    setup(); const ptr = $('#pointer');
+    const at = (el, dx = .5, dy = .5) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width * dx, y: r.top + r.height * dy }; };
+    const moveTo = p => animate(ptr, { x: p.x - 12, y: p.y - 12 }, spring(.8)).finished;
+    const tap = () => animate(ptr, { scale: [1, .8, 1] }, { duration: .3 }).finished;
+    (async () => {
+      animate(ptr, { x: 900, y: 860 }, { duration: 0 });
+      await wait(800); animate(ptr, { opacity: 1 }, { duration: .4 });
+      await moveTo(at($('#invite'))); await wait(250); await tap(); openPick();
+      await wait(1000); await moveTo(at($('#own'))); $('#own').classList.add('is-hover'); await wait(250); await tap(); $('#own').classList.remove('is-hover'); await ownCraft();
+      await wait(300); animate(ptr, { opacity: 0 }, { duration: .3 }); await typeIt();
+      await wait(500); animate(ptr, { opacity: 1 }, { duration: .3 }); await moveTo(at($('#makeCard'))); await tap(); await makeCard();
+      await wait(3200); await moveTo(at($('#sit'))); await tap(); await sit();
+      await wait(600); animate(ptr, { opacity: 0 }, { duration: .6 });
+    })();
+    return;
+  }
+  if (!auto) {
+    if (st === 'setup' || st === 'choose') { setup(); $('#team').style.opacity = 1; if (st === 'choose') openPick(); }
+    else after();
+    if (q.get('pop')) popover(q.get('pop'));
+    if (q.get('ws')) openWs();
+    return;
+  }
+
+  /* ---------- the walk-through: take the seat, meet Noor and Bo, open her workspace ---------- */
+  setup();
+  const ptr = $('#pointer');
+  const at = (el, dx = .5, dy = .5) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width * dx, y: r.top + r.height * dy }; };
+  const moveTo = p => animate(ptr, { x: p.x - 12, y: p.y - 12 }, spring(.8)).finished;
+  const tap = () => animate(ptr, { scale: [1, .8, 1] }, { duration: .3 }).finished;
+  (async () => {
+    animate(ptr, { x: 900, y: 860 }, { duration: 0 });
+    await wait(900); animate(ptr, { opacity: 1 }, { duration: .4 });
+    await moveTo(at($('#invite'))); await wait(300); await tap(); openPick();
+    await wait(1100); await moveTo(at($('#product'))); $('#product').classList.add('is-hover'); await wait(300); await tap(); $('#product').classList.remove('is-hover'); await choose();
+    await wait(1600);
+    await moveTo(at($('#pNoor'))); $('#pNoor').classList.add('is-hover'); await wait(300); await tap(); $('#pNoor').classList.remove('is-hover'); popover('noor');
+    await wait(3200);
+    await moveTo(at($('#pBo'))); await tap(); popover('bo');
+    await wait(3000);
+    await moveTo(at($('#popBo .x'))); await tap(); await closePop();
+    await wait(600);
+    await moveTo(at($('#herPill'), .3)); await tap(); await openWs();
+    await wait(700); animate(ptr, { opacity: 0 }, { duration: .6 });
+  })();
+})();
+</script>
+</body>
+</html>
