@@ -107,7 +107,7 @@ if (process.argv.includes('--shots')) {
 }
 if (N > 1) {
   const stat = k => { const f = times.map(t => t[k]).sort((a, b) => a - b); return `min ${f[0]}, median ${f[Math.floor(f.length / 2)]}, max ${f[f.length - 1]}`; };
-  console.log(`n=${N}, backend ${process.env.MODEL_BACKEND || 'claude-code'}, fill model ${process.env.FILL_MODEL || 'default'}`);
+  console.log(`n=${N}, backend ${process.env.MODEL_BACKEND || 'claude-code'}, fill model ${process.env.FILL_MODEL || 'sonnet'}`);
   console.log(`fill call ms: ${stat('fillMs')}`);
   console.log(`decideRest ms: ${stat('decideMs')}`);
   console.log(`total ms: ${stat('ms')}`);
