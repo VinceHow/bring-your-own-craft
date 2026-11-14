@@ -325,7 +325,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', BYOC.intro ? { idea, intro: BYOC.intro } : { idea });
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -595,15 +595,31 @@
     if (was && !d.open && focusHeld) { focusHeld = false; refreshTally(); }
     emit('focus', BYOC.focus); // the gem listens: it holds still while a check-in is open
   }
+  // The tray (DEMO focus rules): a small stack of notes at the edge of her seat, each in its teammate's ink:
+  // "Research · Waitlist when a class is full?". The top note is the team's suggestion; she picks which to open.
+  // Notes slide in only at a natural pause, about 1 s after it, never while she's typing or speaking.
+  let trayTimer = null;
+  const isTypingNow = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); };
+  const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
   function renderTray() {
     const w = BYOC.focus.waiting;
     const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 6 && BYOC.beat < 8;
-    tray.hidden = !show;
-    if (!show) return;
-    // Wording is a placeholder until the PO's lands: one note per teammate with something for her.
-    tray.innerHTML = w.map(n => `<button type="button" class="tray-note" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
-      <span class="tray-seat">${esc((INFO[n.seat] || { name: n.seat }).name)}</span><span class="tray-text">has a note for you</span></button>`).join('');
+    clearTimeout(trayTimer);
+    if (!show) { tray.hidden = true; return; }
+    const ids = w.map(n => n.id).join(',');
+    if (!tray.hidden && tray.dataset.ids === ids) return;
+    trayTimer = setTimeout(function slideIn() {
+      if (isTypingNow()) { trayTimer = setTimeout(slideIn, 500); return; }
+      if (BYOC.focus.open) return;
+      tray.dataset.ids = ids;
+      tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
+        <span class="tray-seat">${esc((INFO[n.seat] || { name: n.seat }).name)}</span><span class="tray-dot"> · </span><span class="tray-text">${esc(fewWords(n.decision))}</span></button>`).join('');
+      const was = tray.hidden; tray.hidden = false;
+      if (was && !instantMode) place(tray, { y: [24, 0], opacity: [0, 1] }, true);
+    }, instantMode || BYOC.replay ? 0 : 1000);
   }
+  // The clicker's forward key opens the top note when the tray is out (stage.js asks first).
+  BYOC.openTopNote = () => { const top = tray.hidden ? null : tray.querySelector('.tray-note'); if (!top) return false; BYOC.flow?.openCheckin?.(top.dataset.ask); return true; };
   tray.addEventListener('click', e => {
     const b = e.target.closest('.tray-note'); if (!b) return;
     if (BYOC.flow && BYOC.flow.openCheckin) BYOC.flow.openCheckin(b.dataset.ask);

@@ -358,8 +358,8 @@ body.stage .fl-item .fl-q .fl-tag { font-size: 13px; }
 /* Focus time: the room sets #room.focus (and body.focus) while a check-in is open; polish.css styles it. */
 
 /* The tray: notes still waiting for her, at her seat, shown only between check-ins. No number, no red, no pulse. */
-.tray { position: absolute; left: 1052px; top: 806px; width: 216px; z-index: 9; display: flex; flex-direction: column; gap: 6px; }
-.tray-note { display: flex; align-items: baseline; gap: 8px; padding: 6px 10px; text-align: left; cursor: pointer; background: var(--sheet);
+.tray { position: absolute; left: 1052px; bottom: 6px; width: 234px; z-index: 9; display: flex; flex-direction: column; gap: 6px; }
+.tray-note { display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; padding: 6px 10px; text-align: left; cursor: pointer; background: var(--sheet);
   color: var(--ink); border: 2px solid var(--ink); border-left: 8px solid var(--seat-ink, var(--ink)); border-radius: 3px;
   box-shadow: var(--shadow-sm); font: 500 14px/1.2 var(--ui); transform: rotate(-0.6deg); }
 .tray-note:nth-child(2) { transform: rotate(0.8deg); }

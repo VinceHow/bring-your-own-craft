@@ -56,3 +56,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 15:45 | agents (lead) | Close fast path: 2 candidates per seat (10.8 s) instead of 3 (18.9 s) | 'within seconds' |
 | Sat 15:55 | agents (lead) | po/questions accepted: ~9–10 builder-hours over 4 builders (~3–3.5 h); new path lands ~19:30; 20:00 rough demo may mix old and new; core 00:00 safe. New builder 7 for the question bar + Ask shape | |
 | Sat 15:57 | agents (lead) | po/questions split: builder 7 (new) question bar + Ask shape; builder 6 tag/profile/interpret/chatter (DIY 'inCraft' replaced by the question bar); beats two states + document + e2e; polish the document | |
+| Sat 15:15 | agents (lead) | Status strip shows only when slow (pencil note); per-sheet '4 proposed · 7.1s' removed (no paperwork). Builder 6 may read answer.mapped in lib/fill.js gatherRun | |
