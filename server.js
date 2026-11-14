@@ -83,11 +83,9 @@ const server = http.createServer(async (req, res) => {
     if (r) return await r.handler(req, res, { body: req.method === 'GET' ? null : await readBody(req), url });
     // Static: public/ for the room; runs/<id>/page/ for built pages.
     const p = decodeURIComponent(url.pathname);
-    if (p.startsWith('/runs/')) {
-      const f = path.normalize(path.join(ROOT, p));
-      if (!f.startsWith(path.join(ROOT, 'runs'))) { res.writeHead(403); return res.end(); }
-      return serveFile(req, res, fs.statSync(f, { throwIfNoEntry: false })?.isDirectory() ? path.join(f, 'index.html') : f);
-    }
+    // A run's built page is served by routes/build.js (GET only, that run's page folder only). Nothing else under
+    // /runs/ is ever served, whatever the method: a run's log, taste.md and profile stay on the server.
+    if (p.startsWith('/runs/')) { res.writeHead(405, { Allow: 'GET' }); return res.end(); }
     const f = path.normalize(path.join(ROOT, 'public', p === '/' ? 'index.html' : p === '/gallery' ? 'gallery.html' : p));
     if (!f.startsWith(path.join(ROOT, 'public'))) { res.writeHead(403); return res.end(); }
     return serveFile(req, res, f);

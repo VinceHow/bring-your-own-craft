@@ -104,6 +104,7 @@ const PAGE_FILES = new Set(['.html', '.js', '.css', '.svg', '.woff2', '.webp', '
 function servePage(req, res, { url }) {
   let rel;
   try { rel = decodeURIComponent(url.pathname).slice('/runs/'.length); } catch { res.writeHead(400); return res.end(); }
+  if (rel.includes('\0')) { res.writeHead(400); return res.end(); }
   const [run, folder] = rel.split('/');
   if (!RUN_ID.test(run || '') || run.startsWith('.')) { res.writeHead(403); return res.end(); } // traversal or a bad id
   if (folder !== 'page') { res.writeHead(404); return res.end('not found'); }
@@ -112,9 +113,12 @@ function servePage(req, res, { url }) {
   if (f !== root && !f.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
   if (fs.statSync(f, { throwIfNoEntry: false })?.isDirectory()) f = path.join(f, 'index.html');
   if (!PAGE_FILES.has(path.extname(f).toLowerCase())) { res.writeHead(404); return res.end('not found'); }
+  // A link inside the page folder that points out of it is refused (the real path must be inside the page folder too).
+  try { const real = fs.realpathSync(f), realRoot = fs.realpathSync(root); if (!real.startsWith(realRoot + path.sep)) { res.writeHead(403); return res.end(); } }
+  catch { res.writeHead(404); return res.end('not found'); }
   fs.readFile(f, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('not found'); }
-    res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream' });
+    res.writeHead(200, { 'Content-Type': TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream' });
     res.end(buf);
   });
 }

@@ -115,4 +115,14 @@ test('the page route serves only a run\'s built page: traversal, other run files
     const s = await get(u);
     assert.ok(s === 403 || s === 404 || s === 400, `${u} refused (got ${s})`);
   }
+  // any other method, on anything under /runs/: refused, never the old static fallback
+  for (const method of ['POST', 'PUT', 'DELETE', 'HEAD']) for (const u of [`/runs/${RUN}/events.jsonl`, `/runs/${RUN}/profile.json`, '/runs/other-run/taste.md']) {
+    const r = await fetch(BASE + u, { method });
+    assert.ok([403, 404, 405].includes(r.status), `${method} ${u} refused (got ${r.status})`);
+    if (method !== 'HEAD') assert.doesNotMatch(await r.text(), /private|her file/);
+  }
+  // a link inside the page folder pointing out of it, and a null byte
+  fs.symlinkSync(path.join(RUNS, RUN, 'events.jsonl'), path.join(RUNS, RUN, 'page', 'leak.html'));
+  assert.equal(await get(`/runs/${RUN}/page/leak.html`), 403);
+  assert.equal(await get(`/runs/${RUN}/page/index.html%00.html`), 400);
 });
