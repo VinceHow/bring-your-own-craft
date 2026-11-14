@@ -11,4 +11,8 @@ Product owner's list. Nothing here goes to the builders until Vincent says the b
       (1:05–1:15). Stretch that beat to the real time and take the difference from elsewhere, rather than rush the team.
 
 ## Later ideas (not tonight)
-- (none yet)
+- "Talk this through": she debates a material team decision (labelled "coming" on team-space cards).
+- Real multiplayer: a real engineer, a real customer in the guest chair.
+- Guest chair on by default (built, behind `GUEST_CHAIR=1`).
+- One soft chord at the symphony.
+- fal: Claude through fal's router at runtime (the key is still refused from cloud sessions); a fal hero image.
