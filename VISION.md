@@ -41,7 +41,7 @@ The product has two moments: a short setup that ends in her first question, then
 
 **1. The setup: walking in to the first question** (under a minute)
 
-1. **Take a seat.** Like building a character: six ready-made crafts, or "Your own craft". Priya picks Product.
+1. **Take a seat.** Her pink stool glows warm. Its pick card asks *"What do you bring to the table?"*: Product, or "Your own craft". Priya picks Product.
 2. **The team appears.** Mika, Noor, Theo, Ines and Bo pop into their chairs at the round table, one by one (no walking), each card showing what they love and what they bring.
 3. **She introduces herself in one sentence.** *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts its own fun spin on it to make her character card, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
 4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
@@ -89,6 +89,11 @@ Most of our design effort goes into the studio, because feeling settled and safe
 
 - **Settled, not busy.** A cosy, hand-painted studio seen in 3/4 view: one round table, a living painting that shifts with the light (morning, afternoon, building, evening). Her seat is the one empty pink stool. Teammates' work sits on sketchpads, not paperwork. Calm motion, nothing flashing. The real site growing on the table is the progress.
 - **Music she chooses.** A record player with three tracks (piano, electronic, chiptune). She starts it with a deliberate click; it never autoplays, and it ducks during her focus.
+- **Ink-paper overlays.** Every card is cream paper with a hand-inked, slightly wobbly outline matching the painting,
+  and a crayon layer in the teammate's colour peeking out underneath. Each teammate has a name pill by their head;
+  clicking it opens their work. Her seat has her own pill, which opens her workspace.
+- **Night mode.** A small moon/sun pill (or the laptop's dark mode) turns the studio into a dark, rainy, lamp-lit room.
+  Soft rain plays under the music only when she has started the record player; nothing ever autoplays.
 - **Polish goes into her focus moment.** The document, her words landing on it, the team chiming in, and the takeaways reading like the best summary a great colleague would write.
 - **No pressure, ever.** No timers, no counters ticking at her, no urgent interruptions. Waiting questions sit in a calm tray (no numbers, no red) and arrive only at natural pauses. Opening one turns the view into just her and one document: no dimming, no spotlight, nobody visibly waiting.
 - **No ceremony; keep what matters.** No logs, approvals or status in the room. The work that matters (her journey, Design's key screens) stays on the table, and the team decides what's worth keeping.
