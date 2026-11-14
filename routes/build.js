@@ -7,18 +7,17 @@ import { sendJson } from '../lib/http.js';
 import { scrub } from '../lib/model.js';
 import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
 import { dealDesign } from '../lib/design.js';
-import { decideRest, loadRest, decideCore } from '../lib/select.js';
-import { guestLinesFor } from '../lib/guest.js';
-import { revisitJoint } from '../lib/joint.js';
+import { decideRest, loadRest } from '../lib/select.js';
+import { revisitJoint, jointSettled, revisitSettled } from '../lib/joint.js';
 import { SEED } from '../lib/taste.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
 
 let decideRestImpl = decideRest;
 let dealImpl = dealDesign;
-let decideCoreImpl = decideCore;
-// For tests only: swap the joint agreements' re-decision call. null restores the real one.
-export function _setDecideCore(fn) { decideCoreImpl = fn || decideCore; }
+let revisitImpl = null;
+// For tests only: swap the joint agreements' revisit call ((candidates, takeaways) -> { decided }). null restores the real one.
+export function _setDecideCore(fn) { revisitImpl = fn || null; }
 // For tests only: swap Design's live deal. null restores the real one.
 export function _setDeal(fn) { dealImpl = fn || dealDesign; }
 // For scripts/tests only: swap the re-decision (fill-demo's --sample-decide). null restores the real one.
@@ -26,13 +25,18 @@ export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 
 // Re-decide the candidates she wasn't asked, against her updated file (logs `decided` itself, round 'build').
 async function redecide(run, tasteMd, { idea, flow }) {
+  // A revisit still running (a takeaway just written): wait for it, about 5 s at most; past that, the agreement as
+  // logged goes to the page and the build doesn't start a second check of its own.
+  await new Promise(r => setImmediate(r)); // an agreement that just landed has queued its revisit (the hook is a tick late)
+  const { timedOut } = await revisitSettled(run);
+  const skipCheck = timedOut;
   // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.
   const settled = new Set(readEvents(run).filter(e => e.type === 'answer.mapped').flatMap(m => (m.decisions || []).map(d => d.id)));
   // What the team agreed in the team space (lib/joint.js) isn't re-decided with the rest (loadRest skips it); it reaches
   // the page as agreed, unless her takeaways or her answers since touch it (revisitJoint), in parallel with the rest.
   const [out, joint] = await Promise.all([
     decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' }),
-    revisitJoint(run, { decide: cands => decideCoreImpl(cands, tasteMd, { idea, flow, guest: guestLinesFor(run) }) }),
+    revisitJoint(run, { idea, skipCheck, ...(revisitImpl ? { decide: revisitImpl } : {}) }),
   ]);
   return [...joint, ...(Array.isArray(out) ? out : (out?.decided || []))];
 }
@@ -44,6 +48,8 @@ export async function buildRun(run, { call } = {}) {
   const dir = path.join(RUNS_DIR, run);
   const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering' });
   step('Reading her flow, her three answers and her file');
+  // A joint talk still going when she pressed Build finishes first, so its agreement is revisited against her file.
+  await jointSettled(run);
   const events = readEvents(run);
   const tasteFile = path.join(dir, 'taste.md');
   const tasteMd = fs.readFileSync(fs.existsSync(tasteFile) ? tasteFile : SEED, 'utf8');
