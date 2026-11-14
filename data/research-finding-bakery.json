@@ -32,5 +32,7 @@
     "fetched": "2026-11-14",
     "how_verified": "Found with one Linkup search on 14 Nov 2026; the page was opened through Linkup's fetch (the build session's proxy refuses bakerybusiness.com directly) and the quote above is copied exactly from it.",
     "not_claimed": "A UK consumer survey commissioned by a flour miller (Marriage's); sample size and method are not on the page. Nothing here about pre-orders, sell-outs or any single bakery."
-  }
+  },
+  "verified": false,
+  "why_unverified": "The page was never opened (seen only in search summaries), so nothing was quoted from it. Code never shows or cites a finding without its URL, a quoted line and the date it was read."
 }
