@@ -121,6 +121,7 @@
     </aside>
   </div>
 </div>
+<script src="../../vendor/motion/motion.js"></script>
 <script>
 (function () {
   const still = new URLSearchParams(location.search).get('still') === '1';
@@ -139,17 +140,43 @@
     $('.thread .h').classList.add('on'); $$('.chime').forEach(c => c.classList.add('on')); redraw(); $('.take').classList.add('in');
     return;
   }
-  const at = (ms, fn) => setTimeout(fn, ms);
-  at(1100, () => { $('.room').classList.add('away'); $('.focus').classList.add('in'); });
-  let t = 2600;
-  $$('.words span').forEach((s, i) => at(t + i * 115, () => s.classList.add('on')));
-  t += $$('.words span').length * 115 + 900;
-  at(t, () => $('.share').classList.add('press'));
-  at(t + 160, () => { $('.share').classList.remove('press'); $('.share').classList.add('gone'); land(); });
-  at(t + 500, () => $('.thread .h').classList.add('on'));
-  $$('.chime').forEach((c, i) => at(t + 600 + i * 1100, () => c.classList.add('on')));
-  at(t + 1300, redraw);
-  at(t + 600 + 4 * 1100 + 500, () => $('.take').classList.add('in'));
+  // Choreography with the room's own Motion library: springs with no overshoot, so paper settles and never bounces.
+  const { animate, stagger } = window.Motion;
+  const settle = (d = .7) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const rows = [['#s1','Their usual loaf'],['#s2','One tap, no account'],['#s3','Held till ten']];
+  (async () => {
+    await wait(1100);
+    // the room gives way; the document is set down in front of her
+    animate('.room', { opacity: [1, 0], scale: [1, .975] }, { duration: .7, ease: [.45, 0, .15, 1] });
+    animate('.focus', { opacity: [0, 1] }, { duration: .64, ease: [.45, 0, .15, 1] });
+    animate('.doc', { opacity: [0, 1], y: [28, 0] }, settle(.9));
+    await wait(1500);
+    // her words land as she says them
+    const ws = $$('.words span');
+    animate(ws, { opacity: [0, 1], y: [5, 0] }, { ...settle(.45), delay: stagger(.115) });
+    await wait(ws.length * 115 + 900);
+    // she shares: the button presses and goes, a rule draws beside her words
+    await animate('.share', { scale: [1, .97, 1] }, { duration: .22 });
+    animate('.share', { opacity: 0 }, { duration: .3 }); land();
+    await wait(400);
+    animate('.thread .h', { opacity: [0, 1] }, { duration: .5 });
+    // the team chimes in, one after another; the first in under a second
+    animate('.chime', { opacity: [0, 1], y: [12, 0] }, { ...settle(.7), delay: stagger(1.1, { startDelay: .2 }) });
+    await wait(900);
+    // Mika redraws the regulars' row to her answer, box by box
+    rows.forEach(([id, t], i) => setTimeout(() => {
+      const el = $(id);
+      animate(el, { opacity: [1, 0] }, { duration: .18 }).then(() => {
+        el.textContent = t; el.classList.add('now');
+        animate(el, { opacity: [0, 1], y: [4, 0] }, settle(.5));
+      });
+    }, i * 260));
+    await wait(3700);
+    // the takeaways: the meeting summed up, in her voice
+    animate('.take', { opacity: [0, 1], y: [14, 0] }, settle(.9));
+    animate('.take .line', { opacity: [0, 1], y: [5, 0] }, { ...settle(.6), delay: stagger(.35, { startDelay: .25 }) });
+  })();
 })();
 </script>
 </body>
