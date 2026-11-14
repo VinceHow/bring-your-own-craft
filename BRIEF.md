@@ -71,7 +71,8 @@ real run.
 8. **Focus moments (replaces forks and pins; Vincent, 14 Nov):** an Ask becomes `{ question, artifact, by? }`: one
    open, natural question attached to one piece of work (journey, finding, wireframes), no options or recommendation.
    Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
-   teammate reactions as a short meeting thread: 3–4 turns, each its own fast call that sees her answer and the
+   teammate reactions as a short meeting thread: usually 1–2 turns, at most 3, only from teammates whose craft her
+   answer touches (a cheap routing step picks them by relevance, never round-robin; no filler turns), each its own fast call that sees her answer and the
    thread so far, so teammates build on, agree with or push back on each other; spoken, ≤15 words, nothing AI-sounding;
    only promising what the build will show; she submits when ready (nothing cut off by silence, no rush), and the
    first reaction lands within ~1 s of submit (fastest model), warm and excited but never sycophantic; and (c)
