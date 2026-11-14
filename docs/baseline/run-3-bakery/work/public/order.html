@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your Order</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cellipse cx=%2232%22 cy=%2236%22 rx=%2228%22 ry=%2220%22 fill=%22%23a8551f%22/%3E%3Cpath d=%22M16 30q6-8 12 0M28 26q6-8 12 0M40 30q6-8 12 0%22 stroke=%22%23f6e8db%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap"><a class="brand" href="/" data-bind="bakeryName">Bakery</a></div>
+  </header>
+  <main class="wrap">
+    <div class="confirm" id="root"><p class="empty">Loading your order…</p></div>
+  </main>
+  <script src="/common.js"></script>
+  <script>
+    (async () => {
+      const { money, longDate, fmtTime, esc, bind } = window.Bakery;
+      const root = document.getElementById('root');
+      const q = new URLSearchParams(location.search);
+      try {
+        const res = await fetch(`/api/orders/${encodeURIComponent(q.get('id') || '')}?t=${encodeURIComponent(q.get('t') || '')}`);
+        if (!res.ok) throw new Error();
+        const { order: o, shop } = await res.json();
+        bind(shop);
+        document.title = `Order ${o.code} · ${shop.bakeryName}`;
+        const heading = {
+          placed: 'Thanks — your order is in!',
+          ready: 'Your order is ready for pickup!',
+          collected: 'Order collected. Enjoy!',
+          cancelled: 'This order was cancelled',
+        }[o.status];
+        root.innerHTML = `
+          <div class="card">
+            ${o.status === 'cancelled' ? '' : '<div class="check" aria-hidden="true">✓</div>'}
+            <h1 style="font-size:1.7rem">${esc(heading)}</h1>
+            <p style="color:var(--muted);margin:8px 0 18px">Give this code at the counter:</p>
+            <div class="code">${esc(o.code)}</div>
+            <dl class="kv">
+              <dt>Pickup</dt><dd>${esc(longDate(o.pickupDate))} at ${esc(fmtTime(o.pickupTime))}</dd>
+              <dt>Where</dt><dd>${esc(shop.address)}</dd>
+              <dt>Name</dt><dd>${esc(o.name)}</dd>
+              <dt>Status</dt><dd><span class="badge ${esc(o.status)}">${esc(o.status)}</span></dd>
+              ${o.notes ? `<dt>Notes</dt><dd>${esc(o.notes)}</dd>` : ''}
+            </dl>
+            <ul class="cart-lines">
+              ${o.items.map((l) => `<li><span><span class="qty">${l.qty}×</span>${esc(l.name)}</span><span>${money(l.price * l.qty)}</span></li>`).join('')}
+            </ul>
+            <div class="total"><span>To pay at pickup</span><span>${money(o.total)}</span></div>
+            <p class="pay-note" style="text-align:left;margin-top:18px">
+              Bookmark this page to check on your order. Need to change something? Call us at
+              <a href="tel:${esc(shop.phone)}">${esc(shop.phone)}</a>.
+            </p>
+          </div>
+          <p style="text-align:center;margin-top:20px"><a href="/">Place another order</a></p>`;
+      } catch {
+        root.innerHTML = '<div class="card"><h1 style="font-size:1.5rem">Order not found</h1><p>Check the link, or <a href="/">start a new order</a>.</p></div>';
+      }
+    })();
+  </script>
+</body>
+</html>

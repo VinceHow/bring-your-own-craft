@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Bread Ahead</title>
+  <meta name="description" content="Pre-order fresh bread for pickup.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cellipse cx=%2232%22 cy=%2236%22 rx=%2228%22 ry=%2220%22 fill=%22%23a8551f%22/%3E%3Cpath d=%22M16 30q6-8 12 0M28 26q6-8 12 0M40 30q6-8 12 0%22 stroke=%22%23f6e8db%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" data-bind="bakeryName">Bakery</a>
+      <div class="header-meta"><span data-bind="address"></span><br><span data-bind="phone"></span></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <h1>Order your bread ahead</h1>
+      <p data-bind="tagline"></p>
+      <div class="notice" id="cutoff-notice"></div>
+    </div>
+
+    <div class="layout">
+      <div id="menu" aria-live="polite"><p class="empty">Loading the menu…</p></div>
+
+      <form class="panel" id="order-form" novalidate>
+        <h2>Your order</h2>
+        <div class="errors" id="errors" role="alert" hidden></div>
+
+        <section>
+          <span class="label" id="day-label">Pickup day</span>
+          <div class="days" id="days" role="group" aria-labelledby="day-label"></div>
+          <div class="field" style="margin-top:12px">
+            <label class="label" for="pickup-time">Pickup time</label>
+            <select id="pickup-time" required></select>
+          </div>
+        </section>
+
+        <section>
+          <ul class="cart-lines" id="cart-lines"></ul>
+          <p class="empty" id="cart-empty">Add some bread from the menu.</p>
+          <div class="total" id="cart-total-row" hidden><span>Total</span><span id="cart-total"></span></div>
+        </section>
+
+        <section>
+          <div class="field">
+            <label class="label" for="name">Name</label>
+            <input type="text" id="name" autocomplete="name" maxlength="80" required>
+          </div>
+          <div class="field">
+            <label class="label" for="phone">Phone <span class="hint">— so we can reach you</span></label>
+            <input type="tel" id="phone" autocomplete="tel" maxlength="20" required>
+          </div>
+          <div class="field">
+            <label class="label" for="email">Email <span class="hint">(optional)</span></label>
+            <input type="email" id="email" autocomplete="email" maxlength="120">
+          </div>
+          <div class="field">
+            <label class="label" for="notes">Notes <span class="hint">(optional)</span></label>
+            <textarea id="notes" maxlength="500" placeholder="e.g. please slice the sandwich loaf"></textarea>
+          </div>
+        </section>
+
+        <section>
+          <button class="btn block" type="submit" id="submit">Place order</button>
+          <p class="pay-note">Pay when you pick up — cash or card.</p>
+        </section>
+      </form>
+    </div>
+  </main>
+
+  <div class="mobile-bar" id="mobile-bar" hidden>
+    <button class="btn block" type="button" id="mobile-bar-btn"></button>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div><strong data-bind="bakeryName"></strong><br><span data-bind="address"></span><br><span data-bind="phone"></span></div>
+      <dl class="hours-list" id="hours"></dl>
+    </div>
+  </footer>
+
+  <script src="/common.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
