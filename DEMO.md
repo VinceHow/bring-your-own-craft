@@ -171,8 +171,9 @@ the café fallback is re-recorded as a baker in the DIY seat. **Known limit:** t
 page templates (bakery ordering, built from the café pre-order template; the old yoga booking), so a DIY idea that isn't page-shaped like those gets the sketch and
 questions but no built page. **Cut line:** a visible label, "Your own craft: coming".
 
-**Seats she isn't in** read: *"Seat open: invite a teammate. Your agents hold it until they arrive."* A label, not a
-button. Real multiplayer is the vision we say out loud, not something we build.
+**No "Seat open" label in the room** (Vincent, 14 Nov). The teammates are real members of her team. Multiplayer is
+said in the close only. If there's time at the very end, a clearly labelled smoke-and-mirrors "invite" button that
+explains the future vision may come back (parked in `NEXT.md`).
 
 **Music she chooses** (Vincent, 14 Nov). A record player in the studio with three tracks (piano, electronic,
 chiptune). Only a deliberate click on it starts music; it never autoplays and ducks during her focus. Otherwise the

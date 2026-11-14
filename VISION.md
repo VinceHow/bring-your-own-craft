@@ -81,7 +81,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 
 **Smoke and mirrors (labelled where it shows):** only the documents she reviews have real depth; the room's chatter is light; the motion; the page template, prepared ahead; a prepared bakery journey if the live one is slow (PREPARED); recorded runs as fallbacks (REPLAY).
 
-**Said, not built:** multiplayer (the open seats read "Seat open: invite a teammate"); the team chiming in mid-sentence. **Only if time at the end:** a guest chair for a stand-in customer.
+**Said, not built:** multiplayer (said in the close; no "Seat open" label in the room); the team chiming in mid-sentence. **Only if time at the end:** a guest chair for a stand-in customer.
 
 ## The studio: where the design taste goes
 
