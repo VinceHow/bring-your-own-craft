@@ -272,6 +272,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     canvas.classList.toggle('focus', held);
     if (held) for (const id of Object.keys(CAST)) { P[id].queue = []; P[id].base = 'idle'; }
     if (audio) audio.volume = held ? .12 : .6;
+    if (typeof rainSound === 'function') rainSound();
     animate($('#doc'), { opacity: held ? 1 : 0 }, { duration: .4 });
   }
 
@@ -331,6 +332,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     lightsOn = on;                                           // the fairy lights glow brighter at night; a click still toggles them
     animate($('#glow'), { opacity: on ? 1 : 0 }, { duration: .8 });
     if (on && audio && TRACKS[track] !== 'electronic') { track = -1; nextTrack(); }   // electronic is the night track
+    rainSound();
   }
 
   // ---- clickable objects
@@ -367,16 +369,27 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   // music: never autoplays; each click on the record player moves to the next track, then off
   const TRACKS = ['electronic', 'chiptune', 'piano'];
   let audio = null, track = -1, noteTimer = null;
+  // soft rain under the music, only at night while a record plays (public/looks/cast/music/rain.mp3; silent if the file is missing)
+  let rainAudio = null;
+  function rainSound() {
+    const want = now === 'night' && !!audio;
+    if (want && !rainAudio) { rainAudio = new Audio('../cast/music/rain.mp3'); rainAudio.loop = true; rainAudio.volume = 0; rainAudio.play().catch(() => { rainAudio = null; }); }
+    if (rainAudio) {
+      const v = want ? (held ? .04 : .18) : 0;
+      animate(rainAudio, { volume: v }, { duration: 1.2 }).finished.then(() => { if (!want && rainAudio && rainAudio.volume === 0) { rainAudio.pause(); rainAudio = null; } });
+    }
+  }
   function nextTrack() {
     track = track + 1;
     if (audio) { audio.pause(); audio = null; }
     clearInterval(noteTimer);
-    if (track >= TRACKS.length) { track = -1; return; }
+    if (track >= TRACKS.length) { track = -1; rainSound(); return; }
     audio = new Audio(`../cast/music/${TRACKS[track]}.mp3`); audio.loop = true; audio.volume = held ? .12 : .6;
     audio.play().catch(() => {});
     const [x, y] = P2(1470, 440);
     const notesFx = () => fx('note', '♪', x + (track * 14), y, 0, -50);
     notesFx(); noteTimer = setInterval(notesFx, 1600);
+    rainSound();
   }
   hits.addEventListener('click', e => {
     const id = e.target.dataset.obj; if (!id || held) return;
