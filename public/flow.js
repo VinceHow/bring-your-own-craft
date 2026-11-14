@@ -21,7 +21,10 @@
   function settle(el, from, to) {
     const m = window.motion || window.Motion;
     if (m && typeof m.animate === 'function') {
-      try { m.animate(el, { transform: [from, to] }, { type: 'spring', stiffness: 500, damping: 30 }); el.style.transform = to; return; } catch (e) {}
+      // Spring to the same transform functions at rest: animating to 'none' ends at scale(0) and hides the box.
+      const rest = to === 'none' ? from.replace(/translate([XY]?)\([^)]*\)/g, (_, ax) => ax ? `translate${ax}(0px)` : 'translate(0px, 0px)')
+        .replace(/scale\([^)]*\)/g, 'scale(1)').replace(/rotate\([^)]*\)/g, 'rotate(0deg)') : to;
+      try { m.animate(el, { transform: [from, rest] }, { type: 'spring', stiffness: 500, damping: 30 }); return; } catch (e) {}
     }
     el.style.transition = 'none';
     el.style.transform = from;

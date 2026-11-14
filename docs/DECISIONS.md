@@ -37,3 +37,7 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:37 | agents (reviewer) | Blocked build/docs on two not-yet-true claims (taste-skill vendored, recorded runs) | honesty rule |
 | Sat 12:38 | agents (polish builder → lead) | Fixed flow boxes landing at scale(0) | found in Playwright with motion loaded |
 | Sat 12:39 | Vincent | MongoDB dropped; Linkup stays (key if he adds it); ElevenLabs optional | plain-text secret not worth a voucher |
+| Sat 13:00 | agents (lead) | Checkpoints are branches `demo/<name>` (also tagged locally): the git proxy drops tag pushes | demo-1 = beats 0:00–2:05 live, e2e 9/10 |
+| Sat 13:46 | Vincent (via lead) | Near weekly usage limit: ≤3 builders at once, cheaper model for reviews, minimal real-model e2e runs | if the limit hits, every session stops overnight |
+| Sat 13:47 | Vincent | Usage limits lifted: "all fine, I'm on ultra"; run builders and models as needed | |
+| Sat 13:50 | Vincent | Merged .claude/settings.json: all Figma tools and read-only fal tools allowed without prompts; fal generation (run_model, submit_job) still prompts | builders shouldn't stall overnight |
