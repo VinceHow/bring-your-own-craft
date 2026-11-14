@@ -203,3 +203,9 @@ body.stage .her-hint { display: none; }
 .her-flow > .fl-wrap { transform-origin: 0 0; }
 .sounds-like .sl-hint { display: block; margin-top: 6px; font: 400 11.5px var(--mono); color: rgba(20,20,20,.6); }
 .sounds-like .sl-words[contenteditable="true"] { outline: 0; caret-color: var(--product); }
+
+/* Her three arrive: her sheet grows over the teammates' finished sheets, so her flow stays readable */
+.her-sheet.big { top: 196px; height: 604px; z-index: 4; padding-top: 16px; }
+.her-sheet.big .her-q { font-size: 22px; }
+.her-sheet.big .her-idea { margin-top: 4px; font-size: 1em; }
+.her-sheet.big .her-flow { margin-top: 6px; }

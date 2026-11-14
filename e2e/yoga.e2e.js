@@ -87,8 +87,9 @@ test('3. she writes the idea and her journey; lines become boxes', async t => {
   await waitFor(() => document.querySelectorAll('#her-flow .fl-box').length === 5, 5000, 'five boxes');
   lap('0:22 idea + journey');
   const edges = await page.evaluate(() => BYOC.flow._state.edges);
-  assert.strictEqual(edges.filter(e => !e.label).length, 4, '4 arrows');
-  assert.strictEqual(edges.filter(e => e.label).length, 1, '1 branch');
+  // classes -> a class -> confirm -> booked is 3 arrows; regulars -> "Book your usual" is the 4th, a labelled branch.
+  assert.strictEqual(edges.length, 4, '4 arrows');
+  assert.deepStrictEqual(edges.filter(e => e.label).map(e => e.label), ['regulars'], 'one of them the regulars branch');
   const logged = (await events()).filter(e => e.type === 'flow.line');
   assert.strictEqual(logged.length, 5, 'each line logged once');
 });
@@ -107,13 +108,25 @@ test('4. at most three asks arrive, inside her work (fork or pin), never a pop-u
   assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), asks.length, 'one fork or pin per ask');
   assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'no pop-up');
   await shot('live-asks.png');
-  // She takes the team's recommendation on each.
+  // She overrules the team on the first, and takes the recommendation on the rest.
+  let overruled = null;
   for (let i = 0; i < asks.length; i++) {
-    const item = page.locator('#her-flow .fl-item:not(.is-answered):not(.fl-mine)').first();
-    const rec = item.locator('.fl-opt.is-rec');
-    await ((await rec.count()) ? rec.first() : item.locator('.fl-opt').first()).click();
+    const item = page.locator('#her-flow .fl-fork, #her-flow .fl-pin').nth(i);
+    const rec = item.locator('.fl-opt.is-rec'), other = item.locator('.fl-opt:not(.is-rec)');
+    if (!overruled && (await rec.count()) && (await other.count())) {
+      overruled = i + 1;
+      await other.first().click();
+      await page.waitForTimeout(400);
+      const struck = item.locator('.fl-opt.is-rec.is-dropped .fl-otext');
+      assert.strictEqual(await struck.count(), 1, 'the recommendation she passed over is marked dropped');
+      assert.match(await struck.evaluate(e => getComputedStyle(e).textDecorationLine), /line-through/, 'and struck through');
+      assert.strictEqual(await item.locator('.fl-opt.is-chosen .fl-yours').innerText(), 'YOUR CALL');
+    } else {
+      await ((await rec.count()) ? rec.first() : item.locator('.fl-opt').first()).click();
+    }
     await page.waitForTimeout(300);
   }
+  assert.ok(overruled, 'she overruled the team at least once');
   await waitFor(n => new Set(BYOC.events().filter(e => e.type === 'answer').map(e => e.askId)).size >= n, 8000, 'her answers logged', asks.length);
   lap('1:10 her three answered');
 });
@@ -124,14 +137,18 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   await page.keyboard.press('ArrowRight'); // Design's sketches slide over
   await waitFor(() => document.querySelectorAll('#sketch-sheet .sk-frame').length > 0, 90000, 'grey sketches');
   lap('1:45 sketches on the table (after answers)');
-  const nFrames = await page.locator('#sketch-sheet .sk-frame').count();
-  const frame = page.locator('#sketch-sheet .sk-frame').nth(Math.min(2, nFrames - 1));
+  // She makes a call on the confirm step, on its sketch.
+  const confirmId = await page.evaluate(() => [...BYOC.flow._state.nodes.values()].find(n => n.label === 'confirm')?.id);
+  const frame = page.locator(`#sketch-sheet .sk-frame[data-node="${confirmId}"]`);
+  assert.strictEqual(await frame.count(), 1, 'a sketch of the confirm step');
   await frame.click({ position: { x: 60, y: 120 } });
   await page.waitForSelector('.fl-draft textarea', { timeout: 3000 });
-  await page.keyboard.type('Never ask for a phone number. Regulars hate it.');
+  await page.keyboard.type('Cut the phone field. Name\'s enough; regulars hate forms.');
   await page.keyboard.press('Enter');
   await waitFor(() => document.querySelector('#sounds-like .sl-words')?.isContentEditable, 60000, '"Sounds like" on her file card');
   lap('1:50 pin -> "Sounds like" typed');
+  const pinEv = (await events()).find(e => e.type === 'pin');
+  assert.strictEqual(pinEv.nodeId, confirmId, 'pinned on the confirm node');
   const suggested = (await events()).filter(e => e.type === 'taste.suggested').at(-1);
   assert.ok(suggested && /^Sounds like:/i.test(suggested.text), 'a "Sounds like" line was suggested');
   await shot('live-sounds-like.png');

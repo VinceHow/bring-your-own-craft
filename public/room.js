@@ -465,10 +465,11 @@
     if (node.style.transform !== t) node.style.transform = t;
   }
   let fitQueued = false;
-  new MutationObserver(() => {
+  function refit() {
     if (fitQueued) return; fitQueued = true;
     requestAnimationFrame(() => { fitQueued = false; fitInto(el.herFlow.querySelector('.fl-wrap'), el.herFlow.clientHeight); });
-  }).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+  }
+  new MutationObserver(refit).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
   // ---- events ---------------------------------------------------------------------------------
   let seen = [];      // events of the run on screen, in order
@@ -600,6 +601,11 @@
         for (const s of SEATS) sheetShow(s, animate);
         if (!BYOC.replay && !instantMode) teamGo();
         break;
+      case 6:
+        el.herSheet.classList.add('big');
+        place(el.herSheet, { y: animate ? [40, 0] : 0, rotate: 0 }, animate);
+        refit();
+        break;
       case 7:
         openSketches(animate);
         break;
@@ -639,6 +645,7 @@
       el.seatSheet[s].hidden = true; el.seatSheet[s].innerHTML = '';
     }
     el.herSheet.hidden = true; el.fileCard.hidden = true; el.tally.hidden = true;
+    el.herSheet.classList.remove('big');
     setIdea(''); el.herNotes.innerHTML = ''; el.herInput.value = ''; inputMode = 'off'; el.herForm.hidden = true;
     el.herFlow.innerHTML = ''; flowMounted = false; mountFlow();
     el.fileLines.innerHTML = ''; el.fileNote.textContent = ''; el.soundsLike.hidden = true;
