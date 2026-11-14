@@ -44,7 +44,7 @@ on screen.
 
 | Time | What she sees and does | How it should feel | The presenter says | Live? |
 |---|---|---|---|---|
-| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; she picks her craft (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
+| **0:00–0:05** Taking her seat | The painted studio in 3/4 view, the round table and her empty pink stool; her stool glows warm, and its pick card asks *"What do you bring to the table?"* with **Product** or **"Your own craft"**. She **clicks Product**. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
 | **0:05–0:18** The team appears | One by one, each teammate **pops into its chair** in the painting (no walking), and its card shows big for a moment, then settles. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:18–0:26** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
 | **0:26–0:31** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A website for a small bakery, so customers can order bread ahead." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
@@ -90,22 +90,36 @@ the claim.
   who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
-  1. **She speaks her piece**, a real paragraph (or types it); her words land on the document as she said them.
+  1. **She speaks her piece**, a real paragraph (or types it). Her raw words land first; then a fast tidy call turns
+     them into a composed note in her voice (Vincent, 14 Nov). The tidy only cleans: no new claims or content. It shows
+     as a visible moment, with "See what you said" and "Use mine". The raw words stay in the log, and the tidy never
+     delays the room: it runs in parallel with the first chime-in.
+     **Layout:** the work stays in view on the left with inked pins where her notes apply; the meeting thread on the
+     right is the record (her note, then teammates' replies; earlier rounds fold into honest one-line summaries); the
+     takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
+     her, and she can close at any time. On close, the meeting is kept in her workspace as "Meeting notes"
+     (conversation + takeaways only; her philosophy stays hidden).
   2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
      thread, close to real time, one teammate after another, each **seeing the comments before it** and building on
      them: agreeing, adding a real finding, or pushing back (*Noor: "That matches what small studios report."* *Bo:
      "Then no logins. I'll remember them."* *Ines: "Hmm, regulars might want a standing weekly order. Show that first?"*). Style:
      - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
+     - **never end in a question to her** ("what do you think?"): that would be a back door past the question ceiling.
+       Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
+     - **never forced** (Vincent, 14 Nov): only the teammates whose craft her comment actually touches reply. A
+       design comment might get Mika alone; Theo (data) and Ines (strategy) stay quiet unless it touches measurement
+       or money. 1 reply is normal, 2 common, 3 rare; nobody adds filler to have a turn.
      **Her pace, their speed** (Vincent, 14 Nov). Nothing rushes her: she can think, pause, speak, edit and pause
      again; nothing is cut off by silence, and **she submits when she's ready**. The real-time part is the team: the
      instant she submits, the first reaction lands (aim: under a second) and the thread follows, so she feels heard
      and the room is visibly excited with her. Warm and genuine, never sycophantic: excitement carried by substance
      ("Love that. Then no logins, I'll remember them."), not empty praise.
      Build: each turn is its own fast call that gets her answer plus the thread so far, so they genuinely see each
-     other (3–4 turns, ~1 s each, fastest model; start the first call the moment she submits).
+     other (usually 1–2 turns, at most 3, ~1 s each, fastest model; a cheap routing step picks who replies by
+     relevance, never round-robin; start the first call the moment she submits).
   3. **The meeting's takeaways appear**: a short, beautiful summary of *this* meeting, in her voice, that she can
      reword: **what I believe** about this, and **guidance to the team** for it. Not a template look; it should read
      like the best summary a great colleague would write.
@@ -178,6 +192,13 @@ explains the future vision may come back (parked in `NEXT.md`).
 **Music she chooses** (Vincent, 14 Nov). A record player in the studio with three tracks (piano, electronic,
 chiptune). Only a deliberate click on it starts music; it never autoplays and ducks during her focus. Otherwise the
 room is quiet.
+
+**The painted look's UI** (design studio, Vincent 14 Nov; design notes, `design/studio`): "ink-paper" overlays (cream
+paper, hand-inked wobbly outline, a crayon layer in the teammate's colour underneath); a name pill by each teammate's
+head opens their work; her seat is a warm light on the pink stool plus her own pill, which opens her workspace. **Night
+mode** (moon/sun pill or the laptop's dark mode): a dark, rainy, lamp-lit room; soft rain plays under the music only
+when the record player is on. **"Your own craft"** lives in her seat's pick card ("What do you bring to the table?" ·
+Product · Your own craft), not as a separate seat.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
 turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make

@@ -432,24 +432,8 @@ body.focus-open #room > :not(.focus-doc):not(.replay-label) { visibility: hidden
 body.stage .chatter-line { font-size: 15px; }
 
 /* Her own craft: the dashed seventh seat, beside Product at the table's edge. Layout only; polish.css owns the look. */
-.seat-diy { left: 120px; top: 806px; width: 330px; height: 86px; }
-.seat-diy .seat-empty { border-style: dashed; border-width: 2.5px; font-size: 16px; }
-body[data-beat="0"] .seat-diy { cursor: pointer; }
-body[data-beat="0"] .seat-diy:hover .seat-empty { background: rgba(255,72,176,.12); }
-body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
-.seat-diy .card { flex-direction: row; --seat-ink: var(--product); }
-.seat-diy .card-band { height: auto; flex: none; max-width: 160px; border-bottom: 0; border-right: var(--line); padding: 0 12px; gap: 8px; }
-.seat-diy .card-band svg { width: 24px; height: 24px; }
-.seat-diy .card-name { font-size: 18px; line-height: 1.05; }
-.seat-diy .card-who { margin: 0; font: 500 12px var(--mono); }
-/* her tray sits by whichever seat is hers */
-#room[data-her-seat="diy"] .tray { left: 470px; }
-.seat-diy .card-band { width: 150px; max-width: none; }
-.seat-diy .card-name { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.seat-diy .card-her { flex: 1; min-width: 0; }
-.seat-diy .card-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.seat:not(.seat-product):not(.seat-diy) .card-band { gap: 8px; }
-.seat:not(.seat-product):not(.seat-diy) .card-name { font-size: 19px; }
+.seat:not(.seat-product) .card-band { gap: 8px; }
+.seat:not(.seat-product) .card-name { font-size: 19px; }
 .seat .agent-mark { padding: 0 3px; font-size: 9px; }
 .seat .card-agent-name { font-size: 13px; }
 .fd-form { display: flex; gap: 10px; align-items: flex-end; }
@@ -486,3 +470,14 @@ body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
 .ws-takeaway { display: flex; flex-direction: column; gap: 2px; }
 .ws-believe { font-weight: 600; }
 .seat .card { cursor: pointer; }
+
+/* Her idea sheet, opened large by a click (data-open, room.js). Layout only: looks come from the studio. */
+#room .her-sheet[data-open="true"] { left: 120px; top: 60px; width: 1360px; height: 790px; z-index: 30; }
+
+/* Her seat's pick card (room.js): just above her seat. Layout only: looks come from the studio. */
+.pick-card { position: absolute; left: 560px; top: 610px; width: 480px; z-index: 12; padding: 18px 22px; background: var(--sheet); border: var(--line); }
+.pick-q { margin: 0 0 12px; font-size: 22px; }
+.pick-options { display: flex; gap: 12px; }
+.pick-option { flex: 1; font: inherit; font-size: 18px; padding: 12px 10px; cursor: pointer; }
+body[data-beat="0"] .seat-product { cursor: pointer; }
+.seat-product .card-diy .card-name { font-size: 22px; }

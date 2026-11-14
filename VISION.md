@@ -8,6 +8,12 @@ You spend 90% of your time on the craft you love, in flow, with a team you'd lov
 
 ## Who it's for, and their pain
 
+**The job: help people with a craft actually get their idea built.** Most projects don't die from bad ideas; they die
+in the questions nobody signed up for ("which language?", "which database?"). Here you only do what you love, so you
+stay motivated, and the team does the rest, so you reach the end. *(Pitch framing from early user feedback, 14 Nov:
+nothing to build. "You reach the end" is the belief behind the product; the demo shows one person finishing, and we
+don't claim more than that.)*
+
 **Our ICP: people with a deep craft who want to turn an idea into a working product, without a full team.** We start with product managers like Priya: they know customers, problems and journeys inside out, and they have more ideas than engineers, designers and researchers to build them. The same shape fits other crafts later: a designer, a researcher, a baker with a business idea.
 
 **Their pain today:**
@@ -41,7 +47,7 @@ The product has two moments: a short setup that ends in her first question, then
 
 **1. The setup: walking in to the first question** (under a minute)
 
-1. **Take a seat.** Like building a character: six ready-made crafts, or "Your own craft". Priya picks Product.
+1. **Take a seat.** Her pink stool glows warm. Its pick card asks *"What do you bring to the table?"*: Product, or "Your own craft". Priya picks Product.
 2. **The team appears.** Mika, Noor, Theo, Ines and Bo pop into their chairs at the round table, one by one (no walking), each card showing what they love and what they bring.
 3. **She introduces herself in one sentence.** *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts its own fun spin on it to make her character card, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
 4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
@@ -53,9 +59,9 @@ The product has two moments: a short setup that ends in her first question, then
 1. **The room.** The team is busy and chatting among themselves about their work, settling every small decision themselves. When several teammates talk something out and agree (Bo flags that orders after 8pm miss the morning bake; Ines and Mika agree an 8pm cut-off, said plainly), it lands as a one-line card in the team space in the middle of the table; tap it to see how they got there. Nothing is addressed to her. (Coming: she can pick a decision and talk it through with the team.)
 2. **The tray.** When something truly needs her, a note slides into her tray at a natural pause. No numbers, no pressure.
 3. **Her focus.** She opens a note and the world goes quiet: just her and one document, with the work to review and one big question.
-4. **She says her piece.** A paragraph, spoken. Her words land on the document.
-5. **The team chimes in**, like people in a real meeting: short, spoken lines, nothing that sounds like AI. They see each other's comments and build on them, agree or push back ("Hmm, regulars might want a standing weekly order"), with real findings and what they'll now do. Nobody rushes her: she takes her time, pauses, and submits when she's ready. The moment she does, the room reacts instantly, excited with her and building on her idea, so she feels heard. This gets a lot of thought and polish.
-6. **The takeaways.** A short summary of this meeting in her voice: what she believes about this, and her guidance to the team. She can reword it. Behind the scenes, the team updates its picture of her, including her philosophy.
+4. **She says her piece.** A paragraph, spoken. Her raw words land first, then a quick tidy turns them into a composed note in her voice (she can see what she said, or keep her own words). The work stays in view on the left, with inked pins where her notes apply; the meeting thread on the right is the record.
+5. **The team chimes in**, like people in a real meeting: short, spoken lines, nothing that sounds like AI. Only the teammates her words actually touch reply, often just one, never forced. They see each other's comments and build on them, agree or push back ("Hmm, regulars might want a standing weekly order"), with real findings and what they'll now do. Nobody rushes her: she takes her time, pauses, and submits when she's ready. The moment she does, the room reacts instantly, excited with her and building on her idea, so she feels heard. This gets a lot of thought and polish.
+6. **The takeaways.** A short summary of this meeting in her voice: what she believes about this, and her guidance to the team. She can reword it. Behind the scenes, the team updates its picture of her, including her philosophy. When she closes, the meeting is kept in her workspace as "Meeting notes".
 7. **The team gets to work**, and the work moves forward: journey, then wireframes, then the bakery's ordering page. Back to the room, and round again.
 
 ## The hackathon build
@@ -75,7 +81,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | Focus moment 3 | 1:35–2:00 | Wireframes + a question about the feel; the takeaways |
 | Symphony | 2:00–2:20 | One press; her page appears |
 | Her page | 2:20–2:34 | The page they built, clean: the product is just the product |
-| Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, N guessed (re-run on the bakery prompt) |
+| Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, 24 guessed, 20 approvals (bakery baseline) |
 
 **Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted; the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
 
@@ -89,6 +95,11 @@ Most of our design effort goes into the studio, because feeling settled and safe
 
 - **Settled, not busy.** A cosy, hand-painted studio seen in 3/4 view: one round table, a living painting that shifts with the light (morning, afternoon, building, evening). Her seat is the one empty pink stool. Teammates' work sits on sketchpads, not paperwork. Calm motion, nothing flashing. The real site growing on the table is the progress.
 - **Music she chooses.** A record player with three tracks (piano, electronic, chiptune). She starts it with a deliberate click; it never autoplays, and it ducks during her focus.
+- **Ink-paper overlays.** Every card is cream paper with a hand-inked, slightly wobbly outline matching the painting,
+  and a crayon layer in the teammate's colour peeking out underneath. Each teammate has a name pill by their head;
+  clicking it opens their work. Her seat has her own pill, which opens her workspace.
+- **Night mode.** A small moon/sun pill (or the laptop's dark mode) turns the studio into a dark, rainy, lamp-lit room.
+  Soft rain plays under the music only when she has started the record player; nothing ever autoplays.
 - **Polish goes into her focus moment.** The document, her words landing on it, the team chiming in, and the takeaways reading like the best summary a great colleague would write.
 - **No pressure, ever.** No timers, no counters ticking at her, no urgent interruptions. Waiting questions sit in a calm tray (no numbers, no red) and arrive only at natural pauses. Opening one turns the view into just her and one document: no dimming, no spotlight, nobody visibly waiting.
 - **No ceremony; keep what matters.** No logs, approvals or status in the room. The work that matters (her journey, Design's key screens) stays on the table, and the team decides what's worth keeping.
