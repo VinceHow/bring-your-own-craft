@@ -373,3 +373,11 @@ body.focus .seat:not(.seat-product) *, body.focus .mini-sheet *, body.focus .tal
 .tray-note[data-seat="research"] { --seat-ink: var(--research); } .tray-note[data-seat="strategy"] { --seat-ink: var(--strategy); }
 .tray-note[data-seat="engineering"] { --seat-ink: var(--engineering); } .tray-note[data-seat="product"] { --seat-ink: var(--product); }
 body.stage .tray-note { font-size: 16px; }
+
+/* Leaning in: the card nudges toward her work (motion in room.js); its ink marks the box it picked up */
+.seat .card.leaning { z-index: 3; box-shadow: 6px 6px 0 var(--ink); }
+.lean-marks { position: absolute; right: 6px; top: -7px; display: flex; gap: 3px; }
+.lean-mark { display: block; width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--seat-ink, var(--ink)); }
+.lean-mark[data-seat="design"] { --seat-ink: var(--design); } .lean-mark[data-seat="data"] { --seat-ink: var(--data); }
+.lean-mark[data-seat="research"] { --seat-ink: var(--research); } .lean-mark[data-seat="strategy"] { --seat-ink: var(--strategy); }
+.lean-mark[data-seat="engineering"] { --seat-ink: var(--engineering); }
