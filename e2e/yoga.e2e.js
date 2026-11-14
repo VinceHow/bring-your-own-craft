@@ -58,7 +58,10 @@ test('2. six seats; she clicks Product, the team assembles, her card takes her l
     assert.ok(await page.locator(`[data-seat="${s}"]`).count(), `seat ${s} on the table`);
   tBeat = Date.now();
   assert.strictEqual(await page.locator('.seat .card').count(), 0, 'six empty seats at the start');
-  await page.click('.seat-product'); // she takes the Product seat herself
+  await page.click('.seat-product'); // her seat's pick card: "What do you bring to the table?"
+  assert.match(await page.textContent('#pick-card'), /What do you bring to the table\?[\s\S]*Product[\s\S]*Your own craft/);
+  assert.strictEqual(await page.locator('.seat-diy').count(), 0, 'no seventh seat');
+  await page.click('#pick-card [data-pick="product"]'); // she takes the Product seat herself
   // The team assembles: each card big mid-table, then into its seat. Then her card lifts for her "I love..." line.
   await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 40000, 'the team seated and her card open');
   lap('0:00 walk-in + assembling');
