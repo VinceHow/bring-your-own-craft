@@ -57,8 +57,13 @@ the claim.
 | Engineering (yellow) | Bo | "Boring, correct, shipped." | the page template and the live build | boring and correct |
 
 **Focus time rules** (the core of the feel; build these exactly):
-- **Nothing ever breaks her focus.** No exception for "urgent". While a check-in is open: the other seats dim and
-  stop animating, the caption doesn't move, nothing counts up. No timers anywhere.
+- **Two states, nothing in between** (Vincent, 14 Nov). **The room:** the team is alive and busy, with its own light
+  chatter between teammates about their work (real, from the run: *"Noor: found a source on full classes." "Bo: I'll
+  take the booking form."*), never addressed to her, never asking anything of her. **Her focus:** the moment she opens
+  a note from her tray, the view becomes just her and that one document; the room and its chatter are gone from view.
+  No dimming, no spotlight, nobody visibly waiting: simply a quiet, focused view where the team is there to listen
+  and respond on this one document. Closing it brings the room back.
+- **Nothing ever breaks her focus.** No exception for "urgent"; nothing counts up; no timers anywhere.
 - **The tray.** Questions that clear the bar wait as a small stack of notes at the edge of her seat, each in the ink
   of the teammate who left it. Calm: no number, no red, no pulsing, no "waiting for you" state. New notes slide in
   only at natural pauses (right after she answers, after the shape redraws), never while she's typing or speaking,
@@ -68,7 +73,7 @@ the claim.
   worth keeping themselves**: her user journey and Design's key screens stay on the table as real artifacts she can
   come back to; she's never asked to file, approve or tidy anything.
 - **A focus moment: her moment in the meeting** (Vincent, 14 Nov: the feel, not stage directions). She opens a note
-  from her tray and **a document opens**: the work to review (the journey, a finding, the wireframes), labelled with
+  from her tray and **a document opens, filling the view**: the work to review (the journey, a finding, the wireframes), labelled with
   who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
@@ -86,7 +91,7 @@ the claim.
     believe* line replaces the separate "Sounds like" step; rewording it works the same; her Stance slot fills from it.
   - **On stage:** focus moment 1 in full (her paragraph, the team chiming in, her brief, the team to work); moments 2
     and 3 short (a sentence or two; the brief updates).
-  - Builders: no literal staging (no cards turning, no spotlight); spend the time on the document, her words landing,
+  - Builders: no literal staging (no cards turning, no spotlight, no dimming); spend the time on the document, her words landing,
     the chime-ins and the brief.
 - **The question bar** (what reaches her at all):
   1. **Big:** the answer changes the shape of the product (who it's for, the problem, the feel, the promise), not a
@@ -162,8 +167,8 @@ in, labelled REPLAY, and the presenter says what was replayed.
 ## 2. How it works, in brief
 - **The room is the frame, a cozy studio.** Her work lies in front of her seat, full size. Each teammate's work sits
   as a sketchpad in front of its seat, to glance at or open, never to approve. Teammates are flat printed cards (role,
-  glyph, the craft's ink, a name, a small "agent" mark): no faces, no chit-chat; their personality is the name, the
-  "loves" line and the one or two lines in their check-ins. **Names only, never pronouns**, anywhere in the room.
+  glyph, the craft's ink, a name, a small "agent" mark): no faces; their personality is the name, the "loves"
+  line, their light chatter in the room and their responses in her focus moments. **Names only, never pronouns**, anywhere in the room.
   Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
   (Engineering). Check-ins read *"Noor (Research): …"*.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at

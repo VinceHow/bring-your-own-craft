@@ -50,7 +50,8 @@ The café run ("a pre-order page for a café's morning pastries") is the **fallb
 real run.
 
 **New build pieces, cheapest first** (lead to price and split):
-1. **Focus time and the tray:** while a check-in is open, other seats dim and freeze; no counters moving, no timers,
+1. **Two states and the tray:** the room has light, real chatter between teammates (never addressed to her); when
+   she opens a tray note, the view becomes just her and that one document (no dimming, no spotlight); no timers,
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
    if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
