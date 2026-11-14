@@ -117,6 +117,8 @@ log", which are marked pending in `e2e/yoga.e2e.js`.
 | [`motion`](https://motion.dev) 14.14.0 | springs for the room's animation; copied to `public/vendor/motion/` for offline use | MIT |
 | Archivo Black, via [@fontsource](https://fontsource.org) | display type | SIL OFL 1.1 (`public/fonts/LICENSE-archivo-black.txt`) |
 | IBM Plex Sans and IBM Plex Mono, via @fontsource | UI type, her file and the reasons | SIL OFL 1.1 (`public/fonts/LICENSE-ibm-plex.txt`) |
+| The 22 typefaces taste-skill can deal for a place page (Fraunces, Figtree, Besley, Albert Sans and others), via @fontsource | the built page's type, dealt live by Design and served locally | SIL OFL 1.1 (each `vendor/fonts/<face>/LICENSE`) |
+| Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |

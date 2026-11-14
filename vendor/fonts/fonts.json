@@ -1,0 +1,157 @@
+{
+  "note": "Every face taste-skill can deal for a place page, bundled from @fontsource (SIL Open Font License 1.1 unless its LICENSE says otherwise; each LICENSE sits beside its files), so a built page never loads Google Fonts. A dealt face not listed here falls back to the template's own type.",
+  "Albert Sans": {
+    "dir": "albert-sans",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Besley": {
+    "dir": "besley",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Bricolage Grotesque": {
+    "dir": "bricolage-grotesque",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "EB Garamond": {
+    "dir": "eb-garamond",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Figtree": {
+    "dir": "figtree",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Fraunces": {
+    "dir": "fraunces",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Gabarito": {
+    "dir": "gabarito",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Hanken Grotesk": {
+    "dir": "hanken-grotesk",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Instrument Sans": {
+    "dir": "instrument-sans",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Jost": {
+    "dir": "jost",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Libre Franklin": {
+    "dir": "libre-franklin",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Literata": {
+    "dir": "literata",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Lora": {
+    "dir": "lora",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Newsreader": {
+    "dir": "newsreader",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Nunito": {
+    "dir": "nunito",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Nunito Sans": {
+    "dir": "nunito-sans",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Outfit": {
+    "dir": "outfit",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Rethink Sans": {
+    "dir": "rethink-sans",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Source Serif 4": {
+    "dir": "source-serif-4",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Vollkorn": {
+    "dir": "vollkorn",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Work Sans": {
+    "dir": "work-sans",
+    "weights": [
+      400,
+      500
+    ]
+  },
+  "Zilla Slab": {
+    "dir": "zilla-slab",
+    "weights": [
+      400,
+      500
+    ]
+  }
+}
