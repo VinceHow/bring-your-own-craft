@@ -181,7 +181,8 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   const done = evs.find(e => e.type === 'build.done');
   assert.strictEqual(done.url, `/runs/${RUN}/page/`);
   // The build re-decided the rest against her updated file, and at least one decision cites her new line.
-  const redecided = evs.filter(e => e.type === 'decided' && e.round === 'build');
+  // re-decided at Build, or a joint agreement revisited against her new line in code before it (round 'revisit')
+  const redecided = evs.filter(e => e.type === 'decided' && (e.round === 'build' || e.round === 'revisit'));
   assert.ok(redecided.some(d => d.cites === written.id), `a re-decision cites ${written.id}: ${redecided.map(d => d.id + ':' + d.cites).join(' ')}`);
   // Her page.
   const pg = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: SCREENS ? 2 : 1 });

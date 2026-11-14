@@ -414,6 +414,8 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   await p.locator('#focus-doc .fd-input').fill(said);
   await p.keyboard.press('Enter');
   await waitFor(() => !!document.querySelector('#focus-doc .fd-words'), 2000, 'her words on the document', null, p);
+  // The stubbed route records the POST asynchronously (after her words land), so wait for it rather than race it.
+  for (const t = Date.now(); !posted.length && Date.now() - t < 3000;) await p.waitForTimeout(50);
   assert.deepStrictEqual(posted[0], ['answer', { askId: 'q1', text: said }]);
   // Two chime-ins and the brief arrive together; they land one after another, about a second apart, then the brief.
   const t0 = Date.now();
