@@ -1,0 +1,6 @@
+/* The painted living layer (looks/painted-living.js): the living painting inside #room, under everything.
+   The look itself (pills, sheets, ink) is public/looks/painted.css, owned by the ink-paper look. */
+#room > iframe.painted-living { position: absolute; left: 0; top: 0; width: 1600px; height: 900px; border: 0; z-index: 0;
+  pointer-events: none; background: #2B1E15; }
+/* only while the painting is on: the room's own table steps back so the painting shows (the ink-paper look may restyle it) */
+html.painted-on #room .table { background-color: transparent; background-image: none; }
