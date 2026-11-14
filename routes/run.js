@@ -13,6 +13,7 @@ import { cleanTag, templateFor, nameTag } from '../lib/tag.js';
 import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
+import { makeCast } from '../lib/cast.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
@@ -138,7 +139,9 @@ export default [
       // "Your own craft": her seat is 'diy' and her name tag travels with the run (lib/craft.js).
       const seat = SEAT_IDS.includes(body?.seat) ? body.seat : 'product';
       const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}) });
+      // Any seat is hers (lib/cast.js): a craft other than Product records its cast on run.start; Product adds nothing.
+      const cast = makeCast(seat === 'diy' ? 'diy' : String(body?.craft || 'product'), body?.flex);
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(cast ? { cast } : {}) });
       if (intro || tag) buildProfile(run).catch(() => {}); // her sentence + idea: the private profile starts, never waited on
       return sendJson(res, 200, { run });
     },
