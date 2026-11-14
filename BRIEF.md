@@ -65,7 +65,16 @@ glance at, never to approve.
 **Shape.** One Node 22 server (`node:http`): UI, built page, `/api/book`, SSE events. One HTML UI, vanilla JS, no
 build step; springs from the `motion` package (Framer Motion without React), copied in for offline. No Agent SDK.
 
-**Models run through fal on the user's own key (BYO fal key).** Every live call: a Claude model via fal's OpenRouter
+**One model adapter, two backends.** Every model call goes through one function, `callModel({system, user, schema})`,
+which returns validated JSON. `MODEL_BACKEND` picks the backend:
+- **`claude-code` (the default, build with this first):** Claude Code run headless, `claude -p "<user>" --output-format
+  json` with our own system prompt, no tools and no project files loaded (use the CLI's flags for a custom system prompt,
+  no tools and skipping CLAUDE.md, or `--bare`; check `claude --help`). It uses the machine's own Claude Code login, so no
+  key is needed. Checked in the lead's cloud session: one call came back in about 2 s of API time, but the default setup
+  loaded ~40k tokens of context (about $0.12 a call), which is why the flags matter. Time five calls in parallel.
+- **`fal` (swap in later, the sponsor route):** below. Switching is one env var; nothing else changes.
+
+**The fal backend: models through fal on the user's own key (BYO fal key).** Each call: a Claude model via fal's OpenRouter
 router, streamed, OpenAI-compatible `https://fal.run/openrouter/router/openai/v1/chat/completions`, header
 `Authorization: Key <FAL_KEY>`, model id `anthropic/claude-…` (exact id and fastest model from fal's page; not the older
 `fal-ai/any-llm`). **Unverified** (fal.ai was blocked for the tech lead; this is from search results): confirm it in the
