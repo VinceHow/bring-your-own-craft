@@ -270,6 +270,24 @@ body.stage #room .tray-note { font-size: 14px; }
 .focus-doc .chime[data-seat="research"] { --chime-ink: var(--research); } .focus-doc .chime[data-seat="strategy"] { --chime-ink: var(--strategy); }
 .focus-doc .chime[data-seat="engineering"] { --chime-ink: var(--engineering); }
 @keyframes fd-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* the real document (focus-doc.js): her words land as one quote with one pink rule; the input is a sheet she writes on */
+.focus-doc .fd-said:has(.fd-words) { border-left: 0; padding: 0; }
+#room .focus-doc .fd-words { margin: 0; padding: var(--s2) 0 var(--s2) var(--s4); background: transparent; border-left: 6px solid var(--product);
+  font: italic 400 22px/1.45 var(--ui); max-width: 60ch; }
+#room .focus-doc .fd-input { font: 400 22px/1.4 var(--ui); color: var(--ink); background: #FFFEFB; border: 2px solid var(--ink); border-radius: var(--r);
+  box-shadow: var(--shadow-sm); padding: 12px 14px; }
+#room .focus-doc .fd-input::placeholder { color: rgba(20,20,20,.55); font-style: italic; }
+#room .focus-doc .fd-input:focus { outline: 3px solid var(--ink); outline-offset: 2px; }
+#room .focus-doc .fd-keep { font: 600 14px var(--ui); color: var(--ink); background: var(--product); border: var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow-sm); padding: 8px 14px; cursor: pointer; }
+#room .focus-doc .fd-keep:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+#room .focus-doc .fd-keep:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+#room .focus-doc .fd-team { font: 600 13px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .06em; display: flex; align-items: center; gap: 8px; }
+#room .focus-doc .fd-team:not(:empty)::before { content: ''; width: 10px; height: 10px; background: var(--ink); border-radius: 2px; }
+#room .focus-doc .fd-empty { font: italic 400 18px/1.4 var(--ui); color: rgba(20,20,20,.75); }
+#room .focus-doc .fd-finding-src { color: rgba(20,20,20,.75); }
+#room .focus-doc .fd-side .fd-brief { margin-top: var(--s3); padding: var(--s4); }
+#room .focus-doc .fd-side .brief-believe .brief-text { font-size: 24px; }
 /* the meeting's takeaways: the best summary a great colleague would write, in her voice. A memo on its own sheet,
    two short parts (what I believe / guidance to the team), every word hers to reword */
 .focus-doc .fd-brief { margin-top: var(--s5); background: #FFFEFB; border: 2px solid var(--ink); border-top: 8px solid var(--product);

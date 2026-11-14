@@ -1,8 +1,12 @@
 # Bring your own craft: the product demo
 
+**Start with `VISION.md`**: Vincent's one-pager (who it's for, the vision, the two moments, the hackathon build, the
+studio). This file is the beat-by-beat detail under it.
+
 Product owner, 14 Nov (studio version, after Vincent's user feedback: "it felt like walking into a work meeting").
-One polished journey: **Priya, a product manager, takes the Product seat**, building a booking page for a friend's
-small yoga studio (a side project). Everything built serves this script. Why a PM (Vincent, 14 Nov): the panel is
+One polished journey: **Priya, a product manager, takes the Product seat**, building an ordering website for a friend's
+small bakery, so customers can order bread ahead (a side project). **Locked (Vincent, 14 Nov)** for the demo, the
+rehearsal recording and every prepared fallback. Everything built serves this script. Why a PM (Vincent, 14 Nov): the panel is
 researchers, PMs, directors and investors, and all of them work with or as a PM. Off the script, Vincent can try
 other personas live through "Your own craft" (e.g. a baker); the one-pager and the pitch use Priya throughout.
 
@@ -38,15 +42,15 @@ on screen.
 | **0:00–0:05** Taking her seat | An empty table seen from above, inked on paper, six empty seats (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
 | **0:05–0:22** Assembling the team | One by one, each teammate's card lands **big in the middle of the table**, holds ~1.5 s, then slides into its seat. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:22–0:30** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
-| **0:30–0:35** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A booking page for a small yoga studio." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
-| **0:35–0:45** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (~4 s measured): **who the users are** (first-timers, regulars, the studio owner) and **the stages they go through**. No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero." | live |
-| **0:45–1:05** Focus moment 1 | The room clears. In front of her, large: the rough journey, *"proposed by Noor and Mika"*. Under it, **one thoughtful question** in plain words, e.g. *"What makes someone come back to a studio week after week?"* She **talks**: *"Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it."* Her words land on the journey as notes. **One or two teammates react** with what they'll do: *Mika: "Love that. Regulars go first, their usual class one tap away."* The journey **redraws** in front of her. | Her insight lands, and the team runs with it straight away. | "One question, about what she knows best. No options, no form." | live |
-| **1:05–1:15** The room and the team space | Everyone goes heads-down; the room's light chatter is them talking things out (*"Bo: logins slow regulars down." "Mika: then remember them on the device."*). Each teammate's sketchpad shows its own calls. When teammates agree on something together, it lands in the **team space** in the middle of the table as a one-line card with the marks of who talked it out (*"Waitlist auto-offers the spot, no logins." Bo, Mika*). Caption: **"21 handled by your team · 3 for you"** (real numbers). | **They handle it, and they think of what she didn't.** | "None of this was asked of her. They talked it out and decided." | live |
-| **1:15–1:35** Focus moment 2 | From her tray, at her pause. In front of her: the work it's about (e.g. Noor's finding on full classes, with its source). One big question that draws on what she's good at or loves. She talks; one or two teammates react; the work updates. | Deep focus, nobody waiting on her. | "Every question draws on what she's best at." | live |
-| **1:35–2:00** Focus moment 3 | In front of her: Mika's grey wireframes of booking. *"If booking could feel like one thing, what should it feel like?"* She: *"Fast. Don't ask for anything you already know."* Mika reacts: *"Then the phone field goes, and so does every question we can remember."* The meeting's **takeaways** appear in her voice: *"What I believe: booking should feel instant. Never ask for what we could remember. Guidance: cut every field we already know."* She rewords one line: *"…anything we could remember or skip."* Behind the scenes, the team updates its private picture of her philosophy. | Recognition: "that *is* what I think." | "She didn't write a principle. She answered a question, and the team summed it up, in her words." | live |
+| **0:30–0:35** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A website for a small bakery, so customers can order bread ahead." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
+| **0:35–0:45** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (~4 s measured): **who the users are** (morning regulars, the weekend pastry crowd, the bakers) and **the stages they go through** (choose → order → pick up). No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero." | live |
+| **0:45–1:05** Focus moment 1 | The room clears. In front of her, large: the rough journey, *"proposed by Noor and Mika"*. Under it, **one thoughtful question** in plain words, e.g. *"What do people come to a bakery like this for that they can't get at the supermarket?"* She **talks**: *"Bread that's still warm, and being known. The regulars come every morning, and they hate it when the sourdough's gone by nine."* Her words land on the journey as notes. **One or two teammates react** with what they'll do: *Mika: "Love that. Regulars first, their usual loaf one tap away."* *Bo: "Then we hold it for them till ten."* The journey **redraws** in front of her. | Her insight lands, and the team runs with it straight away. | "One question, about what she knows best. No options, no form." | live |
+| **1:05–1:15** The room and the team space | Everyone goes heads-down; the room's light chatter is them talking things out (*"Bo: orders after 8pm miss the morning bake." "Ines: then a cut-off, and say it plainly."*). Each teammate's sketchpad shows its own calls. When teammates agree on something together, it lands in the **team space** in the middle of the table as a one-line card with the marks of who talked it out (*"Orders close at 8pm for the next morning." Bo, Ines, Mika*). Caption: **"21 handled by your team · 3 for you"** (real numbers). | **They handle it, and they think of what she didn't.** | "None of this was asked of her. They talked it out and decided." | live |
+| **1:15–1:35** Focus moment 2 | From her tray, at her pause. In front of her: the work it's about (e.g. Noor's finding on what sells out first at small bakeries, with its source). One big question that draws on what she's good at or loves. She talks; one or two teammates react; the work updates. | Deep focus, nobody waiting on her. | "Every question draws on what she's best at." | live |
+| **1:35–2:00** Focus moment 3 | In front of her: Mika's grey wireframes of ordering. *"If ordering could feel like one thing, what should it feel like?"* She: *"Like the baker already knows you. Don't ask for anything you already know."* Mika reacts: *"Then the phone field goes, and so does every question we can remember."* The meeting's **takeaways** appear in her voice: *"What I believe: ordering should feel like being known. Never ask for what we could remember. Guidance: their usual loaf first, cut every field we already know."* She rewords one line: *"…anything we could remember or skip."* Behind the scenes, the team updates its private picture of her philosophy. | Recognition: "that *is* what I think." | "She didn't write a principle. She answered a question, and the team summed it up, in her words." | live |
 | **2:00–2:20** Build it | Her one press, and **her page** appears in the middle of the table. ("The symphony" is the metaphor, not staging.) | Everyone's work becoming one thing. | "Everyone brings their part." | **live**, built from her actual answers |
-| **2:20–2:34** Her page | Her booking page, full size, the thing the team built together: regulars first, their usual one tap away, no phone field, her words, a one-tap cancel nobody asked her about. **The product is just the product:** no notes, tours or credits on it. | **It's all of ours, and it's hers.** | "Every step she never designed was decided her way, in the studio." | live |
-| **2:34–3:00** The close | **A judge's idea, live.** Vincent types or says it; within seconds the rough journey of *their* idea draws in, and the first big question the team would ask them lands on it. **While it draws**, the contrast from the real baseline: a default coding agent **asked 0 questions and guessed 22 things** about the studio, beside her **3 asked, the rest handled by the team**. Last line. | Seen. Nothing here was scripted. | "The default agent didn't ask anything. It guessed twenty-two things. Her team asked three, about her craft, and handled the rest. This project was built the same way. And tomorrow, the engineer at this table is a person, with their own team." | live |
+| **2:20–2:34** Her page | The bakery's ordering page, full size, the thing the team built together: regulars first, their usual loaf one tap away, no phone field, her words, an 8pm cut-off and a one-tap cancel nobody asked her about. **The product is just the product:** no notes, tours or credits on it. | **It's all of ours, and it's hers.** | "Every step she never designed was decided her way, in the studio." | live |
+| **2:34–3:00** The close | **A judge's idea, live.** Vincent types or says it; within seconds the rough journey of *their* idea draws in, and the first big question the team would ask them lands on it. **While it draws**, the contrast from the real baseline: a default coding agent **asked 0 questions and guessed N things** about the bakery (N from a fresh baseline run on the bakery prompt; the yoga count of 22 doesn't carry over), beside her **3 asked, the rest handled by the team**. Last line. | Seen. Nothing here was scripted. | "The default agent didn't ask anything. It guessed N things. Her team asked three, about her craft, and handled the rest. This project was built the same way. And tomorrow, the engineer at this table is a person, with their own team." | live |
 
 **The team cards** (0:05–0:22). "Brings" must stay true of what each teammate actually runs on; change the line, not
 the claim.
@@ -61,7 +65,7 @@ the claim.
 
 **Focus time rules** (the core of the feel; build these exactly):
 - **Two states, nothing in between** (Vincent, 14 Nov). **The room:** the team is alive and busy, with its own light
-  chatter between teammates about their work (real, from the run: *"Noor: found a source on full classes." "Bo: I'll
+  chatter between teammates about their work (real, from the run: *"Noor: found a source on what sells out first." "Bo: I'll
   take the booking form."*), never addressed to her, never asking anything of her. **Her focus:** the moment she opens
   a note from her tray, the view becomes just her and that one document; the room and its chatter are gone from view.
   No dimming, no spotlight, nobody visibly waiting: simply a quiet, focused view where the team is there to listen
@@ -84,7 +88,7 @@ the claim.
   2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
      thread, close to real time, one teammate after another, each **seeing the comments before it** and building on
      them: agreeing, adding a real finding, or pushing back (*Noor: "That matches what small studios report."* *Bo:
-     "Then no logins. I'll remember them."* *Ines: "Hmm, regulars also buy passes. Show that first?"*). Style:
+     "Then no logins. I'll remember them."* *Ines: "Hmm, regulars might want a standing weekly order. Show that first?"*). Style:
      - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
@@ -111,8 +115,9 @@ the claim.
 - **The question bar** (what reaches her at all):
   1. **Big:** the answer changes the shape of the product (who it's for, the problem, the feel, the promise), not a
      setting on it.
-  2. **Hers:** it draws on what she's especially good at or what she loves, read from her own words and the private
-     profile, not her job title. (A baker is asked about her customers and the 7am pickup, not dough.)
+  2. **Hers:** it falls in one of **her domains**, which the team deduces from the two things she said in the setup
+     (her craft sentence and her idea): for Priya, the target customer, the customer's problem and the user journey.
+     Read from her own words and the private profile, not her job title. (A baker is asked about her customers and the 7am pickup, not dough.)
   3. **Natural:** one sentence, thought-provoking, never a form.
   4. **Everything granular is the team's**, decided with its own recommendation and never asked (accounts, device
      recognition, waitlist mechanics, which fields). Prefer big questions whose answers the page can visibly show.
@@ -122,7 +127,7 @@ the claim.
 **The first sketch rules:** one fast model call by Design on her sentence returns user types plus stages (same box
 and arrow drawing as before); it draws in as it streams so the first box shows within a few seconds. Her reaction
 (spoken or typed) is one more call that redraws the shape; direct edits (rename, strike, add) need no model. If the
-first sketch is slow, a sketch prepared ahead for the yoga idea comes in, labelled **PREPARED**.
+first sketch is slow, a sketch prepared ahead for the bakery idea comes in, labelled **PREPARED**.
 
 **Leaning in is real.** A teammate leans in only when a real event in the run's log shows it picked up her change.
 The idea's progress shows only through the work itself (sketch, reshape, wireframes, page), never a progress object.
@@ -157,7 +162,7 @@ at 6am*). She can change any word. One fast call, no form. Her tag is then passe
 selector's "in her seat" test, so only questions in her craft reach her (a baker is asked about the bake, the menu,
 the morning rush, never wireframes). The polished stage path stays Priya in Product; if rehearsal says it's solid,
 the café fallback is re-recorded as a baker in the DIY seat. **Known limit:** the build at the end has two prepared
-page templates (yoga booking, café pre-order), so a DIY idea that isn't page-shaped like those gets the sketch and
+page templates (bakery ordering, built from the café pre-order template; the old yoga booking), so a DIY idea that isn't page-shaped like those gets the sketch and
 questions but no built page. **Cut line:** a visible label, "Your own craft: coming".
 
 **Seats she isn't in** read: *"Seat open: invite a teammate. Your agents hold it until they arrive."* A label, not a
@@ -186,8 +191,20 @@ the words land as editable text. If the key is missing or the call fails, she ty
 **The problem is told outside the product.** Vincent's voiceover and slides set up the problem; the room never
 explains itself with a hook, intro text or tutorial.
 
-**The café run is the fallback, not a beat.** If the judge's idea is slow or weak, **R** brings in the café run
-("a pre-order page for a café's morning pastries", a recorded real run), labelled REPLAY, and the presenter says so.
+**The bakery lock-in (Vincent, 14 Nov): what changes underneath.**
+- **Page:** the bakery ordering page is built from the café pre-order template (switches: regulars first, usual
+  order one tap, standing weekly order, cut-off time, phone field, one-tap cancel).
+- **Baseline, re-run for honesty:** the close's "asked 0, guessed N" must come from a plain coding agent on the
+  *bakery* prompt, counted by hand like `docs/baseline/GUESSES.md`. The yoga count of 22 is not used on stage.
+- **Research's finding:** a new real, sourced finding about small bakeries (e.g. what sells out first, or why
+  pre-orders matter), labelled "researched before the demo".
+- **Recordings:** the rehearsal run (R) and the PREPARED first sketch are re-recorded on the bakery idea. The yoga run
+  becomes the "different idea" fallback for the judge's idea (C), replacing the café run, so the fallback is a
+  genuinely different idea.
+- **Tests:** the e2e script walks the bakery idea.
+
+**The yoga run is the fallback for the judge's idea, not a beat.** If the judge's idea is slow or weak, the recorded
+yoga run (a different idea: a booking page for a small yoga studio) comes in, labelled REPLAY, and the presenter says so.
 
 **If the build is slow:** the symphony holds, and at about 2:30 the rehearsal build comes
 in, labelled REPLAY, and the presenter says what was replayed.
@@ -200,7 +217,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
   Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
   (Engineering). Check-ins read *"Noor (Research): …"*.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
-  the desk), and at least one choice visible on her page comes from it (e.g. class pass shown first). It reaches her three only if
+  the desk), and at least one choice visible on her page comes from it (e.g. a standing weekly order shown first). It reaches her three only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
 - **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
   decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
@@ -233,7 +250,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 **Prepared, and labelled where it shows:**
 - the page template and its booking logic, which the build fills but doesn't rewrite;
 - the two lines in her file ("prepared for the demo");
-- the yoga first sketch, used only if the live one is slow (PREPARED);
+- the bakery first sketch, used only if the live one is slow (PREPARED);
 - the café idea, used only if the judge's idea fails (REPLAY of a real run);
 - the rehearsal run, used only as a fallback (REPLAY).
 

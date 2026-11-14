@@ -1,5 +1,7 @@
 # Bring your own craft
 
+**Start with [VISION.md](VISION.md)**: the one-page picture of the product and this hackathon build.
+
 **Take the seat of the craft you love, and a team fills the rest.**
 
 A team of autonomous agents that builds with you: it decides almost everything your way, and asks you only the few
