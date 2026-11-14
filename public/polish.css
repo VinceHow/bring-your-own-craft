@@ -86,3 +86,13 @@ body.stage .meter-counts { font-size: 15px; }
    so at 1280x720 the counter and meter were cut off. Pin its centre to the viewport's centre instead. ---- */
 #viewport { display: block; overflow: hidden; }
 #room { position: absolute; left: 50%; top: 50%; margin: -450px 0 0 -800px; }
+
+/* red means stamping only: a flow status line is plain ink */
+.fl-status { color: var(--ink); }
+
+/* on smaller screens the REPLAY / FAKE label shrinks into the strip below the table, clear of the meter */
+@media (max-width: 1440px), (max-height: 810px) {
+  .replay-label { right: 8px; bottom: 6px; padding: 5px 10px 4px; font-size: 17px; box-shadow: 3px 3px 0 var(--engineering); }
+  .replay-label.fake { box-shadow: 3px 3px 0 var(--ink); }
+  .replay-label small { margin-top: 2px; font-size: 11px; }
+}
