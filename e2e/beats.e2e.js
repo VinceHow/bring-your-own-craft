@@ -345,8 +345,8 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // 2. A quick unblock (builder 1's card): Bo's blocked on when orders close; the clicker opens it, Enter says Yes.
   await waitFor(() => /^u-engineering/.test(document.querySelector('#inbox .inbox-now')?.dataset.ask || ''), 12000, 'the unblock in her inbox');
   await page.keyboard.press('PageDown');
-  await waitFor(() => document.activeElement?.classList.contains('inbox-unblock-yes'), 3000, 'Yes, ready');
-  assert.match(await page.textContent('#inbox .inbox-unblock'), /when do orders close\?[\s\S]*8pm the night before/i);
+  await waitFor(() => document.activeElement?.classList.contains('ia-yes'), 3000, 'Yes, ready');
+  assert.match(await page.textContent('#inbox .inbox-action'), /when do orders close\?[\s\S]*8pm the night before/i);
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.events().some(e => e.type === 'decided' && e.unblock && e.choice === '8pm the night before'), 5000, 'her yes, decided');
   // 3. Focus 2 (DEMO 1:08): Mika's rough morning journey in words; she says what it should feel like; Mika rewrites.
