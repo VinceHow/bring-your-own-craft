@@ -244,3 +244,8 @@ body.stage #room .slip-text { font-size: 15px; }
   transform: rotate(-4deg); pointer-events: none; filter: drop-shadow(3px 3px 0 #141414); }
 #room .mini-sheet .mini-head { flex: none; padding-top: 14px; padding-bottom: 6px; align-items: baseline; }
 #room .symphony-slip::before { display: none; } /* the ink edge is the border, not a second bar */
+/* the tray sits left of her seat card, growing upward from the room's bottom edge: clear of the REPLAY label and the page */
+#room .tray { left: 296px; right: auto; top: auto; bottom: 8px; width: 256px; padding: var(--s2); gap: 6px; }
+#room .tray-note { white-space: nowrap; padding: 6px 10px; }
+#room .tray-text { overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+body.stage #room .tray-note { font-size: 14px; }
