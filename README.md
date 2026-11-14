@@ -87,8 +87,9 @@ npm run e2e      # the demo walked through the real UI in Chromium (Playwright),
 returns JSON validated against a schema.
 - `claude-code` (default, and what runs in the demo): Claude Code run headless (`claude -p`), with our own system
   prompt, no tools and no project files loaded. It uses the machine's own Claude Code login, so no key is needed.
-- `fal`: Claude through fal's OpenRouter router on your own key (`FAL_KEY`). The code is there and tested against a
-  fake fal (including the leak test), but it is not the default and is not used in the demo.
+- `fal` (the fallback): Claude through fal's OpenRouter router on your own key (`FAL_KEY`). Tested 9/9 schema-valid
+  against Claude Code on 3 real calls per step, and covered by the leak test. It's slower (the team works in about
+  33 s against about 20 s), so the demo's teammates stay on `claude-code`.
 
 Voice is ElevenLabs speech-to-text, on the server, with a key in `ELEVENLABS_API_KEY` (or injected by the cloud
 proxy). Without a key the mic hides and she types; everything still works.
@@ -140,10 +141,12 @@ Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-
 | Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
+| [fal](https://fal.ai) | the fallback model backend (Claude via OpenRouter); planned: flux/schnell brand images for the bakery site | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-Not used in the demo: fal and OpenRouter (an optional backend in `lib/model.js`). No paid APIs beyond the Claude Code
-login and ElevenLabs.
+fal: Claude via fal's OpenRouter router is the fallback model backend (`MODEL_BACKEND=fal`); fal flux/schnell is
+planned for the bakery site's brand images (timed at a median 2.2 s, about 0.3¢ an image). Paid APIs: the Claude Code
+login, ElevenLabs and fal.
 
 Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
 

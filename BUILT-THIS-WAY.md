@@ -68,9 +68,10 @@ him.* In practice that meant:
 
 ## Cut lines and calls that changed the plan
 
-- **fal stayed off for the live model calls.** The key was refused from cloud sessions, even after Vincent re-saved it;
-  the demo runs on the Claude Code backend, and we say so on stage. The fal code path exists and is tested against a
-  fake fal.
+- **fal came back as the fallback.** The key was refused from cloud sessions most of the day, even after Vincent
+  re-saved it. Once it was fixed (19:21), the fal/OpenRouter backend passed 9/9 schema-valid against Claude Code, but
+  the team took about 33 s on it against about 20 s, so the demo's teammates stay on Claude Code and fal is the
+  fallback. fal flux/schnell (median 2.2 s, about 0.3¢ an image) is planned for the bakery site's brand images.
 - **A weekly-limit scare** (16:45): one build failed with a usage-limit message from the Claude Code backend, then all
   models answered normally minutes later. It was raised to Vincent as the top demo risk.
 - **The yoga studio became the bakery** (15:44), and the hard "at most three" promise became a hidden ceiling with
