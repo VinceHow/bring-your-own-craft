@@ -90,13 +90,23 @@ the claim.
   who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
-  1. **She speaks her piece**, a real paragraph (or types it); her words land on the document as she said them.
+  1. **She speaks her piece**, a real paragraph (or types it). Her raw words land first; then a fast tidy call turns
+     them into a composed note in her voice (Vincent, 14 Nov). The tidy only cleans: no new claims or content. It shows
+     as a visible moment, with "See what you said" and "Use mine". The raw words stay in the log, and the tidy never
+     delays the room: it runs in parallel with the first chime-in.
+     **Layout:** the work stays in view on the left with inked pins where her notes apply; the meeting thread on the
+     right is the record (her note, then teammates' replies; earlier rounds fold into honest one-line summaries); the
+     takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
+     her, and she can close at any time. On close, the meeting is kept in her workspace as "Meeting notes"
+     (conversation + takeaways only; her philosophy stays hidden).
   2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
      thread, close to real time, one teammate after another, each **seeing the comments before it** and building on
      them: agreeing, adding a real finding, or pushing back (*Noor: "That matches what small studios report."* *Bo:
      "Then no logins. I'll remember them."* *Ines: "Hmm, regulars might want a standing weekly order. Show that first?"*). Style:
      - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
+     - **never end in a question to her** ("what do you think?"): that would be a back door past the question ceiling.
+       Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
      **Her pace, their speed** (Vincent, 14 Nov). Nothing rushes her: she can think, pause, speak, edit and pause
