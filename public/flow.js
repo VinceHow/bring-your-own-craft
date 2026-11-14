@@ -4,8 +4,8 @@
 (function () {
   const B = (window.BYOC = window.BYOC || {});
   const SVG = 'http://www.w3.org/2000/svg';
-  const INK = { product: '#FF48B0', design: '#0078BF', engineering: '#FFE800', data: '#00A95C', research: '#FF6C2F' };
-  const BOX_W = 200, COL = 280, PAD = 28, ROW_GAP = 56;
+  const INK = { product: '#FF48B0', design: '#0078BF', engineering: '#FFE800', data: '#00A95C', research: '#FF6C2F', strategy: '#BB8B41' };
+  const BOX_W = 200, COL = 250, PAD = 24, ROW_GAP = 40;
 
   // Load flow.css next to this script (index.html only loads the scripts).
   const here = document.currentScript && document.currentScript.src;
@@ -54,7 +54,7 @@
     S.canvas.appendChild(S.svg);
     S.wrap.appendChild(S.canvas);
     el.appendChild(S.wrap);
-    S.nodes = new Map(); S.edges = []; S.drawn = new Set(); S.items = []; S.lines = [];
+    S.nodes = new Map(); S.edges = []; S.drawn = new Set(); S.items = []; S.lines = []; S.focus = null;
     if (!S.subscribed && typeof B.on === 'function') {
       S.subscribed = true;
       B.on('flow.line', ev => ev.nodes && render(ev));
@@ -149,10 +149,21 @@
         const w = it.el.offsetWidth, ih = it.el.offsetHeight;
         let left = it.kind === 'fork' ? b.x + b.w / 2 - 40 : b.x + 24;
         let top = it.kind === 'fork' ? b.y + b.h + 30 : b.y + b.h - 16;
+        // A closed note goes beside its box when nothing sits to its right in that row: the flow stays short.
+        const rowBoxes = boxes.filter(o => o !== b);
+        it.side = !it.el.classList.contains('is-open') && it.kind !== 'mine' && !rowBoxes.some(o => o.col === b.col + 1)
+          && b.x + b.w + 40 + w + PAD <= Math.max(S.host.clientWidth || 0, b.x + b.w + 40 + w + PAD * 2) && !placed.some(p => p.side && p.nodeId === it.nodeId);
+        if (it.side) { left = b.x + b.w + 40; top = b.y - 6; }
+        // On a clash, move beside the other note if the sheet has room; only then below it.
+        const maxW = Math.max(PAD * 2 + BOX_W + COL * Math.max(0, ...[...S.nodes.values()].map(n => n.col || 0)), (S.host.clientWidth || 0));
+        if (left + w + PAD > maxW) left = Math.max(PAD, maxW - w - PAD);
         for (let guard = 0; guard < 20; guard++) {
           const hit = placed.find(p => left < p.left + p.w + 14 && p.left < left + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14);
           if (!hit) break;
-          top = hit.top + hit.h + 18;
+          const right = hit.left + hit.w + 24, back = hit.left - w - 24;
+          if (right + w + PAD <= maxW) left = right;
+          else if (back >= PAD && !placed.some(p => back < p.left + p.w + 14 && p.left < back + w + 14 && top < p.top + p.h + 14 && p.top < top + ih + 14)) left = back;
+          else top = hit.top + hit.h + 18;
         }
         Object.assign(it.el.style, { left: left + 'px', top: top + 'px' });
         it.left = left; it.top = top; it.w = w; it.h = ih;
@@ -168,9 +179,10 @@
     S.canvas.style.height = H + 'px';
     S.svg.setAttribute('width', W); S.svg.setAttribute('height', H);
     S.svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    // Fit the host's width; never scroll sideways.
-    const avail = S.host.clientWidth || W;
-    const k = Math.min(1, avail / W);
+    // Fit the host by width and height; never scroll. (Only the ask she's on is open, so this stays near 1.)
+    const availW = S.host.clientWidth || W, availH = S.host.clientHeight || H;
+    const k = Math.min(1, availW / W, availH / H);
+    S.k = k;
     S.canvas.style.transform = k < 1 ? `scale(${k})` : '';
     S.wrap.style.height = H * k + 'px';
     drawEdges();
@@ -222,11 +234,14 @@
     if (!b || it.left == null) return;
     const q = off(it.el.querySelector('.fl-q'));
     const ink = seatInk(it.ask.seat);
-    const stem = sv('path', { d: `M${b.x + b.w / 2},${b.y + b.h} C${b.x + b.w / 2},${b.y + b.h + 20} ${q.x + 30},${q.y - 20} ${q.x + 30},${q.y}`, class: 'fl-fpath fl-stem' });
+    const stem = it.side
+      ? sv('path', { d: `M${b.x + b.w},${b.y + b.h / 2} C${b.x + b.w + 20},${b.y + b.h / 2} ${q.x - 20},${q.y + q.h / 2} ${q.x},${q.y + q.h / 2}`, class: 'fl-fpath fl-stem' })
+      : sv('path', { d: `M${b.x + b.w / 2},${b.y + b.h} C${b.x + b.w / 2},${b.y + b.h + 20} ${q.x + 30},${q.y - 20} ${q.x + 30},${q.y}`, class: 'fl-fpath fl-stem' });
     stem.style.stroke = ink === '#FFE800' ? '#141414' : ink;
     S.svg.appendChild(stem);
     const sx = q.x + 30, sy = q.y + q.h;
     for (const opt of it.el.querySelectorAll('.fl-opt')) {
+      if (!opt.offsetWidth) continue; // a closed ask hides the options she isn't looking at
       const o = off(opt);
       const ex = o.x + o.w / 2, ey = o.y;
       const cls = ['fl-fpath'];
@@ -285,10 +300,24 @@
     S.canvas.appendChild(el);
     const it = { kind, nodeId, el, ask };
     S.items.push(it);
-    layout();
+    // A closed ask opens when she clicks it (she can take them in any order).
+    el.addEventListener('click', e => {
+      if (it.answered || el.classList.contains('is-open')) return;
+      e.preventDefault(); e.stopPropagation(); S.focus = ask.id; refocus();
+    }, true);
+    refocus();
     const rest = kind === 'pin' ? 'rotate(1.6deg)' : 'none';
     settle(el, 'translate(36px,-24px) rotate(5deg)', rest);
     return el;
+  }
+
+  // Only one ask is open at a time, full size: the one she picked, else the first she hasn't answered.
+  // The rest stay on their boxes as short notes; an answered one keeps her call and the struck recommendation.
+  function refocus(doLayout = true) {
+    const open = S.items.filter(i => i.ask && !i.answered);
+    const cur = open.find(i => i.ask.id === S.focus) || open[0] || null;
+    for (const i of S.items) if (i.ask) i.el.classList.toggle('is-open', i === cur);
+    layout();
   }
 
   async function answer(askId, choice) {
@@ -321,7 +350,8 @@
       const tag = o.querySelector('.fl-yours');
       if (mine && !tag) o.insertBefore(h('span', 'fl-yours', 'YOUR CALL'), o.firstChild);
     });
-    layout();
+    if (S.focus === askId) S.focus = null;
+    refocus();
   }
 
   // Her own note on a box.

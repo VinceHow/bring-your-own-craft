@@ -92,3 +92,27 @@
   background: #fff; color: var(--ink); font: 500 15px/1.35 var(--sans); padding: 6px 8px;
 }
 .fl-draft { position: absolute; z-index: 5; }
+
+/* One ask open at a time (the one she's on), full size. A closed ask is a short note on its box: its question only;
+   once answered, her call and the recommendation she passed over (struck through). Click a closed one to open it. */
+.fl-item.fl-fork:not(.is-open), .fl-item.fl-pin:not(.is-open) { width: auto; max-width: 300px; cursor: pointer; }
+.fl-item:not(.is-open):not(.fl-mine) .fl-why,
+.fl-item:not(.is-open):not(.fl-mine) .fl-src { display: none; }
+.fl-item:not(.is-open):not(.is-answered):not(.fl-mine) .fl-opts { display: none; }
+.fl-item.is-answered:not(.is-open) .fl-opt:not(.is-chosen):not(.is-rec) { display: none; }
+.fl-fork.is-answered:not(.is-open) > .fl-opts { margin-top: 30px; gap: 14px; }
+.fl-fork:not(.is-open) > .fl-q { max-width: 300px; }
+.fl-item:not(.is-open):not(.fl-mine) .fl-q { font-size: 14px; }
+.fl-item:not(.is-open) .fl-opt { min-height: 0; padding: 6px 9px; font-size: 13px; }
+.fl-item:not(.is-open):not(.is-answered):not(.fl-mine) .fl-q::after { content: ' · open'; font: 500 11px var(--mono); }
+.fl-pin:not(.is-open) .fl-q { margin-bottom: 0; }
+.fl-item.is-answered:not(.is-open).fl-pin .fl-q { margin-bottom: 8px; }
+.fl-item.is-open { z-index: 4; }
+/* An open pin reads like an open fork: wide, its options side by side */
+.fl-pin.is-open { width: 520px; }
+.fl-pin.is-open .fl-opts, .fl-pin.is-answered:not(.is-open) .fl-opts { grid-auto-flow: column; grid-auto-columns: 1fr; }
+.fl-item.is-answered:not(.is-open) { max-width: 360px; }
+.fl-pin.is-open { width: 640px; }
+.fl-fork.is-open { width: 600px; }
+.fl-fork.is-open > .fl-q { max-width: 580px; }
+.fl-item.is-open .fl-why { max-width: 600px; }
