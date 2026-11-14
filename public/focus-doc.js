@@ -195,9 +195,8 @@
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
   }
   B.on('chime', ev => { if (!forCur(ev)) return; chimeQ.push(ev); pumpChimes(); });
-  // The meeting's takeaways (what I believe / guidance to the team); older runs logged a 'brief' with a "why" too.
-  B.on('takeaways', ev => { if (!forCur(ev)) return; briefPending = ev; pumpChimes(); });
-  B.on('brief', ev => { if (!forCur(ev)) return; briefPending = ev; pumpChimes(); });
+  const onTakeaways = ev => { if (!forCur(ev)) return; briefPending = ev; pumpChimes(); };
+  B.on('brief', onTakeaways); B.on('takeaways', onTakeaways); // the server logs 'takeaways' (po/takeaways); 'brief' kept for old replays
   function showBrief(ev) {
     const box = $('.fd-brief');
     for (const k of ['believe', 'why', 'guidance']) {
