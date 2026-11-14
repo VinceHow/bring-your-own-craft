@@ -40,3 +40,9 @@ Used: public/looks/cast/intro/ (v2 clips re-centred by crop, 540 px, plus door.j
 | 5 tap reactions (Mika doodle, Noor sticky note, Theo tick, Ines globe, Bo offers coffee), 5 s | wan-3.0-prime i2v, 5 × $0.25 | $1.25 |
 | Door swings open, push-in, 16:9 5 s | wan-3.0-prime i2v | $0.25 |
 | **Running total** | | **$5.60 of $8** |
+
+## New budget: $5 from zero (Vincent, 14 Nov ~20:45 UTC)
+The earlier top-up closed at $5.60. From here, design spend has a fresh $5 ceiling. Ask Vincent before going past it.
+| What | Model | Cost |
+|---|---|---|
+| **Running total** | | **$0.00 of $5** |
