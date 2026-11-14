@@ -38,10 +38,18 @@ test('a guest that fails logs guest.error and changes nothing else', async () =>
   assert.throws(() => cleanGuest({ persona: 'x', reaction: '', points: [] }, 'Regulars'));
 });
 
-test('the first sketch pulls up the guest after it lands', async () => {
+test('off by default (optional, only if time): no guest call, no guest event', async () => {
+  const run = newRun();
+  let calls = 0;
+  await firstSketch({ run, callModel: async () => { calls++; return SHAPE; }, dripMs: 0 });
+  assert.equal(calls, 1);
+  assert.ok(!readEvents(run).some(e => /^guest/.test(e.type)));
+});
+
+test('with the flag, the first sketch pulls up the guest after it lands', async () => {
   const run = newRun();
   const model = async ({ system }) => (/guest/.test(system) ? GUEST : SHAPE);
-  await firstSketch({ run, callModel: model, dripMs: 0 });
+  await firstSketch({ run, callModel: model, dripMs: 0, withGuest: true });
   const types = readEvents(run).map(e => e.type);
   assert.ok(types.indexOf('guest') > types.indexOf('sketch.done'), types.join(' '));
   assert.ok(!types.includes('ask'));
