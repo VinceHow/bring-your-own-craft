@@ -27,6 +27,7 @@ export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 async function redecide(run, tasteMd, { idea, flow }) {
   // A revisit still running (a takeaway just written): wait for it, about 5 s at most; past that, the agreement as
   // logged goes to the page and the build doesn't start a second check of its own.
+  await new Promise(r => setImmediate(r)); // an agreement that just landed has queued its revisit (the hook is a tick late)
   const { timedOut } = await revisitSettled(run);
   const skipCheck = timedOut;
   // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.

@@ -435,7 +435,11 @@ test('a revisit that keeps the agreement logs joint.kept { reason }; a revisit p
   // a failed call is logged too
   const run2 = keepRun();
   await J.queueRevisit(run2, { decide: async () => { throw new Error('model down'); } });
-  assert.match(readEvents(run2).find(e => e.type === 'joint.kept').reason, /revisit call failed: model down/);
+  const failedKept = readEvents(run2).find(e => e.type === 'joint.kept');
+  assert.match(failedKept.reason, /revisit call failed: model down/);
+  assert.deepEqual(failedKept.against, [], 'a failed call checked nothing');
+  await J.queueRevisit(run2, { decide: async () => ({ decisions: [{ id: 'c20', choice: KEEP.options[1], cites: 'L5' }] }) });
+  assert.ok(readEvents(run2).some(e => e.type === 'joint.revised' && e.id === 'j-c20'), 'tried again, and it took');
   // a revisit that hangs: the wait gives up at its cap
   const run3 = keepRun();
   J.queueRevisit(run3, { decide: () => new Promise(() => {}) });
