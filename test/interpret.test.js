@@ -7,7 +7,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-interpret-'));
-const { interpret, saveBrief, cleanInterpret, NAMES } = await import('../lib/interpret.js');
+const { interpret, saveTakeaways, saveBrief, cleanInterpret, NAMES } = await import('../lib/interpret.js');
+const { readProfile } = await import('../lib/profile.js');
 const { installChatter, lineFor, okLine, CHATTER_PER_SEAT } = await import('../lib/chatter.js');
 const { firstSketch, currentLines } = await import('../lib/sketch.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
@@ -20,7 +21,7 @@ const REPLY = {
   decisions: [{ id: 'c1', choice: 'your usual class first' }, { id: 'c2', choice: 'A subscription' }, { id: 'c9', choice: 'x' }],
   chimes: [{ seat: 'design', text: 'Then their usual class goes first, one tap.' }, { seat: 'research', text: 'That matches what small studios report.' },
     { seat: 'data', text: 'A third one.' }],
-  brief: { believe: 'Sounds like: Regulars should never hunt for what is already theirs.', why: 'They come back for the same class.', guidance: 'Put their usual class first, one tap.' },
+  takeaways: { believe: 'Sounds like: Regulars should never hunt for what is already theirs.', guidance: 'Put their usual class first, one tap.' },
 };
 function newRun({ seat = 'product', sketch = false } = {}) {
   const run = newRunId(`i-${Math.random().toString(36).slice(2, 8)}`);
@@ -39,15 +40,16 @@ const fake = (reply = REPLY, seen = {}) => async a => {
   throw new Error('unexpected call');
 };
 
-test('her answer: logged first (craft); chime, ~1 s, chime, then her brief, then the mapped decisions', async () => {
+test('her answer: logged first (craft); chime, ~1 s, chime, then the takeaways, then the mapped decisions', async () => {
   const run = newRun();
   const seen = {};
   const t0 = Date.now();
   const r = await interpret({ run, askId: 'a1', text: 'Knowing their spot is theirs. My regulars do the same Tuesday class every week.', callModel: fake(REPLY, seen), gapMs: 120 });
   await r.body.profile;
   assert.equal(r.code, 200);
-  const evs = readEvents(run).filter(e => ['answer', 'chime', 'brief', 'answer.mapped'].includes(e.type));
-  assert.deepEqual(evs.map(e => e.type), ['answer', 'chime', 'chime', 'brief', 'answer.mapped']);
+  const evs = readEvents(run).filter(e => ['answer', 'chime', 'takeaways', 'answer.mapped'].includes(e.type));
+  assert.deepEqual(evs.map(e => e.type), ['answer', 'chime', 'chime', 'takeaways', 'answer.mapped']);
+  assert.ok(!('why' in evs[3]), 'takeaways: what I believe / guidance, nothing else');
   assert.equal(evs[0].mode, 'craft');
   assert.ok(evs[2].t - evs[1].t >= 100, 'the second chime comes about a gap later');
   assert.ok(Date.now() - t0 >= 200);
@@ -79,7 +81,7 @@ test('a failed interpret call: her answer stays logged, nothing is invented', as
   const run = newRun();
   const r = await interpret({ run, askId: 'a1', text: 'Knowing their spot is theirs.', callModel: async () => { throw new Error('down'); } });
   assert.equal(r.code, 502);
-  assert.deepEqual(readEvents(run).filter(e => ['answer', 'chime', 'brief', 'answer.mapped', 'interpret.error'].includes(e.type)).map(e => e.type), ['answer', 'interpret.error']);
+  assert.deepEqual(readEvents(run).filter(e => ['answer', 'chime', 'takeaways', 'answer.mapped', 'interpret.error'].includes(e.type)).map(e => e.type), ['answer', 'interpret.error']);
 });
 
 test('a question about her journey: the journey redraws from her words at the same time (her answer counts once)', async () => {
@@ -95,22 +97,24 @@ test('a question about her journey: the journey redraws from her words at the sa
   assert.deepEqual(crafts.map(e => e.type), ['answer'], 'the redraw is not a second craft event');
 });
 
-test('her brief: "what I believe" becomes the next line of her file; reworded when she changed it', async () => {
+test('the takeaways she keeps: "what I believe" goes to her hidden file and her profile\'s philosophy; reworded when she changed it', async () => {
   const run = newRun();
   const r = await interpret({ run, askId: 'a1', text: 'Fast. Never ask for anything you already know.', callModel: fake(), gapMs: 0 });
   await r.body.profile;
   const before = readTaste(run).length;
-  const kept = saveBrief({ run, askId: 'a1', believe: 'Regulars should never hunt for what is already theirs.' });
+  const kept = saveTakeaways({ run, askId: 'a1', believe: 'Regulars should never hunt for what is already theirs.' });
   assert.equal(kept.code, 200);
   assert.equal(kept.body.id, `L${before + 1}`);
   let w = readEvents(run).findLast(e => e.type === 'taste.written');
-  assert.deepEqual([w.mode, w.reworded, w.askId, w.guidance], ['craft', false, 'a1', 'Put their usual class first, one tap.']);
-  saveBrief({ run, askId: 'a1', believe: 'Never ask for anything you could remember or skip.' });
+  assert.deepEqual([w.mode, w.reworded, w.askId, w.guidance, w.hidden], ['craft', false, 'a1', 'Put their usual class first, one tap.', true]);
+  assert.deepEqual(readProfile(run).philosophy.map(x => x.believe), ['Regulars should never hunt for what is already theirs.']);
+  saveBrief({ run, askId: 'a1', believe: 'Never ask for anything you could remember or skip.' }); // /brief stays as an alias
   w = readEvents(run).findLast(e => e.type === 'taste.written');
   assert.equal(w.reworded, true);
   assert.equal(readTaste(run).at(-1).text, 'Never ask for anything you could remember or skip.');
-  assert.equal(saveBrief({ run, askId: 'a1', believe: ' ' }).code, 400);
-  assert.equal(saveBrief({ run, askId: 'zz', believe: 'x' }).code, 404);
+  assert.equal(readProfile(run).philosophy.length, 2);
+  assert.equal(saveTakeaways({ run, askId: 'a1', believe: ' ' }).code, 400);
+  assert.equal(saveTakeaways({ run, askId: 'zz', believe: 'x' }).code, 404);
 });
 
 test('room chatter: from real events, by name, never to her, never a question, calm', () => {

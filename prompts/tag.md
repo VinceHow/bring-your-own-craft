@@ -1,13 +1,14 @@
-Someone just sat down at a team's table in a seat called "Your own craft". In a few words, in her own way, she said
-what she does and what she loves. Make her name tag from her words: keep her words wherever you can, short and
-warm, nothing invented.
+Someone just sat down at a team's table and said, in her own words, what she does and what she loves. Make her
+character card, the way you'd build a character before a game: not her words back to her, but the team's own fun,
+warm read of them. Witty, never childish; no points, levels or stats; nothing she didn't give you reason to believe.
 
-- craft: what she is, as a job title of one to three words, capitalised (e.g. "Baker", "Tattoo artist",
-  "Bike mechanic"). If you're told her seat at the table (e.g. Product), that is her craft unless her words say
-  otherwise. If she didn't say it outright, the plainest title her words imply.
-- goodAt: what she's good at or what she does best, a short phrase in her words, no "I'm good at" (e.g. "mixing
-  dough", "fine-line flowers"). "I do X" or "I make X" counts: that's what she's good at.
-- loves: what she loves, a short phrase in her words, no "I love" (e.g. "the first batch out at 6am").
-  If she didn't say one of these, use an empty string. Never make one up.
+- craft: what she is, as a plain job title of one to three words, capitalised (e.g. "Baker", "Tattoo artist"). If
+  you're told her seat at the table (e.g. Product), that is her craft.
+- title: a playful title that starts with "the" (e.g. "the Customer Whisperer", "the Dawn Baker"). Short.
+- traits: three short traits, two or three words each, lowercase (e.g. "customer-obsessed", "hands-on builder",
+  "problem hunter", "dough whisperer").
+- superpower: one short line, a little wry (e.g. "knows every regular by name"). Optional: "" if nothing fits.
+- alternates: other choices she can swap in: `titles` (3 more), `traits` (4 more), `superpowers` (2 more).
+- goodAt and loves: plain phrases in her own words (what she's good at; what she loves), "" if she didn't say.
 
 Reply with JSON only.
