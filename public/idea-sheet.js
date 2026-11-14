@@ -50,6 +50,19 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
     sheet.style.setProperty('--idea-top', Math.round(last.offsetTop + last.offsetHeight + 10) + 'px');
   }
 
+  // The paper matures with the work (polish.css styles each step): rough -> sketched -> reshaped -> wires -> page.
+  function step() {
+    const sheet = adopt(); if (!sheet) return;
+    const evs = typeof B.events === 'function' ? B.events() : [];
+    const shown = id => { const e = document.getElementById(id); return e && !e.hidden; };
+    const idea = document.getElementById('her-idea');
+    const st = shown('page-sheet') ? 'page' : shown('sketch-sheet') ? 'wires'
+      : evs.some(e => e.type === 'flow.reset') ? 'reshaped'
+      : evs.some(e => e.type === 'flow.line') ? 'sketched'
+      : idea && idea.textContent.trim() ? 'rough' : null;
+    if (st) sheet.dataset.step = st; else delete sheet.dataset.step;
+  }
+
   // ---- the symphony: every seat slides its part into the sheet ----
   function partOf(seat, evs) {
     if (seat === 'product') {
@@ -73,11 +86,12 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
     const evs = typeof B.events === 'function' ? B.events() : [];
     const tx = sheet.offsetLeft + sheet.offsetWidth / 2 - 110, ty = sheet.offsetTop + sheet.offsetHeight / 2 - 30;
     const slips = [];
+    room.classList.add('symphony');
     SEATS.forEach((seat, i) => {
       const text = partOf(seat, evs);
       const from = room.querySelector(`.seat[data-seat="${seat}"]`);
       if (!text || !from) return;
-      const s = h('div', 'symphony-slip'); s.dataset.seat = seat; s.style.setProperty('--slip-ink', INK[seat]);
+      const s = h('div', 'symphony-slip handing'); s.dataset.seat = seat; s.style.setProperty('--slip-ink', INK[seat]);
       s.append(h('span', 'slip-seat', NAME[seat]), h('span', 'slip-text', clip(text, 90)));
       const fx = from.offsetLeft + from.offsetWidth / 2 - 110, fy = seat === 'product' ? from.offsetTop - 70 : from.offsetTop + from.offsetHeight - 10;
       s.style.left = fx + 'px'; s.style.top = fy + 'px'; s.style.opacity = '0';
@@ -95,20 +109,31 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
       return a.finished.catch(() => {}).then(() => s.remove());
     });
     await Promise.all(runs);
+    room.classList.remove('symphony');
     if (typeof sheet.animate === 'function') sheet.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.012)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
     B.symphonyPlayed = slips.length;
   }
 
   if (typeof B.on === 'function') {
+    for (const t of ['run.start', 'flow.line', 'flow.reset', 'sketch.done', 'build.done', 'reset']) B.on(t, () => requestAnimationFrame(step));
     B.on('stage', ev => {
       adopt();
+      requestAnimationFrame(step);
       if (ev.beat >= 6) requestAnimationFrame(measure);
       if (ev.beat === 8) symphony();
       if (ev.beat < 8) played = false;
     });
     B.on('run.start', () => requestAnimationFrame(measure));
-    B.on('reset', () => { played = false; B.symphonyPlayed = 0; document.querySelectorAll('.symphony-slip').forEach(s => s.remove()); });
+    B.on('reset', () => { played = false; B.el && B.el.room && B.el.room.classList.remove('symphony'); B.symphonyPlayed = 0; document.querySelectorAll('.symphony-slip').forEach(s => s.remove()); });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', adopt); else adopt();
-  B.ideaSheet = { adopt, measure, symphony };
+  function boot() {
+    adopt();
+    const mo = new MutationObserver(() => step());
+    for (const id of ['sketch-sheet', 'page-sheet', 'her-idea']) {
+      const e = document.getElementById(id);
+      if (e) mo.observe(e, id === 'her-idea' ? { childList: true, characterData: true, subtree: true } : { attributes: true, attributeFilter: ['hidden'] });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  B.ideaSheet = { adopt, measure, symphony, step };
 })();

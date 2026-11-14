@@ -50,6 +50,7 @@ test('1. her seat, the team, her line, then her idea', async () => {
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run id');
   RUN = await page.evaluate(() => BYOC.run);
+  await waitFor(() => document.getElementById('her-sheet').dataset.step === 'rough', 3000, 'her sentence on a rough sheet');
 });
 
 test('2. Design sketches it: user cards and boxes draw in, within 10 s, not typed by her', async t => {
@@ -71,6 +72,7 @@ test('2. Design sketches it: user cards and boxes draw in, within 10 s, not type
   assert.deepStrictEqual(await boxLabels(), flow.nodes.map(n => n.label));
   if (done.prepared) assert.match(await page.locator('.fs-tag').innerText(), /PREPARED/, 'a prepared sketch says so');
   else assert.ok(done.ms <= 10000, `sketch in ${done.ms} ms`);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'sketched');
 });
 
 test('2b. the guest chair (GUEST_CHAIR=1 only): a stand-in for the main user type joins as the sketch lands; never asks', async t => {
@@ -113,6 +115,7 @@ test('3. her reaction redraws the shape: replaced, not appended; her words shown
   await waitFor(n => document.querySelectorAll('#her-flow .fl-box').length === n, 3000, 'the redrawn boxes only', flow.nodes.length);
   assert.deepStrictEqual(await boxLabels(), flow.nodes.map(n => n.label));
   assert.match(await page.locator('.fs-said').innerText(), /regulars/);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'reshaped');
   assert.match(flow.nodes.map(n => n.label).join(' ') + ' ' + evs.filter(e => e.type === 'sketch.user').map(e => e.label).join(' '), /regular|usual/i, 'the shape follows what she said');
 });
 
@@ -190,9 +193,10 @@ test('7. the wireframes, the symphony and her page all land on the one sheet wit
     return i.height > 0 && i.top >= s.top && i.bottom <= s.bottom && /yoga/.test(document.getElementById('her-idea').textContent);
   });
   assert.ok(await ideaShown(), 'her idea sentence stays on top of the sheet');
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'wires');
   if (process.env.E2E_SCREENS) await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-wireframes.png') });
   await page.keyboard.press('ArrowRight'); // her build press: the symphony
-  await waitFor(() => document.querySelectorAll('.symphony-slip').length >= 5, 3000, 'every seat slides its part in');
+  await waitFor(() => document.querySelectorAll('.symphony-slip.handing').length >= 5 && document.getElementById('room').classList.contains('symphony'), 3000, 'every seat slides its part in');
   if (process.env.E2E_SCREENS) { await page.waitForTimeout(500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-symphony.png') }); }
   await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 150000, 'build.done');
   lap('build');
@@ -201,6 +205,7 @@ test('7. the wireframes, the symphony and her page all land on the one sheet wit
   await waitFor(() => !!document.querySelector('#her-sheet > #page-sheet:not([hidden])'), 5000, 'her page on her sheet');
   assert.ok(await page.evaluate(() => BYOC.symphonyPlayed >= 5), 'the symphony played');
   assert.ok(await ideaShown(), 'her idea still on top');
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'page');
   if (process.env.E2E_SCREENS) { await page.waitForTimeout(1500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-page.png') }); }
   const pg = await browser.newPage();
   await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
