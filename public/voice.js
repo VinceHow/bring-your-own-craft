@@ -69,13 +69,16 @@
       const w = m.querySelector('.voice-word');
       const mine = target && fieldFor(target) === m.dataset.field;
       const s = available === false ? 'typed' : mine && state !== 'idle' ? state : 'idle';
-      m.dataset.state = s;
-      w.textContent = s === 'typed' ? 'typed' : s === 'listening' ? 'listening' : s === 'writing' ? 'writing it down' : 'hold to speak';
-      m.setAttribute('aria-disabled', String(available !== true));
+      const word = s === 'typed' ? 'typed' : s === 'listening' ? 'listening' : s === 'writing' ? 'writing it down' : 'hold to speak';
+      // Write only on a change: these writes are inside the observed room, and must not wake the observer forever.
+      if (m.dataset.state !== s) m.dataset.state = s;
+      if (w.textContent !== word) w.textContent = word;
+      if (m.getAttribute('aria-disabled') !== String(available !== true)) m.setAttribute('aria-disabled', String(available !== true));
     }
   }
   const room = document.getElementById('room') || document.body;
-  new MutationObserver(() => sync()).observe(room, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden'] });
+  const ours = n => n && (n.nodeType === 1 ? n : n.parentElement)?.closest?.('.voice-mic');
+  new MutationObserver(list => { if (list.some(r => !ours(r.target))) sync(); }).observe(room, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden'] });
   const ideaEl = document.getElementById('her-idea');
   if (ideaEl) new MutationObserver(() => sync()).observe(ideaEl, { childList: true, characterData: true, subtree: true });
 
