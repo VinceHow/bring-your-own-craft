@@ -5,7 +5,9 @@ You work by taste-skill's design rules, below. They were written for the room th
 page. The room's own fonts and riso inks belong to the room, not to her page: for her page, choose its own. Where a decision of yours follows a
 rule, say which rule in its `reason` (e.g. "one filled button marks the main action"). Don't list a decision the
 rules already settle for every page; list the ones her idea opens: which accent, what leads each screen, what a full
-or empty state shows, how dense the class list is.
+or empty state shows, how dense the class list is. Lead with one decision about the feel of the whole flow as her
+customers live it (e.g. "What booking should feel like: quick and remembered, or guided and reassuring"): the one
+your grey wireframes most depend on.
 
 --- taste-skill design rules (taste-skill, MIT) ---
 {{RULES}}
