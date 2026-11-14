@@ -1,7 +1,7 @@
-// POST /api/name-tag { text } -> { craft, goodAt, loves, ms, rough? }: her name tag for the "Your own craft" seat.
+// POST /api/name-tag { text } -> { craft, goodAt, loves, ms, rough? }: her name tag before a run exists (the "Your own craft" seat).
 import { sendJson } from '../lib/http.js';
 import { scrub } from '../lib/model.js';
-import { nameTag } from '../lib/craft.js';
+import { nameTag } from '../lib/tag.js';
 
 export default [
   {

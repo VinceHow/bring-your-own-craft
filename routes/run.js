@@ -9,7 +9,7 @@ import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../
 import { tally } from '../lib/tally.js';
 import { parseFlow } from '../lib/flow.js';
 import { currentLines } from '../lib/sketch.js';
-import { cleanTag, templateFor } from '../lib/craft.js';
+import { cleanTag, templateFor } from '../lib/tag.js';
 import { SEATS } from '../lib/teammates.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';

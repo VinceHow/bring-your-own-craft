@@ -1,7 +1,6 @@
 # Task: select
 
 She sits in the {{HER_SEAT}} seat and is building: {{IDEA}}
-{{HER_TAG}}
 
 Her journey (box ids and labels):
 {{FLOW}}
@@ -21,7 +20,7 @@ decision, by its id:
   teammate could pick. 3 = only someone who knows these customers and this journey can call it. 0 = a convention, a
   technical detail or a matter of taste the team can settle. Bring her only what changes what gets built and needs
   her expertise.
-{{IN_CRAFT}}- `dupOf`: the id of an earlier decision in this list that is essentially the same choice, or null.
+- `dupOf`: the id of an earlier decision in this list that is essentially the same choice, or null.
 - `kind`: "fork" if it is a choice between paths in her flow, "pin" if it is a note about one box.
 
 Score each one on its own merits; another step applies the limits.
