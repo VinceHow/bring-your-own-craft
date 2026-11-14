@@ -9,7 +9,7 @@ import path from 'node:path';
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-interpret-'));
 const { interpret, saveTakeaways, saveBrief, cleanInterpret, NAMES } = await import('../lib/interpret.js');
 const { readProfile } = await import('../lib/profile.js');
-const { installChatter, lineFor, okLine, CHATTER_PER_SEAT } = await import('../lib/chatter.js');
+const { installChatter, lineFor, okLine, chatterLine, CHATTER_PER_SEAT } = await import('../lib/chatter.js');
 const { firstSketch, currentLines } = await import('../lib/sketch.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, readTaste } = await import('../lib/taste.js');
@@ -137,11 +137,13 @@ test('room chatter: from real events, by name, never to her, never a question, c
   logEvent(run, 'decided', { id: 'c5', seat: 'strategy', decision: 'Whether regulars get a class pass', choice: 'Class pass shown first', cites: 'team default' });
   for (let i = 0; i < 5; i++) logEvent(run, 'decided', { id: `d${i}`, seat: 'design', decision: `Layout ${i}`, choice: `Option ${i}`, cites: 'team default' });
   const chatter = readEvents(run).filter(e => e.type === 'chatter');
-  assert.deepEqual(chatter.slice(0, 3).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Bo: taking the booking form.',
-    'Ines: regulars get a class pass, class pass shown first.']);
+  assert.deepEqual(chatter.slice(0, 2).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Ines: class pass shown first.']);
+  assert.ok(!chatter.some(c => c.from === 'teammate.done'), 'a work note is a log, never chatter');
+  assert.ok(chatter.every(c => c.text.split(' ').length <= 15 && !/…/.test(c.text)), 'short, never cut');
+  assert.equal(lineFor({ type: 'decided', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' }), 'Bo: name and email, no account.');
+  assert.ok(!chatterLine('Ines: pricing and payment decisions for a single-bakery pre-order site: when customers pay…'), 'a log line is not chatter');
   assert.ok(chatter.every(c => okLine(c.text)));
   assert.ok(!chatter.some(c => c.seat === 'product'), 'her seat never chatters');
-  assert.ok(!chatter.some(c => c.seat === 'data'), 'a question is never chatter');
   assert.equal(chatter.filter(c => c.seat === 'design').length, CHATTER_PER_SEAT);
   assert.equal(lineFor({ type: 'decided', seat: 'design', decision: 'x', choice: 'y', cites: 'L3' }), null, 'her file deciding it is not chatter');
 });
