@@ -144,7 +144,7 @@ test('the finding attaches only on its topic: end to end, a café run asks nothi
   const callModel = async args => {
     const t = task(args.system);
     const items = t === 'select' || t === 'decide' ? JSON.parse(args.user) : null;
-    if (t === 'select') return { scores: items.map((c, i) => ({ id: c.id, changes: 3, silent: 3, dupOf: i ? items[0].id : null, kind: 'fork' })) };
+    if (t === 'select') return { scores: items.map((c, i) => ({ id: c.id, changes: 3, silent: 3, big: 3, hers: 3, dupOf: i ? items[0].id : null, kind: 'fork', question: 'What makes a morning pastry worth the walk?' })) };
     if (t === 'decide') return { decisions: items.map(c => ({ id: c.id, choice: c.recommendation, cites: 'team default' })) };
     const seat = seatOf(args.system);
     return { note: 'n', candidates: [{ decision: seat === 'research' ? 'Whether sold-out pastries get a waitlist' : `Whether ${seat} pastries sell out`,

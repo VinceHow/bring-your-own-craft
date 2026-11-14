@@ -57,3 +57,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 15:55 | agents (lead) | po/questions accepted: ~9–10 builder-hours over 4 builders (~3–3.5 h); new path lands ~19:30; 20:00 rough demo may mix old and new; core 00:00 safe. New builder 7 for the question bar + Ask shape | |
 | Sat 15:57 | agents (lead) | po/questions split: builder 7 (new) question bar + Ask shape; builder 6 tag/profile/interpret/chatter (DIY 'inCraft' replaced by the question bar); beats two states + document + e2e; polish the document | |
 | Sat 15:15 | agents (lead) | Status strip shows only when slow (pencil note); per-sheet '4 proposed · 7.1s' removed (no paperwork). Builder 6 may read answer.mapped in lib/fill.js gatherRun | |
+| Sat 15:40 | agents (lead) | po/team-space accepted (~3 builder-h; new builder 8 after builder 6's thread engine lands); per-teammate headless calls, not session-to-session messaging | real and fast on a laptop |

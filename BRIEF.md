@@ -12,7 +12,8 @@ what a tech lead already ran against the real tools; re-measure here, don't re-r
 ## 1. The idea
 Prompt-to-app tools guess everything; coding agents ask about everything. Here you take one of six seats (**Product,
 Design, Data, Research, Strategy, Engineering**), do your craft, and the team brings you only the decisions worth your time,
-inside your work. One polished journey: **Priya, a product lead, in the Product seat**, building a booking page for a
+inside your work. One polished journey: **Priya, a product manager, in the Product seat** (relatable to a panel of researchers, PMs, directors and
+investors), building, as a side project, a booking page for a friend's
 small yoga studio. **Pitch line:** *"Bring your own craft."*
 
 **Craft vs stamping (the meter, IN YOUR CRAFT %, uses this).** *Craft:* working in your own medium, including a choice
@@ -39,11 +40,11 @@ she's the expert, they build on what she said, it's all of ours.
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
 | **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared yoga sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
-| **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions (all the granular ones) with reasons; caption "N handled by your team · 3 for you" (from the log). | live |
+| **1:05–1:15** Room + team space | Sketchpads show each seat's own decisions; joint decisions are talked out (a real multi-teammate exchange, shown as chatter) and land as one-line cards in the team space (who talked it out, tap for the exchange); caption "N handled by your team · 3 for you". | live |
 | **1:15–1:35** Focus moment 2 | From her tray at a pause: one piece of work + one big question; she talks; reactions; the work updates. | live |
 | **1:35–2:00** Focus moment 3 | Mika's grey wireframes + a big question about the feel; the meeting's takeaways (what I believe / guidance), rewordable; the hidden philosophy updates. | live |
-| **2:00–2:20** Symphony | One press; every seat slides its part into the idea sheet; the page is built. | **live**, from her answers |
-| **2:20–2:34** Her page | The page they built together. No credits. One margin note on cancel citing her new line. | live |
+| **2:00–2:20** Build it | One press; her page appears in the middle of the table. No staging. | **live**, from her answers |
+| **2:20–2:34** Her page | The page they built together, clean: no notes, tours or credits (the margin note is cut). | live |
 | **2:34–3:00** Close | Judge's idea live: their rough journey + the first big question for them draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
 
 The café run ("a pre-order page for a café's morning pastries") is the **fallback** for the judge's idea, REPLAY of a
@@ -72,7 +73,10 @@ real run.
 8. **Focus moments (replaces forks and pins; Vincent, 14 Nov):** an Ask becomes `{ question, artifact, by? }`: one
    open, natural question attached to one piece of work (journey, finding, wireframes), no options or recommendation.
    Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
-   teammate reactions that promise only what the build will show, streamed one after another as she finishes, and (c)
+   teammate reactions as a short meeting thread: 3–4 turns, each its own fast call that sees her answer and the
+   thread so far, so teammates build on, agree with or push back on each other; spoken, ≤15 words, nothing AI-sounding;
+   only promising what the build will show; she submits when ready (nothing cut off by silence, no rush), and the
+   first reaction lands within ~1 s of submit (fastest model), warm and excited but never sycophantic; and (c)
    writes the meeting's takeaways (what I believe about this / guidance to the team for it), user-facing and
    rewordable; separately updates the hidden philosophy (profile + `taste.md`), never shown unless she asks. No
    stance slot; the "Sounds like" step is gone. The work updates. Polish goes into her engagement with the document, not
@@ -84,10 +88,15 @@ real run.
 10. **Private profile:** one call after her sentence + idea deduces business, positioning, customers, what sells, brand
    feel, strengths, ways of working, each with confidence; updated after each answer; read by every teammate and the
    selector; never shown unless she asks. The team assumes and moves on; it never waits on her.
-11. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
+11. **Team space (Vincent, 14 Nov):** for the 2–3 decisions touching several seats, a short exchange (3–4 turns, each
+   teammate its own call reading the thread, same engine as chime-ins) ends in an agreement; it shows as room chatter
+   and lands as a one-line card in the middle of the table (who talked it out; tap for the exchange; "with your
+   takeaways in mind" where true). All cards shown, headlines only. A "Talk this through: coming" LABEL on each card
+   (not a button). Cut: the cancel margin note and the symphony staging (just press build, the page appears).
+12. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
-12. Optional, last: one soft chord at the symphony.
+13. Optional, last: one soft chord at the symphony.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in

@@ -270,13 +270,20 @@ body.stage #room .tray-note { font-size: 14px; }
 .focus-doc .chime[data-seat="research"] { --chime-ink: var(--research); } .focus-doc .chime[data-seat="strategy"] { --chime-ink: var(--strategy); }
 .focus-doc .chime[data-seat="engineering"] { --chime-ink: var(--engineering); }
 @keyframes fd-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-/* her brief: the best summary a great colleague would write. A memo on its own sheet, three short parts, every word hers to reword */
+/* the meeting's takeaways: the best summary a great colleague would write, in her voice. A memo on its own sheet,
+   two short parts (what I believe / guidance to the team), every word hers to reword */
 .focus-doc .fd-brief { margin-top: var(--s5); background: #FFFEFB; border: 2px solid var(--ink); border-top: 8px solid var(--product);
   border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s4) var(--s5) var(--s5); display: grid; gap: var(--s4); animation: fd-in 140ms ease-out both; }
-.focus-doc .fd-brief::before { content: 'Your brief'; font: 400 20px/1 var(--display); text-shadow: 2px 2px 0 rgba(255,72,176,.45); }
+.focus-doc .fd-brief::before { content: 'Takeaways'; }
+.focus-doc .fd-brief::before, .focus-doc .fd-brief .brief-head { display: block; font: 400 22px/1 var(--display); text-shadow: 2px 2px 0 rgba(255,72,176,.45); }
+.focus-doc .fd-brief:has(.brief-head)::before { display: none; }
+.focus-doc .fd-brief .brief-why { display: none; }
 .focus-doc .brief-label { display: block; margin-bottom: 4px; font: 600 12px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(20,20,20,.75); }
 .focus-doc .brief-text { display: block; font: 400 20px/1.45 var(--ui); outline: 0; border-bottom: 1.5px dashed transparent; }
-.focus-doc .brief-believe .brief-text { font: 500 24px/1.35 var(--ui); }
+/* what she believes reads as the headline of the memo; the guidance sits under a short rule, as the to-do for the team */
+.focus-doc .brief-believe .brief-text { font: 500 26px/1.32 var(--ui); max-width: 34ch; }
+.focus-doc .brief-guidance { padding-top: var(--s4); border-top: 2px solid var(--ink); }
+.focus-doc .brief-guidance .brief-text { max-width: 52ch; }
 .focus-doc .brief-text:hover, .focus-doc .brief-text:focus { border-bottom-color: rgba(20,20,20,.45); }
 .focus-doc .brief-text:focus { background: rgba(255,232,0,.35); }
 .focus-doc .fd-close { font: 600 14px var(--ui); color: var(--ink); background: var(--sheet); border: var(--line); border-radius: var(--r);
@@ -296,3 +303,53 @@ body.stage #room .tray-note { font-size: 14px; }
 .chatter-line[data-seat="research"] { --chatter-ink: var(--research); } .chatter-line[data-seat="strategy"] { --chatter-ink: var(--strategy); }
 .chatter-line[data-seat="engineering"] { --chatter-ink: var(--engineering); }
 body.stage .chatter-line { font-size: 14px; }
+
+/* ======== her character card (DEMO 0:22-0:30): the team's playful read of her sentence. A riso place card with a
+   title, two or three trait tags and maybe one superpower line, each swappable. Witty and warm: no points, no stats,
+   no meters. ======== */
+.char-card { --char-ink: var(--product); }
+.char-card[data-seat="design"] { --char-ink: var(--design); } .char-card[data-seat="data"] { --char-ink: var(--data); }
+.char-card[data-seat="research"] { --char-ink: var(--research); } .char-card[data-seat="strategy"] { --char-ink: var(--strategy); }
+.char-card[data-seat="engineering"] { --char-ink: var(--engineering); }
+.char-card .bc-body { display: none; }
+.char-card .char-body { display: grid; gap: 18px; padding: 22px 26px 22px; }
+.char-card .char-who { font: 400 22px/1.2 var(--ui); }
+.char-card .char-name { font-weight: 600; }
+.char-card .char-title { display: block; margin-top: 6px; font: 400 44px/1.05 var(--display); letter-spacing: -.01em;
+  text-shadow: 3px 3px 0 color-mix(in srgb, var(--char-ink) 60%, transparent); }
+.char-card .char-traits { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 12px; }
+.char-card .char-trait { display: inline-flex; align-items: baseline; gap: 10px; padding: 7px 12px 8px; background: #FFFEFB;
+  border: 2px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--char-ink); font: 500 19px/1.2 var(--ui); }
+.char-card .char-trait:nth-child(2) { transform: rotate(-1deg); } .char-card .char-trait:nth-child(3) { transform: rotate(.8deg); }
+.char-card .char-power { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding-top: 14px; border-top: 2px dashed rgba(20,20,20,.5);
+  font: italic 400 21px/1.35 var(--ui); }
+.char-card .char-label { font: 600 12px/1 var(--mono); font-style: normal; text-transform: uppercase; letter-spacing: .1em;
+  padding: 4px 7px; background: var(--char-ink); color: var(--ink); border-radius: 2px; }
+.char-card[data-seat="design"] .char-label, .char-card[data-seat="engineering"] .char-label { color: var(--sheet); }
+.char-card .char-text, .char-card .char-title { outline: 0; border-bottom: 1.5px dashed transparent; min-width: 2ch; }
+.char-card [contenteditable]:hover, .char-card [contenteditable]:focus { border-bottom-color: rgba(20,20,20,.45); }
+.char-card [contenteditable]:focus { background: rgba(255,232,0,.35); }
+.char-card [contenteditable]:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.char-card .char-swap { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(20,20,20,.75);
+  background: transparent; border: 0; border-bottom: 1.5px solid currentColor; padding: 0 0 1px; cursor: pointer; }
+.char-card .char-swap:hover { color: var(--ink); }
+.char-card .char-swap:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.char-card .char-hint { font: 400 13px/1.3 var(--mono); color: rgba(20,20,20,.7); }
+/* while the team writes it: pencil blanks where the words will land. No spinner, no shimmer. */
+.char-card.writing .char-title, .char-card.writing .char-text { color: transparent; min-width: 9ch; display: inline-block;
+  border-bottom: 2px dashed rgba(20,20,20,.4); text-shadow: none; }
+.char-card.writing .char-title { width: 12ch; }
+.char-card.writing .char-swap { visibility: hidden; }
+/* the seat picker, part of the same moment: paper tabs in each seat's ink; the chosen one pressed in */
+.char-card .char-seat-pick { font: 600 15px/1 var(--ui); color: var(--ink); background: var(--sheet); border: 2px solid var(--ink);
+  border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); padding: 8px 12px; cursor: pointer; border-left: 8px solid var(--pick-ink, var(--ink)); }
+.char-card .char-seat-pick[data-seat="product"] { --pick-ink: var(--product); } .char-card .char-seat-pick[data-seat="design"] { --pick-ink: var(--design); }
+.char-card .char-seat-pick[data-seat="data"] { --pick-ink: var(--data); } .char-card .char-seat-pick[data-seat="research"] { --pick-ink: var(--research); }
+.char-card .char-seat-pick[data-seat="strategy"] { --pick-ink: var(--strategy); } .char-card .char-seat-pick[data-seat="engineering"] { --pick-ink: var(--engineering); }
+.char-card .char-seat-pick[aria-pressed="true"] { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); background: #FFFEFB; text-decoration: underline 2px; text-underline-offset: 4px; }
+.char-card .char-seat-pick:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+/* her seat card at the table: her title in display type, her traits on one quiet line. The stance slot is gone. */
+.card-her .card-title { display: block; font: 400 17px/1.1 var(--display); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 2px 2px 0 rgba(255,72,176,.4); }
+.card-her .card-traits { display: block; margin-top: 3px; font: 400 13px/1.3 var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(20,20,20,.8); }
+.card-her:has(.card-title) .card-her-stance { display: none; }
+@media (prefers-reduced-motion: reduce) { .char-card .char-trait { transform: none; } }
