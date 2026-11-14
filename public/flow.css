@@ -52,6 +52,9 @@
 .fl-yours { color: var(--ink); background: var(--pink); display: inline-block; padding: 1px 5px; margin-right: 6px; }
 .fl-opt.is-chosen { border: 2px solid var(--ink); border-left: 8px solid var(--pink); box-shadow: 4px 4px 0 var(--ink); }
 .fl-opt.is-dropped { opacity: .45; box-shadow: none; border-style: dotted; }
+/* She overruled the team: the recommendation she passed over stays readable, struck through. */
+.fl-opt.is-rec.is-dropped { opacity: .7; }
+.fl-opt.is-rec.is-dropped .fl-otext, .fl-opt.is-rec.is-dropped .fl-rec { text-decoration: line-through; text-decoration-thickness: 2px; }
 .is-answered .fl-opt { cursor: default; }
 
 .fl-why {

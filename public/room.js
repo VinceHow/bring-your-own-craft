@@ -263,7 +263,10 @@
   }
   // Her line, live. Piece 2's addLine posts it to /api/run/:id/line and draws what comes back;
   // without piece 2 the room posts it and shows it as plain text.
-  async function addHerLine(text) {
+  // Lines go to the server one at a time, in order: each is parsed against the lines logged before it.
+  let lineQueue = Promise.resolve();
+  function addHerLine(text) { lineQueue = lineQueue.then(() => sendHerLine(text)); return lineQueue; }
+  async function sendHerLine(text) {
     const local = !BYOC.run || BYOC.run.startsWith('local-');
     if (hasFlow() && !local) {
       mountFlow();
@@ -320,8 +323,8 @@
     if (!run || run.startsWith('local-')) { el.fileNote.textContent = 'Her file opens when a run starts.'; return; }
     for (let i = 0; i < tries; i++) {
       try {
-        const r = await fetch(`/runs/${encodeURIComponent(run)}/taste.md`);
-        if (r.ok) { fileLoad(await r.text()); return; }
+        const r = await BYOC.api(`/api/taste/${encodeURIComponent(run)}`);
+        if (r && r.md != null) { fileLoad(r.md); return; }
       } catch {}
       await wait(800);
     }
@@ -332,6 +335,7 @@
   // "Sounds like": types in with a yellow highlighter sweep; she can keep it (Enter) or reword it.
   let typing = null;
   function soundsLike(text) {
+    text = String(text || '').replace(/^\s*sounds like\s*:\s*/i, '');
     const box = el.soundsLike;
     box.hidden = false;
     box.innerHTML = `<span class="sl-label">Sounds like:</span><span class="sl-text"><span class="sl-mark"></span><span class="sl-words"></span></span>`;
@@ -341,14 +345,25 @@
     place(mark, { scaleX: [0, 1] }, true);
     let i = 0;
     typing = setInterval(() => { words.textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(typing); typing = null; afterTyped(); } }, 28);
+    // Keep it or reword it, right there on the card: the words are editable, Enter writes them into her file.
     function afterTyped() {
       if (BYOC.replay) return;
+      const hint = h('span', 'sl-hint', 'Enter keeps it \u00b7 type to reword');
+      box.appendChild(hint);
       words.contentEditable = 'true';
+      words.spellcheck = false;
+      words.focus();
+      const sel = window.getSelection(); sel.selectAllChildren(words); sel.collapseToEnd();
       words.addEventListener('keydown', async ev => {
+        ev.stopPropagation();
+        if (ev.key === 'Escape') { words.blur(); return; }
         if (ev.key !== 'Enter') return;
-        ev.preventDefault(); words.contentEditable = 'false';
-        try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: words.textContent.trim() }); }
-        catch (e) { status(`file not written (${e.status || e.message})`); words.contentEditable = 'true'; }
+        ev.preventDefault();
+        const t = words.textContent.trim();
+        if (!t) return;
+        words.contentEditable = 'false'; hint.textContent = 'writing it into her file';
+        try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
+        catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }
       });
     }
   }
@@ -406,6 +421,55 @@
     place(el.tally, { x: animate ? [60, 0] : 0, rotate: 0.8, opacity: animate ? [0, 1] : 1 }, animate);
   }
   el.counter.addEventListener('click', () => emit('counter.tap', { run: BYOC.run }));
+
+  // ---- Design's grey sketches -----------------------------------------------------------------
+  // Asked for as soon as she has answered all her asks (her answers shape them), so the beat is quick.
+  const sk = { sheet: $('#sketch-sheet'), inner: $('#sketch-inner'), wait: $('#sketch-wait'), req: null };
+  BYOC.el.sketchSheet = sk.sheet;
+  BYOC.timings = {};
+  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
+  function maybePrefetchSketches() {
+    if (BYOC.replay || sk.req || !BYOC.run || BYOC.run.startsWith('local-')) return;
+    const asks = seen.filter(e => e.type === 'ask').length;
+    const answered = new Set(seen.filter(e => e.type === 'answer').map(e => e.askId)).size;
+    if (asks && answered >= asks) { sk.req = BYOC.api(sketchUrl()); sk.req.catch(() => { sk.req = null; }); }
+  }
+  async function showSketches(data) {
+    sk.wait.textContent = '';
+    if (!BYOC.sketches || !BYOC.sketches.show) { sk.wait.textContent = 'Sketches not loaded.'; return; }
+    await BYOC.sketches.show(sk.inner, data);
+    const fit = () => fitInto(sk.inner, sk.sheet.clientHeight - 36);
+    fit(); setTimeout(fit, 400);
+  }
+  async function openSketches(animate) {
+    sk.sheet.hidden = false;
+    place(sk.sheet, { x: animate ? [-700, 0] : 0, y: animate ? [-60, 0] : 0, rotate: animate ? [-4, -0.6] : -0.6 }, animate);
+    if (BYOC.replay) { if (!sk.inner.children.length) sk.wait.textContent = 'Design is sketching'; return; }
+    if (!BYOC.run || BYOC.run.startsWith('local-')) { sk.wait.textContent = 'No run yet: nothing to sketch.'; return; }
+    if (sk.inner.children.length) return;
+    sk.wait.textContent = 'Design is sketching the screens of her journey';
+    const t0 = performance.now();
+    try {
+      const data = await (sk.req || (sk.req = BYOC.api(sketchUrl())));
+      BYOC.timings.sketchesWaitMs = Math.round(performance.now() - t0);
+      await showSketches(data);
+    } catch (e) { sk.wait.textContent = `Sketches failed (${e.status || e.message})`; sk.req = null; }
+  }
+
+  // Scale content down (never up) so it fits its sheet; no scrolling on stage.
+  function fitInto(node, avail) {
+    if (!node || !node.parentElement) return;
+    const natural = node.offsetHeight, wide = node.scrollWidth, room = node.parentElement.clientWidth;
+    const k = Math.min(1, avail / (natural || 1), room / (wide || 1));
+    const t = k < 0.999 ? `scale(${k.toFixed(3)})` : '';
+    if (node.style.transform !== t) node.style.transform = t;
+  }
+  let fitQueued = false;
+  function refit() {
+    if (fitQueued) return; fitQueued = true;
+    requestAnimationFrame(() => { fitQueued = false; fitInto(el.herFlow.querySelector('.fl-wrap'), el.herFlow.clientHeight); });
+  }
+  new MutationObserver(refit).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
   // ---- events ---------------------------------------------------------------------------------
   let seen = [];      // events of the run on screen, in order
@@ -465,16 +529,31 @@
       }
       case 'decided': {
         const it = findItem(ev.id);
-        if (it && !it.querySelector('.cite')) it.insertAdjacentHTML('beforeend', ` <span class="cite">· ${esc(ev.cites)}</span>`);
+        if (it) { let c = it.querySelector('.cite'); if (!c) { c = h('span', 'cite'); it.append(' ', c); } c.textContent = `\u00b7 ${ev.cites}`; }
         refreshTally();
         break;
       }
-      case 'ask.refused': case 'stamp': case 'answer': case 'pin': case 'taste.written':
+      case 'ask.refused': case 'stamp': case 'pin': case 'taste.written':
         if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); }
         refreshTally();
         break;
       case 'taste.suggested':
+        if (BYOC.beat < 7) stage(7);
         soundsLike(ev.text);
+        break;
+      case 'answer':
+        maybePrefetchSketches();
+        refreshTally();
+        break;
+      case 'sketches':
+        // Live, the room renders what its own request returns; a replay shows the frames from the log.
+        if (source !== 'live') { if (BYOC.beat < 7) stage(7); showSketches(ev); }
+        break;
+      case 'teammate.error':
+        sheetStep(ev.seat, 'stopped: model error');
+        break;
+      case 'propose.error':
+        status(`the team stopped: ${ev.error || 'error'}`);
         break;
       case 'build.step':
         sheetStep('engineering', `building: ${ev.step}`);
@@ -522,6 +601,17 @@
         for (const s of SEATS) sheetShow(s, animate);
         if (!BYOC.replay && !instantMode) teamGo();
         break;
+      case 6:
+        el.herSheet.classList.add('big');
+        place(el.herSheet, { y: animate ? [40, 0] : 0, rotate: 0 }, animate);
+        refit();
+        break;
+      case 7:
+        openSketches(animate);
+        break;
+      case 8:
+        sk.sheet.hidden = true; // the build takes the table
+        break;
     }
   }
   function stage(n, opts = {}) {
@@ -555,9 +645,12 @@
       el.seatSheet[s].hidden = true; el.seatSheet[s].innerHTML = '';
     }
     el.herSheet.hidden = true; el.fileCard.hidden = true; el.tally.hidden = true;
+    el.herSheet.classList.remove('big');
     setIdea(''); el.herNotes.innerHTML = ''; el.herInput.value = ''; inputMode = 'off'; el.herForm.hidden = true;
     el.herFlow.innerHTML = ''; flowMounted = false; mountFlow();
     el.fileLines.innerHTML = ''; el.fileNote.textContent = ''; el.soundsLike.hidden = true;
+    sk.sheet.hidden = true; sk.inner.innerHTML = ''; sk.inner.style.transform = ''; sk.wait.textContent = ''; sk.req = null;
+    BYOC.timings = {};
     for (const r of Object.values(rollers)) r.set(null, false);
     document.body.dataset.beat = '0';
     status('');

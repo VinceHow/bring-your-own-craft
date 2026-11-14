@@ -192,3 +192,56 @@ body.stage .her-hint { display: none; }
 .roll .col span { height: 1em; display: block; text-align: center; }
 .roll .dash { display: block; }
 .roll-pink { background: var(--product); padding: 0 6px; border: var(--line); border-radius: 3px; height: calc(1em + 4px); }
+
+/* Design's grey sketches: a big sheet that slides over from Design's seat */
+.sketch-sheet { position: absolute; left: 410px; top: 196px; width: 1130px; height: 600px; background: var(--sheet); border: var(--line);
+  border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; overflow: hidden; z-index: 5; }
+.sketch-sheet::before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 8px; background: var(--design); border-bottom: var(--line); }
+.sketch-inner { transform-origin: 0 0; margin-top: 6px; }
+.sketch-wait { font: 500 15px var(--mono); margin-top: 8px; }
+.sketch-wait:empty { display: none; }
+.her-flow > .fl-wrap { transform-origin: 0 0; }
+.sounds-like .sl-hint { display: block; margin-top: 6px; font: 400 11.5px var(--mono); color: rgba(20,20,20,.6); }
+.sounds-like .sl-words[contenteditable="true"] { outline: 0; caret-color: var(--product); }
+
+/* Her three arrive: her sheet grows over the teammates' finished sheets, so her flow stays readable */
+.her-sheet.big { top: 196px; height: 604px; z-index: 4; padding-top: 16px; }
+.her-sheet.big .her-q { font-size: 22px; }
+.her-sheet.big .her-idea { margin-top: 4px; font-size: 1em; }
+.her-sheet.big .her-flow { margin-top: 6px; }
+
+/* The close: a judge's idea on the right; while the team works, the contrast on the left */
+.close-sheet { position: absolute; left: 410px; top: 196px; width: 1130px; height: 604px; z-index: 6; display: grid;
+  grid-template-columns: 500px 1fr; gap: 28px; padding: 22px 26px; background: var(--sheet); border: var(--line);
+  border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.close-sheet::before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 8px; background: var(--product); border-bottom: var(--line); }
+.close-label { font: 600 14px var(--ui); text-transform: uppercase; letter-spacing: .08em; }
+.close-left { position: relative; display: flex; flex-direction: column; gap: 22px; visibility: hidden; }
+.close-left.on { visibility: visible; }
+.close-pile { position: relative; height: 150px; }
+.close-pile i { position: absolute; top: 10px; width: 150px; height: 104px; background: var(--stamp);
+  border: var(--line); border-radius: 3px; box-shadow: var(--shadow-sm); }
+.close-pile i:nth-child(1) { left: 10px; } .close-pile i:nth-child(2) { left: 40px; } .close-pile i:nth-child(3) { left: 70px; }
+.close-pile i:nth-child(4) { left: 100px; } .close-pile i:nth-child(5) { left: 130px; } .close-pile i:nth-child(6) { left: 160px; }
+.close-pile i:nth-child(7) { left: 190px; } .close-pile i:nth-child(8) { left: 220px; } .close-pile i:nth-child(9) { left: 250px; }
+.close-big { font: 500 24px/1.2 var(--ui); margin-top: 4px; }
+.close-big b { font: 400 64px/1 var(--display); margin-right: 4px; }
+.close-big b.red { color: var(--stamp); }
+.close-big b.pink { background: var(--product); padding: 0 8px; border: var(--line); border-radius: 3px; }
+.close-big span { margin: 0 6px; }
+.close-src { font: 400 12.5px var(--mono); color: rgba(20,20,20,.7); margin-top: 4px; }
+.close-her { border-top: 2px solid var(--ink); padding-top: 14px; }
+.close-right { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.close-input { width: 100%; font: 500 24px var(--ui); color: var(--ink); background: transparent; border: 0; border-bottom: 2px solid var(--ink);
+  outline: 0; padding: 4px 0; caret-color: var(--product); }
+.close-step { font: 500 14px var(--mono); }
+.close-count { font: 500 20px var(--ui); }
+.close-count b { font: 400 40px var(--display); }
+.close-count b.pink { background: var(--product); padding: 0 6px; border: var(--line); border-radius: 3px; }
+.close-asks { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.close-asks li { padding: 10px 14px 10px 18px; background: var(--sheet); border: var(--line); border-left: 10px solid var(--seat); border-radius: 3px;
+  box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px; }
+.close-seat { font: 600 11.5px var(--mono); text-transform: uppercase; }
+.close-q { font: 600 17px/1.25 var(--ui); }
+.close-rec { font: 500 13.5px var(--mono); }
+.close-why { font: 400 12px/1.3 var(--ui); color: rgba(20,20,20,.75); }

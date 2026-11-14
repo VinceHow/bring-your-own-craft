@@ -1,0 +1,88 @@
+/* Polish: loads after every other stylesheet and only overrides.
+   Risograph room, printed and inky: paper grain, misregistered second ink, one spacing scale, aligned edges.
+   Same rules as room.css: no gradients, glass, purple, emoji, sparkles, chat bubbles, spinners, pop-ups. */
+
+:root {
+  /* one spacing scale, on a 4px grid */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+  /* misregistration: how far the second ink drifts */
+  --mis: 2px;
+  --mis-big: 4px;
+  /* paper grain: an inline SVG noise filter, a few hundred bytes, no image */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .08 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- paper grain over the whole room, multiplied like ink on stock ---- */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 25; pointer-events: none;
+  background-image: var(--grain); background-size: 220px 220px;
+  opacity: .16; mix-blend-mode: multiply;
+}
+/* the REPLAY / FAKE label stays crisp above the grain */
+.replay-label { z-index: 40; }
+
+/* ---- aligned edges: her file, her sheet and the tally share one top and one bottom line ---- */
+.file-card { top: 372px; }
+.tally { top: 372px; height: 420px; gap: var(--s4); }
+.mini-sheet[data-sheet="product"] { top: 660px; height: 132px; }
+
+/* ---- seat cards: the second ink drifts off the first, like a riso pass out of register ---- */
+.card-band svg { overflow: visible; filter: drop-shadow(var(--mis) var(--mis) 0 rgba(20,20,20,.28)); }
+.card-name { text-shadow: var(--mis) var(--mis) 0 rgba(20,20,20,.22); }
+[data-seat="design"] .card-name { text-shadow: var(--mis) var(--mis) 0 rgba(20,20,20,.45); }
+.card-stance { padding: var(--s3) var(--s4) 0; }
+.card-note { padding: var(--s2) var(--s4) var(--s3); font-size: 13px; }
+
+/* empty seats read as chalk outlines on the table */
+.seat-empty { border-width: 2.5px; border-color: rgba(20,20,20,.38); color: rgba(20,20,20,.4); letter-spacing: .06em; }
+
+/* ---- teammates' small sheets: a touch larger to read from the back, tag never clipped ---- */
+.mini-head { padding: 6px var(--s3); }
+.mini-title { font-size: 12.5px; }
+.mini-lines { padding: 6px var(--s3); gap: 4px; }
+.mini-lines li { font-size: 13px; }
+.mini-lines li::before { top: 6px; }
+.mini-lines li.brought { padding-right: 56px; }
+.mini-lines li.brought::after { position: absolute; right: 0; top: 1px; margin: 0; line-height: 1.35; border-radius: 2px; }
+
+/* ---- her sheet: the question is a printed headline, her pink edge gets a registration tick ---- */
+.her-sheet { padding: var(--s5) var(--s6) var(--s4); }
+.her-q { font-size: 36px; text-shadow: 2px 2px 0 rgba(255,72,176,.55); }
+.her-idea { margin-top: var(--s3); }
+.her-form { margin-top: var(--s3); padding-top: var(--s3); }
+
+/* ---- her file ---- */
+.file-head { padding: 10px var(--s4) 9px; }
+.file-name { text-shadow: var(--mis) var(--mis) 0 rgba(20,20,20,.22); }
+.file-lines { padding: var(--s3) var(--s4); gap: var(--s3); }
+.file-lines li.new .ltext { box-shadow: 0 0 0 2px var(--engineering); }
+.sounds-like { margin: var(--s1) var(--s4) 0; box-shadow: var(--shadow-sm); }
+
+/* ---- counter and meter: legible at the back of the room, numbers printed twice out of register ---- */
+.counter { padding: var(--s3) var(--s4); gap: var(--s2); }
+.counter .roll { font-size: 64px; }
+.counter #came { text-shadow: var(--mis-big) var(--mis-big) 0 var(--product); padding-right: var(--mis-big); }
+.counter-label { font: 600 19px/1.1 var(--ui); }
+.roll-pink { padding: 0 var(--s2); box-shadow: var(--shadow-sm); }
+.meter { padding: var(--s3) var(--s4) var(--s4); }
+.meter-num { font-size: 132px; margin: var(--s1) 0 var(--s3); }
+.meter-num .roll { text-shadow: var(--mis-big) var(--mis-big) 0 var(--product); padding-right: var(--mis-big); }
+.meter-unit { font-size: 66px; }
+.meter-bar { height: 22px; }
+.meter-craft { border-right: 2px solid var(--ink); }
+.meter-counts { margin-top: var(--s2); font-size: 14px; }
+
+/* ---- stage mode: body at 20px+ already; lift the smallest printed text too ---- */
+body.stage .card-note { font-size: 14px; }
+body.stage .mini-lines li { font-size: 14px; }
+body.stage .meter-counts { font-size: 15px; }
+
+/* sheet titles stay on one line, so every sheet keeps the same head height */
+.mini-title { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-step { flex: none; }
+.mini-sheet[data-sheet="product"] .mini-lines { gap: 2px; padding-top: 4px; }
+
+/* ---- fit: centre the 1600x900 room on any screen. Grid centring lets an oversized box overflow to the right,
+   so at 1280x720 the counter and meter were cut off. Pin its centre to the viewport's centre instead. ---- */
+#viewport { display: block; overflow: hidden; }
+#room { position: absolute; left: 50%; top: 50%; margin: -450px 0 0 -800px; }
