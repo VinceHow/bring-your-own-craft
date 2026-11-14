@@ -34,7 +34,7 @@ on screen.
 |---|---|---|---|---|
 | **0:00–0:05** Taking her seat | An empty table seen from above, inked on paper, six empty seats (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
 | **0:05–0:22** Assembling the team | One by one, each teammate's card lands **big in the middle of the table**, holds ~1.5 s, then slides into its seat. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
-| **0:22–0:30** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team turns it into her **character card**, in her words (*Priya · Product · loves: real customer problems*), every word editable. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
+| **0:22–0:30** Her character | Like building a character before you sit down. She says, in her own words: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts **its own fun spin** on it to make her **character card**: not her words verbatim, but a playful read of them, e.g. *"Priya, the Customer Whisperer"*, with traits like *customer-obsessed · hands-on builder · problem hunter*. She can swap any of it. Behind it, unseen, the team starts its **private profile** of her. | Making it hers, in a sentence, no form. | (she speaks) | live |
 | **0:30–0:35** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A booking page for a small yoga studio." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
 | **0:35–0:45** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (~4 s measured): **who the users are** (first-timers, regulars, the studio owner) and **the stages they go through**. No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero." | live |
 | **0:45–1:05** Focus moment 1 | The room clears. In front of her, large: the rough journey, *"proposed by Noor and Mika"*. Under it, **one thoughtful question** in plain words, e.g. *"What makes someone come back to a studio week after week?"* She **talks**: *"Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it."* Her words land on the journey as notes. **One or two teammates react** with what they'll do: *Mika: "Love that. Regulars go first, their usual class one tap away."* The journey **redraws** in front of her. | Her insight lands, and the team runs with it straight away. | "One question, about what she knows best. No options, no form." | live |
@@ -129,7 +129,7 @@ sketch, one guest joins, drawn from the main user type the sketch named (chosen 
 **The "Your own craft" seat (DIY, in scope; Vincent, 14 Nov).** Bring your own craft means any craft. A seventh,
 dashed seat lets someone make their own. **Her name tag, made with her:** she says a few words about what she does and
 loves, in her own way (*"I'm good at mixing dough, and I love the first batch out at 6am"*), and the team turns them
-into a fun name tag in her words: **craft** (*Baker*), **good at** (*mixing dough*), **loves** (*the first batch out
+into a fun character card with its own playful spin (e.g. *the Dawn Baker*): **craft** (*Baker*), **good at** (*mixing dough*), **loves** (*the first batch out
 at 6am*). She can change any word. One fast call, no form. Her tag is then passed to every teammate and to the
 selector's "in her seat" test, so only questions in her craft reach her (a baker is asked about the bake, the menu,
 the morning rush, never wireframes). The polished stage path stays Priya in Product; if rehearsal says it's solid,
@@ -144,7 +144,10 @@ button. Real multiplayer is the vision we say out loud, not something we build.
 time is left at the end.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
-turns it into her character card in her words, each word editable. Picking a seat and making the card is one
+turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make
+it fun"): a playful title, two or three traits, maybe one "superpower" line, each swappable. Examples: Priya, *the
+Customer Whisperer* (customer-obsessed, hands-on builder, problem hunter); a baker, *the Dawn Baker* (dough whisperer,
+first batch at 6am, knows every regular by name). Witty, warm, never childish: riso card, no points or stats. Picking a seat and making the card is one
 "build your character" moment. Her sentence becomes **L1 of her file** (hidden).
 
 **The private profile** (never shown unless she asks). From her sentence and her idea, one call deduces what the team

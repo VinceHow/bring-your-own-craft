@@ -35,7 +35,7 @@ she's the expert, they build on what she said, it's all of ours.
 |---|---|---|
 | **0:00–0:05** Her seat | Six seats plus a dashed seventh, "Your own craft"; she **clicks Product**. | live |
 | **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
-| **0:22–0:30** Her character | "Build your character": one natural sentence about what she loves → her character card in her words (editable); L1 of her hidden file. Unseen: the private profile. No stance slot. | live |
+| **0:22–0:30** Her character | "Build your character": one natural sentence about what she loves → her character card with the team's own fun spin (playful title + 2–3 traits, e.g. "the Customer Whisperer: customer-obsessed, hands-on builder"; swappable); L1 of her hidden file. Unseen: the private profile. No stance slot. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
 | **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared yoga sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
