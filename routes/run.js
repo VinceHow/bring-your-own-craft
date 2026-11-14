@@ -100,8 +100,9 @@ export default [
       const idea = String(body?.idea || '').trim();
       if (!idea) return sendJson(res, 400, { error: 'idea required' });
       const run = newRunId();
-      initTaste(run);
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat: body?.seat || 'product' });
+      const intro = String(body?.intro || '').trim();
+      initTaste(run, { intro });
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat: body?.seat || 'product', ...(intro ? { intro } : {}) });
       return sendJson(res, 200, { run });
     },
   },
