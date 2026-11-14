@@ -6,7 +6,8 @@
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 /* Her seat, the teammate popover and her workspace, in ink and paper (../ink-paper.css, ../ink-paper.js).
-   Views: ?seat=a|b|c &st=setup|choose|after · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays.
+   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays;
+   ?flow=own autoplays the "your own craft" path (pick, one sentence, the team's spin as her card, seated).
    Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
 .ink-paper { --ps-paper: var(--ip-paper); --ps-paper-2: #F3E8D4; --ps-linen: #EFE3CD; --ps-ink: var(--ip-ink); --ps-ink-2: var(--ip-ink-2); --ps-ink-3: var(--ip-ink-3);
   --ps-rule: var(--ip-rule); --ps-her: var(--ip-her); --ps-her-deep: var(--ip-her-t); --ps-her-soft: var(--ip-paper-her);
@@ -62,6 +63,28 @@ html, body { margin: 0; background: #2B1F17; }
 .choice.on { background: var(--ps-her-soft); box-shadow: inset 0 0 0 1.5px var(--ps-her); }
 .choice.on i { background: var(--ps-her); }
 .pick .tail { position: absolute; width: 18px; height: 18px; background: var(--ps-paper); border-radius: 4px; rotate: 45deg; left: -8px; top: 40px; }
+
+/* your own craft: the sentence, then her character card */
+.pick .say { position: relative; display: flex; align-items: center; gap: 2px; min-height: 76px; padding: 12px 52px 12px 14px; margin: 0 0 14px; border-radius: var(--ip-r-sm);
+  background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: italic 400 17px/1.35 var(--ip-serif); color: var(--ip-ink); }
+.pick .say .caret { width: 1.5px; height: 20px; background: var(--ip-her-t); align-self: flex-end; margin-bottom: 2px; }
+.pick .say .mic { position: absolute; right: 10px; top: 50%; translate: 0 -50%; width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5); display: grid; place-items: center; }
+.pick .say .mic svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 1.6; stroke-linecap: round; }
+.pick .row-end { display: flex; justify-content: flex-end; }
+.pick .btn { height: 42px; font-size: 15px; }
+.char { width: 356px; z-index: 5; }
+.canvas.ink-paper .char { padding: 18px 20px 18px; }
+.char > .gl { --sheet: var(--ip-paper-her); }
+.char .lab { color: var(--ip-her-t); }
+.char .who { display: flex; align-items: center; gap: 12px; margin: 10px 0 12px; }
+.char .seal { width: 46px; height: 46px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 21px/1 var(--ip-serif); flex: none; }
+.char .name { font: 400 26px/1.05 var(--ip-serif); }
+.char .title { font: italic 400 19px/1.2 var(--ip-serif); color: var(--ip-her-t); margin-top: 3px; }
+.char .traits { display: flex; flex-wrap: wrap; gap: 6px; }
+.char .traits span { height: 28px; padding: 0 11px; display: inline-flex; align-items: center; border-radius: 999px; background: rgba(255,253,248,.85); font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.char .from { margin: 12px 0 14px; font: italic 400 14px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.char .acts { display: flex; gap: 8px; } .char .btn { height: 40px; padding: 0 16px; font-size: 15px; white-space: nowrap; }
 
 /* notes waiting, resting beside the stool: in the ink of who left them, no number */
 .rest { z-index: 2; }
@@ -162,11 +185,26 @@ html, body { margin: 0; background: #2B1F17; }
   <button class="abs pill is-her" data-who="her" id="herPill"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
 
   <div class="abs card pick" data-who="her" id="pick">
-    <span class="lab">This seat is yours</span>
+    <div class="p1"><span class="lab">This seat is yours</span>
     <h3>What do you bring to the table?</h3>
     <p>Pick a craft. The team fills every other seat.</p>
-    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own">Your own craft</button></div>
+    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own" id="own">Your own craft</button></div></div>
+    <!-- your own craft: one sentence, typed or said -->
+    <div class="p2 hide"><span class="lab">Your own craft</span>
+    <h3>What do you love doing?</h3>
+    <p>One sentence is plenty. Say it or type it.</p>
+    <div class="say"><span class="typed" id="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it instead"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>
+    <div class="row-end"><button class="btn" id="makeCard">Make my card</button></div></div>
     <span class="tail"></span>
+  </div>
+
+  <!-- the team's playful spin on her sentence: her character card, before she sits -->
+  <div class="abs card char hide" data-who="her" id="charCard">
+    <span class="lab">The team’s spin on you</span>
+    <div class="who"><span class="seal">P</span><div><div class="name">Priya</div><div class="title">the Dawn Baker</div></div></div>
+    <div class="traits"><span>up before the ovens</span><span>crust perfectionist</span><span>knows every regular</span></div>
+    <p class="from">From: “I bake sourdough before sunrise and love knowing my regulars’ orders by heart.”</p>
+    <div class="acts"><button class="btn" id="sit">Take my seat</button><button class="btn quiet">Change a word</button></div>
   </div>
 
   <div class="abs rest" id="rest">
@@ -326,6 +364,38 @@ html, body { margin: 0; background: #2B1F17; }
   $('#stool').addEventListener('click', () => state === 'setup' ? openPick() : openWs());
   $('#product').addEventListener('click', choose);
 
+  /* ---------- your own craft: one sentence, then the team's spin as her card, then she sits ---------- */
+  const SENTENCE = 'I bake sourdough before sunrise and love knowing my regulars’ orders by heart.';
+  async function ownCraft() {
+    $('#own').classList.add('on'); await wait(350);
+    hide($('#pick .p1')); show($('#pick .p2')); InkPaper.redraw($('#pick'));
+    go('#pick .p2', { opacity: [0, 1] }, { duration: .3 });
+  }
+  async function typeIt() {
+    const t = $('#typed');
+    if (still) { t.textContent = SENTENCE; return; }
+    for (let i = 1; i <= SENTENCE.length; i++) { t.textContent = SENTENCE.slice(0, i); await wait(SENTENCE[i - 1] === ' ' ? 55 : 32); }
+  }
+  async function makeCard() {
+    go('#pick', { opacity: 0, y: 8, scale: .97 }, { duration: .3 }); $('#pick').style.pointerEvents = 'none';
+    await wait(300);
+    const cc = $('#charCard'); show(cc); InkPaper.redraw(cc); cc.querySelectorAll('.pane').forEach(InkPaper.redraw);
+    if (still) return;
+    InkPaper.lay(cc, 0); cc.querySelectorAll('.btn').forEach((b, i) => InkPaper.lay(b, .5 + i * .1));
+  }
+  async function sit() {
+    $('#herPill .agent').textContent = 'the Dawn Baker';
+    await go('#charCard', { opacity: 0, scale: .9, y: 30 }, { duration: .4 }).finished; hide($('#charCard'));
+    hide($('#invite')); show($('#herPill')); InkPaper.redraw($('#herPill'));
+    go('#herPill', { opacity: [0, 1], scale: [.94, 1] }, spring(.5));
+    marks(true, false); state = 'after'; go('#team', { opacity: 1 }, { duration: .8 });
+  }
+  $('#own').addEventListener('click', async () => { await ownCraft(); typeIt(); });
+  $('#makeCard').addEventListener('click', makeCard);
+  $('#sit').addEventListener('click', sit);
+  if (q.get('flow') === 'own') place($('#charCard'), [744, seat.pick[1] - 60]);
+  else place($('#charCard'), [790, 510]);
+
   /* ---------- the popover: opens beside the teammate, closes back into the pill ---------- */
   let openPop = null;
   async function popover(who) {
@@ -362,6 +432,31 @@ html, body { margin: 0; background: #2B1F17; }
 
   /* ---------- views ---------- */
   const st = q.get('st');
+  if (st === 'own' || st === 'card' || st === 'seated') {
+    setup(); $('#team').style.opacity = 1; place($('#charCard'), [744, seat.pick[1] - 60]);
+    if (st === 'own') { openPick(); ownCraft().then(typeIt); }
+    if (st === 'card') { $('#typed').textContent = SENTENCE; makeCard(); }
+    if (st === 'seated') { $('#herPill .agent').textContent = 'the Dawn Baker'; after(); }
+    return;
+  }
+  if (q.get('flow') === 'own') {
+    // the walk-through for "your own craft": a baker tries it live in seconds
+    setup(); const ptr = $('#pointer');
+    const at = (el, dx = .5, dy = .5) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width * dx, y: r.top + r.height * dy }; };
+    const moveTo = p => animate(ptr, { x: p.x - 12, y: p.y - 12 }, spring(.8)).finished;
+    const tap = () => animate(ptr, { scale: [1, .8, 1] }, { duration: .3 }).finished;
+    (async () => {
+      animate(ptr, { x: 900, y: 860 }, { duration: 0 });
+      await wait(800); animate(ptr, { opacity: 1 }, { duration: .4 });
+      await moveTo(at($('#invite'))); await wait(250); await tap(); openPick();
+      await wait(1000); await moveTo(at($('#own'))); $('#own').classList.add('is-hover'); await wait(250); await tap(); $('#own').classList.remove('is-hover'); await ownCraft();
+      await wait(300); animate(ptr, { opacity: 0 }, { duration: .3 }); await typeIt();
+      await wait(500); animate(ptr, { opacity: 1 }, { duration: .3 }); await moveTo(at($('#makeCard'))); await tap(); await makeCard();
+      await wait(3200); await moveTo(at($('#sit'))); await tap(); await sit();
+      await wait(600); animate(ptr, { opacity: 0 }, { duration: .6 });
+    })();
+    return;
+  }
   if (!auto) {
     if (st === 'setup' || st === 'choose') { setup(); $('#team').style.opacity = 1; if (st === 'choose') openPick(); }
     else after();
