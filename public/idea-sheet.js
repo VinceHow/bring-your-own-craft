@@ -20,6 +20,23 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
 @keyframes idea-turn { from { opacity: 0; } to { opacity: 1; } }
 .idea-sheet > .sketch-sheet.idea-layer::before { height: 6px; }
 .idea-sheet > .page-sheet.idea-layer .page-frame iframe { transform: scale(0.7778); }
+.idea-tabs { position: absolute; top: 12px; right: 16px; z-index: 9; display: flex; gap: 6px; }
+.idea-tabs[hidden] { display: none !important; }
+.idea-tab { font: 500 12px var(--mono, monospace); padding: 3px 9px 2px; background: var(--sheet, #FBF9F4); color: var(--ink, #141414);
+  border: 2px solid var(--ink, #141414); border-radius: 3px 3px 0 0; cursor: pointer; }
+.idea-tab[hidden] { display: none !important; }
+.idea-tab.is-on { background: var(--ink, #141414); color: var(--sheet, #FBF9F4); }
+/* She flips back to any kept page: the view overrides what the beat last showed (nothing is cleared away). */
+.idea-sheet[data-view="sketch"] > .idea-layer[hidden], .idea-sheet[data-view="sketch"] > .idea-layer { display: none !important; }
+.idea-sheet[data-view="screens"] > #sketch-sheet[hidden], .idea-sheet[data-view="screens"] > #sketch-sheet { display: block !important; }
+.idea-sheet[data-view="screens"] > #page-sheet { display: none !important; }
+.idea-sheet[data-view="page"] > #page-sheet[hidden], .idea-sheet[data-view="page"] > #page-sheet { display: flex !important; }
+.idea-sheet[data-view="page"] > #sketch-sheet { display: none !important; }
+/* A page on top hides the one beneath (layers can be see-through paper): her flow, its notes and the who-bar step back */
+.idea-sheet[data-view="screens"] > :is(.her-flow, .fs-bar, .her-notes), .idea-sheet[data-view="screens"] > :is(.her-flow, .fs-bar, .her-notes) *,
+.idea-sheet[data-view="page"] > :is(.her-flow, .fs-bar, .her-notes), .idea-sheet[data-view="page"] > :is(.her-flow, .fs-bar, .her-notes) *,
+.idea-sheet:not([data-view]):has(> .idea-layer:not([hidden])) > :is(.her-flow, .fs-bar, .her-notes),
+.idea-sheet:not([data-view]):has(> .idea-layer:not([hidden])) > :is(.her-flow, .fs-bar, .her-notes) * { visibility: hidden !important; }
 .symphony-slip { position: absolute; z-index: 20; width: 220px; padding: 8px 10px 9px 14px; background: var(--sheet, #FBF9F4);
   border: 2px solid var(--ink, #141414); border-radius: 4px; box-shadow: 3px 3px 0 var(--ink, #141414); pointer-events: none;
   font: 500 13px/1.25 var(--ui, sans-serif); }
@@ -50,17 +67,52 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
     sheet.style.setProperty('--idea-top', Math.round(last.offsetTop + last.offsetHeight + 10) + 'px');
   }
 
+  // ---- keep what matters: tabs to flip back to her sketch, Design's screens and her page ----
+  const VIEWS = [['sketch', 'sketch'], ['screens', 'screens'], ['page', 'page']];
+  let tabs = null;
+  function kept() {
+    const evs = typeof B.events === 'function' ? B.events() : [];
+    const inner = document.getElementById('sketch-inner');
+    return { sketch: evs.some(e => e.type === 'flow.line'), screens: !!(inner && inner.children.length),
+      page: evs.some(e => e.type === 'build.done') };
+  }
+  function visibleView(sheet) {
+    if (sheet.dataset.view) return sheet.dataset.view;
+    const shown = id => { const e = document.getElementById(id); return e && !e.hidden; };
+    return shown('page-sheet') ? 'page' : shown('sketch-sheet') ? 'screens' : 'sketch';
+  }
+  function updateTabs() {
+    const sheet = adopt(); if (!sheet) return;
+    if (!tabs || !tabs.isConnected) {
+      tabs = h('nav', 'idea-tabs'); tabs.setAttribute('aria-label', 'Pages of her idea');
+      for (const [view, label] of VIEWS) {
+        const b = h('button', 'idea-tab', label); b.type = 'button'; b.dataset.view = view;
+        b.addEventListener('click', e => { e.stopPropagation(); sheet.dataset.view = view; b.blur(); updateTabs(); step(); });
+        tabs.appendChild(b);
+      }
+      sheet.appendChild(tabs);
+    }
+    const k = kept();
+    const n = Object.values(k).filter(Boolean).length;
+    tabs.hidden = n < 2 || B.beat < 7; // tabs only once there is more than one page to flip between
+    const on = visibleView(sheet);
+    for (const b of tabs.children) { b.hidden = !k[b.dataset.view]; b.classList.toggle('is-on', b.dataset.view === on); }
+  }
+
   // The paper matures with the work (polish.css styles each step): rough -> sketched -> reshaped -> wires -> page.
   function step() {
     const sheet = adopt(); if (!sheet) return;
     const evs = typeof B.events === 'function' ? B.events() : [];
     const shown = id => { const e = document.getElementById(id); return e && !e.hidden; };
     const idea = document.getElementById('her-idea');
-    const st = shown('page-sheet') ? 'page' : shown('sketch-sheet') ? 'wires'
+    const view = sheet.dataset.view;
+    const st = view === 'page' ? 'page' : view === 'screens' ? 'wires' : view === 'sketch' ? (evs.some(e => e.type === 'flow.reset') ? 'reshaped' : 'sketched')
+      : shown('page-sheet') ? 'page' : shown('sketch-sheet') ? 'wires'
       : evs.some(e => e.type === 'flow.reset') ? 'reshaped'
       : evs.some(e => e.type === 'flow.line') ? 'sketched'
       : idea && idea.textContent.trim() ? 'rough' : null;
     if (st) sheet.dataset.step = st; else delete sheet.dataset.step;
+    updateTabs();
   }
 
   // ---- the symphony: every seat slides its part into the sheet ----
@@ -117,23 +169,26 @@ ${LATE.map(b => `${b} .idea-sheet.big`).join(', ')} { width: 1130px; z-index: 7;
   if (typeof B.on === 'function') {
     for (const t of ['run.start', 'flow.line', 'flow.reset', 'sketch.done', 'build.done', 'reset']) B.on(t, () => requestAnimationFrame(step));
     B.on('stage', ev => {
-      adopt();
+      const sh = adopt();
+      if (sh) delete sh.dataset.view; // a new beat shows its own page; the tabs still flip back
       requestAnimationFrame(step);
       if (ev.beat >= 6) requestAnimationFrame(measure);
       if (ev.beat === 8) symphony();
       if (ev.beat < 8) played = false;
     });
     B.on('run.start', () => requestAnimationFrame(measure));
-    B.on('reset', () => { played = false; B.el && B.el.room && B.el.room.classList.remove('symphony'); B.symphonyPlayed = 0; document.querySelectorAll('.symphony-slip').forEach(s => s.remove()); });
+    B.on('reset', () => { const sh = document.getElementById('her-sheet'); if (sh) delete sh.dataset.view; played = false; B.el && B.el.room && B.el.room.classList.remove('symphony'); B.symphonyPlayed = 0; document.querySelectorAll('.symphony-slip').forEach(s => s.remove()); });
   }
   function boot() {
     adopt();
     const mo = new MutationObserver(() => step());
+    const inner = document.getElementById('sketch-inner');
+    if (inner) mo.observe(inner, { childList: true });
     for (const id of ['sketch-sheet', 'page-sheet', 'her-idea']) {
       const e = document.getElementById(id);
       if (e) mo.observe(e, id === 'her-idea' ? { childList: true, characterData: true, subtree: true } : { attributes: true, attributeFilter: ['hidden'] });
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
-  B.ideaSheet = { adopt, measure, symphony, step };
+  B.ideaSheet = { adopt, measure, symphony, step, updateTabs };
 })();

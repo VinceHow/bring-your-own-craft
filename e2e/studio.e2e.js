@@ -206,6 +206,20 @@ test('7. the wireframes, the symphony and her page all land on the one sheet wit
   assert.ok(await page.evaluate(() => BYOC.symphonyPlayed >= 5), 'the symphony played');
   assert.ok(await ideaShown(), 'her idea still on top');
   assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'page');
+  // Keep what matters: she flips back to her sketch and Design's screens; nothing was cleared away.
+  const visible = sel => page.evaluate(sel => { const e = document.querySelector(sel); return !!e && e.getClientRects().length > 0 && getComputedStyle(e).display !== 'none'; }, sel);
+  for (const v of ['sketch', 'screens', 'page']) assert.ok(await visible(`.idea-tab[data-view="${v}"]`), `a ${v} tab`);
+  await page.click('.idea-tab[data-view="sketch"]');
+  assert.ok(await visible('#her-flow .fl-box') && !(await visible('#page-sheet')), 'her sketch, back on top');
+  await page.click('.idea-tab[data-view="screens"]');
+  assert.ok(await visible('#sketch-sheet .sk-frame') && !(await visible('#page-sheet')), "Design's screens, kept");
+  const over = await page.evaluate(() => [...document.querySelectorAll('#sketch-sheet .sk-frame')].map(f => {
+    const r = f.getBoundingClientRect(); const e = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    return !e || e.closest('#sketch-sheet') ? null : `${e.tagName}.${e.className} in ${e.parentNode.className || e.parentNode.id}`; }).filter(Boolean));
+  assert.deepStrictEqual(over, [], 'the screens are on top, nothing of her flow over them');
+  if (process.env.E2E_SCREENS) await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-tabs.png') });
+  await page.click('.idea-tab[data-view="page"]');
+  assert.ok(await visible('#page-sheet'), 'and her page again');
   if (process.env.E2E_SCREENS) { await page.waitForTimeout(1500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-page.png') }); }
   const pg = await browser.newPage();
   await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
