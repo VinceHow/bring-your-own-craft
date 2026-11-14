@@ -177,7 +177,7 @@
     document.body.classList.add('focus-open');
     renderWork();
     if (M) M.animate(doc, { y: [18, 0], scale: [0.985, 1] }, SPRING);
-    if (!B.replay) setTimeout(() => $('.fd-input').focus(), 40);
+    if (!B.replay) setTimeout(() => { if (cur === ask && !doc.hidden) $('.fd-input').focus(); }, 40); // only if she's still in this document
     B.syncFocus && B.syncFocus();
     B.emit && B.emit('focus.open', { askId: ask.id });
   }
@@ -187,6 +187,8 @@
     const was = cur;
     if (!quiet && !kept && briefShown() && !B.replay) keepBrief();
     cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null;
+    // Let go of focus now: a hidden input that kept it would swallow the clicker's next forward key (its own PageDown is "send").
+    if (doc.contains(document.activeElement)) document.activeElement.blur();
     doc.hidden = true;
     document.body.classList.remove('focus-open');
     B.syncFocus && B.syncFocus();
@@ -324,6 +326,7 @@
     if (!sent) doc.dataset.state = t || pieces.length ? 'speaking' : 'asking';
   });
   $('.fd-input').addEventListener('keydown', e => {
+    if (doc.hidden) { e.target.blur(); return; } // closed: the key belongs to the room
     e.stopPropagation();
     if (e.key === 'Escape') { e.target.blur(); return; }
     // Her pace: nothing sends on silence; she sends when she's ready (Enter, Send, or the clicker's forward key).
