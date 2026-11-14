@@ -8,7 +8,8 @@
      ?cast=product (the stage path: she is Product, she said she's a baker's friend building the ordering site)
      ?cast=design  (she took Design, so Mika moves to Product)
      ?cast=own     (Your own craft, a baker: Ines moves to Product, Theo's flex seat becomes the morning bake list)
-     &step=0..6 &still=1 for a moment. Names and faces never change; only the role line does. -->
+     &step=0..6 &still=1 for a moment. &late=1: the flex teammate isn't ready yet, so a note sits in the empty chair
+     (&hold=1 stops there), then Theo pops in with the new card. Names and faces never change; only the role line does. -->
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 * { box-sizing: border-box; }
@@ -20,7 +21,7 @@ html, body { margin: 0; background: #1A120D; }
 .pill .role { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); padding-left: 9px; border-left: 1px solid rgba(80,55,35,.2); }
 .pill .role b { font-weight: 500; color: var(--t); }
 /* the intro card: who they are, what they bring this time */
-.intro { width: 300px; z-index: 6; }
+.intro { width: 300px; min-height: 142px; z-index: 6; }
 .canvas .intro { padding: 16px 18px 17px; }
 .intro .hd { display: flex; align-items: center; gap: 10px; }
 .intro .hd .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; }
@@ -32,6 +33,14 @@ html, body { margin: 0; background: #1A120D; }
 .intro.flex .writing { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); margin-top: 8px; }
 .cap { position: absolute; left: 22px; top: 18px; z-index: 8; }
 .her { z-index: 4; }
+/* the flex teammate is late: a small, warm note pinned in the empty chair, no spinner, no timer.
+   Mocked over Theo in the painting; the real state needs the room painted with Theo's chair empty. */
+.late { width: 236px; rotate: -3deg; z-index: 6; }
+.canvas .late { padding: 14px 16px 15px; }
+.late .hand { display: block; font: 500 13px/1 var(--ip-sans); color: var(--t); margin-bottom: 6px; }
+.late p { margin: 0; font: italic 400 17px/1.35 var(--ip-serif); }
+.late .pin { position: absolute; left: 50%; top: -7px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--c);
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.25); z-index: 3; }
 </style>
 </head>
 <body>
@@ -84,6 +93,9 @@ html, body { margin: 0; background: #1A120D; }
          <div class="hd"><span class="dot"></span><span class="nm">${NAMES[w]}</span><span class="rl">${role}</span></div>
          <p class="say"></p><div class="brings"></div></div>`);
   });
+  const LATE = q.get('late') === '1';
+  if (LATE) stage.insertAdjacentHTML('beforeend', `<div class="abs card late" data-who="theo" id="late" style="left:716px;top:350px;opacity:0"><span class="pin"></span>
+    <span class="hand">A note on Theo’s chair</span><p>Theo’s running a little late: we’re finding you someone who knows morning bake lists.</p></div>`);
   const els = InkPaper.dress(c);
   const type = async (el, text, ms = 22) => { if (instant) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(ms); } };
   const show = (el, on = true) => { el.style.opacity = on ? 1 : 0; };
@@ -93,6 +105,13 @@ html, body { margin: 0; background: #1A120D; }
     for (let k = 0; k < T.order.length && k < n; k++) {
       const w = T.order[k], pill = document.getElementById('p-' + w), card = document.getElementById('i-' + w), [, line, brings] = T.cast[w];
       const flex = w === T.flex;
+      if (flex && LATE) {
+        // the flow carries on: the note sits in the empty chair until the role is written, then Theo arrives with the new card
+        const late = document.getElementById('late'); show(late); InkPaper.redraw(late); if (!instant) InkPaper.lay(late);
+        if (q.get('hold') === '1') return;
+        await wait(3600);
+        if (!instant) await animate(late, { opacity: 0, rotate: 8, y: -24, scale: .9 }, { duration: .45, ease: [.4, 0, .6, 1] }).finished; else show(late, false);
+      }
       show(pill); show(card); if (!instant) { InkPaper.lay(pill); InkPaper.lay(card, .15); }
       InkPaper.redraw(card);
       if (flex && !instant) {
