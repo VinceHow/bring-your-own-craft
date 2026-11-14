@@ -109,7 +109,7 @@ test('a real exchange: each turn its own call reading the thread so far; lines a
   assert.ok(!evs.some(e => e.type === 'ask' && e.id !== 'c4'));
 });
 
-test('with her takeaways in mind only when the closer cites one of her takeaway lines', async () => {
+test('with her takeaways in mind when the closer heard them (read from the log at that call); the cite only when it is hers', async () => {
   const run = newRun({ takeaway: true });
   const seen = [];
   await J.runJoint(run, { max: 1, callModel: fakeModel({ seen, close: { cites: '[L5]' } }) });
@@ -117,10 +117,14 @@ test('with her takeaways in mind only when the closer cites one of her takeaway 
   const a = readEvents(run).find(e => e.type === 'joint.agreed');
   assert.equal(a.withTakeaways, true);
   assert.equal(readEvents(run).findLast(e => e.type === 'decided' && e.jointId).cites, 'L5');
-  // A cite to a line that isn't one of her takeaways: not "with your takeaways".
+  // A cite to a line that isn't one of her takeaways: the decision cites the team, not L1.
   const run2 = newRun({ takeaway: true });
   await J.runJoint(run2, { max: 1, callModel: fakeModel({ close: { cites: 'L1' } }) });
-  assert.equal(readEvents(run2).find(e => e.type === 'joint.agreed').withTakeaways, false);
+  assert.equal(readEvents(run2).findLast(e => e.type === 'decided' && e.jointId).cites, 'team');
+  // No takeaways yet: not "with your takeaways".
+  const run3 = newRun();
+  await J.runJoint(run3, { max: 1, callModel: fakeModel() });
+  assert.equal(readEvents(run3).find(e => e.type === 'joint.agreed').withTakeaways, false);
 });
 
 test('a choice outside the options keeps the team\'s lean; a line that breaks the rules twice drops the exchange', async () => {
@@ -137,11 +141,12 @@ test('a choice outside the options keeps the team\'s lean; a line that breaks th
   assert.ok(!evs.some(e => e.type === 'chatter' && /\?/.test(e.text)));
 });
 
-test('in the background after select.done, once per run; never for a judge\'s fast run', async () => {
+test('in the background after select.done, once per run; never for a judge\'s fast run', async t => {
   delete process.env.JOINT_OFF;
   let calls = 0;
   const base = fakeModel();
   J.installJoint({ callModel: async a => { calls++; return base(a); } });
+  t.after(() => { J.uninstallJoint(); process.env.JOINT_OFF = '1'; }); // the hook is this test's only
   const run = newRun();
   for (let i = 0; i < 100 && readEvents(run).filter(e => e.type === 'joint.agreed').length < 3; i++) await new Promise(r => setTimeout(r, 10));
   assert.equal(readEvents(run).filter(e => e.type === 'joint.agreed').length, 3);
@@ -363,4 +368,78 @@ test('Build pressed mid-talk: the build waits for the joint talk, then revisits 
   assert.equal(evs.filter(e => e.type === 'decided' && e.id === 'c20').at(-1).round, 'build', 'the last word on c20 is the build\'s');
   const html = fs.readFileSync(path.join(process.env.RUNS_DIR, run, 'page', 'index.html'), 'utf8');
   assert.doesNotMatch(html, /type="tel"/);
+});
+
+// The tech lead's case: her L5 lands after one agreement (j-c20) and during another talk (j-c21). Code revisits both on
+// its own (the hook: on each takeaway and each agreement), each ends without the phone, and the page has no phone field.
+test('L5 after one agreement and during another: both revisited in code, both end without the phone', async () => {
+  const { buildRun, _setDecideRest, _setDeal } = await import('../routes/build.js');
+  const { loadTemplate } = await import('../lib/fill.js');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const KEEP2 = { ...KEEP, id: 'c21', seat: 'design', decision: 'What the order form asks for', seats: ['design', 'engineering'],
+    options: ['Name, phone and email', 'Phone and email', 'Name and phone'], recommendation: 'Name, phone and email' };
+  const run = newRunId(`jl-${Math.random().toString(36).slice(2, 8)}`);
+  initTaste(run);
+  logEvent(run, 'run.start', { mode: 'craft', idea: 'A website for a small bakery, so customers can order bread ahead.', seat: 'product' });
+  for (const c of [KEEP, KEEP2]) {
+    logEvent(run, 'candidate', c);
+    logEvent(run, 'decided', { id: c.id, seat: c.seat, decision: c.decision, choice: c.options[0], cites: 'team default', round: 'select' });
+  }
+  logEvent(run, 'select.done', { came: 2, brought: 0, ms: 1 });
+  const decideSeen = [];
+  const decide = async (cs, tk) => { decideSeen.push(cs.map(c => c.id)); assert.ok(tk.some(l => l.id === 'L5'));
+    return { decisions: cs.map(c => ({ id: c.id, choice: 'Name and email only', cites: 'L5', newOption: true })) }; };
+  const hook = () => J.queueRevisit(run, { decide }); // what installJoint does on each takeaway and each agreement
+  const fake = fakeModel({ close: { headline: 'We keep the phone' } });
+  let c21Agreed;
+  const agreedC21 = new Promise(r => (c21Agreed = r));
+  const talk = J.runJoint(run, { callModel: async a => {
+    const slow = /What the order form asks for/.test(a.system);
+    await new Promise(r => setTimeout(r, slow ? 120 : 5));
+    const out = await fake(a);
+    if (a.schema.required.includes('choice')) out.choice = slow ? KEEP2.options[0] : KEEP.options[0]; // the closers keep the phone
+    return out;
+  } });
+  // j-c20 agrees fast; then her L5, while j-c21 is still talking
+  for (let i = 0; i < 100 && !readEvents(run).some(e => e.type === 'joint.agreed' && e.id === 'j-c20'); i++) await new Promise(r => setTimeout(r, 10));
+  assert.ok(!readEvents(run).some(e => e.type === 'joint.agreed' && e.id === 'j-c21'), 'j-c21 still talking');
+  logEvent(run, 'taste.written', { mode: 'craft', id: 'L5', text: 'Never ask for anything we could remember or skip.', askId: 'a3' });
+  await hook(); // on the takeaway: j-c20 is revisited
+  assert.ok(readEvents(run).some(e => e.type === 'joint.revised' && e.id === 'j-c20'));
+  (async () => { while (!readEvents(run).some(e => e.type === 'joint.agreed' && e.id === 'j-c21')) await new Promise(r => setTimeout(r, 10)); c21Agreed(); })();
+  await agreedC21;
+  await hook(); // on the agreement: j-c21 (agreed during L5, closer kept the phone) is revisited
+  await talk;
+  const evs = readEvents(run);
+  assert.ok(evs.some(e => e.type === 'joint.revised' && e.id === 'j-c21' && e.against.includes('L5')), JSON.stringify(evs.filter(e => /joint\.(agreed|revised|kept)|taste|decided/.test(e.type)).map(e => [e.type, e.id, e.round, e.choice, e.reason])));
+  assert.deepEqual(decideSeen, [['c20'], ['c21']], 'each agreement revisited once, nothing twice');
+  for (const id of ['c20', 'c21']) assert.doesNotMatch(evs.filter(e => e.type === 'decided' && e.id === id).at(-1).choice, /phone/i, id);
+  // Build: nothing left to check; the page has no phone field
+  const tpl = loadTemplate('bakery');
+  _setDecideRest(async () => []); _setDeal(async () => ({ skipped: 'test' }));
+  try {
+    await buildRun(run, { call: async () => ({ words: tpl.defaults.words, steps: tpl.defaults.steps, switches: { ...tpl.defaults.switches, phone: true }, decidedShown: [] }) });
+  } finally { _setDecideRest(null); _setDeal(null); }
+  assert.equal(decideSeen.length, 2, 'the build did not check again');
+  assert.doesNotMatch(fs.readFileSync(path.join(process.env.RUNS_DIR, run, 'page', 'index.html'), 'utf8'), /type="tel"/);
+});
+
+test('a revisit that keeps the agreement logs joint.kept { reason }; a revisit past its wait lets Build go on as logged', async () => {
+  const run = keepRun();
+  await J.queueRevisit(run, { decide: async () => ({ decisions: [{ id: 'c20', choice: KEEP.options[0], cites: 'L5' }] }) });
+  const kept = readEvents(run).find(e => e.type === 'joint.kept');
+  assert.deepEqual([kept.id, kept.reason, kept.against], ['j-c20', 'still fits her takeaways', ['L5']]);
+  await J.queueRevisit(run, { decide: async () => { throw new Error('should not run: already checked against L5'); } });
+  assert.equal(readEvents(run).filter(e => e.type === 'joint.kept').length, 1, 'checked once per line');
+  // a failed call is logged too
+  const run2 = keepRun();
+  await J.queueRevisit(run2, { decide: async () => { throw new Error('model down'); } });
+  assert.match(readEvents(run2).find(e => e.type === 'joint.kept').reason, /revisit call failed: model down/);
+  // a revisit that hangs: the wait gives up at its cap
+  const run3 = keepRun();
+  J.queueRevisit(run3, { decide: () => new Promise(() => {}) });
+  const t0 = Date.now();
+  assert.deepEqual(await J.revisitSettled(run3, 60), { pending: true, timedOut: true });
+  assert.ok(Date.now() - t0 < 1000);
 });

@@ -8,7 +8,7 @@ import { scrub } from '../lib/model.js';
 import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
 import { dealDesign } from '../lib/design.js';
 import { decideRest, loadRest } from '../lib/select.js';
-import { revisitJoint, jointSettled } from '../lib/joint.js';
+import { revisitJoint, jointSettled, revisitSettled } from '../lib/joint.js';
 import { SEED } from '../lib/taste.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
@@ -25,13 +25,17 @@ export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 
 // Re-decide the candidates she wasn't asked, against her updated file (logs `decided` itself, round 'build').
 async function redecide(run, tasteMd, { idea, flow }) {
+  // A revisit still running (a takeaway just written): wait for it, about 5 s at most; past that, the agreement as
+  // logged goes to the page and the build doesn't start a second check of its own.
+  const { timedOut } = await revisitSettled(run);
+  const skipCheck = timedOut;
   // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.
   const settled = new Set(readEvents(run).filter(e => e.type === 'answer.mapped').flatMap(m => (m.decisions || []).map(d => d.id)));
   // What the team agreed in the team space (lib/joint.js) isn't re-decided with the rest (loadRest skips it); it reaches
   // the page as agreed, unless her takeaways or her answers since touch it (revisitJoint), in parallel with the rest.
   const [out, joint] = await Promise.all([
     decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' }),
-    revisitJoint(run, { idea, ...(revisitImpl ? { decide: revisitImpl } : {}) }),
+    revisitJoint(run, { idea, skipCheck, ...(revisitImpl ? { decide: revisitImpl } : {}) }),
   ]);
   return [...joint, ...(Array.isArray(out) ? out : (out?.decided || []))];
 }
