@@ -1,0 +1,24 @@
+/* Voice: the mic mark beside her two spoken lines. Printed, flat, hard shadows; no spinner, no waveform. */
+.voice-mic { display: inline-flex; align-items: center; gap: 6px; flex: none; align-self: center;
+  padding: 3px 8px 3px 6px; font: 500 12px/1 var(--mono, 'IBM Plex Mono', monospace); color: var(--ink, #141414);
+  background: var(--paper, #F2EEE6); border: 2px solid var(--ink, #141414); border-radius: 3px;
+  box-shadow: 3px 3px 0 var(--ink, #141414); cursor: pointer; user-select: none; touch-action: none;
+  font-style: normal; white-space: nowrap; }
+.voice-mic svg { flex: none; }
+.voice-mic:active, .voice-mic[data-state="listening"] { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink, #141414); }
+.voice-mic[data-state="listening"] { background: var(--product, #FF48B0); }
+.voice-mic[data-state="listening"]::after { content: ''; width: 8px; height: 8px; background: var(--ink, #141414);
+  animation: voice-blink 1s steps(1) infinite; }
+.voice-mic[data-state="writing"] { background: var(--engineering, #FFE800); }
+@keyframes voice-blink { 50% { visibility: hidden; } }
+/* Still asking the server: show nothing yet. */
+body:not(.voice-on):not(.voice-typed) .voice-mic { visibility: hidden; }
+/* No voice: the mic hides; a quiet printed word says how the line got there. */
+.voice-mic[data-state="typed"] { border: 0; box-shadow: none; background: transparent; padding: 0; cursor: default;
+  color: rgba(20, 20, 20, .45); transform: none; }
+.voice-mic[data-state="typed"] svg { display: none; }
+/* On her sheet, only while the idea (her agenda answer) is the open line; journey steps are typed. */
+.her-form .voice-mic { display: none; }
+.her-form.voice-idea .voice-mic { display: inline-flex; }
+.big-card .voice-mic { font-size: 13px; }
+body.stage .voice-mic { font-size: 15px; }
