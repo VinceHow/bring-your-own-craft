@@ -4,6 +4,7 @@ She sits in the {{HER_SEAT}} seat and is building: {{IDEA}}
 {{HER_TAG}}
 
 What she told us about herself, in her own words: {{INTRO}}
+Her domains, the areas that are hers: {{HER_DOMAINS}}. Only a question in one of these reaches her.
 
 What the team has worked out about her (private, never shown to her; each with how sure the team is):
 {{PROFILE}}
@@ -21,6 +22,8 @@ decision, by its id. Keep it short: numbers and flags only.
   feels. 3 = the product is different. 0 = a setting on it.
 - `hers`: 0 to 3, does answering draw on what she is especially good at or loves (her words above, the profile),
   not her job title. 3 = this is exactly what she knows inside out.
+- `domain`: which of her domains the question underneath this decision sits in, copied exactly from the list
+  above, or null if it sits in none (then it stays with the team, however big).
 - `granular`: true if it is a detail the team settles with a sensible default: accounts or name and email, logins,
   device recognition, waitlist mechanics, which fields to ask for, data kept, what to measure, a colour, a layout, a
   technical choice. Granular decisions are never asked, however much they matter.

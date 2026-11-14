@@ -35,8 +35,22 @@ test('yoga: given the finding but the shape ignores it, the flag stays false', a
   assert.equal(done(run).by, undefined);
 });
 
-test('café and tattoo studio: the finding never reaches the sketch, the flag is false', async () => {
-  for (const idea of ["A pre-order page for a café's morning pastries.", 'A booking site for a tattoo studio.']) {
+test('bakery: the bakery finding reaches the sketch, never the yoga one; ordering ahead in the shape counts as used', async () => {
+  const run = newRun('A website for a small bakery, so customers can order bread ahead.');
+  const callModel = recorder({ users: ['Morning regulars', 'Weekend crowd'], stages: ['Choose bread', 'Order ahead', 'Pick up'] });
+  await firstSketch({ run, callModel, ...opts });
+  assert.match(callModel.seen[0], /guess how many loaves/);
+  assert.doesNotMatch(callModel.seen[0], /group fitness/);
+  assert.equal(done(run).usedFinding, true);
+  const { shapeUsesFinding } = await import('../lib/sketch.js');
+  const { findingFor } = await import('../lib/teammates.js');
+  const shows = findingFor('a bakery').shows;
+  assert.ok(shapeUsesFinding({ stages: ['Place order', 'Baker sees total', 'Pick up bread'] }, shows), 'real sketch, 14 Nov');
+  assert.ok(!shapeUsesFinding({ stages: ['Browse breads', 'Pick loaves', 'Pick up bread'] }, shows));
+});
+
+test('a bike shop and a tattoo studio: no finding reaches the sketch, the flag is false', async () => {
+  for (const idea of ['A shop for second-hand bikes.', 'A booking site for a tattoo studio.']) {
     const run = newRun(idea);
     const callModel = recorder(WITH); // even a shape that mentions "full" isn't Noor's work here
     await firstSketch({ run, callModel, ...opts });

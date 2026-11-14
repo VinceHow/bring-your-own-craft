@@ -87,3 +87,28 @@ test('the question is the one the teammate drafted in its own call, when the sco
   const { picks } = pickAsks(cs, scores([{ id: 'c1', question: null }, { id: 'c2', question: null }]), { flow });
   assert.deepStrictEqual(picks.map(p => [p.candidate.id, p.question]), [['c1', 'What makes someone come back to a studio week after week?']]);
 });
+
+test('her domains: a big question outside them stays with the team; inside one, it can reach her', async () => {
+  const { domainsFor, inDomains } = await import('../lib/teammates.js');
+  assert.deepStrictEqual(domainsFor(null, 'product'), ['target customer', 'customer problem', 'user journey']);
+  assert.deepStrictEqual(domainsFor(null, 'product', { domains: ['Target customer', 'the bake'] }), ['target customer', 'the bake']);
+  assert.deepStrictEqual(domainsFor(null, 'product', { domains: { text: 'customers, the morning bake', confidence: 'high' } }), ['customers', 'the morning bake']);
+  assert.ok(inDomains('User journey', ['user journey']) && !inDomains(null, ['user journey']) && !inDomains('pricing', ['user journey']));
+  const cs = [cand(1, { attachTo: 'n1' }), cand(2, { attachTo: 'n2', decision: 'Other topic' })];
+  const { picks } = pickAsks(cs, scores([{ id: 'c1', inDomain: false }, { id: 'c2', inDomain: true, question: 'Who comes back every single week?' }]), { flow });
+  assert.deepStrictEqual(picks.map(p => p.candidate.id), ['c2']);
+});
+
+test('the scorer must name a domain; code checks it against hers', async () => {
+  const fs = await import('node:fs'); const os = await import('node:os'); const path = await import('node:path');
+  process.env.RUNS_DIR ||= fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-bar-'));
+  const { scoreCandidates, SCORE_SCHEMA } = await import('../lib/select.js');
+  assert.ok(SCORE_SCHEMA.properties.scores.items.required.includes('domain'));
+  let sys = '';
+  const callModel = async ({ system }) => { sys = system; return { scores: [
+    { id: 'c1', big: 3, hers: 3, silent: 3, dupOf: null, domain: 'pricing' },
+    { id: 'c2', big: 3, hers: 3, silent: 3, dupOf: null, domain: 'target customer' }] }; };
+  const m = await scoreCandidates({ idea: 'x', flow, taste: [], candidates: [cand(1), cand(2)], callModel, profile: null });
+  assert.match(sys, /Her domains, the areas that are hers: target customer, customer problem, user journey/);
+  assert.deepStrictEqual([m.get('c1').inDomain, m.get('c2').inDomain], [false, true]);
+});

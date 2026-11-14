@@ -63,7 +63,7 @@
     if (!S.subscribed && typeof B.on === 'function') {
       S.subscribed = true;
       B.on('flow.line', ev => ev.nodes && render(ev));
-      B.on('ask', ev => showAsk(ev));
+      // Asks no longer sit on her flow: they wait in her tray and open as a document (public/focus-doc.js).
       B.on('answer', ev => markAnswer(ev.askId, ev.choice));
       B.on('pin', ev => addPinNote(ev.nodeId, ev.text));
     }

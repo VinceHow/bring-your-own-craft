@@ -5,13 +5,17 @@ import path from 'node:path';
 import { logEvent, readEvents, RUNS_DIR } from '../lib/events.js';
 import { sendJson } from '../lib/http.js';
 import { scrub } from '../lib/model.js';
-import { fillPage, gatherRun } from '../lib/fill.js';
+import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
+import { dealDesign } from '../lib/design.js';
 import { decideRest, loadRest } from '../lib/select.js';
 import { SEED } from '../lib/taste.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
 
 let decideRestImpl = decideRest;
+let dealImpl = dealDesign;
+// For tests only: swap Design's live deal. null restores the real one.
+export function _setDeal(fn) { dealImpl = fn || dealDesign; }
 // For scripts/tests only: swap the re-decision (fill-demo's --sample-decide). null restores the real one.
 export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 
@@ -41,7 +45,13 @@ export async function buildRun(run, { call } = {}) {
   const t1 = Date.now();
   const decided = await redecide(run, tasteMd, g);
   const decideMs = Date.now() - t1;
-  const r = await fillPage({ run, outDir: path.join(dir, 'page'), ...g, decided, call, onStep: step });
+  // Design deals the page's palette and type live through taste-skill (lib/design.js), alongside the re-decision's log.
+  step('Design picks the palette and type');
+  const design = await dealImpl({ template: pickTemplate(g.idea) });
+  if (design.skipped) logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', skipped: design.skipped });
+  else logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', trade: design.trade, palette: design.palette, typeId: design.type,
+    typeUsed: !design.typeFallback, faces: design.typeFallback ? design.wanted : design.faces, ms: design.ms });
+  const r = await fillPage({ run, outDir: path.join(dir, 'page'), ...g, decided, call, design: design.skipped ? null : design, onStep: step });
   const url = `/runs/${run}/page/`;
   const ms = Date.now() - t0;
   logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template });
