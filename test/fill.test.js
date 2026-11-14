@@ -141,6 +141,33 @@ test('"does cancel ask for a reason?" decided "No, one tap" removes the reason l
   assert.match(read(out), /data-decided="c4" data-cites="L3"/);
 });
 
+test('"decided for you" tags each row with its seat, and a Strategy payment decision always shows', async () => {
+  const out = tmp();
+  const decided = [
+    ...['a', 'b', 'c', 'd', 'e', 'f'].map(k => ({ id: k, seat: 'design', decision: `D ${k}`, choice: 'x', cites: 'L3' })),
+    { id: 's1', seat: 'strategy', decision: 'Pay online or at the desk?', choice: 'Pay at the desk', cites: 'team default' },
+  ];
+  const r = await fillPage({ run: 'r', outDir: out, idea: 'x', taste: TASTE, decided, newestLine: 'L3', template: 'yoga',
+    call: fakeModel({ decidedShown: ['d', 'e', 'f'].map(id => ({ id, label: id })) }) });
+  assert.ok(r.slots.decided.length <= 6);
+  assert.ok(r.slots.decided.some(x => x.id === 's1'), 'the Strategy decision is shown');
+  assert.deepEqual(r.slots.decided.map(x => x.id), ['d', 'e', 'f', 's1'], 'at most three newest-line rows (her picks first), then Strategy');
+  const html = read(out);
+  assert.match(html, /data-decided="s1"[^>]*data-seat="strategy"><span class="rows__name">[^<]*<\/span><p><span class="decided__seat">Strategy<\/span>/);
+  assert.match(html, /<span class="decided__seat">Design<\/span>/);
+});
+
+test('she overrules cancel-by-link with "contact the studio": the one-tap cancel line goes', async () => {
+  const ev = [
+    { type: 'ask', id: 'c9', decision: 'Whether customers can cancel, and how late', recommendation: 'Self-cancel via link up to a cutoff' },
+    { type: 'answer', askId: 'c9', choice: 'Cancel by contacting the studio' },
+  ];
+  const out = tmp();
+  const r = await fillPage({ run: 'r', outDir: out, ...gatherRun(ev, ''), taste: TASTE, template: 'yoga', call: fakeModel({ switches: { oneTapCancel: true } }) });
+  assert.equal(r.slots.switches.oneTapCancel, false);
+  assert.doesNotMatch(read(out), /data-switch="cancel"/);
+});
+
 test('a slot JSON that breaks the schema is refused, nothing written', async () => {
   const out = tmp();
   const bad = async () => ({ words: {}, steps: 'nope' });

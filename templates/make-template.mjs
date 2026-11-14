@@ -83,7 +83,10 @@ if (!/<input type="hidden" name="page"[^>]*>/.test(html)) fail('no hidden page i
 html = html.replace(/(<input type="hidden" name="page"[^>]*>)/, '$1\n            <input type="hidden" name="run" value="{{{raw.run}}}">');
 const rootStyle = html.match(/<style>\s*:root \{[\s\S]*?<\/style>/);
 if (!rootStyle) fail('no :root block');
-html = html.replace(rootStyle[0], rootStyle[0] + '\n<style>:root { {{{raw.tokens}}} }</style>');
+html = html.replace(rootStyle[0], rootStyle[0] + '\n<style>:root { {{{raw.tokens}}} }</style>' +
+  // our one addition to the page's look: a small ink tag naming the seat that decided each "decided for you" row
+  '\n<style>.decided__seat { display: inline-block; font-size: 13px; line-height: 20px; font-weight: 500; padding: 0 6px; margin-right: 6px;' +
+  ' border: 1px solid currentColor; border-radius: 2px; color: var(--ink, inherit); vertical-align: 1px; }</style>');
 // the built page links its own share image and privacy page; keep links that resolve
 const tokens = {};
 for (const k of ['p-bg', 'p-surface', 'p-ink', 'p-accent', 'p-action']) {
