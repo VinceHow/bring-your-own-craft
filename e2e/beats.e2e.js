@@ -240,6 +240,13 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room', null, p);
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot');
   assert.strictEqual(await p.locator('#file-lines li[data-id="L3"]').count(), 0, 'the hidden line stays off the card');
+  // Straight into the next note: its chimes still land (a quick close mid-thread must not stall the next document).
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q2', seat: 'design', by: 'Mika', question: 'If booking could feel like one thing, what should it feel like?', artifact: { kind: 'journey' } }, 'replay'));
+  await p.evaluate(() => { BYOC.openNote('q2'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Mika', seat: 'design', text: 'One.' }, 'replay'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Bo', seat: 'engineering', text: 'Two.' }, 'replay'); });
+  await p.waitForTimeout(150);
+  await p.evaluate(() => { BYOC.focusDoc.close(true); BYOC.openNote('q2'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Mika', seat: 'design', text: 'Again.' }, 'replay'); });
+  await waitFor(() => document.querySelectorAll('#focus-doc .chime').length >= 1, 2500, 'a chime after a quick reopen', null, p);
+  await p.evaluate(() => BYOC.focusDoc.close(true));
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });

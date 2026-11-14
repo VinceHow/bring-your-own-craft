@@ -114,7 +114,7 @@
     if (!ask) return;
     if (cur && cur.id === ask.id && !doc.hidden) return;
     if (cur) close(true);
-    cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); clearTimeout(replayClose);
+    cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose);
     const seat = ask.seat, name = ask.by || AGENT(seat);
     $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : SEAT_NAME(seat);
     const proposers = (ask.artifact && Array.isArray(ask.artifact.by) && ask.artifact.by.length) ? ask.artifact.by : null;
@@ -138,7 +138,7 @@
     if (!cur) { doc.hidden = true; document.body.classList.remove('focus-open'); return; }
     const was = cur;
     if (!quiet && !kept && briefShown() && !B.replay) keepBrief();
-    cur = null; clearTimeout(chimeTimer); clearTimeout(replayClose); chimeQ = []; briefPending = null;
+    cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null;
     doc.hidden = true;
     document.body.classList.remove('focus-open');
     B.syncFocus && B.syncFocus();
@@ -243,6 +243,7 @@
     landSaid(ev.text);
   });
 
+  B.on('build.step', () => { if (B.replay && cur) close(true); });
   $('.fd-close').addEventListener('click', () => close());
   B.on('reset', () => close(true));
   B.focusDoc = { open, close, isOpen: () => !doc.hidden, openId: () => (cur && !doc.hidden ? cur.id : null), keepBrief, send };
