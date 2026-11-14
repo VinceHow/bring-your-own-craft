@@ -20,3 +20,12 @@ The loops designer's own log, at listed rates. These are low-end figures: the ra
 - 17:40–17:41 nano-banana-pro/edit ×5 at 2K (corrected afternoon plus 3 times of day) $0.75
 - 17:42 wan ×4 (scene loops) $1.00 · 17:52–17:54 wan ×43 (40 moods plus 3 objects) $10.75
 - Loops designer subtotal: about $15.45. The rest of the $54: exploration images, sprites and cut-outs, music ($2.70), and the earlier concept rounds.
+
+## Onboarding flair ($5 approved by Vincent, 14 Nov evening)
+| What | Model | Cost |
+|---|---|---|
+| 5 teammate portraits (Mika, Noor, Theo, Ines, Bo), 1:1 | nano-banana-2/edit, 5 × $0.08 | $0.40 |
+| Studio front door painting, 16:9 | nano-banana-pro/edit | $0.15 |
+| 5 wave-hello clips, 5 s, 720p, no audio | wan-3.0-prime i2v, 5 × $0.25 | $1.25 |
+| Theo running late clip, 5 s, 720p | wan-3.0-prime i2v | $0.25 |
+| **Running total** | | **$2.05 of $5** |
