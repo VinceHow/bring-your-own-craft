@@ -6,7 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-policy-'));
-const { ask, refuse, selectorGrant, scanText, questionsIn } = await import('../lib/policy.js');
+const { select } = await import('../lib/select.js'); // claims the grantor as it loads
+const { ask, refuse, claimGrantor, scanText, questionsIn } = await import('../lib/policy.js');
 const { propose } = await import('../lib/teammates.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
 // newRunId is millisecond-based; two in the same ms collide, so tests add a random part.
@@ -19,24 +20,26 @@ test('an ask without the selector\'s grant is refused, decided and logged', () =
   const run = newRunId(uid());
   assert.equal(ask(run, cand('c1')), null);
   assert.equal(ask(run, cand('c2'), { grant: { run, ids: ['c2'] } }), null); // a look-alike grant
-  assert.equal(ask(run, cand('c3'), { grant: selectorGrant('another-run', ['c3']) }), null);
-  assert.equal(ask(run, cand('c4'), { grant: selectorGrant(run, ['c5']) }), null); // not the one it picked
+  assert.equal(ask(run, cand('c3'), { grant: Object.freeze({ run, ids: Object.freeze(['c3']) }) }), null); // frozen look-alike
+  assert.throws(() => claimGrantor(), /belongs to the selector/); // the selector already holds the only grantor
   const evs = readEvents(run);
   assert.equal(evs.filter(e => e.type === 'ask').length, 0);
-  assert.deepEqual(evs.filter(e => e.type === 'ask.refused').map(e => e.id), ['c1', 'c2', 'c3', 'c4']);
+  assert.deepEqual(evs.filter(e => e.type === 'ask.refused').map(e => e.id), ['c1', 'c2', 'c3']);
   const d = evs.filter(e => e.type === 'decided');
-  assert.equal(d.length, 4);
+  assert.equal(d.length, 3);
   assert.ok(d.every(e => e.cites === 'team default' && e.choice === 'SQLite' && e.refused));
 });
 
-test('a selector grant lets its picks through as craft, once each', () => {
+test('the selector\'s picks go through the door as craft, never phrased as a question', async () => {
   const run = newRunId(uid());
-  const g = selectorGrant(run, ['c1']);
-  const a = ask(run, cand('c1'), { grant: g, kind: 'pin', why: 'Worth it?' });
-  assert.equal(a.type, 'ask');
-  assert.equal(a.mode, 'craft');
-  assert.equal(a.why, 'Worth it.'); // never phrased to her as a question
-  assert.equal(ask(run, cand('c1'), { grant: g }), null); // already asked
+  const c = { ...cand('c1'), seat: 'product', reason: 'Worth it?' };
+  const callModel = async ({ system, user }) => /Task: select/.test(system)
+    ? { scores: JSON.parse(user).map(x => ({ id: x.id, changes: 3, silent: 3, dupOf: null, kind: 'pin' })) }
+    : { decisions: [] };
+  const r = await select({ run, idea: 'x', flow: { nodes: [], edges: [] }, taste: [], candidates: [c], callModel });
+  assert.equal(r.asks.length, 1);
+  assert.equal(r.asks[0].mode, 'craft');
+  assert.equal(r.asks[0].why.endsWith('?'), false);
 });
 
 test('refuse() can carry the selector\'s cited decision', () => {
