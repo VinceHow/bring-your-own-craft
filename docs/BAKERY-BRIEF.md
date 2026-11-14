@@ -52,6 +52,10 @@ Readable from the back of a room when screen-shared: large type, few elements.
 - One of each loaf per person (per device, and per first name).
 - First name only; no other personal data stored, nothing logged beyond it.
 - Rate limit per device so nobody empties the shop by accident.
+- **A reservation is held for a set time, then released** (Vincent, 14 Nov): the loaf goes back on the shelf if it
+  isn't delivered in time. The hold length is set on the admin page, **default 15 minutes** (the talk plus slides
+  and setup must fit inside it; Vincent can shorten it, e.g. to 5, once timings are known). Customers see "before the
+  end of this talk", never the exact hold or a countdown.
 - Starting stock: sourdough **4**, so 6–10 judges sell it out; the other loaves a few more.
 
 ## The look (Mika, through taste-skill)
@@ -74,8 +78,9 @@ you."** Warm, crafted, unhurried.
 6. Deliver → every reserved order's page shows "Delivered" within 1 s (SSE), and the admin shows it delivered.
 7. Restock → stock back to starting values, storefront shows it within 1 s.
 8. Admin page without the token, or with no token set → locked (401), never open.
-9. Reset demo → no orders, starting stock.
-10. No API key and no first name appears in any log line.
+9. A reservation older than the hold length is released, its stock returns, and Deliver skips it.
+10. Reset demo → no orders, starting stock.
+11. No API key and no first name appears in any log line.
 
 ## Out
 Payments, real delivery, accounts, email or SMS, maps, reviews, anything that collects more than a first name.
