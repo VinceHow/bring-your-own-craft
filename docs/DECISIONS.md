@@ -23,3 +23,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:24 | agents (reviewer) | Blocked build/room on a rolling-digit race (meter showed 99 vs 90) | demonstrated break |
 | Sat 12:25 | agents (builder 3 → lead) | The 2:30 "decided for you" item is "does cancel ask for a reason?" (re-decided by her new line), not cancellation itself | the selector asks about cancellation in every yoga run; the ranking is not forced to fit the script |
 | Sat 12:25 | agents (lead) | Run ids get a random suffix | same-millisecond ids collided in builder 3's tests |
+| Sat 12:35 | Vincent → agents (lead) | Use ECC only by cherry-pick: 4 skills taken, 2 agents skipped, no hooks | wholesale install changes every session mid-build |

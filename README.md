@@ -8,4 +8,6 @@ A coding harness where you take the seat of your own craft, and a team fills eve
 
 Built on [taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) for design and Anthropic's [product-management plugin](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0) for product. Models run through fal with your own key.
 
+Agent skills `verification-loop`, `e2e-testing`, `frontend-design-direction` and `ui-demo` are from [everything-claude-code](https://github.com/affaan-m/everything-claude-code) (MIT), in `.claude/skills/`.
+
 Licence: [PolyForm Noncommercial 1.0.0](LICENSE).
