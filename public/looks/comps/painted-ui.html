@@ -59,9 +59,39 @@
   B.replay = true; B.replayKind = 'fixture'; B.replayName = 'fixture'; B.run = fx[0].run;
   if (B.replayLabel) B.replayLabel('fixture', 'fixture', fx[0].t, 'painted-ui comp');
   B.stage(2, { instant: true }); B.stage(3, { instant: true });
-  for (const ev of fx) { if (ev.type === 'ask') break; B.dispatch(ev, 'replay'); }
+  const scene = q.get('scene');
+  if (scene === 'seat') { B.reset(); document.body.dataset.done = '1'; return; }          // before she sits: "Take your seat"
+  for (const ev of fx) { if (ev.type === 'ask' || (scene === 'early' && ev.type === 'candidate')) break; B.dispatch(ev, 'replay'); }
   B.replay = false;  // a replay would close her document by itself; this comp holds it open
   const sample = ev => B.dispatch(Object.assign({ t: Date.now(), run: B.run, sample: true }, ev), 'replay');
+  // ?scene=early|busy|focus: jump straight to one state for stills
+  if (scene === 'early') { document.body.dataset.done = '1'; return; }
+  if (scene === 'busy' || scene === 'focus') {
+    for (const a of asks) B.dispatch(a, 'replay');
+    const J = [
+      { type: 'joint.agreed', id: 's-j1', headline: 'Waitlist auto-offers the spot, no logins.', seats: ['engineering', 'design'], withTakeaways: true,
+        turns: [{ by: 'Bo', seat: 'engineering', text: 'Logins slow regulars down.' }, { by: 'Mika', seat: 'design', text: 'Then remember them on the device.' }] },
+      { type: 'joint.agreed', id: 's-j2', headline: 'Price shows on the class list, not at checkout.', seats: ['strategy', 'data'],
+        turns: [{ by: 'Ines', seat: 'strategy', text: 'Surprise prices lose first-timers.' }] },
+    ];
+    J.forEach(j => sample(j)); if (B.teamSpace) B.teamSpace.render();
+    sample({ type: 'chatter', by: 'Mika', seat: 'design', text: 'then remember them on the device.' });
+    sample({ type: 'chatter', by: 'Ines', seat: 'strategy', text: 'price up front, or first-timers leave.' });
+    if (scene === 'focus') {
+      const A = { id: 'comp-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
+        decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+      B.focusDoc.open(A);
+      const sd = doc.querySelector('.fd-said'); sd.innerHTML = '';
+      const b = doc.createElement('blockquote'); b.className = 'fd-words';
+      b.textContent = 'Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.'; sd.appendChild(b);
+      doc.querySelector('.fd-form').hidden = true;
+      [{ seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+       { seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' }].forEach(c => B.emit('chime', Object.assign({ askId: A.id }, c)));
+      B.emit('brief', { askId: A.id, believe: 'Regulars should never hunt for their usual class.', why: '',
+        guidance: 'Put a regular’s usual class first, one tap to book. Remember them; don’t ask again.' });
+    }
+    document.body.dataset.done = '1'; return;
+  }
 
   // ---- 1. the room: notes slide across the table to her stool, one at a time ----
   beat('1 · notes arrive in her tray');

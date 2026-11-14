@@ -372,3 +372,124 @@ html #room .mini-lines li.brought::after { font: 500 13px/1.3 var(--ui); color: 
   border: 0; border-radius: 8px; padding: 0 7px; }
 html #room .mini-lines li.brought { font-weight: 500; padding-right: 64px; }
 html #room #her-sheet #sketch-sheet, html #room #sketch-sheet { border-top: 1px solid var(--rule-c); }
+
+/* =====================================================================================================================
+   v2: the painting IS the room. Vincent's direction: the characters stay fully visible; on top of the painting only
+   name pills by each head, her small sheet on the table, chatter bubbles by the speaker, a few decision cards on the
+   table's near edge, her stool, and a quiet tally and run label in the corners. Everything round and soft.
+   Positions are set for the afternoon painting at 1612x900, centred on the 1600x900 room.
+   ===================================================================================================================== */
+html:root { --r: 22px; --cut: 26px 20px 28px 18px / 20px 28px 18px 26px; --cut-sm: 18px 14px 20px 13px / 14px 20px 13px 18px; }
+html body { background: #6E4B33; background-image: none; }
+html #room { background: url(cast/living/painting-afternoon.jpg) center top / 1612px 900px no-repeat, #6E4B33; }
+html #room .table { display: none; }
+
+/* hidden in the room: the sketchpads become pill popovers (needs a room change), her file stays private, no "seat open" */
+html #room .mini-sheet, html #room #file-card, html #room .card-note { display: none !important; }
+
+/* ---- (a) name pills: each teammate's seat card becomes a small pill beside its head ---- */
+html #room .seat:not(.seat-product):not(.seat-diy) { width: auto; height: auto; z-index: 7; }
+html #room .seat:not(.seat-product):not(.seat-diy) .seat-empty { display: none; }
+html #room .seat-design { left: 330px; top: 352px; } html #room .seat-research { left: 538px; top: 268px; }
+html #room .seat-data { left: 868px; top: 330px; } html #room .seat-strategy { left: 1092px; top: 282px; } html #room .seat-engineering { left: 1250px; top: 400px; }
+html #room .seat:not(.seat-product):not(.seat-diy) .card { position: relative; inset: auto; display: inline-flex; flex-direction: row; align-items: center;
+  padding: 9px 16px 10px 12px; border-radius: 999px 999px 999px 8px; overflow: visible; cursor: pointer; white-space: nowrap;
+  transition: transform 260ms var(--ease-land), box-shadow 260ms var(--ease-land); }
+html #room .seat-design .card, html #room .seat-research .card { border-radius: 999px 999px 8px 999px; }   /* tail points down-right, toward the head */
+html #room .seat:not(.seat-product):not(.seat-diy) .card-band { height: auto; padding: 0; gap: 9px; background: none; border: 0; }
+html #room .seat:not(.seat-product):not(.seat-diy) .card-band::before { width: 12px; height: 12px; }
+html #room .seat:not(.seat-product):not(.seat-diy) :is(.card-name, .card-stance, .card-band svg) { display: none; }
+html #room .seat:not(.seat-product):not(.seat-diy) .card-who { margin: 0; display: inline-flex; align-items: center; gap: 9px; }
+html #room .seat:not(.seat-product):not(.seat-diy) .card-agent-name { font: 500 19px/1 var(--display); color: var(--ink); }
+html #room .seat:not(.seat-product):not(.seat-diy) .card-band .agent-mark { display: inline-block; font: 500 13px/1 var(--ui); color: var(--ink-3);
+  padding: 3px 7px 4px; border: 0; border-radius: 999px; background: rgba(84,58,38,.07); text-transform: none; letter-spacing: 0; }
+html #room .seat:not(.seat-product):not(.seat-diy) .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+html #room .seat:not(.seat-product):not(.seat-diy) .card:focus-visible { outline: 2px solid var(--seat-ink); outline-offset: 3px; }
+html #room .seat .card[data-state="working"] .card-band::before, html #room .seat .card.working .card-band::before { animation: pt-breathe 3.6s ease-in-out infinite; }
+html #room .seat .card.leaning { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+@keyframes pt-breathe { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--seat-ink) 40%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--seat-ink) 0%, transparent); } }
+
+/* ---- (e) her stool: a warm light on the pink cushion and her pill in the same family; "Take your seat" before she sits ---- */
+html #room .seat-product { left: 622px; top: 676px; width: auto; height: auto; z-index: 7; }
+html #room .seat-product::before { content: ''; position: absolute; left: -70px; top: -51px; width: 280px; height: 200px; border-radius: 50%; pointer-events: none; z-index: -1;
+  background: radial-gradient(closest-side, rgba(255,238,212,.62), rgba(255,226,190,.26) 58%, rgba(255,200,150,0)); animation: pt-glow 5.5s ease-in-out infinite; }
+@keyframes pt-glow { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
+html #room .seat-product .seat-empty { position: relative; inset: auto; display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px 10px 12px;
+  border: 0; border-radius: 999px 999px 999px 8px; background: #FCEFF1; background-image: var(--tooth); box-shadow: var(--shadow); font-size: 0; cursor: pointer; }
+html #room .seat-product .seat-empty::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--product); animation: pt-breathe-her 3.6s ease-in-out infinite; }
+html #room .seat-product .seat-empty::after { content: 'Take your seat'; font: 500 19px/1 var(--display); color: var(--product-t); }
+@keyframes pt-breathe-her { 0%, 100% { box-shadow: 0 0 0 0 rgba(210,122,141,.45); } 50% { box-shadow: 0 0 0 5px rgba(210,122,141,0); } }
+html #room .seat-product .card { position: relative; inset: auto; display: inline-flex; flex-direction: row; align-items: center; gap: 0; padding: 9px 16px 10px 12px;
+  border-radius: 999px 999px 999px 8px; background-color: var(--sheet); overflow: visible; white-space: nowrap; cursor: pointer; }
+html #room .seat-product .card-band { height: auto; padding: 0; border: 0; background: none; gap: 9px; }
+html #room .seat-product .card-band::before { width: 12px; height: 12px; background: var(--product); }
+html #room .seat-product :is(.card-name, .card-band svg, .card-her-stance, .card-traits) { display: none; }
+html #room .seat-product .card-her { flex-direction: row; align-items: baseline; gap: 8px; padding: 0 0 0 9px; }
+html #room .seat-product .card-her .card-who { font: 500 19px/1 var(--display); color: var(--ink); }
+html #room .seat-product .card-her .card-title { margin: 0; font: italic 400 15px/1 var(--display); color: var(--ink-2); }
+html #room .seat-product .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+
+/* the notes waiting for her rest by her stool as small rounded notes, never counted */
+html #room .tray { left: 818px; top: 706px; bottom: auto; width: 250px; z-index: 7; padding: 0; gap: 6px; background: none; box-shadow: none; }
+html #room .tray-note { padding: 7px 12px 8px 18px; border-radius: var(--cut-sm); }
+html #room .tray-seat { font-size: 13px; } html #room .tray-text { font-size: 14px; }
+
+/* ---- (b) her sheet: lies small on the table centre, and grows a little as the work grows. The room animates its
+   transform, so this look places it with the separate translate and scale properties ---- */
+html #room .her-sheet { transform-origin: 0 0; translate: 196px 56px; scale: .46; border-radius: 40px 32px 44px 30px / 32px 44px 30px 40px; z-index: 6;
+  box-shadow: 4px 8px 6px rgba(110,70,32,.18), 18px 34px 50px -18px rgba(90,52,22,.5), inset 0 0 0 2px rgba(255,255,255,.5); cursor: zoom-in; }
+html #room .her-sheet.big { translate: 150px 230px; scale: .36; border-radius: 56px 44px 60px 42px / 44px 60px 42px 56px; }
+html #room .her-sheet::before { display: none; }
+
+/* ---- (c) chatter: a short rounded bubble just under the speaker's pill (room.js places it from the seat), then it fades ---- */
+html #room .chatter-line { max-width: 260px; padding: 8px 13px 9px; border-radius: 6px 18px 18px 18px; font: italic 400 15px/1.35 var(--display); z-index: 8; margin-top: 12px; }
+
+/* ---- (d) team space: a small pile of rounded cards on the table's near edge, at most three ---- */
+html #room .team-space { left: 1000px; right: auto; top: 438px; bottom: auto; width: 200px; z-index: 6; }
+html #room .team-space .ts-title { display: none; }
+html #room .team-space .ts-cards { display: flex; flex-direction: column; gap: 8px; }
+html #room .team-space .ts-card { width: 200px; padding: 10px 12px 11px; font-size: 14px; border-radius: var(--cut-sm); }
+html #room .team-space .ts-card:nth-child(n+4) { display: none; }
+html #room .team-space .ts-card :is(.ts-label, .ts-takeaways) { display: none; }
+html #room .team-space .ts-headline { font: 500 15px/1.3 var(--display); }
+html #room .team-space .ts-mark { font-size: 13px; padding: 2px 8px 3px; }
+html #room .team-space .ts-card[aria-expanded="true"] { width: 340px; translate: -140px 0; z-index: 3; }
+html #room .team-space .ts-card[aria-expanded="true"] :is(.ts-label, .ts-takeaways) { display: block; }
+
+/* ---- (f) tally and run label: small and quiet in the corners, always visible ---- */
+html #room .tally { left: auto; right: 18px; top: 16px; width: auto; height: auto; gap: 0; z-index: 9; }
+html #room .tally .meter { display: none; }
+html #room .counter { padding: 9px 14px 10px; gap: 2px; border-radius: var(--cut-sm); }
+html #room .counter-row { gap: 8px; }
+html #room .counter .roll { font: 500 22px/1 var(--display); }
+html #room .counter-label { font: 400 14px/1.2 var(--ui); }
+html .replay-label { right: 18px; bottom: 16px; padding: 8px 14px 8px; font-size: 17px; border-radius: 16px 13px 17px 12px / 13px 17px 12px 16px; }
+html .replay-label small { font-size: 13px; }
+
+/* ---- focus: the full document over the room, with soft corners ---- */
+html #room .focus-doc { border-radius: 34px 28px 36px 26px / 28px 36px 26px 34px; }
+html #room .focus-doc .fd-work, html #room .focus-doc .fd-brief, html #room .focus-doc .fd-input { border-radius: var(--cut); }
+html #room .focus-doc .fd-box { border-radius: 16px 13px 17px 12px / 13px 17px 12px 16px; }
+/* everything else that was a box: soft */
+html #room :is(.big-card, .close-sheet, .page-sheet, .name-tag, .meter, .close-asks li, .sk-frame, .fl-box, .fl-item, .her-notes > *) { border-radius: var(--cut); }
+/* v2 fixes: "Take your seat" only before she sits; the painting fills the frame when the stage scales the room;
+   her sheet and the decisions kept inside the table so the teammates stay clear */
+html #room .seat-product.filled .seat-empty { display: none; }
+html body { background: #6E4B33 url(cast/living/painting-afternoon.jpg) center / cover no-repeat; }
+html #room .her-sheet { translate: 190px 68px; scale: .42; }
+html #room .her-sheet.big { translate: 168px 244px; scale: .33; }
+html #room .team-space { left: 1004px; top: 586px; width: 190px; }
+html #room .team-space .ts-cards { gap: 0; }
+html #room .team-space .ts-card { width: 190px; }
+html #room .team-space .ts-card + .ts-card { margin-top: -6px; rotate: 1.4deg; }
+html #room .team-space .ts-card:first-child { rotate: -1deg; }
+html #room .counter .roll-pink, html #room .counter #brought { background: color-mix(in srgb, var(--product) 26%, var(--sheet)); color: var(--product-t); border: 0; border-radius: 999px; padding: 0 7px; }
+/* the room as a framed painting: soft corners on a warm dark ground (a second copy behind it doubled at the edges) */
+html body { background: #3E2C20; background-image: none; }
+html #room { border-radius: 26px; overflow: hidden; box-shadow: 0 20px 60px -20px rgba(0,0,0,.6); }
+html #room .her-sheet.big { scale: .3; translate: 180px 248px; }
+html #room .tray { left: 812px; top: 712px; width: 182px; }
+html #room .tray-text { white-space: normal; }
+html #room .tray { top: 708px; width: 224px; }
+html #room .tray-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html #room .team-space { left: 1046px; }
