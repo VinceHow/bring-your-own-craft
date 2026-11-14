@@ -103,6 +103,27 @@ html, body { margin: 0; background: #1A120D; }
 .prev { position: absolute; left: 8px; right: 8px; bottom: -12px; height: 16px; border-radius: 0 0 14px 14px; background: #F6EDDD; box-shadow: 2px 3px 6px -3px rgba(60,35,15,.4); z-index: -3; }
 .flourish { position: absolute; width: 44px; height: 30px; z-index: 9; pointer-events: none; overflow: visible; }
 .flourish path { fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.veil.deep { background: rgba(30,20,12,.5); }
+.tray.filed .lab { color: var(--ip-her-t) !important; }
+.tcard { left: 470px; top: 150px; width: 660px; z-index: 9; }
+.canvas .tcard { padding: 28px 32px 28px; }
+.tcard.pick { top: 488px; left: 430px; }
+.tcard > .lab { display: flex; align-items: center; gap: 7px; color: var(--t); font-size: 14px; } .tcard > .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.tcard h2 { margin: 10px 0 16px; font: 400 32px/1.2 var(--ip-serif); letter-spacing: -.01em; }
+.unblocks { display: flex; align-items: center; gap: 16px; padding: 12px 14px; border-radius: var(--ip-r-md); background: rgba(255,253,248,.75); box-shadow: inset 0 0 0 1px var(--ip-rule); }
+.unblocks .face { position: relative; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 2px var(--c), 0 0 0 3.5px rgba(74,48,32,.6); }
+.unblocks .face video { position: absolute; width: 240px; height: 240px; left: -70px; top: -84px; }
+.unblocks b { display: block; font: 500 16px/1.2 var(--ip-sans); color: var(--t); } .unblocks small { display: block; margin-top: 4px; font: 400 15px/1.35 var(--ip-sans); color: var(--ip-ink-2); }
+.tcard .foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+.tcard .foot .lab { margin-right: auto; font-size: 14px; color: var(--ip-ink-2); }
+.tcard .foot .btn { height: 50px; padding: 0 24px; font-size: 17px; }
+.steps5 { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+.steps5 li { counter-increment: s; display: flex; align-items: center; gap: 14px; font: 400 19px/1.35 var(--ip-serif); }
+.steps5 li::before { content: counter(s); flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--ip-paper-her);
+  box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.5); font: 500 15px/1 var(--ip-sans); color: #7E2C43; }
+.thanks { left: 1180px; top: 330px; width: 250px; z-index: 6; border-radius: 22px 22px 22px 6px; font: italic 400 17px/1.35 var(--ip-serif); }
+.canvas .thanks { padding: 11px 15px 12px; }
+.thanks b { display: block; font: 500 13px/1 var(--ip-sans); font-style: normal; color: var(--t); margin-bottom: 4px; }
 #replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
 #pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
 #pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
@@ -166,7 +187,7 @@ html, body { margin: 0; background: #1A120D; }
 <script src="../ink-paper.js"></script>
 <script>
 (function () {
-  const q = new URLSearchParams(location.search), ST = q.get('st'), still = q.get('still') === '1', instant = still || (!!ST && !ST.startsWith('arrive'));
+  const q = new URLSearchParams(location.search), ST = q.get('st'), still = q.get('still') === '1', instant = still || (!!ST && !ST.startsWith('arrive'));  // ?flow=filing|task autoplay those two
   const c = document.getElementById('c'), $ = s => c.querySelector(s), { animate } = Motion;
   const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
   const wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
@@ -264,19 +285,100 @@ html, body { margin: 0; background: #1A120D; }
     const tk = row.querySelector('path'); tk.style.strokeDasharray = 1; animate(tk, { strokeDashoffset: [1, 0] }, { duration: instant ? 0 : .5, delay: .2 });
   });
   // the write-up card lands in Past meetings: it shrinks, flies down into the open drawer and becomes the top row
+  // filing a meeting: the write-up folds down into a small note (two folds), drifts on a paper arc to the tray by her
+  // stool, the tray lifts to take it, its line redraws once, and the tray reads "Filed in Past meetings" for 2 s.
+  // The row is added to Past meetings (inside the drawer) so it's there when she opens it.
+  async function fileRow() {
+    const row = document.createElement('div'); row.className = 'prow'; row.dataset.who = 'mika';
+    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg></span></span><span class="tt">How ordering should feel<small>Mika’s wireframes · two rounds</small></span><span class="bel">Ordering should feel like being known.</span>';
+    $('#past').prepend(row);
+  }
   async function land() {
     const w = $('#writeup'); const fresh = w.classList.contains('hide'); show(w); redrawAll(w); if (!instant && fresh) { InkPaper.lay(w); await wait(1800); }
-    if (!open) await expand();
-    const past = $('#past'), row = document.createElement('div');
-    row.className = 'prow'; row.dataset.who = 'mika'; row.style.opacity = 0;
-    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg></span></span><span class="tt">How ordering should feel<small>Mika’s wireframes · two rounds</small></span><span class="bel">Ordering should feel like being known.</span>';
-    past.prepend(row);
-    const a = w.getBoundingClientRect(), b = row.getBoundingClientRect();
+    if (open) await collapse();
+    fileRow();
+    const tray = $('#tray');
+    if (instant) { hide(w); trayNote('her', 'Filed in Past meetings', 'How ordering should feel'); return; }
+    // two folds: in half, then in half again, as the words fade
+    const kids = [...w.children].filter(k => !k.matches('.cr, .gl, .ol'));
+    animate(kids, { opacity: 0 }, { duration: .25 });
+    w.style.transformOrigin = '50% 0';
+    await animate(w, { scaleY: [1, .5] }, { duration: .28, ease: [.5, 0, .5, 1] }).finished;
+    await animate(w, { scaleY: [.5, .26], scaleX: [1, .62] }, { duration: .26, ease: [.5, 0, .5, 1] }).finished;
+    // a soft arc to the tray
+    const a = w.getBoundingClientRect(), t = tray.getBoundingClientRect();
+    const dx = t.left + t.width / 2 - (a.left + a.width / 2), dy = t.top + 10 - a.top;
+    animate(tray, { y: [0, -8, 0] }, { duration: 1.1, delay: .5, ease: [.33, 0, .2, 1] });
+    await animate(w, { x: [0, dx * .45, dx], y: [0, dy * .25 - 40, dy], rotate: [0, -5, -1], scaleX: [.62, .5, .36], scaleY: [.26, .2, .14], opacity: [1, 1, .2] },
+      { duration: 1.2, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished;
+    hide(w); animate(w, { x: 0, y: 0, rotate: 0, scaleX: 1, scaleY: 1, opacity: 1 }, { duration: 0 }); kids.forEach(k => k.style.opacity = '');
+    const keep = { who: tray.dataset.who, w: $('#tWho').textContent, q: $('#tQ').textContent, quiet: tray.classList.contains('quiet') };
+    trayNote('her', 'Filed in Past meetings', 'How ordering should feel');
+    redrawLine(tray, 'var(--ip-her)');
+    await wait(2200);
+    tray.dataset.who = keep.who; tray.classList.toggle('quiet', keep.quiet); $('#tWho').textContent = keep.w; $('#tQ').textContent = keep.q; InkPaper.redraw(tray);
+    animate(tray.querySelectorAll('.lab, .q'), { opacity: [0, 1] }, { duration: .35 });
+  }
+  function trayNote(who, label, text) {
+    const tray = $('#tray'); tray.dataset.who = who; tray.classList.remove('quiet'); tray.classList.add('filed');
+    $('#tWho').textContent = label; $('#tQ').textContent = text; InkPaper.redraw(tray);
+    animate(tray.querySelectorAll('.lab, .q'), { opacity: [0, 1] }, { duration: instant ? 0 : .35 });
+    if (!instant) setTimeout(() => tray.classList.remove('filed'), 2200);
+  }
+  async function redrawLine(el, colour) {
+    const ln = el.querySelector(':scope > .ol .ln'); ln.style.stroke = colour; ln.style.strokeWidth = '2.2px'; ln.style.strokeDasharray = 1;
+    await animate(ln, { strokeDashoffset: [1, 0] }, { duration: .9, ease: [.45, .05, .25, 1] }).finished;
+    animate(ln, { stroke: '#4A3020', strokeWidth: 1.6 }, { duration: .8 }).finished.then(() => { ln.style.stroke = ''; ln.style.strokeWidth = ''; ln.style.strokeDasharray = ''; });
+  }
+
+  // ---------- Things only you can do: single focus, like a review ----------
+  // pick card (one button, "I'm on it") -> just that task: who it unblocks, steps 1 to 5, "I'm done" / "Not now".
+  // While she's on it the room is dimmed and quiet and arrivals wait (studioFocus). Done: the card folds away and the
+  // teammate it unblocked gets a small thank-you in the room. Not now: it slides back into the inbox, unchanged.
+  const TASK = { who: 'bo', title: 'Make a fal account so Bo can make the pictures', time: 'About 5 minutes',
+    why: 'Bo uses fal to paint the bakery’s pictures. The account has to be yours.',
+    steps: ['Open fal.ai in a new tab', 'Sign up with your email', 'Confirm the email fal sends you', 'Pick a name for your workspace, for example “Bakery”', 'Come back and tell Bo you’re done'] };
+  function taskCard(mode) {
+    let el = $('#tcard'); if (el) el.remove();
+    el = document.createElement('div'); el.className = 'abs card tcard ' + mode; el.id = 'tcard'; el.dataset.who = TASK.who;
+    el.innerHTML = `<span class="lab"><i></i>Only you can do this</span><h2>${TASK.title}</h2>
+      <div class="unblocks"><span class="face"><video muted playsinline autoplay loop src="first-open/cast/bo-idle.webm"></video></span><span><b>Unblocks Bo</b><small>${TASK.why}</small></span></div>` +
+      (mode === 'pick' ? `<div class="foot"><span class="lab">${TASK.time}</span><button class="btn" id="onit">I’m on it</button></div>` :
+      `<ol class="steps5">${TASK.steps.map(t => `<li><span>${t}</span></li>`).join('')}</ol>
+       <div class="foot"><button class="btn quiet" id="notnow">Not now</button><button class="btn" id="imdone">I’m done</button></div>`);
+    c.appendChild(el); InkPaper.dress(el); redrawAll(el); return el;
+  }
+  async function pickTask() { if (open) await collapse(); const el = taskCard('pick'); if (!instant) InkPaper.lay(el); return el; }
+  async function onIt() {
+    window.studioFocus && window.studioFocus(true);
+    animate('#veil', { opacity: [0, 1] }, { duration: instant ? 0 : .6 }); $('#veil').classList.add('deep');
+    animate('#tray', { opacity: 0 }, { duration: instant ? 0 : .4 });   // only the task while she's on it
+    const el = taskCard('focus'); if (!instant) InkPaper.lay(el); return el;
+  }
+  async function imDone() {
+    const el = $('#tcard');
+    if (!instant) { el.style.transformOrigin = '50% 0'; await animate(el, { scaleY: [1, .4], opacity: [1, 0] }, { duration: .45, ease: [.5, 0, .5, 1] }).finished; }
+    el.remove(); animate('#veil', { opacity: 0 }, { duration: instant ? 0 : .6 }); animate('#tray', { opacity: 1 }, { duration: instant ? 0 : .5 });
+    $('#tray').classList.remove('fold-corner'); empty();
+    // the teammate it unblocked: their delighted moment in the room, a short thank-you, then back to work
+    const sp = SPOTS.bo, pt = $('#patch'), v = $('#patchV'), [l, t] = P2(sp.patch[0], sp.patch[1]), sz = sp.patch[2] * K;
+    Object.assign(pt.style, { left: l + 'px', top: t + 'px', width: sz + 'px', height: sz + 'px', webkitMaskImage: 'url(first-open/cast/mask-bo.png)', maskImage: 'url(first-open/cast/mask-bo.png)' });
+    v.src = 'first-open/cast/bo-delighted.webm'; v.currentTime = instant ? 2.5 : 0; v.play().catch(() => {}); animate(pt, { opacity: [0, 1] }, { duration: instant ? 0 : .4 });
+    const th = document.createElement('div'); th.className = 'abs card thanks'; th.dataset.who = 'bo';
+    th.innerHTML = '<b>Bo</b>Thank you. Painting the pictures now.'; c.appendChild(th); InkPaper.dress(th); InkPaper.redraw(th); if (!instant) InkPaper.lay(th, .5);
+    window.studioFocus && window.studioFocus(false);
+    if (instant) return;
+    await wait(4200); animate(th, { opacity: 0 }, { duration: .8 }); animate(pt, { opacity: 0 }, { duration: 1.2 });
+  }
+  async function notNow() {
+    const el = $('#tcard'), tray = $('#tray');
+    animate('#veil', { opacity: 0 }, { duration: instant ? 0 : .5 });
     if (!instant) {
-      await animate(w, { x: b.left - a.left, y: b.top - a.top, scale: [1, b.width / a.width], opacity: [1, .3] }, { type: 'spring', visualDuration: .9, bounce: 0 }).finished;
-      hide(w); animate(row, { opacity: [0, 1] }, { duration: .3 });
-      const tk = row.querySelector('path'); tk.style.strokeDasharray = 1; animate(tk, { strokeDashoffset: [1, 0] }, { duration: .5, delay: .2 });
-    } else { hide(w); row.style.opacity = 1; }
+      const a = el.getBoundingClientRect(), t = tray.getBoundingClientRect();
+      await animate(el, { x: t.left - a.left, y: t.top - a.top, scale: [1, t.width / a.width], opacity: [1, .25] }, { type: 'spring', visualDuration: .8, bounce: 0 }).finished;
+    }
+    el.remove(); window.studioFocus && window.studioFocus(false); tray.style.opacity = 1;
+    tray.dataset.who = 'bo'; tray.classList.remove('quiet'); tray.classList.add('fold-corner'); $('#tWho').textContent = 'Bo · only you can do'; $('#tQ').textContent = TASK.title; InkPaper.redraw(tray);
   }
 
   (async () => {
@@ -293,6 +395,26 @@ html, body { margin: 0; background: #1A120D; }
         title: 'How ordering should feel', artifact: { kind: 'wireframes', title: 'Mika’s wireframes', by: ['mika'], thumb: null }, belief: 'Ordering should feel like being known.',
         guidance: ['Their usual loaf first, one tap away'], changes: [{ who: 'mika', kind: 'cut', text: 'The phone field' }], rounds: [{ line: 'a' }, { line: 'b' }], transcriptUrl: null } } })), instant ? 0 : 1500);
       return;
+    }
+    if (ST === 'filed') { await land(); return; }
+    if (ST === 'task-pick') { await pickTask(); return; }
+    if (ST === 'task-focus') { await onIt(); return; }
+    if (ST === 'task-done') { await onIt(); await imDone(); return; }
+    if (ST === 'task-notnow') { await onIt(); await notNow(); return; }
+    const FLOW = q.get('flow');
+    if (FLOW === 'filing' || FLOW === 'task') {
+      const ptr = $('#pointer'), at = el => { const r = el.getBoundingClientRect(), cr = c.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 }; };
+      const tap = async el => { animate(ptr, { opacity: 1 }, { duration: .2 }); await animate(ptr, { x: at(el).x - 12, y: at(el).y - 12 }, spring(.7)).finished; await wait(200);
+        await animate(ptr, { scale: [1, .8, 1] }, { duration: .28 }).finished; };
+      animate(ptr, { x: 1250, y: 820 }, { duration: 0 });
+      if (FLOW === 'filing') {
+        const w = $('#writeup'); show(w); redrawAll(w); InkPaper.lay(w); await wait(2200); await tap($('#looks')); animate(ptr, { opacity: 0 }, { duration: .3 });
+        await land(); await wait(1200); await tap($('#tray')); await expand(); await wait(2500); await collapse(); return;
+      }
+      // task flow: from the inbox
+      await wait(800); await tap($('#tray')); await expand(); await wait(1000); await tap($('#task'));
+      await pickTask(); await wait(1800); await tap($('#onit')); animate(ptr, { opacity: 0 }, { duration: .3 });
+      await onIt(); await wait(4000); await tap($('#imdone')); animate(ptr, { opacity: 0 }, { duration: .3 }); await imDone(); return;
     }
     if (ST === 'arrive' || ST === 'arrive-task') {
       // start from the quiet state; a new item arrives
