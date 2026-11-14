@@ -193,8 +193,8 @@ test('the thread: lines are spoken (≤15 words, no filler, never to her); 3 tur
   const thread = await runThread({ run, ask, text: 'Their spot is theirs.', callModel: calm, gapMs: 150 });
   assert.equal(thread.length, 3, 'nothing to settle: three turns');
   assert.equal(thread[0].text, 'Usual class first, one tap.', 'nobody calls themselves by name');
-  assert.ok(Date.now() - t0 >= 300, 'lines at least a gap apart');
-  assert.ok(thread.every((t, i) => !i || t.ms - thread[i - 1].ms >= 140));
+  // Gaps are measured between the logged lines themselves; a loaded machine can only make them longer.
+  assert.ok(thread.every((t, i) => !i || t.ms - thread[i - 1].ms >= 150), 'lines at least a gap apart: ' + thread.map(t => t.ms).join(', '));
   assert.equal((await runThread({ run, ask, text: 'x', callModel: limited, gapMs: 0 })).length, 0, 'a usage-limit message is never said');
   const askHer = async () => ({ text: 'Do you want your regulars first?' });
   assert.equal((await runThread({ run, ask, text: 'x', callModel: askHer, gapMs: 0 })).length, 0, 'a question to her is never said');
