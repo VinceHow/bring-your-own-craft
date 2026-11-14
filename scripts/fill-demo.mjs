@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Builds the yoga (or café) page from a FIXED SAMPLE run: Priya's flow, three asks and her answers, her pin and her
-// new file line. The sample is written through the real functions (parseFlow, the policy's ask door, writeLine),
-// then the real build runs: decideRest against her updated file (a real model call) and the fill (a real model call).
+// new file line. The sample is written through the real functions (parseFlow, select() with a fixed scorer, so the
+// asks go through the policy's door, and writeLine), then the real build runs: decideRest against her updated file (a real model call) and the fill (a real model call).
 // Prints the timings.
 //
 //   node scripts/fill-demo.mjs [--runs 3] [--run fill-demo] [--template yoga|cafe] [--sample-decide]
@@ -10,8 +10,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { RUNS_DIR, logEvent } from '../lib/events.js';
 import { parseFlow } from '../lib/flow.js';
-import { selectorGrant, ask } from '../lib/policy.js';
-import { initTaste, writeLine } from '../lib/taste.js';
+import { select } from '../lib/select.js';
+import { initTaste, writeLine, readTaste } from '../lib/taste.js';
 import { buildRun, _setDecideRest } from '../routes/build.js';
 
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
@@ -50,14 +50,24 @@ const sampleDecideRest = () => [
   { id: 'c8', seat: 'design', decision: 'Offer "remember me on this device"?', choice: 'Yes, remember me', cites: 'L3' },
 ];
 
-function writeSampleRun() {
+async function writeSampleRun() {
   fs.rmSync(path.join(RUNS_DIR, RUN), { recursive: true, force: true });
   logEvent(RUN, 'run.start', { idea: sample.idea, seat: 'product', mode: 'craft', sample: true });
   initTaste(RUN); // the two seed lines, "prepared for the demo"
   sample.lines.forEach((text, i) => logEvent(RUN, 'flow.line', { text, ...parseFlow(sample.lines.slice(0, i + 1)), mode: 'craft' }));
   for (const c of candidates) logEvent(RUN, 'candidate', c);
-  const grant = selectorGrant(RUN, answers.map(a => a.askId));
-  for (const id of grant.ids) ask(RUN, candidates.find(c => c.id === id), { grant, kind: id === 'c2' ? 'pin' : 'fork', why: 'sample run', source: 'fill-demo' });
+  // The real selector and ask door, with a FIXED scorer standing in for its model call: c1-c3 score high, the rest low.
+  const picked = new Set(answers.map(a => a.askId));
+  const fixture = async ({ system, user }) => {
+    const items = JSON.parse(user);
+    if (/^# Task: select/m.test(system)) return { scores: items.map(c => ({ id: c.id, inSeat: c.seat === 'product', changes: picked.has(c.id) ? 3 : 0, silent: picked.has(c.id) ? 3 : 0, dupOf: null, kind: c.id === 'c2' ? 'pin' : 'fork' })) };
+    return { decisions: items.map(c => ({ id: c.id, choice: c.recommendation, cites: 'team default' })) };
+  };
+  return select({ run: RUN, idea: sample.idea, flow: parseFlow(sample.lines), taste: readTaste(RUN), candidates, callModel: fixture });
+}
+async function answerAndPin(asks) {
+  const asked = new Set(asks.map(a => a.id));
+  for (const a of answers) if (!asked.has(a.askId)) throw new Error(`the selector did not bring ${a.askId}; brought ${[...asked]}`);
   for (const a of answers) logEvent(RUN, 'answer', { ...a, mode: 'craft' });
   logEvent(RUN, 'pin', { nodeId: 'n3', text: 'Cut the phone field. Name\'s enough; regulars hate forms.', mode: 'craft' });
   const line = writeLine(RUN, 'Never ask for anything you could remember or skip.');
@@ -67,7 +77,8 @@ function writeSampleRun() {
 if (process.argv.includes('--sample-decide')) _setDecideRest(sampleDecideRest);
 const times = [];
 for (let i = 0; i < N; i++) {
-  writeSampleRun();
+  const { asks } = await writeSampleRun();
+  await answerAndPin(asks);
   const r = await buildRun(RUN);
   times.push(r);
   const cites = r.decided.map(d => `${d.id}:${d.cites}`).join(' ');
