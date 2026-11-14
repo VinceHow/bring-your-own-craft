@@ -1,0 +1,65 @@
+{
+  "business": {
+    "text": "She is building a simple ordering website for her friend's small bakery so customers can order bread ahead for pickup. She is building it for the friend, not running the bakery herself.",
+    "confidence": "high"
+  },
+  "positioning": {
+    "text": "The edge is being known: the site and bakery treat a regular like the baker already knows them, holding their usual and telling them early when a loaf is running out, unlike walk-in queues, DM orders or generic ordering apps. A sold-out loaf should feel like care, not a dead end.",
+    "confidence": "medium"
+  },
+  "customers": {
+    "text": "Morning regulars who plan their morning around a particular loaf, especially the sourdough that sells out first, often opening the site in a rush on a busy morning. Neighbours, families and busy people are likely too, but we don't yet know what a regular's week looks like.",
+    "confidence": "medium"
+  },
+  "whatSells": {
+    "text": "Certainty of getting their usual loaf, with almost no effort: the site already knows them, remembers their usual and doesn't ask for what it knows. Early heads-up when it's running low, and warm bread, keep them coming back.",
+    "confidence": "high"
+  },
+  "brandFeel": {
+    "text": "Warm, personal, local and unfussy: recognised and looked after, with no form-filling friction.",
+    "confidence": "medium"
+  },
+  "strengths": {
+    "text": "She loves the customer journey, understanding customer problems and building products that solve them, and has a sharp feel for what regulars experience. Her latest answer shows it: she names the feeling (being known) and the design rule (never ask what you already know). Frame questions around what the customer is trying to do and where it gets hard, not around tech.",
+    "confidence": "high"
+  },
+  "waysOfWorking": {
+    "text": "Assumed: she wants a say in customer-facing decisions like the ordering flow, early alerts and the hold-my-usual experience, and is happy for the team to settle technical and routine details. Her answers are brief and principle-driven, so she likely does best with concrete options tied to a regular's busy morning rather than open-ended questions.",
+    "confidence": "low"
+  },
+  "domains": [
+    "customer problem",
+    "user journey",
+    "target customer",
+    "what success looks like"
+  ],
+  "philosophy": [
+    {
+      "id": "L3",
+      "believe": "Regulars want warm bread and to be known, and they hate finding their sourdough gone by nine, so a sold-out loaf should feel like the bakery looking after them, not a dead end.",
+      "guidance": "Show sold-out loaves greyed out, never hidden, with a clear Pick another day button that offers the next available day. Make sure the first confirmed order wins so nobody is promised bread that isn't there.",
+      "askId": "c19"
+    },
+    {
+      "id": "L4",
+      "believe": "I believe our first customers are the regulars who plan their morning around a particular loaf, and the bakery should look after them when it sells out.",
+      "guidance": "Build for local regulars first: let them hold their usual loaf for a set pickup time, and tell them early when something is running low or sold out. Keep everything else out of the first version.",
+      "askId": "c14"
+    },
+    {
+      "id": "L5",
+      "believe": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
+      "guidance": "Design the returning-regular path as quick and remembered: their usual loaf up front, a prominent Book your usual button, and no re-asking for details we already have.",
+      "askId": "c9"
+    }
+  ],
+  "tag": null,
+  "version": 4,
+  "from": [
+    "intro",
+    "idea",
+    "answer",
+    "answer",
+    "answer"
+  ]
+}

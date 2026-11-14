@@ -3,7 +3,7 @@
 //   node scripts/record-run.mjs rehearsal              -> the newest run with a select.done (or build.done if any)
 //   node scripts/record-run.mjs cafe run-2026-...-abcd -> that run
 //   --force replaces an existing runs/<name>/.  RUNS_DIR is honoured, like the server.
-// The room's R / C keys replay runs/rehearsal and runs/cafe (GET /api/replay/<name>), labelled REPLAY.
+// The room's R / C keys replay runs/rehearsal and runs/yoga (GET /api/replay/<name>), labelled REPLAY.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -24,7 +24,7 @@ const finished = evs => evs && evs.some(e => e.type === 'select.done' || e.type 
 let src = id;
 if (!src) {
   // The newest finished run; a built one wins over one that only got as far as the three asks.
-  const runs = fs.existsSync(RUNS) ? fs.readdirSync(RUNS).filter(d => d !== name && d !== 'rehearsal' && d !== 'cafe') : [];
+  const runs = fs.existsSync(RUNS) ? fs.readdirSync(RUNS).filter(d => d !== name && d !== 'rehearsal' && d !== 'yoga' && d !== 'cafe') : [];
   const done = runs.map(d => ({ d, evs: read(d) })).filter(r => finished(r.evs))
     .map(r => ({ d: r.d, built: r.evs.some(e => e.type === 'build.done'), t: r.evs.at(-1).t }))
     .sort((a, b) => (b.built - a.built) || (b.t - a.t));

@@ -81,7 +81,9 @@
     el.addEventListener('keydown', async ev => {
       ev.stopPropagation(); // keep the room's beat keys away while she types
       if (ev.key === 'Escape') { ev.preventDefault(); close(null); return; }
-      if (ev.key !== 'Enter') return;
+      const editing = ev.target && (ev.target.isContentEditable || ev.target.tagName === 'INPUT');
+      const forward = !card.hidden && !editing && ['PageDown', 'ArrowRight', ' '].includes(ev.key); // a clicker's forward key
+      if (ev.key !== 'Enter' && !forward) return;
       ev.preventDefault();
       if (!card.hidden) { // keep it
         const { alternates, ...rest } = cur;
@@ -105,8 +107,8 @@
       craft.textContent = cur.craft; title.textContent = cur.title; power.textContent = cur.superpower; drawTraits();
       if (!r || r.rough) hint.textContent = 'The team couldn’t make your card just now: write your craft · Enter: take the seat';
       say.hidden = true; card.hidden = false; el.dataset.state = 'shown';
-      (craft.textContent ? card : craft).focus();
-      if (!craft.textContent) craft.focus();
+      // Focus lands on the card itself (it takes focus), so Enter, or a clicker's forward key, keeps it at once.
+      (craft.textContent ? el : craft).focus();
       el.dataset.ms = r?.ms ?? '';
     });
     return promise;

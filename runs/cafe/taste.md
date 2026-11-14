@@ -1,2 +1,0 @@
-- [L1] Say it the way the customer would, not the way the business would. (prepared for the demo)
-- [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)

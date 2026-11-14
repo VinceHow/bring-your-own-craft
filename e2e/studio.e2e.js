@@ -44,6 +44,7 @@ test('1. her seat, the team, her line, then her idea', async () => {
   await waitFor(() => document.activeElement?.id === 'intro-input', 40000, 'her card open');
   await page.keyboard.type('getting the journey right before anyone draws a screen.');
   await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her character card, then she takes the seat
   await waitFor(() => document.activeElement?.id === 'her-input', 5000, 'her input focused');
   tBeat = Date.now();
   await page.keyboard.type('A booking page for a small yoga studio.');

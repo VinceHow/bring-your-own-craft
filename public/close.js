@@ -7,7 +7,7 @@
 //   4. her "A asked, M decided from her file", counted from the log of the run on screen (decided events citing
 //      a line of her file). No run, or M = 0: nothing is shown rather than a 0;
 //   5. the built-this-way line (DEMO.md).
-// R or C in the close replays the café run's three questions instead (labelled REPLAY), the judge's-idea fallback.
+// R or C in the close replays the yoga run's check-in instead (labelled REPLAY), the judge's-idea fallback.
 (function () {
   'use strict';
   const BYOC = window.BYOC;
@@ -19,27 +19,28 @@
   const room = document.getElementById('room');
   const sheet = document.createElement('section');
   sheet.id = 'close-sheet'; sheet.className = 'close-sheet'; sheet.hidden = true;
+  sheet.dataset.component = 'close-view'; sheet.dataset.state = 'asking';
   sheet.innerHTML = `
     <div class="close-left">
       <div class="close-pile" aria-hidden="true">${'<i></i>'.repeat(9)}</div>
-      <div class="close-them">
+      <div class="close-them" data-slot="them">
         <div class="close-label">A default coding agent</div>
         <div class="close-big"><b id="close-b-asked">0</b> asked <span>·</span> <b class="red" id="close-b-guessed">–</b> guessed</div>
         <div class="close-src" id="close-b-src"></div>
       </div>
-      <div class="close-her" id="close-her" hidden>
-        <div class="close-label">Her, in the Product seat</div>
-        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> the rest handled by her team</div>
+      <div class="close-her" id="close-her" data-slot="her" hidden>
+        <div class="close-label">In the Product seat</div>
+        <div class="close-big"><b class="pink" id="close-asked"></b> asked <span>·</span> the rest handled by the team</div>
         <div class="close-src" id="close-her-src"></div>
       </div>
       <p class="close-built" id="close-built" hidden>${BUILT}</p>
     </div>
     <div class="close-right">
       <div class="close-label">A judge’s idea</div>
-      <form id="close-form" autocomplete="off"><input id="close-input" class="close-input" spellcheck="false" placeholder="Type the idea"></form>
+      <form id="close-form" autocomplete="off"><input id="close-input" class="close-input" data-slot="input" spellcheck="false" placeholder="Type the idea"></form>
       <div class="close-step" id="close-step"></div>
-      <div class="close-sketch" id="close-sketch"></div>
-      <div class="close-count" id="close-count"></div>
+      <div class="close-sketch" id="close-sketch" data-slot="sketch"></div>
+      <div class="close-count" id="close-count" data-slot="count"></div>
       <ol class="close-asks" id="close-asks"></ol>
     </div>`;
   room.appendChild(sheet);
@@ -92,7 +93,7 @@
   function clearOut() {
     token++; clearInterval(ticker);
     sheet.querySelector('.close-left').classList.remove('on');
-    sheet.dataset.phase = 'idea';
+    sheet.dataset.phase = 'idea'; sheet.dataset.state = 'asking';
     $('close-her').hidden = true; $('close-built').hidden = true;
     $('close-asks').innerHTML = ''; $('close-asks').style.transform = ''; $('close-count').innerHTML = ''; $('close-step').textContent = '';
     $('close-sketch').innerHTML = '';
@@ -106,7 +107,7 @@
   function showContrast() {
     const left = sheet.querySelector('.close-left');
     left.classList.add('on');
-    sheet.dataset.phase = 'working';
+    sheet.dataset.phase = 'working'; sheet.dataset.state = 'contrast';
     BYOC.timings.contrastAt = Date.now();
     if (!M) return;
     [...left.querySelectorAll('.close-pile i')].forEach((c, i) =>
@@ -117,7 +118,7 @@
   function landAsks(r, my) {
     BYOC.timings.asksAt = Date.now();
     sheet.dataset.phase = 'landed';
-    $('close-count').innerHTML = `<b>${Math.max(0, r.came - r.brought)}</b> handled by the team · <b class="pink">${r.brought}</b> for her`;
+    $('close-count').innerHTML = `<b>${Math.max(0, r.came - r.brought)}</b> handled by the team · <b class="pink">${r.brought}</b> for you`;
     // One check-in at a time (DEMO 2:38): the team's first lands, in its teammate's voice, on Design's sketch.
     (r.asks || []).slice(0, 1).forEach((a, i) => {
       const li = document.createElement('li');
@@ -125,8 +126,7 @@
       li.style.setProperty('--seat', SEAT_INK[a.seat] || '#141414');
       const node = a.attachTo && document.querySelector(`#close-sketch .fs-box[data-node="${a.attachTo}"]`);
       if (node) node.classList.add('close-on');
-      li.innerHTML = `<span class="close-seat">${esc(a.seat)}${node ? ` · on “${esc(node.textContent)}”` : ''}</span><span class="close-q">${esc(a.decision)}</span>
-        <span class="close-rec">recommends: ${esc(a.recommendation)}</span>${a.reason ? `<span class="close-why">${esc(a.reason)}</span>` : ''}`;
+      li.innerHTML = `<span class="close-seat" data-slot="who">${esc(a.by ? `${a.by} · ${a.seat}` : a.seat)}${node ? ` · on “${esc(node.textContent)}”` : ''}</span><span class="close-q" data-slot="question">${esc(a.question || a.decision)}</span>`;
       $('close-asks').appendChild(li);
       if (M) M.animate(li, { x: [60, 0], y: [-20, 0], rotate: [4, -0.8] }, SPRING);
     });
@@ -135,11 +135,11 @@
     (async () => {
       await wait(900 + 250 * (r.asks || []).length);
       if (my !== token) return;
-      const h = her || await herNumbers();
+      const h = await herNumbers(); // counted now: her run's log can still be growing (her takeaways, the team's mapping)
       if (my !== token) return;
       if (h && h.fromFile > 0) {
         $('close-asked').textContent = h.asked;
-        $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from her file${h.replay ? ' · REPLAY' : ''}`;
+        $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from the file${h.replay ? ' · REPLAY' : ''}`;
         $('close-her').hidden = false;
         if (M) M.animate($('close-her'), { x: [-40, 0] }, SPRING);
         await wait(1200);
@@ -167,7 +167,7 @@
       if (my !== token) return clearInterval(ticker);
       const ms = Date.now() - t0, slow = ms > (BYOC.SLOW_MS || 25000);
       $('close-step').classList.toggle('slow', slow);
-      $('close-step').textContent = `${label} · ${Math.floor(ms / 1000)} s${slow ? ' · slow: R replays the café run' : ''}`;
+      $('close-step').textContent = `${label} · ${Math.floor(ms / 1000)} s${slow ? ' · slow: R replays the yoga run' : ''}`;
     };
     step(); ticker = setInterval(step, 500);
   }
@@ -184,7 +184,7 @@
     let lines = [];
     $('close-sketch').innerHTML = '';
     if (BYOC.firstSketch && BYOC.firstSketch.forIdea) {
-      tick(t0, my, 'Design is sketching it');
+      tick(t0, my, 'Design is sketching it'); sheet.dataset.state = 'sketching';
       const sk = await BYOC.firstSketch.forIdea(idea, $('close-sketch')).catch(() => null);
       if (my !== token) return;
       BYOC.timings.closeSketchMs = Date.now() - t0;
@@ -195,7 +195,7 @@
     try { r = await BYOC.api('/api/select-for-idea', lines.length ? { idea, lines } : { idea }, { step: false }); }
     catch (e) {
       clearInterval(ticker);
-      if (my === token) { $('close-step').classList.add('slow'); $('close-step').textContent = `The team stopped (${e.status || e.message}). R replays the café run.`; }
+      if (my === token) { $('close-step').classList.add('slow'); $('close-step').textContent = `The team stopped (${e.status || e.message}). R replays the yoga run.`; }
       return;
     }
     clearInterval(ticker);
@@ -207,8 +207,8 @@
     landAsks(r, my);
   }
 
-  // The fallback: the café run's own three questions, from runs/cafe (a recorded real run), labelled REPLAY.
-  async function replay(name = 'cafe') {
+  // The fallback: the yoga run's own check-in, from runs/yoga (a recorded real run), labelled REPLAY.
+  async function replay(name = 'yoga') {
     if (!isOpen()) open();
     const my = ++token;
     clearInterval(ticker);
@@ -230,7 +230,7 @@
     showContrast();
     // Its own timing from the log, capped: the presenter has already waited once.
     const t0 = Date.now(), took = asks.length && start ? asks.at(-1).t - start.t : 0;
-    tick(t0, my, 'REPLAY · the café run');
+    tick(t0, my, 'REPLAY · the yoga run');
     await wait(Math.min(took, 4000));
     clearInterval(ticker);
     if (my !== token) return;

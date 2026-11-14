@@ -15,19 +15,21 @@
 </div>
 
 <!-- Labels shown for as long as a replayed or fake run is on screen -->
-<div id="replay-label" class="replay-label" hidden></div>
+<div id="replay-label" class="replay-label" data-component="replay-label" data-state="hidden" hidden></div>
 
 <div id="viewport">
 <main id="room" aria-label="The room, seen from above">
   <div class="table" id="table"></div>
 
   <!-- Seats: empty outlines until the cards land -->
-  <div class="seat seat-design" data-seat="design"><div class="seat-empty">Design</div></div>
-  <div class="seat seat-data" data-seat="data"><div class="seat-empty">Data</div></div>
-  <div class="seat seat-research" data-seat="research"><div class="seat-empty">Research</div></div>
-  <div class="seat seat-strategy" data-seat="strategy"><div class="seat-empty">Strategy</div></div>
-  <div class="seat seat-engineering" data-seat="engineering"><div class="seat-empty">Engineering</div></div>
-  <div class="seat seat-product" data-seat="product"><div class="seat-empty">Product</div></div>
+  <div class="seat seat-design" data-seat="design" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Design</div></div>
+  <div class="seat seat-data" data-seat="data" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Data</div></div>
+  <div class="seat seat-research" data-seat="research" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Research</div></div>
+  <div class="seat seat-strategy" data-seat="strategy" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Strategy</div></div>
+  <div class="seat seat-engineering" data-seat="engineering" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Engineering</div></div>
+  <div class="seat seat-product" data-seat="product" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Product</div></div>
+  <!-- Her own craft: the dashed seventh seat (name tag: name-tag.js) -->
+  <div class="seat seat-diy" data-seat="diy" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Your own craft</div></div>
 
   <!-- Teammates' small sheets, one in front of each seat -->
   <section class="mini-sheet" data-sheet="design" hidden></section>
@@ -37,8 +39,8 @@
   <section class="mini-sheet" data-sheet="engineering" hidden></section>
 
   <!-- Her file card -->
-  <section id="file-card" class="file-card" hidden>
-    <header class="file-head"><span class="file-name">her file</span><span class="file-path">taste.md</span></header>
+  <section id="file-card" class="file-card" data-component="her-file" data-state="empty" hidden>
+    <header class="file-head"><span class="file-name">your file</span><span class="file-path">taste.md</span></header>
     <ol class="file-lines" id="file-lines"></ol>
     <div class="sounds-like" id="sounds-like" hidden></div>
     <div class="file-note" id="file-note"></div>
@@ -50,7 +52,7 @@
     <p class="her-idea" id="her-idea"></p>
     <div class="her-flow" id="her-flow"></div>
     <div class="her-notes" id="her-notes"></div>
-    <form id="her-form" class="her-form" autocomplete="off">
+    <form id="her-form" class="her-form" autocomplete="off" data-component="her-idea" data-state="asking">
       <input id="her-input" class="her-input" type="text" spellcheck="false" placeholder="Write the idea">
       <span class="her-hint" id="her-hint">Enter to write it down</span>
     </form>
@@ -63,7 +65,7 @@
   </section>
 
   <!-- Counter and meter -->
-  <section id="tally" class="tally" hidden>
+  <section id="tally" class="tally" data-component="tally" data-state="hidden" hidden>
     <button class="counter" id="counter" type="button">
       <span class="counter-row"><span class="roll" id="came"></span><span class="counter-label">decisions came up</span></span>
       <span class="counter-row"><span class="roll roll-pink" id="brought"></span><span class="counter-label">brought to you</span></span>

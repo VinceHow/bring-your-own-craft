@@ -129,7 +129,7 @@ body:not(.stage) #viewport { top: 30px; }
 .mini-lines li { font: 400 12.5px/1.3 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 12px; position: relative; }
 .mini-lines li::before { content: ''; position: absolute; left: 0; top: 5px; width: 6px; height: 6px; background: var(--seat-ink); border: 1px solid var(--ink); }
 .mini-lines li.brought { font-weight: 600; }
-.mini-lines li.brought::after { content: 'to her'; margin-left: 6px; padding: 0 4px; font: 600 10.5px var(--mono); background: var(--product); border: 1px solid var(--ink); }
+.mini-lines li.brought::after { content: 'to you'; margin-left: 6px; padding: 0 4px; font: 600 10.5px var(--mono); background: var(--product); border: 1px solid var(--ink); }
 .mini-lines li .cite { color: rgba(20,20,20,.6); }
 .mini-more { margin-top: auto; padding: 3px 10px 5px; font: 500 11.5px var(--mono); color: rgba(20,20,20,.7); }
 
@@ -430,3 +430,59 @@ body.focus-open #room > :not(.focus-doc):not(.replay-label) { visibility: hidden
   font: 400 13px/1.3 var(--ui); box-shadow: 2px 2px 0 var(--ink); }
 .chatter-who { font-weight: 600; }
 body.stage .chatter-line { font-size: 15px; }
+
+/* Her own craft: the dashed seventh seat, beside Product at the table's edge. Layout only; polish.css owns the look. */
+.seat-diy { left: 120px; top: 806px; width: 330px; height: 86px; }
+.seat-diy .seat-empty { border-style: dashed; border-width: 2.5px; font-size: 16px; }
+body[data-beat="0"] .seat-diy { cursor: pointer; }
+body[data-beat="0"] .seat-diy:hover .seat-empty { background: rgba(255,72,176,.12); }
+body:not([data-beat="0"]) .seat-diy:not(.filled) { opacity: .45; }
+.seat-diy .card { flex-direction: row; --seat-ink: var(--product); }
+.seat-diy .card-band { height: auto; flex: none; max-width: 160px; border-bottom: 0; border-right: var(--line); padding: 0 12px; gap: 8px; }
+.seat-diy .card-band svg { width: 24px; height: 24px; }
+.seat-diy .card-name { font-size: 18px; line-height: 1.05; }
+.seat-diy .card-who { margin: 0; font: 500 12px var(--mono); }
+/* her tray sits by whichever seat is hers */
+#room[data-her-seat="diy"] .tray { left: 470px; }
+.seat-diy .card-band { width: 150px; max-width: none; }
+.seat-diy .card-name { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.seat-diy .card-her { flex: 1; min-width: 0; }
+.seat-diy .card-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat:not(.seat-product):not(.seat-diy) .card-band { gap: 8px; }
+.seat:not(.seat-product):not(.seat-diy) .card-name { font-size: 19px; }
+.seat .agent-mark { padding: 0 3px; font-size: 9px; }
+.seat .card-agent-name { font-size: 13px; }
+.fd-form { display: flex; gap: 10px; align-items: flex-end; }
+.fd-send { flex: none; font: 600 16px var(--ui); padding: 10px 18px; border: var(--line); border-radius: 4px; background: var(--sheet); cursor: pointer; }
+.brief-head { font: 600 13px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.card-title { display: block; font: 600 14px/1.2 var(--ui); }
+.card-traits { display: block; font: 400 12px/1.25 var(--mono); }
+.char-body { padding: 0 26px 22px; display: flex; flex-direction: column; gap: 8px; }
+.char-who { font: 600 26px/1.2 var(--ui); }
+.char-title, .char-swap { font: inherit; background: none; border: 0; border-bottom: 1.5px dashed currentColor; padding: 0; cursor: pointer; color: inherit; }
+.char-traits { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; font: 500 18px var(--mono); }
+.char-power { margin: 0; font: italic 400 18px var(--ui); }
+.char-label { font: 600 12px var(--mono); text-transform: uppercase; font-style: normal; }
+.char-hint { font: 400 13px var(--mono); }
+.big-card[data-state="thinking"] .char-hint::after { content: ''; }
+
+/* A teammate's open sketchpad, or her workspace: over the room. Layout only; the look comes from the studio. */
+.room-panel { position: absolute; inset: 60px 120px; z-index: 55; display: flex; flex-direction: column; gap: 14px; padding: 22px 28px;
+  background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow: auto; }
+.rp-head { display: flex; align-items: baseline; gap: 14px; }
+.rp-title { font: 600 22px var(--ui); }
+.rp-close { margin-left: auto; font: 500 14px var(--ui); padding: 6px 12px; background: var(--paper); border: var(--line); border-radius: 3px; cursor: pointer; }
+.sp-items { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font: 400 17px/1.35 var(--ui); }
+.sp-item { display: flex; flex-direction: column; gap: 2px; }
+.sp-decision { font-weight: 600; }
+.sp-choice { font-family: var(--mono); font-size: 15px; }
+.sp-reason { font-size: 14px; }
+.ws-body { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; }
+.ws-label { margin: 0 0 6px; font: 600 13px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.ws-title { margin: 0; font: 600 22px var(--ui); }
+.ws-traits, .ws-journey { margin: 4px 0 0; font: 400 16px var(--mono); }
+.ws-idea, .ws-power { margin: 4px 0 0; font: 400 18px var(--ui); }
+.ws-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font: 400 16px/1.35 var(--ui); }
+.ws-takeaway { display: flex; flex-direction: column; gap: 2px; }
+.ws-believe { font-weight: 600; }
+.seat .card { cursor: pointer; }
