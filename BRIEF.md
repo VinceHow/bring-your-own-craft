@@ -33,9 +33,9 @@ she's the expert, they build on what she said, it's all of ours.
 
 | Time | On screen | Live? |
 |---|---|---|
-| **0:00–0:05** Her seat | Six seats plus a dashed seventh, "Your own craft"; she **clicks Product**. | live |
-| **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
-| **0:22–0:30** Her character | "Build your character": one natural sentence about what she loves → her character card with the team's own fun spin (playful title + 2–3 traits, e.g. "the Customer Whisperer: customer-obsessed, hands-on builder"; swappable); L1 of her hidden file. Unseen: the private profile. No stance slot. | live |
+| **0:00–0:10** Her name tag | No room yet. A paper card: name, role (any craft or her own; she picks Product), and what she loves and brings, spoken; the raw words are tidied (ums and ahs out) and the team's fun spin makes her name tag (playful title + 2–3 traits, swappable); L1 of her hidden file. Unseen: the private profile. | live |
+| **0:10–0:22** Meet the team | Five teammates one by one, up close: face, name · role, one line in their voice, what they bring (true); small "agent" mark; no pronouns; the flex teammate last. | live |
+| **0:22–0:30** The reveal | First sight of the living studio, everyone already seated; she takes her seat. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
 | **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared bakery sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
@@ -100,12 +100,13 @@ real run.
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
 13. Optional, last: one soft chord at the symphony.
-14. **Any seat is hers (Vincent, 14 Nov evening; off the stage path):** the pick card offers every craft; a seat-to-role
+14. **Any seat is hers (Vincent, 14 Nov evening; off the stage path):** the role choice on her paper card offers every craft; a seat-to-role
    table (`design/studio/SEATS.md`) reassigns teammates (whose craft she takes → Product; flex seat or own craft → Ines
    to Product); one fast call writes the flex role from her sentence and idea during the intro; no default role: if
    it's late, an inked note on the empty chair ("running a little late…"), and the teammate pops in when ready, even
    mid-flow; on failure the note reads "Still on the way" and the run continues without them. Teammate prompts take the role per run, and her domains route the questions. Cut line: Product · Your own
-   craft only.
+   craft only. **Setup order (Vincent, 14 Nov evening):** name tag on paper → meet the team one by one → reveal
+   the room, everyone seated → she takes her seat; the room is never shown before the reveal.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in

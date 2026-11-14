@@ -29,7 +29,7 @@ don't claim more than that.)*
 
 You assemble a project team around the craft you're best at, and agents (and, later, real people) fill every other seat.
 
-- **Take a seat.** Like building your character before you sit down: pick a ready-made craft (Product, Design and so on) or build your own (a baker, a yoga teacher). Say what you love in one sentence, and the team gives it a fun spin as your character card ("the Customer Whisperer", "the Dawn Baker"). Then your team walks in, each showing what it loves and what it brings.
+- **Take a seat.** Like building your character before you sit down: pick a ready-made craft (Product, Design and so on) or build your own (a baker, a yoga teacher). Say what you love in one sentence, and the team gives it a fun spin as your name tag ("the Customer Whisperer", "the Dawn Baker"). Then you meet your team one by one, and the studio is revealed with everyone already seated.
   - **What the team keeps about you.** Behind your card, the team quietly keeps its own picture of you: your business, customers, positioning, brand feel, and your philosophy as it emerges from what you say. It keeps it updated, uses it to decide for you, and never shows it unless you ask. For Priya's bakery: a small neighbourhood bakery; morning regulars who buy the same loaf; a weekend pastry crowd; a warm, crafted brand. And her domains: the target customer, the customer's problem and the user journey, deduced from her two setup sentences, so those questions come to her.
 - **An autonomous team.** Each member brings expertise, their own craft, and are already preloaded with the tools to start working. It makes assumptions, fills gaps and keeps moving. It never waits on you for anything it could reasonably assume. Priya never has to think about logins, payments or the confirmation email.
 - **Bring a rough idea.** One sentence is enough. Within seconds the team hands you a rough shape: who the users are and the stages they go through, no screens. Reacting beats starting from zero. Priya says "a website for a small bakery, so customers can order bread ahead", and the team sketches morning regulars, the weekend crowd and the bakers, from choosing to pickup.
@@ -47,9 +47,9 @@ The product has two moments: a short setup that ends in her first question, then
 
 **1. The setup: walking in to the first question** (under a minute)
 
-1. **Take a seat.** Her pink stool glows warm. Its pick card asks *"What do you bring to the table?"*: any craft (Product, Design, Research, Engineering, Data, Strategy), or "Your own craft". The teammates are people, not job titles: they wear whichever role the table needs. Priya picks Product.
-2. **The team appears.** Mika, Noor, Theo, Ines and Bo pop into their chairs at the round table, one by one (no walking), each card showing what they love and what they bring.
-3. **She introduces herself in one sentence.** *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts its own fun spin on it to make her character card, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
+1. **Her name tag, on paper.** No room yet: it's saved for the reveal. On a paper card she gives her name, her role (any craft, or her own) and, spoken in her own words, what she loves and brings: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* Her ums and ahs are tidied into a clean sentence, and the team puts its own fun spin on it as her name tag, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
+2. **She meets the team, one by one.** Mika, Noor, Theo, Ines and Bo, each up close: name, role, a line in their own voice, what they bring. The teammate fitted to this idea comes last. The teammates are people, not job titles: they wear whichever role the table needs.
+3. **The reveal.** The living studio, everyone already seated round the table, and she takes her seat.
 4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
 5. **The team gets going.** Within seconds, Noor and Mika put a rough journey on the table: who the users are, the stages they go through, no screens.
 6. **Her first question.** It opens as a document: the rough journey, and one big question. *"What do people come to a bakery like this for that they can't get at the supermarket?"*
@@ -70,9 +70,9 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 
 | Beat | Time | What she sees |
 | --- | --- | --- |
-| Take her seat | 0:00–0:05 | Six seats plus "Your own craft"; she picks Product |
-| Team appears | 0:05–0:18 | Mika, Noor, Theo, Ines, Bo pop into their chairs: what they love and bring |
-| Her character | 0:22–0:30 | She builds her character: one sentence becomes her card |
+| Her name tag | 0:00–0:10 | No room yet. On paper: her name, her role, what she loves, spoken; tidied into her name tag |
+| Meet the team | 0:10–0:22 | Mika, Noor, Theo, Ines, Bo one by one, up close: name, role, a line, what they bring |
+| The reveal | 0:22–0:30 | The living studio, everyone seated; she takes her seat |
 | The idea | 0:30–0:35 | One spoken sentence lands on the table |
 | Team gets going | 0:35–0:45 | Noor and Mika's rough journey draws in (~4 s, measured) |
 | Focus moment 1 | 0:45–1:05 | Journey + one big question; she speaks; the team chimes in; the takeaways |
