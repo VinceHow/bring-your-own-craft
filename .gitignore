@@ -7,3 +7,5 @@ runs/*
 *.log
 .env
 .claude/worktrees/
+# Local secrets written by `elevenlabs onboard`
+/.env.local
