@@ -1,0 +1,169 @@
+/* Painted studio, v1: the design system for the UI that sits on the living painting.
+   Refines painted-system.css (v0): same family, plus text-safe deep inks, a fixed radius scale, every state, the popover,
+   the focus document and the motion tokens. Soft, round, paper-made, calm. No square corners anywhere.
+   Light comes from the window, top left, so every shadow falls down and to the right. */
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+
+:root {
+  /* paper and ink (contrast on paper: ink 13.6, ink 2 6.3, ink 3 4.9) */
+  --ps-paper: #FCF6EA;
+  --ps-paper-2: #F5EBD8;
+  --ps-linen: #EFE3CD;
+  --ps-ink: #3B2A20;
+  --ps-ink-2: #6E5646;
+  --ps-ink-3: #7E6755;
+  --ps-rule: rgba(59, 42, 32, .13);
+
+  /* the team: the ink from the painting (marks, dots, bands), a soft tint (grounds) and a deep ink for text and focus (4.9:1 or more) */
+  --ps-mika: #3E5C92; --ps-mika-soft: #DCE4F1; --ps-mika-deep: #34507F;
+  --ps-noor: #D2673F; --ps-noor-soft: #F7DDD0; --ps-noor-deep: #A54A26;
+  --ps-theo: #7FA88B; --ps-theo-soft: #E0ECE2; --ps-theo-deep: #4B7256;
+  --ps-ines: #C4913A; --ps-ines-soft: #F3E5C8; --ps-ines-deep: #86601D;
+  --ps-bo:   #E2BF45; --ps-bo-soft:   #F8EDC4; --ps-bo-deep:   #7F6510;
+  /* her: the warm pink of her cushion; deep for her pill and text (white on it 5.6:1) */
+  --ps-her: #D97F92; --ps-her-soft: #F8DCE1; --ps-her-deep: #A9485F;
+  --ps-replay: #F2D89A; --ps-replay-ink: #4A3510;
+
+  /* type */
+  --ps-serif: 'Newsreader', Georgia, serif;
+  --ps-sans: 'Hanken Grotesk', system-ui, sans-serif;
+
+  /* corners: one scale. sm for chips and steps, md for cards, lg for sheets and popovers, xl for the focus document,
+     a pebble for paper that rests on the table, a pill for anything you can talk to or press */
+  --ps-r-sm: 14px;
+  --ps-r-md: 22px;
+  --ps-r-lg: 30px;
+  --ps-r-xl: 38px;
+  --ps-r-pill: 999px;
+  --ps-pebble: 26px 30px 24px 32px / 28px 24px 32px 26px;
+
+  /* light: from the window, top left; three lifts, and her warm light on the stool */
+  --ps-lift-1: 0 1px 2px rgba(92, 52, 24, .12), 4px 8px 18px -10px rgba(92, 52, 24, .38);
+  --ps-lift-2: 0 2px 3px rgba(92, 52, 24, .12), 8px 16px 32px -14px rgba(92, 52, 24, .42);
+  --ps-lift-3: 0 2px 4px rgba(92, 52, 24, .12), 14px 28px 60px -22px rgba(80, 42, 18, .5);
+  --ps-her-light: radial-gradient(closest-side, rgba(255, 228, 200, .85), rgba(255, 214, 180, .32) 60%, rgba(255, 200, 160, 0));
+
+  /* motion: paper settling on a table. CSS curve for small things, springs with no bounce for anything that travels */
+  --ps-settle: cubic-bezier(.16, 1, .3, 1);
+  --ps-t-fast: 180ms; --ps-t-mid: 420ms; --ps-t-slow: 760ms;
+
+  --ps-tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .28 0 0 0 0 .14 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+
+/* ---------- paper: the one card family (solid paper under every word) ---------- */
+.ps-paper { background: var(--ps-paper) var(--ps-tooth); color: var(--ps-ink); box-shadow: var(--ps-lift-1); border-radius: var(--ps-r-md); }
+
+/* ---------- type ---------- */
+.ps-label { font: 500 13px/1.25 var(--ps-sans); color: var(--ps-ink-3); letter-spacing: .01em; }
+.ps-body { font: 400 16px/1.45 var(--ps-serif); color: var(--ps-ink); }
+.ps-title { font: 400 30px/1.15 var(--ps-serif); letter-spacing: -.01em; color: var(--ps-ink); }
+.ps-her-words { font: italic 400 19px/1.45 var(--ps-serif); color: var(--ps-ink); }
+
+/* ---------- pills: who someone is; tap to see their work ---------- */
+.ps-pill { --c: var(--ps-ink); --soft: var(--ps-paper-2); --deep: var(--ps-ink);
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 6px; border: 0; cursor: pointer;
+  border-radius: var(--ps-r-pill); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-1); color: var(--ps-ink);
+  font: 500 15px/1 var(--ps-sans); white-space: nowrap; outline: none;
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), scale var(--ps-t-fast) var(--ps-settle); }
+.ps-pill .dot { position: relative; width: 24px; height: 24px; border-radius: 50%; background: var(--c); flex: none;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.25); transition: box-shadow var(--ps-t-mid) var(--ps-settle); }
+.ps-pill .agent { font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-3); padding-left: 8px; border-left: 1px solid var(--ps-rule); }
+.ps-pill:hover, .ps-pill.is-hover { translate: 0 -2px; box-shadow: var(--ps-lift-2); }
+.ps-pill:active, .ps-pill.is-pressed { translate: 0 0; scale: .97; box-shadow: var(--ps-lift-1); }
+.ps-pill:focus-visible, .ps-pill.is-focus { box-shadow: 0 0 0 2.5px var(--ps-paper), 0 0 0 5px var(--deep), var(--ps-lift-1); }
+/* talking: a soft ring of their own tint grows round the dot while the line is in the air */
+.ps-pill.is-talking .dot { box-shadow: 0 0 0 4px var(--soft), 0 0 0 5.5px color-mix(in srgb, var(--c) 40%, transparent), inset 0 -3px 0 rgba(0,0,0,.12); }
+/* left you a note: a small dot of their ink after the name; never a number, never red */
+.ps-pill.has-note::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--deep); margin-left: -2px; }
+
+/* her pill: the one filled pill in the room. Before setup it is an invitation, after it is her */
+.ps-pill.is-her { background: var(--ps-her-deep); color: #fff; padding: 0 16px 0 6px; }
+.ps-pill.is-her .dot { background: #fff; color: var(--ps-her-deep); display: grid; place-items: center; font: 500 14px/1 var(--ps-serif); box-shadow: none; }
+.ps-pill.is-her .agent { color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.35); font: italic 400 15px/1 var(--ps-serif); }
+.ps-pill.is-invite { background: var(--ps-paper) var(--ps-tooth); color: var(--ps-her-deep); padding: 0 18px 0 8px;
+  box-shadow: 0 0 0 1.5px var(--ps-her), var(--ps-lift-1); }
+.ps-pill.is-invite .dot { width: 20px; height: 20px; background: var(--ps-her-soft); box-shadow: inset 0 0 0 1.5px var(--ps-her); }
+.ps-pill.is-invite.is-hover, .ps-pill.is-invite:hover { box-shadow: 0 0 0 1.5px var(--ps-her), var(--ps-lift-2); }
+
+/* ---------- chatter: a short line by whoever said it, never addressed to her ---------- */
+.ps-bubble { position: relative; max-width: 300px; padding: 10px 15px 12px; border-radius: 20px; background: var(--ps-paper) var(--ps-tooth);
+  box-shadow: var(--ps-lift-1); font: italic 400 16px/1.35 var(--ps-serif); color: var(--ps-ink); }
+.ps-bubble b { display: block; font: 500 13px/1.2 var(--ps-sans); font-style: normal; color: var(--deep); margin-bottom: 3px; }
+/* the tail: a small round nub towards the speaker (bottom left by default) */
+.ps-bubble::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--ps-paper); left: var(--tx, 18px); bottom: -6px; }
+.ps-bubble.tail-right::after { left: auto; right: 18px; }
+.ps-bubble.tail-side::after { left: -6px; bottom: auto; top: 18px; }
+
+/* ---------- a note left for her ---------- */
+.ps-note { width: 230px; padding: 15px 16px 15px; border-radius: var(--ps-pebble); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-2);
+  font: 400 16px/1.35 var(--ps-serif); color: var(--ps-ink); position: relative; overflow: hidden; cursor: pointer;
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), scale var(--ps-t-fast) var(--ps-settle); }
+.ps-note::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--c); }
+.ps-note .ps-label { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; color: var(--deep); }
+.ps-note .ps-label i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.ps-note:hover, .ps-note.is-hover { translate: 0 -2px; box-shadow: var(--ps-lift-3); }
+.ps-note:active, .ps-note.is-pressed { translate: 0 0; scale: .98; }
+
+/* ---------- a decision the team talked out and agreed ---------- */
+.ps-decision { width: 250px; padding: 14px 16px 13px; border-radius: var(--ps-r-md); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-1);
+  font: 400 16px/1.32 var(--ps-serif); color: var(--ps-ink); cursor: pointer; transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle); }
+.ps-decision:hover, .ps-decision.is-hover { translate: 0 -2px; box-shadow: var(--ps-lift-2); }
+.ps-who { display: flex; align-items: center; margin-top: 9px; gap: 8px; }
+.ps-who .marks { display: flex; }
+.ps-who .marks i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--ps-paper); margin-right: -5px; }
+
+/* ---------- her sheet: the work, lying on the table ---------- */
+.ps-sheet { border-radius: var(--ps-r-lg); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-2); padding: 16px 18px 18px; color: var(--ps-ink); }
+.ps-tabs { display: inline-flex; gap: 3px; padding: 3px; border-radius: var(--ps-r-pill); background: var(--ps-paper-2); }
+.ps-tabs span { padding: 7px 13px; border-radius: var(--ps-r-pill); font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-2); cursor: pointer; transition: background var(--ps-t-fast); }
+.ps-tabs span:hover { background: rgba(255,255,255,.55); }
+.ps-tabs span.on { background: var(--ps-paper); color: var(--ps-ink); box-shadow: var(--ps-lift-1); }
+.ps-step { padding: 9px 12px; border-radius: var(--ps-r-sm); background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--ps-rule); font: 400 14px/1.25 var(--ps-sans); color: var(--ps-ink); }
+.ps-step.hers { background: var(--ps-her-soft); box-shadow: inset 0 0 0 1px rgba(217,127,146,.5); }
+
+/* ---------- popover: someone's work, opened from their pill, always away from the painting's faces ---------- */
+.ps-pop { position: relative; width: 300px; padding: 14px 16px 16px; border-radius: var(--ps-r-lg); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-3); color: var(--ps-ink); }
+.ps-pop::after { content: ''; position: absolute; left: var(--tx, 40px); bottom: -7px; width: 16px; height: 16px; border-radius: 4px; rotate: 45deg; background: var(--ps-paper); }
+.ps-pop .head { display: flex; align-items: center; gap: 8px; font: 500 15px/1 var(--ps-sans); margin-bottom: 10px; }
+.ps-pop .head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); }
+.ps-pop .head .ps-label { margin-left: auto; }
+.ps-pop .ps-label.k { display: block; margin: 10px 0 4px; }
+.ps-pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font: 400 15px/1.3 var(--ps-serif); }
+.ps-pop li { display: flex; gap: 9px; } .ps-pop li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); margin-top: 8px; flex: none; }
+
+/* ---------- buttons: one pair ---------- */
+.ps-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: var(--ps-r-pill); border: 0; cursor: pointer; outline: none;
+  font: 500 15px/1 var(--ps-sans); background: var(--ps-ink); color: var(--ps-paper); box-shadow: var(--ps-lift-1);
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), scale var(--ps-t-fast) var(--ps-settle); }
+.ps-btn:hover, .ps-btn.is-hover { translate: 0 -2px; box-shadow: var(--ps-lift-2); }
+.ps-btn:active, .ps-btn.is-pressed { scale: .97; translate: 0 0; box-shadow: var(--ps-lift-1); }
+.ps-btn:focus-visible, .ps-btn.is-focus { box-shadow: 0 0 0 2.5px var(--ps-paper), 0 0 0 5px var(--ps-ink); }
+.ps-btn.quiet { background: var(--ps-paper) var(--ps-tooth); color: var(--ps-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.3); }
+.ps-btn.quiet:hover, .ps-btn.quiet.is-hover { box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.45), var(--ps-lift-2); }
+
+/* ---------- quiet labels ---------- */
+.ps-tag { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: var(--ps-r-pill); font: 500 13px/1 var(--ps-sans);
+  background: var(--ps-paper) var(--ps-tooth); color: var(--ps-ink-2); box-shadow: var(--ps-lift-1); white-space: nowrap; }
+.ps-tag b { font-weight: 500; color: var(--ps-ink); }
+.ps-tag.replay { background: var(--ps-replay); color: var(--ps-replay-ink); }
+.ps-tag.replay::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ps-replay-ink); }
+.ps-tag.when { font: italic 400 15px/1 var(--ps-serif); color: var(--ps-ink-2); }
+
+/* ---------- her light: the warm pool on her stool ---------- */
+.ps-her-light { position: absolute; border-radius: 50%; background: var(--ps-her-light); mix-blend-mode: screen; pointer-events: none; }
+
+/* ---------- focus: one full, rounded document ---------- */
+.ps-doc { border-radius: var(--ps-r-xl); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-3); color: var(--ps-ink); }
+
+/* who: each part takes its person's ink (kept last so it wins over the part defaults) */
+[data-who="mika"] { --c: var(--ps-mika); --soft: var(--ps-mika-soft); --deep: var(--ps-mika-deep); }
+[data-who="noor"] { --c: var(--ps-noor); --soft: var(--ps-noor-soft); --deep: var(--ps-noor-deep); }
+[data-who="theo"] { --c: var(--ps-theo); --soft: var(--ps-theo-soft); --deep: var(--ps-theo-deep); }
+[data-who="ines"] { --c: var(--ps-ines); --soft: var(--ps-ines-soft); --deep: var(--ps-ines-deep); }
+[data-who="bo"]   { --c: var(--ps-bo);   --soft: var(--ps-bo-soft);   --deep: var(--ps-bo-deep); }
+[data-who="her"]  { --c: var(--ps-her);  --soft: var(--ps-her-soft);  --deep: var(--ps-her-deep); }
+
+@media (prefers-reduced-motion: reduce) { .ps-pill, .ps-note, .ps-btn, .ps-decision, .ps-pill .dot { transition: none; } }
