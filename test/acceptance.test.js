@@ -52,7 +52,7 @@ test('the acceptance suite passes against a stub that keeps the contract (all 12
   });
 });
 
-for (const [flaw, test_] of [['field', '2'], ['twice', '3'], ['soldout', '4'], ['race', '5'], ['nosse', '6'], ['restock', '7'],
+for (const [flaw, test_] of [['field', '2'], ['twice', '3'], ['nodrop', '3'], ['soldout', '4'], ['race', '5'], ['nosse', '6'], ['restock', '7'],
   ['hold', '9'], ['clock', '9'], ['reset', '10'], ['ratelimit', '+'], ['logname', '11']]) {
   test(`the suite catches a broken bakery: "${flaw}" fails test ${test_}`, async () => {
     await withStub(flaw, async (base, log) => {
