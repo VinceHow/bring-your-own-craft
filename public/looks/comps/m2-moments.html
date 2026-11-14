@@ -11,7 +11,11 @@
      a quiet "Say something else". Yes: the card folds into the team space as a decision with her mark and Bo's, Bo's
      delighted clip plays, the inbox goes back to "Nothing needs you right now". Say something else: her voice
      opens on the card and her words replace the suggestion.
-     ?flow=decide | unblock (&say=1 for "Say something else"); no flow plays both. &step=0..8 &still=1 for a moment.
+     Act 2 as refined (DEMO.md on po/two-focus): FOCUS 1 (0:38) is Noor's research (the finding is a marked placeholder:
+     the rehearsal run's only finding is about baking waste, not who buys); FOCUS 2 (1:08) is Mika's rough journey in
+     words, she speaks, Mika replies by the pin, a line is struck and rewritten her way, then her takeaways.
+     ?flow=decide | unblock (&say=1) | feel; no flow plays all of Act 2. &step=0..12 &still=1 (0..4 focus 1 and the
+     cascade, 5..8 the unblock, 9..12 focus 2).
      Hooks (names from docs/COMPONENTS.md, new ones marked NEW) are listed at the bottom of this file. -->
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
@@ -72,23 +76,64 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
 .tray.quiet .q { font: italic 400 16px/1.3 var(--ip-serif); color: var(--ip-ink-2); }
 .tray .under { position: absolute; left: 10px; right: 10px; bottom: -7px; height: 12px; border-radius: 0 0 14px 14px; background: #F3E8D4; box-shadow: 2px 3px 6px -3px rgba(60,35,15,.4); z-index: -2; }
 
-/* ---------- A1: her document, one question, her voice ---------- */
-.focus-doc { left: 450px; top: 150px; width: 700px; z-index: 9; }
-.canvas .focus-doc { padding: 30px 36px 30px; }
-.fd-kicker { display: flex; align-items: center; gap: 8px; color: var(--t); font-size: 15px; }
-.fd-kicker i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
-.fd-question { margin: 10px 0 6px; font: 400 40px/1.15 var(--ip-serif); letter-spacing: -.012em; }
-.fd-sub { margin: 0 0 20px; font: italic 400 20px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
-.fd-said { min-height: 150px; padding: 20px 22px; border-radius: var(--ip-r-md); background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.4);
-  font: 400 24px/1.45 var(--ip-serif); color: var(--ip-ink); }
+/* ---------- the focus document (one family with her-page.html on design/loop): the work on the left, her thoughts on the right ---------- */
+.fdoc { left: 48px; top: 28px; width: 1504px; height: 844px; z-index: 9; }
+.fdoc .head { position: absolute; left: 44px; right: 44px; top: 30px; display: flex; align-items: flex-start; gap: 24px; }
+.fdoc .from { display: flex; align-items: center; gap: 8px; font: 500 15px/1 var(--ip-sans); color: var(--t); }
+.fdoc .from i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.fdoc .fd-question { margin: 10px 0 0; font: 400 34px/1.15 var(--ip-serif); letter-spacing: -.01em; }
+.fd-work { position: absolute; left: 44px; top: 140px; width: 940px; bottom: 30px; border-radius: 30px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(84,58,38,.13); }
+.fd-work > .cap { position: absolute; left: 22px; top: 18px; font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-2); }
+.fd-work .stage { position: absolute; inset: 0; display: grid; place-items: center; }
+/* Noor's finding */
+.finding { position: relative; width: 680px; zoom: 1.12; padding: 32px 36px; border-radius: 28px; background: rgba(255,255,255,.82); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
+.finding .lab2 { display: flex; align-items: center; justify-content: space-between; font: 500 14px/1.2 var(--ip-sans); color: var(--ip-noor-t); }
+.finding .prep { font: 500 12px/1 var(--ip-sans); color: var(--ip-ink-2); padding: 5px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(84,58,38,.3); }
+.finding .big { margin-top: 14px; font: 400 32px/1.25 var(--ip-serif); }
+.finding .by { margin-top: 14px; font: italic 400 18px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+.finding .src { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 10px 14px; border-radius: 16px; background: rgba(201,94,56,.09); color: var(--ip-noor-t); font: 500 15px/1.2 var(--ip-sans); text-decoration: none; width: fit-content; }
+.finding .src span { color: var(--ip-ink-2); font-weight: 400; }
+.ph { padding: 0 4px; border-radius: 6px; box-shadow: inset 0 0 0 1.2px rgba(84,58,38,.35); background: rgba(84,58,38,.05); }
+/* Mika's rough journey, in words: short timed lines, small ink step marks down the side in her blue crayon */
+.fd-work[data-kind="journey-words"] .stage { padding-right: 300px; }
+.jw { position: relative; width: 620px; padding: 30px 36px 32px 30px; border-radius: 28px; background: #FFFCF6 var(--ip-tooth); box-shadow: inset 0 0 0 1px rgba(84,58,38,.16); }
+.jw .lab2 { font: 500 14px/1.2 var(--ip-sans); color: var(--ip-mika-t); margin: 0 0 18px 50px; }
+.jw-steps { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.jw-rail { position: absolute; left: 12px; top: 18px; bottom: 18px; width: 3px; border-radius: 2px; background: var(--ip-mika); opacity: .5; }
+.jw-step { position: relative; display: grid; grid-template-columns: 50px 1fr; align-items: start; }
+.jw-step .mk { position: relative; width: 26px; height: 26px; margin-top: 10px; border-radius: 50%; background: var(--ip-mika); -webkit-mask: var(--ip-wax) 0 0 / 60px 60px; mask: var(--ip-wax) 0 0 / 60px 60px; }
+.jw-time { display: block; font: 500 14px/1 var(--ip-sans); color: var(--ip-mika-t); margin-bottom: 6px; }
+.jw-text { position: relative; display: block; width: fit-content; font: 400 25px/1.32 var(--ip-serif); color: var(--ip-ink); }
+.jw-text s { position: absolute; left: -4px; right: -4px; top: 54%; height: 2.4px; border-radius: 2px; background: var(--ip-mika-t); transform-origin: left; transform: scaleX(0); }
+.jw-step[data-state="struck"] .jw-text, .jw-step[data-state="rewritten"] .jw-text { color: #6E5A49; font-size: 19px; }
+.jw-step[data-state="struck"] .jw-text s, .jw-step[data-state="rewritten"] .jw-text s { transform: scaleX(1); }
+.jw-new { display: block; margin-top: 6px; font: italic 400 25px/1.32 var(--ip-serif); color: var(--ip-her-t); }
+/* pins on the work, and a teammate's short reply beside its pin */
+.fd-pin { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--c); z-index: 3;
+  box-shadow: 0 0 0 2px var(--ip-paper), 1px 2px 3px rgba(60,35,15,.35); display: grid; place-items: center; }
+.fd-pin span { rotate: 45deg; font: 600 12px/1 var(--ip-sans); color: #fff; }
+.fd-pin[data-seat="product"] { background: var(--ip-her-t); }
+.fd-reply { position: absolute; width: 240px; z-index: 4; transform-origin: 0 50%; }
+.fd-reply .bubble { max-width: none; font: italic 400 18px/1.35 var(--ip-serif); }
+/* her thoughts, on the right */
+.fd-side { position: absolute; left: 1012px; right: 44px; top: 140px; bottom: 30px; display: flex; flex-direction: column; gap: 12px; }
+.fd-side > .take { flex: 1; display: flex; flex-direction: column; padding: 18px 20px; }
+.fd-side .take .lab { color: var(--ip-her-t); }
+.fd-said { margin-top: 12px; font: 400 23px/1.42 var(--ip-serif); color: var(--ip-ink); }
 .fd-said .w, .ia-sug .w { display: inline-block; margin-right: .26em; }
-.fd-said[data-state="landed"] { color: var(--ip-her-t); font-style: italic; }
-.fd-input { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 18px; }
+.fd-said[data-state="landed"] { color: var(--ip-her-t); }
+.fd-input { margin-top: auto; display: flex; align-items: center; gap: 10px; }
+.fd-input .hint { font: 500 14px/1.2 var(--ip-sans); color: var(--ip-ink-2); }
+.fd-input .btn { margin-left: auto; height: 50px; padding: 0 24px; font-size: 17px; }
+.fd-mic { width: 50px; height: 50px; border-radius: 50%; background: var(--ip-her-t); display: grid; place-items: center; flex: none; border: 0; transition: scale .12s; }
+.fd-mic svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.fd-side .fd-brief { flex: none; padding: 16px 18px; }
+.fd-brief p { margin: 8px 0 0; font: 400 20px/1.38 var(--ip-serif); } .fd-brief p b { display: block; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); margin-bottom: 4px; }
+/* her mic, shared by the action card */
 .mic { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 20px 0 9px; border-radius: 999px; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.55);
   font: 500 17px/1 var(--ip-sans); color: var(--ip-her-t); border: 0; cursor: pointer; }
 .mic .ring { width: 34px; height: 34px; border-radius: 50%; background: var(--ip-her-t); display: grid; place-items: center; transition: scale .12s; }
 .mic svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; }
-.fd-send { height: 52px; padding: 0 26px; font-size: 18px; }
 
 /* ---------- A2: the action card, grown from the inbox ---------- */
 .inbox-action { left: 800px; top: 452px; width: 330px; z-index: 7; }
@@ -256,53 +301,141 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
   }
   const typeWords = async (box, text, ms = 150) => { box.innerHTML = ''; for (const w of text.split(' ')) { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; box.appendChild(s); if (!instant) { animate(s, { opacity: [0, 1] }, { duration: .22 }); await wait(ms); } } };
 
-  // ================= A1: the first decision =================
+  // ================= the focus document: one family with her-page.html (design/loop) =================
+  const MIC = '<svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg>';
+  const LINK = '<svg viewBox="0 0 12 12" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>';
+  const roomBits = () => [$('#inbox'), $('#ts'), $('#idea'), ...pills()];
+  async function openDoc({ who, seat, doc, from, question, work, askId }) {
+    $('#inbox').dataset.state = 'expanded'; emit('focus.open', { askId });
+    veil(1, .5); A(roomBits(), { opacity: 0 }, { duration: .35 });   // only her and the work while she answers
+    const fd = document.createElement('section'); fd.className = 'abs doc fdoc'; fd.id = 'focus-doc'; fd.dataset.who = who;
+    Object.assign(fd.dataset, { seat, doc, component: 'focus-doc', state: 'asking' });
+    fd.innerHTML = `<div class="head"><div><div class="from fd-by" data-slot="by" data-who="${who}"><i></i>${from}</div><h2 class="fd-question" data-slot="question">${question}</h2></div></div>
+      <div class="fd-work" data-slot="work" data-kind="${doc}"><span class="cap">The work</span><div class="stage">${work}</div></div>
+      <div class="fd-side"><div class="take" data-who="her"><span class="lab">Your thoughts</span>
+        <div class="fd-said" data-slot="said" data-state="speaking"><span class="fd-words" data-slot="words"></span></div>
+        <div class="fd-input" data-slot="input"><button class="fd-mic" id="fmic" aria-label="Hold to talk">${MIC}</button><span class="hint" id="fhint">Hold to talk</span>
+          <button class="btn fd-send" data-slot="send" id="send">Send</button></div></div></div>`;
+    c.appendChild(fd); InkPaper.dress(fd); redrawAll(fd);
+    if (!instant) animate(fd, { opacity: [0, 1], y: [14, 0], scale: [.985, 1] }, spring(.4));   // never an empty sheet
+    $('#send').style.opacity = 0;
+    return fd;
+  }
+  async function speak(fd, words, ms = 165) {
+    fd.dataset.state = 'speaking'; $('#fhint').textContent = 'Listening… take your time';
+    const mic = $('#fmic'), pulse = !instant && setInterval(() => mic.style.scale = (1 + Math.random() * .1).toFixed(3), 120);
+    await typeWords(fd.querySelector('.fd-words'), words, ms);
+    if (pulse) clearInterval(pulse); mic.style.scale = ''; $('#fhint').textContent = 'Hold to add more';
+    fd.querySelector('.fd-said').dataset.state = 'landed'; redrawAll(fd);
+    A($('#send'), { opacity: [0, 1] }, { duration: .3 });
+  }
+  function closeDocInstant(fd) { fd.remove(); veil(0, .5); $('#inbox').dataset.state = 'collapsed'; A(roomBits(), { opacity: 1 }, { duration: .4 }); }
+  const typeInto = async (el, text, ms = 30) => { if (instant) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(ms); } };
+  function pinOn(fd, anchor, who, seat, dx = 0, xEl = anchor) {
+    const w = fd.querySelector('.fd-work'), wr = w.getBoundingClientRect(), ar = anchor.getBoundingClientRect(), xr = xEl.getBoundingClientRect();
+    const p = document.createElement('div'); p.className = 'fd-pin'; p.dataset.who = who; p.dataset.seat = seat;
+    p.innerHTML = `<span>${who === 'her' ? 'P' : NAME[who][0]}</span>`;
+    p.style.left = (xr.right - wr.left + 22 + dx) + 'px'; p.style.top = (ar.top - wr.top + 16) + 'px'; w.appendChild(p);
+    if (!instant) animate(p, { scale: [.4, 1], opacity: [0, 1] }, spring(.4));
+    return p;
+  }
+
+  // ================= FOCUS 1 (0:38): who it's for, on Noor's research =================
+  // The finding is a marked placeholder: the rehearsal run's only finding is about baking waste, not who buys.
+  const FINDING = `<div class="finding ff" data-slot="finding"><div class="lab2"><span>Noor’s finding</span><span class="prep ff-prepared" data-slot="prepared">researched before the demo</span></div>
+      <div class="big ff-claim" data-slot="claim"><span class="ph">[Noor’s finding, from the run]</span></div>
+      <div class="by ff-about" data-slot="about">Who buys from small neighbourhood bakeries, and when.</div>
+      <a class="src ff-src" data-slot="source" href="#">${LINK}<b class="ff-src-title ph" style="font-weight:500">[source]</b><span>· <span class="ff-src-site ph">[site]</span></span></a></div>`;
   async function decide(base = 0) {
-    trayTo('noor', ['Noor', 'Who is this really for?'], { ask: 'who-for', seat: 'research' });
+    trayTo('noor', ['Noor', 'Who do we build this for first?'], { ask: 'who-for', seat: 'research' });
     if (N < base + 1) return;
     await wait(1200); await tap($('#tray')); hidePtr();
-    // her document: one question, the room steps back
-    $('#inbox').dataset.state = 'expanded'; emit('focus.open', { askId: 'who-for' });
-    veil(1, .5); A([$('#inbox'), $('#ts'), $('#idea'), ...pills()], { opacity: 0 }, { duration: .35 });   // only the question while she answers
-    const fd = document.createElement('section'); fd.className = 'abs card focus-doc'; fd.id = 'focus-doc'; fd.dataset.who = 'noor'; fd.dataset.seat = 'research'; fd.dataset.component = 'focus-doc'; fd.dataset.state = 'asking';
-    fd.innerHTML = `<span class="lab fd-kicker" data-slot="kicker"><i></i><span class="fd-by" data-slot="by">Noor asks</span> · only you know this</span>
-      <h2 class="fd-question" data-slot="question">Who is this really for?</h2><p class="fd-sub">Say it the way you’d tell a friend.</p>
-      <div class="fd-said" data-state="speaking"><span class="fd-words" data-slot="words"></span></div>
-      <div class="fd-input" data-slot="input"><button class="mic" id="mic"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span><span id="micT">Hold to talk</span></button>
-      <button class="btn fd-send" data-slot="send" id="send">Send to the team</button></div>`;
-    c.appendChild(fd); InkPaper.dress(fd); redrawAll(fd); if (!instant) animate(fd, { opacity: [0, 1], y: [14, 0], scale: [.98, 1] }, spring(.4));   // never an empty sheet
-    $('#send').style.opacity = N >= base + 3 ? 1 : 0;
+    const fd = await openDoc({ who: 'noor', seat: 'research', doc: 'finding', askId: 'who-for', from: 'From Noor · who buys from small neighbourhood bakeries',
+      question: 'Who do we build this for first?', work: FINDING });
     if (N < base + 2) return;
-    await wait(900);
-    fd.dataset.state = 'speaking'; $('#micT').textContent = 'Listening… take your time';
-    const ring = fd.querySelector('.ring'), pulse = !instant && setInterval(() => ring.style.scale = (1 + Math.random() * .12).toFixed(3), 120);
-    await typeWords(fd.querySelector('.fd-words'), 'It’s really for the regulars. They come every morning and hate it when the sourdough’s gone by nine.', 165);
-    if (pulse) clearInterval(pulse); ring.style.scale = ''; $('#micT').textContent = 'Hold to talk';
-    fd.querySelector('.fd-said').dataset.state = 'landed'; InkPaper.redraw(fd);
-    A($('#send'), { opacity: [0, 1] }, { duration: .3 });
+    await wait(1600);   // a beat to read the research
+    await speak(fd, 'The regulars. They come every morning, and they hate it when the sourdough’s gone by nine.');
     if (N < base + 3) return;
     await wait(700); await tap($('#send')); hidePtr();
     emit('answer', { askId: 'who-for', text: fd.querySelector('.fd-words').textContent });
-    // the document folds away; the room comes back
+    // the document folds down onto the journey; the room comes back
     fd.dataset.state = 'answered';
-    if (!instant) { fd.style.transformOrigin = '50% 100%'; await animate(fd, { scaleY: [1, .3], scaleX: [1, .6], y: [0, 260], opacity: [1, 0] }, { duration: .5, ease: [.5, 0, .5, 1] }).finished; }
-    fd.remove(); veil(0, .5); emit('focus.close', { askId: 'who-for' });
-    $('#inbox').dataset.state = 'collapsed'; trayTo('her', [], { quiet: true }); A([$('#inbox'), $('#ts'), $('#idea'), ...pills()], { opacity: 1 }, { duration: .4 });
-    // the journey redraws around her answer
-    await wait(300);
+    if (!instant) { const ir = $('#idea').getBoundingClientRect(), fr = fd.getBoundingClientRect();
+      fd.style.transformOrigin = '50% 50%';
+      await animate(fd, { scale: [1, .2], x: [0, ir.left + ir.width / 2 - (fr.left + fr.width / 2)], y: [0, ir.top + ir.height / 2 - (fr.top + fr.height / 2)], opacity: [1, 1, 0] }, { duration: .6, ease: [.5, 0, .3, 1], times: [0, .7, 1] }).finished; }
+    closeDocInstant(fd); emit('focus.close', { askId: 'who-for' }); trayTo('her', [], { quiet: true });
+    // the journey redraws around the regulars
+    await wait(250);
     const idea = $('#idea'); idea.dataset.state = 'reshaped'; $('#fs').dataset.state = 'reshaping';
     if (!instant) await animate(idea.querySelector('.fs-bar'), { opacity: [1, 0] }, { duration: .2 }).finished;
-    journey(J1); if (!instant) { InkPaper.lay(idea); animate(idea.querySelector('.fs-bar'), { opacity: [0, 1] }, { duration: .35 }); }
+    journey(J1); if (!instant) { const ln = idea.querySelector(':scope > .ol .ln'); if (ln) animate(ln, { strokeDashoffset: [1, 0] }, { duration: .7, ease: [.45, .05, .25, 1] }); animate(idea.querySelector('.fs-bar'), { opacity: [0, 1] }, { duration: .35 }); }   // the ink redraws round it, never a blank sheet
     $('#fs').dataset.state = 'drawn';
     if (N < base + 4) return;
     await wait(650);
-    // a run of decisions settles, each with the teammate who took it
-    await cascade(RUN);
+    await cascade(RUN);   // then a run of decisions settles, each with the teammate who took it
+  }
+
+  // ================= FOCUS 2 (1:08): the customer experience, on Mika's rough journey in words =================
+  const STEPS = [
+    ['7:02', 'Ana opens it on the bus. Her usual sourdough is already there.'],
+    ['7:03', 'She types her name and phone number, then picks a time.'],
+    ['8:40', 'At the counter, it’s waiting with her name on it.'],
+    ['9:15', 'The sourdough’s gone by nine. Hers was held.'],
+  ];
+  const JW = `<div class="jw" data-slot="journey-words"><div class="lab2">Mika’s rough journey · a regular’s morning, in words</div>
+      <ol class="jw-steps"><span class="jw-rail"></span>${STEPS.map(([t, x], i) => `<li class="jw-step" data-step="${i + 1}" data-state="draft"><span class="mk"></span><span><span class="jw-time">${t}</span><span class="jw-text">${x}<s></s></span></span></li>`).join('')}</ol></div>`;
+  async function focus2(base = 9) {
+    if (instant || base === 0) { journey(J1); fill(); $('#ts').dataset.state = 'shown'; if (!$('#tsCards [data-joint="orders-close"]')) { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = 'orders-close'; li.dataset.seat = 'engineering'; li.dataset.who = 'bo'; li.dataset.her = ''; li.dataset.state = 'closed'; li.innerHTML = slipHTML({ seats: ['product', 'engineering'], headline: 'Orders close 8pm the night before' }); $('#tsCards').appendChild(li); } trayTo('her', [], { quiet: true }); InkPaper.redraw($('#ts')); }
+    trayTo('mika', ['Mika', 'What should this feel like for a regular?'], { ask: 'feel', seat: 'design' });
+    if (!instant) { await wait(400); animate($('#tray'), { y: [0, -8, 0] }, { duration: 1, ease: [.33, 0, .2, 1] }); await wait(1300); await tap($('#tray')); hidePtr(); }
+    const fd = await openDoc({ who: 'mika', seat: 'design', doc: 'journey-words', askId: 'feel', from: 'From Mika · a regular’s morning, before any screens',
+      question: 'What should this feel like for a regular?', work: JW });
+    if (N < base + 1) return;
+    await wait(2200);   // a beat to read the morning
+    await speak(fd, 'Like being known. Like the baker remembers you. Never ask me for anything you could remember.', 150);
+    if (N < base + 2) return;
+    await wait(700); await tap($('#send')); hidePtr();
+    emit('answer', { askId: 'feel', text: fd.querySelector('.fd-words').textContent });
+    fd.dataset.state = 'answered'; $('#send').classList.add('hide'); $('#fhint').textContent = 'Sent. Ready for your next thought.';
+    A(fd.querySelector('.fd-said'), { opacity: [1, .8] }, { duration: .4 });
+    // her words go quiet in her column; her pin lands on the line it's about; Mika answers briefly by the pin
+    const step = fd.querySelector('.jw-step[data-step="2"]'), txt = step.querySelector('.jw-text');
+    const card = fd.querySelector('.jw'); pinOn(fd, txt, 'her', 'product', 0, card);
+    await wait(500);
+    const mp = pinOn(fd, txt, 'mika', 'design', 34, card);
+    const w = fd.querySelector('.fd-work'), wr = w.getBoundingClientRect(), pr = mp.getBoundingClientRect();
+    const rp = document.createElement('div'); rp.className = 'fd-reply'; rp.dataset.seat = 'design';
+    rp.innerHTML = '<div class="bubble" data-who="mika"><b>Mika</b>Then nothing to fill in. One tap, and it’s hers.</div>';
+    rp.style.left = (pr.left - wr.left - 30) + 'px'; rp.style.top = (pr.bottom - wr.top + 12) + 'px'; w.appendChild(rp); InkPaper.dress(rp); redrawAll(rp);
+    if (!instant) InkPaper.lay(rp.querySelector('.bubble'));
+    emit('chime', { by: 'Mika', seat: 'design', text: 'Then nothing to fill in. One tap, and it’s hers.' });
+    // the line is struck and rewritten in her direction, in front of her
+    await wait(900);
+    step.dataset.state = 'struck';
+    if (!instant) await animate(txt.querySelector('s'), { transform: ['scaleX(0)', 'scaleX(1)'] }, { duration: .5, ease: [.45, .05, .3, 1] }).finished;
+    const nw = document.createElement('span'); nw.className = 'jw-new'; nw.dataset.slot = 'rewrite'; txt.after(nw); step.dataset.state = 'rewritten';
+    await typeInto(nw, 'One tap. Nothing to fill in: we remember her.', 30); redrawAll(fd);
+    if (N < base + 3) return;
+    // the reply lingers long enough to read, then folds into its pin
+    await wait(1800);
+    if (!instant) { const pb = mp.getBoundingClientRect(), db = rp.getBoundingClientRect(); await animate(rp, { scale: [1, .08], x: [0, pb.left - db.left - 6], y: [0, pb.top - db.top - 6], opacity: [1, 0] }, spring(.5)).finished; }
+    rp.remove();
+    // her takeaways, in her voice
+    const br = document.createElement('div'); br.className = 'take fd-brief'; br.dataset.who = 'her'; br.dataset.state = 'shown'; br.dataset.component = 'takeaways';
+    br.innerHTML = '<span class="lab brief-head">Your takeaways</span><p class="brief-believe"><b>What I believe</b><span class="brief-text">Ordering should feel like being known. Never ask for what we could remember.</span></p>';
+    fd.querySelector('.fd-side').appendChild(br); InkPaper.dress(br); redrawAll(br); if (!instant) InkPaper.lay(br);
+    emit('takeaways', { askId: 'feel', believe: 'Ordering should feel like being known. Never ask for what we could remember.' });
   }
 
   // ================= A2: a quick unblock =================
+  // a still or a single beat starts with the first decision's cards already in the team space
+  function fill() {
+    if ($('#tsCards').children.length) return; $('#ts').dataset.state = 'shown';
+    RUN.forEach(d => { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[d.seat]; li.dataset.state = 'closed'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); });
+    InkPaper.redraw($('#ts'));
+  }
   async function unblock(base = 5, fresh = false) {
-    if (instant || fresh) { journey(J1); const was = $('#tsCards').children.length; if (!was) $('#ts').dataset.state = 'shown'; RUN.forEach(d => { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[d.seat]; li.dataset.state = 'closed'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); }); InkPaper.redraw($('#ts')); }
+    if (instant || fresh) { journey(J1); fill(); }
     trayTo('bo', ['Bo’s blocked', 'When do orders close?'], { action: 'orders-close', seat: 'engineering' });
     if (!instant) { animate($('#tray'), { y: [0, -8, 0] }, { duration: 1, ease: [.33, 0, .2, 1] }); }
     if (N < base + 1) return;
@@ -358,26 +491,31 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
     await document.fonts.ready; InkPaper.redraw($('#ts')); InkPaper.redraw($('#idea'));
     if (FLOW === 'unblock') { await unblock(0, true); return; }
     if (FLOW === 'decide') { await decide(0); return; }
-    // both, as on stage: steps 0..4 the first decision, 5..8 the unblock
-    if (N <= 4) { await decide(0); return; }
-    if (!instant) { await decide(0); await wait(1600); }
-    await unblock(5);
+    if (FLOW === 'feel') { await focus2(0); return; }
+    // all of Act 2, as on stage: 0..4 focus 1 and the cascade, 5..8 the unblock, 9..12 focus 2
+    if (instant) { if (N <= 4) await decide(0); else if (N <= 8) await unblock(5); else await focus2(9); return; }
+    await decide(0); await wait(1600); await unblock(5); await wait(1200); await focus2(9);
   })();
 })();
 </script>
 <!-- HOOKS for the build (docs/COMPONENTS.md names; NEW = proposed here)
   inbox            aside#inbox.inbox[data-component=inbox] data-state collapsed·expanded, data-needs yes·no
   inbox-item       .inbox-item[data-ask][data-seat] (a question) — NEW: .inbox-item[data-action][data-seat] (an action card waiting)
-  focus-doc        section#focus-doc.focus-doc[data-seat] data-state asking·speaking·answered; slots kicker, by, question, words (.fd-words in .fd-said[data-state speaking·landed]), input, send
-                   body.focus-open while it's open (the room blurs and steps back)
-  idea-sheet       .idea-sheet data-state sketched → reshaped; first-sketch .fs-bar data-state drawn·reshaping·drawn; .fs-user (NEW modifiers .main · .later), NEW .fs-said (her words, short)
-  team-space       section.team-space[data-state=shown] > ol.ts-cards > li.ts-card[data-joint][data-seat]
-                   NEW data-state settling (in flight) → closed; NEW data-her on a card that carries her mark; .ts-mark[data-seat] (product = her pink "P")
+  focus-doc        section#focus-doc.focus-doc (here .fdoc, one family with her-page.html) [data-seat] data-state asking·speaking·answered
+                   NEW data-doc = finding | journey-words (also on the work: .fd-work[data-kind], adding the kind "journey-words")
+                   slots: by (.fd-by), question (.fd-question), work (.fd-work), words (.fd-words in .fd-said[data-state speaking·landed]), input (.fd-input), send (.fd-send)
+                   body.focus-open while it's open (the room blurs; team space, journey sheet, pills and inbox step out of view)
+  NEW finding      .finding.ff > .ff-prepared ("researched before the demo"), .ff-claim, .ff-about, a.ff-src > .ff-src-title + .ff-src-site
+  NEW journey-words .jw > ol.jw-steps > li.jw-step[data-step] data-state draft·struck·rewritten > .jw-time, .jw-text (> s, the strike), .jw-new (her direction, rewritten)
+  NEW pins/replies .fd-pin[data-seat] on the work (product = her "P"); .fd-reply[data-seat] > .bubble[data-who]: lingers ~3 s, folds into its pin (on chime)
+  takeaways        .fd-brief[data-state=shown] > .brief-head, .brief-believe > .brief-text (on takeaways)
+  idea-sheet       .idea-sheet data-state sketched → reshaped; first-sketch .fs-bar data-state drawn·reshaping·drawn; .fs-user (NEW .main · .later), NEW .fs-said
+  team-space       section.team-space data-state empty (hidden) → shown (pins in with its first card, one 300 ms move) > ol.ts-cards > li.ts-card[data-joint][data-seat]
+                   NEW data-state settling (in flight) → closed; NEW data-her on a card carrying her mark; .ts-mark[data-seat] (product = her pink "P")
   NEW inbox-action article.inbox-action[data-action][data-seat] data-state asking·speaking·yes; slots who, question, suggestion, yes, say
   Events, on:   answer.mapped {askId, decisions:[{id, choice}]} → one ts-card per decision, settling 150 ms apart from the owner's seat
-                NEW owner.action {id, seat, by, question, suggestion} → the inbox shows the action; opening it grows the card
-  Events, emit: focus.open / focus.close {askId}; answer {askId, text};
-                NEW action.yes {id, choice}; NEW action.say {id, text} (her words replace the suggestion); NEW studio:settled {id} when a card lands
+                NEW owner.action {id, seat, by, question, suggestion}; chime {by, seat, text} → the reply by its pin; takeaways {askId, believe}
+  Events, emit: focus.open / focus.close {askId}; answer {askId, text}; NEW action.yes {id, choice}; NEW action.say {id, text}; NEW studio:settled {id}
   The living layer: Bo's "delighted" clip on action.yes (first-open/cast/bo-delighted.webm, mask-bo.png). -->
 </body>
 </html>
