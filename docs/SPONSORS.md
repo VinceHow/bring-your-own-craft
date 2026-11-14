@@ -1,4 +1,4 @@
-# Sponsor layer (06:00–07:00, after core is green; first thing cut)
+# Sponsor layer (00:00–03:00, after core is green and tagged; first thing cut)
 
 Vincent's rule: "low prio like I said. Only do these if they dont add significantly to our build."
 Each item is a thin layer behind a flag, dropped outright if it runs over its budget. Free credits only; demo data only.
