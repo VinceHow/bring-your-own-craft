@@ -5,24 +5,25 @@
   'use strict';
   const BYOC = window.BYOC;
   const label = document.getElementById('replay-label');
+  label.dataset.component = 'replay-label'; label.dataset.state = 'hidden'; // docs/COMPONENTS.md hooks for looks
   const q = new URLSearchParams(location.search);
   const SPEED = Number(q.get('speed')) || 1; // 1 = the run's own timings
   let timers = [];
 
   function clear() { timers.forEach(clearTimeout); timers = []; }
-  BYOC.on('reset', () => { clear(); BYOC.replayName = null; label.hidden = true; label.className = 'replay-label'; });
+  BYOC.on('reset', () => { clear(); BYOC.replayName = null; label.hidden = true; label.className = 'replay-label'; label.dataset.state = 'hidden'; });
 
   // showLabel(kind, name, firstT, note): kind 'fixture' -> FAKE; 'recorded' -> REPLAY; null hides it.
   function showLabel(kind, name, firstT, note) {
-    if (!kind) { label.hidden = true; label.className = 'replay-label'; return; }
+    if (!kind) { label.hidden = true; label.className = 'replay-label'; label.dataset.state = 'hidden'; return; }
     label.hidden = false;
     if (kind === 'fixture') {
       label.className = 'replay-label fake';
-      label.innerHTML = 'Fake run<small>fixture for building the room · not a real run</small>';
+      label.innerHTML = 'Fake run<small data-slot="note">fixture for building the room · not a real run</small>'; label.dataset.state = 'fake';
     } else {
       label.className = 'replay-label';
       const when = firstT ? new Date(firstT).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-      label.innerHTML = `Replay<small>recorded run “${name}”${when ? ' · ' + when : ''}${note ? ' · ' + note : ''}</small>`;
+      label.innerHTML = `Replay<small data-slot="note">recorded run “${name}”${when ? ' · ' + when : ''}${note ? ' · ' + note : ''}</small>`; label.dataset.state = 'replay';
     }
   }
   BYOC.replayLabel = showLabel;

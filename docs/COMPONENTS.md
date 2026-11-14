@@ -25,8 +25,7 @@ Who adds the attributes, file by file:
 |---|---|
 | beats | `room.js`, `focus-doc.js`, `close.js`, `index.html` |
 | builder 6 | `first-sketch.js`, `name-tag.js` |
-| this doc's author (lead-assigned; those builders are done) | `flow.js`, `sketches.js`, `idea-sheet.js`, `team-space.js` |
-| to confirm with the lead | `replay.js` |
+| this doc's author (lead-assigned; those builders are done) | `flow.js`, `sketches.js`, `idea-sheet.js`, `team-space.js`, `replay.js` |
 
 ---
 
@@ -82,7 +81,7 @@ Who adds the attributes, file by file:
 | `chatter-line` | `.chatter-line[data-seat]` | `in` · `leaving` | `who` (`.chatter-who`), `text` (`.chatter-text`) | on `chatter` |
 | `team-space` | `section.team-space` ✅ | `empty` (hidden) · `shown` | `title` (`.ts-title`), `cards` (`.ts-cards`) | on `joint.agreed`, `run.start`, `reset` |
 | `decision-card` | `li.ts-card[data-joint]` ✅ | `closed` · `open` (mirrors `aria-expanded`) | `marks` (`.ts-marks`), `mark` (`.ts-mark[data-seat]`), `headline` (`.ts-headline`), `takeaways-note` (`.ts-takeaways`), `label` (`.ts-label`), `exchange` (`.ts-exchange`), `turn` (`.ts-turn[data-seat]`) > `by` (`.ts-by`), `text` (`.ts-text`) | on `joint.agreed` |
-| `check-in` (older in-sheet question card; may retire in favour of the tray) | `.fl-item[data-ask]` ✅ | `waiting` · `open` · `answered` (each option keeps `is-rec` / `is-chosen` / `is-dropped`) | `question` (`.fl-qtext`), `options` (`.fl-opts`), `option` (`.fl-opt`), `why` (`.fl-why`), `source` (`.fl-src`) | on `ask`, `answer`; emit `checkin.open`, `checkin.close` |
+| `check-in` (retired on main 5ea3915: questions reach her through the tray and her document; kept for old runs) | `.fl-item[data-ask]` ✅ | `waiting` · `open` · `answered` (each option keeps `is-rec` / `is-chosen` / `is-dropped`) | `question` (`.fl-qtext`), `options` (`.fl-opts`), `option` (`.fl-opt`), `why` (`.fl-why`), `source` (`.fl-src`) | on `ask`, `answer`; emit `checkin.open`, `checkin.close` |
 | `guest-card` (optional) | `.guest-card` ✅ | `in` · `shown` | `head`, `tag`, `who`, `note`, `says`, `points` | on `guest` |
 
 ## 6. The close and labels
@@ -90,7 +89,7 @@ Who adds the attributes, file by file:
 | Component | Root hook | `data-state` | `data-slot`s | Events |
 |---|---|---|---|---|
 | `close-view` | `#close-sheet.close-sheet` | `asking` (judge's idea) · `sketching` · `contrast` (data-phase) | `input` (`.close-input`), `sketch` (`.close-sketch`), `question` (`.close-q`), `them` (`.close-them`), `her` (`.close-her`), `count` (`.close-count`), `big` (`.close-big`), `label` (`.close-label`) | on `stage`, `reset` |
-| `replay-label` | `#replay-label.replay-label` | `replay` · `fake` (fixture) · `hidden` | (none) | on `reset` |
+| `replay-label` | `#replay-label.replay-label` ✅ | `hidden` · `fake` (fixture) · `replay` (recorded run) | `note` (the small line) | on `reset`; `BYOC.replayLabel(kind, …)` |
 | `prepared-label` | `.prepared` / `.prep` | (one state) | (none) | (none) |
 | `live-step` (a call she's waiting on; never a spinner) | `.live-step` | `running` · `slow` · `failed` · `done` | `label` | `BYOC.api(…, { step })` |
 
