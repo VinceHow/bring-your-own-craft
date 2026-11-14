@@ -107,14 +107,25 @@ html, body { margin: 0; background: #2B1F17; }
 .mnote .thumb.journey { grid-template-columns: repeat(3, 1fr); } .mnote .thumb.journey i { border-radius: 3px; background: rgba(212,114,136,.35); }
 .mnote .thumb.journey i:nth-child(n+3) { background: rgba(84,58,38,.14); }
 .mnote .thumb.finding i { height: 5px; border-radius: 3px; background: var(--c); align-self: center; } .mnote .thumb.finding i:nth-child(2) { width: 80%; } .mnote .thumb.finding i:nth-child(3) { width: 45%; }
+.mnote { grid-template-columns: 56px 1fr auto !important; }
 .mnote .mt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.mnote .q { font: 400 15px/1.3 var(--ip-serif); }
+.mnote .title { display: flex; align-items: center; gap: 7px; font: 400 17px/1.2 var(--ip-serif); }
+.mnote .title .cd { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+.mnote .open { align-self: center; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); padding: 7px 10px; border-radius: 999px; background: var(--ip-inset); }
+.mopen .reword { margin-left: 8px; border: 0; background: none; padding: 0; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.mopen .changed { width: 100%; }
+.mopen .changed ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.mopen .changed li { display: flex; gap: 9px; font: 400 15px/1.35 var(--ip-sans); }
+.mopen .changed li::before { content: ''; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--c); flex: none; }
+.mopen .round { margin: 4px 0 0; font: italic 400 15px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
 .mnote .bel { font: italic 400 14px/1.35 var(--ip-serif); color: var(--ip-her-t); padding: 4px 8px; border-radius: 8px; background: var(--ip-paper-her); align-self: flex-start; }
 .ws .mopen { position: absolute; left: 356px; top: 22px; right: 24px; bottom: 96px; z-index: 3; }
 .canvas.ink-paper .ws .mopen { padding: 26px 30px 26px; }
 .mopen .x { position: absolute; right: 18px; top: 18px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--ip-inset); cursor: pointer; display: grid; place-items: center; }
 .mopen .x svg { width: 12px; height: 12px; stroke: var(--ip-ink-2); stroke-width: 2; stroke-linecap: round; }
 .mopen h2 { margin: 8px 0 18px; font: 400 30px/1.2 var(--ip-serif); letter-spacing: -.012em; max-width: 30ch; }
+.mopen h2 { margin-bottom: 4px !important; }
+.mopen .asked { margin: 0 0 18px; font: italic 400 16px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
 .mopen .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
 .canvas.ink-paper .mopen .snap { padding: 18px 20px; }
 .mopen .snap .lab { display: flex; align-items: center; gap: 7px; color: var(--t); } .mopen .snap .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
@@ -324,29 +335,30 @@ html, body { margin: 0; background: #2B1F17; }
       <h4>Meeting notes</h4>
       <!-- past reviews, newest first: the question, the work it was about, her one-line belief. Shape agreed with the wrap-up page. -->
       <button class="mnote" data-who="noor" id="mn1"><span class="thumb finding"><i></i><i></i><i></i></span>
-        <span class="mt"><span class="lab">Today · Noor’s finding</span><span class="q">What sells out first, and what should we do about it?</span>
-        <span class="bel">Hold the regulars’ loaves first. Never sell out on them.</span></span></button>
+        <span class="mt"><span class="title"><i class="cd"></i>Holding the regulars’ loaves</span><span class="lab">Noor’s finding · one round</span>
+        <span class="bel">Hold the regulars’ loaves first. Never sell out on them.</span></span><span class="open">Open</span></button>
       <button class="mnote" data-who="mika" id="mn2"><span class="thumb journey"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-        <span class="mt"><span class="lab">Today · the rough journey</span><span class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</span>
-        <span class="bel">People come for bread that’s still warm, and for being known.</span></span></button>
+        <span class="mt"><span class="title"><i class="cd"></i>What brings people in</span><span class="lab">Noor and Mika’s rough journey · one round</span>
+        <span class="bel">People come for bread that’s still warm, and for being known.</span></span><span class="open">Open</span></button>
     </div>
     <!-- one meeting note, opened: the full write-up -->
     <div class="card mopen hide" data-who="noor" id="mopen">
       <button class="x" id="mclose" aria-label="Back to your workspace"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
       <span class="lab">Meeting notes · today · with Noor, Bo and Ines</span>
-      <h2>What sells out first, and what should we do about it?</h2>
+      <h2>Holding the regulars’ loaves</h2>
+      <p class="asked">Noor asked: What sells out first, and what should we do about it?</p>
       <div class="mgrid">
         <div class="snap card" data-who="noor"><span class="lab"><i></i>Noor’s finding, as you saw it</span>
           <p>At small bakeries, sourdough and morning buns sell out first, often before nine. Regulars feel it most.</p>
           <div class="bars"><span style="--w:92%">Sourdough</span><span style="--w:78%">Morning buns</span><span style="--w:41%">Rye</span><span style="--w:22%">Pastries</span></div>
           <span class="lab src">Two sources: baker interviews, a bakery forum thread</span></div>
         <div class="wr">
-          <div class="take"><span class="lab">What I believe</span><p class="b">Hold the regulars’ loaves first. Never sell out on them.</p>
+          <div class="take"><span class="lab">What I believe <button class="reword">Reword</button></span><p class="b">Hold the regulars’ loaves first. Never sell out on them.</p>
             <span class="lab" style="margin-top:12px;display:block">Guidance</span><p>Their usual loaf is set aside at 7am; walk-ins get the rest.</p></div>
-          <div class="chimes">
-            <div class="bubble" data-who="bo"><b>Bo</b>Then we reserve their loaf when the order lands, not at the till.</div>
-            <div class="bubble" data-who="ines"><b>Ines</b>And a standing order makes that free to promise.</div>
-          </div>
+          <div class="changed"><span class="lab">What changed in the work</span>
+            <ul><li data-who="bo">Bo reserves a regular’s loaf the moment the order lands</li><li data-who="ines">Ines added a standing weekly order</li></ul>
+            <span class="lab" style="margin-top:10px;display:block">The round</span>
+            <p class="round">You said the sourdough’s gone by nine; Noor’s two sources agreed; the team moved the hold to 7am.</p></div>
           <button class="btn quiet">Read the conversation</button>
         </div>
       </div>
