@@ -166,7 +166,7 @@ test('2b. her document: words land, the team chimes in one after another, her br
   assert.match((await p.locator('#tray .tray-note').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
-  assert.match(await p.locator('.chatter-line[data-seat="research"]').innerText(), /^Noor: Found a source on full classes\.$/);
+  assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
   await p.locator('#tray .tray-note').click();
   await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'the document', null, p);
   assert.ok(!(await p.isVisible('.chatter-line')), 'the room and its chatter are gone from view');

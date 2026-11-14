@@ -65,11 +65,13 @@
     const k = e.key;
     // Her focus document fills the view: Esc (or the clicker, once her brief is there) takes her back to the room;
     // the beat keys wait until then.
+    // The presenter's own keys (Home, 0, R, C, J, S, F) always work: they close her document first.
     if (BYOC.focusDoc && BYOC.focusDoc.isOpen() && !isTyping(e.target)) {
       const back = k === 'Escape' || ((k === 'PageDown' || k === 'ArrowRight') && document.querySelector('#focus-doc .fd-brief:not([hidden])'));
-      if (back) { e.preventDefault(); BYOC.focusDoc.close(); }
-      else if (['PageDown', 'PageUp', 'ArrowRight', 'ArrowLeft', ' '].includes(k)) e.preventDefault();
-      return;
+      if (back) { e.preventDefault(); BYOC.focusDoc.close(); return; }
+      if (['PageDown', 'PageUp', 'ArrowRight', 'ArrowLeft', ' '].includes(k)) { e.preventDefault(); return; }
+      if (['Home', '0', 'r', 'R', 'c', 'C', 'j', 'J', 's', 'S', 'f', 'F', 'b', 'B'].includes(k)) BYOC.focusDoc.close(true);
+      else return;
     }
     if (isTyping(e.target)) {
       if (k === 'Escape') { e.target.blur(); return; }

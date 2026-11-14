@@ -160,9 +160,10 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   await page.keyboard.press('Control+A');
   await page.keyboard.type(mine);
   await page.keyboard.press('Enter');
-  await waitFor(() => BYOC.events().some(e => e.type === 'taste.written'), 8000, 'her line written');
+  // Her briefs from the documents may already have written lines; this one is the line written after her pin.
+  await waitFor(() => { const ev = BYOC.events(); const pin = ev.findLastIndex(e => e.type === 'pin'); return ev.slice(pin).some(e => e.type === 'taste.written'); }, 8000, 'her line written');
   lap('2:00 reworded line written');
-  const written = (await events()).find(e => e.type === 'taste.written');
+  const written = (await events()).filter(e => e.type === 'taste.written').at(-1);
   assert.strictEqual(written.text, mine);
   assert.strictEqual(written.reworded, true);
   await waitFor(t => document.getElementById('her-stance')?.textContent === t, 3000, 'her stance filled on her card', mine);
@@ -175,7 +176,7 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
 
 test('6. Build -> page reflects her choices; a decision cites her new line', async t => {
   if (!RUN) return t.todo('needs step 3');
-  const written = (await events()).find(e => e.type === 'taste.written');
+  const written = (await events()).filter(e => e.type === 'taste.written').at(-1);
   if (!written) return t.todo('needs step 5');
   // Her one press. The room's own build key/button is piece 1's; until it exists, the same POST the button makes.
   const pressed = await page.evaluate(() => typeof BYOC.build === 'function' ? (BYOC.build(), 'room') : null);
