@@ -1,11 +1,32 @@
 # Room polish: Figma frames and evidence
 
-## Figma frames
-**Not found yet.** The Figma connector is signed in as Vincent, but it has no way to search his files by name, and no
-file link was in the repo or the brief. The lead has been asked for the link (14 Nov, ~12:30). When it arrives, this
-section gets: each frame's link, what was taken from it (tokens, layout, type), and where his frames overrule §3.
+## Figma file (code → Figma)
+**File:** https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB — "Bring your own craft: room", in Vincent's account (team OYS).
+Vincent had no frames of his own, so the room went the other way: from the running code into Figma, for him to tweak.
 
-Until then the polish follows `BRIEF.md` §3 (risograph room) only.
+| Frame | Node | What it is |
+|---|---|---|
+| Room · walk-in, five seats | `2:2` | The empty table, four teammates seated with their stances, her seat, her file, her blank sheet |
+| Room · her three arrive (fixture run) | `4:2` | Mid-run: teammates' sheets, her file lines, her flow with a fork and a pin, counter and meter |
+| Priya's flow with a fork | `3:2` | Her sheet on its own: four boxes, the Research fork, the Product pin on confirm |
+| Her built page | — | **Not made.** No built page exists on any branch yet (`build/page` has only the slot schema). Add it once the first fill runs |
+
+**What went code → Figma:**
+- **Tokens:** a "Room tokens" variable collection: `ink/paper`, `ink/sheet`, `ink/table`, `ink/ink`, the five seat inks, `ink/stamp`, and `space/s1`…`s6`, `space/radius`, `space/shadow`. Every fill, stroke and text colour that matches a token is **bound to the variable**, so recolouring a seat ink in Figma recolours every card, tag and edge that uses it.
+- **Layout:** each box, text run and glyph was measured in the browser (`design/figma-tools/extract.js`, Playwright on the real room, stage mode, polish.css on) and rebuilt as editable Figma layers (`design/figma-tools/builder.js`, via the Figma connector's plugin API) at the same position, size and tilt. Hard offset shadows are drop shadows with 0 blur, corners as in CSS, one-sided borders as per-side strokes.
+- **Type:** Archivo Black, IBM Plex Sans and IBM Plex Mono at the room's sizes, weights, tracking and case. The riso misregistration is a real second text layer named `misregistration`, offset and translucent, so it can be moved or dropped.
+- **Glyphs:** the five seat glyphs and her flow's arrows are imported from the room's own SVG.
+
+**Not carried over:** the paper grain (a screen overlay, not a layer), the table's halftone dots, the small square bullets on the teammates' sheets, and motion. The fixture's text is fake (labelled "fixture, not real" as in the room).
+
+**Why not Figma's HTML import:** its upload host (mcp.figma.com) is blocked by this container's network policy, so the frames were drawn through the plugin API instead.
+
+## Figma → code (round trip)
+Nothing back yet. When Vincent tweaks the file, each change read back from Figma (variables, frames) and what it changed in `polish.css` gets a row here.
+
+| Figma change | Read back how | Change in the room |
+|---|---|---|
+| (waiting for Vincent) | | |
 
 ## What changed (`public/polish.css`, loads last, overrides only)
 | Area | Change | Why |
