@@ -22,10 +22,12 @@ The stage label says "built earlier by this team".
 ## The customer side (the judges' phones; Vincent, 14 Nov)
 Phone first: one column, big tap targets, no login, loads in under 2 s on 4G. A really simple store.
 1. **The storefront.** The bakery's name and its icon-only logo (from the run; the name is real text, never in the
-   image). A few loaves (e.g. fresh sourdough, fresh baguette, one more), each with its photo, a one-line description
-   in the baker's voice and **how many are left** ("4 left"). A small, honest banner: *"Demo bakery for a hackathon:
+   image). **Three items in three tiers** (Vincent, 14 Nov),
+   so every judge gets something: a **rare drop** (very few, e.g. 3, the one people race for), a **medium** item
+   (e.g. 8), and a **plentiful** one (e.g. 40). Each has its photo, a one-line description in the baker's voice and
+   **how many are left** ("3 left"). A small, honest banner: *"Demo bakery for a hackathon:
    no real bread, nothing to pay."*
-2. **Reserve.** Tap a loaf. **One of each loaf per person.** Give a **first name** only, because regulars are on a
+2. **Reserve.** Tap a loaf. **One of each item per person, per drop** (a drop = the stock between two restocks). Give a **first name** only, because regulars are on a
    first-name basis (no phone, email or account; 30 characters max). Tap **Reserve**. No payment step.
 3. **Reserved.** A warm confirmation, like a sticker on a paper bag: *"Your sourdough is reserved, Ana. It'll be
    with you before the end of this talk."* A gentle "on its way" animation (the loaf in the oven, then out). **No
@@ -35,7 +37,11 @@ Phone first: one column, big tap targets, no login, loads in under 2 s on 4G. A 
    here."* It should feel like a small delight (a stamp landing, a short vibration where the phone allows), not a
    toast. This is an in-page notification on the open page, not a phone push (push needs permissions and an
    installed app; not worth the risk).
-5. **Sold out.** When a loaf hits 0 it reads *"Sold out for today"*, with a hand-drawn mark.
+5. **Sold out.** When an item hits 0 it reads *"Sold out for today"*, with a hand-drawn mark.
+6. **Your bread collection (loyalty).** Every delivered item is kept on their device as a little collection, like
+   stamps in a loyalty card: the item, its photo and which drop it came from. Come to another demo (a new drop after a
+   restock) and they can collect another of each, so a fan can show two sourdoughs. Kept on the device (a random
+   device id in a cookie, no account); first name only, as before.
 
 ## The baker's side (Vincent's laptop)
 A separate admin page, **locked** unless opened with `ADMIN_TOKEN` (a Railway variable Vincent sets himself; never in
@@ -49,14 +55,14 @@ Readable from the back of a room when screen-shared: large type, few elements.
 
 ## The rules (each becomes a test)
 - Stock can't go below 0; two judges racing for the last loaf: exactly one gets it.
-- One of each loaf per person (per device, and per first name).
+- One of each item per device per drop; a new drop starts at each Restock. Delivered items join that device's collection.
 - First name only; no other personal data stored, nothing logged beyond it.
 - Rate limit per device so nobody empties the shop by accident.
 - **A reservation is held for a set time, then released** (Vincent, 14 Nov): the loaf goes back on the shelf if it
   isn't delivered in time. The hold length is set on the admin page, **default 15 minutes** (the talk plus slides
   and setup must fit inside it; Vincent can shorten it, e.g. to 5, once timings are known). Customers see "before the
   end of this talk", never the exact hold or a countdown.
-- Starting stock: sourdough **4**, so 6–10 judges sell it out; the other loaves a few more.
+- Starting stock per drop: rare **3**, medium **8**, plentiful **40**, so every judge gets at least one item and the rare one sells out fast. Adjustable on the admin page.
 
 ## The look (Mika, through taste-skill)
 The bakery's own brand, not ours: it should feel like the place Priya described, **"like the baker already knows
@@ -72,7 +78,7 @@ you."** Warm, crafted, unhurried.
 ## Acceptance suite (builder 1 writes these first; the build must pass all)
 1. Reserve with a first name → reserved, stock −1, appears on the admin page within 1 s.
 2. Any field other than a first name → rejected.
-3. A second reservation of the same loaf from the same person → refused, kindly.
+3. A second reservation of the same item from the same device in the same drop → refused, kindly; after a Restock (new drop) → allowed, and the collection shows both.
 4. Stock 0 → "Sold out for today"; reservation refused.
 5. Two simultaneous reservations for the last loaf → exactly one succeeds.
 6. Deliver → every reserved order's page shows "Delivered" within 1 s (SSE), and the admin shows it delivered.
