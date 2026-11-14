@@ -184,7 +184,7 @@ test('6. she answers the check-ins, overruling once', async t => {
   lap('check-ins answered');
 });
 
-test('7. the wireframes, the symphony and her page all land on the one sheet with her idea on top', async t => {
+test('7. the wireframes and her page (one press, no staging) all land on the one sheet with her idea on top', async t => {
   if (!RUN) return t.skip('needs step 1');
   await page.keyboard.press('Escape');
   await page.keyboard.press('ArrowRight'); // Design's wireframes
@@ -197,15 +197,14 @@ test('7. the wireframes, the symphony and her page all land on the one sheet wit
   assert.ok(await ideaShown(), 'her idea sentence stays on top of the sheet');
   assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'wires');
   if (process.env.E2E_SCREENS) await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-wireframes.png') });
-  await page.keyboard.press('ArrowRight'); // her build press: the symphony
-  await waitFor(() => document.querySelectorAll('.symphony-slip.handing').length >= 5 && document.getElementById('room').classList.contains('symphony'), 3000, 'every seat slides its part in');
-  if (process.env.E2E_SCREENS) { await page.waitForTimeout(500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-symphony.png') }); }
+  await page.keyboard.press('ArrowRight'); // her build press: no staging, the page simply appears when built
+  await page.waitForTimeout(300);
+  assert.strictEqual(await page.evaluate(() => document.querySelectorAll('.symphony-slip').length), 0, 'no symphony slips');
   await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 150000, 'build.done');
   lap('build');
   const done = (await events()).find(e => e.type === 'build.done');
   assert.ok(done, 'built');
   await waitFor(() => !!document.querySelector('#her-sheet > #page-sheet:not([hidden])'), 5000, 'her page on her sheet');
-  assert.ok(await page.evaluate(() => BYOC.symphonyPlayed >= 5), 'the symphony played');
   assert.ok(await ideaShown(), 'her idea still on top');
   assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'page');
   // Keep what matters: she flips back to her sketch and Design's screens; nothing was cleared away.
