@@ -4,8 +4,8 @@
 > chosen for your craft and what you're building, and decide everything else your way. You leave with a page that's
 > yours, and a file of your own philosophy you never had to write.
 
-**Deadline: core done ~06:00 Sun 15 Nov; sponsor layer 06:00–07:00; buffer to 08:00. It's ~12:45 Sat. Solo: me (Vincent)
-plus you, in an empty repo.** The 3-minute demo (section 2) is the spine: **if it doesn't serve a beat, don't build it.**
+**Deadline: Devpost submissions close 12:00 Sun 15 Nov; judging is live 13:00–16:30. Core done by 00:00 Sat night; we
+submit at 11:30. Solo: me (Vincent) plus agents. I'm off site 21:00–10:00; agents keep working.** (Schedule: section 5.) The 3-minute demo (section 2) is the spine: **if it doesn't serve a beat, don't build it.**
 Where this is silent, decide from the promise and the demo, carry on, and tell me what you chose. **[checked]** marks
 what a tech lead already ran against the real tools; re-measure here, don't re-research.
 
@@ -38,10 +38,10 @@ The presenter's lines are in the PO's demo doc (Vincent has it). Keyboard-driven
 | **2:05–2:30** Build | One press; Engineering's sheet ticks through the build. She taps the counter: why her three made the cut; for each of the rest, the line of her file that decided it. | **live**, from her answers |
 | **2:30–2:42** Her page | Regulars first, no phone field, her words. Under it, "decided for you": cancel is one tap, no reason asked, **citing the line she wrote a minute ago**. | live |
 | **2:42–2:52** Not scripted | Another idea in the same seat, "a pre-order page for a café's morning pastries", with three different questions. | **REPLAY** of a real run |
-| **2:52–3:00** Close | For a second: a pile of red cards, **"A default coding agent asked us 14."** Beside it her **3**, her meter, her file grown by a line. Pitch line. | static, real runs |
+| **2:52–3:00** Close | **A judge's idea, live:** a judge gives an idea, I type it, the room shows the three questions it would bring a product person (selector only, seconds; the café replay is the fallback). Then the contrast, from the real baseline: **"A default coding agent asked 0 questions and guessed N things about your studio"** (N counted from its transcript in `docs/baseline/`) beside her **3 asked, M decided from her file**. Last line, true: this project was built the same way (`BUILT-THIS-WAY.md`). | live / real counts |
 
 **Slow build:** reasons until ~2:40, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
-until a real run makes it; the 14 is a plain coding-agent run on the same prompt, counted by hand. A weak pick in
+until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
 rehearsal means fixing the ranking, never the script.
 
 ## 3. The look: a risograph-printed room
@@ -125,32 +125,40 @@ café idea (REPLAY of a real run), the rehearsal run (fallback). **Cut:** other 
 one inference, design checking on stage, a build that writes new code, any question as a card.
 
 ## 5. Schedule
-**Every block ends with something running end to end, committed and tagged (`demo-1`…).** At each checkpoint, two
-lines to me: what works, what's next, any cut line triggered.
+**Every block ends with something running end to end on `main`, tagged (`demo-1`…).** Check-ins with me ~16:00,
+~20:00 (before I leave the venue at 21:00) and 07:00, with screenshots.
 
-| Block | Build | Demoable at the end | Cut line |
-|---|---|---|---|
-| **12:45–14:15** | **First, in other terminals:** the template build (`~/taste-template`) and the baseline run (plain coding agent, same prompt; count its questions). Then the model spike on the `claude-code` backend (fal spike once the fal balance is topped up): endpoint, model id, streaming, JSON; time one teammate call, five in parallel, one fill (the hop via fal and OpenRouter is the latency risk). Event log + meter. | Timings; a meter from a fake log. | **14:15:** teammates + select over 20 s → fewer candidates, faster model. fal route broken → tell me at once. |
-| **14:15–16:30** | Teammates, selector, cap, ask policy with its tests; decide-with-citations; write-spec vendored. | Terminal: idea + flow → candidates → 3 picks → the rest decided, cited. | **15:30:** template not gate-passing → fill taste-skill's `starter.html` by hand. |
-| **16:30–19:30** | The room: look, walk-in, sheet, lines → boxes, forks and pins, counter, meter, **R** replay, stage mode. | Beats 0:00–1:45 play from a real run. | **19:30:** walk-in motion → plain placement. |
-| **19:30–20:00** | Eat, away from the screen. | | |
-| **20:00–23:00** | Sketches; "Sounds like" + file write; live fill; "decided for you"; reasons. | The whole yoga script once, live. | **23:00:** sketches → static images per node. Never cut the cap, the file write or the live fill. |
-| **23:00–01:00** | Research finding with source; café run recorded; rehearsal capture; the close with the real baseline. | Full 3:00 once. | **01:00:** café run → shows its three questions only, no page. |
-| **01:00–02:30** | Reliability: timings, keyboard beats, fallbacks (live needs network for fal; no network → full replay). Tag `demo-core-candidate`. | Two clean runs in a row. | **02:30:** live build unreliable → build beat goes REPLAY, everything else live. |
-| **02:30–05:30** | **Sleep.** | | |
-| **05:30–06:00** | Fix only what broke. **Core done.** Tag `demo-core`. | | |
-| **06:00–07:00** | **Sponsor layer (first to cut).** Thin extras only, never touching the core path. | | **06:45:** stop; drop whatever isn't working. |
-| **07:00–08:00** | Buffer: backup video of a clean run, two timed rehearsals, tag `demo-final`. | | |
-
-**Sponsors.** fal is **core, not a layer**: every model call runs through it on the user's own key. Optional
-sponsor-hour extras, first to cut, filled in once I send the list:
-
-| Sponsor | Thin use case | Effort |
+| By | What's done | Cut line if behind |
 |---|---|---|
-| fal (optional extra) | Design teammate generates one hero image with a fal image model for the template, cached per run, labelled | ~30 min |
-| (tbc) | | |
+| **16:00** | Selector + cap + ask policy with tests; teammates; decide-with-citations; template built; flow parsing. Terminal run: idea + flow → candidates → 3 picks → the rest decided, cited. | Template not gate-passing → fill taste-skill's `starter.html` by hand. Teammates + select over 20 s → fewer candidates, faster model. |
+| **20:00** | **The whole demo runs roughly on `main`:** room → flow → three questions → frames → "Sounds like" → Build → page → close. I see it before leaving. | Walk-in motion → plain placement. Sketches → static images per node. |
+| **00:00** | **Core done.** Live fill, reasons, counter and meter from the log, café run and rehearsal run recorded, the close with real baseline counts, the e2e check passing. Tag `demo-core`. | Café run → its three questions only, no page. Live build unreliable → build beat REPLAY. Never cut the cap, the file write or the live fill. |
+| **00:00–03:00** | Sponsor layers (`docs/SPONSORS.md`, in order, each behind a flag), then reliability. | Any sponsor over budget → drop it. |
+| **03:00–07:00** | Polish: the look, motion, timings, every beat; the judge's-idea close rehearsed against 10+ varied ideas (fix the selector where picks are weak); `BUILT-THIS-WAY.md`; README and `SUBMISSION.md`; two recorded rehearsal runs; a backup video. Tag `demo-final`. | Judge's idea weak → café replay closes. |
+| **07:00** | Check-in: screenshots and a short list of polish choices for me. | |
+| **10:00–11:30** | My on-site polish and rehearsal: small, safe changes only. | Anything risky → don't. |
+| **11:30** | Repo public; Devpost submitted (30 min buffer). | |
+
+**Sponsors** (`docs/SPONSORS.md`): low priority, only if they don't add significantly to the build; never on the core
+path. Tracks: Autonomous Agents (main), with fal and ElevenLabs bounties from Voice, Vision & Generative Media if
+the organisers allow it; Figma's design prize is my own design work.
+
+**Submission** (Devpost, by 12:00 Sun): a public repo with a README for judges (problem, what we built, how it works,
+how to run it); every API, model, dataset and open-source library used, with its licence; `SUBMISSION.md` with the
+write-up to paste. Rule: all project code is written during the hackathon; taste-skill and the product-management
+plugin are credited open-source libraries.
+
+**One shot, no mistakes on the core.** Four builders work at once, so the seams are fixed in `CONTRACT.md` and only the
+lead changes them. Each piece ships with its own tests and passes them before review. `npm run e2e` (Playwright,
+`--trace off`) walks the yoga script through the real UI: room → flow → three asks arrive in her work (never more) →
+pin → "Sounds like" written to her file → Build → page shows her choices and a decision citing her new line → counter
+and meter match the log → the key appears nowhere. The lead merges to `main` only with `npm test` and `npm run e2e`
+green, and re-runs e2e after every merge. A failure gets a diagnosis before a patch.
 
 ## 6. Working agreements
+- **taste-skill** is in `vendor/taste-skill/` (MIT, credited), used two ways: it builds the page template in its own
+  folder, and its design rules (type, colour, spacing, no generic AI look) guide the room's own look where they fit the
+  risograph style. Never install it as a plugin in this repo: its finish hook blocks the session.
 - Push back with your reshape where this can't be built; don't wait more than a few minutes for me; bring me only what
   changes the demo, with a recommendation. New spending beyond the user's fal key needs my yes; keys never in the repo.
 - Call something done only when you've seen it work; say what's untested. If real numbers or a live beat disappoint,
