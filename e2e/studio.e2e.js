@@ -73,6 +73,22 @@ test('2. Design sketches it: user cards and boxes draw in, within 10 s, not type
   else assert.ok(done.ms <= 10000, `sketch in ${done.ms} ms`);
 });
 
+test('2b. the guest chair: a stand-in for the main user type joins as the sketch lands; never asks', async t => {
+  if (!RUN) return t.skip('needs step 1');
+  await waitFor(() => BYOC.events().some(e => e.type === 'guest' || e.type === 'guest.error'), 15000, 'the guest');
+  const evs = await events();
+  const g = evs.find(e => e.type === 'guest');
+  assert.ok(g, 'the guest call worked: ' + JSON.stringify(evs.find(e => e.type === 'guest.error')));
+  T.guestMs = g.ms;
+  assert.ok(evs.indexOf(g) > evs.findIndex(e => e.type === 'sketch.done'), 'after the sketch');
+  assert.strictEqual(g.userType, evs.find(e => e.type === 'sketch.user').label, 'persona from the main user type');
+  assert.ok(g.points.length >= 1 && g.points.every((p, i) => p.id === `G${i + 1}`));
+  assert.ok(g.points.filter(p => p.confidence === 'low').every(p => /^check with a real /.test(p.check)));
+  await waitFor(() => !!document.querySelector('.fs-guest:not([hidden])'), 2000, 'the GUEST card');
+  assert.match(await page.locator('.fs-guest').innerText(), /GUEST[\s\S]*not a real one/);
+  assert.ok(!evs.some(e => e.type === 'ask'), 'no ask from the guest');
+});
+
 test('3. her reaction redraws the shape: replaced, not appended; her words shown', async t => {
   if (!RUN) return t.skip('needs step 1');
   const said = "It's really for the regulars. Most bookings are the same class every week.";
@@ -134,6 +150,10 @@ test('5. the team works on her shape; check-ins sit on its boxes; leans are real
   const asks = evs.filter(e => e.type === 'ask');
   assert.ok(asks.length >= 1 && asks.length <= 3, `1 to 3 check-ins, got ${asks.length}`);
   assert.ok(asks.every(a => a.attachTo === null || ids.has(a.attachTo)), 'check-ins on her shape');
+  const gIds = new Set(evs.find(e => e.type === 'guest')?.points.map(p => p.id) || []);
+  const gCites = evs.filter(e => e.type === 'decided' && /^G/.test(e.cites));
+  assert.ok(gCites.every(d => gIds.has(d.cites)), 'G citations only to points the guest made');
+  T.guestCites = gCites.length;
 });
 
 test('6. she answers the check-ins, overruling once', async t => {
