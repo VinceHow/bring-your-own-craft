@@ -110,7 +110,7 @@ lines labelled "prepared for the demo".
 **Real and tested** (say so plainly if asked): the selector and cap (tests: a fourth never gets through; a
 different idea changes the picks; a cheap out-of-seat pick is refused); nothing else can ask her; counter, reasons and
 meter from the log; the file write; the live build citing her new line; the key never leaving server memory; the
-baseline count, transcript kept. On stage: **"models run through fal with your own key."**
+baseline count, transcript kept. On stage, say whichever backend actually ran: **"models run through fal with your own key"** only if `MODEL_BACKEND=fal` on the day.
 **Prepared, labelled where shown:** the templates and booking logic, her file's first two lines, Research's finding, the
 café idea (REPLAY of a real run), the rehearsal run (fallback). **Cut:** other personas or seats, onboarding, more than
 one inference, design checking on stage, a build that writes new code, any question as a card.
@@ -121,7 +121,7 @@ lines to me: what works, what's next, any cut line triggered.
 
 | Block | Build | Demoable at the end | Cut line |
 |---|---|---|---|
-| **12:45–14:15** | **First, in other terminals:** the template build (`~/taste-template`) and the baseline run (plain coding agent, same prompt; count its questions). Then the fal spike: endpoint, model id, streaming, JSON; time one teammate call, five in parallel, one fill (the hop via fal and OpenRouter is the latency risk). Event log + meter. | Timings; a meter from a fake log. | **14:15:** teammates + select over 20 s → fewer candidates, faster model. fal route broken → tell me at once. |
+| **12:45–14:15** | **First, in other terminals:** the template build (`~/taste-template`) and the baseline run (plain coding agent, same prompt; count its questions). Then the model spike on the `claude-code` backend (fal spike once the fal balance is topped up): endpoint, model id, streaming, JSON; time one teammate call, five in parallel, one fill (the hop via fal and OpenRouter is the latency risk). Event log + meter. | Timings; a meter from a fake log. | **14:15:** teammates + select over 20 s → fewer candidates, faster model. fal route broken → tell me at once. |
 | **14:15–16:30** | Teammates, selector, cap, ask policy with its tests; decide-with-citations; write-spec vendored. | Terminal: idea + flow → candidates → 3 picks → the rest decided, cited. | **15:30:** template not gate-passing → fill taste-skill's `starter.html` by hand. |
 | **16:30–19:30** | The room: look, walk-in, sheet, lines → boxes, forks and pins, counter, meter, **R** replay, stage mode. | Beats 0:00–1:45 play from a real run. | **19:30:** walk-in motion → plain placement. |
 | **19:30–20:00** | Eat, away from the screen. | | |
