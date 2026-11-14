@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Terminal dry run of steps 1-3: idea + journey -> five teammates' candidates -> her (at most) three -> the rest
 // decided, cited. Real model calls through lib/model.js; logs a real run under runs/.
-// Usage: node scripts/dry-run.mjs [yoga|cafe|tattoo] [--idea "..." --name x --lines "a|b|c"] [--team <model>]
+// Usage: node scripts/dry-run.mjs [yoga|cafe|tattoo|bakery] [--idea "..." --name x --lines "a|b|c"] [--team <model>]
 //          [--sketch] (the journey comes from Design's real first sketch, as on stage) [--intro "I love..."]
 //          [--select <model>] [--count 5] [--out file.md]   (--count 3 is the close's fast path)
 import fs from 'node:fs';
@@ -21,6 +21,7 @@ const IDEAS = {
     lines: ['classes', 'a class', 'confirm', 'booked', 'regulars → "Book your usual"'],
   },
   tattoo: { idea: 'A booking site for a tattoo studio.', lines: [] },
+  bakery: { idea: 'A website for a small bakery, so customers can order bread ahead.', lines: [] },
   cafe: {
     idea: "A pre-order page for a café's morning pastries.",
     lines: ["today's pastries", 'pick a pastry', 'pickup time', 'pay', 'see you at the counter', 'regulars → "My usual"'],
@@ -77,7 +78,7 @@ p(`## Counter: ${t.came} decisions came up · ${t.brought} brought to you · ${t
 p('');
 p(`## Her ${r.asks.length}`);
 for (const a of r.asks) {
-  p(`- **${a.by}:** "${a.question}"`);
+  p(`- **${a.by}:** "${a.question}"${r.scores.get(a.id)?.domain ? ` (her domain: ${r.scores.get(a.id).domain})` : ''}`);
   p(`  - on: ${a.artifact.kind}${a.artifact.ref ? ` (${a.artifact.ref})` : ''} · settles: ${a.decisionIds.join(', ')} · valid Ask: ${validAsk(a)}`);
   p(`  - from ${a.id}: ${a.decision} (team's recommendation if she skips it: ${a.recommendation})`);
   p(`  - why (logged only): ${a.why}`);
