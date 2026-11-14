@@ -27,7 +27,7 @@ html, body { margin: 0; background: #1A120D; }
 
 /* ---------- the paper: two leaves that part for the reveal ---------- */
 .leaf { position: absolute; top: -20px; bottom: -20px; width: 830px; background: #EFE3CD var(--ip-tooth); z-index: 10; }
-.leaf.l { left: -20px; } .leaf.r { right: -20px; }
+.leaf.l { left: -20px; box-shadow: 14px 0 28px -10px rgba(40,20,5,.45); } .leaf.r { right: -20px; box-shadow: -14px 0 28px -10px rgba(40,20,5,.45); }
 .leaf::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22px; background: inherit; filter: url(#ip-tear); }
 .leaf.l::after { right: -10px; } .leaf.r::after { left: -10px; }
 .leaf .edge { position: absolute; top: 0; bottom: 0; width: 8px; background: var(--ip-her); -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; filter: url(#ip-tear); opacity: 0; }
@@ -161,7 +161,8 @@ html, body { margin: 0; background: #1A120D; }
   ];
   // her words, rough then tidied: each token is kept (1), dropped (0), or becomes something else
   const RAW = [['um', 0], ['so', 0], ['I', 1], ['really', 0], ['love', 1], ['the,', 0], ['like,', 0], ['the', 1], ['customer', 1], ['journey', 'journey:'], ['you', 0], ['know,', 0],
-    ['figuring', 1], ['out', 1], ['what’s', 1], ['actually', 'really'], ['bugging', 1], ['people', 'people,'], ['and', 0], ['then', 'then'], ['uh', 0], ['building', 1], ['the', 1], ['thing', 1], ['that', 1], ['fixes', 1], ['it', 'it.']];
+    ['figuring', 1], ['out', 1], ['what’s', 1], ['actually', 1], ['bugging', 1], ['people', 'people,'], ['and', 1], ['then', 0], ['uh', 0], ['building', 1], ['the', 1], ['thing', 1], ['that', 1], ['fixes', 1], ['it', 'it.']];
+  // only clean: no new claims, no new content, no softening. Her words stay hers; only fillers and repeats go.
 
   (async () => {
     await document.fonts.ready;
@@ -254,16 +255,17 @@ html, body { margin: 0; background: #1A120D; }
     const room = $('#room'), L = $('#leafL'), R = $('#leafR');
     if (!instant) {
       // her tag lifts to the centre while the leaves begin to part
-      await animate(tag, { left: '640px', top: '420px', scale: 1.25 }, spring(.9)).finished;
+      await animate(tag, { left: (800 - tag.offsetWidth / 2) + 'px', top: '430px', scale: 1.25 }, spring(1)).finished;
+      await wait(500);
       L.querySelector('.edge').style.opacity = 1; R.querySelector('.edge').style.opacity = 1;
-      animate(room, { scale: [1.08, 1], filter: ['brightness(.85)', 'brightness(1)'] }, { duration: 2.6, ease: [.22, 1, .36, 1] });
-      animate(L, { x: [0, -860] }, { type: 'spring', visualDuration: 2.2, bounce: 0 });
-      await animate(R, { x: [0, 860] }, { type: 'spring', visualDuration: 2.2, bounce: 0 }).finished;
+      animate(room, { scale: [1.07, 1], filter: ['brightness(.82)', 'brightness(1)'] }, { duration: 3.6, ease: [.33, 0, .2, 1] });
+      animate(L, { x: [0, -870] }, { duration: 3.0, ease: [.7, 0, .2, 1] });
+      await animate(R, { x: [0, 870] }, { duration: 3.0, ease: [.7, 0, .2, 1] }).finished;
     } else { L.style.display = R.style.display = 'none'; }
     if (N < 11) return;
     // she sits: the tag settles onto her stool and the warm light comes up
     await wait(300);
-    A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.1, bounce: 0 });
+    A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.4, bounce: 0 });
     await wait(700);
     A('#warm', { opacity: [0, 1] }, { duration: 1.6, ease: 'easeInOut' });
     await wait(500);
