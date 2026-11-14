@@ -1,0 +1,13 @@
+/* Design's frames laid out over her sheet. Frames are grey; only the DESIGN tag carries Design blue. */
+.sk-host { --ink: #141414; --paper: #F2EEE6; --blue: #0078BF; color: var(--ink); font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+.sk-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.sk-tag { padding: 2px 7px; border: 2px solid var(--ink); border-radius: 3px; background: var(--blue); color: #fff;
+  font: 700 12px/1.2 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: .06em; }
+.sk-title { font: 700 18px/1.2 'IBM Plex Sans', system-ui, sans-serif; }
+.sk-note { font: 500 12px 'IBM Plex Mono', ui-monospace, monospace; border: 2px solid var(--ink); padding: 1px 6px; border-radius: 3px; }
+.sk-row { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; }
+.sk-frame { position: relative; width: 230px; flex: none; cursor: crosshair; }
+.sk-cap { margin-bottom: 8px; font: 600 13px/1.2 'IBM Plex Mono', ui-monospace, monospace; color: #6E695F; }
+.sk-screen { box-sizing: border-box; min-height: 360px; padding: 12px; background: #FAF8F4;
+  border: 2px solid #8F897E; border-radius: 6px; box-shadow: 4px 4px 0 #B9B3A8; overflow: hidden; }
+.sk-pinned { z-index: 4; }

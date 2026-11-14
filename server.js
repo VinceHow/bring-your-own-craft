@@ -1,6 +1,6 @@
 // One Node server: the room UI (public/), built pages, API routes, SSE events.
 // Each builder adds routes in routes/<piece>.js exporting `default [{method, path, handler(req,res,ctx)}]`.
-// `path` may end in '*' for a prefix match. ctx = { body (parsed JSON or null), url }.
+// `path` may end in '*' for a prefix match; or give `match(url) -> bool` for patterns like /api/run/:id/x. ctx = { body (parsed JSON or null), url }.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,8 +43,8 @@ const server = http.createServer(async (req, res) => {
       const off = onEvent(ev => res.write(`data: ${JSON.stringify(ev)}\n\n`));
       return req.on('close', off);
     }
-    const r = routes.find(r => r.method === req.method &&
-      (r.path.endsWith('*') ? url.pathname.startsWith(r.path.slice(0, -1)) : r.path === url.pathname));
+    const r = routes.find(r => r.method === req.method && (r.match ? r.match(url) :
+      r.path.endsWith('*') ? url.pathname.startsWith(r.path.slice(0, -1)) : r.path === url.pathname));
     if (r) return await r.handler(req, res, { body: req.method === 'GET' ? null : await readBody(req), url });
     // Static: public/ for the room; runs/<id>/page/ for built pages.
     const p = decodeURIComponent(url.pathname);
