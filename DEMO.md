@@ -203,7 +203,22 @@ paper, hand-inked wobbly outline, a crayon layer in the teammate's colour undern
 head opens their work; her seat is a warm light on the pink stool plus her own pill, which opens her workspace. **Night
 mode** (moon/sun pill or the laptop's dark mode): a dark, rainy, lamp-lit room; soft rain plays under the music only
 when the record player is on. **"Your own craft"** lives in her seat's pick card ("What do you bring to the table?" ·
-Product · Your own craft), not as a separate seat.
+any craft · Your own craft), not as a separate seat.
+
+**Any seat is hers (Vincent, 14 Nov evening; logic in `design/studio/SEATS.md`).** The pick card offers every craft
+(Product first and prefilled on the stage path; Design, Research, Engineering, Data, Strategy) plus Your own craft.
+The five teammates are people, not titles: they keep their names, faces and personalities and wear the role the table
+needs. **Core crafts are always at the table** (Product, Design, Research, Engineering); the flex seat fits the idea
+(Data or Strategy by default; e.g. Operations for a bakery). **The rule:** the teammate whose craft she takes moves to
+Product; if she takes a flex seat or her own craft, Ines moves to Product. Fixed teammates are introduced first while
+one fast call writes the flex teammate's card; it's introduced last. **No fallback role** (Vincent, 14 Nov): if the
+card isn't ready when the intro reaches it, the room is honest, with humour: a small inked note on the empty chair
+(*"Theo's running a little late: we're finding you someone who knows morning bake lists."*). The flow never waits,
+with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
+fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
+stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and the
+hidden ceiling of 3 stands. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
+**Cut line:** if it isn't ready, the pick card stays Product · Your own craft.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
 turns it into her character card with the team's own fun spin (Vincent, 14 Nov: "don't take it too literally, make

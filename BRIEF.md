@@ -100,6 +100,12 @@ real run.
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
 13. Optional, last: one soft chord at the symphony.
+14. **Any seat is hers (Vincent, 14 Nov evening; off the stage path):** the pick card offers every craft; a seat-to-role
+   table (`design/studio/SEATS.md`) reassigns teammates (whose craft she takes → Product; flex seat or own craft → Ines
+   to Product); one fast call writes the flex role from her sentence and idea during the intro; no default role: if
+   it's late, an inked note on the empty chair ("running a little late…"), and the teammate pops in when ready, even
+   mid-flow; on failure the note reads "Still on the way" and the run continues without them. Teammate prompts take the role per run, and her domains route the questions. Cut line: Product · Your own
+   craft only.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
