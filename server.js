@@ -10,6 +10,19 @@ import { sendJson } from './lib/http.js';
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
+
+// Behind an HTTPS proxy (cloud sessions), Node's fetch ignores HTTPS_PROXY unless NODE_USE_ENV_PROXY=1 is set at
+// start-up, so outbound calls (ElevenLabs, fal) fail. When run directly with a proxy and without the flag, re-run this
+// server as a child with the flag, forwarding signals and the exit code. On a laptop with no proxy, nothing changes.
+if (process.argv[1] && path.resolve(process.argv[1]) === path.join(ROOT, 'server.js')
+    && (process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_USE_ENV_PROXY) {
+  const { spawn } = await import('node:child_process');
+  const child = spawn(process.execPath, ['--no-warnings', ...process.execArgv, ...process.argv.slice(1)],
+    { stdio: 'inherit', env: { ...process.env, NODE_USE_ENV_PROXY: '1' } });
+  for (const sig of ['SIGTERM', 'SIGINT', 'SIGHUP']) process.on(sig, () => child.kill(sig));
+  child.on('exit', (code, sig) => process.exit(code ?? (sig ? 1 : 0)));
+  await new Promise(() => {}); // the child is the server now
+}
 const routes = [];
 for (const f of fs.readdirSync(path.join(ROOT, 'routes')).filter(f => f.endsWith('.js')).sort()) {
   const mod = await import(path.join(ROOT, 'routes', f));

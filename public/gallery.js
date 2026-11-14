@@ -140,10 +140,10 @@
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },
       { state: 'answered', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); } },
       { state: 'chiming', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); await wait(1200); } },
-      { state: 'takeaways', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); h.emit('brief', BRIEF); h.emit('answer.mapped', { askId: 'gallery-ask' }); await wait(2600); } },
+      { state: 'takeaways', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); h.emit('takeaways', BRIEF); h.emit('answer.mapped', { askId: 'gallery-ask' }); await wait(2600); } },
     ] },
     { name: 'takeaways', sel: '.fd-brief', states: [
-      { state: 'shown', src: S, run: async h => { await focusOpen(h); said(h, HER); h.emit('brief', BRIEF); await wait(300); } },
+      { state: 'shown', src: S, run: async h => { await focusOpen(h); said(h, HER); h.emit('takeaways', BRIEF); await wait(300); } },
     ] },
     { name: 'chime', sel: '.chime', states: [
       { state: 'in', src: S, run: async h => { await focusOpen(h); h.emit('chime', CHIMES[1]); await wait(300); } },

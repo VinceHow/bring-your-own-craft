@@ -30,7 +30,11 @@ function writeWav(file, secs = 3, rate = 16000) {
 
 before(async () => {
   writeWav(WAV);
-  srv = spawn('node', ['server.js'], { cwd: ROOT, env: { ...process.env, PORT: String(PORT), RUNS_DIR: RUNS } });
+  // This server has no route to ElevenLabs (proxy variables dropped), so it stands for "no key" whatever this
+  // environment has; the voice tests below stub the browser's calls.
+  const env = { ...process.env, PORT: String(PORT), RUNS_DIR: RUNS };
+  for (const k of ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy', 'NODE_USE_ENV_PROXY']) delete env[k];
+  srv = spawn('node', ['server.js'], { cwd: ROOT, env });
   srv.stdout.on('data', d => (logs += d)); srv.stderr.on('data', d => (logs += d));
   for (let i = 0; i < 50 && !logs.includes('room on'); i++) await new Promise(r => setTimeout(r, 100));
   browser = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-audio-capture=${WAV}`] });
@@ -76,7 +80,7 @@ test('no key: the mic hides, "typed" shows quietly, and typing still works', asy
   await page.close();
 });
 
-test('the real server with no key says voice is unavailable', async () => {
+test('a server with no key (no route to ElevenLabs) says voice is unavailable', async () => {
   const r = await fetch(BASE + '/api/voice/status');
   assert.strictEqual((await r.json()).available, false);
 });

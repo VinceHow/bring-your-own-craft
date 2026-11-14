@@ -1,9 +1,9 @@
 // Her focus (DEMO focus rules, 14 Nov): she opens a note from her tray and the view becomes just her and one document.
 // The work is shown large (her journey, a finding, Design's wireframes or the page), with one big question under it.
 // She says or types her piece; her words land on the document. On send: POST /api/run/:id/answer { askId, text }.
-// The team chimes in (chime events, one after another about a second apart), then her brief appears (brief event:
-// what I believe / why / guidance to the team), each part rewordable; keeping it (Enter, the button, or closing)
-// POSTs /api/run/:id/brief, which writes "what I believe" into her file. Then the team gets to work and the work updates.
+// The team chimes in (chime events, one after another about a second apart), then the meeting's takeaways appear
+// (takeaways event: what I believe / guidance to the team), each part rewordable; keeping them (Enter, the button, or
+// closing) POSTs /api/run/:id/takeaways (her hidden file and profile grow). Then the team gets to work.
 // Closing it brings the room back. Class names are polish's (polish.css owns the look); room.css only lays it out.
 // Provides BYOC.focusDoc.{ open(ask), close(), isOpen(), openId() }.
 (function () {
@@ -114,7 +114,7 @@
     if (!ask) return;
     if (cur && cur.id === ask.id && !doc.hidden) return;
     if (cur) close(true);
-    cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); clearTimeout(replayClose);
+    cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose);
     const seat = ask.seat, name = ask.by || AGENT(seat);
     $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : SEAT_NAME(seat);
     const proposers = (ask.artifact && Array.isArray(ask.artifact.by) && ask.artifact.by.length) ? ask.artifact.by : null;
@@ -138,7 +138,7 @@
     if (!cur) { doc.hidden = true; document.body.classList.remove('focus-open'); return; }
     const was = cur;
     if (!quiet && !kept && briefShown() && !B.replay) keepBrief();
-    cur = null; clearTimeout(chimeTimer); clearTimeout(replayClose); chimeQ = []; briefPending = null;
+    cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null;
     doc.hidden = true;
     document.body.classList.remove('focus-open');
     B.syncFocus && B.syncFocus();
@@ -202,6 +202,7 @@
     for (const k of ['believe', 'why', 'guidance']) {
       const p = box.querySelector(`.brief-text[data-k="${k}"]`);
       p.textContent = ev[k] || '';
+      p.closest('.brief-part').hidden = !ev[k];
       p.contentEditable = B.replay ? 'false' : 'true';
       p.spellcheck = false;
     }
@@ -220,9 +221,9 @@
     if (!cur || kept || B.replay) return;
     kept = true;
     const body = { askId: cur.id };
-    doc.querySelectorAll('.brief-text').forEach(p => { body[p.dataset.k] = p.textContent.trim(); p.contentEditable = 'false'; });
+    doc.querySelectorAll('.brief-text').forEach(p => { if (!p.closest('.brief-part').hidden) body[p.dataset.k] = p.textContent.trim(); p.contentEditable = 'false'; });
     $('.fd-keep').hidden = true;
-    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/brief`, body, { step: false }); }
+    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/takeaways`, body, { step: false }); }
     catch (e) { kept = false; $('.fd-keep').hidden = false; doc.querySelectorAll('.brief-text').forEach(p => { p.contentEditable = 'true'; }); $('.fd-team').textContent = `Not kept (${e.status || e.message}).`; }
   }
 
@@ -241,6 +242,7 @@
     landSaid(ev.text);
   });
 
+  B.on('build.step', () => { if (B.replay && cur) close(true); });
   $('.fd-close').addEventListener('click', () => close());
   B.on('reset', () => close(true));
   B.focusDoc = { open, close, isOpen: () => !doc.hidden, openId: () => (cur && !doc.hidden ? cur.id : null), keepBrief, send };
