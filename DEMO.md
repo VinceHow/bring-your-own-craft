@@ -33,7 +33,7 @@ on screen.
 | **0:35–0:45** The first sketch | Within about 10 s, **Design drafts the rough shape**, drawing in as it arrives: **who the users are** (small cards: e.g. first-timers, regulars, the studio owner) and **the stages they go through** (boxes and arrows: find a class → pick one → confirm → booked). **No screens.** | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero. The team hands her a shape to react to." | live |
 | **0:45–1:05** Her reaction | *(Optional, only if time.)* As the sketch lands, a **guest chair** is pulled up: a dashed-border GUEST card for the main user the sketch named, *"A regular at a small yoga studio, a stand-in, not a real one"*, with one reaction in its own voice: *"I book the same Tuesday class every week. Don't make me find it again."* Then she reacts like she would with a real team, out loud or by editing: *"It's really for the regulars. Most bookings are the same class every week."* The shape **redraws from what she said**: regulars first, a "Book your usual" shortcut. She can also rename, strike or add a box directly. Teammates whose craft her change touches **lean in** (only when they really pick it up). | Normal conversation. The idea sharpens fast. | "She narrows the customer and the problem. That's her craft." | live |
 | **1:05–1:15** The team's focus time | Everyone goes heads-down at their own seat. Each sketchpad shows the decisions that teammate settles itself, with a reason: *"Strategy: class pass shown first. Regulars buy passes."* Caption: **"23 handled by your team · 3 for you"** (real numbers). | **They handle it.** Busy, competent, and none of it lands on her. | "The team is working. Nothing pings her." | live |
-| **1:15–1:50** Her focus time | **The room goes quiet around her**: the other seats dim and stop moving; no badges, counters or timers. One check-in at a time, each **from a named teammate, saying why it's hers**: *Research: "Small studios fill their popular classes. You know your regulars. Waitlist?"* It sits on her shape (a fork on a stage, a note on a user type), with the team's recommendation and reason. She answers properly, briefly, out loud or by picking. **At least once she overrules the team** (YOUR CALL, recommendation struck through). The next check-in arrives only after she answers. **The run decides the questions.** | **They check in because she's the expert.** Deep focus, no one waiting on her. | "When she's in the zone, nobody is waiting on her. One question at a time, each one hers." | live |
+| **1:15–1:50** Her focus time | **The room goes quiet around her**: the other seats dim and stop moving; her tray of waiting notes stays still; no counters or timers. One check-in at a time, each **from a named teammate, saying why it's hers**: *Research: "Small studios fill their popular classes. You know your regulars. Waitlist?"* It sits on her shape (a fork on a stage, a note on a user type), with the team's recommendation and reason. She answers properly, briefly, out loud or by picking. **At least once she overrules the team** (YOUR CALL, recommendation struck through). She picks the next note from her tray when she's ready. **The run decides the questions.** | **They check in because she's the expert.** Deep focus, no one waiting on her. | "When she's in the zone, nobody is waiting on her. One question at a time, each one hers." | live |
 | **1:50–2:08** Over Design's shoulder | She opens Design's workspace: grey wireframes of the key screens, built on her shape. She leaves a note on confirm: *"Cut the phone field. Name's enough; regulars hate forms."* On her card: **"Sounds like: never ask for what you could remember."** She rewords it: *"…anything you could remember or skip."* It writes into her file and **fills her empty Stance**. | Recognition: "that *is* what I think." | "She didn't write a principle. She cut a field, and the team named why, in her words." | live |
 | **2:08–2:26** The symphony | Her one press. Every seat plays at once: each sketchpad slides its part into the idea sheet in the middle, and **her page** appears there. | Everyone's work becoming one thing. | "Everyone brings their part." | **live**, built from her actual answers |
 | **2:26–2:38** Her page | Her booking page, full size, the thing the team built together: regulars first, no phone field, her words, her overruled call. **No credits, no list of who did what.** One small margin note on the cancel step, the only annotation: *"One tap, no reason asked: follows your line, '…anything you could remember or skip'"*, **citing the line she wrote a minute ago**. | **It's all of ours, and it's hers.** | "A step she never designed follows the rule she just wrote." | live |
@@ -51,12 +51,16 @@ the claim.
 | Engineering (yellow) | "Boring, correct, shipped." | the page template and the live build | boring and correct |
 
 **Focus time rules** (the core of the feel; build these exactly):
-- **When she's in her focus time, there are zero distractions.** While a check-in is open: the other seats dim and
-  stop animating, the caption doesn't move, nothing counts up, and no badge, dot or number shows how many
-  questions are queued. No timers anywhere.
-- **Nobody waits on her visibly.** Teammates never show a "waiting for you" state. Questions queue invisibly; the next
-  arrives only after she answers, after a short breath (~1 s). Work that depends on her answer simply shows as done
-  after it.
+- **Nothing ever breaks her focus.** No exception for "urgent". While a check-in is open: the other seats dim and
+  stop animating, the caption doesn't move, nothing counts up. No timers anywhere.
+- **The tray.** Questions that clear the bar wait as a small stack of notes at the edge of her seat, each in the ink
+  of the teammate who left it. Calm: no number, no red, no pulsing, no "waiting for you" state. New notes slide in
+  only at natural pauses (right after she answers, after the shape redraws), never while she's typing or speaking,
+  about 1 s after the pause. The team suggests the order (top note); **she picks which to open**.
+- **No ceremony; keep what matters.** Nothing in the room shows logs, approvals or status, and the run's log stays
+  invisible (it only powers the real numbers). But the work that matters is kept, and **the teammates decide what's
+  worth keeping themselves**: her user journey and Design's key screens stay on the table as real artifacts she can
+  come back to; she's never asked to file, approve or tidy anything.
 - **Each check-in comes from a named teammate in its own voice**, one or two lines: what it found, why this is her
   call, the recommendation and its reason, and the branches. It's built to draw out her thinking; her answer can be
   short.
@@ -110,14 +114,16 @@ in, labelled REPLAY, and the presenter says what was replayed.
   glyph, the craft's ink): no faces, no names, no chit-chat; their personality is the "loves" line and the one or two
   lines in their check-ins.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
-  the desk), and at least one "decided for you" line on her page visibly comes from it. It reaches her three only if
+  the desk), and at least one choice visible on her page comes from it (e.g. class pass shown first). It reaches her three only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
-- **Three questions, chosen, never scripted.** (Vincent wants to rethink the hard cap of 3 into something more
-  tasteful; until that's agreed, the current cap and its test stay.)
+- **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
+  decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
+  answer **would change what gets built and needs her expertise**. No fixed number is promised: on stage, say the
+  real count ("her team asked 3"). **A hard ceiling of 3 stays in code with its test**, as a safety net nobody sees.
   - **Candidates:** every teammate proposes decisions as it works.
   - **Ranking:** one model call ranks them by three things. Is it in her seat? How much does it change what she's
     building? How little does her file already say?
-  - **The cap:** code lets at most 3 reach her. One outside her seat qualifies only if it's costly or hard to undo.
+  - **The ceiling:** code never lets more than 3 reach her. One outside her seat qualifies only if it's costly or hard to undo.
   - **Everything else:** decided and logged, citing a line of her file or "team default".
   - If rehearsal picks a weak question, we fix the ranking, not the script.
 - **Her file grows from her decisions.** It starts with two lines, labelled "prepared for the demo". When she makes a
@@ -172,4 +178,4 @@ in, labelled REPLAY, and the presenter says what was replayed.
 13. the close;
 14. rehearsal and the backup video.
 
-**Open with Vincent:** the tasteful version of the question cap. Everything else here follows his answers of 14 Nov.
+**Nothing open with Vincent.** This version follows his answers of 14 Nov.
