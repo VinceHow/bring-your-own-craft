@@ -10,8 +10,8 @@ Where this is silent, decide from the promise and the demo, carry on, and tell m
 what a tech lead already ran against the real tools; re-measure here, don't re-research.
 
 ## 1. The idea
-Prompt-to-app tools guess everything; coding agents ask about everything. Here you take one of five seats (**Product,
-Design, Data, Research, Engineering**), do your craft, and the team brings you only the decisions worth your time,
+Prompt-to-app tools guess everything; coding agents ask about everything. Here you take one of six seats (**Product,
+Design, Data, Research, Strategy, Engineering**), do your craft, and the team brings you only the decisions worth your time,
 inside your work. One polished journey: **Priya, a product lead, in the Product seat**, building a booking page for a
 small yoga studio. **Pitch line:** *"Bring your own craft."*
 
@@ -29,13 +29,15 @@ The presenter's lines are in the PO's demo doc (Vincent has it). Keyboard-driven
 
 | Time | On screen | Live? |
 |---|---|---|
-| **0:00–0:22** The room | An empty table from above, five seats. Her card slides into **Product**; four teammates slide in and sit, silent, each with a stance on its place card: *sketch first, polish last* · *only what we'll measure* · *what's known, with sources* · *boring and correct*. | live |
-| **0:22–0:30** First move | A blank sheet in front of her: **"What are we building today?"** She writes: "A booking page for a small yoga studio." | live |
-| **0:30–0:55** Her journey | She writes one line a step; each becomes a box with arrows: classes → a class → confirm → booked; regulars → "Book your usual". | live |
-| **0:55–1:10** Team works | Sheets fill at each seat; a counter rolls: **"23 decisions came up · 3 brought to you"** (real numbers). | live |
-| **1:10–1:45** Her three | **In her work**: a fork on her flow, a pin on a box, each with a recommendation and reason (in rehearsal: a waitlist, backed by Research's sourced finding; how a regular is recognised; what confirm asks for). **The run picks them.** At least once she overrules the team: the other branch is marked **YOUR CALL**, the recommendation struck through, and the page follows her. | live |
-| **1:45–2:05** Her taste, named | Design's grey sketches slide over. She pins a call on confirm, not a principle: *"Cut the phone field. Name's enough; regulars hate forms."* Her file card: **"Sounds like: never ask for what you could remember."** She rewords it (*"…anything you could remember or skip"*); it writes into her file. | live |
-| **2:05–2:30** Build | One press; Engineering's sheet ticks through the build. She taps the counter: why her three made the cut; for each of the rest, the line of her file that decided it. | **live**, from her answers |
+| **0:00–0:06** Her seat | An empty table from above, six seats. She **clicks Product**; her card drops in. | live |
+| **0:06–0:26** Assembling the team | Five teammates, one by one: each card lands big mid-table showing what it **loves**, what it **brings** (true) and its **stance**, holds ~2 s, then shrinks into its seat. Silent, no names. Card copy in `DEMO.md`. | live |
+| **0:26–0:34** Her card | Her card lifts mid-table, same layout as the team's. **Loves:** she finishes *"I love…"* (spoken via ElevenLabs if `SPONSOR_VOICE=1`, else typed); it becomes L1 of her file. **Brings:** pre-filled, true. **Stance:** empty, *"We'll find out today."*, filled later by her reworded "Sounds like" line. | live |
+| **0:34–0:40** First move | A blank sheet in front of her, the meeting's one agenda item: **"What are we building today?"** She says or writes: "A booking page for a small yoga studio." | live |
+| **0:40–0:56** Her journey | She writes one line a step; each becomes a box with arrows: classes → a class → confirm → booked; regulars → "Book your usual". | live |
+| **0:56–1:04** Team works | Sheets fill at each seat; a counter rolls: **"23 decisions came up · 3 brought to you"** (real numbers). | live |
+| **1:02–1:35** Her three | **In her work**: a fork on her flow, a pin on a box, each with a recommendation and reason (in rehearsal: a waitlist, backed by Research's sourced finding; how a regular is recognised; what confirm asks for). **The run picks them.** At least once she overrules the team: the other branch is marked **YOUR CALL**, the recommendation struck through, and the page follows her. | live |
+| **1:35–1:55** Her taste, named | Design's grey sketches slide over. She pins a call on confirm, not a principle: *"Cut the phone field. Name's enough; regulars hate forms."* Her file card: **"Sounds like: never ask for what you could remember."** She rewords it (*"…anything you could remember or skip"*); it writes into her file. | live |
+| **1:55–2:20** Build | One press; Engineering's sheet ticks through the build. She taps the counter: why her three made the cut; for each of the rest, the line of her file that decided it. | **live**, from her answers |
 | **2:20–2:32** Her page | Regulars first, no phone field, her words, her overruled call. Under it, "decided for you": cancel is one tap, no reason asked, **citing the line she wrote a minute ago**. | live |
 | **2:32–3:00** Close (28 s) | **A judge's idea, live:** a judge gives an idea, I type it, the team starts (selector only, ~15 s). **While it runs**, the contrast from the real baseline: **"A default coding agent asked 0 questions and guessed 22 things about your studio"** (`docs/baseline/GUESSES.md`) beside her **3 asked, M decided from her file**. Then the judge's three questions land, with counter and reasons. Last line, true: this project was built the same way (`BUILT-THIS-WAY.md`). | live / real counts |
 
@@ -52,7 +54,7 @@ glance at, never to approve.
 - **Paper and ink:** background `#F2EEE6`; ink `#141414` for text, 2px borders, **hard offset shadows** (`4px 4px 0
   #141414`, no blur); corners ≤ 6px.
 - **One riso ink per seat**, on its card, glyph, sheet and log tags: Product pink `#FF48B0`, Design blue `#0078BF`,
-  Engineering yellow `#FFE800` (ink text on it), Data green `#00A95C`, Research orange `#FF6C2F`. **Red `#E5322D` means
+  Engineering yellow `#FFE800` (ink text on it), Data green `#00A95C`, Research orange `#FF6C2F`, Strategy gold `#BB8B41`. **Red `#E5322D` means
   stamping**: only the default agent's pile and the meter's stamping segment.
 - **Teammates are flat printed cards** (role, glyph, ink), no faces or chat, each reading *"Own mode for this seat: coming."*
 - **Type, bundled locally:** **Archivo Black** display (seat names, the counter, the meter at 120px+), **IBM Plex Sans**
@@ -73,7 +75,7 @@ which returns validated JSON. `MODEL_BACKEND` picks the backend:
   json` with our own system prompt, no tools and no project files loaded (use the CLI's flags for a custom system prompt,
   no tools and skipping CLAUDE.md, or `--bare`; check `claude --help`). It uses the machine's own Claude Code login, so no
   key is needed. Checked in the lead's cloud session: one call came back in about 2 s of API time, but the default setup
-  loaded ~40k tokens of context (about $0.12 a call), which is why the flags matter. Time five calls in parallel.
+  loaded ~40k tokens of context (about $0.12 a call), which is why the flags matter. Time six calls in parallel.
 - **`fal` (swap in later, the sponsor route):** below. Switching is one env var; nothing else changes.
 
 **The fal backend: models through fal on the user's own key (BYO fal key).** Each call: a Claude model via fal's OpenRouter
@@ -88,7 +90,7 @@ code validates against a schema, retrying once.
 
 **The pipeline, all logged to `runs/<id>/events.jsonl`:**
 1. **Flow:** each line she types becomes a node, arrows by order ("→" branches). No model.
-2. **Propose:** five parallel calls (Product with write-spec's SKILL.md; the others with their stance) return
+2. **Propose:** six parallel calls (Product with write-spec's SKILL.md; the others with their stance; Strategy covers price, payment and who pays) return
    `{seat, decision, options, recommendation, reason, cost, undoable, attachTo}`. Research cites only its finding.
 3. **Select:** one call scores each (in her seat? changes the build? her file silent on it?). **Code** lets **at most
    3** through, out-of-seat only if costly or not undoable. The rest are decided, citing a line id of her file or "team

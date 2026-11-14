@@ -43,3 +43,5 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 13:50 | Vincent | Merged .claude/settings.json: all Figma tools and read-only fal tools allowed without prompts; fal generation (run_model, submit_job) still prompts | builders shouldn't stall overnight |
 | Sat 13:55 | agents (lead) | One e2e failure after the polish merge diagnosed as the test server being killed mid-run (run stopped 1 s after teammate.start, no error logged); 2 reruns on the same commit green 9/10; builders told to kill only their own PIDs | diagnosis before patch |
 | Sat 13:57 | Vincent | Question rationing to be redesigned with the PO; existing cap code stays for now, nothing new depends on exactly 3 | "a more tasteful way rather than hard fixing that in code" |
+| Sat 14:00 | Vincent + PO, lead OK'd | Sixth seat Strategy (gold #BB8B41), she clicks her seat, 'assembling the team' walk-in; CONTRACT.md seats updated | worth ~1 h; we're ahead |
+| Sat 14:05 | agents (lead) | Her card's 'I love…' line: optional `intro` on POST /api/run becomes L1 (her words), one prepared seed line stays as L2 | smallest seam; keeps her new line at L3 |
