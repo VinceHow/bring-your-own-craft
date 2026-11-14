@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Painted room · pills</title>
+<!-- Stills for Vincent's direction (round and soft; a name pill per teammate; a tasteful seat for her).
+     Views: ?v=room&seat=a|b|c&st=work|setup · ?v=pills · ?v=mate · ?v=ws (&seat=… for the room behind) · ?notes=1 for the caption.
+     The pill and her-seat are proposed components (data-component="name-pill" / "her-seat"); the room has no markup for them yet. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --sheet: #FBF5EA; --sheet-2: #F4EADA; --ink: #33261C; --ink-2: #5E4A3A; --ink-3: #7D6855; --rule: rgba(84,58,38,.16);
+  --mika: #3E5C8E; --noor: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
+  --mika-t: #34507F; --noor-t: #9E4A2E; --theo-t: #4A6B47; --ines-t: #82591C; --bo-t: #7A5C0E; --her-t: #A84862; --her-soft: #F6DCE2;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .30 0 0 0 0 .18 0 0 0 .075 0'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .40 0 0 0 0 .22 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
+  --shadow: 1px 2px 2px rgba(110,70,32,.16), 5px 10px 20px -8px rgba(110,70,32,.34);
+  --shadow-lift: 2px 4px 3px rgba(110,70,32,.14), 10px 22px 40px -14px rgba(90,52,22,.45);
+  /* organic radii, sampled from the cushions, mugs and the creatures themselves: never quite symmetrical */
+  --pebble: 28px 22px 30px 20px / 22px 30px 20px 28px;
+  --pebble-sm: 18px 15px 20px 14px / 15px 20px 14px 18px;
+  --leaf: 999px 999px 999px 8px;
+  --land: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.room { position: absolute; inset: 0; background: url(../cast/living/painting-afternoon.jpg) center top / 1612px 900px no-repeat, #6E4B33; }
+.paper { background-color: var(--sheet); background-image: var(--tooth); background-size: 260px 260px; box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.5); }
+.hide { display: none !important; }
+.notes { display: none; position: absolute; left: 20px; bottom: 20px; z-index: 50; max-width: 460px; padding: 12px 16px; border-radius: var(--pebble-sm);
+  background: var(--sheet); font: 400 14px/1.45 var(--sans); box-shadow: var(--shadow); }
+body.show-notes .notes { display: block; }
+
+/* ================= name-pill: one per teammate, floating beside the head ================= */
+.pill { position: absolute; z-index: 5; display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px 10px 12px; cursor: pointer;
+  border: 0; border-radius: var(--leaf); font: 500 19px/1 var(--serif); color: var(--ink); white-space: nowrap;
+  transition: transform 260ms var(--land), box-shadow 260ms var(--land), background-color 260ms var(--land); }
+.pill .dot { width: 12px; height: 12px; flex: none; border-radius: 48% 52% 45% 55% / 55% 45% 55% 45%; background: var(--c); box-shadow: inset -1px -1px 0 rgba(0,0,0,.12); }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 3px 7px 4px; border-radius: 999px; background: rgba(84,58,38,.07); }
+/* the tail points toward the character: the one less-rounded corner */
+.pill.tail-br { border-radius: 999px 999px 8px 999px; } .pill.tail-bl { border-radius: 999px 999px 999px 8px; }
+.pill.tail-tl { border-radius: 8px 999px 999px 999px; } .pill.tail-tr { border-radius: 999px 8px 999px 999px; }
+/* states */
+.pill:hover, .pill.is-hover { transform: translateY(-2px); box-shadow: var(--shadow-lift), inset 0 0 0 1px rgba(255,255,255,.5); }
+.pill:focus-visible, .pill.is-focus { outline: 2px solid var(--c); outline-offset: 3px; }
+.pill.is-open { background-color: color-mix(in srgb, var(--c) 16%, var(--sheet)); box-shadow: var(--shadow), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent); }
+.pill.is-working .dot { animation: breathe 3.6s ease-in-out infinite; }
+.pill .now { font: italic 400 14px/1 var(--serif); color: var(--ink-2); }
+@keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 40%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--c) 0%, transparent); } }
+[data-mate="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-mate="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-mate="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-mate="ines"] { --c: var(--ines); --t: var(--ines-t); }
+[data-mate="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-mate="her"] { --c: var(--her); --t: var(--her-t); }
+/* placed beside each head in the afternoon painting (1612×900, centred) */
+.room-pills .p-mika { left: 330px; top: 352px; } .room-pills .p-noor { left: 538px; top: 268px; }
+.room-pills .p-theo { left: 868px; top: 330px; } .room-pills .p-ines { left: 1092px; top: 282px; } .room-pills .p-bo { left: 1250px; top: 400px; }
+
+/* ================= her-seat: three quiet versions ================= */
+/* A: a soft warm light on the pink stool, and a small pill in the same family, gently breathing */
+.glow { position: absolute; left: 560px; top: 640px; width: 280px; height: 200px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,238,212,.62), rgba(255,226,190,.26) 58%, rgba(255,200,150,0)); mix-blend-mode: normal; opacity: .9; }
+.glow::after { content: ''; position: absolute; inset: 18% 22%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,240,215,.45), rgba(255,240,215,0)); mix-blend-mode: screen; }
+.glow.breathing { animation: glow 5.5s ease-in-out infinite; }
+@keyframes glow { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+.her-pill { left: 622px; top: 676px; z-index: 6; font-size: 18px; padding: 9px 16px 10px 12px; }
+.her-pill .title { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.her-pill.setup { background-color: #FCEFF1; color: var(--her-t); }
+.her-pill.setup .dot { animation: breathe 3.6s ease-in-out infinite; }
+/* waiting notes, never a count: tiny paper slips tucked under her pill, one per note */
+.tuck { position: absolute; width: 34px; height: 24px; border-radius: 9px 7px 10px 6px; background: var(--sheet); box-shadow: var(--shadow); border-top: 4px solid var(--c); }
+.tuck.t1 { left: 778px; top: 690px; rotate: 12deg; } .tuck.t2 { left: 794px; top: 700px; rotate: 24deg; }
+/* B: an embroidered name tag sewn onto the cushion's edge, no light */
+.tag { position: absolute; left: 640px; top: 728px; z-index: 6; padding: 8px 14px 9px; border-radius: 16px 16px 20px 20px / 14px 14px 22px 22px;
+  background: #FCEFF1; color: var(--her-t); font: 500 17px/1.1 var(--serif); rotate: -3deg;
+  box-shadow: 1px 2px 2px rgba(110,70,32,.2), inset 0 0 0 2px #FCEFF1, inset 0 0 0 3px rgba(210,122,141,.55); }
+.tag small { display: block; font: italic 400 14px/1.2 var(--serif); color: var(--ink-2); margin-top: 2px; }
+.tag.setup { font-size: 16px; }
+.tag-thread { position: absolute; left: 700px; top: 714px; width: 2px; height: 18px; background: rgba(168,72,98,.6); border-radius: 2px; rotate: -3deg; z-index: 5; }
+/* C: only the light, until she looks; then the pill rises out of it. Here: the light plus a tiny leaf of her ink on the stool */
+.leafmark { position: absolute; left: 676px; top: 698px; z-index: 6; width: 40px; height: 34px; display: grid; place-items: center; border-radius: 52% 48% 46% 54% / 56% 50% 50% 44%;
+  background: #FCEFF1; color: var(--her-t); font: 500 18px/1 var(--serif); box-shadow: 1px 2px 3px rgba(110,70,32,.3), inset 0 0 0 1.5px rgba(210,122,141,.5); }
+.leaf-pill { left: 726px; top: 700px; z-index: 6; }
+
+/* ================= a teammate's work, opened from the pill ================= */
+.pad { position: absolute; z-index: 8; width: 420px; padding: 22px 24px 20px; border-radius: var(--pebble); }
+.pad .head { display: flex; align-items: center; gap: 10px; }
+.pad .head .who { font: 500 24px/1 var(--serif); color: var(--t); }
+.pad .head .agent { margin-left: 2px; }
+.pad .head .x { margin-left: auto; font: 500 14px/1 var(--sans); color: var(--ink-2); padding: 7px 12px; border-radius: 999px; background: var(--sheet-2); }
+.pad .craft { font: italic 400 17px/1.3 var(--serif); color: var(--ink-2); margin: 6px 0 14px; }
+.pad h4 { margin: 14px 0 8px; font: 500 14px/1 var(--sans); color: var(--ink-3); }
+.pad .on { font: 400 19px/1.35 var(--serif); padding: 12px 14px; border-radius: var(--pebble-sm); background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--rule); }
+.pad ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pad li { display: flex; align-items: baseline; gap: 10px; font: 400 16px/1.35 var(--sans); }
+.pad li::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); transform: translateY(-1px); }
+.pad li .lv { margin-left: auto; font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 4px 9px; border-radius: 999px; background: rgba(84,58,38,.07); white-space: nowrap; }
+.pad li .lv.her { color: var(--her-t); background: var(--her-soft); }
+.pad .tail { position: absolute; width: 22px; height: 22px; background: var(--sheet); rotate: 45deg; border-radius: 4px; box-shadow: 3px 3px 4px -2px rgba(110,70,32,.2); }
+
+/* ================= her workspace: rounded, the room still there around it ================= */
+.ws { position: absolute; left: 64px; top: 64px; right: 64px; bottom: 44px; z-index: 20; display: grid; grid-template-columns: 300px 1fr 310px; gap: 18px;
+  padding: 18px; border-radius: 34px 28px 36px 26px / 28px 36px 26px 34px; }
+.ws .col { display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: var(--pebble); background: rgba(244,234,218,.75); min-height: 0; }
+.ws .mid { background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--rule); padding: 26px 30px; }
+.ws h4 { margin: 0; font: 500 14px/1 var(--sans); color: var(--ink-3); }
+.ws .me { padding: 16px 18px; border-radius: var(--pebble-sm); background: #FCEFF1; box-shadow: var(--shadow); }
+.ws .me .nm { font: 500 24px/1.1 var(--serif); color: var(--her-t); }
+.ws .me .ti { font: italic 400 17px/1.25 var(--serif); color: var(--ink); margin-top: 2px; }
+.ws .traits { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.ws .traits span { font: 500 13px/1 var(--sans); padding: 6px 10px; border-radius: 999px; background: #FFFDF8; color: var(--her-t); }
+.ws .slip { position: relative; padding: 12px 14px 13px 22px; border-radius: var(--pebble-sm); background: var(--sheet); box-shadow: var(--shadow); font: 400 17px/1.35 var(--serif); cursor: pointer; }
+.ws .slip::before { content: ''; position: absolute; left: 9px; top: 13px; bottom: 13px; width: 4px; border-radius: 3px; background: var(--c); }
+.ws .slip .by { display: block; font: 500 13px/1 var(--sans); color: var(--t); margin-bottom: 5px; }
+.ws .slip:nth-of-type(odd) { rotate: -.6deg; } .ws .slip:nth-of-type(even) { rotate: .5deg; }
+.ws .kicker { font: 500 14px/1 var(--sans); color: var(--ink-3); }
+.ws h2 { margin: 8px 0 4px; font: 400 32px/1.15 var(--serif); letter-spacing: -.012em; max-width: 26ch; }
+.ws .by2 { font: italic 400 16px/1.3 var(--serif); color: var(--ink-2); }
+.tabs { display: inline-flex; gap: 4px; margin: 18px 0 18px; padding: 4px; border-radius: 999px; background: var(--sheet-2); }
+.tabs span { padding: 8px 16px; border-radius: 999px; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { background: #FFFDF8; color: var(--ink); box-shadow: var(--shadow); }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 10px 12px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; }
+.jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.jr .st { padding: 11px 14px; border-radius: 16px 13px 17px 12px / 13px 17px 12px 16px; background: var(--sheet); box-shadow: 1px 2px 2px rgba(110,70,32,.10), inset 0 0 0 1px var(--rule); font: 400 15px/1.25 var(--sans); }
+.jr .st.hers { background: #FCEFF1; box-shadow: inset 0 0 0 1.5px rgba(210,122,141,.6); }
+.foot { margin-top: 22px; display: flex; gap: 14px; align-items: center; }
+.btn { padding: 13px 22px; border-radius: 999px; background: var(--ink); color: #FFFAF3; font: 500 15px/1 var(--sans); box-shadow: var(--shadow); white-space: nowrap; }
+.foot .why { font: 400 14px/1.3 var(--sans); color: var(--ink-2); }
+.dec { padding: 12px 14px; border-radius: var(--pebble-sm); background: var(--sheet); box-shadow: var(--shadow); font: 400 16px/1.35 var(--serif); }
+.dec .marks { display: flex; gap: 4px; margin-top: 8px; }
+.dec .marks i { font: normal 500 13px/1 var(--sans); padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--c) 18%, var(--sheet)); color: var(--t); }
+.take { padding: 14px 16px; border-radius: var(--pebble-sm); background: #FCEFF1; box-shadow: var(--shadow); font: italic 400 18px/1.35 var(--serif); }
+.back { position: absolute; right: 30px; top: -2px; transform: translateY(-50%); padding: 9px 16px; border-radius: 999px; background: var(--sheet); box-shadow: var(--shadow); font: 500 14px/1 var(--sans); }
+.replay { position: absolute; right: 18px; bottom: 14px; z-index: 30; padding: 9px 14px; border-radius: 14px 12px 15px 11px; background: var(--ink); color: #FFFAF3; font: 500 16px/1 var(--serif); box-shadow: var(--shadow); }
+.replay small { display: block; margin-top: 4px; font: 400 13px/1 var(--sans); opacity: .9; }
+
+/* ================= the pill states sheet ================= */
+.board { position: absolute; inset: 0; z-index: 10; padding: 46px 56px; background: rgba(247,238,222,.92); }
+.board h3 { margin: 0 0 4px; font: 500 26px/1.1 var(--serif); }
+.board p.sub { margin: 0 0 26px; font: 400 15px/1.4 var(--sans); color: var(--ink-2); max-width: 70ch; }
+.row { display: grid; grid-template-columns: 150px repeat(4, 1fr); align-items: center; gap: 18px 24px; margin-bottom: 18px; }
+.row .lab { font: 500 14px/1.2 var(--sans); color: var(--ink-3); }
+.row .pill { position: relative; left: auto; top: auto; justify-self: start; }
+.heads { font: 500 13px/1 var(--sans); color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="canvas" id="c">
+  <div class="room"></div>
+
+  <!-- the five teammates' pills, beside their heads -->
+  <div class="room-pills" id="pills">
+    <button class="pill paper p-mika tail-br is-working" data-mate="mika" data-component="name-pill" data-state="working"><i class="dot"></i>Mika<span class="agent">agent</span></button>
+    <button class="pill paper p-noor tail-br is-working" data-mate="noor" data-component="name-pill" data-state="working"><i class="dot"></i>Noor<span class="agent">agent</span></button>
+    <button class="pill paper p-theo tail-bl" data-mate="theo" data-component="name-pill" data-state="idle"><i class="dot"></i>Theo<span class="agent">agent</span></button>
+    <button class="pill paper p-ines tail-bl is-working" data-mate="ines" data-component="name-pill" data-state="working"><i class="dot"></i>Ines<span class="agent">agent</span></button>
+    <button class="pill paper p-bo tail-bl" data-mate="bo" data-component="name-pill" data-state="idle"><i class="dot"></i>Bo<span class="agent">agent</span></button>
+  </div>
+
+  <!-- her seat, A -->
+  <div data-seat-v="a">
+    <div class="glow breathing"></div>
+    <i class="tuck t1" data-st="work" style="--c:var(--noor)"></i><i class="tuck t2" data-st="work" style="--c:var(--mika)"></i>
+    <button class="pill paper her-pill tail-bl" data-st="work" data-mate="her" data-component="her-seat" data-state="seated"><i class="dot"></i>Priya<span class="title">the Customer Whisperer</span></button>
+    <button class="pill paper her-pill setup tail-bl" data-st="setup" data-mate="her" data-component="her-seat" data-state="empty"><i class="dot"></i>Take your seat</button>
+  </div>
+  <!-- her seat, B -->
+  <div data-seat-v="b">
+    <i class="tag-thread"></i>
+    <div class="tag" data-st="work" data-component="her-seat" data-state="seated">Priya<small>the Customer Whisperer</small></div>
+    <div class="tag setup" data-st="setup" data-component="her-seat" data-state="empty">Take your seat</div>
+  </div>
+  <!-- her seat, C -->
+  <div data-seat-v="c">
+    <div class="glow"></div>
+    <i class="leafmark">P</i>
+    <button class="pill paper leaf-pill tail-tl is-hover" data-st="work" data-mate="her" data-component="her-seat" data-state="seated"><i class="dot"></i>Priya<span class="now">the Customer Whisperer</span></button>
+    <button class="pill paper leaf-pill setup tail-tl" data-st="setup" data-mate="her" data-component="her-seat" data-state="empty" style="background-color:#FCEFF1;color:var(--her-t)"><i class="dot"></i>Take your seat</button>
+  </div>
+
+  <!-- a teammate's work, opened from the pill (Mika) -->
+  <section class="pad paper hide" id="pad" data-mate="mika" style="left:40px; top:60px">
+    <div class="head"><i class="dot" style="width:14px;height:14px;border-radius:50%;background:var(--c)"></i><span class="who">Mika</span><span class="agent pill-agent" style="font:500 13px/1 var(--sans);color:var(--ink-3);padding:3px 8px 4px;border-radius:999px;background:rgba(84,58,38,.07)">agent</span><span class="x">Close</span></div>
+    <div class="craft">Design · sketch first, polish last</div>
+    <h4>On it now</h4>
+    <div class="on">Should the class list be cards or rows?</div>
+    <h4>Calls so far</h4>
+    <ul>
+      <li>Teacher photo on each class<span class="lv">decided</span></li>
+      <li>Accent colour from the studio sign<span class="lv">decided</span></li>
+      <li>Where “Book your usual” sits<span class="lv her">for you</span></li>
+      <li>Class list as cards or rows<span class="lv">proposing</span></li>
+    </ul>
+    <i class="tail" style="left:400px; bottom:-10px"></i>
+  </section>
+
+  <!-- her workspace -->
+  <div class="ws paper hide" id="ws">
+    <div class="col">
+      <h4>You</h4>
+      <div class="me"><div class="nm">Priya</div><div class="ti">the Customer Whisperer</div>
+        <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
+      <h4 style="margin-top:6px">Waiting for you, when you’re ready</h4>
+      <div class="slip" data-mate="noor"><span class="by">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" data-mate="mika"><span class="by">Mika</span>If ordering could feel like one thing, what should it feel like?</div>
+    </div>
+    <div class="col mid">
+      <span class="kicker">Your idea</span>
+      <h2>A website for a small bakery, so customers can order bread ahead.</h2>
+      <div class="by2">Rough journey by Noor and Mika</div>
+      <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
+      <div class="jr">
+        <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+        <span class="who">Morning regulars</span><span class="st hers">Their usual loaf</span><span class="st hers">One tap</span><span class="st">Held till ten</span>
+        <span class="who">Weekend pastry crowd</span><span class="st">Browse pastries</span><span class="st">Order by Friday</span><span class="st">Collect Saturday</span>
+        <span class="who">The bakers</span><span class="st">Tomorrow’s list</span><span class="st">Bake to the list</span><span class="st">Mark collected</span>
+      </div>
+      <div class="foot"><span class="btn">Build it</span><span class="why">When you’re happy, the team builds the page.</span></div>
+    </div>
+    <div class="col">
+      <h4>Decided by the team</h4>
+      <div class="dec">Orders close at 8pm for the next morning.<div class="marks"><i data-mate="bo">Bo</i><i data-mate="ines">Ines</i><i data-mate="mika">Mika</i></div></div>
+      <div class="dec">Regulars cancel in one tap, up to the cut-off.<div class="marks"><i data-mate="ines">Ines</i><i data-mate="bo">Bo</i></div></div>
+      <div class="dec">Sold out shows as sold out, never hidden.<div class="marks"><i data-mate="noor">Noor</i><i data-mate="mika">Mika</i></div></div>
+      <h4 style="margin-top:6px">Your takeaways</h4>
+      <div class="take">People come for bread that’s still warm, and for being known.</div>
+    </div>
+    <span class="back">← Back to the room</span>
+  </div>
+
+  <!-- pill states -->
+  <div class="board hide" id="board">
+    <h3>Name pills</h3>
+    <p class="sub">One per teammate, beside its head in the painting. Click opens that teammate’s work. Hers is the same family, on the pink stool. No counts, no red, nothing flashes: “working” is a slow breath on the dot.</p>
+    <div class="row heads"><span></span><span>rest</span><span>hover</span><span>focus (keyboard)</span><span>open</span></div>
+    <div class="row"><span class="lab">Mika · Design</span>
+      <button class="pill paper tail-br" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-hover" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-focus" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-open" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button></div>
+    <div class="row"><span class="lab">Noor · Research</span>
+      <button class="pill paper tail-br" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-hover" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-focus" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-open" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button></div>
+    <div class="row"><span class="lab">Theo · Data</span>
+      <button class="pill paper tail-bl" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-hover" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-focus" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-open" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button></div>
+    <div class="row"><span class="lab">Ines · Strategy</span>
+      <button class="pill paper tail-bl" data-mate="ines"><i class="dot"></i>Ines<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-hover" data-mate="ines"><i class="dot"></i>Ines<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-focus" data-mate="ines"><i class="dot"></i>Ines<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-open" data-mate="ines"><i class="dot"></i>Ines<span class="agent">agent</span></button></div>
+    <div class="row"><span class="lab">Bo · Engineering</span>
+      <button class="pill paper tail-bl" data-mate="bo"><i class="dot"></i>Bo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-hover" data-mate="bo"><i class="dot"></i>Bo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-focus" data-mate="bo"><i class="dot"></i>Bo<span class="agent">agent</span></button>
+      <button class="pill paper tail-bl is-open" data-mate="bo"><i class="dot"></i>Bo<span class="agent">agent</span></button></div>
+    <div class="row heads" style="margin-top:28px"><span></span><span>before she sits</span><span>seated</span><span>hover</span><span>her workspace open</span></div>
+    <div class="row"><span class="lab">Her seat</span>
+      <button class="pill paper tail-bl" data-mate="her" style="background-color:#FCEFF1;color:var(--her-t)"><i class="dot"></i>Take your seat</button>
+      <button class="pill paper tail-bl" data-mate="her"><i class="dot"></i>Priya<span class="now">the Customer Whisperer</span></button>
+      <button class="pill paper tail-bl is-hover" data-mate="her"><i class="dot"></i>Priya<span class="now">the Customer Whisperer</span></button>
+      <button class="pill paper tail-bl is-open" data-mate="her"><i class="dot"></i>Priya<span class="now">the Customer Whisperer</span></button></div>
+  </div>
+
+  <div class="replay">Prepared<small>comp for review · sample text, not a run</small></div>
+  <div class="notes">Stills for review. The name pill and her seat are proposed components; the room has no markup for them yet.</div>
+</div>
+<script>
+const q = new URLSearchParams(location.search);
+const v = q.get('v') || 'room', seat = q.get('seat') || 'a', st = q.get('st') || 'work';
+if (q.get('notes') === '1') document.body.classList.add('show-notes');
+document.querySelectorAll('[data-seat-v]').forEach(el => { if (el.dataset.seatV !== seat) el.classList.add('hide'); });
+document.querySelectorAll('[data-st]').forEach(el => { if (el.dataset.st !== st) el.classList.add('hide'); });
+if (v === 'pills') { document.getElementById('board').classList.remove('hide'); document.getElementById('pills').classList.add('hide'); document.querySelectorAll('[data-seat-v]').forEach(el => el.classList.add('hide')); }
+if (v === 'mate') { document.getElementById('pad').classList.remove('hide'); document.querySelector('.p-mika').classList.add('is-open'); }
+if (v === 'ws') document.getElementById('ws').classList.remove('hide');
+</script>
+</body>
+</html>
