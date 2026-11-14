@@ -541,8 +541,8 @@
   }
   function teamFailed(why) {
     clearTimeout(teamSlowTimer);
+    // The line says it (with Retry); the teammates' cards keep whatever their own events last said.
     teamStatus('failed', `The team couldn’t start${why ? ` (${why})` : ''}. Retry, or press R for the rehearsal.`, true);
-    for (const x of SEATS) if (x !== 'product') sheetStep(x, '', 'error');
   }
   async function teamGo() {
     if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); teamFailed('no run yet'); return; }
