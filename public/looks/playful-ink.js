@@ -1,17 +1,18 @@
 /* Playful ink: the room's small toys in the ink-paper look.
    PlayfulInk.mount(container, { day, night, music, time, still }) draws a layer over a painted room that fills `container`.
    Everything is placed in fractions of the painting, so it scales with it.
-   - Record player: hover shows the track in an inked pill; a click starts it, then cycles Piano, Electronic, Chiptune,
-     Night rain, off. Never autoplays. At night, while a record plays, rain sits softly under the music. Rain is
+   - Record player: a click starts it, then cycles Piano, Electronic, Chiptune, Night rain, off; an inked pill shows the
+     track for a few seconds after each click, then fades. Never autoplays. At night, while a record plays, rain sits softly under the music. Rain is
      cast/music/rain.mp3 when present, else made in code. Ducks while a focus document is open: api.duck(true), or a
      `studio:focus` event with detail { open: true }.
    - Owns every playful object in the painted look; the living layer owns the backdrop and moods. They share the time of
      day through a `studio:time` event { time } (either side may fire it), or api.setNight(on).
    - Cat: two ink-drawn hearts rise when you pet it.
-   - Coffee machine: inked steam curls, a little more when you come near.
+   - Coffee machine: a click sends up inked steam; on its own, only a tiny curl now and then.
    - String lights: a click toggles a soft glow (on by default at night).
    - Day / night: a small inked sun or moon pill, top left, crossfades to the rainy night.
-   - The cue: coming near anything you can touch draws a warm rim and an ink underline. Nothing blinks or nags. */
+   - These are Easter eggs: nothing shows on approach (only the pointer cursor), and nothing appears unprompted except a
+     tiny, rare curl of coffee steam. Everything else answers a click. */
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
   const TRACKS = [{ id: 'piano', name: 'Piano' }, { id: 'electronic', name: 'Electronic' }, { id: 'chiptune', name: 'Chiptune' }, { id: 'rain', name: 'Night rain' }];
@@ -78,12 +79,11 @@
     // string-light glows (under everything else)
     BULBS.forEach(([x, y], i) => { const b = el('div', 'pi-bulb', L); b.style.left = pct(x); b.style.top = pct(y); b.style.setProperty('--b', (.7 + (i % 3) * .1).toFixed(2)); });
 
-    // hotspots with the near-cue
+    // hotspots: invisible; the pointer cursor is the only hint
     const spot = (key, label) => {
       const s = el('button', 'pi-spot', L); const r = SPOTS[key];
       Object.assign(s.style, { left: pct(r.x), top: pct(r.y), width: pct(r.w), height: pct(r.h), background: 'none', border: 0, padding: 0 });
       s.setAttribute('aria-label', label); s.dataset.spot = key;
-      const u = svgEl(100, 10, '<path d="M2 5 C 22 2, 44 8, 64 4 S 92 3, 98 6" pathLength="1"/>', 'pi-under'); u.setAttribute('preserveAspectRatio', 'none'); s.appendChild(u);
       return s;
     };
     const sRecord = spot('record', 'Record player: play music'), sCat = spot('cat', 'Pet the cat'), sCoffee = spot('coffee', 'Coffee machine'), sLights = spot('lights', 'String lights');
@@ -136,10 +136,11 @@
       noteFloat();
     }
     const cycle = () => play(state.track + 1 >= TRACKS.length ? -1 : state.track + 1);
-    const showTrack = on => { track.classList.toggle('is-hidden', !on && state.track < 0); if (on) inkPill(track); };
-    [sRecord, track].forEach(n => { n.addEventListener('mouseenter', () => showTrack(true)); n.addEventListener('focus', () => showTrack(true)); n.addEventListener('click', cycle); });
-    sRecord.addEventListener('mouseleave', () => setTimeout(() => { if (!track.matches(':hover')) showTrack(false); }, 250));
-    track.addEventListener('mouseleave', () => showTrack(false));
+    // the pill shows only after a click, says what is playing, and fades a few seconds later
+    let hideT = 0;
+    const flashTrack = (ms = 3200) => { track.classList.remove('is-hidden'); inkPill(track); clearTimeout(hideT); if (!o.still) hideT = setTimeout(() => track.classList.add('is-hidden'), ms); };
+    sRecord.addEventListener('click', () => { cycle(); flashTrack(); });
+    track.addEventListener('click', () => { cycle(); flashTrack(); });
     function noteFloat() {   // one small inked note rises from the record when a track starts
       const s = svgEl(20, 26, '<path d="M7 20 V5 L17 3 V17"/><path d="M7 20 a3 2.4 -20 1 1 -1 -1 M17 17 a3 2.4 -20 1 1 -1 -1"/>', 'pi-draw');
       Object.assign(s.style, { left: pct(.925), top: pct(.52), width: '22px', height: '28px' }); L.appendChild(s);
@@ -164,20 +165,18 @@
 
     // ---------- coffee: inked steam curls ----------
     const curls = ['M10 60 C 2 48, 18 40, 10 28 S 4 10, 12 2', 'M10 60 C 18 50, 4 40, 12 28 S 18 12, 10 2'];
-    function steamOnce(x, strong, y = .452) {
+    function steamOnce(x, strong, y = .452, tiny = false) {
       const s = svgEl(22, 64, `<path pathLength="1" d="${curls[Math.random() < .5 ? 0 : 1]}"/>`, 'pi-draw pi-steam');
-      Object.assign(s.style, { left: pct(x), top: pct(y), width: '24px', height: '66px' }); L.appendChild(s);
+      Object.assign(s.style, { left: pct(x), top: pct(y), width: tiny ? '14px' : '24px', height: tiny ? '38px' : '66px' }); L.appendChild(s);
       const p = s.querySelector('path'); p.style.strokeDasharray = 1;
       if (o.still) { p.style.strokeDashoffset = 0; s.style.opacity = .9; return; }
       p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1400, fill: 'forwards', easing: 'ease-out' });
-      s.animate([{ transform: 'translateY(8px)', opacity: 0 }, { opacity: strong ? 1 : .75, offset: .3 }, { transform: 'translateY(-26px)', opacity: 0 }], { duration: o.still ? 1e9 : 3200, easing: 'ease-out' }).onfinish = () => s.remove();
+      s.animate([{ transform: 'translateY(8px)', opacity: 0 }, { opacity: strong ? 1 : .45, offset: .3 }, { transform: 'translateY(-26px)', opacity: 0 }], { duration: o.still ? 1e9 : 3200, easing: 'ease-out' }).onfinish = () => s.remove();
     }
-    let near = false;
-    sCoffee.addEventListener('mouseenter', () => near = true); sCoffee.addEventListener('mouseleave', () => near = false);
     sCoffee.addEventListener('click', () => { steamOnce(.064, true); setTimeout(() => steamOnce(.072, true), 300); });
-    // the cup under the spout, and now and then the mug on the counter
-    if (!o.still) (function loop() { if (Math.random() < .3) steamOnce(.02, near, .478); else steamOnce(.063 + Math.random() * .01, near); setTimeout(loop, near ? 900 : 2000 + Math.random() * 900); })();
-    else { steamOnce(.064, true); steamOnce(.072, true, .445); }
+    // on its own: only a tiny, faint curl from the cup, every 9 to 15 s
+    if (!o.still) (function loop() { setTimeout(() => { steamOnce(.066, false, .47, true); loop(); }, 9000 + Math.random() * 6000); })();
+    else steamOnce(.064, true);
 
     // ---------- string lights ----------
     const setLights = on => { state.lights = on; L.classList.toggle('lights', on); };
@@ -206,7 +205,7 @@
       el: L, state,
       duck(on) { state.duck = on; setVolume(); },
       setNight, setLights, play, hearts,
-      cue(key, on = true) { L.querySelector(`[data-spot="${key}"]`)?.classList.toggle('is-cue', on); if (key === 'record') showTrack(on); },
+      showTrack: flashTrack,
       destroy() { stopAll(); if (ambient) ambient.end(); L.remove(); },
     };
     setNight(o.time === 'night', true);

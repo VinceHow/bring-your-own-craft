@@ -22,16 +22,20 @@ html, body { margin: 0; background: #2B1F17; }
 const q = new URLSearchParams(location.search);
 const pi = PlayfulInk.mount(document.getElementById('room'), {
   night: '../cast/living/painting-night.jpg', music: '../cast/music', time: q.get('time') || 'day', still: q.get('still') === '1' });
-if (q.get('still') === '1') { pi.cue('cat'); pi.cue('record'); pi.hearts(); }
+// still: what she sees right after a few clicks (the pill reads as after a click on the record player)
+if (q.get('still') === '1') { pi.hearts(); document.querySelector('.pi-track .nm').textContent = 'Piano';
+  document.querySelector('.pi-track .pi-sub').textContent = 'next: Electronic'; pi.showTrack(); }
+// demo: clicks only, the way she would find them
 if (q.get('demo') === '1') {
   const wait = ms => new Promise(r => setTimeout(r, ms));
+  const click = sel => document.querySelector(sel).click();
   (async () => {
-    await wait(900);  pi.cue('coffee'); await wait(1800); pi.cue('coffee', false);
-    pi.cue('cat'); await wait(700); pi.hearts(); await wait(1900); pi.cue('cat', false);
-    pi.cue('record'); await wait(1100); document.querySelector('.pi-track').click(); await wait(1600); pi.cue('record', false);
-    pi.cue('lights'); await wait(600); pi.setLights(true); await wait(1400); pi.cue('lights', false);
-    await wait(400); document.querySelector('.pi-sky').click(); await wait(2600);
-    pi.cue('cat'); pi.hearts(); await wait(2200); pi.cue('cat', false);
+    await wait(1200); click('[data-spot="coffee"]');
+    await wait(2200); click('[data-spot="cat"]');
+    await wait(2400); click('[data-spot="record"]');
+    await wait(4200); click('[data-spot="lights"]');
+    await wait(1800); click('.pi-sky');
+    await wait(2600); click('[data-spot="cat"]');
   })();
 }
 </script>
