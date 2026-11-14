@@ -62,9 +62,10 @@ real run.
 5. **No gem (Vincent):** the gem is a metaphor only. No gem, bars or progress object; the idea is a sheet in the
    middle that the symphony's parts slide into.
 6. **Names:** copy only; names on cards, check-ins as "Noor (Research): …", a small "agent" mark, never pronouns.
-7. **"Your own craft" seat (DIY, in scope):** a seventh dashed seat; her card with blank craft/loves/brings; her craft
-   text is passed to every teammate and to the selector's "in her seat" test; prompts must work for any craft.
-   Cut line: visible label only.
+7. **"Your own craft" seat (DIY, in scope; Vincent rates it easy):** a seventh dashed seat. She says a few words; one
+   fast call turns them into a fun name tag in her words (craft, good at, loves), each word editable. The tag text goes
+   to every teammate and the selector's "in her seat" test. The page build is limited to the two templates. Cut line:
+   visible label only.
 8. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.

@@ -82,13 +82,15 @@ sketch, one guest joins, drawn from the main user type the sketch named (chosen 
 - in the vision, this chair is where a real customer gets invited.
 
 **The "Your own craft" seat (DIY, in scope; Vincent, 14 Nov).** Bring your own craft means any craft. A seventh,
-dashed seat lets someone make their own: clicking it opens her card with every slot blank: **craft** (*"Baker"*),
-**loves** (*"I love… the first batch out at 6am"*), **brings**. The team is told her craft in her own words; the
-selector's "in her seat" test uses it, so only questions in her craft reach her (a baker is asked about the bake, the
-menu, the morning rush, never wireframes). Every teammate's instructions must work for a craft they've never seen.
-The polished stage path stays Priya in Product; the DIY seat is shown live only if rehearsal says it's solid, and the
-café fallback run is re-recorded with a baker in the DIY seat if time allows. **Cut line:** the seat stays visible as
-a label ("Your own craft: coming") if it isn't solid by 00:00.
+dashed seat lets someone make their own. **Her name tag, made with her:** she says a few words about what she does and
+loves, in her own way (*"I'm good at mixing dough, and I love the first batch out at 6am"*), and the team turns them
+into a fun name tag in her words: **craft** (*Baker*), **good at** (*mixing dough*), **loves** (*the first batch out
+at 6am*). She can change any word. One fast call, no form. Her tag is then passed to every teammate and to the
+selector's "in her seat" test, so only questions in her craft reach her (a baker is asked about the bake, the menu,
+the morning rush, never wireframes). The polished stage path stays Priya in Product; if rehearsal says it's solid,
+the café fallback is re-recorded as a baker in the DIY seat. **Known limit:** the build at the end has two prepared
+page templates (yoga booking, café pre-order), so a DIY idea that isn't page-shaped like those gets the sketch and
+questions but no built page. **Cut line:** a visible label, "Your own craft: coming".
 
 **Seats she isn't in** read: *"Seat open: invite a teammate. Your agents hold it until they arrive."* A label, not a
 button. Real multiplayer is the vision we say out loud, not something we build.
