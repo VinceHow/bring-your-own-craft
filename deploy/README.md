@@ -4,7 +4,7 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
 
 - `app/` is the bakery app, its images and its static page. It has no keys and nothing from the room.
 - `railway.json` at the repo root is the Railway config. It lives on `build/first-sketch` only and is never merged to `main`.
-- No Railway variables are needed. `PORT` comes from Railway; `DB_PATH` defaults to `/data/bakery.db` when a volume is mounted at `/data`, else `app/data/bakery.db`; `DEMO` defaults to 1.
+- No Railway variables are needed. `PORT` comes from Railway; `DB_PATH` defaults to `bakery.db` on the Railway volume wherever it is mounted (`RAILWAY_VOLUME_MOUNT_PATH`, else `/data` if present), else `app/data/bakery.db`; `DEMO` defaults to 1.
 - Railway clicks: add a volume at `/data`, then Generate Domain.
 
 ## Start command

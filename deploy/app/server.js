@@ -3,12 +3,12 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { PORT, DEMO, DB_PATH } from './config.js';
+import { PORT, DEMO, DB_PATH, VOLUME_DIR } from './config.js';
 
-// volume: true only if the database lives under /data AND we can write there.
+// volume: true only if the database lives on the volume AND we can write there.
 function volumeOk() {
-  if (!DB_PATH.startsWith('/data/')) return false;
-  try { const f = path.join('/data', '.health'); fs.writeFileSync(f, String(Date.now())); fs.unlinkSync(f); return true; } catch { return false; }
+  if (!VOLUME_DIR || !DB_PATH.startsWith(VOLUME_DIR + '/')) return false;
+  try { const f = path.join(VOLUME_DIR, '.health'); fs.writeFileSync(f, String(Date.now())); fs.unlinkSync(f); return true; } catch { return false; }
 }
 
 const server = http.createServer((req, res) => {
