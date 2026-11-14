@@ -37,8 +37,13 @@ specs, Ines's map for discovery. The mood clips are craft-neutral (working, thin
 ## The trick that makes it feel real
 During "The team walks in", the **fixed** teammates are introduced first (about 2 s each). While they appear, one fast call
 writes the flex teammate's role and card from her craft sentence and idea. That teammate is introduced **last**
-("…and for this one, Theo looks after the morning bake list"), so the wait is hidden in the intro. If the call is slow or
-fails, the flex seat falls back to the default (Data or Strategy), and nobody sees a gap.
+("…and for this one, Theo looks after the morning bake list"), so the wait is hidden in the intro.
+
+**If the call isn't back yet, no fallback: be honest, with a smile** (Vincent). The empty chair gets a small inked note, e.g.
+"Theo's running a little late: we're finding you someone who knows morning bake lists." The flow never waits: she carries on
+(her character card, her idea), and Theo pops into the chair with the new card the moment it's ready, even mid-flow. No
+spinner, no timer, nothing that nags. If the call fails outright, the note stays light ("Still on the way") and the run goes
+on with four teammates plus her; nothing pretends.
 
 ## Rules that hold
 - **"Brings" stays true.** A generated role may only promise what that teammate's prompt and tools really do. Change the line,
