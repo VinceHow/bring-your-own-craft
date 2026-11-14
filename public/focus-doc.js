@@ -152,13 +152,45 @@
   const briefShown = () => !$('.fd-brief').hidden;
 
   // ---- her piece: words land on the document ----------------------------------------------------
+  let rawSaid = '', tidySaid = '';
   function landSaid(text) {
     const said = $('.fd-said');
     said.innerHTML = '';
+    rawSaid = text; tidySaid = '';
     const q = h('blockquote', 'fd-words', text); q.dataset.slot = 'words';
     said.appendChild(q); said.dataset.state = 'landed'; doc.dataset.state = 'answered';
     if (M) M.animate(q, { y: [10, 0] }, SPRING);
   }
+  // Her raw words land first; the tidy (answer.tidy, lib/tidy.js) swaps in when it's ready. She can look at what
+  // she said, or keep her own words. Hooks only (data-component / data-slot / data-state); the look is design's.
+  function landTidy(text) {
+    const said = $('.fd-said'), q = said.querySelector('[data-slot="words"]');
+    if (!q || !text) return;
+    tidySaid = text;
+    q.textContent = text; said.dataset.state = 'tidied';
+    const bar = h('div', 'fd-tidy'); bar.dataset.component = 'tidy'; bar.dataset.state = 'tidy';
+    const see = h('button', 'fd-tidy-see', 'See what you said'); see.type = 'button'; see.dataset.slot = 'see-said';
+    const mine = h('button', 'fd-tidy-mine', 'Use mine'); mine.type = 'button'; mine.dataset.slot = 'use-mine';
+    see.addEventListener('click', () => {
+      const showing = bar.dataset.state === 'raw-shown';
+      q.textContent = showing ? tidySaid : rawSaid;
+      bar.dataset.state = showing ? 'tidy' : 'raw-shown';
+      see.textContent = showing ? 'See what you said' : 'See the tidy';
+    });
+    mine.addEventListener('click', async () => {
+      const toMine = bar.dataset.state !== 'mine';
+      q.textContent = toMine ? rawSaid : tidySaid;
+      bar.dataset.state = toMine ? 'mine' : 'tidy';
+      said.dataset.state = toMine ? 'mine' : 'tidied';
+      mine.textContent = toMine ? 'Use the tidy' : 'Use mine';
+      see.hidden = toMine;
+      if (cur) B.api(`/api/run/${encodeURIComponent(B.run)}/tidy`, { askId: cur.id, use: toMine ? 'mine' : 'tidy' }, { step: false }).catch(() => {});
+    });
+    bar.append(see, mine);
+    said.appendChild(bar);
+    if (M) M.animate(q, { opacity: [0.4, 1] }, SPRING);
+  }
+  B.on('answer.tidy', ev => { if (forCur(ev) && rawSaid) landTidy(ev.text); });
   $('.fd-input').addEventListener('input', e => {
     // As she speaks or types, the words show on the document.
     const t = e.target.value.trim();
