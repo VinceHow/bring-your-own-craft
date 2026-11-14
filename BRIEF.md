@@ -55,8 +55,7 @@ real run.
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
    if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
-2. **Words:** "What's the idea?"; check-ins in the teammate's voice; open seats read "Seat open: invite a
-   teammate. Your agents hold it until they arrive." (label, not a button); the "decided for you" list and any credits are cut: one margin note on the page where a
+2. **Words:** "What's the idea?"; check-ins in the teammate's voice; no "Seat open" label on the seats (Vincent, 14 Nov); the "decided for you" list and any credits are cut: one margin note on the page where a
    decision cites her line.
 3. **First sketch + reshape:** Design returns user types and stage lines (reuse `parseFlow` for the stages) from her
    sentence, streamed, fast model; her spoken/typed reaction → one call that returns the redrawn shape; direct box

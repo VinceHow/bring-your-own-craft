@@ -13,6 +13,8 @@ Product owner's list. Nothing here goes to the builders until Vincent says the b
 ## Later ideas (not tonight)
 - "Talk this through": she debates a material team decision (labelled "coming" on team-space cards).
 - Real multiplayer: a real engineer, a real customer in the guest chair.
+- **If time at the very end:** a clearly labelled smoke-and-mirrors "Invite a teammate" button that explains it is the
+  future vision (Vincent, 14 Nov). The "Seat open" label itself is dropped from the room.
 - Guest chair on by default (built, behind `GUEST_CHAIR=1`).
 - One soft chord at the symphony.
 - fal: Claude through fal's router at runtime (the key is still refused from cloud sessions); a fal hero image.
