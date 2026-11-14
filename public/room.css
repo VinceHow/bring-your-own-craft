@@ -422,6 +422,8 @@ body.focus-open #room > :not(.focus-doc):not(.replay-label) { visibility: hidden
 .fd-keep { align-self: flex-start; font: 500 14px var(--ui); padding: 5px 12px; background: var(--sheet); border: var(--line); border-radius: 3px; cursor: pointer; }
 .fd-team { font: 500 15px var(--mono); }
 .fd-team:empty { display: none; }
+.fd-retry { align-self: flex-start; font: 600 14px var(--ui); padding: 6px 14px; background: var(--sheet); border: var(--line); border-radius: 3px; cursor: pointer; }
+.fd-retry[hidden] { display: none; }
 .fd-empty { font: 500 18px var(--mono); }
 
 /* Room chatter: a line under its speaker's card for a few seconds. Layout only: polish.css owns the look. */

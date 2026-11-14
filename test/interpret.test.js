@@ -284,3 +284,50 @@ test('routed by relevance: a design-only comment gets Mika alone; a money commen
   assert.deepEqual(one.map(t => t.seat), ['design']);
   assert.deepEqual(said, ['Mika'], 'no other teammate is even called');
 });
+
+// ---- never a dead page (Vincent's Mac, 14 Nov): who's reading is logged at once; failures are logged; Retry is safe ----
+test('her answer logs who is reading before any model call; a failing teammate call is logged as chime.error', async () => {
+  const run = newRun();
+  let firstCallAt = null; const order = [];
+  const failing = async a => {
+    firstCallAt ??= readEvents(run).filter(e => e.type === 'thread.start').length;
+    if (task(a.system) === 'thread') { order.push('thread'); throw new Error('claude exited 1: boom'); }
+    return fake()(a);
+  };
+  const r = await interpret({ run, askId: 'a1', text: 'show their usual class on the page, and let regulars pay with a pass', callModel: failing, gapMs: 0 });
+  await r.body.profile;
+  const evs = readEvents(run);
+  const start = evs.find(e => e.type === 'thread.start');
+  assert.deepEqual(start.by, ['Mika', 'Ines']); assert.equal(start.askId, 'a1');
+  assert.equal(firstCallAt, 1, 'thread.start is in the log before the first model call');
+  const errs = evs.filter(e => e.type === 'chime.error');
+  assert.ok(errs.length >= 1 && errs.every(e => e.askId === 'a1' && /boom/.test(e.error)), 'each silent teammate says why');
+});
+
+test('Retry after a 502 re-reads the same answer (never logs a second one); 202 while it is still being heard; 409 once heard', async () => {
+  const run = newRun();
+  let fail = true;
+  const flaky = async a => { if (task(a.system) === 'interpret' && fail) throw new Error('claude timed out'); return fake()(a); };
+  const said = 'Knowing their spot is theirs: show their usual class on the page.';
+  const r1 = await interpret({ run, askId: 'a1', text: said, callModel: flaky, gapMs: 0 });
+  assert.equal(r1.code, 502);
+  assert.ok(readEvents(run).some(e => e.type === 'interpret.error' && e.askId === 'a1'));
+  const chimesBefore = readEvents(run).filter(e => e.type === 'chime').length;
+  fail = false;
+  // While a resend is being heard, another resend is told to wait, not run twice.
+  let release; const gate = new Promise(r => { release = r; });
+  const slow = async a => { if (task(a.system) === 'interpret') await gate; return fake()(a); };
+  const p2 = interpret({ run, askId: 'a1', text: 'ignored: the logged answer is what is re-read', callModel: slow, gapMs: 0 });
+  await new Promise(r => setTimeout(r, 20));
+  assert.equal((await interpret({ run, askId: 'a1', text: said, callModel: fake(), gapMs: 0 })).code, 202);
+  release();
+  const r2 = await p2; await r2.body.profile;
+  assert.equal(r2.code, 200);
+  const evs = readEvents(run);
+  assert.equal(evs.filter(e => e.type === 'answer' && e.askId === 'a1').length, 1, 'her answer is logged once');
+  assert.equal(evs.find(e => e.type === 'answer').text, said);
+  assert.ok(evs.some(e => e.type === 'answer.retry'));
+  assert.equal(evs.filter(e => e.type === 'chime').length, chimesBefore, 'the team already spoke: no second thread');
+  assert.ok(evs.some(e => e.type === 'takeaways') && evs.some(e => e.type === 'answer.mapped'));
+  assert.equal((await interpret({ run, askId: 'a1', text: said, callModel: fake() })).code, 409);
+});

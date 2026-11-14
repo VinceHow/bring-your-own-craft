@@ -44,12 +44,55 @@
         <button type="button" class="fd-keep" data-slot="keep">Keep</button>
       </div>
       <div class="fd-team" data-slot="team"></div>
+      <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
     </aside>`;
   room.appendChild(doc);
   const $ = sel => doc.querySelector(sel);
 
   let cur = null;          // the open ask
   let chimeQ = [], chimeTimer = null, briefPending = null, kept = false, sent = false, replayClose = null;
+  // ---- never a dead page: after Send she always sees that the team heard her, or what went wrong, with Retry ----
+  // At once: "<names> reading what you said…" (names from thread.start, logged before any model call). Nothing from
+  // the team within WAIT_MS: "Still reading…" + Retry. /answer failing, or chime/interpret/propose/teammate.error in
+  // the log while she waits: a plain line + Retry. Retry resends the same gathered comment (the server re-reads the
+  // answer it logged, never a second one). Her words stay on the page throughout.
+  const WAIT_MS = Number(new URLSearchParams(location.search).get('answerWait')) || 25000;
+  let hearing = null; // { ask, body, timer, heard, readers }
+  const names = list => list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`;
+  function status(text, state, retry = false) {
+    const t = $('.fd-team'); t.textContent = text; t.dataset.state = state || '';
+    $('.fd-retry').hidden = !retry;
+  }
+  function reading() {
+    if (!hearing || hearing.heard) return;
+    const r = hearing.readers;
+    status(r && r.length ? `${names(r)} ${r.length > 1 ? 'are' : 'is'} reading what you said…` : 'The team is reading what you said…', 'reading');
+    clearTimeout(hearing.timer);
+    hearing.timer = setTimeout(() => { if (hearing && !hearing.heard && cur === hearing.ask) status('Still reading… It’s taking longer than usual. Your words are kept.', 'slow', true); }, WAIT_MS);
+  }
+  function failed(why) {
+    if (!hearing || hearing.heard || cur !== hearing.ask) return;
+    clearTimeout(hearing.timer);
+    status('The team couldn’t read that just now. Your words are kept.', 'failed', true);
+    $('.fd-team').dataset.why = why || 'logged'; // the status code or the log's error type, for the e2e and the presenter's eye
+  }
+  function heard() {
+    if (!hearing || hearing.heard) return;
+    hearing.heard = true; clearTimeout(hearing.timer);
+    if (['reading', 'slow', 'failed'].includes($('.fd-team').dataset.state)) status('', '');
+  }
+  function clearWait() { if (hearing) clearTimeout(hearing.timer); hearing = null; $('.fd-retry').hidden = true; $('.fd-team').dataset.state = ''; }
+  async function postAnswer(w, body) {
+    try {
+      const r = await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false });
+      if (hearing !== w) return;
+      if (r && r.pending) return reading(); // a resend while the first is still being heard: keep waiting
+    } catch (e) {
+      if (hearing !== w || e.status === 409) return; // 409: the team already heard her
+      failed(e.status ? String(e.status) : 'no connection');
+    }
+  }
+  $('.fd-retry').addEventListener('click', () => { if (!hearing || hearing.heard || cur !== hearing.ask) return; reading(); postAnswer(hearing, { ...hearing.body, retry: true }); });
 
   // ---- the work, large ------------------------------------------------------------------------
   function renderWork() {
@@ -159,6 +202,7 @@
     if (!ask) return;
     if (cur && cur.id === ask.id && !doc.hidden) return;
     if (cur) close(true);
+    clearWait();
     cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose);
     // Who asked shows only when it's a named teammate (Noor · Research); otherwise no "by" at all.
     const seat = ask.seat, named = AGENT(seat), name = named && (!ask.by || ask.by === named) ? named : null;
@@ -186,7 +230,7 @@
     if (!cur) { doc.hidden = true; document.body.classList.remove('focus-open'); return; }
     const was = cur;
     if (!quiet && !kept && briefShown() && !B.replay) keepBrief();
-    cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null;
+    cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null; clearWait();
     // Let go of focus now: a hidden input that kept it would swallow the clicker's next forward key (its own PageDown is "send").
     if (doc.contains(document.activeElement)) document.activeElement.blur();
     doc.hidden = true;
@@ -343,17 +387,15 @@
     landSaid([...mine.map(shownText), text].filter(Boolean).join(' '));
     $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
     $('.fd-said').classList.remove('speaking');
-    const held = pieces; pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
     // Every ask, Focus 1 and Focus 2 included, is a meeting through /answer; the stage path follows it on the server (lib/first.js).
-    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false }); }
-    catch (e) {
-      if (cur !== ask) return;
-      sent = false; $('.fd-form').hidden = false; $('.fd-input').value = text;
-      pieces = held; for (const p of held) $('.fd-pieces').appendChild(p.li); if (held.length) capturing(true);
-      $('.fd-team').textContent = `Not sent (${e.status || e.message}). Enter to try again.`;
-      $('.fd-side').hidden = false;
-    }
+    hearing = { ask, body, timer: null, heard: false, readers: null };
+    reading(); // at once, before the request leaves
+    await postAnswer(hearing, body);
   }
+  B.on('thread.start', ev => { if (!forCur(ev) || !hearing || hearing.heard) return; hearing.readers = ev.by || []; if ($('.fd-team').dataset.state === 'reading') reading(); });
+  for (const type of ['chime', 'takeaways', 'brief', 'answer.mapped']) B.on(type, ev => { if (forCur(ev)) heard(); });
+  for (const type of ['chime.error', 'interpret.error', 'propose.error', 'teammate.error']) B.on(type, ev => { if (forCur(ev)) failed(type); });
 
   // ---- after Send she stays on her page: replies show by their pins, then fold into them ------------------
   // Each reply is anchored to a pin on the work: the journey box it names, else the box the question is about,
