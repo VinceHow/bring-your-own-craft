@@ -45,4 +45,5 @@ Used: public/looks/cast/intro/ (v2 clips re-centred by crop, 540 px, plus door.j
 The earlier top-up closed at $5.60. From here, design spend has a fresh $5 ceiling. Ask Vincent before going past it.
 | What | Model | Cost |
 |---|---|---|
-| **Running total** | | **$0.00 of $5** |
+| "Multiplayer next" slide painting: the team with two more empty stools (teal, lavender) | nano-banana-pro/edit | $0.15 |
+| **Running total** | | **$0.15 of $5** |
