@@ -32,13 +32,15 @@ Nothing back yet. When Vincent tweaks the file, each change read back from Figma
 | Area | Change | Why |
 |---|---|---|
 | Fit | The 1600×900 room is centred by its midpoint, not by grid centring | **Fixes a break on main**: at 1280×720 the room overflowed right and the counter and meter were cut off |
-| Paper | Inline SVG `feTurbulence` grain (≈400 bytes, no image), multiplied over the room at 16% | Printed stock, not a flat screen fill |
+| Paper | Inline SVG `feTurbulence` grain (≈400 bytes, no image) in the paper and the table, never over a sheet | Printed stock, not a flat screen fill; sheets stay clean (see TASTE.md) |
 | Misregistration | Seat names, glyphs and her file's title carry a 2px offset ghost in ink; the headline, the counter's "came up" and the meter's % carry a pink second pass, 2–4px out of register | The riso look, kept to the display type so body text stays clean |
 | Edges | Her file, her sheet and the tally share one top (372px) and bottom (792px) | Three columns read as one row |
 | Spacing | One 4px scale (`--s1`…`--s6`) for paddings and gaps in cards, sheets, file, counter and meter | Consistent rhythm |
 | Back-of-room legibility | Counter numbers 54→64px, meter 124→132px, counter labels 600 weight, meter bar 22px, small sheet lines 12.5→13px (14px in stage mode), card notes 13px (14px in stage) | Read from the back of a room |
 | Small sheets | Titles stay on one line; the "to her" tag is pinned right and never clipped (it read "t…" before) | Clipped labels |
 | (removed) | The `.fl-box` stopgap is gone: main's flow.js fix (b2f4f46) brings the boxes and their landing motion back |
+
+taste-skill rules and its checker results: `design/TASTE.md`.
 
 Banned list checked: no gradients, glass, purple, emoji, sparkles, chat bubbles, spinners or pop-ups added.
 

@@ -9,15 +9,15 @@
   --mis: 2px;
   --mis-big: 4px;
   /* paper grain: an inline SVG noise filter, a few hundred bytes, no image */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .08 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .08 0 0 0 0 .08 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---- paper grain over the whole room, multiplied like ink on stock ---- */
-body::after {
-  content: ''; position: fixed; inset: 0; z-index: 25; pointer-events: none;
-  background-image: var(--grain); background-size: 220px 220px;
-  opacity: .16; mix-blend-mode: multiply;
-}
+/* ---- paper grain: printed into the paper and the table only, so every sheet stays a clean fresh sheet
+   (an overlay over everything put grain under the words; taste-skill's checker flagged it as a busy ground) ---- */
+body { background-image: var(--grain); background-size: 220px 220px; }
+.table { background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ccircle cx='3' cy='3' r='1' fill='%23141414' fill-opacity='.10'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%23141414' fill-opacity='.07'/%3E%3C/svg%3E"),
+  var(--grain); background-size: 14px 14px, 220px 220px; }
 /* the REPLAY / FAKE label stays crisp above the grain */
 .replay-label { z-index: 40; }
 
@@ -63,7 +63,7 @@ body::after {
 .counter .roll { font-size: 64px; }
 .counter #came { text-shadow: var(--mis-big) var(--mis-big) 0 var(--product); padding-right: var(--mis-big); }
 .counter-label { font: 600 19px/1.1 var(--ui); }
-.roll-pink { padding: 0 var(--s2); box-shadow: var(--shadow-sm); }
+.roll-pink { padding: 0 var(--s2); }
 .meter { padding: var(--s3) var(--s4) var(--s4); }
 .meter-num { font-size: 132px; margin: var(--s1) 0 var(--s3); }
 .meter-num .roll { text-shadow: var(--mis-big) var(--mis-big) 0 var(--product); padding-right: var(--mis-big); }
@@ -88,7 +88,7 @@ body.stage .meter-counts { font-size: 15px; }
 #room { position: absolute; left: 50%; top: 50%; margin: -450px 0 0 -800px; }
 
 /* red means stamping only: a flow status line is plain ink */
-.fl-status { color: var(--ink); }
+#room .fl-status { color: var(--ink); }
 
 /* on smaller screens the REPLAY / FAKE label shrinks into the strip below the table, clear of the meter */
 @media (max-width: 1440px), (max-height: 810px) {
@@ -96,3 +96,12 @@ body.stage .meter-counts { font-size: 15px; }
   .replay-label.fake { box-shadow: 3px 3px 0 var(--ink); }
   .replay-label small { margin-top: 2px; font-size: 11px; }
 }
+
+/* ---- taste-skill checker fixes (design/TASTE.md) ---- */
+/* tags take ink text: white on pink or orange read under 3.1:1. Design blue keeps paper text (4.6:1). */
+#room .fl-tag { color: var(--ink); }
+#room .fl-item[data-seat="design"] .fl-tag { color: var(--sheet); }
+/* keyboard focus in ink, so it shows against paper (pink read 2.9:1) */
+#room .fl-box:focus-visible, #room .fl-opt:focus-visible, #room .counter:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+/* muted citations on the small sheets: darker, still quieter than the line */
+#room .mini-lines li .cite { color: rgba(20,20,20,.8); }
