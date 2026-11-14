@@ -57,8 +57,10 @@ the claim.
   of the teammate who left it. Calm: no number, no red, no pulsing, no "waiting for you" state. New notes slide in
   only at natural pauses (right after she answers, after the shape redraws), never while she's typing or speaking,
   about 1 s after the pause. The team suggests the order (top note); **she picks which to open**.
-- **No paperwork, no ceremony.** Nothing in the room shows logs, records, approvals or status. The run's log stays
-  invisible; it only powers the real numbers.
+- **No ceremony; keep what matters.** Nothing in the room shows logs, approvals or status, and the run's log stays
+  invisible (it only powers the real numbers). But the work that matters is kept, and **the teammates decide what's
+  worth keeping themselves**: her user journey and Design's key screens stay on the table as real artifacts she can
+  come back to; she's never asked to file, approve or tidy anything.
 - **Each check-in comes from a named teammate in its own voice**, one or two lines: what it found, why this is her
   call, the recommendation and its reason, and the branches. It's built to draw out her thinking; her answer can be
   short.
