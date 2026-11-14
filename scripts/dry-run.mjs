@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Terminal dry run of steps 1-3: idea + journey -> five teammates' candidates -> her (at most) three -> the rest
 // decided, cited. Real model calls through lib/model.js; logs a real run under runs/.
-// Usage: node scripts/dry-run.mjs [yoga|cafe] [--idea "..." --name x --lines "a|b|c"] [--team sonnet]
-//          [--select sonnet] [--count 5] [--out file.md]   (--count 3 is the close's fast path)
+// Usage: node scripts/dry-run.mjs [yoga|cafe] [--idea "..." --name x --lines "a|b|c"] [--team <model>]
+//          [--select <model>] [--count 5] [--out file.md]   (--count 3 is the close's fast path)
 import fs from 'node:fs';
 import { newRunId, logEvent, readEvents } from '../lib/events.js';
 import { proposeAndSelect, SELECT_MODEL, SELECT_EFFORT } from '../lib/select.js';

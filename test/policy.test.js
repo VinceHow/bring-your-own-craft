@@ -9,12 +9,14 @@ process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-policy-'));
 const { ask, refuse, selectorGrant, scanText, questionsIn } = await import('../lib/policy.js');
 const { propose } = await import('../lib/teammates.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
+// newRunId is millisecond-based; two in the same ms collide, so tests add a random part.
+const uid = () => `p-${Math.random().toString(36).slice(2, 10)}`;
 
 const cand = id => ({ id, seat: 'engineering', decision: 'Which database', options: ['Postgres', 'SQLite'], recommendation: 'SQLite',
   reason: 'r', cost: 'high', undoable: false, attachTo: null });
 
 test('an ask without the selector\'s grant is refused, decided and logged', () => {
-  const run = newRunId('p');
+  const run = newRunId(uid());
   assert.equal(ask(run, cand('c1')), null);
   assert.equal(ask(run, cand('c2'), { grant: { run, ids: ['c2'] } }), null); // a look-alike grant
   assert.equal(ask(run, cand('c3'), { grant: selectorGrant('another-run', ['c3']) }), null);
@@ -28,7 +30,7 @@ test('an ask without the selector\'s grant is refused, decided and logged', () =
 });
 
 test('a selector grant lets its picks through as craft, once each', () => {
-  const run = newRunId('p');
+  const run = newRunId(uid());
   const g = selectorGrant(run, ['c1']);
   const a = ask(run, cand('c1'), { grant: g, kind: 'pin', why: 'Worth it?' });
   assert.equal(a.type, 'ask');
@@ -38,13 +40,13 @@ test('a selector grant lets its picks through as craft, once each', () => {
 });
 
 test('refuse() can carry the selector\'s cited decision', () => {
-  const run = newRunId('p');
+  const run = newRunId(uid());
   const d = refuse(run, cand('c9'), 'test', { id: 'c9', seat: 'engineering', decision: 'Which database', choice: 'Postgres', cites: 'L2' });
   assert.equal(d.cites, 'L2');
 });
 
 test('a question in plain model text is logged as a stamp', () => {
-  const run = newRunId('p');
+  const run = newRunId(uid());
   assert.deepEqual(questionsIn('Sketched three screens. Should I add a waitlist? Done.'), ['Should I add a waitlist?']);
   assert.equal(scanText(run, 'design', 'Sketched the class list and the confirm screen.').length, 0);
   scanText(run, 'design', 'Laid out the list.\nDo you want photos on each class?');
@@ -55,7 +57,7 @@ test('a question in plain model text is logged as a stamp', () => {
 });
 
 test('a teammate whose note asks her something costs a stamp', async () => {
-  const run = newRunId('p');
+  const run = newRunId(uid());
   const callModel = async ({ system }) => ({
     note: /^You are the Design teammate/m.test(system) ? 'Two layouts drafted. Which one do you prefer?' : 'Listed the decisions.',
     candidates: [],

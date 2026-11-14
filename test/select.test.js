@@ -15,7 +15,7 @@ const { initTaste, writeLine, readTaste } = await import('../lib/taste.js');
 const flow = { nodes: [{ id: 'n1', label: 'classes' }, { id: 'n2', label: 'a class' }, { id: 'n3', label: 'confirm' }], edges: [] };
 const task = system => (system.match(/^# Task: ([\w-]+)/m) || [])[1];
 const cand = (i, extra = {}) => ({ id: `c${i}`, seat: 'product', decision: `Decision ${i}`, options: ['A', 'B'],
-  recommendation: 'A', reason: 'r', cost: 'high', undoable: false, attachTo: 'n1', ...extra });
+  recommendation: 'A', reason: 'r', cost: 'high', undoable: false, attachTo: null, ...extra });
 const strongScores = cs => ({ scores: cs.map(c => ({ id: c.id, inSeat: true, changes: 3, silent: 3, dupOf: null, kind: 'fork' })) });
 
 // A fake model: select and decide answers from the given functions; teammates from `team`.
@@ -30,7 +30,8 @@ function fakeModel({ score, decide, team, soundsLike } = {}) {
     throw new Error('unexpected task ' + t);
   };
 }
-const newRun = () => { const r = newRunId('t'); initTaste(r); return r; };
+// newRunId is millisecond-based; two in the same ms collide, so tests add a random part.
+const newRun = () => { const r = newRunId(`t-${Math.random().toString(36).slice(2, 10)}`); initTaste(r); return r; };
 
 test('a fourth never gets through: 10 strong candidates, at most 3 asks', async () => {
   const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
@@ -155,4 +156,16 @@ test('proposeAndSelect: Research cites only its prepared finding; a teammate fai
   assert.ok(r.candidates.filter(c => c.seat !== 'research').every(c => !c.source));
   assert.ok(r.candidates.every(c => c.attachTo === null)); // n9 isn't a box of hers
   assert.ok(readEvents(run).some(e => e.type === 'teammate.error' && e.seat === 'data'));
+});
+
+test('picks spread across her work: one per box, no two that are the same question in other words', () => {
+  const cs = [
+    cand(1, { decision: 'How customers cancel or change a booking', attachTo: 'n3' }),
+    cand(2, { decision: 'Cancellation and rescheduling policy shown at booking' }),
+    cand(3, { decision: 'Whether payment is taken', attachTo: 'n3' }),
+    cand(4, { decision: 'Who the page is for first', attachTo: 'n1' }),
+    cand(5, { decision: 'What a full class shows' }),
+  ];
+  const scores = new Map(strongScores(cs).scores.map(s => [s.id, s]));
+  assert.deepEqual(pickAsks(cs, scores, { flow }).picks.map(p => p.candidate.id), ['c1', 'c4', 'c5']);
 });
