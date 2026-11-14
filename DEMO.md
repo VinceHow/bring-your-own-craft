@@ -109,13 +109,17 @@ the claim.
        Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
+     - **never forced** (Vincent, 14 Nov): only the teammates whose craft her comment actually touches reply. A
+       design comment might get Mika alone; Theo (data) and Ines (strategy) stay quiet unless it touches measurement
+       or money. 1 reply is normal, 2 common, 3 rare; nobody adds filler to have a turn.
      **Her pace, their speed** (Vincent, 14 Nov). Nothing rushes her: she can think, pause, speak, edit and pause
      again; nothing is cut off by silence, and **she submits when she's ready**. The real-time part is the team: the
      instant she submits, the first reaction lands (aim: under a second) and the thread follows, so she feels heard
      and the room is visibly excited with her. Warm and genuine, never sycophantic: excitement carried by substance
      ("Love that. Then no logins, I'll remember them."), not empty praise.
      Build: each turn is its own fast call that gets her answer plus the thread so far, so they genuinely see each
-     other (3–4 turns, ~1 s each, fastest model; start the first call the moment she submits).
+     other (usually 1–2 turns, at most 3, ~1 s each, fastest model; a cheap routing step picks who replies by
+     relevance, never round-robin; start the first call the moment she submits).
   3. **The meeting's takeaways appear**: a short, beautiful summary of *this* meeting, in her voice, that she can
      reword: **what I believe** about this, and **guidance to the team** for it. Not a template look; it should read
      like the best summary a great colleague would write.
