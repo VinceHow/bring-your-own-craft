@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Her inbox · by her seat</title>
+<!-- Her inbox: one calm component by her stool that replaces the loose tray notes and the reviewed cards in the room.
+     Collapsed: one item only, the one that needs her now (or "Nothing needs you right now"). No counts, no red.
+     Expanded (click; Esc or click to close): a drawer of her paper with Needs you · Things only you can do · Past meetings.
+     ?st=collapsed|empty|open|task|done|landing|m2 &still=1. No st: the flow autoplays.
+     Hackathon build: no secret or key entry (PO). The key field exists only as the Milestone 2 still (?st=m2):
+     masked, server-side, never shown back beyond "Saved · ••••4f2a". -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #1A120D; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.room { position: absolute; inset: 0; background: url(first-open/cast/painting-afternoon.jpg) center top / 1600px 893px no-repeat; }
+.abs { position: absolute; }
+.hide { display: none !important; }
+.canvas .abs.pane { position: absolute; }
+.warm { position: absolute; left: 520px; top: 600px; width: 340px; height: 260px; border-radius: 50%; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255,232,200,.75), rgba(255,220,186,.3) 58%, rgba(255,210,170,0)); }
+.veil { position: absolute; inset: 0; background: rgba(43,31,23,.22); opacity: 0; pointer-events: none; z-index: 5; }
+
+/* ---------- collapsed: one item, by her stool ---------- */
+.tray { left: 800px; top: 700px; width: 330px; z-index: 6; cursor: pointer; transition: transform .3s var(--ip-land); }
+.canvas .tray { padding: 12px 14px 13px 16px; }
+.tray:hover, .tray.is-hover { transform: translateY(-2px); }
+.tray .lab { display: flex; align-items: center; gap: 7px; color: var(--t); }
+.tray .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.tray .lab .open { margin-left: auto; color: var(--ip-ink-2); }
+.tray .q { margin-top: 4px; font: 400 17px/1.3 var(--ip-serif); color: var(--ip-ink); }
+.tray.quiet .q { font: italic 400 16px/1.3 var(--ip-serif); color: var(--ip-ink-2); }
+.tray .under { position: absolute; left: 10px; right: 10px; bottom: -7px; height: 12px; border-radius: 0 0 14px 14px; background: #F3E8D4; box-shadow: 2px 3px 6px -3px rgba(60,35,15,.4); z-index: -2; }
+
+/* ---------- expanded: a drawer of her paper ---------- */
+.drawer { left: 1222px; top: 70px; width: 364px; height: 860px; z-index: 7; border-radius: var(--ip-r-lg) var(--ip-r-lg) 0 0; transform-origin: 50% 100%; }
+.canvas .drawer { padding: 20px 20px 60px; }
+.drawer > .gl { --sheet: var(--ip-paper); }
+.drawer .hd { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.drawer .hd .seal { width: 34px; height: 34px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 16px/1 var(--ip-serif); }
+.drawer .hd h2 { margin: 0; font: 400 24px/1 var(--ip-serif); }
+.drawer .hd .x { margin-left: auto; height: 34px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--ip-inset); font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); cursor: pointer; }
+.sec { padding: 10px 0 12px; border-top: 1px solid var(--ip-rule); }
+.sec > .lab { display: block; margin-bottom: 9px; color: var(--ip-ink-2); }
+.now { padding: 14px 16px 15px; }
+.now .lab { display: flex; align-items: center; gap: 7px; color: var(--t); }
+.now .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.now .q { margin: 5px 0 10px; font: 400 18px/1.3 var(--ip-serif); }
+.now .row { display: flex; align-items: center; gap: 12px; }
+.now .row .btn { height: 40px; font-size: 15px; }
+.next { margin-top: 8px; display: flex; flex-direction: column; gap: 0; }
+.next .fold { display: flex; align-items: center; gap: 9px; padding: 8px 12px; margin: 0 8px; border-radius: 0 0 12px 12px; background: rgba(239,226,204,.7);
+  box-shadow: inset 0 0 0 1px var(--ip-rule); font: 400 14px/1.2 var(--ip-sans); color: var(--ip-ink-2); }
+.next .fold + .fold { margin: 0 18px; opacity: .8; }
+.next .fold i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.task { padding: 14px 16px 15px; }
+.task .lab { display: flex; align-items: center; gap: 7px; color: var(--t); }
+.task .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.task .ask { margin: 5px 0 8px; font: 400 17px/1.35 var(--ip-serif); }
+.task ol { margin: 0 0 10px; font-size: 14px; padding-left: 20px; display: grid; gap: 4px; font: 400 15px/1.35 var(--ip-sans); }
+.task .row { display: flex; align-items: center; gap: 12px; }
+.task .row .btn { height: 40px; font-size: 15px; }
+.task .ok { display: inline-flex; align-items: center; gap: 8px; font: italic 400 16px/1 var(--ip-serif); color: var(--ip-ink-2); }
+.task .ok svg { width: 16px; height: 16px; fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.nothing { font: italic 400 16px/1.3 var(--ip-serif); color: var(--ip-ink-2); padding: 4px 2px; }
+.past { display: flex; flex-direction: column; gap: 8px; }
+.prow { position: relative; display: grid; grid-template-columns: 46px 1fr; gap: 4px 12px; align-items: start; padding: 9px 12px; border-radius: var(--ip-r-md);
+  background: rgba(255,253,248,.7); box-shadow: inset 0 0 0 1px var(--ip-rule); }
+.prow .th { position: relative; width: 46px; height: 36px; border-radius: 9px; background: var(--ip-paper) var(--ip-tooth); box-shadow: 3px 3px 0 0 var(--c), inset 0 0 0 1px rgba(74,48,32,.35); }
+.prow .th .tk { position: absolute; right: -9px; bottom: -9px; width: 22px; height: 22px; border-radius: 50%; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.55); display: grid; place-items: center; rotate: -6deg; }
+.prow .th .tk svg { width: 13px; height: 13px; fill: none; stroke: #7E2C43; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.prow .tt { font: 400 16px/1.2 var(--ip-serif); } .prow .tt small { display: block; margin-top: 3px; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.prow .bel { grid-column: 2; font: italic 400 14px/1.3 var(--ip-serif); color: var(--ip-her-t); }
+/* the write-up card from the meeting, before it flies into Past meetings */
+.writeup { left: 520px; top: 470px; width: 560px; z-index: 9; }
+.canvas .writeup { padding: 22px 26px 24px; }
+.writeup > .gl { --sheet: var(--ip-paper); }
+.writeup h3 { margin: 6px 0 12px; font: 400 26px/1.2 var(--ip-serif); }
+.writeup .take { padding: 14px 16px; } .writeup .take p { margin: 3px 0 0; font: italic 400 18px/1.35 var(--ip-serif); }
+.writeup .row-end { display: flex; justify-content: flex-end; margin-top: 14px; }
+/* Milestone 2: a key, masked and server-side */
+.m2 { position: absolute; left: 22px; top: 18px; z-index: 12; }
+.keyf { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border-radius: 999px; background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(84,58,38,.25);
+  font: 500 16px/1 var(--ip-sans); letter-spacing: .12em; color: var(--ip-ink-2); }
+.keyf .lock { width: 16px; height: 16px; fill: none; stroke: var(--ip-ink-2); stroke-width: 1.7; }
+.keyf .btn { margin-left: auto; height: 32px; padding: 0 14px; font-size: 14px; letter-spacing: 0; }
+.saved { display: inline-flex; align-items: center; gap: 8px; font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.note-m2 { margin: 8px 0 0; font: 400 13px/1.35 var(--ip-sans); color: var(--ip-ink-2); }
+
+#replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
+#pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
+#pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div><div class="warm"></div>
+  <button class="abs pill" data-who="mika" style="left:404px;top:304px"><span class="dot"></span><span class="nm">Mika</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="noor" style="left:612px;top:290px"><span class="dot"></span><span class="nm">Noor</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="theo" style="left:790px;top:322px"><span class="dot"></span><span class="nm">Theo</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span><span class="nm">Ines</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span><span class="nm">Bo</span><span class="agent">agent</span></button>
+  <button class="abs pill is-her" data-who="her" style="left:584px;top:616px;z-index:6"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+  <div class="veil" id="veil"></div>
+
+  <!-- collapsed: one thing at a time -->
+  <div class="abs card tray" data-who="mika" id="tray" role="button" aria-label="Your inbox">
+    <span class="under"></span>
+    <span class="lab"><i></i><span id="tWho">Mika</span><span class="open">Open your inbox</span></span>
+    <div class="q" id="tQ">If ordering could feel like one thing, what should it feel like?</div>
+  </div>
+
+  <!-- expanded -->
+  <div class="abs card drawer hide" data-who="her" id="drawer" role="dialog" aria-label="Your inbox">
+    <div class="hd"><span class="seal">P</span><h2>Your inbox</h2><button class="x" id="close">Close · Esc</button></div>
+    <div class="sec"><span class="lab">Needs you</span>
+      <div class="card now" data-who="mika" id="now"><span class="lab"><i></i>Mika · Mika’s wireframes</span>
+        <div class="q">If ordering could feel like one thing, what should it feel like?</div>
+        <div class="row"><button class="btn">Open it</button><span class="lab" style="color:var(--ip-ink-2)">Whenever you’re ready</span></div></div>
+      <div class="next"><span class="fold" data-who="noor"><i></i>Next: Noor, on what regulars would pay ahead for</span></div>
+    </div>
+    <div class="sec" id="secTask"><span class="lab">Things only you can do</span>
+      <div class="card task" data-who="bo" id="task"><span class="lab"><i></i>Bo · for deposits</span>
+        <p class="ask">To take deposits, the bakery needs its own Stripe account. Only you can open it.</p>
+        <ol><li>Sign up at stripe.com, about 2 minutes</li><li>Tell Bo when it’s done</li></ol>
+        <div class="row" id="taskRow"><button class="btn" id="done">Done</button><button class="btn quiet">Later</button></div></div>
+      <div class="nothing hide" id="nothing">Nothing only you can do.</div>
+    </div>
+    <div class="sec"><span class="lab">Past meetings</span>
+      <div class="past" id="past">
+        <div class="prow" data-who="noor"><span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg></span></span>
+          <span class="tt">Holding the regulars’ loaves<small>Noor’s finding · one round</small></span><span class="bel">Hold the regulars’ loaves first.</span></div>
+        <div class="prow" data-who="mika"><span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg></span></span>
+          <span class="tt">What brings people in<small>The rough journey · one round</small></span><span class="bel">Bread that’s still warm, and being known.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- the meeting's write-up, just agreed ("Looks right"): it flies into Past meetings -->
+  <div class="abs card writeup hide" data-who="mika" id="writeup"><span class="lab" style="color:var(--ip-her-t)">Your takeaways · with Mika and Bo</span>
+    <h3>How ordering should feel</h3>
+    <div class="take" data-who="her"><span class="lab">What I believe</span><p>Ordering should feel like being known. Never ask for what we could remember.</p></div>
+    <div class="row-end"><button class="btn" id="looks">Looks right</button></div></div>
+
+  <span class="tag replay" id="replay">Replay<small>recorded run</small></span>
+  <div id="pointer"></div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search), ST = q.get('st'), still = q.get('still') === '1', instant = still || !!ST;
+  const c = document.getElementById('c'), $ = s => c.querySelector(s), { animate } = Motion;
+  const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
+  const show = el => el.classList.remove('hide'), hide = el => el.classList.add('hide');
+  InkPaper.dress(c);
+  const redrawAll = el => { if (el.classList.contains('pane')) InkPaper.redraw(el); el.querySelectorAll('.pane').forEach(InkPaper.redraw); };
+
+  let open = false;
+  async function expand() {
+    if (open) return; open = true; const d = $('#drawer'); show(d); redrawAll(d);
+    if (!instant) await animate(d, { y: [520, 0], opacity: [.6, 1] }, spring(.6)).finished;
+    animate('#tray', { opacity: 0 }, { duration: instant ? 0 : .2 });
+  }
+  async function collapse() {
+    if (!open) return; open = false; const d = $('#drawer');
+    animate('#tray', { opacity: 1 }, { duration: instant ? 0 : .3 });
+    if (!instant) await animate(d, { y: 560, opacity: .6 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished; hide(d); animate(d, { y: 0, opacity: 1 }, { duration: 0 });
+  }
+  $('#tray').addEventListener('click', expand); $('#close').addEventListener('click', collapse);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') collapse(); });
+
+  function empty() { $('#tray').classList.add('quiet'); $('#tray').dataset.who = 'her'; $('#tWho').textContent = 'Your inbox'; $('#tQ').textContent = 'Nothing needs you right now'; InkPaper.redraw($('#tray')); }
+  async function doTask() {
+    const row = $('#taskRow'); row.innerHTML = '<span class="ok"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>Bo’s on it. Thank you.</span>'; InkPaper.redraw($('#task'));
+    await wait(1600);
+    if (!instant) await animate('#task', { opacity: 0, height: 0 }, { duration: .4 }).finished; hide($('#task')); show($('#nothing'));
+  }
+  // the write-up card lands in Past meetings: it shrinks, flies down into the open drawer and becomes the top row
+  async function land() {
+    const w = $('#writeup'); const fresh = w.classList.contains('hide'); show(w); redrawAll(w); if (!instant && fresh) { InkPaper.lay(w); await wait(1800); }
+    if (!open) await expand();
+    const past = $('#past'), row = document.createElement('div');
+    row.className = 'prow'; row.dataset.who = 'mika'; row.style.opacity = 0;
+    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg></span></span><span class="tt">How ordering should feel<small>Mika’s wireframes · two rounds</small></span><span class="bel">Ordering should feel like being known.</span>';
+    past.prepend(row);
+    const a = w.getBoundingClientRect(), b = row.getBoundingClientRect();
+    if (!instant) {
+      await animate(w, { x: b.left - a.left, y: b.top - a.top, scale: [1, b.width / a.width], opacity: [1, .3] }, { type: 'spring', visualDuration: .9, bounce: 0 }).finished;
+      hide(w); animate(row, { opacity: [0, 1] }, { duration: .3 });
+      const tk = row.querySelector('path'); tk.style.strokeDasharray = 1; animate(tk, { strokeDashoffset: [1, 0] }, { duration: .5, delay: .2 });
+    } else { hide(w); row.style.opacity = 1; }
+  }
+
+  (async () => {
+    await document.fonts.ready; redrawAll(c);
+    if (ST === 'collapsed') return;
+    if (ST === 'empty') return empty();
+    if (ST === 'open') return expand();
+    if (ST === 'task') { await expand(); return; }
+    if (ST === 'done') { await expand(); $('#taskRow').innerHTML = '<span class="ok"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>Bo’s on it. Thank you.</span>'; InkPaper.redraw($('#task')); return; }
+    if (ST === 'landing') { $('#writeup').style.cssText += ';'; await expand(); await land(); hide($('#task')); show($('#nothing')); redrawAll($('#drawer')); return; }
+    if (ST === 'm2') {
+      // Milestone 2 only: a key, pasted once, masked, kept on the server. Never shown back beyond the last four.
+      await expand();
+      $('#task .ask').textContent = 'To take deposits, Bo needs the bakery’s Stripe test key.';
+      $('#task ol').innerHTML = '<li>Sign up at stripe.com, about 2 minutes</li><li>Copy your test secret key</li><li>Paste it here</li>';
+      $('#taskRow').innerHTML = '<div style="flex:1"><div class="keyf"><svg class="lock" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg><span class="saved">Saved · ••••4f2a</span><button class="btn quiet">Replace</button></div>' +
+        '<p class="note-m2">Kept on the server, never shown again.</p></div>';
+      redrawAll($('#drawer'));
+      c.insertAdjacentHTML('beforeend', '<span class="abs tag m2" style="z-index:12">Milestone 2 · not in the hackathon build</span>'); InkPaper.dress(c); InkPaper.redraw($('.m2'));
+      return;
+    }
+    // ---- the flow ----
+    const ptr = $('#pointer'), at = el => { const r = el.getBoundingClientRect(), cr = c.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 }; };
+    const tap = async el => { animate(ptr, { opacity: 1 }, { duration: .2 }); await animate(ptr, { x: at(el).x - 12, y: at(el).y - 12 }, spring(.7)).finished; el.classList.add('is-hover'); await wait(220);
+      await animate(ptr, { scale: [1, .8, 1] }, { duration: .28 }).finished; el.classList.remove('is-hover'); };
+    animate(ptr, { x: 1250, y: 820 }, { duration: 0 });
+    InkPaper.lay($('#tray'), .3);
+    await wait(2200); await tap($('#tray')); await expand();
+    await wait(2000); await tap($('#done')); await doTask();
+    await wait(1200); await tap($('#close')); await collapse();
+    // later: she says "Looks right" on a meeting's takeaways, and it goes into her inbox
+    await wait(1200); animate(ptr, { opacity: 0 }, { duration: .3 });
+    $('#tray').dataset.who = 'noor'; $('#tWho').textContent = 'Noor'; $('#tQ').textContent = 'What would regulars pay ahead for?'; InkPaper.redraw($('#tray'));
+    const w = $('#writeup'); show(w); redrawAll(w); InkPaper.lay(w);
+    await wait(1800); await tap($('#looks'));
+    animate(ptr, { opacity: 0 }, { duration: .3 });
+    await land();
+    await wait(2600); await collapse();
+  })();
+})();
+</script>
+</body>
+</html>
