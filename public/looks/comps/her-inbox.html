@@ -89,6 +89,20 @@ html, body { margin: 0; background: #1A120D; }
 .saved { display: inline-flex; align-items: center; gap: 8px; font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); }
 .note-m2 { margin: 8px 0 0; font: 400 13px/1.35 var(--ip-sans); color: var(--ip-ink-2); }
 
+.canvas > .pill { z-index: 3; }
+.patch { position: absolute; z-index: 2; pointer-events: none; opacity: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+.patch video { width: 100%; height: 100%; display: block; }
+/* a note in flight: a small sticky of paper in the teammate's ink */
+.flying { position: absolute; left: 0; top: 0; width: 210px; z-index: 8; pointer-events: none; transform-origin: 50% 50%; }
+.canvas .flying { padding: 10px 12px 11px; }
+.flying .lab { display: flex; align-items: center; gap: 6px; color: var(--t); } .flying .lab i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.flying .q { margin-top: 3px; font: 400 14px/1.3 var(--ip-serif); }
+.fold-corner::before { content: ''; position: absolute; right: -1px; top: -1px; width: 22px; height: 22px; z-index: 2; border-radius: 0 14px 0 6px;
+  background: linear-gradient(225deg, transparent 50%, var(--c) 50%); -webkit-mask: var(--ip-wax) 0 0 / 60px 60px; mask: var(--ip-wax) 0 0 / 60px 60px; }
+.tray.fold-corner::before { border-radius: 0 20px 0 6px; }
+.prev { position: absolute; left: 8px; right: 8px; bottom: -12px; height: 16px; border-radius: 0 0 14px 14px; background: #F6EDDD; box-shadow: 2px 3px 6px -3px rgba(60,35,15,.4); z-index: -3; }
+.flourish { position: absolute; width: 44px; height: 30px; z-index: 9; pointer-events: none; overflow: visible; }
+.flourish path { fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 #replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
 #pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
 #pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
@@ -103,6 +117,7 @@ html, body { margin: 0; background: #1A120D; }
   <button class="abs pill" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span><span class="nm">Ines</span><span class="agent">agent</span></button>
   <button class="abs pill" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span><span class="nm">Bo</span><span class="agent">agent</span></button>
   <button class="abs pill is-her" data-who="her" style="left:584px;top:616px;z-index:6"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+  <div class="patch" id="patch"><video muted playsinline preload="auto" id="patchV"></video></div>
   <div class="veil" id="veil"></div>
 
   <!-- collapsed: one thing at a time -->
@@ -151,7 +166,7 @@ html, body { margin: 0; background: #1A120D; }
 <script src="../ink-paper.js"></script>
 <script>
 (function () {
-  const q = new URLSearchParams(location.search), ST = q.get('st'), still = q.get('still') === '1', instant = still || !!ST;
+  const q = new URLSearchParams(location.search), ST = q.get('st'), still = q.get('still') === '1', instant = still || (!!ST && !ST.startsWith('arrive'));
   const c = document.getElementById('c'), $ = s => c.querySelector(s), { animate } = Motion;
   const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
   const wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
@@ -178,6 +193,54 @@ html, body { margin: 0; background: #1A120D; }
     const row = $('#taskRow'); row.innerHTML = '<span class="ok"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>Bo’s on it. Thank you.</span>'; InkPaper.redraw($('#task'));
     await wait(1600);
     if (!instant) await animate('#task', { opacity: 0, height: 0 }, { duration: .4 }).finished; hide($('#task')); show($('#nothing'));
+  }
+  // ---- a new item arrives: the teammate holds up their note in the room, it drifts across the table on a soft paper arc,
+  // and tucks into the tray, which rises a little to take it; the old top sheet slides one down; the tray's ink redraws
+  // once in the teammate's crayon; one small pen flourish. Nothing moves while she's in focus (it waits for her return).
+  const K = 1600 / 1588, P2 = (x, y) => [(x - 6) * K, y * K];
+  const SPOTS = { mika: { patch: [280, 190, 540], hand: [468, 471] }, noor: { patch: [500, 170, 400], hand: [690, 440] }, bo: { patch: [975, 270, 480], hand: [1117, 472] } };
+  const NAMES = { mika: 'Mika', noor: 'Noor', bo: 'Bo' };
+  let inFocus = false, waiting = [];
+  window.studioFocus = on => { inFocus = on; if (!on) { const w = waiting; waiting = []; w.reduce((p, a) => p.then(() => arrive(...a)), Promise.resolve()); } };
+  async function arrive(who, text, opts = {}) {
+    if (inFocus) { waiting.push([who, text, opts]); return; }
+    document.dispatchEvent(new CustomEvent('studio:note', { detail: { who } }));   // the living layer plays their "note" mood
+    const sp = SPOTS[who], pt = $('#patch'), v = $('#patchV');
+    const [l, t] = P2(sp.patch[0], sp.patch[1]), sz = sp.patch[2] * K;
+    Object.assign(pt.style, { left: l + 'px', top: t + 'px', width: sz + 'px', height: sz + 'px', webkitMaskImage: `url(first-open/cast/mask-${who}.png)`, maskImage: `url(first-open/cast/mask-${who}.png)` });
+    v.src = `first-open/cast/${who}-note.webm`; v.currentTime = 0; v.play().catch(() => {});
+    animate(pt, { opacity: [0, 1] }, { duration: .4 });
+    await wait(2300);   // the note is up in their hand
+    const n = document.createElement('div'); n.className = 'abs card flying' + (opts.task ? ' fold-corner' : ''); n.dataset.who = who;
+    n.innerHTML = `<span class="lab"><i></i>${NAMES[who]}${opts.task ? ' · only you can do' : ''}</span><div class="q">${text}</div>`;
+    c.appendChild(n); InkPaper.dress(n); InkPaper.redraw(n);
+    const tr = $('#tray').getBoundingClientRect(), cr = c.getBoundingClientRect();
+    const x0 = sp.hand[0] - 105, y0 = sp.hand[1] - 30, x1 = tr.left - cr.left + 60, y1 = tr.top - cr.top + 8;
+    const mx = (x0 + x1) / 2 + 30, my = 560;   // a soft arc across the tabletop, below every face
+    animate(n, { opacity: [0, 1], scale: [.45, .8] }, { duration: .35 });
+    const fly = animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] });
+    setTimeout(() => animate(pt, { opacity: 0 }, { duration: 1.2 }), 1800);
+    // the tray rises a touch to receive it
+    await wait(1250); animate('#tray', { y: [0, -8, 0] }, { duration: 1.1, ease: [.33, 0, .2, 1] });
+    await fly.finished;
+    n.remove();
+    // the old top sheet slides one sheet down; the new item takes the top
+    const tray = $('#tray'); let prev = tray.querySelector('.prev'); if (!prev) { prev = document.createElement('span'); prev.className = 'prev'; tray.prepend(prev); }
+    animate(prev, { y: [-14, 0], opacity: [.6, 1] }, spring(.5));
+    tray.dataset.who = who; tray.classList.remove('quiet'); tray.classList.toggle('fold-corner', !!opts.task);
+    $('#tWho').textContent = NAMES[who] + (opts.task ? ' · only you can do' : ''); $('#tQ').textContent = text; InkPaper.redraw(tray);
+    animate(tray.querySelectorAll('.lab, .q'), { opacity: [0, 1] }, { duration: .35 });
+    // the tray's ink redraws once in their crayon, then settles back to brown
+    const ln = tray.querySelector(':scope > .ol .ln'); ln.style.stroke = 'var(--c)'; ln.style.strokeWidth = '2.2px'; ln.style.strokeDasharray = 1;
+    await animate(ln, { strokeDashoffset: [1, 0] }, { duration: .9, ease: [.45, .05, .25, 1] }).finished;
+    animate(ln, { stroke: '#4A3020', strokeWidth: 1.6 }, { duration: .8 }).finished.then(() => { ln.style.stroke = ''; ln.style.strokeWidth = ''; ln.style.strokeDasharray = ''; });
+    // one small pen flourish by the tray
+    const fl = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); fl.setAttribute('class', 'flourish'); fl.setAttribute('viewBox', '0 0 44 30');
+    fl.style.left = (tr.right - cr.left - 30) + 'px'; fl.style.top = (tr.top - cr.top - 26) + 'px';
+    fl.innerHTML = '<path d="M3 20c6-10 12-14 16-8s-2 12 6 10 10-12 16-16" pathLength="1"/>'; c.appendChild(fl);
+    const fp = fl.querySelector('path'); fp.style.strokeDasharray = 1;
+    await animate(fp, { strokeDashoffset: [1, 0] }, { duration: .6, ease: 'easeOut' }).finished;
+    await wait(900); await animate(fl, { opacity: 0 }, { duration: .8 }).finished; fl.remove();
   }
   // the wrap-up page (design/loop her-page.html) fires 'studio:filed' { entry, card } on "Looks right". The inbox
   // opens, flies their card (measured, not moved by them) into the top of Past meetings, and writes the row from entry.
@@ -229,6 +292,13 @@ html, body { margin: 0; background: #1A120D; }
       setTimeout(() => document.dispatchEvent(new CustomEvent('studio:filed', { detail: { card: w, entry: { id: 'm3', when: 'Today', question: 'If ordering could feel like one thing, what should it feel like?',
         title: 'How ordering should feel', artifact: { kind: 'wireframes', title: 'Mika’s wireframes', by: ['mika'], thumb: null }, belief: 'Ordering should feel like being known.',
         guidance: ['Their usual loaf first, one tap away'], changes: [{ who: 'mika', kind: 'cut', text: 'The phone field' }], rounds: [{ line: 'a' }, { line: 'b' }], transcriptUrl: null } } })), instant ? 0 : 1500);
+      return;
+    }
+    if (ST === 'arrive' || ST === 'arrive-task') {
+      // start from the quiet state; a new item arrives
+      empty(); await wait(900);
+      if (ST === 'arrive') await arrive('mika', 'If ordering could feel like one thing, what should it feel like?');
+      else await arrive('bo', 'To take deposits, the bakery needs its own Stripe account.', { task: true });
       return;
     }
     if (ST === 'm2') {
