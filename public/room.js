@@ -119,10 +119,10 @@
   BYOC.SLOW_MS = SLOW_MS;
   function stepFor(p) {
     const m = String(p).match(/^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|build)$/);
-    if (p === '/api/run') return 'Opening her sheet';
+    if (p === '/api/run') return 'Opening the sheet';
     if (!m) return null;
-    return { line: 'Drawing her step', propose: 'The team is starting', answer: 'Noting her call',
-      pin: 'The team is naming her taste', taste: 'Writing it into her file', build: 'Engineering is building' }[m[1]];
+    return { line: 'Drawing the step', propose: 'The team is starting', answer: 'Noting the answer',
+      pin: 'The team is naming the taste', taste: 'Writing it into your file', build: 'Engineering is building' }[m[1]];
   }
   const steps = new Map(); // id -> { label, t0 }
   let stepSeq = 0, stepFail = null, stepTick = null;
@@ -246,6 +246,30 @@
     }
   }
 
+  // ---- her own craft: the dashed seventh seat (name tag: public/name-tag.js) ----------------------------
+  // At the start she can take "Your own craft" instead of Product: her name tag (craft · good at · loves) is made with
+  // her, then she sits here, with the same empty Stance slot as the Product card.
+  const diySeat = $('.seat-diy');
+  function seatDiy(animate) {
+    if (!diySeat || diySeat.querySelector('.card')) return;
+    const t = BYOC.herTag || {};
+    const c = h('div', 'card card-diy');
+    c.innerHTML = `<div class="card-band">${GLYPH.product}<span class="card-name">${esc(t.craft || 'Your craft')}</span></div>
+      <div class="card-her"><span class="card-who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span>
+      <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
+    diySeat.appendChild(c); diySeat.classList.add('filled');
+    el.room.dataset.herSeat = 'diy';
+    place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, -1] : -1 }, animate);
+  }
+  async function takeDiySeat() {
+    if (BYOC.beat !== 0 || BYOC.replay || !BYOC.nameTag || !BYOC.nameTag.open) return;
+    const tag = await BYOC.nameTag.open();
+    if (!tag || BYOC.beat !== 0) return;
+    stage(1);
+  }
+  if (diySeat) diySeat.addEventListener('click', takeDiySeat);
+  BYOC.takeDiySeat = takeDiySeat;
+
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
     const sh = el.seatSheet[seat];
@@ -367,7 +391,7 @@
   function teamProgress() {
     if (!teamStep) return;
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
-    stepSet(teamStep, done >= SEATS.length ? 'The team is choosing her three' : `The team is proposing · ${done} of ${SEATS.length} done`);
+    stepSet(teamStep, done >= SEATS.length ? 'The team is choosing what to bring you' : `The team is proposing · ${done} of ${SEATS.length} done`);
   }
   let buildStep = null;
   el.herForm.addEventListener('submit', e => {
@@ -420,7 +444,7 @@
     fitFile();
   }
   async function loadFileForRun(run, tries = 3) {
-    if (!run || run.startsWith('local-')) { el.fileNote.textContent = 'Her file opens when a run starts.'; return; }
+    if (!run || run.startsWith('local-')) { el.fileNote.textContent = 'Your file opens when the run starts.'; return; }
     for (let i = 0; i < tries; i++) {
       try {
         const r = await BYOC.api(`/api/taste/${encodeURIComponent(run)}`);
@@ -428,7 +452,7 @@
       } catch {}
       await wait(800);
     }
-    el.fileNote.textContent = 'Her file isn’t written for this run yet.';
+    el.fileNote.textContent = 'Your file isn’t written yet.';
   }
   BYOC.file = { load: fileLoad, parse: parseTaste };
 
@@ -461,7 +485,7 @@
         ev.preventDefault();
         const t = words.textContent.trim();
         if (!t) return;
-        words.contentEditable = 'false'; hint.textContent = 'writing it into her file';
+        words.contentEditable = 'false'; hint.textContent = 'writing it into your file';
         try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
         catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }
       });
@@ -564,7 +588,7 @@
     if (BYOC.replay) { if (!sk.inner.children.length) sk.wait.textContent = 'Design is sketching'; return; }
     if (!BYOC.run || BYOC.run.startsWith('local-')) { sk.wait.textContent = 'No run yet: nothing to sketch.'; return; }
     if (sk.inner.children.length) return;
-    sk.wait.textContent = 'Design is sketching the screens of her journey';
+    sk.wait.textContent = 'Design is sketching the screens of the journey';
     const t0 = performance.now();
     const sid = stepBegin('Design is sketching');
     try {
@@ -713,7 +737,7 @@
     finally { buildReq = null; }
   };
   const pageSheet = h('section', 'page-sheet'); pageSheet.id = 'page-sheet'; pageSheet.hidden = true;
-  pageSheet.innerHTML = '<div class="page-head"><span class="page-title">Her page</span><span class="page-url" id="page-url"></span></div><div class="page-frame"><iframe id="page-iframe" title="Her page" loading="eager"></iframe></div>';
+  pageSheet.innerHTML = '<div class="page-head"><span class="page-title">Your page</span><span class="page-url" id="page-url"></span></div><div class="page-frame"><iframe id="page-iframe" title="Your page" loading="eager"></iframe></div>';
   el.room.appendChild(pageSheet);
   BYOC.el.pageSheet = pageSheet;
   function pageUrl() {
@@ -756,6 +780,11 @@
     switch (ev.type) {
       case 'run.start':
         if (ev.intro) BYOC.intro = ev.intro;
+        if (ev.seat === 'diy' && !diySeat?.querySelector('.card')) { // a replay of a run in her own craft
+          BYOC.herSeat = 'diy'; if (ev.tag) BYOC.herTag = ev.tag;
+          el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
+          seatDiy(false);
+        }
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
@@ -901,6 +930,7 @@
       }
     } finally { assembling = false; }
     if (tok !== walkToken || assembleSkip || BYOC.beat !== 2 || BYOC.replay) return;
+    if (BYOC.herSeat === 'diy') { stage(3); return; } // her tag already said what she loves
     openIntro();
   }
   // Her card lifts mid-table, same layout: she finishes "I love…" (typed; voice can fill the same input).
@@ -952,7 +982,7 @@
     const tok = walkToken;
     switch (b) {
       case 1:
-        seatCard('product', animate);
+        if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
         // She took her seat; the team assembles on its own (DEMO 0:06).
         if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 1) stage(2); }
         break;
@@ -964,7 +994,7 @@
         place(el.herSheet, { y: animate ? [80, 0] : 0, rotate: animate ? [1.5, 0] : 0 }, animate);
         place(el.fileCard, { x: animate ? [-80, 0] : 0, rotate: -1, opacity: animate ? [0, 1] : 1 }, animate);
         if (!el.herIdea.textContent) setInputMode('idea');
-        if (!el.fileLines.children.length && !el.fileNote.textContent) el.fileNote.textContent = 'Her file opens when a run starts.';
+        if (!el.fileLines.children.length && !el.fileNote.textContent) el.fileNote.textContent = 'Your file opens when the run starts.';
         break;
       case 4:
         if (inputMode === 'idea' && el.herIdea.textContent) setInputMode('line');
@@ -1020,6 +1050,7 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
+    if (diySeat) { diySeat.querySelector('.card')?.remove(); diySeat.classList.remove('filled'); } delete el.room.dataset.herSeat;
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
