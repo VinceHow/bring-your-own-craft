@@ -1,0 +1,122 @@
+/* Painted studio: a light design system for the UI that sits on the living painting.
+   Soft, round, paper-made: at home next to round gouache creatures. One radius scale, one card family,
+   one button pair, one pill family. Warm light from the window (top left), so shadows fall down and right. */
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+
+:root {
+  /* paper and ink */
+  --ps-paper: #FCF6EA;
+  --ps-paper-2: #F5EBD8;
+  --ps-linen: #EFE3CD;
+  --ps-ink: #3B2A20;
+  --ps-ink-2: #6E5646;
+  --ps-ink-3: #957D69;
+  --ps-rule: rgba(59, 42, 32, .12);
+  /* the team's inks, matched to the gouache */
+  --ps-mika: #3E5C92;
+  --ps-noor: #D2673F;
+  --ps-theo: #7FA88B;
+  --ps-ines: #C4913A;
+  --ps-bo: #E2BF45;
+  --ps-her: #D97F92;
+  --ps-her-deep: #A9485F;
+  --ps-her-soft: #F8DCE1;
+  /* soft tints of each ink, for pill grounds and marks */
+  --ps-mika-soft: #DCE4F1; --ps-noor-soft: #F7DDD0; --ps-theo-soft: #E0ECE2; --ps-ines-soft: #F3E5C8; --ps-bo-soft: #F8EDC4;
+  /* type */
+  --ps-serif: 'Newsreader', Georgia, serif;
+  --ps-sans: 'Hanken Grotesk', system-ui, sans-serif;
+  /* radius scale: pill, small, medium, large, and a pebble for things that rest on the table */
+  --ps-r-pill: 999px;
+  --ps-r-sm: 14px;
+  --ps-r-md: 22px;
+  --ps-r-lg: 30px;
+  --ps-pebble: 26px 30px 24px 32px / 28px 24px 32px 26px;
+  /* light: from the window, top left */
+  --ps-lift-1: 0 1px 2px rgba(92, 52, 24, .12), 4px 8px 18px -10px rgba(92, 52, 24, .38);
+  --ps-lift-2: 0 2px 3px rgba(92, 52, 24, .12), 8px 16px 32px -14px rgba(92, 52, 24, .42);
+  --ps-lift-3: 0 2px 4px rgba(92, 52, 24, .12), 14px 28px 60px -22px rgba(80, 42, 18, .5);
+  /* motion: things settle like paper on a table */
+  --ps-settle: cubic-bezier(.16, 1, .3, 1);
+  --ps-t-fast: 180ms; --ps-t-mid: 420ms; --ps-t-slow: 760ms;
+  --ps-tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .28 0 0 0 0 .14 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+/* ---------- paper: the one card family ---------- */
+.ps-paper { background: var(--ps-paper) var(--ps-tooth); color: var(--ps-ink); box-shadow: var(--ps-lift-1); border-radius: var(--ps-r-md); }
+.ps-pebble { border-radius: var(--ps-pebble); }
+
+/* ---------- type ---------- */
+.ps-label { font: 500 13px/1.2 var(--ps-sans); color: var(--ps-ink-3); letter-spacing: .01em; }
+.ps-body { font: 400 16px/1.45 var(--ps-serif); color: var(--ps-ink); }
+.ps-title { font: 400 30px/1.15 var(--ps-serif); letter-spacing: -.01em; color: var(--ps-ink); }
+.ps-her-words { font: italic 400 19px/1.45 var(--ps-serif); color: var(--ps-ink); }
+
+/* ---------- pills: who someone is, and that you can talk to them ---------- */
+.ps-pill { --c: var(--ps-ink); --soft: var(--ps-paper-2); display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 6px;
+  border-radius: var(--ps-r-pill); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-1); color: var(--ps-ink);
+  font: 500 15px/1 var(--ps-sans); white-space: nowrap; cursor: pointer; border: 0;
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), scale var(--ps-t-fast) var(--ps-settle); }
+.ps-pill .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.25); flex: none; }
+.ps-pill .agent { font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-3); padding-left: 8px; border-left: 1px solid var(--ps-rule); }
+.ps-pill:hover, .ps-pill.is-hover { translate: 0 -2px; box-shadow: var(--ps-lift-2); }
+.ps-pill:active { scale: .97; }
+.ps-pill:focus-visible { outline: 2.5px solid var(--c); outline-offset: 3px; }
+.ps-pill.is-talking .dot { box-shadow: 0 0 0 4px var(--soft), inset 0 -3px 0 rgba(0,0,0,.12); }
+.ps-pill.has-note::after { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-left: -2px; }
+[data-who="mika"] { --c: var(--ps-mika); --soft: var(--ps-mika-soft); } [data-who="noor"] { --c: var(--ps-noor); --soft: var(--ps-noor-soft); }
+[data-who="theo"] { --c: var(--ps-theo); --soft: var(--ps-theo-soft); } [data-who="ines"] { --c: var(--ps-ines); --soft: var(--ps-ines-soft); }
+[data-who="bo"] { --c: var(--ps-bo); --soft: var(--ps-bo-soft); } [data-who="her"] { --c: var(--ps-her); --soft: var(--ps-her-soft); }
+
+/* her pill: the one filled pill in the room */
+.ps-pill.is-her { background: var(--ps-her); color: #fff; padding: 0 16px 0 6px; }
+.ps-pill.is-her .dot { background: #fff; color: var(--ps-her-deep); display: grid; place-items: center; font: 500 13px/1 var(--ps-serif); }
+.ps-pill.is-her .agent { color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.35); font-style: italic; font-family: var(--ps-serif); font-size: 14px; }
+.ps-pill.is-invite { background: rgba(252,246,234,.92); color: var(--ps-her-deep); box-shadow: 0 0 0 1.5px var(--ps-her), var(--ps-lift-1); padding: 0 16px; }
+
+/* ---------- chatter: a short line by whoever said it ---------- */
+.ps-bubble { position: relative; max-width: 290px; padding: 10px 14px 11px; border-radius: 18px 20px 20px 6px; background: var(--ps-paper) var(--ps-tooth);
+  box-shadow: var(--ps-lift-1); font: italic 400 16px/1.35 var(--ps-serif); color: var(--ps-ink); }
+.ps-bubble b { display: block; font: 500 13px/1.2 var(--ps-sans); font-style: normal; color: var(--c); margin-bottom: 3px; filter: brightness(.82); }
+
+/* ---------- a note left for her ---------- */
+.ps-note { width: 230px; padding: 14px 16px 15px; border-radius: var(--ps-pebble); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-2);
+  font: 400 16px/1.35 var(--ps-serif); color: var(--ps-ink); position: relative; overflow: hidden; cursor: pointer;
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle); }
+.ps-note::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--c); }
+.ps-note .ps-label { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; color: var(--ps-ink-2); }
+.ps-note .ps-label i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.ps-note:hover { translate: 0 -2px; box-shadow: var(--ps-lift-3); }
+
+/* ---------- a decision the team agreed ---------- */
+.ps-decision { width: 250px; padding: 14px 16px 13px; border-radius: var(--ps-r-md); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-1);
+  font: 400 16px/1.32 var(--ps-serif); color: var(--ps-ink); cursor: pointer; }
+.ps-who { display: flex; align-items: center; margin-top: 9px; gap: 8px; }
+.ps-who .marks { display: flex; }
+.ps-who .marks i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--ps-paper); margin-right: -5px; }
+
+/* ---------- her sheet: the work, lying on the table ---------- */
+.ps-sheet { border-radius: var(--ps-r-lg); background: var(--ps-paper) var(--ps-tooth); box-shadow: var(--ps-lift-2); padding: 18px 20px; color: var(--ps-ink); }
+.ps-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: var(--ps-r-pill); background: var(--ps-paper-2); }
+.ps-tabs span { padding: 7px 13px; border-radius: var(--ps-r-pill); font: 500 13px/1 var(--ps-sans); color: var(--ps-ink-2); }
+.ps-tabs span.on { background: var(--ps-paper); color: var(--ps-ink); box-shadow: var(--ps-lift-1); }
+.ps-step { padding: 9px 12px; border-radius: var(--ps-r-sm); background: #FFFDF8; box-shadow: inset 0 0 0 1px var(--ps-rule); font: 400 14px/1.25 var(--ps-sans); color: var(--ps-ink); }
+.ps-step.hers { background: var(--ps-her-soft); box-shadow: inset 0 0 0 1px rgba(217,127,146,.45); }
+
+/* ---------- buttons: one pair ---------- */
+.ps-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: var(--ps-r-pill); border: 0; cursor: pointer;
+  font: 500 15px/1 var(--ps-sans); background: var(--ps-ink); color: var(--ps-paper); box-shadow: var(--ps-lift-1);
+  transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), scale var(--ps-t-fast) var(--ps-settle); }
+.ps-btn:hover { translate: 0 -2px; box-shadow: var(--ps-lift-2); }
+.ps-btn:active { scale: .97; translate: 0 0; }
+.ps-btn.quiet { background: transparent; color: var(--ps-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.28); }
+
+/* ---------- quiet labels: tally, and the honesty label that never hides ---------- */
+.ps-tag { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: var(--ps-r-pill); font: 500 13px/1 var(--ps-sans);
+  background: rgba(252,246,234,.94); color: var(--ps-ink-2); box-shadow: var(--ps-lift-1); }
+.ps-tag b { font-weight: 500; color: var(--ps-ink); }
+.ps-tag.replay { background: #F2D89A; color: #4A3510; }
+
+@media (prefers-reduced-motion: reduce) { .ps-pill, .ps-note, .ps-btn { transition: none; } }
