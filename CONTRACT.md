@@ -158,3 +158,17 @@ test are unchanged; `lib/policy.js` still guards every `ask` event.
   in `runs/<id>/profile.json` (never shown); `readProfile(run)` is passed to every teammate and the selector prompt.
 - Room chatter: `chatter { by, seat, text }` events, written by the server from real run events (a candidate, a
   decision, a finding attached), never addressed to her, never a question.
+
+## Team space seams (po/team-space)
+**Owner:** BYOC builder 8 (team space): `lib/joint.js`, `routes/joint.js`, `public/team-space.js`, `prompts/joint-*.md`,
+`test/joint.test.js`, `e2e/team.e2e.js`. Reuses builder 6's thread engine (the chime-in turn call) rather than a new one.
+Builder 7 adds `seats: string[]` to Candidates (every seat a decision touches); a candidate touching ≥2 seats and not
+brought to her is **joint**.
+- After the team proposes, the 2–3 biggest joint candidates each get a real short exchange: 3–4 turns, each by one of
+  the touched teammates, each its own fast call reading the thread so far. Lines go out as `chatter {by, seat, text,
+  jointId}`; the result is `joint.agreed {id, headline, seats:[...], withTakeaways: bool, turns:[{by,text}]}` and the
+  decision is logged as `decided` with `cites: 'team'` (or her L-line when her takeaways shaped it).
+- Team space in the middle of the table: one card per `joint.agreed` (headline only, marks of who talked it out,
+  "with your takeaways in mind" only when `withTakeaways`), tap → the exchange. A **label** "Talk this through: coming"
+  on each card (not a button).
+- **Cuts:** no cancel margin note on her page (fill), no symphony slide (one press, the page appears in the middle).
