@@ -1141,7 +1141,7 @@
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
       <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
-      <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make">Make my tag</button></div>`;
+      <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
@@ -1161,7 +1161,10 @@
   function tagStatus(c, state, text, button) {
     const st = $('.nt-status', c), mk = $('.nt-make', c);
     if (st) { st.dataset.state = state; st.textContent = text || ''; }
-    if (mk) { mk.textContent = button || 'Make my tag'; mk.disabled = state === 'thinking' || state === 'slow'; }
+    if (mk) {
+      mk.textContent = button || 'Make my tag'; mk.disabled = state === 'thinking' || state === 'slow';
+      mk.dataset.state = state === 'failed' ? 'retry' : state === 'done' ? 'meet' : (state === 'thinking' || state === 'slow') ? 'busy' : 'make';
+    }
   }
   async function makeCharacter(c, said) {
     c.dataset.state = 'thinking';

@@ -86,7 +86,8 @@
       // Something new for her: a short pulse on the inbox (data-pulse, ~2.4 s), and the room says who (inbox.new).
       const fresh = shown.find(n => !before.has(n.id));
       if (fresh && !B.replay) {
-        box.dataset.pulse = 'on'; clearTimeout(pulseTimer); pulseTimer = setTimeout(() => { box.dataset.pulse = 'off'; }, 2400);
+        box.dataset.pulse = 'on'; now.dataset.state = 'new';
+        clearTimeout(pulseTimer); pulseTimer = setTimeout(() => { box.dataset.pulse = 'off'; now.dataset.state = 'top'; }, 2400);
         B.emit && B.emit('inbox.new', { id: fresh.id, seat: fresh.seat, by: asker(fresh), unblock: !!fresh.unblock });
       }
     }, B.replay || B.instant ? 0 : 1000);
@@ -155,6 +156,7 @@
     // Collapsed: the one item that needs her now, or nothing.
     now.replaceChildren(...(top ? item(top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
     now.dataset.ask = top ? top.id : '';
+    now.dataset.component = 'inbox-item'; if (now.dataset.state !== 'new' || !top) now.dataset.state = top ? 'top' : 'empty';
     if (top && top.unblock) now.dataset.action = top.id; else delete now.dataset.action;
     if (top) now.dataset.seat = top.seat || ''; else delete now.dataset.seat;
     box.dataset.needs = top ? 'yes' : 'no';
