@@ -65,6 +65,9 @@
     const k = e.key;
     // Her focus document fills the view: Esc (or the clicker, once her brief is there) takes her back to the room;
     // the beat keys wait until then.
+    // A teammate's open sketchpad or her workspace: Esc (or the clicker's back key) returns to the room.
+    const panel = document.getElementById('room-panel');
+    if (panel && !panel.hidden && !isTyping(e.target) && (k === 'Escape' || k === 'PageUp' || k === 'ArrowLeft')) { e.preventDefault(); BYOC.closePanel(); return; }
     // The presenter's own keys (Home, 0, R, C, J, S, F) always work: they close her document first.
     if (BYOC.focusDoc && BYOC.focusDoc.isOpen() && !isTyping(e.target)) {
       const back = k === 'Escape' || ((k === 'PageDown' || k === 'ArrowRight') && document.querySelector('#focus-doc .fd-brief:not([hidden])'));

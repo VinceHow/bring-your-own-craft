@@ -215,14 +215,15 @@
       // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
       // No stance slot on her card (DEMO: her philosophy is the team's to keep, never shown unless she asks).
       c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span></div>
+        <span class="card-character" data-slot="character"></span>
         <div class="card-her"><span class="card-who" data-slot="who">Priya · your seat</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
       c.dataset.component = 'her-place-card'; c.dataset.state = 'empty';
       drawHerCharacter(c);
     } else {
       c.dataset.component = 'place-card'; c.dataset.state = 'idle'; c.dataset.seat = seat;
       c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span><span class="card-who"><span class="card-agent-name" data-slot="agent">${i.agent}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></span></div>
-        <div class="card-stance" data-slot="stance">${esc(i.stance)}</div>
-        <div class="card-note" data-slot="note">Seat open: invite a teammate. Your agents hold it until they arrive.</div>`;
+        <span class="card-character" data-slot="character"></span>
+        <div class="card-stance" data-slot="stance">${esc(i.stance)}</div>`;
     }
     return c;
   }
@@ -267,6 +268,7 @@
     const t = BYOC.herTag || {};
     const c = h('div', 'card card-diy');
     c.innerHTML = `<div class="card-band">${GLYPH.product}<span class="card-name">${esc(t.craft || 'Your craft')}</span></div>
+      <span class="card-character" data-slot="character"></span>
       <div class="card-her"><span class="card-who" data-slot="who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
     c.dataset.component = 'her-place-card'; c.dataset.state = 'empty'; c.dataset.seat = 'diy';
     diySeat.appendChild(c); diySeat.classList.add('filled'); diySeat.dataset.state = 'her';
@@ -282,6 +284,93 @@
   }
   if (diySeat) diySeat.addEventListener('click', takeDiySeat);
   BYOC.takeDiySeat = takeDiySeat;
+
+  const thinking = new Set(); // teammates started but with no proposal yet (teammate.thinking)
+
+  // ---- a teammate's sketchpad, open (seat.open), and her workspace (BYOC.openWorkspace) ----------------
+  // A click on a teammate's card or name opens its sketchpad in full: every call it made, with the choice and what it
+  // followed. A click on her own place card opens her workspace: her character, her idea and journey, what the team
+  // agreed (team space) and her takeaways so far. Structure only; the tray stays the way into each question.
+  const panel = h('section', 'room-panel'); panel.id = 'room-panel'; panel.hidden = true;
+  el.room.appendChild(panel);
+  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
+  function openPanel(component, seat, head, body) {
+    panel.innerHTML = '';
+    panel.dataset.component = component; panel.dataset.state = 'open';
+    if (seat) panel.dataset.seat = seat; else delete panel.dataset.seat;
+    const top = h('header', 'rp-head'); top.dataset.slot = 'head';
+    const t = h('span', 'rp-title'); t.textContent = head; t.dataset.slot = 'title';
+    const x = h('button', 'rp-close', 'Back to the room'); x.type = 'button'; x.dataset.slot = 'close'; x.addEventListener('click', closePanel);
+    top.append(t, x);
+    panel.append(top, body);
+    panel.hidden = false;
+  }
+  function openSketchpad(seat) {
+    if (!INFO[seat] || seat === 'product' || BYOC.beat < 2) return;
+    const i = INFO[seat];
+    const ev = seen;
+    const decided = new Map(); for (const e of ev) if (e.type === 'decided') decided.set(e.id, e);
+    const asked = new Set(ev.filter(e => e.type === 'ask').map(e => e.id));
+    const items = ev.filter(e => e.type === 'candidate' && e.seat === seat);
+    const list = h('ol', 'sp-items'); list.dataset.slot = 'items';
+    for (const c of items) {
+      const d = decided.get(c.id);
+      const li = h('li', 'sp-item'); li.dataset.slot = 'item'; li.dataset.state = asked.has(c.id) ? 'brought' : d ? 'decided' : 'open';
+      const q = h('span', 'sp-decision'); q.textContent = c.decision || ''; q.dataset.slot = 'decision';
+      li.appendChild(q);
+      if (d) { const ch = h('span', 'sp-choice'); ch.textContent = d.choice || ''; ch.dataset.slot = 'choice'; li.appendChild(ch); }
+      else if (asked.has(c.id)) { const ch = h('span', 'sp-choice'); ch.textContent = 'brought to you'; ch.dataset.slot = 'choice'; li.appendChild(ch); }
+      if (c.reason) { const r = h('span', 'sp-reason'); r.textContent = c.reason; r.dataset.slot = 'reason'; li.appendChild(r); }
+      list.appendChild(li);
+    }
+    if (!items.length) { const e = h('p', 'sp-empty'); e.textContent = thinking.has(seat) ? 'Thinking it through.' : 'Nothing on the pad yet.'; e.dataset.slot = 'empty'; list.appendChild(e); }
+    openPanel('sketchpad-open', seat, `${i.agent} · ${i.name}`, list);
+    emit('seat.open', { seat });
+  }
+  BYOC.openSketchpad = openSketchpad;
+  function openWorkspace() {
+    if (BYOC.beat < 1) return;
+    const body = h('div', 'ws-body');
+    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    // her character card
+    const t = BYOC.herTag || {};
+    const ch = part('character', 'Your character');
+    const ct = h('p', 'ws-title'); ct.textContent = t.title ? `Priya, ${t.title}` : 'Priya'; ch.appendChild(ct);
+    if ((t.traits || []).length) { const tr = h('p', 'ws-traits'); tr.textContent = t.traits.join(' · '); ch.appendChild(tr); }
+    if (t.superpower) { const sp = h('p', 'ws-power'); sp.textContent = t.superpower; ch.appendChild(sp); }
+    // her idea and its journey
+    const id = part('idea', 'Your idea');
+    const it = h('p', 'ws-idea'); it.textContent = el.herIdea.textContent || 'Not said yet.'; id.appendChild(it);
+    const S = BYOC.flow && BYOC.flow._state;
+    if (S && S.nodes.size) { const j = h('p', 'ws-journey'); j.textContent = [...S.nodes.values()].map(n => n.label).join(' → '); j.dataset.slot = 'journey'; id.appendChild(j); }
+    // what the team agreed
+    const ts = part('team-space', 'What the team agreed');
+    const agreed = [...new Map(seen.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()];
+    const tl = h('ul', 'ws-list');
+    for (const a of agreed) { const li = h('li', 'ws-agreed'); li.textContent = a.headline; tl.appendChild(li); }
+    if (!agreed.length) { const li = h('li', 'ws-none'); li.textContent = 'Nothing agreed yet.'; tl.appendChild(li); }
+    ts.appendChild(tl);
+    // her takeaways so far (the latest per question; what she kept wins)
+    const tk = part('takeaways', 'Your takeaways so far');
+    const byAsk = new Map();
+    for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
+    const kl = h('ul', 'ws-list');
+    for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
+    if (!byAsk.size) { const li = h('li', 'ws-none'); li.textContent = 'None yet: they come from your answers.'; kl.appendChild(li); }
+    tk.appendChild(kl);
+    openPanel('workspace', null, 'Your workspace', body);
+    emit('workspace.open', {});
+  }
+  BYOC.openWorkspace = openWorkspace;
+  BYOC.closePanel = closePanel;
+  // Clicks: a teammate's card (or its name) opens its sketchpad; her own place card opens her workspace.
+  el.room.addEventListener('click', e => {
+    const card = e.target.closest('.seat .card'); if (!card) return;
+    const seat = card.closest('.seat').dataset.seat;
+    if (seat === 'product' || seat === 'diy') { if (BYOC.beat >= 3) openWorkspace(); }
+    else openSketchpad(seat);
+  });
+  BYOC.on('reset', closePanel);
 
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
@@ -305,7 +394,7 @@
     $('.mini-step', sh).textContent = text || '';
     if (state) sh.dataset.state = state;
     const card = el.seat[seat] && el.seat[seat].querySelector('.card');
-    if (card && seat !== 'product' && state) card.dataset.state = state === 'working' ? 'working' : state === 'error' ? 'error' : 'done';
+    if (card && seat !== 'product' && state) card.dataset.state = state; // thinking · working · done · error
   }
   const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, strategy: 6, engineering: 6 };
   function sheetAdd(seat, id, text) {
@@ -813,10 +902,13 @@
         break;
       case 'teammate.start':
         if (BYOC.beat < 5) stage(5);
-        sheetStep(ev.seat, '', 'working');
+        sheetStep(ev.seat, '', 'thinking');
+        thinking.add(ev.seat);
+        emit('teammate.thinking', { seat: ev.seat }); // a room event (BYOC.on): from its start until its first proposal
         break;
       case 'candidate':
         if (BYOC.beat < 5) stage(5);
+        if (thinking.delete(ev.seat)) sheetStep(ev.seat, '', 'working');
         sheetAdd(ev.seat, ev.id, ev.decision);
         refreshTally();
         break;
@@ -1102,7 +1194,7 @@
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
     if (diySeat) { diySeat.querySelector('.card')?.remove(); diySeat.classList.remove('filled'); diySeat.dataset.state = 'empty'; } delete el.room.dataset.herSeat;
-    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
+    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {

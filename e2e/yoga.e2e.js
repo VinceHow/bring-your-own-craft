@@ -65,7 +65,8 @@ test('2. six seats; she clicks Product, the team assembles, her card takes her l
   assert.ok(await page.locator('.seat-product .card').count(), 'her card in Product');
   for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'who pays, and why now', 'boring and correct'])
     assert.ok(await page.locator('.seat .card-stance', { hasText: stance }).count(), `stance "${stance}" on a place card`);
-  assert.strictEqual(await page.getByText('Seat open: invite a teammate. Your agents hold it until they arrive.').count(), 5);
+  assert.strictEqual(await page.getByText(/Seat open: invite a teammate/).count(), 0, 'the teammates are real members of her team: no "seat open" line');
+  assert.strictEqual(await page.locator('.seat .card [data-slot="character"]').count(), 6, 'a character slot on every seat card');
   await page.keyboard.type('getting the journey right before anyone draws a screen.');
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her character card, then she takes the seat
