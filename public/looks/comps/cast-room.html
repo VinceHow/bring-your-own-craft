@@ -122,27 +122,27 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
   };
 
   // The day. Each time has its own painted plate, light on the cast, habits and chatter.
-  // Lines from DEMO.md: Bo/Ines (8pm cut-off) and Noor/Bo (source, booking form). The rest are placeholders for the comp.
+  // Every line is from DEMO.md (or the design studio's DEMO.md picks for Mika and Theo).
   const TIMES = {
     morning: {
       label: 'Morning', light: 'brightness(1.03) saturate(.94) hue-rotate(-5deg)', sun: 'rgba(225,238,255,.8)', sunOp: .5, lamp: 0, motes: 1, bulbs: .25,
       steam: [[1053, 562], [697, 528]], habits: { mika: 'yawn', ines: 'sip' },
-      talk: [[['bo', 'Coffee’s on. It’s strong.'], ['mika', 'Perfect. I’ll start with the front page.', 'mika']]],
+      talk: [[['mika', 'Love that. Regulars first, their usual loaf one tap away.', 'mika'], ['bo', 'Then we hold it for them till ten.']]],
     },
     afternoon: {
       label: 'Afternoon', light: 'none', sun: 'rgba(255,214,140,.75)', sunOp: .55, lamp: 0, motes: 1, bulbs: .5,
       steam: [[1053, 562], [697, 528]], habits: { mika: 'work', ines: 'sip' },
-      talk: [[['bo', 'Orders after 8pm miss the morning bake.'], ['ines', 'Then a cut-off, and say it plainly.', 'ines'], ['mika', 'I’ll put 8pm right on the button.', 'mika']]],
+      talk: [[['bo', 'Orders after 8pm miss the morning bake.'], ['ines', 'Then a cut-off, and say it plainly.', 'ines'], ['mika', 'I’ll put it right under the button.', 'mika']]],
     },
     building: {
       label: 'Afternoon, building her page', light: 'none', sun: 'rgba(255,214,140,.75)', sunOp: .6, lamp: 0, motes: 1, bulbs: .5,
       steam: [[1316, 556]], habits: { mika: 'work', noor: 'look', ines: 'work' }, busy: true,
-      talk: [[['noor', 'Found a source on what sells out first.', 'noor'], ['theo', 'Sourdough, gone by ten. Every week.', 'theo'], ['bo', 'I’ll take the booking form.']]],
+      talk: [[['noor', 'Found a source on what sells out first.', 'noor'], ['theo', 'Regulars who order again within a week: that’s my one number.', 'theo'], ['bo', 'I’ll take the booking form.']]],
     },
     evening: {
       label: 'Evening', light: 'brightness(.95) saturate(1.02) sepia(.06)', sun: 'rgba(120,140,220,.5)', sunOp: .25, lamp: .85, motes: 0, bulbs: .85,
       steam: [[1052, 572]], habits: { ines: 'sip' },
-      talk: [[['bo', 'Booking form’s shipped.', 'bo'], ['ines', 'Good day. Same time tomorrow?', 'ines']]],
+      talk: [[['bo', null, 'bo'], ['ines', null, 'ines']]],   // evening: no chatter, just the day's last gestures
     },
   };
   const ORDER = ['afternoon', 'building', 'evening', 'morning'];
@@ -190,7 +190,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
   if (still) {
     setTime(now, true);
     const ex = TIMES[now].talk[0];
-    say(ex[0][0], ex[0][1], true); say(ex[1][0], ex[1][1], true);
+    if (ex[0][1]) say(ex[0][0], ex[0][1], true); if (ex[1][1]) say(ex[1][0], ex[1][1], true);
     glanceAt(ex[1][0], true);
     $('#seat').style.opacity = 1;
     return;
@@ -318,7 +318,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
       glanceAt(id);
       await wait(260);
       if (prev) unsay(prev);
-      const b = say(id, text);
+      const b = text ? say(id, text) : null;
       if (sig) signature(id, 2600);
       await wait(3000);
       prev = b;
