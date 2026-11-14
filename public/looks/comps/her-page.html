@@ -171,6 +171,14 @@ html, body { margin: 0; background: #2B1F17; }
 .vpiece .tk { display: inline-block; margin-right: .26em; white-space: nowrap; }
 .vpiece .tk.filler { color: #7A6656; }
 .vpiece .status { font: 400 14px/18px var(--ip-sans); color: var(--ip-ink-3); height: 18px; }
+.vpiece .ctl { display: flex; gap: 16px; margin-top: 4px; font: 500 14px/1 var(--ip-sans); opacity: 0; pointer-events: none; }
+.vpiece .ctl.on { pointer-events: auto; } .vpiece .ctl:not(.on) { height: 0; margin: 0; overflow: hidden; }
+.vpiece .ctl a { color: var(--ip-her-t); text-decoration: none; cursor: pointer; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; padding-bottom: 3px; }
+.vpiece .ctl a.q { color: var(--ip-ink-2); }
+.vpiece .ctl a.press { background-color: rgba(212,114,136,.18); border-radius: 4px; }
+.vpiece .raw { margin-top: 8px; padding: 9px 12px; border-radius: 14px; background: rgba(84,58,38,.06); font: italic 400 16px/1.4 var(--ip-serif); color: var(--ip-ink-2); overflow: hidden; }
+.vpiece .raw small { display: block; font: normal 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); margin-bottom: 4px; }
+.vpiece .raw a { display: inline-block; margin-top: 6px; font: normal 500 14px/1 var(--ip-sans); color: var(--ip-her-t); cursor: pointer; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; padding-bottom: 3px; }
 .vbar { margin-top: auto; display: flex; align-items: center; gap: 10px; padding-top: 12px; }
 .vbar .sp { flex: 1; }
 .ink-paper .pill.vp { height: 48px; padding: 0 17px 0 8px; gap: 9px; font: 400 16px/1 var(--ip-sans); color: var(--ip-ink-2); cursor: default; }
@@ -277,7 +285,11 @@ function pin(who, a, k, cls = '') {
 function reply(R, k) {   // a short inked note beside its pin
   const o = at(R.a), d = document.createElement('div'); d.className = 'reply'; d.dataset.k = k;
   d.innerHTML = `<div class="bubble" data-who="${R.who}"><b>${NAME[R.who]}</b>${R.t}</div>`;
-  d.style.left = (o.x + 48) + 'px'; d.style.top = (o.y - 26) + 'px'; $('#art').appendChild(d); InkPaper.dress(d); return d;
+  d.style.left = (o.x + 48) + 'px'; d.style.top = (o.y - 26) + 'px';
+  // never on top of a note still showing: it settles just below it
+  const below = $$('.reply', $('#art')).reduce((y, n) => Math.max(y, n.offsetTop + n.offsetHeight + 10), 0);
+  if (below > o.y - 26) d.style.top = below + 'px';
+  $('#art').appendChild(d); InkPaper.dress(d); return d;
 }
 async function linger(d, ms = 5000) {   // stays long enough to read, paused while hovered, then folds into its pin
   let left = ms; const step = 100; while (left > 0) { await wait(step); if (!d.matches(':hover')) left -= step; }
@@ -530,7 +542,15 @@ async function vSpeak(P) {
   if (!$(`.pin.pending[data-a="${P.a}"]`)) animate(pin('her', P.a, 'p', 'pending'), { scale: [0, 1] }, spring(.4));
   const bl = $('#vblank'); if (bl) bl.remove(); $('#wrap').classList.add('hide');
   const d = document.createElement('div'); d.className = 'vpiece'; d.dataset.anchor = P.on;
-  d.innerHTML = `<div class="on"><i></i>on ${P.on}</div><div class="words"></div><div class="status"></div>`; $('#vlines').appendChild(d); animate(d, { opacity: [0, 1], y: [6, 0] }, spring(.4));
+  d.innerHTML = `<div class="on"><i></i>on ${P.on}</div><div class="words"></div><div class="status"></div><div class="ctl"><a class="see">See what you said</a><a class="q again">Say it again</a><a class="q remove">Remove</a></div>`;
+  d._P = P; d.dataset.a = P.a; $('#vlines').appendChild(d); animate(d, { opacity: [0, 1], y: [6, 0] }, spring(.4));
+  vCtl(null); await vSay(d, P);
+  const sb = $('#send'); if (sb.classList.contains('hide')) { sb.classList.remove('hide'); $('#wrap').classList.add('hide');   // while she has unsent pieces, Send is the one action
+    InkPaper.dress($('#side')); InkPaper.redraw(sb); InkPaper.lay(sb, 0); }
+  vCtl(d); return d;
+}
+// her words in: raw first, then the tidy as a visible moment. Her raw words are always kept on piece._raw.
+async function vSay(d, P) {
   $('#kbd').classList.add('down'); vHold = true; vT = 0; vPill('<b>Listening</b>', '', 'take your time');
   const n = P.raw.split(/\s+/).length; await wait(600 + n * 230);
   vHold = false; $('#kbd').classList.remove('down'); vPill('<b>Writing it down</b>'); await wait(700);
@@ -539,10 +559,41 @@ async function vSpeak(P) {
   animate($('#vpenpath'), { opacity: [1, .35] }, { duration: .8 }); vPill('Hold', 'V', 'to add more');
   await wait(400 + n * 40);
   await vTidy(d, () => (FAIL ? new Promise(() => {}) : wait(TIDY_MS).then(() => P.clean)));   // scripted stand-in for the model call
-  const sb = $('#send'); if (sb.classList.contains('hide')) { sb.classList.remove('hide'); $('#wrap').classList.add('hide');   // while she has unsent pieces, Send is the one action
-    InkPaper.dress($('#side')); InkPaper.redraw(sb); InkPaper.lay(sb, 0); }
-  return d;
 }
+// the controls show under the newest piece only
+function vCtl(piece) { $$('.vpiece .ctl').forEach(x => { const on = x.parentElement === piece; x.classList.toggle('on', on); animate(x, { opacity: on ? 1 : 0 }, { duration: .3 }); }); }
+function vSee(piece, open) {   // See what you said: her raw words, with Use mine
+  const had = $('.raw', piece); if (had) { had.remove(); $('.see', piece).textContent = 'See what you said'; if (!open) return; }
+  if (open === false) return;
+  const rb = document.createElement('div'); rb.className = 'raw'; rb.innerHTML = `<small>What you said</small>${piece._raw}<br><a class="mine">Use mine</a>`;
+  piece.insertBefore(rb, $('.ctl', piece)); $('.see', piece).textContent = 'Hide what you said'; animate(rb, { opacity: [0, 1], y: [-4, 0] }, { duration: .35 });
+}
+function vUseMine(piece) {   // her words exactly as she said them go to the team
+  piece._clean = piece._raw; piece.dataset.tidy = 'kept'; vSee(piece, false);
+  const w = $('.words', piece); w.innerHTML = piece._raw.split(/\s+/).map(t => `<span class="tk">${t}</span>`).join(''); w.classList.add('clean');
+  animate(w, { opacity: [.3, 1] }, { duration: .4 });
+}
+async function vAgain(piece) {   // say it again: same part, new words, tidied again (scripted: the same words)
+  vSee(piece, false); vCtl(null); vLoop($(`#art [data-a="${piece.dataset.a}"]`)); animate($('.words', piece), { opacity: [1, .35] }, { duration: .3 });
+  $('.words', piece).innerHTML = ''; animate($('.words', piece), { opacity: 1 }, { duration: .2 });
+  await vSay(piece, piece._P); vCtl(piece);
+}
+function vRemove(piece) {
+  const a = piece.dataset.a; animate(piece, { opacity: 0, y: -6 }, { duration: .3 }).finished.then(() => {
+    piece.remove(); const left = $$('.vpiece');
+    if (!left.some(p => p.dataset.a === a)) $$(`.pin.pending[data-a="${a}"]`).forEach(x => x.remove());
+    if (!left.length) { $('#send').classList.add('hide'); $('#wrap').classList.remove('hide'); animate($('#vpenpath'), { opacity: 0 }, { duration: .3 }); }
+    else vCtl(left[left.length - 1]);
+  });
+}
+c.addEventListener('click', ev => {
+  const piece = ev.target.closest('.vpiece'); if (!piece) return;
+  if (ev.target.closest('.see')) return vSee(piece, !$('.raw', piece));
+  if (ev.target.closest('.mine')) return vUseMine(piece);
+  if (ev.target.closest('.again')) return vAgain(piece);
+  if (ev.target.closest('.remove')) return vRemove(piece);
+});
+async function vPress(el, ms = 450) { el.classList.add('press'); await wait(ms); el.classList.remove('press'); }
 async function vSend(pieces, anchor) {
   const b = $('#send'); b.classList.add('is-pressed'); await wait(150);
   const text = pieces.map(vClean).join(' ');
@@ -555,7 +606,9 @@ async function playVoice() {
   build(); voiceCapture([]); await document.fonts.ready; requestAnimationFrame(vTick);
   for (const [r, round] of VOICE[W].entries()) {
     if (r > 0) { await wait(1200); $$('.pin').forEach(p => p.classList.add('quiet')); voiceCapture([...Array(r).keys()]); await wait(800); }
-    const ps = []; for (const P of round) { ps.push(await vSpeak(P)); await wait(1400); }
+    const ps = []; for (const P of round) { ps.push(await vSpeak(P)); if (q.has('try')) return; await wait(1400); }   // &try=1: stops after her first piece, to try the controls by hand
+    if (r === 0) { const p0 = ps[ps.length - 1]; await vPress($('.see', p0)); vSee(p0, true); await wait(2600); await vPress($('.see', p0), 300); vSee(p0, false); await wait(600); }
+    vCtl(null);
     await vSend(ps, round[0].a);
     await wait(r === VOICE[W].length - 1 ? 3000 : 7600);
   }
