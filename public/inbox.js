@@ -74,52 +74,77 @@
     }, B.replay || B.instant ? 0 : 1000);
   }
 
-  // A quick unblock (DEMO 0:50): "Bo's blocked: when do orders close? We suggest 8pm the night before." Yes takes the
-  // suggestion; or she says or types her own. Her answer goes to the server, which decides it in the team space.
-  function unblockCard(n) {
-    const c = h('article', 'inbox-unblock'); c.dataset.component = 'unblock-card'; c.dataset.state = 'asking';
-    c.dataset.ask = n.id; c.dataset.seat = n.seat || '';
-    const name = (n.by || AGENT[n.seat] || NAME[n.seat] || 'The team');
-    c.append(slot(h('span', 'inbox-who', who(n)), 'who'),
-      slot(h('p', 'inbox-unblock-q', `${name}'s blocked: ${String(n.question || '').replace(/^\w/, ch => ch.toLowerCase())}`), 'question'),
-      slot(h('p', 'inbox-unblock-sug', `We suggest ${String(n.suggestion || '').replace(/[.]$/, '')}.`), 'suggestion'));
-    const yes = slot(h('button', 'inbox-unblock-yes', 'Yes'), 'yes'); yes.type = 'button';
-    const own = slot(h('input', 'inbox-unblock-own'), 'own'); own.type = 'text'; own.dataset.voice = 'unblock';
-    own.placeholder = 'Or say it your way'; own.setAttribute('aria-label', 'Your answer'); own.autocomplete = 'off'; own.spellcheck = false;
-    const send = slot(h('button', 'inbox-unblock-send', 'Send'), 'send'); send.type = 'button';
-    const note = slot(h('span', 'inbox-unblock-note'), 'note');
-    const go = async body => {
-      if (c.dataset.state === 'sending') return;
-      c.dataset.state = 'sending'; note.textContent = '';
-      try {
-        if (!B.replay) await B.api(`/api/run/${encodeURIComponent(B.run)}/unblock/answer`, { askId: n.id, ...body }, { step: false });
-        c.dataset.state = 'done'; // the answer event takes it out of Needs you
-      } catch (e) { c.dataset.state = 'asking'; note.textContent = 'Not sent. Try again.'; }
-    };
-    yes.addEventListener('click', () => go({ yes: true }));
-    send.addEventListener('click', () => { const t = own.value.trim(); if (t) go({ text: t }); else own.focus(); });
-    own.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); send.click(); } if (e.key === 'Escape') own.blur(); });
-    c.append(yes, own, send, note);
+  // A quick unblock (DEMO 0:50; the studio's inbox-action, design/cast-toys m2-moments): always framed as unblocking a
+  // named teammate. "Bo's blocked" + what he's doing, the question, "We suggest …", one big Yes, and a quiet "Say
+  // something else" mic: her words replace the suggestion (the old one struck through below) and Yes sends hers.
+  // States asking → speaking → yes. Emits action.say {id, text} and action.yes {id, choice}; the server decides it.
+  function actionCard(n) {
+    const c = h('article', 'inbox-action'); c.dataset.component = 'inbox-action'; c.dataset.state = 'asking';
+    c.dataset.action = n.id; c.dataset.seat = n.seat || '';
+    const name = n.by || AGENT[n.seat] || NAME[n.seat] || 'The team';
+    const whoEl = slot(h('div', 'ia-who'), 'who');
+    const face = slot(h('span', 'ia-face'), 'face'); face.dataset.seat = n.seat || ''; face.setAttribute('aria-hidden', 'true');
+    whoEl.append(face, slot(h('span', 'ia-blocked', `${name}'s blocked`), 'blocked'));
+    if (n.doing) whoEl.appendChild(slot(h('span', 'ia-doing', n.doing), 'doing'));
+    const q = slot(h('p', 'ia-q', String(n.question || '')), 'question');
+    const sug = slot(h('div', 'ia-sug'), 'suggestion');
+    const sugText = String(n.suggestion || '').replace(/[.]$/, '');
+    sug.append(h('span', 'k', 'We suggest'), slot(h('p', 'ia-sug-text', sugText), 'suggestion-text'));
+    const yes = slot(h('button', 'ia-yes', 'Yes'), 'yes'); yes.type = 'button';
+    const say = slot(h('button', 'ia-say'), 'say'); say.type = 'button';
+    const sayLabel = h('span', 'ia-say-label', 'Say something else'); say.appendChild(sayLabel);
+    const note = slot(h('span', 'ia-note'), 'note');
+    let hers = null;
+    // "Say something else": the suggestion box becomes hers; voice opens on it (tap the button again to stop), or she types.
+    say.addEventListener('click', () => {
+      if (c.dataset.state === 'yes') return;
+      if (B.voice && B.voice.state === 'listening') { B.voice.stop(); return; }
+      if (!hers) {
+        sug.classList.add('hers'); sug.replaceChildren();
+        hers = slot(h('p', 'ia-hers'), 'hers'); hers.contentEditable = 'true'; hers.spellcheck = false; hers.dataset.voice = 'unblock';
+        hers.setAttribute('aria-label', 'Your answer');
+        hers.addEventListener('input', () => { const t = hers.textContent.trim(); if (t) { sayLabel.textContent = 'Say it again'; B.emit && B.emit('action.say', { id: n.id, text: t }); } });
+        hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); yes.click(); } if (e.key === 'Escape') hers.blur(); });
+        sug.append(h('span', 'k', 'You said'), hers, slot(h('span', 'ia-was', sugText), 'was'));
+      }
+      c.dataset.state = 'speaking'; sayLabel.textContent = 'Listening…';
+      hers.focus();
+      if (B.voice && B.voice.available) B.voice.start(); else sayLabel.textContent = 'Type it, then Yes';
+    });
+    yes.addEventListener('click', async () => {
+      if (c.dataset.state === 'yes') return;
+      if (B.voice && B.voice.state === 'listening') B.voice.stop();
+      const words = hers ? hers.textContent.trim() : '';
+      const body = words ? { text: words } : { yes: true };
+      const prev = c.dataset.state; c.dataset.state = 'yes'; note.textContent = '';
+      B.emit && B.emit('action.yes', { id: n.id, choice: words || sugText });
+      try { if (!B.replay) await B.api(`/api/run/${encodeURIComponent(B.run)}/unblock/answer`, { askId: n.id, ...body }, { step: false }); }
+      catch (e) { c.dataset.state = prev; note.textContent = 'Not sent. Try again.'; }
+    });
+    c.append(whoEl, q, sug, yes, say, note);
     return c;
   }
   function item(n, state) {
     const b = h('button', 'inbox-item'); b.type = 'button';
-    b.dataset.component = 'inbox-item'; b.dataset.state = state; b.dataset.ask = n.id; b.dataset.seat = n.seat || '';
-    b.append(slot(h('span', 'inbox-who', who(n)), 'who'), slot(h('span', 'inbox-text', fewWords(n.question)), 'text'));
+    b.dataset.component = 'inbox-item'; b.dataset.state = state; b.dataset.seat = n.seat || '';
+    if (n.unblock) b.dataset.action = n.id; else b.dataset.ask = n.id; // an action card waiting, or a question
+    const label = n.unblock ? `${n.by || AGENT[n.seat] || 'The team'}'s blocked` : who(n);
+    b.append(slot(h('span', 'inbox-who', label), 'who'), slot(h('span', 'inbox-text', n.unblock ? String(n.question || '') : fewWords(n.question)), 'text'));
     return b;
   }
   function paint() {
     const top = shown[0];
     // Collapsed: the one item that needs her now, or nothing.
-    now.replaceChildren(...(top ? item(top.unblock ? { ...top, question: `${top.by || AGENT[top.seat] || 'The team'}'s blocked: ${top.question}` } : top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
+    now.replaceChildren(...(top ? item(top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
     now.dataset.ask = top ? top.id : '';
+    if (top && top.unblock) now.dataset.action = top.id; else delete now.dataset.action;
     if (top) now.dataset.seat = top.seat || ''; else delete now.dataset.seat;
     box.dataset.needs = top ? 'yes' : 'no';
     // Needs you: one at a time; the next ones folded.
     needsBody.replaceChildren();
     if (!top) needsBody.appendChild(slot(h('p', 'inbox-empty', 'Nothing needs you right now'), 'empty'));
     else {
-      needsBody.appendChild(top.unblock ? unblockCard(top) : item(top, 'top'));
+      needsBody.appendChild(top.unblock ? actionCard({ ...top, ...((B.asks ? B.asks() : []).find(a => a.id === top.id) || {}) }) : item(top, 'top'));
       if (shown.length > 1) {
         const fold = slot(h('details', 'inbox-next'), 'next');
         fold.appendChild(slot(h('summary', 'inbox-next-label', 'Next'), 'next-label'));
@@ -174,7 +199,8 @@
   toggle.addEventListener('click', () => expand(box.dataset.state !== 'expanded'));
   // Clicking the item that needs her opens it as her document; with nothing waiting, the click opens the drawer.
   now.addEventListener('click', () => { if (now.dataset.ask) openItem(now.dataset.ask); else expand(true); });
-  needsBody.addEventListener('click', e => { const b = e.target.closest('button.inbox-item'); if (b) openItem(b.dataset.ask); });
+  // owner.action (the studio's event name) arrives with the granted ask; the action itself rides on BYOC.focus.waiting.
+  needsBody.addEventListener('click', e => { const b = e.target.closest('button.inbox-item'); if (b) openItem(b.dataset.ask || b.dataset.action); });
   function openItem(id) {
     if (!id || !B.openNote) return false;
     if ((shown.find(n => n.id === id) || {}).unblock) return showUnblock(id);
@@ -184,8 +210,8 @@
   function showUnblock(id) {
     if (!shown.some(n => n.id === id)) return false;
     expand(true);
-    const c = needsBody.querySelector(`.inbox-unblock[data-ask="${CSS.escape(id)}"]`);
-    if (c) c.querySelector('.inbox-unblock-yes').focus();
+    const c = needsBody.querySelector(`.inbox-action[data-action="${CSS.escape(id)}"]`);
+    if (c) c.querySelector('.ia-yes').focus();
     return true;
   }
   // The clicker's forward key opens the top item when one needs her (stage.js asks room.js, which asks here).

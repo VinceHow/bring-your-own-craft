@@ -110,7 +110,7 @@ async function newRun() {
   return r.run;
 }
 const raise = (run, body) => page.evaluate(async ([run, body]) => { const r = await fetch(`/api/run/${run}/unblock`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, json: await r.json() }; }, [run, body]);
-const BO = { seat: 'engineering', question: 'When do orders close?', suggestion: '8pm the night before', kind: 'call' };
+const BO = { seat: 'engineering', question: 'When do orders close?', suggestion: '8pm the night before', kind: 'call', doing: 'Setting up ordering', topic: 'Orders close' };
 
 test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in the team space as hers, Bo carries on', async () => {
   await page.unroute('**/api/run/**');
@@ -123,19 +123,26 @@ test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in th
   assert.strictEqual(await page.evaluate(() => BYOC.beat), 5, 'it did not move the beat');
   assert.match((await page.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' '), /Bo's blocked/);
   await page.click('#inbox .inbox-now');
-  const card = page.locator('#inbox [data-component="unblock-card"]');
+  const card = page.locator('#inbox article.inbox-action[data-component="inbox-action"][data-seat="engineering"]');
   await card.waitFor();
   assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'expanded');
   assert.strictEqual(await card.getAttribute('data-state'), 'asking');
-  assert.match(await card.locator('.inbox-unblock-q').innerText(), /^Bo's blocked: when do orders close\?$/);
-  assert.match(await card.locator('.inbox-unblock-sug').innerText(), /^We suggest 8pm the night before\.$/);
+  assert.strictEqual((await card.locator('[data-slot="blocked"]').innerText()).trim(), "Bo's blocked", 'always framed as unblocking a named teammate');
+  assert.strictEqual((await card.locator('[data-slot="doing"]').innerText()).trim(), 'Setting up ordering');
+  assert.strictEqual((await card.locator('[data-slot="question"]').innerText()).trim(), 'When do orders close?');
+  assert.strictEqual((await card.locator('.ia-sug .ia-sug-text').innerText()).trim(), '8pm the night before');
+  assert.strictEqual(await page.getAttribute('#inbox .inbox-now', 'data-action'), await card.getAttribute('data-action'), 'collapsed, it waits as an action');
   assert.ok(!(await page.evaluate(() => BYOC.focusDoc && BYOC.focusDoc.isOpen())), 'no document: it is answered right here');
-  await card.locator('.inbox-unblock-yes').click();
+  const evsBefore = await page.evaluate(() => { window.__emitted = []; BYOC.on('action.yes', e => window.__emitted.push(['yes', e])); return 0; });
+  await card.locator('[data-slot="yes"]').click();
+  assert.deepStrictEqual(await page.evaluate(() => window.__emitted.map(([k, e]) => [k, e.choice])), [['yes', '8pm the night before']], 'action.yes emitted');
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'no', 6000, 'answered, it leaves Needs you');
   await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 6000, 'a decided card in the team space');
   const ts = page.locator('.team-space .ts-card[data-kind="unblock"]');
-  assert.match(await ts.locator('.ts-headline').innerText(), /^When do orders close: 8pm the night before$/);
-  assert.strictEqual(await ts.locator('.ts-mark').getAttribute('data-seat'), 'engineering', 'owned by Bo\'s seat');
+  assert.strictEqual((await ts.locator('.ts-headline').innerText()).trim(), 'Orders close 8pm the night before');
+  assert.deepStrictEqual(await ts.locator('.ts-mark').evaluateAll(ms => ms.map(m => m.dataset.seat)), ['product', 'engineering'], 'her mark and Bo\'s');
+  assert.strictEqual(await ts.getAttribute('data-seat'), 'engineering', 'owned by Bo\'s seat');
+  assert.strictEqual(await ts.getAttribute('data-her'), '', 'carries her mark');
   assert.strictEqual((await ts.locator('.ts-yours').innerText()).trim().toLowerCase(), 'your call');
   const evs = await page.evaluate(() => BYOC.events().map(e => e.type + ':' + (e.unblock ? 'u' : '') + (e.cites || '')));
   assert.ok(evs.includes('decided:uher yes'), evs.join(' '));
@@ -149,12 +156,17 @@ test('her own words instead of the suggestion; the cap still counts the unblock'
   assert.strictEqual((await raise(run, BO)).status, 200);
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 6000, 'the unblock');
   await page.click('#inbox .inbox-now');
-  const own = page.locator('#inbox .inbox-unblock-own');
-  assert.strictEqual(await own.getAttribute('data-voice'), 'unblock', 'she can say it (voice opts in)');
-  await own.fill('7pm, so the starter can rise');
-  await own.press('Enter');
+  const card = page.locator('#inbox article.inbox-action');
+  await card.locator('[data-slot="say"]').click();
+  assert.strictEqual(await card.getAttribute('data-state'), 'speaking');
+  const own = card.locator('.ia-hers');
+  assert.strictEqual(await own.getAttribute('data-voice'), 'unblock', 'her voice opens on the card');
+  assert.ok(await card.locator('.ia-sug.hers .ia-was').isVisible(), 'the old suggestion, struck through below');
+  await own.fill('7pm the night before');
+  assert.strictEqual((await card.locator('.ia-say-label').innerText()).trim(), 'Say it again');
+  await card.locator('[data-slot="yes"]').click();
   await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 6000, 'her answer in the team space');
-  assert.match(await page.locator('.team-space .ts-card[data-kind="unblock"] .ts-headline').innerText(), /: 7pm, so the starter can rise$/);
+  assert.strictEqual((await page.locator('.team-space .ts-card[data-kind="unblock"] .ts-headline').innerText()).trim(), 'Orders close 7pm the night before');
   // Two more raises fill her three; a fourth is refused and decided on the suggestion, never asked.
   assert.strictEqual((await raise(run, { ...BO, seat: 'design', question: 'Which loaf leads the page?', suggestion: 'Sourdough', kind: 'call' })).status, 200);
   assert.strictEqual((await raise(run, { ...BO, seat: 'strategy', question: 'What does a loaf cost?', suggestion: '£4.50', kind: 'fact' })).status, 200);

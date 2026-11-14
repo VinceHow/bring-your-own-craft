@@ -77,7 +77,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     li.append(marks, slot(h('span', 'ts-headline', a.headline), 'headline'));
     if (a.withTakeaways === true) li.appendChild(slot(h('span', 'ts-takeaways', 'with your takeaways in mind'), 'takeaways-note'));
     if (a.first) { li.dataset.kind = 'first'; li.dataset.seat = (a.seats || [])[0] || ''; }
-    else if (a.unblock) { li.dataset.kind = 'unblock'; if (a.yours) li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); }
+    else if (a.unblock) { li.dataset.kind = 'unblock'; li.dataset.seat = a.seat || ''; if (a.yours) { li.dataset.her = ''; li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); } }
     else li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
     const ex = slot(h('ol', 'ts-exchange'), 'exchange');
     for (const t of a.turns || []) {
@@ -101,7 +101,9 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     for (const d of new Map(evs.filter(e => e.type === 'decided' && e.round === 'first' && e.choice).map(e => [e.id, e])).values())
       agreed.push({ id: 'fd-' + d.id, seats: [d.seat], headline: d.choice, first: true });
     for (const d of new Map(evs.filter(e => e.type === 'decided' && e.unblock && e.choice).map(e => [e.id, e])).values())
-      agreed.push({ id: 'ub-' + d.id, seats: [d.seat], headline: `${String(d.decision || '').replace(/[.?]+$/, '')}: ${d.choice}`, unblock: true, yours: /^her /.test(d.cites || '') });
+      { const yours = /^her /.test(d.cites || '');
+        agreed.push({ id: 'ub-' + d.id, seat: d.seat, seats: yours ? ['product', d.seat] : [d.seat], unblock: true, yours,
+          headline: d.headline || `${String(d.decision || '').replace(/[.?]+$/, '')}: ${d.choice}` }); }
     for (const c of [...list.children]) {
       const a = agreed.find(x => x.id === c.dataset.joint);
       if (!a || (a.revised && c.dataset.revised !== '1')) c.remove();

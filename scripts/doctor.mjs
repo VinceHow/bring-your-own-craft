@@ -18,7 +18,9 @@ const secrets = () => KEYS.filter(k => k !== 'MODEL_BACKEND').map(k => process.e
 const scrub = s => { let o = scrubModel(s); for (const v of secrets()) o = o.split(v).join('[key]'); return o; };
 const proxied = !!(process.env.HTTPS_PROXY || process.env.https_proxy);
 const results = [];
-const say = (ok, what, fix) => { results.push(ok); console.log(`${ok === true ? 'PASS' : ok === null ? 'NOTE' : 'FAIL'}  ${what}`); if (fix && ok !== true) console.log(`      fix: ${fix}`); };
+// ok: true PASS, false FAIL (required: the exit code is 1), null NOTE, 'warn' WARN (a key that doesn't work: the room
+// still runs, on Claude Code and typed answers).
+const say = (ok, what, fix) => { results.push(ok); console.log(`${ok === true ? 'PASS' : ok === null ? 'NOTE' : ok === 'warn' ? 'WARN' : 'FAIL'}  ${what}`); if (fix && ok !== true) console.log(`      fix: ${fix}`); };
 const short = (e, n = 140) => scrub(e?.message || e).replace(/\s+/g, ' ').slice(0, n);
 
 console.log(`Bring your own craft: doctor\n${describe(env)}\n`);
@@ -65,8 +67,8 @@ for (const k of KEYS.filter(k => k !== 'MODEL_BACKEND')) {
 console.log(`NOTE  MODEL_BACKEND: ${process.env.MODEL_BACKEND || 'claude-code (default)'}`);
 async function call(name, fn, fix) {
   const t0 = Date.now();
-  try { const why = await fn(); say(why === true, why === true ? `${name} works (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `${name}: ${why}`, fix); }
-  catch (e) { say(false, `${name}: ${e?.name === 'TimeoutError' ? 'no answer in 20 s' : short(e)}`, fix); }
+  try { const why = await fn(); say(why === true ? true : 'warn', why === true ? `${name} works (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `${name}: ${why}`, fix); }
+  catch (e) { say('warn', `${name}: ${e?.name === 'TimeoutError' ? 'no answer in 20 s' : short(e)}`, fix); }
 }
 const tryKey = k => set(k) || proxied;
 if (tryKey('FAL_KEY')) await call('fal (Claude through the OpenRouter router)', async () => {
@@ -99,6 +101,7 @@ say(free, `port ${port} ${free ? 'is free' : 'is in use'}`, `stop whatever runs 
 // 6. The browser
 console.log('NOTE  browser: Chrome is recommended. Safari plays the clips too (Range requests), but asks for the mic differently.');
 
-const failed = results.filter(r => r === false).length;
-console.log(`\n${failed ? `${failed} check${failed > 1 ? 's' : ''} failed: see the fix lines above.` : 'All good: run `npm run local`, then open http://localhost:' + port}`);
+const failed = results.filter(r => r === false).length, warned = results.filter(r => r === 'warn').length;
+console.log(`\n${failed ? `${failed} required check${failed > 1 ? 's' : ''} failed: see the fix lines above.`
+  : `All required checks pass${warned ? ` (${warned} warning${warned > 1 ? 's' : ''}: the room still runs)` : ''}: run \`npm run local\`, then open http://localhost:${port}`}`);
 process.exit(failed ? 1 : 0);
