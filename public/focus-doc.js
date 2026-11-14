@@ -35,7 +35,8 @@
       </form>
     </div>
     <aside class="fd-side">
-      <ol class="fd-chimes" data-slot="chimes"></ol>
+      <button type="button" class="fd-read" data-slot="read-conversation" aria-expanded="false" hidden>Read the conversation</button>
+      <ol class="fd-chimes" data-slot="chimes" hidden></ol>
       <div class="fd-brief" data-component="takeaways" data-state="hidden" hidden>
         <div class="brief-head" data-slot="head">Takeaways</div>
         <div class="brief-part brief-believe"><span class="brief-label" data-slot="label">What I believe about this</span><p class="brief-text" data-slot="believe" data-k="believe"></p></div>
@@ -127,6 +128,7 @@
     $('.fd-question').textContent = ask.question || ask.decision || '';
     $('.fd-said').innerHTML = ''; $('.fd-said').classList.remove('speaking');
     $('.fd-chimes').innerHTML = ''; $('.fd-team').textContent = '';
+    doc.querySelectorAll('.pin-reply').forEach(r => { clearTimeout(r._t1); clearTimeout(r._t2); }); conversation(false); readToggle();
     $('.fd-brief').hidden = true; doc.querySelectorAll('.brief-text').forEach(p => { p.textContent = ''; p.contentEditable = 'false'; });
     $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay; clearPieces();
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
@@ -265,6 +267,71 @@
     }
   }
 
+  // ---- after Send she stays on her page: replies show by their pins, then fold into them ------------------
+  // Each reply is anchored to a pin on the work: the journey box it names, else the box the question is about,
+  // else the work itself. It shows (readable 4–8 s, by its length), fades, then folds into the pin; clicking the pin
+  // shows its replies again. The full thread stays in ol.fd-chimes, opened only by "Read the conversation".
+  // Hooks only (data-component / data-slot / data-state); the look is design's.
+  const READ_MIN_MS = 4000, READ_MAX_MS = 8000, FADE_MS = 600;
+  const readMs = text => Math.max(READ_MIN_MS, Math.min(READ_MAX_MS, 2500 + String(text || '').split(/\s+/).filter(Boolean).length * 180));
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  function anchorFor(text) {
+    const w = $('.fd-work'), t = ` ${norm(text)} `;
+    const named = [...w.querySelectorAll('[data-node]')].find(b => { const l = norm(b.textContent); return l.length > 2 && t.includes(` ${l} `); });
+    const el = named || w.querySelector('.fd-target') || w;
+    const ref = named ? named.dataset.node : (el.dataset.node || (cur && cur.artifact && typeof cur.artifact.ref === 'string' && cur.artifact.ref) || w.dataset.kind || 'work');
+    return { el, id: `pin-${String(ref).replace(/[^\w-]/g, '').slice(0, 40) || 'work'}` };
+  }
+  function pinFor(text) {
+    const { el, id } = anchorFor(text);
+    let pin = $(`.fd-pin[data-pin="${id}"]`);
+    if (!pin) {
+      pin = h('span', 'fd-pin'); pin.dataset.component = 'pin'; pin.dataset.pin = id; pin.dataset.state = 'replying';
+      pin.setAttribute('role', 'button'); pin.tabIndex = 0; pin.setAttribute('aria-label', 'Show the replies here');
+      const mark = h('span', 'fd-pin-mark'); mark.dataset.slot = 'mark';
+      const count = h('span', 'fd-pin-count'); count.dataset.slot = 'count';
+      const list = h('div', 'fd-pin-replies'); list.dataset.slot = 'replies';
+      pin.append(mark, count, list);
+      const reopen = e => { if (e.target.closest('.pin-reply')) return; e.preventDefault(); pin.querySelectorAll('.pin-reply').forEach(showReply); };
+      pin.addEventListener('click', reopen);
+      pin.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') reopen(e); });
+      el.appendChild(pin);
+    }
+    return pin;
+  }
+  function pinState(pin) {
+    const rs = [...pin.querySelectorAll('.pin-reply')];
+    pin.dataset.state = rs.some(r => r.dataset.state !== 'folded') ? 'replying' : 'folded';
+    pin.querySelector('.fd-pin-count').textContent = String(rs.length);
+  }
+  function showReply(r) {
+    clearTimeout(r._t1); clearTimeout(r._t2);
+    r.dataset.state = 'shown'; r.hidden = false; pinState(r._pin);
+    r._t1 = setTimeout(() => {
+      r.dataset.state = 'fading';
+      r._t2 = setTimeout(() => { r.dataset.state = 'folded'; r.hidden = true; pinState(r._pin); }, FADE_MS);
+    }, readMs(r._text));
+  }
+  function pinReply(ev) {
+    const pin = pinFor(ev.text);
+    const r = h('div', 'pin-reply'); r.dataset.component = 'pin-reply'; r.dataset.seat = ev.seat || ''; r.dataset.pin = pin.dataset.pin;
+    const w = h('span', 'pin-reply-who', ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)); w.dataset.slot = 'who';
+    const t = h('span', 'pin-reply-text', ev.text || ''); t.dataset.slot = 'text';
+    r.append(w, t); r._pin = pin; r._text = ev.text;
+    pin.querySelector('.fd-pin-replies').appendChild(r);
+    showReply(r);
+    if (M) M.animate(r, { y: [6, 0] }, SPRING);
+  }
+  function conversation(open) {
+    doc.dataset.conversation = open ? 'open' : 'closed';
+    $('.fd-chimes').hidden = !open;
+    const b = $('.fd-read');
+    b.setAttribute('aria-expanded', String(!!open));
+    b.textContent = open ? 'Hide the conversation' : 'Read the conversation';
+  }
+  $('.fd-read').addEventListener('click', () => conversation(doc.dataset.conversation !== 'open'));
+  function readToggle() { $('.fd-read').hidden = !$('.fd-chimes').children.length; }
+
   // ---- the team chimes in, one after another; then her brief -------------------------------------
   const forCur = ev => cur && (!ev.askId || ev.askId === cur.id);
   function pumpChimes() {
@@ -274,7 +341,8 @@
     const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
     const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
     li.append(w, t); doc.dataset.state = 'chiming';
-    $('.fd-chimes').appendChild(li);
+    $('.fd-chimes').appendChild(li); readToggle();
+    pinReply(ev);
     if (M) M.animate(li, { x: [24, 0], y: [-6, 0] }, SPRING);
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
   }
