@@ -304,3 +304,16 @@ test('the phone switch reads a "what the form asks for" field list, and nothing 
   assert.deepEqual(phone('Should the form remember your name and email?', 'No, never'), { phone: true, remember: false });
   assert.equal(phone('What details do we show on the confirmation page?', 'Name and email').phone, true);
 });
+
+test('the phone FIELD turns on only for the customer\'s phone; the business\'s own number never does', () => {
+  const phone = (decision, choice, start = false) => { const sw = { phone: start, remember: true }; applyChoices(sw, [{ decision, choice }]); return sw.phone; };
+  // The bakery rehearsal's c16, exactly: the bakery's own number, shown on an error. Field stays off.
+  assert.equal(phone('What the page does when saving an order fails', 'Show a clear error, keep the choices, offer retry and the bakery phone number'), false);
+  assert.equal(phone('Where customers get help', 'Call us at the shop', false), false);
+  assert.equal(phone('What the confirmation shows', "The bakery's phone number and opening hours", false), false);
+  // Collecting the customer's phone: on.
+  assert.equal(phone('How we tell them it is ready', "Collect customers' phone for pickup texts"), true);
+  assert.equal(phone('The order form', 'Ask for their phone number'), true);
+  // Removing the field: off.
+  assert.equal(phone('The order form', 'No phone field', true), false);
+});
