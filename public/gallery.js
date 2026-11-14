@@ -98,10 +98,7 @@
     { name: 'teammate-card', sel: '.big-card:not([data-seat="product"])', note: 'Caught mid-assembly: the card holds mid-table before it shrinks into its seat.', states: [
       { state: 'holding', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); await wait(300); } },
     ] },
-    { name: 'character-card', sel: '.big-card[data-seat="product"]', note: 'Planned: the character card markup is not built yet; this is her card as it is today.', states: [
-      { state: 'asking', src: '', run: async h => { h.B.reset(); h.stage(1); h.B.stage(2); for (let i = 0; i < 80 && !(h.B.introOpen && h.B.introOpen()); i++) await wait(250); await wait(500); } },
-    ] },
-    { name: 'name-tag', sel: '.name-tag', states: [
+    { name: 'character-card', sel: '.name-tag', note: 'The DIY path (name-tag.js). Her seat path (.big-card[data-seat="product"]) joins once beats builds it.', states: [
       { state: 'asking', src: '', run: async h => { if (!h.B.nameTag) throw new Error('missing: name-tag.js'); h.B.reset(); h.stage(3); h.B.nameTag.open(); } },
     ] },
     { name: 'sketchpad', sel: '.mini-sheet[data-sheet="design"]', states: [

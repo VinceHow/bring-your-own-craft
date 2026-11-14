@@ -24,9 +24,9 @@ Who adds the attributes, file by file:
 | Who adds the attributes | Files |
 |---|---|
 | beats | `room.js`, `focus-doc.js`, `close.js`, `index.html` |
-| builder 6 | `first-sketch.js` |
+| builder 6 | `first-sketch.js`, `name-tag.js` |
 | this doc's author (lead-assigned; those builders are done) | `flow.js`, `sketches.js`, `idea-sheet.js`, `team-space.js` |
-| to confirm with the lead | `name-tag.js`, `replay.js` |
+| to confirm with the lead | `replay.js` |
 
 ---
 
@@ -45,8 +45,7 @@ Who adds the attributes, file by file:
 | `place-card` (a seat's card once filled) | `.seat .card` | `idle` · `working` · `done` · `error` | `band` (`.card-band`), `name` (`.card-name`), `agent` (`.card-agent-name`), `agent-mark` (`.agent-mark`), `stance` (`.card-stance`), `note` (`.card-note`) | on `teammate.start` / `teammate.done` / `teammate.error` |
 | `her-place-card` | `.seat-product .card` | `empty` · `named` (her character is set) | `band`, `who` (`.card-who`), `title` (`.card-title`, planned), `traits` (`.card-traits`, planned); `stance` (`.card-her-stance`) is to be removed | on `intro` |
 | `teammate-card` (big, mid-table, while the team assembles) | `.big-card[data-seat]` | `arriving` · `holding` · `seating` | `band`, `loves` (`.bc-loves`), `brings` (`.bc-brings`), `stance` (`.bc-stance`, to be removed) | on `stage` (beat 2) |
-| `character-card` (her card: build your character) | `.big-card.char-card[data-seat="product"]` (**planned**, markup not built) | `asking` (her "I love…" input) · `writing` (team is writing it) · `ready` (editable) · `kept` | `intro` (`.bc-loves` / `#intro-input`), `name` (`.char-name`), `title` (`.char-title`), `traits` (`.char-traits`), `trait` (`.char-trait`), `power` (`.char-power`), `swap` (`.char-swap`), `seat-pick` (`.char-seat-pick`), `hint` (`.char-hint`) | emit `intro`, `leaned` |
-| `name-tag` (DIY craft, optional path) | `.name-tag` | `asking` · `ready` | `ask` (`.tag-ask`), `input` (`.tag-input`), `craft` (`.tag-craft`), `good-at` (`.tag-good`), `loves` (`.tag-loves`), `hint` (`.tag-hint`) | on `stage`, `reset` |
+| `character-card` (her card: build your character; one component, two roots) | DIY craft: `.name-tag` (builder 6, built) · her seat path: `.big-card[data-seat="product"]` (beats, planned) | `asking` (her sentence) · `thinking` (the team is writing it) · `shown` (every word swappable) | `input` (`.tag-input` / `#intro-input`), `title` (`.tag-title`), `trait` (`.tag-trait`), `superpower` (`.tag-power`), `craft` (`.tag-craft`) | `BYOC.nameTag.open()`; on `stage`, `reset` |
 
 ## 3. The work
 
