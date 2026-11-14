@@ -33,3 +33,10 @@ The loops designer's own log, at listed rates. These are low-end figures: the ra
 | Wave clips v2 + Theo late v2 | wan-3.0-prime i2v, 6 × $0.25 | $1.50 |
 | **Running total** | | **$4.10 of $5** ($1.90 of it went on v1, replaced) |
 Used: public/looks/cast/intro/ (v2 clips re-centred by crop, 540 px, plus door.jpg). v1 is not kept.
+
+### Top-up: click reactions + door opening (Vincent approved $3 more, ceiling $8)
+| What | Model | Cost |
+|---|---|---|
+| 5 tap reactions (Mika doodle, Noor sticky note, Theo tick, Ines globe, Bo offers coffee), 5 s | wan-3.0-prime i2v, 5 × $0.25 | $1.25 |
+| Door swings open, push-in, 16:9 5 s | wan-3.0-prime i2v | $0.25 |
+| **Running total** | | **$5.60 of $8** |
