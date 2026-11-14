@@ -380,12 +380,22 @@
     return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
   }
   // An open pad follows the run: each event redraws it in place (no second seat.open).
-  function refreshPad() { if (!panel.hidden && panel.dataset.component === 'sketchpad-open' && panel.dataset.seat) openSketchpad(panel.dataset.seat, { refresh: true }); }
+  function refreshPad() {
+    if (panel.hidden) return;
+    if (panel.dataset.component === 'sketchpad-open' && panel.dataset.seat) openSketchpad(panel.dataset.seat, { refresh: true });
+    else if (panel.dataset.component === 'workspace') openWorkspace({ refresh: true }); // her workspace follows the run too
+  }
   BYOC.openSketchpad = openSketchpad;
-  function openWorkspace() {
+  function openWorkspace({ refresh = false } = {}) {
     if (BYOC.beat < 1) return;
     const body = h('div', 'ws-body');
-    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; p.dataset.state = 'filled'; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    // An empty part never says "not yet": one plain line on what happens next (data-state empty, data-slot status).
+    const pending = (p, tag, text) => { p.dataset.state = 'empty'; const e = h(tag, tag === 'li' ? 'ws-none' : 'ws-status'); e.dataset.slot = 'status'; e.textContent = text; return e; };
+    const answered = new Set(seen.filter(e => e.type === 'answer').map(e => e.askId));
+    const openAsk = seen.findLast(e => (e.type === 'ask' || e.type === 'ask.unblock') && !answered.has(e.id) && INFO[e.seat]);
+    const openJoint = seen.findLast(e => e.type === 'joint.start' && !seen.some(x => (x.type === 'joint.agreed' || x.type === 'joint.kept') && x.id === e.jointId));
+    const teamStarted = seen.some(e => e.type === 'teammate.start');
     // her character card
     const t = BYOC.herTag || {};
     const ch = part('character', 'Your character');
@@ -394,15 +404,20 @@
     if (t.superpower) { const sp = h('p', 'ws-power'); sp.textContent = t.superpower; ch.appendChild(sp); }
     // her idea and its journey
     const id = part('idea', 'Your idea');
-    const it = h('p', 'ws-idea'); it.textContent = el.herIdea.textContent || 'Not said yet.'; id.appendChild(it);
+    // Her idea from the sheet, else from the run itself (run.start), so it's there the moment the run has it.
+    const idea = (el.herIdea.textContent || '').trim() || (seen.findLast(e => e.type === 'run.start' && e.idea)?.idea || '').trim();
+    if (idea) { const it = h('p', 'ws-idea'); it.textContent = idea; it.dataset.slot = 'idea-text'; id.appendChild(it); }
+    else id.appendChild(pending(id, 'p', 'You’ll say it on the idea sheet; it shows here the moment you do.'));
     const S = BYOC.flow && BYOC.flow._state;
     if (S && S.nodes.size) { const j = h('p', 'ws-journey'); j.textContent = [...S.nodes.values()].map(n => n.label).join(' → '); j.dataset.slot = 'journey'; id.appendChild(j); }
+    else if (idea) { const j = h('p', 'ws-status'); j.dataset.slot = 'status'; j.textContent = `Its journey shows here once ${INFO.design.agent} has sketched it.`; id.appendChild(j); }
     // what the team agreed
     const ts = part('team-space', 'What the team agreed');
     const agreed = [...new Map(seen.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()];
     const tl = h('ul', 'ws-list');
     for (const a of agreed) { const li = h('li', 'ws-agreed'); li.textContent = a.headline; tl.appendChild(li); }
-    if (!agreed.length) { const li = h('li', 'ws-none'); li.textContent = 'Nothing agreed yet.'; tl.appendChild(li); }
+    if (!agreed.length) tl.appendChild(pending(ts, 'li', openJoint ? `The team is agreeing “${openJoint.decision}” now; it lands here.`
+      : teamStarted ? 'What the team agrees lands here as they work.' : 'The team gets going once you’ve said your idea; what they agree lands here.'));
     ts.appendChild(tl);
     // her takeaways so far (the latest per question; what she kept wins)
     const tk = part('takeaways', 'Your takeaways so far');
@@ -410,8 +425,9 @@
     for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
     const kl = h('ul', 'ws-list');
     for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
-    if (!byAsk.size) { const li = h('li', 'ws-none'); li.textContent = 'None yet: they come from your answers.'; kl.appendChild(li); }
+    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${INFO[openAsk.seat].agent}’s question.` : 'They come from your answers to the team’s questions.'));
     tk.appendChild(kl);
+    if (refresh) { const old = panel.querySelector('.ws-body'); if (old) old.replaceWith(body); return; }
     openPanel('workspace', null, 'Your workspace', body);
     emit('workspace.open', {});
   }

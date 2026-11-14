@@ -86,3 +86,40 @@ test("Bo's pad, empty, says what Bo is doing at each point of the run, and follo
   assert.strictEqual(await page.locator('#room-panel .sp-item').count(), 1);
   assert.deepStrictEqual(errors, []);
 });
+
+test('her workspace: empty parts say what happens next; a live run with her idea shows it, filling in while open', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const errs = []; p.on('pageerror', e => errs.push(String(e)));
+  await p.route('**/api/run', r => r.fulfill({ status: 200, json: { run: 'live-run' } })); // her run, as the server makes it
+  await p.route('**/api/run/**', r => r.fulfill({ status: 200, json: { ok: true } }));
+  await p.goto(`http://localhost:${PORT}/?stage=1`);
+  await p.waitForFunction(() => window.BYOC && BYOC.openWorkspace && BYOC.stage);
+  await p.evaluate(() => BYOC.stage(3, { instant: true }));
+  await p.evaluate(() => BYOC.openWorkspace());
+  const part = slot => p.evaluate(s => { const e = document.querySelector(`#room-panel[data-component="workspace"] .ws-part[data-slot="${s}"]`);
+    return e && { state: e.dataset.state, status: e.querySelector('[data-slot="status"]')?.textContent || null, idea: e.querySelector('.ws-idea')?.textContent || null }; }, slot);
+  assert.deepStrictEqual(await part('idea'), { state: 'empty', status: 'You’ll say it on the idea sheet; it shows here the moment you do.', idea: null });
+  assert.strictEqual((await part('team-space')).state, 'empty');
+  assert.match((await part('team-space')).status, /once you’ve said your idea/);
+  assert.strictEqual((await part('takeaways')).status, 'They come from your answers to the team’s questions.');
+  assert.ok(!/Not said yet|Nothing agreed yet/.test(await p.locator('#room-panel').innerText()));
+  await p.keyboard.press('Escape');
+  // Live: she says her idea on the sheet, the way she does on stage.
+  const IDEA = 'A website for a small bakery, so regulars can order bread ahead.';
+  await p.evaluate(() => BYOC.stage(3, { instant: true }));
+  await p.waitForFunction(() => !document.getElementById('her-form').hidden);
+  await p.fill('#her-input', IDEA); await p.press('#her-input', 'Enter');
+  await p.waitForFunction(() => BYOC.run === 'live-run');
+  await p.evaluate(() => BYOC.openWorkspace());
+  assert.deepStrictEqual(await part('idea'), { state: 'filled', status: 'Its journey shows here once Mika has sketched it.', idea: IDEA });
+  // The server's own events land while it's open: the panel follows (takeaways line names who's asking).
+  await p.evaluate(i => { BYOC.dispatch({ run: 'live-run', type: 'run.start', mode: 'craft', idea: i, seat: 'product' }, 'live');
+    BYOC.dispatch({ run: 'live-run', type: 'teammate.start', seat: 'design' }, 'live');
+    BYOC.dispatch({ run: 'live-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'Who walks in most often?', artifact: { kind: 'journey' } }, 'live'); }, IDEA);
+  assert.ok(await p.isVisible('#room-panel[data-component="workspace"]'), 'still open: it redrew in place');
+  assert.strictEqual((await part('idea')).idea, IDEA);
+  assert.strictEqual((await part('takeaways')).status, 'Your first takeaway comes when you answer Noor’s question.');
+  assert.strictEqual((await part('team-space')).status, 'What the team agrees lands here as they work.');
+  assert.deepStrictEqual(errs, []);
+  await p.close();
+});
