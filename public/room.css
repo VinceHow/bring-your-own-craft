@@ -298,3 +298,4 @@ body.stage .fl-src { font-size: 14px; }
 .close-sheet { grid-template-rows: minmax(0, 1fr); grid-template-columns: 430px 1fr; }
 .close-left, .close-right { min-height: 0; }
 .close-asks { transform-origin: 0 0; }
+.mini-lines li { flex: none; }

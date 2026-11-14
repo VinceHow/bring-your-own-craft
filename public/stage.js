@@ -56,7 +56,7 @@
   fit();
 
   const isTyping = t => t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
-  const inClose = () => BYOC.beat === 11 || (BYOC.close && BYOC.close.isOpen && BYOC.close.isOpen());
+  const inClose = () => !!(BYOC.close && BYOC.close.isOpen && BYOC.close.isOpen());
 
   document.addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -69,7 +69,7 @@
     }
     let handled = true;
     if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') next();
-    else if (k === 'ArrowLeft' || k === 'PageUp') BYOC.stage(BYOC.beat - 1);
+    else if (k === 'ArrowLeft' || k === 'PageUp') { if (inClose()) { BYOC.close.close(); if (BYOC.beat === 11) BYOC.stage(10); } else BYOC.stage(BYOC.beat - 1); }
     else if (k === 'Home' || k === '0') BYOC.reset();
     else if (k === 's' || k === 'S') setStageMode(!document.body.classList.contains('stage'));
     else if (k === 'r' || k === 'R') inClose() ? BYOC.close?.replay('cafe') : BYOC.replayRun?.(q.get('replay') || 'rehearsal');

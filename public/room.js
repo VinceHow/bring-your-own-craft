@@ -255,7 +255,8 @@
     const ul = $('.mini-lines', sh);
     const li = h('li', null, esc(text)); li.title = text;
     if (id) sh._items.set(id, li);
-    if (ul.children.length < MAX_LINES[seat]) {
+    // Stage type is bigger, so one line fewer fits each sheet.
+    if (ul.children.length < MAX_LINES[seat] - (document.body.classList.contains('stage') ? 1 : 0)) {
       ul.appendChild(li);
       if (!instantMode) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
     }

@@ -86,7 +86,7 @@
     clearOut();
     $('close-input').value = ''; $('close-input').readOnly = false;
     loadBaseline(); herNumbers();
-    setTimeout(() => $('close-input').focus(), 40);
+    $('close-input').focus({ preventScroll: true }); // at once: the presenter may already be typing
   }
   function clearOut() {
     token++; clearInterval(ticker);
@@ -229,7 +229,8 @@
     if (idea) { $('close-input').blur(); run(idea); }
   });
 
-  BYOC.on('stage', ({ beat }) => { if (beat === 11) open(); else if (isOpen()) close(); });
+  // Beat 11 opens it. Only the presenter closes it (PageUp / Left, or Home); a replay moving beats never does.
+  BYOC.on('stage', ({ beat }) => { if (beat === 11) open(); });
   BYOC.on('reset', close);
   BYOC.close = { open, run, close, replay, isOpen, herNumbers };
 })();
