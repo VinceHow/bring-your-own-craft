@@ -348,17 +348,22 @@ html, body { margin: 0; background: #1A120D; }
        <div class="foot"><button class="btn quiet" id="notnow">Not now</button><button class="btn" id="imdone">I’m done</button></div>`);
     c.appendChild(el); InkPaper.dress(el); redrawAll(el); return el;
   }
+  // the dim over the room: one owner, so a still state always ends where it should
+  let veilAnim = null;
+  function veilTo(v, d) { const vl = $('#veil'); if (veilAnim) veilAnim.stop(); veilAnim = null;
+    if (instant) { vl.style.opacity = v; if (!v) vl.classList.remove('deep'); return; }
+    veilAnim = animate(vl, { opacity: v }, { duration: d }); veilAnim.finished.then(() => { vl.style.opacity = v; if (!v) vl.classList.remove('deep'); }); }
   async function pickTask() { if (open) await collapse(); const el = taskCard('pick'); if (!instant) InkPaper.lay(el); return el; }
   async function onIt() {
     window.studioFocus && window.studioFocus(true);
-    animate('#veil', { opacity: [0, 1] }, { duration: instant ? 0 : .6 }); $('#veil').classList.add('deep');
-    animate(['#tray', ...c.querySelectorAll('.canvas > .pill')], { opacity: 0 }, { duration: instant ? 0 : .4 });   // only the task while she's on it
+    $('#veil').classList.add('deep'); veilTo(1, .6);
+    animate([$('#tray'), ...c.querySelectorAll('.canvas > .pill')], { opacity: 0 }, { duration: instant ? 0 : .4 });   // only the task while she's on it
     const el = taskCard('focus'); if (!instant) InkPaper.lay(el); return el;
   }
   async function imDone() {
     const el = $('#tcard');
     if (!instant) { el.style.transformOrigin = '50% 0'; await animate(el, { scaleY: [1, .4], opacity: [1, 0] }, { duration: .45, ease: [.5, 0, .5, 1] }).finished; }
-    el.remove(); animate('#veil', { opacity: 0 }, { duration: instant ? 0 : .6 }); animate(['#tray', ...c.querySelectorAll('.canvas > .pill')], { opacity: 1 }, { duration: instant ? 0 : .5 });
+    el.remove(); veilTo(0, .6); animate([$('#tray'), ...c.querySelectorAll('.canvas > .pill')], { opacity: 1 }, { duration: instant ? 0 : .5 });
     $('#tray').classList.remove('fold-corner'); empty();
     // the teammate it unblocked: their delighted moment in the room, a short thank-you, then back to work
     const sp = SPOTS.bo, pt = $('#patch'), v = $('#patchV'), [l, t] = P2(sp.patch[0], sp.patch[1]), sz = sp.patch[2] * K;
@@ -372,12 +377,12 @@ html, body { margin: 0; background: #1A120D; }
   }
   async function notNow() {
     const el = $('#tcard'), tray = $('#tray');
-    animate('#veil', { opacity: 0 }, { duration: instant ? 0 : .5 });
+    veilTo(0, .5);
     if (!instant) {
       const a = el.getBoundingClientRect(), t = tray.getBoundingClientRect();
       await animate(el, { x: t.left - a.left, y: t.top - a.top, scale: [1, t.width / a.width], opacity: [1, .25] }, { type: 'spring', visualDuration: .8, bounce: 0 }).finished;
     }
-    el.remove(); window.studioFocus && window.studioFocus(false); tray.style.opacity = 1; c.querySelectorAll('.canvas > .pill').forEach(p => p.style.opacity = 1);
+    el.remove(); window.studioFocus && window.studioFocus(false); animate([tray, ...c.querySelectorAll('.canvas > .pill')], { opacity: 1 }, { duration: instant ? 0 : .5 });
     tray.dataset.who = 'bo'; tray.classList.remove('quiet'); tray.classList.add('fold-corner'); $('#tWho').textContent = 'Bo · only you can do'; $('#tQ').textContent = TASK.title; InkPaper.redraw(tray);
   }
 
