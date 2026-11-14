@@ -11,7 +11,7 @@ const API = 'https://api.elevenlabs.io/v1';
 const MODEL = () => process.env.ELEVENLABS_STT_MODEL || 'scribe_v2';
 const key = () => process.env.ELEVENLABS_API_KEY || 'placeholder-injected-by-proxy';
 const MAX_AUDIO = 4 * 1024 * 1024; // ~20 s of opus is well under 1 MB
-const FIELDS = new Set(['intro', 'idea', 'line', 'close']);
+const FIELD = /^[a-z]{1,20}$/; // intro, idea, reaction, or another data-voice field's name
 
 // Availability cache: re-probe soon after a miss (so a key added mid-session is picked up), rarely after a hit.
 let cache = { available: null, at: 0 };
@@ -44,7 +44,7 @@ const safeRun = r => typeof r === 'string' && /^[A-Za-z0-9][\w.-]{0,120}$/.test(
 
 async function stt(req, res, { body }) {
   const t0 = Date.now();
-  const field = FIELDS.has(body?.field) ? body.field : 'intro';
+  const field = typeof body?.field === 'string' && FIELD.test(body.field) ? body.field : 'intro';
   const run = safeRun(body?.run);
   const audio = typeof body?.audio === 'string' ? body.audio : '';
   if (!audio) return sendJson(res, 400, { error: 'no audio' });
