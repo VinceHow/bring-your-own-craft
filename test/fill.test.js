@@ -288,3 +288,11 @@ test('bakery: a switch the yoga page doesn\'t have is never added to it', async 
     decided: [{ id: 'x', seat: 'strategy', decision: 'Whether regulars get a standing weekly booking', choice: 'Yes', cites: 'team default' }] });
   assert.ok(!('standingOrder' in r.slots.switches));
 });
+
+test('bakery: a decision about regulars landing first stays a regulars-first decision, even if it says "repeat"', async () => {
+  const r = await fillPage({ run: 'r', outDir: tmp(), idea: BAKERY_IDEA, taste: TASTE, template: 'bakery',
+    call: fakeModel({ template: 'bakery', switches: { regularsFirst: false, standingOrder: false } }),
+    decided: [{ id: 'x', seat: 'design', decision: 'Should regulars see a repeat of their usual order first', choice: 'Yes, their usual first', cites: 'team default' }] });
+  assert.equal(r.slots.switches.regularsFirst, true);
+  assert.equal(r.slots.switches.standingOrder, false);
+});
