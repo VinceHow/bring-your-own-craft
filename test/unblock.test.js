@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-unblock-'));
+const { select } = await import('../lib/select.js'); // claims the selector's grantor as it loads
 const { raiseUnblock, answerUnblock } = await import('../lib/unblock.js'); // claims the unblocker as it loads
 const { askUnblock, claimUnblocker, askCount, MAX_ASKS } = await import('../lib/policy.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
@@ -66,4 +67,33 @@ test('only her facts and calls; only lib/unblock.js holds the door; a look-alike
   assert.equal(askUnblock(run, u, Object.freeze({ run, id: 'u-x' })), null, 'forged grant');
   assert.equal(askCount(run), 0);
   assert.ok(readEvents(run).some(e => e.type === 'ask.refused' && /not from the unblock door/.test(e.reason)));
+});
+
+// The mixed case (the lead's condition): two asks through the selector's own door plus one unblock spend her three;
+// after that a further unblock AND a further selector ask are both refused, and the log never holds a fourth ask.
+test('mixed: 2 selector asks + 1 unblock spend the cap; a further unblock and a further selector ask are both refused', async () => {
+  const run = newRunId(uid());
+  const cand = (id, seat, decision) => ({ id, seat, decision, options: ['A', 'B'], recommendation: 'A', reason: 'r', cost: 'high', undoable: false, attachTo: null });
+  const callModel = async ({ system, user }) => /Task: select/.test(system)
+    ? { scores: JSON.parse(user).map(x => ({ id: x.id, changes: 3, silent: 3, big: 3, hers: 3, dupOf: null, kind: 'pin', question: `What about ${x.id}?` })) }
+    : { decisions: [] };
+  const flow = { nodes: [], edges: [] };
+  const first = await select({ run, idea: 'A bakery', flow, taste: [], candidates: [cand('s1', 'product', 'Who it is for'), cand('s2', 'design', 'What leads the page')], callModel, max: 2 });
+  assert.equal(first.asks.length, 2, 'two asks through the selector');
+  assert.equal(askCount(run), 2);
+  const u = raiseUnblock(run, BO);
+  assert.ok(u && u.unblock, 'the unblock takes the third');
+  assert.equal(askCount(run), MAX_ASKS, 'the cap is spent');
+  // A further unblock: refused by the policy, decided on the suggestion.
+  assert.equal(raiseUnblock(run, { ...BO, seat: 'strategy', question: 'What does a loaf cost?', suggestion: '£4.50', kind: 'fact' }), null);
+  // A further selector ask: the selector grants it, and the door still refuses it (re-counting the log).
+  const later = await select({ run, idea: 'A bakery', flow, taste: [], candidates: [cand('s3', 'research', 'Who the regulars are')], callModel });
+  assert.equal(later.asks.length, 0, 'no fourth ask from the selector');
+  const evs = readEvents(run);
+  assert.equal(evs.filter(e => e.type === 'ask').length, MAX_ASKS, 'never a fourth ask in the log');
+  const refused = evs.filter(e => e.type === 'ask.refused');
+  assert.ok(refused.some(e => e.id === 'u-strategy-1' && /cap of 3/.test(e.reason)), 'the unblock was refused at the cap');
+  assert.ok(refused.some(e => e.id === 's3' && /cap of 3/.test(e.reason)), 'the selector\'s pick reached the door and was refused at the cap');
+  assert.ok(evs.some(e => e.type === 'decided' && e.id === 's3'), 'and decided for her');
+  assert.ok(!evs.some(e => e.type === 'ask' && e.id === 's3'));
 });
