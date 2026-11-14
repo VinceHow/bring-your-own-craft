@@ -142,6 +142,18 @@
         $('close-her-src').innerHTML = `counted from this run’s log: <b id="close-decided">${h.fromFile}</b> decided from the file${h.replay ? ' · REPLAY' : ''}`;
         $('close-her').hidden = false;
         if (M) M.animate($('close-her'), { x: [-40, 0] }, SPRING);
+        // Her log can still grow after this count (a revisit of a team agreement against her line lands a few seconds
+        // later): keep the numbers on screen equal to the log while the close is up, for up to 30 s.
+        (async () => {
+          for (let i = 0; i < 20 && my === token && isOpen(); i++) {
+            await wait(1500);
+            if (my !== token || !isOpen()) return;
+            const n = await herNumbers();
+            if (my !== token || !n || n.fromFile <= 0) continue;
+            if ($('close-decided') && $('close-decided').textContent !== String(n.fromFile)) $('close-decided').textContent = n.fromFile;
+            if ($('close-asked').textContent !== String(n.asked)) $('close-asked').textContent = n.asked;
+          }
+        })();
         await wait(1200);
         if (my !== token) return;
       }
