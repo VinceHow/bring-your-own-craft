@@ -7,13 +7,18 @@ import { sendJson } from '../lib/http.js';
 import { scrub } from '../lib/model.js';
 import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
 import { dealDesign } from '../lib/design.js';
-import { decideRest, loadRest } from '../lib/select.js';
+import { decideRest, loadRest, decideCore } from '../lib/select.js';
+import { guestLinesFor } from '../lib/guest.js';
+import { revisitJoint } from '../lib/joint.js';
 import { SEED } from '../lib/taste.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
 
 let decideRestImpl = decideRest;
 let dealImpl = dealDesign;
+let decideCoreImpl = decideCore;
+// For tests only: swap the joint agreements' re-decision call. null restores the real one.
+export function _setDecideCore(fn) { decideCoreImpl = fn || decideCore; }
 // For tests only: swap Design's live deal. null restores the real one.
 export function _setDeal(fn) { dealImpl = fn || dealDesign; }
 // For scripts/tests only: swap the re-decision (fill-demo's --sample-decide). null restores the real one.
@@ -23,10 +28,12 @@ export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 async function redecide(run, tasteMd, { idea, flow }) {
   // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.
   const settled = new Set(readEvents(run).filter(e => e.type === 'answer.mapped').flatMap(m => (m.decisions || []).map(d => d.id)));
-  const out = await decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' });
-  // What the team agreed in the team space (lib/joint.js) isn't re-decided (loadRest skips it); it reaches the page as agreed.
-  const joint = [...new Map(readEvents(run).filter(e => e.type === 'decided' && e.round === 'joint')
-    .map(({ id, seat, decision, choice, cites }) => [id, { id, seat, decision, choice, cites }])).values()];
+  // What the team agreed in the team space (lib/joint.js) isn't re-decided with the rest (loadRest skips it); it reaches
+  // the page as agreed, unless her takeaways or her answers since touch it (revisitJoint), in parallel with the rest.
+  const [out, joint] = await Promise.all([
+    decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' }),
+    revisitJoint(run, { decide: cands => decideCoreImpl(cands, tasteMd, { idea, flow, guest: guestLinesFor(run) }) }),
+  ]);
   return [...joint, ...(Array.isArray(out) ? out : (out?.decided || []))];
 }
 
