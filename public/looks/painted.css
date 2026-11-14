@@ -411,9 +411,7 @@ html #room .seat .card.leaning { transform: translateY(-3px); box-shadow: var(--
 
 /* ---- (e) her stool: a warm light on the pink cushion and her pill in the same family; "Take your seat" before she sits ---- */
 html #room .seat-product { left: 622px; top: 676px; width: auto; height: auto; z-index: 7; }
-html #room .seat-product::before { content: ''; position: absolute; left: -70px; top: -51px; width: 280px; height: 200px; border-radius: 50%; pointer-events: none; z-index: -1;
-  background: radial-gradient(closest-side, rgba(255,238,212,.62), rgba(255,226,190,.26) 58%, rgba(255,200,150,0)); animation: pt-glow 5.5s ease-in-out infinite; }
-@keyframes pt-glow { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
+/* no light on her stool: it's just a chair (Vincent) */
 html #room .seat-product .seat-empty { position: relative; inset: auto; display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px 10px 12px;
   border: 0; border-radius: 999px 999px 999px 8px; background: #FCEFF1; background-image: var(--tooth); box-shadow: var(--shadow); font-size: 0; cursor: pointer; }
 html #room .seat-product .seat-empty::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--product); animation: pt-breathe-her 3.6s ease-in-out infinite; }
