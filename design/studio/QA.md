@@ -15,7 +15,9 @@ Vincent, 14 Nov (~23:25 UTC): "I don't want to flag them one by one." Every desi
    - anything floating detached from what it belongs to;
    - default browser controls (grey buttons, square inputs);
    - blank or uninformative states (Vincent can't tell what's happening);
-   - contrast under 4.5:1.
+   - contrast under 4.5:1;
+   - the room not covering the viewport (dark bands, the floor or her stool cut off), or edge UI outside the visible area;
+   - toys that shake or jitter when clicked instead of a deliberate, readable reaction.
 4. **Selectors** only on `data-component` / `data-slot` / `data-state` (docs/COMPONENTS.md), never class names.
 5. **The handover message** lists the screenshot paths, the sizes checked, and anything not checked.
 
