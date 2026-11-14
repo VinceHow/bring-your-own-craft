@@ -312,7 +312,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
   await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
   await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
-  assert.match(await page.textContent('#inbox .inbox-now'), /Noor · Research[\s\S]*Who should we build this for first\?/);
+  assert.match(await page.textContent('#inbox .inbox-now'), /Noor · Research[\s\S]*Who should we build this for/);
   await page.keyboard.press('PageDown'); // the clicker opens it
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
@@ -358,6 +358,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   console.log('Mika\'s morning:', (await page.locator('#focus-doc .jw-step').allTextContents()).join(' | '));
   assert.ok(n >= 3 && n <= 6, `3 to 6 steps, got ${n}`);
   assert.strictEqual(await page.locator('#focus-doc .fd-wires, #focus-doc .sk-frame').count(), 0, 'no screens');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in Mika\'s morning');
   await page.locator('#focus-doc .fd-input').fill("Like the baker already knows you. Don't ask for anything you already know.");
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.events().some(e => e.type === 'journey.words.rewritten'), 40000, 'Mika rewrote the steps');

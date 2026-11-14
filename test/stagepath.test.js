@@ -9,7 +9,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-stage-'));
 const { proposeAndSelect, askOne } = await import('../lib/select.js');
-const { firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
+const { noPronouns, firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
 const { answerUnblock } = await import('../lib/unblock.js');
 const { firstSketch } = await import('../lib/sketch.js');
 const { MAX_ASKS, askCount } = await import('../lib/policy.js');
@@ -166,4 +166,10 @@ test('her first decision never brings back a field she didn\'t ask for: "name an
   // She mentioned it herself: kept.
   assert.equal(addsContact({ decision: 'Confirmations', choice: 'Text them on their phone when it is ready' }, 'text me on my phone when it is ready'), false);
   assert.equal(addsContact({ decision: 'Confirmations', choice: 'Text them on their phone when it is ready' }, said), true);
+});
+
+test('Mika\'s morning never puts a pronoun in the room: any that slip through become the regular\'s name', () => {
+  assert.equal(noPronouns('She reorders her usual loaf; they hold it for him.'), "Sam reorders Sam's usual loaf; Sam hold it for Sam.");
+  assert.equal(noPronouns('Sam picks it up, still warm.'), 'Sam picks it up, still warm.');
+  assert.equal(noPronouns('The baker knows how many to bake'), 'The baker knows how many to bake');
 });
