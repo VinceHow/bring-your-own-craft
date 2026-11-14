@@ -109,7 +109,8 @@
     { name: 'idea-sheet', sel: '#her-sheet', states: [
       { state: 'blank', src: '', run: async h => { h.B.reset(); h.stage(3); } },
       { state: 'rough', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'flow.line' }); } },
-      { state: 'sketched', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); } },
+      { state: 'sketched', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'flow.reset' || ev.type === 'ask' }); } },
+      { state: 'reshaped', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); } },
       { state: 'wires', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.step' }); } },
       { state: 'page', src: R, run: async h => { h.play('rehearsal'); await wait(1500); } },
     ] },
@@ -123,12 +124,8 @@
     { name: 'page-frame', sel: '.page-frame', states: [
       { state: 'built', src: R, run: async h => { h.play('rehearsal'); await wait(1500); } },
     ] },
-    { name: 'her-file', sel: '#file-card', states: [
-      { state: 'empty', src: '', run: async h => { h.B.reset(); h.stage(3); } },
-      { state: 'filled', src: R, run: async h => { h.play('rehearsal'); } },
-    ] },
     { name: 'tally', sel: '#tally', states: [
-      { state: 'settled', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.done' }); await wait(1500); } },
+      { state: 'counting', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.done' }); await wait(1500); } },
     ] },
     { name: 'tray', sel: '#tray', states: [
       { state: 'waiting', src: F, run: async h => { h.play('fixture'); } },
@@ -138,7 +135,7 @@
     ] },
     { name: 'focus-doc', sel: '#focus-doc', states: [
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },
-      { state: 'answered', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); } },
+      { state: 'answered (her words placed by the gallery; data-state stays as the code left it)', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); } },
       { state: 'chiming', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); await wait(1200); } },
       { state: 'takeaways', src: R + ' + ' + S, run: async h => { await focusOpen(h); said(h, HER); CHIMES.forEach(c => h.emit('chime', c)); h.emit('takeaways', BRIEF); h.emit('answer.mapped', { askId: 'gallery-ask' }); await wait(2600); } },
     ] },
