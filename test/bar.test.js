@@ -112,3 +112,57 @@ test('the scorer must name a domain; code checks it against hers', async () => {
   assert.match(sys, /Her domains, the areas that are hers: target customer, customer problem, user journey/);
   assert.deepStrictEqual([m.get('c1').inDomain, m.get('c2').inDomain], [false, true]);
 });
+
+const TWO = 'What brings someone back to this bakery week after week, and what do they want to be done with in under a minute?';
+
+test('one question at a time: one "?", no second clause, about 20 words', async () => {
+  const { oneBreath, firstQuestion } = await import('../lib/select.js');
+  assert.ok(!oneBreath(TWO));
+  assert.strictEqual(firstQuestion(TWO), 'What brings someone back to this bakery week after week?');
+  assert.ok(!oneBreath('Who is it for? What do they need?'));
+  assert.strictEqual(firstQuestion('Who is it for? What do they need?'), 'Who is it for?');
+  assert.ok(!oneBreath('How early can a customer know what bread they want, and how early does the baker need to know?'));
+  assert.ok(!oneBreath('What do people need to feel before they trust a studio enough to put money down for something permanent and lasting forever?'), 'over 20 words');
+  for (const ok of ['What makes someone come back to the same bakery week after week?',
+    'What do you want a customer to feel in the minute after they\'ve ordered their bread?',
+    "What makes someone feel at ease booking, whether it's their first visit or their fiftieth?"])
+    assert.ok(oneBreath(ok), ok);
+});
+
+test('a two-in-one is sent back once; a good rewrite is kept, else it is trimmed to the first question', async () => {
+  const { oneQuestion } = await import('../lib/select.js');
+  let calls = 0;
+  const good = async ({ system }) => { calls++; assert.match(system, /Task: one-question/); return { question: 'What brings someone back to this bakery every week?' }; };
+  assert.deepStrictEqual(await oneQuestion(TWO, { callModel: good }), { question: 'What brings someone back to this bakery every week?', fixed: 'rewritten' });
+  assert.strictEqual(calls, 1);
+  const stillTwo = async () => { calls++; return { question: TWO }; };
+  assert.deepStrictEqual(await oneQuestion(TWO, { callModel: stillTwo }), { question: 'What brings someone back to this bakery week after week?', fixed: 'trimmed' });
+  const broken = async () => { throw new Error('down'); };
+  assert.strictEqual((await oneQuestion(TWO, { callModel: broken })).fixed, 'trimmed');
+  calls = 0;
+  const fine = 'What makes someone come back to the same bakery week after week?';
+  assert.deepStrictEqual(await oneQuestion(fine, { callModel: good }), { question: fine, fixed: null });
+  assert.strictEqual(calls, 0, 'a good question costs no call');
+});
+
+test('end to end: a teammate\'s two-in-one reaches her as one question, and the log says it was fixed', async () => {
+  const fs = await import('node:fs'); const os = await import('node:os'); const path = await import('node:path');
+  process.env.RUNS_DIR ||= fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-bar-'));
+  const { select } = await import('../lib/select.js');
+  const { newRunId, readEvents } = await import('../lib/events.js');
+  const { initTaste } = await import('../lib/taste.js');
+  const run = newRunId(`b-${Math.random().toString(36).slice(2, 8)}`); initTaste(run);
+  const callModel = async ({ system, user }) => {
+    const t = (system.match(/^# Task: ([\w-]+)/m) || [])[1];
+    const items = JSON.parse(user);
+    if (t === 'select') return { scores: items.map(c => ({ id: c.id, big: 3, hers: 3, silent: 3, changes: 3, dupOf: null, kind: 'pin', domain: 'target customer' })) };
+    if (t === 'decide') return { decisions: items.map(c => ({ id: c.id, choice: c.recommendation, cites: 'team default' })) };
+    if (t === 'one-question') return { question: 'Still two, and what else?' };
+    throw new Error(t);
+  };
+  const r = await select({ run, idea: 'A website for a small bakery.', flow, taste: [], candidates: [cand(1, { question: TWO })], callModel });
+  assert.strictEqual(r.asks[0].question, 'What brings someone back to this bakery week after week?');
+  const ev = readEvents(run).find(e => e.type === 'ask');
+  assert.strictEqual(ev.question, r.asks[0].question);
+  assert.strictEqual(ev.questionFixed, 'trimmed');
+});
