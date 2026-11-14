@@ -12,6 +12,7 @@ const J = await import('../lib/joint.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste } = await import('../lib/taste.js');
 const { counter } = await import('../lib/tally.js');
+const { loadRest } = await import('../lib/select.js');
 
 const cand = (id, seat, decision, extra = {}) => ({ id, seat, decision, options: ['A way', 'B way'], recommendation: 'A way',
   reason: 'r', cost: 'high', undoable: true, attachTo: null, ...extra });
@@ -152,4 +153,26 @@ test('in the background after select.done, once per run; never for a judge\'s fa
   logEvent(fast, 'select.done', { came: 5, brought: 0 });
   await new Promise(r => setTimeout(r, 50));
   assert.ok(!readEvents(fast).some(e => e.type === 'joint.start'));
+});
+
+test('at Build, what the team agreed in the team space is never re-decided', async () => {
+  const run = newRun();
+  await J.runJoint(run, { max: 1, callModel: fakeModel() });
+  const rest = loadRest(run).map(c => c.id);
+  assert.ok(!rest.includes('c2'), 'agreed: not re-decided');
+  assert.ok(rest.includes('c1') && rest.includes('c3'), 'the rest still are');
+});
+
+test('the build passes the team\'s agreement to her page as agreed, and re-decides only the rest', async () => {
+  const { buildRun, _setDecideRest } = await import('../routes/build.js');
+  const run = newRun();
+  await J.runJoint(run, { max: 1, callModel: fakeModel() });
+  let given = null, filled = null;
+  _setDecideRest(async cands => { given = cands.map(c => c.id); return []; });
+  // the fill's model call: capture the decisions it was handed, then stop
+  try { await buildRun(run, { call: async a => { filled = a; throw new Error('stop here'); } }); } catch {}
+  _setDecideRest(null);
+  assert.ok(given && !given.includes('c2'), `re-decided: ${given}`);
+  const agreedIn = readEvents(run).some(e => e.type === 'build.step') && JSON.stringify(filled ?? '').includes('Whether payment is taken online');
+  assert.ok(agreedIn, 'the agreed decision reached the fill');
 });
