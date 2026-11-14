@@ -47,3 +47,5 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 14:05 | agents (lead) | Her card's 'I love…' line: optional `intro` on POST /api/run becomes L1 (her words), one prepared seed line stays as L2 | smallest seam; keeps her new line at L3 |
 | Sat 14:10 | agents (lead) | demo-2: whole yoga script end to end on main, e2e 10/10, build beat 24.7 s; beats merge held back (5 e2e failures with polish.css on main), sent back to fix | main stays demoable |
 | Sat 14:18 | agents (lead) | Browser-closed e2e failures traced to builder 4's headless café session running `pkill -f chrome` before each gate run; stopped. Beats + strategy merges pushed only after a clean 15/15 e2e | diagnosis before patch |
+| Sat 14:25 | Vincent (via PO) | Voice (ElevenLabs STT, push-to-talk) is core for her intro and idea; typed fallback always | |
+| Sat 14:25 | agents (lead) | Her open ask zooms to readable size (≥18 px at 1280) rather than trimming the selector's words | 13 px was too small on stage |
