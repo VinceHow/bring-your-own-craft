@@ -4,7 +4,7 @@ Product owner, with the lead, the build lead and the design lead. 14 Nov, ~21:15
 Vincent confirmed), `docs/BAKERY-BRIEF.md` (his bakery walkthrough). Status: **agreed** (Vincent delegated the call to the lead, the build lead, design and the PO; all four agree).
 
 **The answer: feasible. Usage is at 28% after this afternoon's reset (the lead watches the burn and alerts if the
-overnight pace would pass ~70% before the demo), and the hard freeze is 10:00, so the full ~18.5 builder-hours fit.
+overnight pace would pass ~60% before the demo), and the hard freeze is 10:00, so the full ~18.5 builder-hours fit.
 The four cuts below are now the pre-agreed cut order, applied only if the 60% usage alarm, the 00:00 check or the 02:00 check says so.**
 
 ## Scope, in priority order (builder-hours, estimated from 21:10)
