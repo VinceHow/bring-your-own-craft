@@ -1,0 +1,41 @@
+{
+  "words": {
+    "title": "Corvell: pastry pre-orders for Walkley, Sheffield",
+    "brand": "Corvell",
+    "heroTitle": "Morning pastries to pre-order in Walkley",
+    "heroLead": "Order by 20:00, collect from 07:00 on your way to work, Tuesday to Sunday.",
+    "regularsTitle": "Order your usual",
+    "regularsLead": "Your last order on this device, ready to send again for tomorrow morning.",
+    "regularsUsual": "Two cardamom buns",
+    "regularsWhen": "Tomorrow at 07:45",
+    "regularsAction": "Order my usual again",
+    "regularsSent": "Your usual is ordered. The confirmation email is on its way.",
+    "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here the next evening.",
+    "classesTitle": "Tomorrow’s pastries",
+    "classesLead": "Order by 20:00 tonight; the counts drop as orders come in.",
+    "waitlistAction": "Join the waitlist",
+    "classBody": "A butter dough rolled with ground cardamom and sugar, then knotted by hand. It comes out of the oven at 06:30 and goes best with a filter coffee.",
+    "confirmTitle": "Pre-order for tomorrow",
+    "confirmLead": "No account needed. Order by 20:00 for the next morning.",
+    "confirmSent": "Your pastry pre-order is in. The confirmation email is on its way.",
+    "phoneLabel": "Phone (optional)",
+    "rememberLabel": "Remember me on this device",
+    "bookedTitle": "After you pre-order",
+    "bookedBody": "The confirmation email arrives once the order is in.",
+    "cancelLine": "Cancel in one tap from your confirmation email.",
+    "cancelReasonLine": "Tell us why (optional)",
+    "decidedTitle": "Decided for you",
+    "decidedLead": "Four choices behind this order page, each with where it came from.",
+    "heroAction": "Pre-order pastries"
+  },
+  "switchAttrs": {
+    "regulars": "regulars",
+    "waitlist": "waitlist",
+    "phone": "phone",
+    "remember": "remember",
+    "cancel": "oneTapCancel",
+    "cancel-reason": "cancelReason"
+  },
+  "switches": { "regulars": true, "regularsFirst": true, "waitlist": true, "phone": true, "remember": true, "oneTapCancel": true, "cancelReason": true },
+  "steps": ["regulars", "classes", "class", "confirm", "booked"]
+}
