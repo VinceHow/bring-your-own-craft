@@ -6,99 +6,113 @@
 <link rel="stylesheet" href="lamp.css">
 <link rel="stylesheet" href="journey.css">
 <style>
-/* Grid: 64px outer margins, 24px gutters. Five stations across; below, the idea sheet (8 cols) and the team space (4 cols). */
-:root { --m: 64px; --g: 24px; }
+/* The grid: 56px outer margins on all four sides; ten columns of 127.2px with 24px gutters.
+   Pads take two columns each; the idea sheet seven, the team space three; her seat sits on columns 5 and 6, the tray on 7 and 8.
+   Rows: pads 56–188, chatter 200–244, the work 276–744, her seat 768–844. */
+:root { --m: 56px; --g: 24px; --col: 127.2px; }
 
-/* a warmer pool of lamplight over the middle of the table, where the idea sheet sits */
-.lamp { position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 46% 52% at 44% 56%, rgba(255,190,110,.20) 0%, rgba(255,170,90,.07) 45%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; }
+/* the lamp hangs over the middle of the table: a warmer, tighter pool there, on top of the table's own light */
+.lamp { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
+  background:
+    radial-gradient(ellipse 34% 40% at 46% 52%, rgba(255,186,108,.20) 0%, rgba(255,170,92,.09) 50%, rgba(255,160,80,0) 100%),
+    radial-gradient(ellipse 62% 70% at 48% 50%, rgba(255,176,96,.08) 0%, rgba(255,176,96,0) 70%); }
 
-/* ---- teammates' stations along the far side ---- */
-.stations { position: absolute; left: var(--m); right: var(--m); top: 40px; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--g); }
-.pad { position: relative; height: 164px; padding: 18px 18px 14px; display: flex; flex-direction: column; }
-.pad::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .85; }
-.station:nth-child(1) .pad { rotate: -.6deg; } .station:nth-child(2) .pad { rotate: .4deg; } .station:nth-child(3) .pad { rotate: -.3deg; }
-.station:nth-child(4) .pad { rotate: .5deg; } .station:nth-child(5) .pad { rotate: -.4deg; }
+/* ---- teammates' sketchpads along the far side ---- */
+.stations { position: absolute; left: var(--m); right: var(--m); top: var(--m); display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--g); }
+.pad { position: relative; height: 132px; padding: 19px 18px 14px; display: flex; flex-direction: column; }
+.pad::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .8; }
+.station:nth-child(1) .pad { rotate: -.5deg; } .station:nth-child(2) .pad { rotate: .35deg; } .station:nth-child(3) .pad { rotate: -.25deg; }
+.station:nth-child(4) .pad { rotate: .45deg; } .station:nth-child(5) .pad { rotate: -.35deg; }
 .who-row { display: flex; align-items: center; gap: 8px; }
 .who-row .name { font: 500 18px/1 var(--serif); }
 .who-row .seat { margin-left: auto; }
-.on { margin-top: 12px; font: 400 16px/1.3 var(--serif); color: var(--ink); }
+.on { margin-top: 10px; font: 400 16px/1.3 var(--serif); color: var(--ink); white-space: nowrap; }
+/* each pad keeps one small, real piece of its work at the foot */
 .art { margin-top: auto; }
-.art.src { font: 400 13px/1.35 var(--sans); color: var(--ink-2); padding-top: 8px; border-top: 1px solid var(--rule); }
-.art.src u { text-decoration-color: rgba(200,102,47,.6); text-underline-offset: 3px; }
-.art.tag { align-self: flex-start; font: 500 13px/1 var(--sans); color: #6E5530; background: rgba(156,122,69,.14); border-radius: 2px; padding: 6px 8px; }
-.art.metric { display: flex; align-items: baseline; gap: 8px; padding-top: 8px; border-top: 1px solid var(--rule); font: 400 13px/1.35 var(--sans); color: var(--ink-2); }
-.art.metric i { font: italic 400 15px/1 var(--serif); color: var(--data); }
-svg.art { display: block; width: 100%; height: 40px; }
+.art.src { font: 400 13px/1.45 var(--sans); color: var(--ink-2); }
+.art.src span { display: block; }
+.art.src q { font: italic 400 15px/1.3 var(--serif); color: var(--ink); quotes: '“' '”'; display: block; margin-bottom: 2px; }
+.art.src u { text-decoration-color: rgba(200,102,47,.55); text-underline-offset: 3px; }
+.art.num b { display: block; font: italic 400 19px/1.1 var(--serif); color: var(--data); }
+.art.num span { display: block; margin-top: 3px; font: 400 13px/1.3 var(--sans); color: var(--ink-2); }
+.art.price { align-self: flex-start; display: flex; align-items: baseline; gap: 10px; padding: 7px 12px 7px 10px; border: 1px dashed rgba(156,122,69,.6); border-radius: 3px; background: rgba(156,122,69,.07); }
+.art.price b { font: italic 400 16px/1 var(--serif); color: #6E5530; }
+.art.price span { font: 400 13px/1 var(--sans); color: var(--ink-2); }
+svg.art { display: block; width: 100%; height: 38px; overflow: visible; }
 
-/* chatter: under each pad, on the wood. Only what really happened, never to her. */
-.chat { position: relative; height: 44px; margin: 14px 4px 0; }
-.chat .line { position: absolute; inset: 0 0 auto 0; display: flex; gap: 8px; align-items: baseline;
-  font: italic 400 15px/1.35 var(--serif); color: rgba(245,238,226,.88);
-  opacity: 0; translate: 0 6px; transition: opacity var(--t-mid) var(--settle), translate var(--t-mid) var(--settle); }
-.chat .line .mark { translate: 0 3px; }
+/* chatter: on the wood under each pad. Real lines between teammates, never to her. */
+.chat { position: relative; height: 44px; margin: 12px 2px 0; }
+.chat .line { position: absolute; left: 0; right: 0; top: 0; display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: start;
+  font: italic 400 15px/1.4 var(--serif); color: rgba(245,238,226,.9);
+  opacity: 0; translate: 0 6px; transition: opacity var(--t-mid) var(--settle), translate var(--t-slow) var(--settle); }
+.chat .line .mark { margin-top: -1px; }
 .chat .line.on { opacity: 1; translate: 0 0; }
-.chat .line.on.old { opacity: .45; }
-.chat .line.gone { opacity: 0; translate: 0 -4px; }
+.chat .line.on.old { opacity: .52; transition: opacity 1400ms var(--glide); }
 
 /* ---- the idea sheet ---- */
-.idea { position: absolute; left: var(--m); top: 312px; width: 980px; height: 412px; padding: 32px 40px 32px; }
-.idea h1 { margin: 0; font: 400 30px/1.16 var(--serif); letter-spacing: -.014em; max-width: 640px; }
+.idea { position: absolute; left: var(--m); top: 276px; width: calc(7 * var(--col) + 6 * var(--g)); height: 468px; padding: 34px 40px 26px;
+  display: flex; flex-direction: column; rotate: -.15deg; }
+.idea h1 { margin: 0; font: 400 30px/1.16 var(--serif); letter-spacing: -.014em; max-width: 620px; color: var(--ink); }
 .idea .by { margin-top: 12px; display: flex; align-items: center; gap: 6px; }
-.idea .journey { margin-top: 34px; width: 640px; --lane-w: 160px; --row-gap: 16px; }
-.idea .journey .step { margin-right: 20px; }
-/* her words, pinned beside the regulars lane, a thin pencil lead pointing at it */
-.note-hers { position: absolute; left: 726px; top: 168px; width: 214px; padding: 14px 16px 15px; rotate: 1.4deg;
-  background: #F4D7DC; border-radius: 2px; box-shadow: var(--lift-sm); font: italic 400 16px/1.38 var(--serif); color: #4A2230; }
-.note-hers .label { display: flex; gap: 6px; align-items: center; color: #8A4A5E; font-style: normal; margin-bottom: 8px; }
-.lead { position: absolute; left: 676px; top: 238px; width: 50px; height: 1px; background: rgba(201,80,111,.55); }
-.lead::before { content: ''; position: absolute; left: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--product); }
-.idea .foot { position: absolute; left: 40px; right: 40px; bottom: 26px; display: flex; justify-content: space-between; align-items: center;
-  padding-top: 14px; border-top: 1px solid var(--rule); }
+.idea .journey { margin-top: 32px; --lane-w: 162px; --row-gap: 25px; --step-pad: 11px 12px; grid-template-columns: var(--lane-w) repeat(3, 1fr) 222px; }
+.idea .journey .step { margin-right: 21px; }
+.idea .journey .end { margin-right: 0; }
+/* her words, pinned beside the regulars' row; a faint pencil lead runs from the row to the note */
+.note-hers { grid-column: 5; grid-row: 2 / span 2; align-self: start; position: relative; margin: -6px 0 0 26px; padding: 13px 15px 14px; rotate: 1.2deg;
+  background: #F4D9DD; border-radius: 3px; box-shadow: var(--lift-sm); font: italic 400 16px/1.38 var(--serif); color: #4A2230; }
+.note-hers .who-n { display: flex; gap: 7px; align-items: center; font: 500 13px/1 var(--sans); color: #8A4A5E; margin-bottom: 8px; }
+.note-hers::before { content: ''; position: absolute; left: -26px; top: 26px; width: 22px; height: 1px; background: rgba(201,80,111,.5); }
+.note-hers::after { content: ''; position: absolute; left: -29px; top: 23px; width: 7px; height: 7px; border-radius: 50%; background: var(--product); }
+.idea .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid var(--rule); }
 .idea .foot .label b { font-weight: 500; color: var(--ink-2); }
 
-/* ---- team space ---- */
-.space { position: absolute; left: 1068px; top: 312px; width: 468px; }
+/* ---- team space: what they agreed among themselves ---- */
+.space { position: absolute; left: calc(var(--m) + 7 * (var(--col) + var(--g))); top: 276px; width: calc(3 * var(--col) + 2 * var(--g)); height: 468px;
+  display: flex; flex-direction: column; }
 .space-h { display: flex; align-items: baseline; justify-content: space-between; color: rgba(245,238,226,.66); font: 500 13px/1 var(--sans); margin: 0 2px 14px; }
-.slot { display: grid; grid-template-rows: 1fr; }
-.slot > .decision { min-height: 0; }
+.slot { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 1100ms var(--settle); }
 .slot.closed { grid-template-rows: 0fr; }
-.slot.closed > .decision { overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; opacity: 0; }
-.slot { transition: grid-template-rows var(--t-slow) var(--settle); }
-.slot > .decision { transition: padding var(--t-slow) var(--settle), margin var(--t-slow) var(--settle); }
+.slot > div { min-height: 0; }
 .decision { padding: 15px 18px 13px; margin-bottom: 12px; }
-.decision p { margin: 0; font: 400 18px/1.3 var(--serif); }
+.decision p { margin: 0; font: 400 18px/1.3 var(--serif); color: var(--ink); }
 .decision .marks { margin-top: 10px; display: flex; gap: 4px; align-items: center; }
 .decision .marks .label { margin-left: 6px; }
-.decision.fresh { opacity: 0; translate: 0 -14px; scale: 1.015; box-shadow: 0 2px 2px rgba(20,12,6,.2), 0 18px 30px -8px rgba(20,12,6,.45), 0 44px 70px -20px rgba(10,6,3,.6);
-  transition: opacity 700ms var(--settle), translate var(--t-slow) var(--settle), scale var(--t-slow) var(--settle), box-shadow 1200ms var(--settle); }
+.d2 { rotate: -.35deg; } .d3 { rotate: .3deg; } .d4 { rotate: -.2deg; }
+/* the new agreement is set down: it arrives a little high and lifted, its shadow long, and settles onto the table */
+.decision.fresh { opacity: 0; translate: 0 -18px; scale: 1.02;
+  box-shadow: 0 2px 2px rgba(20,12,6,.18), 0 16px 28px -8px rgba(20,12,6,.42), 0 46px 72px -22px rgba(10,6,3,.6);
+  transition: opacity 600ms var(--settle), translate 1200ms var(--settle), scale 1200ms var(--settle), box-shadow 1400ms var(--settle); }
 .decision.fresh.landed { opacity: 1; translate: 0 0; scale: 1; box-shadow: var(--lift); }
-.d2 { rotate: -.4deg; } .d3 { rotate: .35deg; }
-.tally { position: relative; height: 20px; margin: 16px 2px 0; font: 400 14px/1.4 var(--sans); color: rgba(245,238,226,.62); }
-.tally span { position: absolute; left: 0; top: 0; transition: opacity var(--t-slow) var(--glide); }
-.tally b { font-weight: 500; color: rgba(245,238,226,.9); }
+.tally { position: relative; height: 20px; margin: auto 2px 24px; font: 400 14px/20px var(--sans); color: rgba(245,238,226,.62); }
+.tally > span { position: absolute; left: 0; top: 0; white-space: nowrap; transition: opacity 1000ms var(--glide); }
+.tally b { font-weight: 500; color: rgba(245,238,226,.92); }
 .tally .next { opacity: 0; } .tally.swap .prev { opacity: 0; } .tally.swap .next { opacity: 1; }
 
-/* ---- her seat, nearest us, centred ---- */
-.her { position: absolute; left: 600px; top: 772px; width: 400px; height: 84px; padding: 16px 22px; display: flex; align-items: center; gap: 14px;
-  background-color: var(--paper-2); }
+/* ---- her seat, nearest us ---- */
+.her { position: absolute; left: calc(var(--m) + 4 * (var(--col) + var(--g))); top: 768px; width: calc(2 * var(--col) + var(--g)); height: 76px;
+  padding: 0 20px; display: flex; align-items: center; gap: 14px; background-color: var(--paper-2); }
+.her::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 3px 0 0 3px; background: var(--product); opacity: .8; }
 .her .mark { width: 32px; height: 32px; font-size: 14px; }
-.her .name { font: 500 22px/1.1 var(--serif); }
-.her .char { font: italic 400 16px/1.2 var(--serif); color: var(--ink-2); }
-/* her tray: a small stack beside her seat. Each note edged in its teammate's ink. No number, no badge. */
-.tray { position: absolute; left: 1032px; top: 772px; width: 300px; height: 84px; }
-.tray .n { position: absolute; left: 0; top: 0; width: 292px; height: 76px; padding: 11px 16px 10px 18px; border-left: 4px solid var(--c);
-  font: 400 15px/1.3 var(--serif); color: var(--ink); }
-.tray .n .label { display: block; margin-bottom: 4px; }
-.tray .n.under { translate: 8px 7px; rotate: 1.8deg; color: var(--ink-2); filter: brightness(.97); }
-.tray .n.top { rotate: -.8deg; }
-.tray .n.arrive { opacity: 0; translate: -70px -40px; rotate: -6deg; box-shadow: 0 2px 2px rgba(20,12,6,.2), 0 20px 34px -8px rgba(20,12,6,.45), 0 46px 70px -20px rgba(10,6,3,.6);
-  transition: opacity 600ms var(--settle), translate 1100ms var(--settle), rotate 1100ms var(--settle), box-shadow 1300ms var(--settle); }
-.tray .n.arrive.landed { opacity: 1; translate: 0 0; rotate: -.8deg; box-shadow: var(--lift-sm); }
-.tray .n.was-top { transition: translate 1100ms var(--settle), rotate 1100ms var(--settle), color 600ms; }
-.tray .n.was-top.sunk { translate: 8px 7px; rotate: 1.8deg; color: var(--ink-2); }
+.her .name { font: 500 21px/1.1 var(--serif); }
+.her .char { margin-top: 2px; font: italic 400 15px/1.2 var(--serif); color: var(--ink-2); }
+/* her tray: a small stack of notes beside her seat, each edged in the ink of who left it. No number, no badge. */
+.tray { position: absolute; left: calc(var(--m) + 6 * (var(--col) + var(--g))); top: 768px; width: calc(2 * var(--col) + var(--g)); height: 76px; }
+.tray .n { position: absolute; inset: 0; padding: 11px 16px 0 18px; border-left: 4px solid var(--c); border-radius: 3px;
+  font: 400 15px/1.3 var(--serif); color: var(--ink); overflow: hidden; }
+.tray .n .label { display: block; margin-bottom: 3px; }
+.tray .n.under { translate: 5px 6px; rotate: 1.6deg; color: var(--ink-2); box-shadow: var(--lift-sm); }
+.tray .n.top { rotate: -.6deg; box-shadow: var(--lift-sm); }
+.tray .n.sinks { transition: translate 1200ms var(--settle) 900ms, rotate 1200ms var(--settle) 900ms, color 600ms 1100ms; }
+.tray .n.sinks .label { transition: color 600ms 1100ms; }
+.tray .n.sinks.sunk .label { color: transparent; }
+.tray .n.sinks.sunk { translate: 5px 6px; rotate: 1.6deg; color: transparent; }
+/* Noor's note travels in from Noor's side of the table (up and to the left), lifted, and settles on the stack */
+.tray .n.arrive { opacity: 0; translate: -150px -230px; rotate: -4deg;
+  box-shadow: 0 2px 2px rgba(20,12,6,.18), 0 18px 30px -8px rgba(20,12,6,.42), 0 48px 72px -22px rgba(10,6,3,.6);
+  transition: opacity 500ms var(--settle), translate 1500ms var(--glide), rotate 1500ms var(--glide), box-shadow 900ms var(--settle) 1200ms; }
+.tray .n.arrive.landed { opacity: 1; translate: 0 0; rotate: -.6deg; box-shadow: var(--lift-sm); }
 
-html.still * { transition: none !important; }
+html.still *, html.still *::before, html.still *::after { transition: none !important; }
 </style>
 </head>
 <body>
@@ -111,51 +125,53 @@ html.still * { transition: none !important; }
       <div class="pad paper">
         <div class="who-row"><span class="mark">M</span><span class="name">Mika</span><span class="label seat">Design</span></div>
         <div class="on">Grey wireframes for ordering</div>
-        <svg class="art" viewBox="0 0 239 40" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="#2A211B" stroke-opacity=".36" stroke-width="1.1">
-          <rect x=".5" y=".5" width="64" height="39" rx="3"/><rect x="87.5" y=".5" width="64" height="39" rx="3"/><rect x="174.5" y=".5" width="64" height="39" rx="3"/>
-          <path d="M8 10h40M8 17h26M95 10h46M95 17h30M182 10h34M182 17h22"/></g>
-          <rect x="8" y="26" width="44" height="7" rx="2" fill="#3D6C9E" fill-opacity=".32"/><rect x="95" y="26" width="44" height="7" rx="2" fill="#2A211B" fill-opacity=".12"/>
-          <g fill="#2A211B" fill-opacity=".45"><path d="M69 20h12l-3-3M81 20l-3 3" stroke="#2A211B" stroke-opacity=".45" fill="none"/><path d="M156 20h12l-3-3M168 20l-3 3" stroke="#2A211B" stroke-opacity=".45" fill="none"/></g></svg>
+        <!-- three screens: choose, order, done -->
+        <svg class="art" viewBox="0 0 240 38" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+          <g fill="none" stroke="#2A211B" stroke-opacity=".34" stroke-width="1"><rect x=".5" y=".5" width="62" height="37" rx="3"/><rect x="88.5" y=".5" width="62" height="37" rx="3"/><rect x="176.5" y=".5" width="62" height="37" rx="3"/></g>
+          <g stroke="#2A211B" stroke-opacity=".3" stroke-width="2" stroke-linecap="round"><path d="M8 9h34M8 15h22M96 9h40M96 15h26M184 9h28M184 15h36"/></g>
+          <rect x="8" y="24" width="46" height="7" rx="2" fill="#3D6C9E" fill-opacity=".36"/><rect x="96" y="24" width="46" height="7" rx="2" fill="#2A211B" fill-opacity=".12"/>
+          <g fill="none" stroke="#2A211B" stroke-opacity=".42" stroke-width="1"><path d="M68 19h14m-3-3 3 3-3 3M156 19h14m-3-3 3 3-3 3"/></g>
+        </svg>
       </div>
-      <div class="chat">
-        <div class="line on old" id="c-mika-old"><span class="mark sm">M</span>Phone field’s gone from the form.</div>
-        <div class="line" id="c-mika"><span class="mark sm">M</span>I’ll put it under the button.</div>
-      </div>
+      <div class="chat"><div class="line" id="c-mika"><span class="mark sm">M</span><span>I’ll put it under the button.</span></div></div>
     </div>
     <div class="station" data-seat="research">
       <div class="pad paper">
         <div class="who-row"><span class="mark">N</span><span class="name">Noor</span><span class="label seat">Research</span></div>
-        <div class="on">What sells out first at small bakeries</div>
-        <div class="art src">Sourdough and morning buns, before 9 · <u>2 sources</u></div>
+        <div class="on">What sells out first</div>
+        <div class="art src"><span>Sourdough and morning buns, by 9am</span><u>2 sources</u></div>
       </div>
-      <div class="chat"><div class="line on" id="c-noor"><span class="mark sm">N</span>Found a source on what sells out first.</div></div>
+      <div class="chat"><div class="line on old" id="c-noor"><span class="mark sm">N</span><span>Found a source on what sells out first.</span></div></div>
     </div>
     <div class="station" data-seat="data">
       <div class="pad paper">
         <div class="who-row"><span class="mark">T</span><span class="name">Theo</span><span class="label seat">Data</span></div>
         <div class="on">One number that says it worked</div>
-        <div class="art metric"><i>Reorders</i>regulars ordering again within a week</div>
+        <div class="art num"><b>Reorders within 7 days</b><span>Regulars only · the one to watch</span></div>
       </div>
-      <div class="chat"></div>
+      <div class="chat"><div class="line on old" id="c-theo"><span class="mark sm">T</span><span>That’s the one I’ll watch.</span></div></div>
     </div>
     <div class="station" data-seat="strategy">
       <div class="pad paper">
         <div class="who-row"><span class="mark">I</span><span class="name">Ines</span><span class="label seat">Strategy</span></div>
         <div class="on">Who pays, and why now</div>
-        <div class="art tag">Pay at pickup · no card up front</div>
+        <div class="art price"><b>Pay at pickup</b><span>no card up front</span></div>
       </div>
-      <div class="chat"><div class="line" id="c-ines"><span class="mark sm">I</span>Then a cut-off, and say it plainly.</div></div>
+      <div class="chat"><div class="line" id="c-ines"><span class="mark sm">I</span><span>Then a cut-off, and say it plainly.</span></div></div>
     </div>
     <div class="station" data-seat="engineering">
       <div class="pad paper">
         <div class="who-row"><span class="mark">B</span><span class="name">Bo</span><span class="label seat">Engineering</span></div>
-        <div class="on">The order form and tomorrow’s list</div>
-        <svg class="art" viewBox="0 0 239 40" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="#2A211B" stroke-opacity=".36" stroke-width="1.1">
-          <rect x=".5" y="2.5" width="112" height="14" rx="2"/><rect x=".5" y="23.5" width="112" height="14" rx="2"/>
-          <path d="M6 9.5h30M6 30.5h22"/></g><rect x="124" y="23" width="62" height="15" rx="2" fill="#C99A22" fill-opacity=".45"/>
-          <path d="M131 30.5h30" stroke="#2A211B" stroke-opacity=".45" stroke-width="1.1"/></svg>
+        <div class="on">The order form</div>
+        <!-- name, loaf, pickup day, and the button -->
+        <svg class="art" viewBox="0 0 240 38" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+          <g fill="none" stroke="#2A211B" stroke-opacity=".34" stroke-width="1"><rect x=".5" y=".5" width="96" height="15" rx="2"/><rect x="104.5" y=".5" width="60" height="15" rx="2"/><rect x=".5" y="22.5" width="96" height="15" rx="2"/></g>
+          <g stroke="#2A211B" stroke-opacity=".3" stroke-width="2" stroke-linecap="round"><path d="M7 8h28M111 8h22M7 30h40"/></g>
+          <rect x="104" y="22" width="60" height="16" rx="2" fill="#C99A22" fill-opacity=".5"/>
+          <path d="M116 30h36" stroke="#2A211B" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+        </svg>
       </div>
-      <div class="chat"><div class="line" id="c-bo"><span class="mark sm">B</span>Orders after 8pm miss the morning bake.</div></div>
+      <div class="chat"><div class="line" id="c-bo"><span class="mark sm">B</span><span>Orders after 8pm miss the morning bake.</span></div></div>
     </div>
   </div>
 
@@ -163,50 +179,51 @@ html.still * { transition: none !important; }
     <h1>A website for a small bakery, so customers can order bread ahead.</h1>
     <div class="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;Rough journey by Noor and Mika</span></div>
     <div class="journey">
-      <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
+      <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span><span></span>
       <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step end new">Held till ten</span>
+      <div class="note-hers"><span class="who-n"><span class="mark sm" data-seat="product">P</span>Priya</span>Bread that’s still warm, and being known.</div>
       <span class="who">Weekend pastry crowd</span><span class="step">Browse the pastries</span><span class="step">Order by Friday</span><span class="step end">Collect Saturday</span>
-      <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span>
+      <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span><span></span>
     </div>
-    <span class="lead"></span>
-    <div class="note-hers"><span class="label"><span class="mark sm" data-seat="product">P</span>Priya</span>Bread that’s still warm, and being known.</div>
     <div class="foot"><span class="label">Redrawn after Priya’s answer · <b>regulars first</b></span><span class="label">Next: Mika’s wireframes</span></div>
   </section>
 
   <aside class="space">
     <div class="space-h"><span>Team space</span><span>Decided together</span></div>
-    <div class="slot closed" id="slot-new">
+    <div class="slot closed" id="slot-new"><div>
       <div class="decision paper fresh" id="d-new"><p>Orders close at 8pm for the next morning.</p>
         <div class="marks"><span class="mark sm" data-seat="engineering">B</span><span class="mark sm" data-seat="strategy">I</span><span class="mark sm" data-seat="design">M</span><span class="label">Bo, Ines and Mika</span></div></div>
-    </div>
+    </div></div>
     <div class="decision paper d2"><p>Regulars cancel in one tap, up to the cut-off.</p>
       <div class="marks"><span class="mark sm" data-seat="strategy">I</span><span class="mark sm" data-seat="engineering">B</span><span class="label">Ines and Bo</span></div></div>
     <div class="decision paper d3"><p>Sold out shows as sold out, never hidden.</p>
       <div class="marks"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Noor and Mika</span></div></div>
+    <div class="decision paper d4"><p>No phone number on the order form.</p>
+      <div class="marks"><span class="mark sm" data-seat="design">M</span><span class="mark sm" data-seat="engineering">B</span><span class="label">Mika and Bo</span></div></div>
     <p class="tally" id="tally"><span class="prev"><b>20</b> handled by your team · <b>3</b> for you</span><span class="next"><b>21</b> handled by your team · <b>3</b> for you</span></p>
   </aside>
 
   <div class="her paper" data-seat="product"><span class="mark">P</span><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
   <div class="tray">
-    <div class="n paper was-top top" data-seat="design" id="n-mika"><span class="label">Mika</span>If ordering could feel like one thing…</div>
-    <div class="n paper arrive" data-seat="research" id="n-noor"><span class="label">Noor</span>What sells out first, and what should we do?</div>
+    <div class="n paper sinks top" data-seat="design" id="n-mika"><span class="label">Mika</span>If ordering could feel like one thing…</div>
+    <div class="n paper arrive" data-seat="research" id="n-noor"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
   </div>
 </div>
 <script>
 (function () {
   const $ = id => document.getElementById(id);
   const still = new URLSearchParams(location.search).get('still') === '1';
-  // chatter: the newest line is full, the one before it fades to half
-  let last = $('c-noor');
-  const say = el => { if (last && last !== el) last.classList.add('old'); el.classList.add('on'); last = el; };
+  // chatter: the newest line reads in full; the one before it settles back to half
+  let last = null;
+  const say = el => { if (last) last.classList.add('old'); el.classList.add('on'); last = el; };
   const steps = [
-    [900,  () => say($('c-bo'))],
-    [2700, () => say($('c-ines'))],
-    [4500, () => { $('c-mika-old').classList.add('gone'); say($('c-mika')); }],
-    [6300, () => { $('slot-new').classList.remove('closed'); }],
-    [6550, () => { $('d-new').classList.add('landed'); }],
-    [7900, () => { $('tally').classList.add('swap'); }],
-    [10300, () => { $('n-noor').classList.add('landed'); $('n-mika').classList.add('sunk'); }],
+    [1200,  () => say($('c-bo'))],
+    [3600,  () => say($('c-ines'))],
+    [6000,  () => say($('c-mika'))],
+    [7900,  () => $('slot-new').classList.remove('closed')],
+    [8150,  () => $('d-new').classList.add('landed')],
+    [9800,  () => $('tally').classList.add('swap')],
+    [12000, () => { $('n-noor').classList.add('landed'); $('n-mika').classList.add('sunk'); }],
   ];
   if (still) { document.documentElement.classList.add('still'); steps.forEach(s => s[1]()); return; }
   steps.forEach(([t, f]) => setTimeout(f, t));
