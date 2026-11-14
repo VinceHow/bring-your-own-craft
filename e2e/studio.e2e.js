@@ -50,6 +50,7 @@ test('1. her seat, the team, her line, then her idea', async () => {
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run id');
   RUN = await page.evaluate(() => BYOC.run);
+  await waitFor(() => document.getElementById('her-sheet').dataset.step === 'rough', 3000, 'her sentence on a rough sheet');
 });
 
 test('2. Design sketches it: user cards and boxes draw in, within 10 s, not typed by her', async t => {
@@ -71,6 +72,28 @@ test('2. Design sketches it: user cards and boxes draw in, within 10 s, not type
   assert.deepStrictEqual(await boxLabels(), flow.nodes.map(n => n.label));
   if (done.prepared) assert.match(await page.locator('.fs-tag').innerText(), /PREPARED/, 'a prepared sketch says so');
   else assert.ok(done.ms <= 10000, `sketch in ${done.ms} ms`);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'sketched');
+});
+
+test('2b. the guest chair (GUEST_CHAIR=1 only): a stand-in for the main user type joins as the sketch lands; never asks', async t => {
+  if (!RUN) return t.skip('needs step 1');
+  if (process.env.GUEST_CHAIR !== '1') {
+    await page.waitForTimeout(1500);
+    assert.ok(!(await events()).some(e => /^guest/.test(e.type)), 'off by default: no guest');
+    return;
+  }
+  await waitFor(() => BYOC.events().some(e => e.type === 'guest' || e.type === 'guest.error'), 15000, 'the guest');
+  const evs = await events();
+  const g = evs.find(e => e.type === 'guest');
+  assert.ok(g, 'the guest call worked: ' + JSON.stringify(evs.find(e => e.type === 'guest.error')));
+  T.guestMs = g.ms;
+  assert.ok(evs.indexOf(g) > evs.findIndex(e => e.type === 'sketch.done'), 'after the sketch');
+  assert.strictEqual(g.userType, evs.find(e => e.type === 'sketch.user').label, 'persona from the main user type');
+  assert.ok(g.points.length >= 1 && g.points.every((p, i) => p.id === `G${i + 1}`));
+  assert.ok(g.points.filter(p => p.confidence === 'low').every(p => /^check with a real /.test(p.check)));
+  await waitFor(() => !!document.querySelector('.guest-card:not([hidden])'), 2000, 'the GUEST card');
+  assert.match(await page.locator('.guest-card').innerText(), /GUEST[\s\S]*not a real one/);
+  assert.ok(!evs.some(e => e.type === 'ask'), 'no ask from the guest');
 });
 
 test('3. her reaction redraws the shape: replaced, not appended; her words shown', async t => {
@@ -92,6 +115,7 @@ test('3. her reaction redraws the shape: replaced, not appended; her words shown
   await waitFor(n => document.querySelectorAll('#her-flow .fl-box').length === n, 3000, 'the redrawn boxes only', flow.nodes.length);
   assert.deepStrictEqual(await boxLabels(), flow.nodes.map(n => n.label));
   assert.match(await page.locator('.fs-said').innerText(), /regulars/);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'reshaped');
   assert.match(flow.nodes.map(n => n.label).join(' ') + ' ' + evs.filter(e => e.type === 'sketch.user').map(e => e.label).join(' '), /regular|usual/i, 'the shape follows what she said');
 });
 
@@ -134,6 +158,10 @@ test('5. the team works on her shape; check-ins sit on its boxes; leans are real
   const asks = evs.filter(e => e.type === 'ask');
   assert.ok(asks.length >= 1 && asks.length <= 3, `1 to 3 check-ins, got ${asks.length}`);
   assert.ok(asks.every(a => a.attachTo === null || ids.has(a.attachTo)), 'check-ins on her shape');
+  const gIds = new Set(evs.find(e => e.type === 'guest')?.points.map(p => p.id) || []);
+  const gCites = evs.filter(e => e.type === 'decided' && /^G/.test(e.cites));
+  assert.ok(gCites.every(d => gIds.has(d.cites)), 'G citations only to points the guest made');
+  T.guestCites = gCites.length;
 });
 
 test('6. she answers the check-ins, overruling once', async t => {
@@ -154,13 +182,31 @@ test('6. she answers the check-ins, overruling once', async t => {
   lap('check-ins answered');
 });
 
-test('7. her page is built on her shape', async t => {
+test('7. the wireframes, the symphony and her page all land on the one sheet with her idea on top', async t => {
   if (!RUN) return t.skip('needs step 1');
-  await page.evaluate(() => BYOC.build());
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ArrowRight'); // Design's wireframes
+  await waitFor(() => document.querySelectorAll('#her-sheet > #sketch-sheet:not([hidden]) .sk-frame').length > 0, 90000, 'wireframes on her sheet');
+  lap('wireframes');
+  const ideaShown = () => page.evaluate(() => {
+    const s = document.getElementById('her-sheet').getBoundingClientRect(), i = document.getElementById('her-idea').getBoundingClientRect();
+    return i.height > 0 && i.top >= s.top && i.bottom <= s.bottom && /yoga/.test(document.getElementById('her-idea').textContent);
+  });
+  assert.ok(await ideaShown(), 'her idea sentence stays on top of the sheet');
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'wires');
+  if (process.env.E2E_SCREENS) await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-wireframes.png') });
+  await page.keyboard.press('ArrowRight'); // her build press: the symphony
+  await waitFor(() => document.querySelectorAll('.symphony-slip.handing').length >= 5 && document.getElementById('room').classList.contains('symphony'), 3000, 'every seat slides its part in');
+  if (process.env.E2E_SCREENS) { await page.waitForTimeout(500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-symphony.png') }); }
   await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 150000, 'build.done');
   lap('build');
   const done = (await events()).find(e => e.type === 'build.done');
   assert.ok(done, 'built');
+  await waitFor(() => !!document.querySelector('#her-sheet > #page-sheet:not([hidden])'), 5000, 'her page on her sheet');
+  assert.ok(await page.evaluate(() => BYOC.symphonyPlayed >= 5), 'the symphony played');
+  assert.ok(await ideaShown(), 'her idea still on top');
+  assert.strictEqual(await page.evaluate(() => document.getElementById('her-sheet').dataset.step), 'page');
+  if (process.env.E2E_SCREENS) { await page.waitForTimeout(1500); await page.screenshot({ path: path.join(process.env.E2E_SCREENS, 'studio-page.png') }); }
   const pg = await browser.newPage();
   await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
   assert.match(await pg.locator('h1').innerText(), /\S/);

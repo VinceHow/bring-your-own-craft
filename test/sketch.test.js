@@ -15,7 +15,7 @@ const newRun = (idea = YOGA) => { const run = newRunId('t'); logEvent(run, 'run.
 const types = run => readEvents(run).map(e => e.type);
 const fake = shape => async () => shape;
 const FIRST = { users: ['First-timers', 'Regulars', 'The studio owner'], stages: ['Find a class', 'Pick one', 'Confirm', 'Booked'] };
-const opts = { dripMs: 0 };
+const opts = { dripMs: 0, withGuest: false }; // the guest chair has its own tests (test/guest.test.js)
 
 test('first sketch: users then stages, each stage a flow.line through parseFlow; boxes as typed lines made', async () => {
   const run = newRun();

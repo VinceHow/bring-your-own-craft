@@ -28,6 +28,19 @@
 .fs-mini .fs-box { font: 500 13px/1.15 var(--ui, sans-serif); padding: 8px 10px; background: var(--sheet, #FBF9F4); border: 2px solid var(--ink, #141414);
   border-radius: 4px; box-shadow: 3px 3px 0 var(--ink, #141414); max-width: 150px; }
 .fs-mini .fs-arrow { font: 600 16px var(--ui, sans-serif); }
+.guest-card { position: absolute; left: 1206px; top: 392px; width: 300px; z-index: 3; padding: 12px 14px 12px; background: var(--sheet, #FBF9F4);
+  border: 2px dashed var(--ink, #141414); border-radius: 6px; box-shadow: 4px 4px 0 rgba(20,20,20,.18); transform: rotate(1deg); }
+.guest-card[hidden], body[data-beat="6"] .guest-card, body[data-beat="7"] .guest-card, body[data-beat="8"] .guest-card, body[data-beat="9"] .guest-card,
+  body[data-beat="10"] .guest-card, body[data-beat="11"] .guest-card { display: none; }
+.guest-head { display: flex; align-items: baseline; gap: 8px; }
+.guest-tag { font: 600 12px var(--mono, monospace); letter-spacing: .12em; border: 2px dashed var(--ink, #141414); padding: 2px 6px 1px; border-radius: 3px; }
+.guest-who { font: 600 14px/1.2 var(--ui, sans-serif); }
+.guest-note { margin-top: 4px; font: 400 11px var(--mono, monospace); color: rgba(20,20,20,.7); }
+.guest-says { margin: 10px 0 8px; font: italic 500 15px/1.35 var(--ui, sans-serif); }
+.guest-points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.guest-points li { font: 400 12px/1.3 var(--ui, sans-serif); }
+.guest-points b { font: 600 11px var(--mono, monospace); margin-right: 4px; }
+.guest-points i { color: rgba(20,20,20,.7); }
 .fs-in { animation: fs-in 180ms cubic-bezier(.2,1.3,.4,1) both; }
 @keyframes fs-in { from { transform: translateY(-8px) rotate(-2deg) scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
 `;
@@ -90,7 +103,11 @@
     const secs = ev.ms != null ? ` · ${(ev.ms / 1000).toFixed(1)} s` : '';
     if (ev.prepared) setTag('PREPARED · sketched before the demo', true);
     else setTag((ev.reshape ? 'Design redrew it from what you said' : "Design's first sketch") + secs);
-    if (canReact()) hint('React to it, or click a box', 'Enter: redraw · empty Enter: team, go');
+    if (canReact()) {
+      hint('React to it, or click a box', 'Enter: redraw · empty Enter: team, go');
+      const inp = document.getElementById('her-input');
+      if (inp) inp.dataset.voice = 'reaction'; // voice.js puts its mic mark on it; her words arrive as an 'input' event
+    }
   }
   function onError(ev) {
     if (ev.reshape) { S.state = 'landed'; setTag('Design could not redraw it: try saying it another way'); return; }
@@ -99,9 +116,29 @@
     if (canReact()) hint('One step of the journey', 'Enter for each step · empty Enter: team, go');
     if (typeof B.status === 'function') B.status('Design could not sketch it: write the journey instead');
   }
+  // The guest chair: a stand-in for her customer, pulled up as the sketch lands.
+  function onGuest(ev) {
+    const room = B.el && B.el.room;
+    if (!room) return;
+    if (!S.guest || !S.guest.isConnected) { S.guest = h('section', 'guest-card'); S.guest.setAttribute('aria-label', 'Guest chair'); S.guest.dataset.seat = 'guest'; room.appendChild(S.guest); }
+    const g = S.guest;
+    g.innerHTML = '';
+    g.className = 'guest-card fs-in';
+    const head = h('div', 'guest-head');
+    head.append(h('span', 'guest-tag', 'GUEST'), h('span', 'guest-who', ev.persona || ev.userType || 'a customer'));
+    const pts = h('ul', 'guest-points');
+    for (const p of ev.points || []) {
+      const li = h('li'); li.append(h('b', null, p.id), document.createTextNode(p.text));
+      if (p.check) { li.append(' '); li.append(h('i', null, `(${p.check})`)); }
+      pts.appendChild(li);
+    }
+    g.append(head, h('div', 'guest-note', ev.label || 'a stand-in for your customer, not a real one'), h('p', 'guest-says', `“${ev.reaction}”`), pts);
+    g.hidden = false;
+  }
   function clear() {
     Object.assign(S, { state: 'off', run: null, lines: [], users: [], freshUsers: true });
     closePop();
+    if (S.guest) S.guest.hidden = true;
     if (S.bar) { S.bar.hidden = true; S.list.innerHTML = ''; S.tag.textContent = ''; S.said.textContent = ''; S.tag.classList.remove('prepared'); }
   }
   if (typeof B.on === 'function') {
@@ -111,6 +148,7 @@
     B.on('reshape', onReshape);
     B.on('sketch.done', onDone);
     B.on('sketch.error', onError);
+    B.on('guest', onGuest);
     B.on('reset', clear);
   }
 
