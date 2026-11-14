@@ -75,7 +75,8 @@ test('asks arrive after a natural pause; collapsed shows the one that needs her,
     ask('q2', 'design', 'Mika', 'What should booking feel like?'),
   ]);
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'an item needs her');
-  assert.match((await page.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' ').trim(), /^Noor · Research ?What makes someone come back to…\?$/);
+  // "<Name> asks", then the question on its own line (never run together, never "<seat>'s teammate").
+  assert.match((await page.locator('#inbox .inbox-now').innerText()).trim(), /^Noor asks\s*\n\s*What makes someone come back to…\?$/);
   assert.strictEqual(await page.getAttribute('#inbox .inbox-now', 'data-ask'), 'q1');
   await page.click('#inbox .inbox-toggle');
   assert.strictEqual(await page.locator('#inbox [data-part="needs"] > .inbox-part-body > .inbox-item[data-state="top"]').count(), 1, 'one at a time');
