@@ -69,8 +69,9 @@ Who adds the attributes, file by file:
 
 | Component | Root hook | `data-state` | `data-slot`s | Events |
 |---|---|---|---|---|
-| `tray` | `aside#tray.tray` ✅ | `empty` · `waiting` | (notes) | on `ask`, `answer`, `reset` |
-| `tray-note` | `.tray-note[data-seat][data-ask]` ✅ | `top` · `waiting` | `seat` (`.tray-seat`), `text` (`.tray-text`) | click opens the focus doc |
+| `inbox` (her inbox by her seat; replaced the tray) | `aside#inbox.inbox` ✅ | `collapsed` · `expanded` (and `data-needs` = `yes`·`no`) | `now` (the one item, or "Nothing needs you right now"), `toggle`, `drawer`; parts `needs` · `only-you` · `meetings` (each `[data-part]` with `title`, `body`), `next` (the folded rest), `empty` | on `owner.task`, `stage`, `reset`; reads `BYOC.focus.waiting` via room.js |
+| `inbox-item` (one thing that needs her) | `.inbox-item[data-ask][data-seat]` ✅ | `top` · `folded` | `who`, `text` | click opens it as her document |
+| `owner-task` (a thing only she can do) | `article.inbox-task[data-task]` ✅ | `todo` · `doing` · `done` | `title`, `steps` > `step` (each `data-state` todo·done, with a `tick` box); never a text or key field | on `owner.task` `{ id, title, steps[] }` |
 | `focus-doc` (her document) | `section#focus-doc.focus-doc[data-seat]` ✅ | `asking` · `speaking` · `answered` · `chiming` · `takeaways` · `working` | `kicker` (`.fd-kicker`), `by` (`.fd-by`), `close` (`.fd-close`), `work` (`.fd-work`, with `data-kind`: `journey\|finding\|wires\|page`), `question` (`.fd-question`), `input` (`.fd-input`), `send` (`.fd-send`), `team` (`.fd-team`) | on `chime`, `takeaways` (`brief` for old runs), `answer`, `answer.mapped`, `flow.line`; emit `focus.open`, `focus.close`, `focus` |
 | `her-answer` (her spoken words) | `.fd-said` ✅ | `speaking` · `landed` | `words` (`.fd-words`) | (inside `focus-doc`) |
 | `chime` (a teammate's reaction) | `li.chime[data-seat]` in `ol.fd-chimes` ✅ | `in` | `who` (`.chime-who`), `text` (`.chime-text`) | on `chime` |

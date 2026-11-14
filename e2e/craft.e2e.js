@@ -99,8 +99,8 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
     // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
-    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-    await page.locator('#tray .tray-note').first().click();
+    await page.waitForSelector('#inbox:not([hidden])[data-needs="yes"] .inbox-now', { timeout: 5000 });
+    await page.locator('#inbox .inbox-now').click();
     await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
     await page.locator('#focus-doc .fd-input').fill('Clear and kind. Say what to do next in plain words.');
     await page.click('#focus-doc .fd-send'); // she sends when she's ready

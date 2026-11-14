@@ -138,11 +138,12 @@
     { name: 'workspace', sel: '#room-panel', note: 'The same panel holding her workspace: her character, the idea, the team space, her takeaways.', states: [
       { state: 'open', src: R, run: async h => { h.play('rehearsal'); if (!h.B.openWorkspace) throw new Error('missing: the room panel is not on this branch yet'); h.B.openWorkspace(); await wait(300); } },
     ] },
-    { name: 'tray', sel: '#tray', states: [
-      { state: 'waiting', src: F, run: async h => { h.play('fixture'); } },
-    ] },
-    { name: 'tray-note', sel: '.tray-note', states: [
-      { state: 'top', src: F, run: async h => { h.play('fixture'); } },
+    { name: 'inbox', sel: '#inbox', note: 'Her inbox by her seat (replaced the tray): collapsed, the one item that needs her; expanded, Needs you · Things only you can do · Past meetings.', states: [
+      { state: 'collapsed, nothing waiting', src: '', run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.B.reset(); h.stage(5); await wait(200); } },
+      { state: 'collapsed, one needs her', src: F, run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.play('fixture'); await wait(300); } },
+      { state: 'expanded', src: F + ' + ' + S, run: async h => { if (!h.B.inbox) throw new Error('missing: inbox.js is not on this branch yet'); h.play('fixture');
+        h.dispatch({ type: 'owner.task', id: 'g-t1', title: 'Make a Stripe account for the studio', steps: ['Sign up with the studio email', 'Confirm the email', 'Tell the team it’s done'] });
+        await wait(300); h.B.inbox.expand(true); await wait(200); } },
     ] },
     { name: 'focus-doc', sel: '#focus-doc', states: [
       { state: 'asking', src: R + ' + ' + S, run: async h => { await focusOpen(h); } },

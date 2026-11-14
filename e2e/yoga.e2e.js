@@ -116,13 +116,13 @@ test('4. at most three questions wait in her tray; she opens each as a document 
   const asks = evs.filter(e => e.type === 'ask');
   assert.ok(asks.length >= 1 && asks.length <= 3, `1 to 3 asks, got ${asks.length}`);
   // Nothing on her flow asks her anything, and nothing opens by itself: the questions wait in her tray.
-  await waitFor(n => document.querySelectorAll('#tray:not([hidden]) .tray-note').length === n, 5000, 'her tray', asks.length);
+  await waitFor(n => !document.getElementById('inbox').hidden && BYOC.inbox.shown.length === n, 5000, 'her inbox', asks.length);
   assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), 0, 'no forks or pins');
   assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'no pop-up');
   await shot('live-tray.png');
   for (let i = 0; i < asks.length; i++) {
-    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-    await page.locator('#tray .tray-note').first().click();
+    await page.waitForSelector('#inbox:not([hidden])[data-needs="yes"] .inbox-now', { timeout: 5000 });
+    await page.locator('#inbox .inbox-now').click();
     await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
     const id = await page.evaluate(() => BYOC.focusDoc.openId());
     if (i === 0) await shot('live-focus.png');
