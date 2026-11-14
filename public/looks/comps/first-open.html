@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The first open · three sketches</title>
+<!-- Moment 1, the very first open, before she meets any teammate: three concepts in ink-paper.
+     ?c=1 "Lights come on" (the night room, dark; the lights come on one by one and her stool warms)
+     ?c=2 "A note on her stool" (the empty table from above; a folded note on the pink cushion unfolds into each step)
+     ?c=3 "The blank page at her place" (the empty table from above; she writes on the sketchpad at her seat and the
+          team's inks answer in the margins, before they've even arrived)
+     &step=0..4 &still=1 for a key moment; no step autoplays the flow. Stops when the team is about to arrive.
+     C1 is mocked on the empty table painting (the cast's empty-room reference): the real version wants the living room painted at night with no one in it. -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #120C08; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #120C08; }
+.abs { position: absolute; }
+.hide { display: none !important; }
+.canvas .abs.pane, .canvas .abs > .pane { position: absolute; }
+.canvas .abs > .pane { position: relative; }
+
+/* ---------- shared: the three steps she does, on paper ---------- */
+.q-lab { color: var(--ip-her-t) !important; }
+.sheet-q h3 { margin: 6px 0 4px; font: 400 24px/1.2 var(--ip-serif); letter-spacing: -.01em; }
+.sheet-q p.sub { margin: 0 0 16px; font: italic 400 16px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.choices { display: flex; gap: 10px; }
+.choice { display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 18px 0 9px; border-radius: 999px; border: 0; cursor: pointer; background: #FFFDF8;
+  font: 500 16px/1 var(--ip-sans); color: var(--ip-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.2); transition: translate .18s var(--ip-land), box-shadow .18s; }
+.choice i { width: 26px; height: 26px; border-radius: 50%; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px var(--ip-her); }
+.choice.own { padding-left: 18px; font: italic 400 17px/1 var(--ip-serif); color: var(--ip-ink-2); }
+.choice:hover, .choice.is-hover { translate: 0 -2px; box-shadow: inset 0 0 0 1.5px var(--ip-her), var(--ip-lift); }
+.choice.on { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px var(--ip-her); } .choice.on i { background: var(--ip-her); }
+.say { position: relative; min-height: 96px; padding: 14px 56px 14px 16px; margin: 0 0 16px; border-radius: var(--ip-r-sm); background: var(--ip-inset);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: italic 400 19px/1.4 var(--ip-serif); color: var(--ip-ink); }
+.say .caret { display: inline-block; width: 1.5px; height: 20px; background: var(--ip-her-t); vertical-align: -3px; margin-left: 1px; }
+.say .mic { position: absolute; right: 12px; top: 14px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--ip-paper-her);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5); display: grid; place-items: center; }
+.say .mic svg { width: 16px; height: 16px; fill: none; stroke: var(--ip-her-t); stroke-width: 1.6; stroke-linecap: round; }
+.say .ph { color: var(--ip-ink-3); }
+.row-end { display: flex; justify-content: flex-end; gap: 10px; }
+/* her character card: the team's playful spin */
+.char .who { display: flex; align-items: center; gap: 14px; margin: 10px 0 14px; }
+.char .seal { width: 52px; height: 52px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 23px/1 var(--ip-serif); flex: none; }
+.char .name { font: 400 30px/1.05 var(--ip-serif); letter-spacing: -.01em; }
+.char .title { font: italic 400 21px/1.2 var(--ip-serif); color: var(--ip-her-t); margin-top: 4px; }
+.char .traits { display: flex; flex-wrap: wrap; gap: 7px; }
+.char .traits span { height: 30px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 999px; background: rgba(255,253,248,.85); font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.char .from { margin: 14px 0 16px; font: italic 400 15px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+.char > .gl { --sheet: var(--ip-paper-her); }
+.next { font: italic 400 17px/1 var(--ip-serif); color: var(--ip-ink-2); padding: 10px 16px; border-radius: 999px; background: rgba(252,245,232,.92); box-shadow: 0 1px 1px rgba(60,35,15,.2), 3px 6px 12px -6px rgba(40,20,5,.5); opacity: 0; }
+
+/* ---------- concept 1: lights come on ---------- */
+.c1 .room { filter: brightness(var(--lit, .16)) saturate(calc(.4 + var(--lit, .16) * .7)); }
+.c1 .bulb { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,230,170,.95), rgba(255,200,110,.35) 30%, rgba(255,190,100,0)); mix-blend-mode: screen; }
+.c1 .lamp { position: absolute; left: 800px; top: 120px; width: 1100px; height: 900px; margin: -450px 0 0 -550px; border-radius: 50%; opacity: 0; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255,214,150,.55), rgba(255,190,110,.18) 45%, rgba(255,170,90,0)); }
+.c1 .stoolwarm { position: absolute; left: 600px; top: 690px; width: 400px; height: 260px; border-radius: 50%; opacity: 0; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255,205,215,.7), rgba(255,190,190,.25) 55%, rgba(255,180,180,0)); }
+.c1 .welcome { left: 0; right: 0; top: 380px; text-align: center; }
+.c1 .welcome .tag { font-size: 15px; }
+.c1 .welcome p { margin: 14px 0 0; font: italic 400 20px/1.3 var(--ip-serif); color: #E9D8BA; }
+
+/* ---------- concepts 2 and 3: the empty table from above ---------- */
+.top .room { position: absolute; inset: 0; background: url(first-open/table-top.jpg) 0 0 / 1600px 893px no-repeat; transform-origin: 800px 640px; }
+.c3 .room { transform: scale(1.32) translate(0, -60px); }
+.top .vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 50% 60%, rgba(0,0,0,0) 50%, rgba(20,10,4,.35)); }
+/* the folded note on her cushion */
+.fold { position: absolute; left: 706px; top: 762px; width: 188px; height: 78px; rotate: -6deg; cursor: pointer; transform-style: preserve-3d; perspective: 600px; }
+.fold .leaf { position: absolute; inset: 0; border-radius: 10px; background: var(--ip-paper) var(--ip-tooth);
+  box-shadow: 0 1px 1px rgba(60,35,15,.2), 4px 8px 14px -6px rgba(40,20,5,.55); display: grid; place-items: center; }
+.fold .leaf b { font: italic 400 19px/1 var(--ip-serif); color: var(--ip-her-t); font-weight: 400; }
+.fold .crease { position: absolute; left: 10px; right: 10px; top: 50%; height: 1px; background: rgba(84,58,38,.18); }
+.fold::after { content: ''; position: absolute; left: 12px; top: -5px; width: 46px; height: 12px; border-radius: 3px; background: var(--ip-her);
+  -webkit-mask: var(--ip-wax) 0 0 / 80px 80px; mask: var(--ip-wax) 0 0 / 80px 80px; rotate: -4deg; opacity: .85; }
+/* concept 3: the pad's page, and the margin notes in each teammate's ink */
+.margin { position: absolute; font: italic 400 17px/1.3 var(--ip-serif); color: var(--ip-ink); opacity: 0; max-width: 230px; padding: 9px 13px 10px; border-radius: 14px 16px 16px 6px;
+  background: var(--ip-paper) var(--ip-tooth); box-shadow: inset 4px 0 0 var(--c), 0 1px 1px rgba(60,35,15,.2), 3px 6px 12px -6px rgba(40,20,5,.55); }
+.margin .hand { display: block; font: 500 13px/1 var(--ip-sans); font-style: normal; margin-bottom: 4px; color: var(--t); }
+.margin svg { display: none; }
+.margin svg { position: absolute; overflow: visible; fill: none; stroke: var(--t); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.margin.on-pad { color: var(--t); }
+.page { width: 470px; }
+.page .handwrite { font: italic 400 21px/1.45 var(--ip-serif); color: var(--ip-ink); min-height: 92px; }
+.page .rule { height: 1px; background: rgba(84,58,38,.14); margin: 12px 0; }
+.page .opt { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font: italic 400 19px/1 var(--ip-serif); color: var(--ip-ink-2); cursor: pointer; position: relative; }
+.page .opt.on::before { content: ''; position: absolute; inset: -2px -4px; border-radius: 999px; border: 2px solid var(--ip-her); opacity: .85; rotate: -1.5deg; }
+.page .opt.on { color: var(--ip-her-t); }
+.page .label-row { display: flex; justify-content: space-between; align-items: baseline; }
+
+#pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
+#pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
+#replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <span class="tag replay" id="replay">Replay<small>recorded run</small></span>
+  <div id="stage"></div>
+  <div id="pointer"></div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search), C = +(q.get('c') || 1), STEP = q.get('step'), still = q.get('still') === '1';
+  const c = document.getElementById('c'), stage = document.getElementById('stage');
+  const $ = s => c.querySelector(s), { animate } = Motion;
+  const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, still || STEP != null ? 0 : ms));
+  const SENT = 'I love working on the customer journey, understanding the problems customers face, and building products that solve them.';
+  const QUESTION = `<span class="lab q-lab">This seat is yours</span><h3>What do you bring to the table?</h3><p class="sub">Pick a craft. The team fills every other seat.</p>
+    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own">Your own craft</button></div>`;
+  const SAY = `<span class="lab q-lab">Product, the customer side</span><h3>What do you love about it?</h3><p class="sub">One sentence. Say it or type it.</p>
+    <div class="say"><span class="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>
+    <div class="row-end"><button class="btn" id="make">That’s me</button></div>`;
+  const CARD = `<span class="lab q-lab">The team’s spin on you</span>
+    <div class="who"><span class="seal">P</span><div><div class="name">Priya</div><div class="title">the Customer Whisperer</div></div></div>
+    <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div>
+    <p class="from">From what you said: the journey, the problem, the thing that solves it.</p>
+    <div class="row-end" style="justify-content:flex-start"><button class="btn" id="sit">Take my seat</button><button class="btn quiet">Change a word</button></div>`;
+  const type = async (el, text) => { if (still || STEP != null) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(text[i - 1] === ' ' ? 45 : 26); } };
+  const dress = el => { InkPaper.dress(el); el.querySelectorAll('.pane').forEach(InkPaper.redraw); InkPaper.redraw(el); };
+  const swap = async (sheet, html, w) => {
+    // the sheet stays; its contents change and the ink redraws round the new size
+    const kids = [...sheet.children].filter(k => !k.matches('.cr, .gl, .ol'));
+    if (!(still || STEP != null)) await animate(kids, { opacity: 0 }, { duration: .2 }).finished;
+    kids.forEach(k => k.remove()); sheet.insertAdjacentHTML('beforeend', html); if (w) sheet.style.width = w + 'px';
+    InkPaper.dress(sheet); InkPaper.redraw(sheet); sheet.querySelectorAll('.pane').forEach(InkPaper.redraw);
+    const nk = [...sheet.children].filter(k => !k.matches('.cr, .gl, .ol'));
+    if (!(still || STEP != null)) animate(nk, { opacity: [0, 1], y: [6, 0] }, { duration: .35 });
+  };
+  const ptr = $('#pointer');
+  const at = el => { const r = el.getBoundingClientRect(), cr = c.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 }; };
+  const moveTo = p => animate(ptr, { x: p.x - 12, y: p.y - 12 }, spring(.7)).finished;
+  const tap = async el => { if (still || STEP != null) return; await moveTo(at(el)); el.classList.add('is-hover'); await wait(220); await animate(ptr, { scale: [1, .8, 1] }, { duration: .28 }).finished; el.classList.remove('is-hover'); };
+  const nextLine = (x, y, text, light = true) => { const n = document.createElement('div'); n.className = 'abs next'; n.style.left = x + 'px'; n.style.top = y + 'px'; n.textContent = text;
+    stage.appendChild(n); animate(n, { opacity: [0, 1] }, { duration: still || STEP != null ? 0 : 1.2 }); };
+  let step = 0; const reached = n => STEP == null || +STEP >= n;
+
+  /* ======================= concept 1: lights come on ======================= */
+  async function c1() {
+    c.classList.add('c1', 'top'); c.dataset.time = 'night';
+    stage.innerHTML = `<div class="room" id="room"></div><div class="vig"></div>
+      <div class="lamp" id="lamp"></div><div class="stoolwarm" id="warm"></div>
+      ${[[560,300],[1040,300],[400,520],[1210,520]].map(([x, y]) => `<span class="bulb" style="left:${x}px;top:${y}px"></span>`).join('')}
+      <div class="abs welcome" id="welcome"><span class="tag time"><i></i><span>Evening, raining</span></span><p>Your studio. Come in.</p></div>
+      <button class="abs pill is-invite" data-who="her" id="invite" style="left:712px;top:716px;opacity:0"><span class="dot"></span><span class="nm">Take your seat</span></button>
+      <div class="abs card sheet-q" data-who="her" id="q" style="left:582px;top:330px;width:436px;opacity:0"></div>`;
+    InkPaper.dress(c);
+    const room = $('#room'), bulbs = [...c.querySelectorAll('.bulb')];
+    const setLit = v => room.style.setProperty('--lit', v);
+    if (!reached(1)) return;
+    // the lights come on, one by one, then the lamp; her stool warms last
+    animate('#welcome', { opacity: [1, 0] }, { duration: still || STEP != null ? 0 : .8, delay: still || STEP != null ? 0 : 1.6 });
+    await wait(1800);
+    for (const b of bulbs) { animate(b, { opacity: [0, 1, .85] }, { duration: still || STEP != null ? 0 : .7 }); await wait(140); }
+    if (still || STEP != null) setLit(.82); else animate(0, 1, { duration: 2.4, ease: 'easeInOut', onUpdate: v => setLit((.16 + v * .66).toFixed(3)) });
+    await wait(500); animate('#lamp', { opacity: [0, 1] }, { duration: still || STEP != null ? 0 : 1.6 });
+    await wait(1400); animate('#warm', { opacity: [0, 1] }, { duration: still || STEP != null ? 0 : 1.4 });
+    await wait(900); $('#invite').style.opacity = 1; InkPaper.redraw($('#invite')); if (!(still || STEP != null)) InkPaper.lay($('#invite'));
+    InkPaper.lamp(c, 800, 60);
+    if (!reached(2)) return;
+    await wait(1400); await tap($('#invite'));
+    const qs = $('#q'); await swap(qs, QUESTION); qs.style.opacity = 1; if (!(still || STEP != null)) InkPaper.lay(qs); InkPaper.lamp(c, 800, 60);
+    await flow(qs, 3, 800, 60);
+    if (reached(4)) nextLine(640, 150, 'The chairs are waiting. The team is on its way.');
+  }
+
+  /* the three steps on one sheet: craft, sentence, card */
+  async function flow(sheet, from, lx, ly) {
+    if (!reached(from)) return;
+    await wait(1300); const p = sheet.querySelector('#product'); await tap(p); p.classList.add('on'); await wait(450);
+    await swap(sheet, SAY); if (lx) InkPaper.lamp(c, lx, ly);
+    const say = sheet.querySelector('.typed'); await wait(300); await type(say, SENT);
+    if (!reached(from + 1)) return;
+    await wait(500); await tap(sheet.querySelector('#make'));
+    await swap(sheet, CARD); sheet.classList.add('char'); InkPaper.redraw(sheet); if (lx) InkPaper.lamp(c, lx, ly);
+    if (!(still || STEP != null)) animate(sheet.querySelector(':scope > .gl'), { scale: [1.02, 1] }, spring(.5));
+  }
+
+  /* ======================= concept 2: a note on her stool ======================= */
+  async function c2() {
+    c.classList.add('top', 'c2');
+    stage.innerHTML = `<div class="room"></div><div class="vig"></div>
+      <div class="fold" id="fold"><div class="leaf"><b>This seat is yours</b><span class="crease"></span></div></div>
+      <div class="abs card sheet-q" data-who="her" id="q" style="left:582px;top:250px;width:436px;opacity:0"></div>`;
+    InkPaper.dress(c);
+    if (!(still || STEP != null)) animate('#fold', { y: [-6, 0, -6] }, { duration: 4, repeat: Infinity, ease: 'easeInOut' });
+    if (!reached(1)) return;
+    await wait(1800); await tap($('#fold'));
+    // the note lifts off the cushion and opens out onto the table: it becomes the sheet
+    const fold = $('#fold'), qs = $('#q');
+    await swap(qs, QUESTION);
+    if (!(still || STEP != null)) {
+      animate(fold, { y: -420, scale: 2.2, opacity: 0, rotate: 0 }, { type: 'spring', visualDuration: .7, bounce: 0 });
+      await wait(260); qs.style.opacity = 1;
+      animate(qs, { scaleY: [.18, 1], scaleX: [.45, 1], y: [300, 0] }, { type: 'spring', visualDuration: .65, bounce: 0 });
+      InkPaper.lay(qs, .15);
+    } else { fold.style.opacity = 0; qs.style.opacity = 1; }
+    await flow(qs, 2);
+    if (reached(3)) {
+      // her card settles back down at her place, the empty chairs waiting round it
+      await wait(1400);
+      if (!(still || STEP != null)) await animate(qs, { y: 238, scale: .8, rotate: -2 }, { type: 'spring', visualDuration: .8, bounce: 0 }).finished;
+      else Object.assign(qs.style, { transform: 'translateY(238px) scale(.8) rotate(-2deg)' });
+      nextLine(640, 150, 'The chairs are waiting. The team is on its way.');
+    }
+  }
+
+  /* ======================= concept 3: the blank page at her place ======================= */
+  async function c3() {
+    c.classList.add('top', 'c3');
+    stage.innerHTML = `<div class="room"></div><div class="vig"></div>
+      <div class="abs card page" data-who="her" id="pg" style="left:565px;top:404px">
+        <div class="label-row"><span class="lab q-lab">This page is yours</span><span class="lab">nothing here yet</span></div>
+        <div class="handwrite" id="hw" style="margin-top:8px">What do you bring to the table?</div>
+        <div class="rule"></div>
+        <div id="opts"><span class="opt" id="product">Product</span> <span class="opt">Design</span> <span class="opt">Research</span> <span class="opt">Your own craft</span></div>
+      </div>
+      <div class="margin" data-who="mika" id="m1" style="left:236px;top:356px"><span class="hand">Mika</span>Ooh, a builder.<svg style="left:150px;top:22px" width="80" height="40"><path d="M2 8c22 2 46 10 70 28M60 30l12 6-4-12"/></svg></div>
+      <div class="margin" data-who="noor" id="m2" style="left:1090px;top:380px"><span class="hand">Noor</span>Customers first. Noted.<svg style="left:-58px;top:26px" width="60" height="40"><path d="M56 6C36 8 18 18 4 34M14 34H4V24"/></svg></div>
+      <div class="margin" data-who="theo" id="m3" style="left:236px;top:560px"><span class="hand">Theo</span>A problem hunter. One number will show it worked.</div>
+      <div class="margin" data-who="ines" id="m4" style="left:1090px;top:560px"><span class="hand">Ines</span>Who pays, and why now? We’ll ask you.</div>
+      <div class="margin" data-who="bo" id="m5" style="left:640px;top:296px;max-width:320px"><span class="hand">Bo</span>We’ll build it. You keep the customers.</div>`;
+    InkPaper.dress(c);
+    const pg = $('#pg');
+    if (!(still || STEP != null)) { InkPaper.lay(pg, .6); }
+    if (!reached(1)) return;
+    await wait(2600); const p = $('#product'); await tap(p); p.classList.add('on');
+    if (!reached(2)) return;
+    await wait(700);
+    const hw = $('#hw'); $('#opts').remove(); pg.querySelector('.label-row').lastElementChild.textContent = 'Product';
+    hw.textContent = ''; InkPaper.redraw(pg);
+    await type(hw, SENT); InkPaper.redraw(pg);
+    if (!reached(3)) return;
+    // the team answers in the margins, in their own inks, before they've arrived
+    for (const id of ['#m1', '#m2', '#m3', '#m4', '#m5']) { animate(id, { opacity: [0, 1], y: [4, 0] }, { duration: still || STEP != null ? 0 : .6 }); await wait(650); }
+    if (!reached(4)) return;
+    await wait(1600);
+    // the page turns into her card: the margin notes gather into her title and traits
+    ['#m1', '#m2', '#m3', '#m4', '#m5'].forEach(id => animate(id, { opacity: 0 }, { duration: still || STEP != null ? 0 : .5 }));
+    await swap(pg, CARD, 430); pg.classList.add('char'); InkPaper.redraw(pg);
+    nextLine(1010, 820, 'The team is on its way.');
+  }
+
+  const run = { 1: c1, 2: c2, 3: c3 }[C] || c1;
+  document.fonts.ready.then(() => { if (!(still || STEP != null)) animate(ptr, { x: 1100, y: 860, opacity: [0, 1] }, { duration: .01, delay: 1 }); run(); });
+})();
+</script>
+</body>
+</html>
