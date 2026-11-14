@@ -17,7 +17,9 @@ export function _setDecideRest(fn) { decideRestImpl = fn || decideRest; }
 
 // Re-decide the candidates she wasn't asked, against her updated file (logs `decided` itself, round 'build').
 async function redecide(run, tasteMd, { idea, flow }) {
-  const out = await decideRestImpl(loadRest(run), tasteMd, { run, idea, flow, round: 'build' });
+  // What she settled in a focus moment (answer.mapped) is hers: the team never re-decides it.
+  const settled = new Set(readEvents(run).filter(e => e.type === 'answer.mapped').flatMap(m => (m.decisions || []).map(d => d.id)));
+  const out = await decideRestImpl(loadRest(run).filter(c => !settled.has(c.id)), tasteMd, { run, idea, flow, round: 'build' });
   return Array.isArray(out) ? out : (out?.decided || []);
 }
 

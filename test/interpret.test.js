@@ -132,3 +132,19 @@ test('room chatter: from real events, by name, never to her, never a question, c
   assert.equal(chatter.filter(c => c.seat === 'design').length, CHATTER_PER_SEAT);
   assert.equal(lineFor({ type: 'decided', seat: 'design', decision: 'x', choice: 'y', cites: 'L3' }), null, 'her file deciding it is not chatter');
 });
+
+test('her page reflects what her answer settled: the fill gets the mapped choices; the build never re-decides them', async () => {
+  const { gatherRun } = await import('../lib/fill.js');
+  const { buildRun, _setDecideRest } = await import('../routes/build.js');
+  const run = newRun();
+  const r = await interpret({ run, askId: 'a1', text: 'Knowing their spot is theirs.', callModel: fake(), gapMs: 0 });
+  await r.body.profile;
+  const g = gatherRun(readEvents(run), '- [L1] x');
+  assert.deepEqual(g.answers.filter(a => a.mapped).map(a => [a.decision, a.choice]), [['What leads the class list', 'Your usual class first']]);
+  assert.ok(g.answers.some(a => a.herWords && a.choice === 'Knowing their spot is theirs.' && /come back/.test(a.decision)), 'her words, with the question');
+  let given = null;
+  _setDecideRest(async cands => { given = cands.map(c => c.id); throw new Error('stop here'); });
+  try { await buildRun(run); } catch {}
+  _setDecideRest(null);
+  assert.ok(given && !given.includes('c1') && given.includes('c2'), `re-decided: ${given}`);
+});
