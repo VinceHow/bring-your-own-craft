@@ -47,3 +47,15 @@ html body #room #room-panel[data-component="workspace"] :is([data-slot="characte
   background: rgba(255, 255, 255, .32); box-shadow: inset 0 0 0 1px rgba(84, 58, 38, .08); }
 html body #room #room-panel[data-component="workspace"] [data-state="empty"] [data-slot="status"] {
   font: italic 400 16px/1.4 var(--display, Georgia, serif); color: var(--ink-2, #4E3A2B); list-style: none; }
+
+/* ---- Bug 3: the room fills the window (painted.js scales the stage to COVER and sets --crop-x / --crop-y) ----
+   No page scroll from the overflowing stage, no rounded corners at its (now cropped) edges, and every piece pinned to
+   a stage edge steps in by what that edge loses, so it stays inside the visible window. The inbox keeps itself on
+   screen (inbox.js) and the Replay label is pinned to the window already. */
+html[data-look="painted"], html[data-look="painted"] body { overflow: hidden; }
+html body #room[data-fill="cover"] { border-radius: 0; }
+html body #room[data-fill="cover"] [data-component="tally"] { margin-right: var(--crop-x, 0px); margin-top: var(--crop-y, 0px); }
+html body #room[data-fill="cover"] [data-component="time-pill"] { margin-left: var(--crop-x, 0px); margin-top: var(--crop-y, 0px); }
+html body #room[data-fill="cover"] [data-component="focus-doc"] { margin: var(--crop-y, 0px) var(--crop-x, 0px); }
+html body #room[data-fill="cover"] #room-panel[data-component="sketchpad-open"][data-state="open"] {
+  margin: var(--crop-y, 0px) var(--crop-x, 0px); }
