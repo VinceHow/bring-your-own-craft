@@ -725,3 +725,23 @@ html #room .her-sheet .fl-box:nth-of-type(n+5) { display: none !important; }
 html #room .team-space { left: 1180px; top: 560px; }
 html #room .her-sheet:not(.big), html #room .her-sheet.big { left: 838px; width: 290px; }
 html #room .her-sheet .her-idea { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; line-height: 1.2; } html #room .her-sheet:not(.big), html #room .her-sheet.big { height: 128px; }
+
+/* ---- her sheet opened large (data-open="true", room.js; click, Esc or a beat change closes it): a big ink-paper
+   document over the room, the same family as the focus document. The glance rules above apply only when closed. ---- */
+html #room .her-sheet[data-open="true"] { left: 110px !important; top: 52px !important; width: 1380px !important; height: 796px !important; z-index: 58;
+  padding: 32px 44px 28px !important; overflow: hidden; cursor: zoom-out; border-radius: 40px 34px 42px 32px / 34px 42px 32px 40px;
+  --cx: 10px; --cy: 10px; --crot: .6deg; }
+html #room .her-sheet[data-open="true"]::after { border-image: var(--ink-doc) 34 / 40px / 2px stretch !important; box-shadow: var(--paper-shadow-hi), 0 30px 60px -24px rgba(60,35,15,.5); }
+html #room .her-sheet[data-open="true"] .her-q { font: 500 16px/1.2 var(--ui); color: var(--ink-3); }
+html #room .her-sheet[data-open="true"] .her-idea { font: 400 34px/1.18 var(--display); letter-spacing: -.012em; white-space: normal; display: block; -webkit-line-clamp: unset; margin: 6px 0 18px; max-width: 34ch; }
+html #room .her-sheet[data-open="true"] :is(.idea-tabs, .fs-bar, .her-notes) { display: revert !important; }
+html #room .her-sheet[data-open="true"] .idea-tabs[hidden], html #room .her-sheet[data-open="true"] .sketch-sheet[hidden], html #room .her-sheet[data-open="true"] .page-sheet[hidden] { display: none !important; }
+html #room .her-sheet[data-open="true"] :is(.sketch-sheet, .page-sheet):not([hidden]) { display: block !important; }
+html #room .her-sheet[data-open="true"] .her-flow, html #room .her-sheet[data-open="true"] .fl-wrap { height: auto !important; -webkit-mask: none; mask: none; overflow: visible; }
+html #room .her-sheet[data-open="true"] .fl-canvas { display: block; width: revert !important; height: revert !important; margin-top: 0; }
+html #room .her-sheet[data-open="true"] .fl-canvas > svg, html #room .her-sheet[data-open="true"] .fl-item { display: revert !important; }
+html #room .her-sheet[data-open="true"] .fl-box { position: absolute !important; width: revert !important; height: revert !important; max-height: none; display: revert !important;
+  padding: 10px 16px !important; border-radius: var(--r-sm) !important; }
+html #room .her-sheet[data-open="true"] .fl-box .fl-label { font: 500 17px/1.25 var(--ui) !important; white-space: normal; }
+html #room .her-sheet[data-open="true"] .fl-box:nth-of-type(n+5) { display: revert !important; }
+html #room .her-sheet[data-open="true"] .fl-box { width: 200px !important; box-sizing: border-box; }
