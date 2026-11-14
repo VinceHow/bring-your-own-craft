@@ -13,8 +13,7 @@ what a tech lead already ran against the real tools; re-measure here, don't re-r
 Prompt-to-app tools guess everything; coding agents ask about everything. Here you take one of six seats (**Product,
 Design, Data, Research, Strategy, Engineering**), do your craft, and the team brings you only the decisions worth your time,
 inside your work. One polished journey: **Priya, a product manager, in the Product seat** (relatable to a panel of researchers, PMs, directors and
-investors), building, as a side project, a booking page for a friend's
-small yoga studio. **Pitch line:** *"Bring your own craft."*
+investors), building, as a side project, an ordering website for a friend's small bakery (locked 14 Nov). **Pitch line:** *"Bring your own craft."*
 
 **Craft vs stamping (the meter, IN YOUR CRAFT %, uses this).** *Craft:* working in your own medium, including a choice
 that arrives *inside* it (a fork on her flow). *Stamping:* anything that only says yes/no to the tool (a pop-up, an
@@ -38,7 +37,7 @@ she's the expert, they build on what she said, it's all of ours.
 | **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
 | **0:22–0:30** Her character | "Build your character": one natural sentence about what she loves → her character card with the team's own fun spin (playful title + 2–3 traits, e.g. "the Customer Whisperer: customer-obsessed, hands-on builder"; swappable); L1 of her hidden file. Unseen: the private profile. No stance slot. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
-| **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared yoga sketch, PREPARED. | live |
+| **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared bakery sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
 | **1:05–1:15** Room + team space | Sketchpads show each seat's own decisions; joint decisions are talked out (a real multi-teammate exchange, shown as chatter) and land as one-line cards in the team space (who talked it out, tap for the exchange); caption "N handled by your team · 3 for you". | live |
 | **1:15–1:35** Focus moment 2 | From her tray at a pause: one piece of work + one big question; she talks; reactions; the work updates. | live |
@@ -82,7 +81,11 @@ real run.
    stance slot; the "Sounds like" step is gone. The work updates. Polish goes into her engagement with the document, not
    literal staging. On stage: moment 1 in full, moments 2–3 short. Overrule, YOUR CALL and
    strike-through are cut. Unanswered at Build → decided by the team.
-9. **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
+9. **Her domains (Vincent, 14 Nov):** from the two things she says in the setup (her craft sentence and her idea),
+   the profile call deduces the areas that are hers, e.g. for Priya: who the target customer is, the customer's
+   problem, the user journey. A question in one of her areas routes to her (if it's big); everything else stays with
+   the team.
+   **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
    sentence + profile), natural, page can show it. Granular candidates are always decided. Ceiling of 3 and its test
    unchanged.
 10. **Private profile:** one call after her sentence + idea deduces business, positioning, customers, what sells, brand
@@ -209,7 +212,7 @@ plugin are credited open-source libraries.
 
 **One shot, no mistakes on the core.** Four builders work at once, so the seams are fixed in `CONTRACT.md` and only the
 lead changes them. Each piece ships with its own tests and passes them before review. `npm run e2e` (Playwright,
-`--trace off`) walks the yoga script through the real UI: room → flow → three asks arrive in her work (never more) →
+`--trace off`) walks the bakery script through the real UI: room → flow → three asks arrive in her work (never more) →
 focus moments → takeaways shown and her hidden file written → Build → page shows her choices and a decision citing her new line → counter
 and meter match the log → the key appears nowhere. The lead merges to `main` only with `npm test` and `npm run e2e`
 green, and re-runs e2e after every merge. A failure gets a diagnosis before a patch.
