@@ -1,11 +1,10 @@
 #!/bin/bash
-# Double-click to start Bring your own craft on this Mac: checks the machine, starts the room, opens it in Chrome.
+# Double-click to start Bring your own craft on this Mac: checks the machine, starts the room on a free port (3000, or
+# the next free one up to 3010: another app may hold 3000, and we never touch it), opens it in Chrome.
 # Close this window (or press Ctrl-C) to stop the room. Untested on macOS at the time of writing (built on Linux).
 cd "$(dirname "$0")" || exit 1
-PORT="${PORT:-3000}"
-URL="http://localhost:$PORT/"
 PIDFILE=".byoc-server.pid"
-export PORT
+PORTFILE=".byoc-server.port"
 
 pause() { echo; read -n 1 -s -r -p "Press any key to close."; echo; }
 
@@ -25,18 +24,25 @@ fi
 
 echo
 echo "Starting the room..."
-node scripts/local.mjs &
+rm -f "$PORTFILE"
+node scripts/local.mjs &   # picks the port, writes the PID and port files, prints the URL
 SERVER=$!
-echo "$SERVER" > "$PIDFILE"
 
 stop() {
   trap - INT TERM HUP EXIT
   if kill -0 "$SERVER" 2>/dev/null; then kill -TERM "$SERVER" 2>/dev/null; wait "$SERVER" 2>/dev/null; fi
-  rm -f "$PIDFILE"
 }
 trap 'stop; exit 0' INT TERM HUP
 trap stop EXIT
 
+PORT=""
+for _ in $(seq 1 60); do
+  if [ -f "$PIDFILE" ] && [ "$(cat "$PIDFILE" 2>/dev/null)" = "$SERVER" ] && [ -s "$PORTFILE" ]; then PORT="$(cat "$PORTFILE")"; break; fi
+  if ! kill -0 "$SERVER" 2>/dev/null; then echo "The room stopped while starting (see above)."; pause; exit 1; fi
+  sleep 0.5
+done
+if [ -z "$PORT" ]; then echo "The room didn't start (no port after 30 s)."; pause; exit 1; fi
+URL="http://localhost:$PORT/"
 for _ in $(seq 1 60); do
   if curl -s -o /dev/null "$URL"; then break; fi
   if ! kill -0 "$SERVER" 2>/dev/null; then echo "The room stopped while starting (see above)."; pause; exit 1; fi
@@ -50,6 +56,7 @@ else
   open "$URL"
 fi
 echo
-echo "Room running at $URL. Close this window to stop."
+echo "Room running at $URL"
+echo "Close this window to stop."
 wait "$SERVER"
 echo "The room stopped."

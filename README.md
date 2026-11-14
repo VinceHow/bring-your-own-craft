@@ -79,6 +79,8 @@ there are no dependencies (Playwright is only needed for `npm run e2e`).
 
 ```
 npm start        # the studio, at http://localhost:3000 (PORT to change)
+npm run local    # the same with .env.local keys, on the first free port from 3000 (it prints the URL)
+npm run doctor   # is this machine ready? (docs/RUN-LOCALLY.md)
 npm test         # unit tests, offline, fake models, no model calls (LIVE=1 adds one real-model test)
 npm run e2e      # the demo walked through the real UI in Chromium (Playwright), with real model calls
 ```
