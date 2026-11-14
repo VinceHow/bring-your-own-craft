@@ -5,19 +5,20 @@ or agreed but not yet built is marked. Every step writes to one event log per ru
 number on screen is computed from that log.
 
 ## 1. The setup
-- **Her pick card** (`public/room.js`). Her stool asks *"What do you bring to the table?"*: Product, or "Your own
-  craft". There is no seventh seat; "Your own craft" puts her in the DIY seat (`diy` on the run).
-- **The team assembles** (`public/room.js`, `assemble`): Mika (Design), Noor (Research), Theo (Data), Ines
-  (Strategy) and Bo (Engineering) appear in their chairs, each with what they love and bring.
-- **Her character card** (`lib/tag.js`, `public/name-tag.js`). She says or types one sentence about what she loves;
-  one fast call turns it into the team's own fun read (a playful title, two or three traits), every word editable.
-  Her words become her intro.
+The room stays hidden until the reveal (`public/room.js`, "the setup"):
+- **Her name tag, on paper** (`public/room.js`, `lib/tag.js`). Her name, her role (Product, or her own craft: "Your
+  own craft" puts her in the DIY seat, `diy` on the run; there is no seventh seat), and, spoken in her own words, what
+  she loves and brings. The sentence goes through the shared speech tidy (`BYOC.tidy`, `lib/tidy.js`), then one fast
+  call gives the team's own fun read (a playful title, two or three traits), every word editable. Her words become
+  her intro.
+- **Meet the team**, one by one, up close: Mika (Design), Noor (Research), Theo (Data), Ines (Strategy) and Bo
+  (Engineering), each with a line in its own voice and what it brings (the clicker's forward goes to the next).
+- **The reveal**: the studio appears for the first time, everyone already seated, and she takes her seat. Replays
+  jump straight past the setup.
 - **Her private profile** (`lib/profile.js`). One call after her intro and her idea deduces her business, customers,
   brand feel, strengths and her domains (the areas that are hers), each with a confidence. It's never shown; every
   teammate and the selector read it, and it is updated after each of her answers. The log records only that it was
   built or updated, never what it says.
-- **Agreed, not built on `main` yet** (PO, 19:54): a new setup order, name tag on paper → meet the team one by one →
-  the room revealed with everyone seated → she takes her seat.
 
 ## 2. The first sketch and her reshape
 `lib/sketch.js`, `routes/sketch.js`.
