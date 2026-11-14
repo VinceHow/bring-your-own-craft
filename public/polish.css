@@ -239,8 +239,9 @@ body.stage #room .slip-text { font-size: 15px; }
 #room .symphony-slip::before { display: none; } /* the ink edge is the border, not a second bar */
 /* the tray sits left of her seat card, growing upward from the room's bottom edge: clear of the REPLAY label and the page */
 #room .tray { left: 296px; right: auto; top: auto; bottom: 8px; width: 256px; padding: var(--s2); gap: 6px; }
-#room .tray-note { white-space: nowrap; padding: 6px 10px; }
-#room .tray-text { overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+#room .tray-note { white-space: nowrap; padding: 5px 10px 6px; flex-wrap: wrap; }
+#room .tray-seat { flex: 1 0 100%; font-size: 11px; letter-spacing: .06em; }
+#room .tray-text { flex: 1 1 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 body.stage #room .tray-note { font-size: 14px; }
 
 /* ======== her focus document (focus-doc.js). Two states only: the room, or her document. This is where the craft
@@ -311,11 +312,15 @@ body.stage #room .tray-note { font-size: 14px; }
 .focus-doc .fd-close:focus-visible, .focus-doc .brief-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .focus-doc .chime, .focus-doc .fd-brief { animation: none; } }
 
+/* the agent's name in a seat band: at six seats the band is narrow, so the 'agent' mark gives way first */
+#room .seat .card-band .card-who { min-width: 0; overflow: hidden; white-space: nowrap; }
+#room .seat:not(.seat-product) .card-band .agent-mark { display: none; }
+
 /* ======== the room's light chatter: teammates talking about their own work, never to her. Quiet printed margin
    notes in each teammate's ink; never bubbles, never a question, never bold. ======== */
-.chatter-line { display: flex; align-items: baseline; gap: 6px; font: italic 400 13px/1.35 var(--ui); color: rgba(20,20,20,.85);
+#room .chatter-line { display: block; max-width: 300px; font: italic 400 13px/1.35 var(--ui); color: rgba(20,20,20,.85);
   animation: fd-in 140ms ease-out both; }
-.chatter-line::before { content: ''; flex: none; width: 8px; height: 8px; background: var(--chatter-ink, var(--ink)); border: 1.5px solid var(--ink); border-radius: 1px; }
+#room .chatter-line::before { content: ''; display: inline-block; margin-right: 6px; width: 8px; height: 8px; vertical-align: 0; background: var(--chatter-ink, var(--ink)); border: 1.5px solid var(--ink); border-radius: 1px; }
 .chatter-who { font: 600 11px/1 var(--mono); font-style: normal; text-transform: uppercase; letter-spacing: .05em; }
 .chatter-line[data-seat="design"] { --chatter-ink: var(--design); } .chatter-line[data-seat="data"] { --chatter-ink: var(--data); }
 .chatter-line[data-seat="research"] { --chatter-ink: var(--research); } .chatter-line[data-seat="strategy"] { --chatter-ink: var(--strategy); }
