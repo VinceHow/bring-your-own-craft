@@ -192,7 +192,7 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
   assert.strictEqual(await pg.locator('input[type=tel]').count(), 0, 'no phone field (her pin)');
   const cited = pg.locator(`#decided [data-decided][data-cites="${written.id}"]`);
-  assert.ok(await cited.count() >= 1, `"decided for you" shows a decision citing ${written.id}`);
+  assert.ok((await cited.count()) >= 1, `"decided for you" shows a decision citing ${written.id}`);
   assert.match(await cited.first().innerText(), /remember or skip/i, 'with her line quoted');
   assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
   // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).

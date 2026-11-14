@@ -43,8 +43,24 @@ export async function buildRun(run, { call } = {}) {
   return { url, ms, decideMs, fillMs: r.modelMs, template: r.template, decided };
 }
 
+// Built pages are served from RUNS_DIR (server.js's static /runs/ reads <repo>/runs, which misses a RUNS_DIR set
+// elsewhere, as e2e does). Same path rules: nothing outside RUNS_DIR.
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
+  '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.md': 'text/plain; charset=utf-8' };
+function servePage(req, res, { url }) {
+  const rel = decodeURIComponent(url.pathname).slice('/runs/'.length);
+  let f = path.normalize(path.join(RUNS_DIR, rel));
+  if (!f.startsWith(RUNS_DIR + path.sep)) { res.writeHead(403); return res.end(); }
+  if (fs.statSync(f, { throwIfNoEntry: false })?.isDirectory()) f = path.join(f, 'index.html');
+  fs.readFile(f, (err, buf) => {
+    if (err) { res.writeHead(404); return res.end('not found'); }
+    res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream' });
+    res.end(buf);
+  });
+}
+
 const BUILD = /^\/api\/run\/([^/]+)\/build$/;
-export default [{
+export default [{ method: 'GET', match: url => url.pathname.startsWith('/runs/'), handler: servePage }, {
   method: 'POST', match: url => BUILD.test(url.pathname),
   handler: async (req, res, { url }) => {
     const run = decodeURIComponent(url.pathname.match(BUILD)[1]);
