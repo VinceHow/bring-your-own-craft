@@ -164,23 +164,20 @@ test('5. the team works on her shape; check-ins sit on its boxes; leans are real
   T.guestCites = gCites.length;
 });
 
-test('6. she answers the check-ins, overruling once', async t => {
+test('6. she opens each note from her tray and says her piece in the document', async t => {
   if (!RUN) return t.skip('needs step 1');
   const asks = (await events()).filter(e => e.type === 'ask');
-  let overruled = false;
   for (let i = 0; i < asks.length; i++) {
-    // After her first answer nothing opens by itself (DEMO focus rules): she picks the next note from her tray.
-    if (i > 0) { await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 }); await page.locator('#tray .tray-note').first().click(); }
-    await waitFor(() => !!document.querySelector('#her-flow .fl-item.is-open'), 8000, 'an open check-in');
-    const id = await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask');
-    const item = page.locator(`#her-flow .fl-item[data-ask="${id}"]`);
-    const rec = item.locator('.fl-opt.is-rec'), other = item.locator('.fl-opt:not(.is-rec)');
-    if (!overruled && (await rec.count()) && (await other.count())) { overruled = true; await other.first().click(); }
-    else await ((await rec.count()) ? rec.first() : item.locator('.fl-opt').first()).click();
+    // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
+    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
+    await page.locator('#tray .tray-note').first().click();
+    await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
+    await page.locator('#focus-doc .fd-input').fill('Regulars first. Their usual class should be one tap away.');
+    await page.keyboard.press('Enter');
     await waitFor(n => new Set(BYOC.events().filter(e => e.type === 'answer').map(e => e.askId)).size >= n, 5000, 'answer logged', i + 1);
-    await page.waitForTimeout(1300);
+    await page.keyboard.press('Escape');
+    await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
   }
-  assert.ok(overruled, 'she overruled the team once');
   lap('check-ins answered');
 });
 

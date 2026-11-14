@@ -11,11 +11,11 @@
   // Loves / Brings / Stance: copied exactly from DEMO.md, "The team cards". Brings stays true of what each runs on.
   const INFO = {
     product: { name: 'Product', brings: 'product: user journeys and the calls that shape them' },
-    design: { name: 'Design', stance: 'sketch first, polish last', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing' },
-    data: { name: 'Data', stance: 'only what we’ll measure', loves: 'One number that says it worked.', brings: 'what to measure at each step' },
-    research: { name: 'Research', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
-    strategy: { name: 'Strategy', stance: 'who pays, and why now', loves: 'Knowing who pays before we build.', brings: 'pricing and payment calls' },
-    engineering: { name: 'Engineering', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
+    design: { name: 'Design', agent: 'Mika', stance: 'sketch first, polish last', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing' },
+    data: { name: 'Data', agent: 'Theo', stance: 'only what we’ll measure', loves: 'One number that says it worked.', brings: 'what to measure at each step' },
+    research: { name: 'Research', agent: 'Noor', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
+    strategy: { name: 'Strategy', agent: 'Ines', stance: 'who pays, and why now', loves: 'Knowing who pays before we build.', brings: 'pricing and payment calls' },
+    engineering: { name: 'Engineering', agent: 'Bo', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
   // How long each teammate's big card holds mid-table (DEMO 0:06-0:26: about 2 s). ?hold=<ms> for tests.
   const HOLD_MS = Number(new URLSearchParams(location.search).get('hold')) || 2000;
@@ -144,7 +144,7 @@
   }
   function stepClear() { steps.clear(); stepFail = null; clearInterval(stepTick); stepTick = null; renderStep(); }
   function renderStep() {
-    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) { stepEl.hidden = true; return; } // no timers in her focus time
+    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) { stepEl.hidden = true; return; } // her document fills the view
     const now = Date.now();
     // The newest step she is waiting on; quick ones (under 0.8 s) never flash up.
     const cur = [...steps.values()].filter(s => now - s.t0 > 800).at(-1);
@@ -161,6 +161,8 @@
   }
   BYOC.step = { begin: stepBegin, set: stepSet, end: stepEnd, clear: stepClear, get state() {
     return { steps: [...steps.values()].map(s => ({ ...s })), failed: stepFail }; } };
+  BYOC.emit = emit; // for the room's own pieces (focus-doc.js)
+  BYOC.info = seat => INFO[seat] || null;
   BYOC.run = null;
   BYOC.replay = false;      // true while a recorded (or fake) run is on screen
   BYOC.replayKind = null;   // 'recorded' | 'fixture'
@@ -214,7 +216,7 @@
         <div class="card-her"><span class="card-who">Priya · your seat</span>
         <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
     } else {
-      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
+      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who"><span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span></span></div>
         <div class="card-stance">${esc(i.stance)}</div>
         <div class="card-note">Seat open: invite a teammate. Your agents hold it until they arrive.</div>`;
     }
@@ -274,7 +276,7 @@
     // Stage type is bigger, so one line fewer fits each sheet.
     if (ul.children.length < MAX_LINES[seat] - (document.body.classList.contains('stage') ? 1 : 0)) {
       ul.appendChild(li);
-      if (!instantMode && !(BYOC.focus && BYOC.focus.open)) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
+      if (!instantMode) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
     }
     const hiddenCount = sh._count - ul.children.length;
     $('.mini-more', sh).textContent = hiddenCount > 0 ? `+${hiddenCount} more` : '';
@@ -499,7 +501,6 @@
   let serverTally = null; // null: unknown, false: endpoint missing, true: in use
   let tallyTimer = null;
   function refreshTally() {
-    if (BYOC.focus && BYOC.focus.open) { focusHeld = true; return; } // nothing counts up during her focus time
     clearTimeout(tallyTimer);
     tallyTimer = setTimeout(async () => {
       const live = !BYOC.replay && BYOC.run && !BYOC.run.startsWith('local-');
@@ -527,6 +528,8 @@
   BYOC.el.sketchSheet = sk.sheet;
   BYOC.timings = {};
   function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
+  // One request for Design's frames, shared by the sketch sheet and her focus document.
+  BYOC.getSketches = () => sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false }).catch(e => { sk.req = null; throw e; }));
   function maybePrefetchSketches() {
     if (BYOC.replay || sk.req || !BYOC.run || BYOC.run.startsWith('local-')) return;
     const asks = seen.filter(e => e.type === 'ask').length;
@@ -572,38 +575,43 @@
   }
   new MutationObserver(refit).observe(el.herFlow, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
-  // ---- focus time (DEMO 1:15-1:50) -------------------------------------------------------------
-  // While a check-in is open: the other seats dim and stop moving, the counter and meter hold still, no step line or
-  // seconds show, and nothing says how many questions wait. Between check-ins (a ~1 s breath, set in flow.js) the
-  // tray at her seat shows the notes still waiting, as plain notes: no number, no red, no pulse. She can pick one.
+  // ---- two states: the room, or her focus (DEMO focus rules, 14 Nov) -----------------------------
+  // The room: the team at work, with its own chatter. Her focus: she opens a note from her tray and the view becomes just
+  // her and that one document (public/focus-doc.js). Nothing dims or freezes; nothing opens by itself; nobody waits.
   BYOC.focus = { open: null, waiting: [] };
+  const asks = new Map(); // id -> ask, in the order the team suggests them
+  const answeredIds = new Set();
+  const askText = a => a.question || a.decision || '';
+  const who = a => { const i = INFO[a.seat] || { name: a.seat }; return (a.by || i.agent) ? `${a.by || i.agent} · ${i.name}` : i.name; };
+  function syncFocus() {
+    const open = BYOC.focusDoc && BYOC.focusDoc.openId ? BYOC.focusDoc.openId() : null;
+    const waiting = [...asks.values()].filter(a => !answeredIds.has(a.id) && a.id !== open)
+      .map(a => ({ id: a.id, seat: a.seat, by: a.by || null, question: askText(a) }));
+    BYOC.focus = { open, waiting };
+    renderTray();
+    renderStep();
+  }
+  BYOC.syncFocus = syncFocus;
+  BYOC.asks = () => [...asks.values()];
+  function openNote(id) {
+    const a = asks.get(id);
+    if (!a || !BYOC.focusDoc) return false;
+    BYOC.focusDoc.open(a);
+    return true;
+  }
+  BYOC.openNote = openNote;
+  // The tray: a small stack of notes at the edge of her seat, each in its teammate's ink: "Noor · Research" and a few
+  // words of the question. The top note is the team's suggestion; she picks which to open. Notes slide in only at a
+  // natural pause, about 1 s after it, never while she's typing or speaking. No number, no red, no pulse.
   const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true;
   tray.setAttribute('aria-label', 'Notes from your team');
   el.room.appendChild(tray);
-  let focusHeld = false; // a tally change that arrived during focus, shown after it
-  function setFocus(d) {
-    const was = !!BYOC.focus.open, before = BYOC.focus.open;
-    BYOC.focus = { open: d.open || null, waiting: d.waiting || [] };
-    document.body.classList.toggle('focus', !!d.open);
-    el.room.classList.toggle('focus', !!d.open); // the hook polish.css styles (#room.focus)
-    // checkin.open / checkin.close as room events (BYOC.on). Not written to the run's log: no route takes them, and
-    // the log's own ask/answer events already say when each check-in started and ended.
-    if (before && before !== d.open) emit('checkin.close', { askId: before });
-    if (d.open && d.open !== before) emit('checkin.open', { askId: d.open });
-    renderTray();
-    renderStep();
-    if (was && !d.open && focusHeld) { focusHeld = false; refreshTally(); }
-    emit('focus', BYOC.focus); // the gem listens: it holds still while a check-in is open
-  }
-  // The tray (DEMO focus rules): a small stack of notes at the edge of her seat, each in its teammate's ink:
-  // "Research · Waitlist when a class is full?". The top note is the team's suggestion; she picks which to open.
-  // Notes slide in only at a natural pause, about 1 s after it, never while she's typing or speaking.
   let trayTimer = null;
   const isTypingNow = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); };
   const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
   function renderTray() {
     const w = BYOC.focus.waiting;
-    const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 6 && BYOC.beat < 8;
+    const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 5 && BYOC.beat < 8;
     clearTimeout(trayTimer);
     if (!show) { tray.hidden = true; return; }
     const ids = w.map(n => n.id).join(',');
@@ -613,18 +621,34 @@
       if (BYOC.focus.open) return;
       tray.dataset.ids = ids;
       tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
-        <span class="tray-seat">${esc((INFO[n.seat] || { name: n.seat }).name)}</span><span class="tray-dot"> · </span><span class="tray-text">${esc(fewWords(n.decision))}</span></button>`).join('');
+        <span class="tray-seat">${esc(who(n))}</span><span class="tray-text">${esc(fewWords(n.question))}</span></button>`).join('');
       const was = tray.hidden; tray.hidden = false;
       if (was && !instantMode) place(tray, { y: [24, 0], opacity: [0, 1] }, true);
     }, instantMode || BYOC.replay ? 0 : 1000);
   }
   // The clicker's forward key opens the top note when the tray is out (stage.js asks first).
-  BYOC.openTopNote = () => { const top = tray.hidden ? null : tray.querySelector('.tray-note'); if (!top) return false; BYOC.flow?.openCheckin?.(top.dataset.ask); return true; };
-  tray.addEventListener('click', e => {
-    const b = e.target.closest('.tray-note'); if (!b) return;
-    if (BYOC.flow && BYOC.flow.openCheckin) BYOC.flow.openCheckin(b.dataset.ask);
-  });
-  document.addEventListener('byoc:checkin', e => setFocus(e.detail || {}));
+  BYOC.openTopNote = () => { const top = tray.hidden ? null : tray.querySelector('.tray-note'); return top ? openNote(top.dataset.ask) : false; };
+  tray.addEventListener('click', e => { const b = e.target.closest('.tray-note'); if (b) openNote(b.dataset.ask); });
+
+  // ---- the room's chatter (DEMO focus rules): the team talking about its own work, never to her ----------
+  // chatter { by, seat, text } events (written by the server from real run events). Each line shows a few seconds
+  // under its speaker's card; at most three at once. Her document covers the room, so she never sees it while focused.
+  const chatter = h('div', 'chatter'); chatter.setAttribute('aria-hidden', 'true');
+  el.room.appendChild(chatter);
+  function chat(ev) {
+    const s = el.seat[ev.seat]; if (!s || !ev.text) return;
+    const line = h('div', 'chatter-line'); line.dataset.seat = ev.seat;
+    line.appendChild(h('span', 'chatter-who', `${ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name}: `));
+    line.appendChild(h('span', 'chatter-text', ev.text));
+    line.style.left = (s.offsetLeft + 12) + 'px';
+    line.style.top = (s.offsetTop + s.offsetHeight - 6) + 'px';
+    chatter.querySelectorAll(`.chatter-line[data-seat="${ev.seat}"]`).forEach(o => o.remove());
+    chatter.appendChild(line);
+    while (chatter.children.length > 3) chatter.firstChild.remove();
+    if (!instantMode) place(line, { y: [-8, 0], opacity: [0, 1] }, true);
+    setTimeout(() => { if (line.isConnected) line.remove(); }, 4500);
+  }
+  BYOC.chat = chat;
 
   // ---- leaning in (DEMO 0:45-1:05) ----------------------------------------------------------------
   // A real `lean {seat, nodeId, reason}` (a teammate picked up her change): its card nudges toward her work and its ink
@@ -747,7 +771,7 @@
       case 'ask': {
         if (BYOC.beat < 6) stage(6);
         const it = findItem(ev.id); if (it) it.classList.add('brought');
-        drawAsk(ev);
+        asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
         break;
       }
@@ -766,6 +790,7 @@
         soundsLike(ev.text);
         break;
       case 'answer':
+        answeredIds.add(ev.askId); syncFocus();
         maybePrefetchSketches();
         refreshTally();
         break;
@@ -775,6 +800,9 @@
         break;
       case 'lean':
         leanIn(ev, source);
+        break;
+      case 'chatter':
+        chat(ev);
         break;
       case 'teammate.error':
         sheetStep(ev.seat, 'stopped: model error');
@@ -821,7 +849,7 @@
     const loves = seat === 'product'
       ? `<span class="bc-love-start">I love</span><textarea class="bc-love-input" id="intro-input" rows="2" spellcheck="false" maxlength="160" placeholder="…" aria-label="I love…"></textarea>`
       : `“${esc(i.loves)}”`;
-    c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">${seat === 'product' ? 'your seat' : 'teammate'}</span></div>
+    c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">${seat === 'product' ? 'your seat' : `<span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span>`}</span></div>
       <dl class="bc-body"><dt>Loves</dt><dd class="bc-loves">${loves}</dd>
       <dt>Brings</dt><dd class="bc-brings">${esc(i.brings)}</dd>
       <dt>Stance</dt><dd class="bc-stance${i.stance ? '' : ' empty'}">${i.stance ? esc(i.stance) : 'We’ll find out today.'}</dd></dl>`;
@@ -973,6 +1001,7 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
+    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {

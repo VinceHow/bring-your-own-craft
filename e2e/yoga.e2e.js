@@ -98,7 +98,13 @@ test('3. she writes the idea and her journey; lines become boxes', async t => {
   assert.strictEqual(logged.length, 5, 'each line logged once');
 });
 
-test('4. at most three asks arrive, inside her work (fork or pin), never a pop-up', async t => {
+// Her answers in her own words, one per question (DEMO focus moments).
+const SAYS = [
+  'Knowing their spot is theirs. My regulars do the same class every week and hate hunting for it.',
+  'Small and warm. Nobody should feel lost on their first visit, and nobody should wait at the door.',
+  'Fast. Don\'t ask for anything you already know.',
+];
+test('4. at most three questions wait in her tray; she opens each as a document and says her piece', async t => {
   if (!RUN) return t.todo('needs step 3');
   await page.keyboard.press('Enter'); // an empty line: team, go
   await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');
@@ -107,39 +113,25 @@ test('4. at most three asks arrive, inside her work (fork or pin), never a pop-u
   assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
   const asks = evs.filter(e => e.type === 'ask');
   assert.ok(asks.length >= 1 && asks.length <= 3, `1 to 3 asks, got ${asks.length}`);
-  await waitFor(n => document.querySelectorAll('#her-flow .fl-fork, #her-flow .fl-pin').length >= n, 5000, 'asks in her flow', asks.length);
-  await page.waitForTimeout(800);
-  assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), asks.length, 'one fork or pin per ask');
+  // Nothing on her flow asks her anything, and nothing opens by itself: the questions wait in her tray.
+  await waitFor(n => document.querySelectorAll('#tray:not([hidden]) .tray-note').length === n, 5000, 'her tray', asks.length);
+  assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), 0, 'no forks or pins');
   assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'no pop-up');
-  await shot('live-asks.png');
-  // She overrules the team on the first, and takes the recommendation on the rest.
-  let overruled = null;
+  await shot('live-tray.png');
   for (let i = 0; i < asks.length; i++) {
-    // The one she's on is open (zoomed next to its box); the rest wait. Follow it by its ask id once answered.
-    // After her first answer nothing opens by itself: she picks the next note from the tray at her seat.
-    if (!(await page.locator('#her-flow .fl-item.is-open').count())) {
-      await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-      await page.locator('#tray .tray-note').first().click();
-    }
-    const id = await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask');
-    const item = page.locator(`#her-flow .fl-item[data-ask="${id}"]`);
-    const rec = item.locator('.fl-opt.is-rec'), other = item.locator('.fl-opt:not(.is-rec)');
-    if (!overruled && (await rec.count()) && (await other.count())) {
-      overruled = i + 1;
-      await other.first().click();
-      await page.waitForTimeout(400);
-      const struck = item.locator('.fl-opt.is-rec.is-dropped .fl-otext');
-      assert.strictEqual(await struck.count(), 1, 'the recommendation she passed over is marked dropped');
-      assert.match(await struck.evaluate(e => getComputedStyle(e).textDecorationLine), /line-through/, 'and struck through');
-      assert.strictEqual(await item.locator('.fl-opt.is-chosen .fl-yours').innerText(), 'YOUR CALL');
-    } else {
-      await ((await rec.count()) ? rec.first() : item.locator('.fl-opt').first()).click();
-    }
-    await page.waitForTimeout(300);
+    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
+    await page.locator('#tray .tray-note').first().click();
+    await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
+    const id = await page.evaluate(() => BYOC.focusDoc.openId());
+    if (i === 0) await shot('live-focus.png');
+    await page.locator('#focus-doc .fd-input').fill(SAYS[i % SAYS.length]);
+    await page.keyboard.press('Enter');
+    await waitFor(id => BYOC.events().some(e => e.type === 'answer' && e.askId === id), 8000, 'her answer logged', id);
+    await page.keyboard.press('Escape'); // back to the room
+    await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
   }
-  assert.ok(overruled, 'she overruled the team at least once');
   await waitFor(n => new Set(BYOC.events().filter(e => e.type === 'answer').map(e => e.askId)).size >= n, 8000, 'her answers logged', asks.length);
-  lap('1:10 her three answered');
+  lap('1:10 her answers said');
 });
 
 test('5. her pin -> "Sounds like" -> written to her file', async t => {
@@ -224,7 +216,6 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
   const answered = evs.filter(e => e.type === 'answer');
   assert.strictEqual(slots.inputs.answers.filter(a => a.decision !== 'her pinned note').length, answered.length, 'every answer reached the fill');
-  assert.ok(slots.inputs.answers.some(a => a.overruled), 'her overruled call reached the fill as overruled');
   if (SCREENS) {
     await pg.screenshot({ path: path.join(SCREENS, 'live-page.png') });
     await cited.first().scrollIntoViewIfNeeded();
