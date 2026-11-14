@@ -2,7 +2,7 @@ node_modules/
 runs/*
 !runs/.gitkeep
 !runs/rehearsal/
-!runs/cafe/
+!runs/yoga/
 .taste-skill/
 *.log
 .env

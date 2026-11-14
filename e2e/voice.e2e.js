@@ -106,8 +106,9 @@ test('hold ` on her card: listening, then the words land in "I love…" as edita
   await page.keyboard.type(', always');
   assert.strictEqual(await page.inputValue('#intro-input'), 'getting the journey right before anyone draws a screen, always');
   assert.strictEqual(await m.getAttribute('data-state'), 'idle');
-  // Enter keeps it: it becomes her intro.
+  // Enter keeps it: it becomes her intro, the team writes her character card, and Enter again takes the seat.
   await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her character card, then she takes the seat
   await waitFor(page, () => BYOC.beat === 3 && document.activeElement?.id === 'her-input', 8000, 'her sheet open');
   assert.strictEqual(await page.evaluate(() => BYOC.intro), 'I love getting the journey right before anyone draws a screen, always');
 
