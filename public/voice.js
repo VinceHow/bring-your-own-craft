@@ -166,6 +166,8 @@
         else { // a data-voice field: typeInto only knows her card and sheet, so the words go straight in, as typing would
           if ('value' in field) field.value = text; else field.textContent = text;
           field.dispatchEvent(new Event('input', { bubbles: true }));
+          // One spoken take, for a field that keeps takes as pieces (the focus doc, public/focus-doc.js).
+          field.dispatchEvent(new CustomEvent('byoc:voice', { detail: { text } }));
         }
         // Caret at the end, so she can fix a word and press Enter.
         try { field.setSelectionRange(field.value.length, field.value.length); } catch {}
@@ -191,6 +193,23 @@
     if (e.code === 'Backquote' || e.key === 'v' || e.key === 'V') { if (state === 'listening' && !toggled) { e.preventDefault(); release(); } }
   }, true);
   window.addEventListener('blur', () => { if (state === 'listening' && !toggled) stop(); }); // a held key can't be released after a blur; a tapped one carries on
+
+  // ---- the speech tidy, shared ------------------------------------------------------------------------
+  // BYOC.tidy(text, { seat }) -> Promise<string>: her spoken words, tidied into her own note (POST /api/tidy,
+  // lib/tidy.js). Never rejects: on a failure or after ~4 s it resolves to her raw words. (seat: reserved; the
+  // tidy is the same for every seat.)
+  BYOC.tidy = function (text, opts = {}) {
+    const raw = String(text || '');
+    if (!raw.trim()) return Promise.resolve(raw);
+    const ctl = window.AbortController ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), opts.timeoutMs || 4000);
+    return fetch('/api/tidy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl ? ctl.signal : undefined,
+      body: JSON.stringify({ text: raw, run: BYOC.run || undefined }) })
+      .then(r => r.ok ? r.json() : null).then(j => (j && typeof j.text === 'string' && j.text.trim()) ? j.text : raw)
+      // Her card's "I love …" line is a fragment: begun in lower case, it stays so ("I love getting…", never "Getting").
+      .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
+      .catch(() => raw).finally(() => clearTimeout(timer));
+  };
 
   // ---- is voice there? -------------------------------------------------------------------------
   BYOC.voice = { get available() { return available; }, get state() { return state; }, get toggled() { return toggled; }, start: () => start(currentTarget()), stop, cancel };

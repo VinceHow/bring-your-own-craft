@@ -57,7 +57,7 @@ const handlers = {
 
   async answer(run, body) {
     // A focus moment: her words, heard by one interpret call (lib/interpret.js). { choice } stays for the old path.
-    if (body?.text != null) { const r = await interpret({ run, askId: body.askId, text: body.text }); delete r.body.profile; return [r.code, r.body]; }
+    if (body?.text != null || Array.isArray(body?.pieces)) { const r = await interpret({ run, askId: body.askId, text: body.text, pieces: Array.isArray(body?.pieces) ? body.pieces : undefined }); delete r.body.profile; return [r.code, r.body]; }
     const { askId, choice } = body || {};
     const a = state(run).evs.find(e => e.type === 'ask' && e.id === askId);
     if (!a) return [404, { error: 'no such ask' }];
