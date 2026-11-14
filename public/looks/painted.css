@@ -683,7 +683,14 @@ html #room .her-sheet:not(.big), html #room .her-sheet.big { scale: 1; translate
   padding: 14px 20px 12px; border-radius: 30px 26px 32px 24px / 26px 32px 24px 30px; }
 html #room .her-sheet .her-q { font: 500 15px/1.2 var(--ui); color: var(--ink-3); margin: 0; }
 html #room .her-sheet .her-idea { font: 400 18px/1.25 var(--display); color: var(--ink); margin: 3px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-html #room .her-sheet :is(.her-form, .her-notes, .idea-tabs, .fs-bar, .sketch-sheet, .page-sheet) { display: none !important; }
+html #room .her-sheet :is(.her-notes, .idea-tabs, .fs-bar, .sketch-sheet, .page-sheet) { display: none !important; }
+/* her idea input and Team, go are functional controls: a look restyles them, never hides them. While the room asks
+   her to type (#her-form not [hidden]), the glance card grows to hold the form (builder 7, P0 for painted). */
+html #room .her-sheet:has(.her-form:not([hidden])) { height: auto !important; overflow: visible; }
+html #room .her-sheet .her-form:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; padding-top: 8px; }
+html #room .her-sheet .her-form[hidden] { display: none !important; }
+html #room .her-sheet .her-form .her-input { flex: 1 1 100%; font: 400 17px/1.3 var(--ui); padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.6); }
+html #room .her-sheet .her-form .her-hint { font: 500 12px/1.2 var(--ui); color: var(--ink-3); }
 html #room .her-sheet .her-flow { height: 44px; overflow: hidden; margin: 0; }
 html #room .her-sheet .fl-canvas { transform: none !important; }
 html #room .her-sheet .fl-box { padding: 5px 10px; }
