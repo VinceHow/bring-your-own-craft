@@ -34,9 +34,12 @@ coffee. Score every decision, by its id:
   raised it would ask her, in that teammate's voice: one sentence, open (it starts with What, How, Who, Why, When,
   Where or If), plain words, thought-provoking. Rise above the setting to what's underneath it: not "Should regulars
   get a Book your usual button?" but "What makes someone come back to a studio week after week?". No options, no
-  "or", no recommendation, no jargon, no "you should". Never a form question.
+  "or", no recommendation, no jargon, no "you should". Never a form question. Every decision that clears the bar
+  gets its own question, even if another question touches it. When a decision carries Research's source, score
+  the human question underneath it, the one the finding informs (e.g. what someone should feel when the class they
+  wanted is full), not its mechanics.
 - `artifact`: the piece of her work the question sits on: "journey" (the rough journey), "finding" (only if the
-  decision carries Research's source), "wires" (only for how the screens look and feel), or "page".
+  decision carries Research's source), or "wires" (only for how the screens look and feel).
 - `settles`: the ids of the decisions in this list her answer to that question would settle (include its own id).
   Never a granular one. Empty when there is no question.
 

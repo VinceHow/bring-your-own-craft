@@ -90,7 +90,7 @@ test('granular candidates are never asked, whatever the scorer says, and never i
   const cs = [
     cand(1, { decision: 'Whether customers need an account or just a name and email' }),
     cand(2, { decision: 'Whether regulars are remembered on this device' }),
-    cand(3, { decision: 'Whether full classes get a waitlist' }),
+    cand(3, { decision: 'Whether the waitlist takes payment or a hold' }),
     cand(4, { decision: 'Which fields the booking form asks for' }),
     cand(5, { decision: 'Something the scorer itself calls granular' }),
     cand(6, { decision: 'Who the page is for first' }),
@@ -116,7 +116,7 @@ test('the Ask shape: one open question by a named teammate, on one piece of her 
   ];
   const questions = { c1: 'Who walks through the door that this page should welcome first?',
     c2: 'When a class is full, what should a regular feel?', c3: 'If booking could feel like one thing, what should it feel like?' };
-  const score = items => ({ scores: items.map(c => ({ ...strong(c), question: questions[c.id] ?? 'Should it be A or B?',
+  const score = items => ({ scores: items.map(c => ({ ...strong(c), ...(c.id === 'c4' ? { hers: 1 } : {}), question: questions[c.id] ?? 'Should it be A or B?',
     artifact: c.id === 'c3' ? 'wires' : 'journey', settles: c.id === 'c1' ? ['c1', 'c4', 'c99'] : [c.id] })) });
   const r = await select({ run, idea: 'A booking page for a small yoga studio.', flow, taste: readTaste(run), candidates: cs, callModel: fakeModel({ score }) });
   const { validAsk } = await import('../lib/select.js');
@@ -137,11 +137,12 @@ test('the Ask shape: one open question by a named teammate, on one piece of her 
 
 test('a question that is not natural is never asked: closed, offering options, or two sentences', async () => {
   const { naturalQuestion } = await import('../lib/select.js');
-  for (const bad of ['Should regulars get a Book your usual button?', 'What should booking feel like: fast or calm?',
+  for (const bad of ['Should regulars get a Book your usual button?', 'What should booking feel like: fast or calm?', 'Which do you prefer, fast or calm?',
     'Do you want a waitlist?', 'What matters. Who books?', 'Account or email?', '', null, 'What is it'])
     assert.equal(naturalQuestion(bad), null, String(bad));
   for (const good of ['What makes someone come back to a studio week after week?', 'If booking could feel like one thing, what should it feel like?',
-    'Who is this page really for?']) assert.equal(naturalQuestion(good), good);
+    'Who is this page really for?', "What makes someone feel at ease booking, whether it's their first visit or their fiftieth?"])
+    assert.equal(naturalQuestion(good), good);
   const run = newRun();
   const cs = [cand(1), cand(2)];
   const score = items => ({ scores: items.map(c => ({ ...strong(c), question: c.id === 'c1' ? 'Should we add a waitlist?' : q(c) })) });
