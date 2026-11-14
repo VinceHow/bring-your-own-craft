@@ -96,3 +96,32 @@ timings, and everything shown is labelled **REPLAY**.
 ## Rules (from CLAUDE.md)
 The fal key is never written anywhere. The cap is enforced in code with its test. Every number on stage comes from a
 real run. Commits as `Vincent Hao <49104178+VinceHow@users.noreply.github.com>`, no model names in commits or comments.
+
+## Studio version seams (Sat 14:00, po/studio)
+**Ownership for the studio pieces:**
+| Piece | Owner | Files |
+|---|---|---|
+| First sketch + reshape | BYOC builder 6 (first sketch) | `lib/sketch.js`, `routes/sketch.js`, `prompts/sketch-*.md`, `public/first-sketch.js`, `data/prepared-sketch-yoga.json`, `test/sketch.test.js`, `e2e/studio.e2e.js` |
+| Focus time, words, leaning in, credits | BYOC builder 3 (beats) | `public/room.js`, `public/room.css`, `public/close.js`, `public/flow.js`, `public/flow.css`, `templates/*` (credits wording only), `lib/fill.js` (credits data only) |
+| The gem (bars first), studio look | BYOC builder 1 (polish) | `public/gem.js` (new), `public/polish.css`, `design/` |
+
+**API:**
+- `POST /api/run/:id/sketch` → `{ users: [{ id:'u1', label }], stages: string[] , ms }`. Design's first sketch from the idea:
+  one fast call. Stages go through `parseFlow(stages)` exactly as journey lines did, so they become `flow.line` events
+  (and boxes). Logs `sketch.user` per user type as it arrives, then `sketch.done { ms, prepared:false }`. If the call fails
+  or takes over 12 s, the prepared sketch (`data/prepared-sketch-yoga.json`, yoga idea only) comes in with
+  `sketch.done { prepared:true }`, and the room labels it **PREPARED**.
+- `POST /api/run/:id/reshape` `{ text }` → her spoken or typed reaction; one call returns the redrawn `{ users, stages }`;
+  logs `reshape { text }` (craft) then `sketch.done`. The flow is replaced, not appended (`flow.reset` event, then
+  `flow.line`s).
+- `POST /api/run/:id/flow` `{ lines }` → a direct box edit (rename/add/remove), no model; logs `flow.reset` + `flow.line`s
+  (craft).
+- The old typed-journey path (`/line`) stays working for tests and as a fallback.
+
+**Events added:** `sketch.user {id,label}`, `sketch.done {ms, prepared}`, `reshape {text}` (craft), `flow.reset`,
+`lean {seat, nodeId, reason}` (a teammate visibly picks up her change: emitted server-side only when a candidate's
+`attachTo` is a node she touched), `checkin.open {askId}` / `checkin.close {askId}` (focus time on/off, emitted by the room
+via `/api/run/:id/answer` flow: no new route).
+
+**The gem** is a pure function of the log in the browser: face per seat = count of `decided` with that seat (+ its asks
+answered); her face = her `answer`s and `reshape`s. No server state.
