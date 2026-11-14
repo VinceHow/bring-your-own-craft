@@ -37,7 +37,7 @@ after(async () => { await browser?.close(); srv?.kill(); });
 test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
   await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(800);
-  await page.click('.seat-product'); await page.click('#pick-card [data-pick="craft"]'); // her seat's pick card: Your own craft
+  await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
@@ -99,8 +99,8 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
     // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
-    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-    await page.locator('#tray .tray-note').first().click();
+    await page.waitForSelector('#inbox:not([hidden])[data-needs="yes"] .inbox-now', { timeout: 5000 });
+    await page.locator('#inbox .inbox-now').click();
     await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
     await page.locator('#focus-doc .fd-input').fill('Clear and kind. Say what to do next in plain words.');
     await page.click('#focus-doc .fd-send'); // she sends when she's ready

@@ -11,6 +11,9 @@ spec; this only fixes the seams so four people can build at once.
   `MODEL_BACKEND=claude-code` (default) or `fal`. `scrub(s)` strips the key. `setFalKey(k)` keeps it in memory.
   Measured: one Opus call with a ~1.8k-token system prompt, ~6.5 s API time, ~$0.02. Pass `model: 'sonnet'` or
   `'haiku'` where speed matters more than depth, and say which you chose.
+  On `fal`: `sonnet`/`haiku` map to OpenRouter ids (`FAL_MODEL` overrides); claude-code stays the default, fal is the
+  fallback if the weekly limit bites. Behind the cloud proxy, `node server.js` re-runs itself with
+  `NODE_USE_ENV_PROXY=1`; tests or scripts that import `lib/model.js` directly must set it themselves, or fal answers 401.
 - `lib/events.js`: `logEvent(run, type, data)`, `readEvents(run)`, `newRunId()`, `runDir(run)`, `onEvent(fn)`.
 - `lib/http.js`: `sendJson(res, code, obj)` (scrubs).
 - Tests: `node --test` (`npm test`; runs `test/**/*.test.js`). Node 22, ES modules, no build step, no framework.

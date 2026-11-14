@@ -75,19 +75,18 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
   assert.ok(r[0] >= -1 && r[1] >= -1 && r[2] <= 1281 && r[3] <= 721, `the room fits the screen: ${r}`);
 });
 
-test('1b. "Your own craft" from her seat\'s pick card: her name tag, then she sits in her seat; no separate "I love" card', async () => {
+test('1b. "Your own craft" on her paper name tag: builder 6\'s tag, then the team, then she sits in her seat', async () => {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
   await p.goto(BASE + '/?stage=1&hold=300');
   await p.waitForTimeout(400);
   assert.strictEqual(await p.locator('.seat-diy').count(), 0, 'no seventh seat');
-  await p.click('.seat-product'); // her seat opens its pick card
-  await waitFor(() => !document.getElementById('pick-card').hidden, 3000, 'the pick card', null, p);
-  assert.strictEqual(await p.textContent('#pick-card .pick-q'), 'What do you bring to the table?');
-  assert.deepStrictEqual(await p.locator('#pick-card .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
-  await p.click('#pick-card [data-pick="craft"]');
-  assert.ok(await p.locator('#pick-card').isHidden(), 'the pick card goes once she picks');
+  // Her paper name tag: the role choice is on it (Product prefilled).
+  assert.strictEqual(await p.textContent('.nt-paper .pick-q'), 'What do you bring to the table?');
+  assert.deepStrictEqual(await p.locator('.nt-paper .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
+  assert.strictEqual(await p.getAttribute('.nt-paper .pick-card', 'data-pick'), 'product');
+  await p.click('.nt-paper [data-pick="craft"]');
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
   await p.keyboard.type('I bake sourdough for my village and I love the 7am queue');
   await p.keyboard.press('Enter');
@@ -100,7 +99,6 @@ test('1b. "Your own craft" from her seat\'s pick card: her name tag, then she si
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');
   await waitFor(() => document.querySelectorAll('.seat:not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
   await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
-  assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
   await p.keyboard.type('A pre-order page for my bakery.'); await p.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run', null, p);
   assert.strictEqual(runs.at(-1).seat, 'diy', 'the run is in her own craft');
@@ -118,8 +116,12 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
   await p.goto(BASE + '/?stage=1&hold=200');
   await p.waitForTimeout(300);
-  await p.click('.seat-product'); await p.click('#pick-card [data-pick="product"]');
-  await waitFor(() => document.activeElement?.id === 'intro-input', 20000, 'her card', null, p);
+  // The setup: no room yet; her name tag on paper (name, role, what she loves and brings).
+  assert.ok(await p.isVisible('#setup'), 'the room is hidden');
+  assert.strictEqual(await p.inputValue('.nt-paper .nt-name'), 'Priya');
+  await p.fill('.nt-paper .nt-name', 'Priya');
+  await p.keyboard.press('Enter'); // from her name to her words
+  await waitFor(() => document.activeElement?.id === 'intro-input', 3000, 'her words', null, p);
   assert.strictEqual(await p.getAttribute('.big-card[data-seat="product"]', 'data-component'), 'character-card');
   assert.strictEqual(await p.getAttribute('.big-card[data-seat="product"]', 'data-state'), 'asking');
   await p.keyboard.type('working on the customer journey, understanding the problems customers face');
@@ -133,8 +135,17 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.click('.big-card[data-seat="product"] [data-slot="trait"] .char-swap >> nth=1');
   assert.match(await p.textContent('.big-card[data-seat="product"] .char-traits'), /question asker/);
   assert.strictEqual(await p.locator('.big-card[data-seat="product"] .bc-stance').count(), 0, 'no stance on her card');
-  await p.keyboard.press('Enter'); // take the seat
-  await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'on to the idea', null, p);
+  await p.keyboard.press('Enter'); // her name tag is made: she meets the team
+  await waitFor(() => !!document.querySelector('.meet-card'), 3000, 'meet the team', null, p);
+  assert.match(await p.textContent('.meet-card'), /Mika · Design[\s\S]*agent[\s\S]*A rough sketch in seconds[\s\S]*Brings/);
+  assert.strictEqual(await p.getAttribute('.meet-card', 'data-component'), 'meet-card');
+  assert.strictEqual(await p.locator('.seat .card').count(), 0, 'still no room while she meets the team');
+  await p.keyboard.press('PageDown'); // forward: the next teammate
+  await waitFor(() => document.querySelector('.meet-card')?.dataset.seat !== 'design', 2000, 'the next teammate', null, p);
+  // The reveal: everyone already seated, and she takes her seat; then her idea.
+  await waitFor(() => document.activeElement?.id === 'her-input', 15000, 'on to the idea', null, p);
+  assert.ok(!(await p.isVisible('#setup')), 'the room is revealed');
+  assert.strictEqual(await p.locator('.seat .card').count(), 6, 'everyone seated');
   assert.strictEqual(await p.textContent('.seat-product .card-title'), 'the Journey Mapper');
   assert.match(await p.textContent('.seat-product .card-traits'), /customer-obsessed · question asker · problem hunter/);
   assert.strictEqual(await p.getAttribute('.seat-product .card', 'data-state'), 'named');
@@ -206,13 +217,11 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
 });
 
 test('2. the live path in stage mode (the bakery), driven like a clicker, as far as her document', async () => {
-  await page.keyboard.press('PageDown'); // the clicker opens her seat's pick card
-  await waitFor(() => !document.getElementById('pick-card').hidden, 3000, 'the pick card');
-  await page.keyboard.press('PageDown'); // forward again: Product (same as her click on it)
-  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 20000, 'the team assembled and her card open');
-  // From her empty card, the clicker moves on without a line (her file keeps both prepared lines).
+  // From her empty paper name tag, the clicker moves on without a line (her file keeps both prepared lines).
   await page.keyboard.press('PageDown');
-  await waitFor(() => document.activeElement && document.activeElement.id === 'her-input', 5000, 'her input focused');
+  await waitFor(() => !!document.querySelector('.meet-card'), 3000, 'meet the team');
+  await page.keyboard.press('PageDown'); // the next teammate
+  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'her-input', 20000, 'the reveal, then her idea');
   assert.strictEqual(await page.evaluate(() => BYOC.intro), null);
   // The bakery script (VISION, Sat): her one rough sentence; Design and Research draw the first journey.
   await page.keyboard.type(BAKERY);
@@ -241,20 +250,20 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // seat ~1 s after the pause: "<Name> · <Seat>" and a few words, in the teammate's ink, no number, no "waiting".
   assert.strictEqual(await page.locator('#her-flow .fl-fork, #her-flow .fl-pin').count(), 0, 'no forks or pins on her flow');
   assert.ok(!(await page.evaluate(() => BYOC.focusDoc.isOpen())), 'nothing opens by itself');
-  await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray at her seat');
-  const notes = await page.locator('#tray .tray-note').allInnerTexts();
+  await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox at her seat');
+  const notes = await page.locator('#inbox [data-part="needs"] .inbox-item').allTextContents();
   assert.strictEqual(notes.length, asks.length, 'one note per question');
   for (const t of notes) assert.match(t.replace(/\s+/g, ' ').trim(), /^(\w+ · )?(Design|Data|Research|Strategy|Engineering|Product) ?.+\?$/i, `a note's face: ${t}`);
-  assert.ok(!(await page.locator('#tray').innerText()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
+  assert.ok(!(await page.locator('#inbox').textContent()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
   // Her focus: the clicker opens the top note; the view becomes just her and that one document.
-  const top = await page.locator('#tray .tray-note').first().getAttribute('data-ask');
+  const top = await page.locator('#inbox .inbox-now').getAttribute('data-ask');
   await page.keyboard.press('PageDown');
   await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
   assert.strictEqual(await page.evaluate(() => BYOC.focusDoc.openId()), top, 'the top note opened');
   assert.strictEqual(await page.evaluate(() => BYOC.beat), 6, 'the beat did not move');
   assert.ok(await page.evaluate(() => document.body.classList.contains('focus-open')), 'body.focus-open');
   assert.ok(!(await page.isVisible('.seat-design .card')), 'the room is gone from view');
-  assert.ok(!(await page.isVisible('#tray')), 'and so is the tray');
+  assert.ok(!(await page.isVisible('#inbox')), 'and so is her inbox');
   assert.ok(await page.isVisible('#focus-doc .fd-work'), 'the work, large');
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
   const ask = asks.find(a => a.id === top);
@@ -287,8 +296,8 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.ok(await page.isVisible('.seat-design .card'), 'the room is back');
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in the room');
   if (asks.length > 1) {
-    await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray again');
-    assert.strictEqual(await page.locator('#tray .tray-note').count(), asks.length - 1, 'the rest wait in the tray');
+    await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'her inbox again');
+    assert.strictEqual(await page.evaluate(() => BYOC.inbox.shown.length), asks.length - 1, 'the rest wait in her inbox');
   }
   assert.deepStrictEqual(errors, []);
 });
@@ -307,12 +316,12 @@ test('2b. her document: words land, the team chimes in one after another, the ta
     BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
-  await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the note', null, p);
-  assert.match((await p.locator('#tray .tray-note').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
+  await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
+  assert.match((await p.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' '), /^Noor · Research ?What makes someone come back to…\?$/i);
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
-  await p.locator('#tray .tray-note').click();
+  await p.locator('#inbox .inbox-now').click();
   await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'the document', null, p);
   assert.ok(!(await p.isVisible('.chatter-line')), 'the room and its chatter are gone from view');
   assert.match(await p.textContent('#focus-doc .fd-kicker'), /Noor · Research/);
@@ -321,6 +330,8 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   await p.locator('#focus-doc .fd-input').fill(said);
   await p.keyboard.press('Enter');
   await waitFor(() => !!document.querySelector('#focus-doc .fd-words'), 2000, 'her words on the document', null, p);
+  // The stubbed route records the POST asynchronously (after her words land), so wait for it rather than race it.
+  for (const t = Date.now(); !posted.length && Date.now() - t < 3000;) await p.waitForTimeout(50);
   assert.deepStrictEqual(posted[0], ['answer', { askId: 'q1', text: said }]);
   // Two chime-ins and the brief arrive together; they land one after another, about a second apart, then the brief.
   const t0 = Date.now();

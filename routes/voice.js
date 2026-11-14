@@ -10,7 +10,7 @@ import { logEvent } from '../lib/events.js';
 const API = 'https://api.elevenlabs.io/v1';
 const MODEL = () => process.env.ELEVENLABS_STT_MODEL || 'scribe_v2';
 const key = () => process.env.ELEVENLABS_API_KEY || 'placeholder-injected-by-proxy';
-const MAX_AUDIO = 4 * 1024 * 1024; // ~20 s of opus is well under 1 MB
+const MAX_AUDIO = 4 * 1024 * 1024; // the 2-minute cap is about 1 MB of opus
 const FIELD = /^[a-z]{1,20}$/; // intro, idea, reaction, or another data-voice field's name
 
 // Availability cache: re-probe soon after a miss (so a key added mid-session is picked up), rarely after a hit.
@@ -39,7 +39,7 @@ async function transcribe(buf, mime, model) {
   fd.append('tag_audio_events', 'false');
   fd.append('file', new Blob([buf], { type: mime }), 'speech.' + (mime.includes('wav') ? 'wav' : mime.includes('ogg') ? 'ogg' : 'webm'));
   return fetch(`${API}/speech-to-text`, { method: 'POST', headers: { 'xi-api-key': key() }, body: fd,
-    signal: AbortSignal.timeout(20000) });
+    signal: AbortSignal.timeout(45000) }); // up to 2 minutes of audio
 }
 
 const safeRun = r => typeof r === 'string' && /^[A-Za-z0-9][\w.-]{0,120}$/.test(r) && !r.startsWith('local-') ? r : 'voice';
