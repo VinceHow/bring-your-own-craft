@@ -9,7 +9,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-stage-'));
 const { proposeAndSelect, askOne } = await import('../lib/select.js');
-const { noPronouns, firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
+const { noPronouns, regularsFinding, firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
 const { answerUnblock } = await import('../lib/unblock.js');
 const { firstSketch } = await import('../lib/sketch.js');
 const { MAX_ASKS, askCount } = await import('../lib/policy.js');
@@ -172,4 +172,18 @@ test('Mika\'s morning never puts a pronoun in the room: any that slip through be
   assert.equal(noPronouns('She reorders her usual loaf; they hold it for him.'), "Sam reorders Sam's usual loaf; Sam hold it for Sam.");
   assert.equal(noPronouns('Sam picks it up, still warm.'), 'Sam picks it up, still warm.');
   assert.equal(noPronouns('The baker knows how many to bake'), 'The baker knows how many to bake');
+});
+
+test('Focus 1 says why it fell back to the journey (never silently): no finding, unreadable file, or not a bakery idea', async () => {
+  const run = newRun(true);
+  await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
+  const a = firstAsk({ run, finding: null, why: 'could not read the data file: ENOENT' }).body;
+  assert.equal(a.findingFallback, 'could not read the data file: ENOENT');
+  const fs2 = await import('node:fs'), os2 = await import('node:os'), path2 = await import('node:path');
+  const dir = fs2.mkdtempSync(path2.join(os2.tmpdir(), 'with space '));
+  assert.equal(regularsFinding(dir), null);
+  assert.match(regularsFinding.why, /could not read/);
+  fs2.writeFileSync(path2.join(dir, 'research-finding-bakery.json'), JSON.stringify({ regulars: { quote: 'q', url: 'https://x', fetched: '2026-11-14', title: 't' } }));
+  assert.equal(regularsFinding(dir).quote, 'q', 'reads from a folder with a space in its name');
+  assert.ok(regularsFinding().quote.startsWith('A third (33%)'), 'the repo\'s verified finding');
 });
