@@ -1,0 +1,22 @@
+{
+  "builtAt": "2026-11-14T21:19:41.160Z",
+  "reachedHer": {
+    "value": 3,
+    "source": "runs/rehearsal/events.jsonl (ask events; capped at 3 in lib/policy.js)"
+  },
+  "baseline": {
+    "asked": {
+      "value": 0,
+      "source": "docs/baseline/run-3-bakery/transcript.jsonl (AskUserQuestion calls)"
+    },
+    "guessed": {
+      "value": 24,
+      "source": "docs/baseline/run-3-bakery/GUESSES.md (one row per guess)"
+    },
+    "approvals": {
+      "value": 20,
+      "source": "docs/baseline/run-3-bakery/GUESSES.md (permission dialogs, counted from the screen)"
+    }
+  },
+  "url": "https://bring-your-own-craft-production.up.railway.app"
+}
