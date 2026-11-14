@@ -113,6 +113,7 @@
       { state: 'sketched', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'flow.reset' || ev.type === 'ask' }); } },
       { state: 'reshaped', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); } },
       { state: 'wires', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.step' }); } },
+      { state: 'open (data-open, clicked large)', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'ask' }); h.doc.getElementById('her-sheet').click(); await wait(500); if (h.doc.getElementById('her-sheet').dataset.open !== 'true') throw new Error('missing: her sheet does not open large on this branch yet'); } },
       { state: 'page', src: R, run: async h => { h.play('rehearsal'); await wait(1500); } },
     ] },
     { name: 'journey', sel: '.fl-wrap', states: [
