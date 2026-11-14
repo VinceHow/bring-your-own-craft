@@ -1,0 +1,3 @@
+- [L1] I love getting the journey right before anyone draws a screen. (her own words, today)
+- [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
+- [L3] Never ask for anything you could remember or skip.

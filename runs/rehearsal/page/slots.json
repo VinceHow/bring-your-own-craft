@@ -1,0 +1,204 @@
+{
+  "inputs": {
+    "answers": [
+      {
+        "decision": "Who 'Book your usual' serves and how it recognises a returning customer",
+        "choice": "Remember the customer by email and offer their last class",
+        "recommendation": "Defer it until there is booking history to learn from",
+        "overruled": true,
+        "attachTo": "n5"
+      },
+      {
+        "decision": "How customers cancel or change a booking, and what the booked screen promises",
+        "choice": "Booked screen says to email or contact the studio to cancel",
+        "recommendation": "Booked screen says to email or contact the studio to cancel",
+        "overruled": false,
+        "attachTo": "n4"
+      },
+      {
+        "decision": "What happens when a class is full",
+        "choice": "Show it as full with no booking",
+        "recommendation": "Show it as full with no booking",
+        "overruled": false,
+        "attachTo": "n2"
+      },
+      {
+        "decision": "her pinned note",
+        "choice": "Cut the phone field. Name's enough; regulars hate forms.",
+        "attachTo": "n3"
+      }
+    ],
+    "newestLine": "L3"
+  },
+  "model": {
+    "words": {
+      "title": "Pellow Yoga: book a yoga class in Leith, Edinburgh",
+      "brand": "Pellow Yoga",
+      "heroTitle": "Yoga studio in Leith, Edinburgh",
+      "heroLead": "Drop-in and weekly yoga classes, Monday to Saturday, £11.50 a class.",
+      "heroFact": "Mats, blocks and blankets",
+      "regularsTitle": "Book your usual class",
+      "regularsLead": "This device remembers your email and your last class, so booking it again is one button.",
+      "regularsWhen": "Tuesday 07:30",
+      "regularsUsual": "Slow flow with Mira",
+      "regularsAction": "Book Slow flow again",
+      "classesTitle": "This week's classes",
+      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
+      "waitlistAction": "Full",
+      "classTitle": "Slow flow class, 60 minutes",
+      "classBody": "Long holds, simple standing poses and the breath counted out loud. The pace stays even for the whole hour, and every pose has an easier version you can take at any point.",
+      "confirmTitle": "Book a place in a class",
+      "confirmLead": "No account needed. Just your name and email. You pay at the studio.",
+      "confirmAction": "Book this class",
+      "confirmSent": "Your class is booked. The confirmation email is on its way.",
+      "rememberLabel": "Remember me on this device",
+      "phoneLabel": "Phone (optional)",
+      "bookedTitle": "After you book",
+      "bookedBody": "Your place is held the moment you book. The confirmation email names the class, the time and the teacher, and there is nothing to bring but yourself.",
+      "cancelLine": "To cancel, email or contact the studio",
+      "cancelWindow": "Up to 2 hours before",
+      "cancelReasonLine": "Tell us why (optional)",
+      "decidedTitle": "Decided for you",
+      "decidedLead": "Five choices made for this booking page, and where each one came from.",
+      "heroAction": "Book a class"
+    },
+    "steps": [
+      "classes",
+      "regulars",
+      "class",
+      "confirm",
+      "booked"
+    ],
+    "switches": {
+      "regulars": true,
+      "regularsFirst": false,
+      "waitlist": false,
+      "phone": false,
+      "remember": true,
+      "oneTapCancel": false,
+      "cancelReason": false
+    },
+    "decidedShown": [
+      {
+        "id": "c5",
+        "label": "You pay at the desk; the page only reserves a place"
+      },
+      {
+        "id": "c8",
+        "label": "One flat price for every class"
+      },
+      {
+        "id": "c1",
+        "label": "Booking asks for name and email only"
+      },
+      {
+        "id": "c18",
+        "label": "A full class shows as full, with no booking"
+      },
+      {
+        "id": "c22",
+        "label": "This device remembers you, so Book your usual only appears once you have booked"
+      }
+    ]
+  },
+  "used": {
+    "words": {
+      "title": "Pellow Yoga: book a yoga class in Leith, Edinburgh",
+      "brand": "Pellow Yoga",
+      "heroTitle": "Yoga studio in Leith, Edinburgh",
+      "heroLead": "Drop-in and weekly yoga classes, Monday to Saturday, £11.50 a class.",
+      "heroFact": "Mats, blocks and blankets",
+      "regularsTitle": "Book your usual class",
+      "regularsLead": "This device remembers your email and your last class, so booking it again is one button.",
+      "regularsWhen": "Tuesday 07:30",
+      "regularsUsual": "Slow flow with Mira",
+      "regularsAction": "Book Slow flow again",
+      "classesTitle": "This week's classes",
+      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
+      "waitlistAction": "Full",
+      "classTitle": "Slow flow class, 60 minutes",
+      "classBody": "Long holds, simple standing poses and the breath counted out loud. The pace stays even for the whole hour, and every pose has an easier version you can take at any point.",
+      "confirmTitle": "Book a place in a class",
+      "confirmLead": "No account needed. Just your name and email. You pay at the studio.",
+      "confirmAction": "Book this class",
+      "confirmSent": "Your class is booked. The confirmation email is on its way.",
+      "rememberLabel": "Remember me on this device",
+      "phoneLabel": "Phone (optional)",
+      "bookedTitle": "After you book",
+      "bookedBody": "Your place is held the moment you book. The confirmation email names the class, the time and the teacher, and there is nothing to bring but yourself.",
+      "cancelLine": "To cancel, email or contact the studio",
+      "cancelWindow": "Up to 2 hours before",
+      "cancelReasonLine": "Tell us why (optional)",
+      "decidedTitle": "Decided for you",
+      "decidedLead": "Six choices the team made for this page, and what each one follows.",
+      "heroAction": "Book a class"
+    },
+    "switches": {
+      "regulars": true,
+      "regularsFirst": false,
+      "waitlist": false,
+      "phone": false,
+      "remember": true,
+      "oneTapCancel": false,
+      "cancelReason": true
+    },
+    "steps": [
+      "classes",
+      "regulars",
+      "class",
+      "confirm",
+      "booked"
+    ],
+    "tokens": {
+      "p-bg": "#ddd6c6",
+      "p-surface": "#d2cab8",
+      "p-ink": "#2a2a26",
+      "p-accent": "#4f6238",
+      "p-action": "#4f6238"
+    },
+    "decided": [
+      {
+        "id": "c22",
+        "seat": "engineering",
+        "label": "This device remembers you, so Book your usual only appears once you have booked",
+        "cites": "L3",
+        "lineText": "Never ask for anything you could remember or skip."
+      },
+      {
+        "id": "c11",
+        "seat": "research",
+        "label": "Whether people book as guests or must create an account: Guest booking with name and email",
+        "cites": "L3",
+        "lineText": "Never ask for anything you could remember or skip."
+      },
+      {
+        "id": "c5",
+        "seat": "strategy",
+        "label": "You pay at the desk; the page only reserves a place",
+        "cites": "L2",
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+      },
+      {
+        "id": "c8",
+        "seat": "strategy",
+        "label": "One flat price for every class",
+        "cites": "L2",
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+      },
+      {
+        "id": "c1",
+        "seat": "product",
+        "label": "Booking asks for name and email only",
+        "cites": "L2",
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+      },
+      {
+        "id": "c18",
+        "seat": "design",
+        "label": "A full class shows as full, with no booking",
+        "cites": "L2",
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+      }
+    ]
+  }
+}
