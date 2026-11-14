@@ -14,6 +14,7 @@ const fs = require('fs');
 const a = process.argv.slice(2);
 fs.appendFileSync(${JSON.stringify(LOG)}, JSON.stringify(a) + '\\n');
 if (a[0] === '--version') { console.log('1.0.0 (Claude Code)'); process.exit(0); }
+if (a[a.indexOf('-p') + 1] === 'leak') { console.error('boom: upstream said Key sk-secret-123456789 is not allowed'); process.exit(2); }
 for (const f of ['--effort', '--json-schema']) if (a.includes(f)) { console.error("error: unknown option '" + f + "'"); process.exit(1); }
 const sys = a[a.indexOf('--system-prompt') + 1] || '';
 const wantsJson = /Reply with one JSON object only/.test(sys);
@@ -66,10 +67,11 @@ test('a model call that fails prints [model] <label> failed: <reason>, scrubbed'
   M.setFalKey('sk-secret-123456789');
   const cap = captureStderr();
   try {
-    await assert.rejects(M.callModel({ system: 's', user: 'u', schema: { type: 'object', properties: { x: { type: 'number' } }, required: ['x'] },
+    await assert.rejects(M.callModel({ system: 's', user: 'leak', schema: { type: 'object', properties: { x: { type: 'number' } }, required: ['x'] },
       label: 'tidy', timeoutMs: 5000 }));
   } finally { cap.restore(); M.setFalKey(null); }
   assert.ok(cap.lines.some(l => l.startsWith('[model] tidy failed: ')), cap.lines.join('\n'));
+  assert.ok(cap.lines.some(l => /exit code 2 after \d+ ms: boom/.test(l)), 'exit code and the first stderr line');
   assert.ok(cap.lines.every(l => !l.includes('sk-secret-123456789')));
 });
 
