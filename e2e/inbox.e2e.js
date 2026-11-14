@@ -80,7 +80,7 @@ test('Things only you can do: owner.task steps she ticks off; never a text, pass
   assert.strictEqual(await task.locator('.inbox-step').count(), 3);
   assert.strictEqual(await task.getAttribute('data-state'), 'todo');
   // The whole inbox holds no field she could type a secret into: only tick boxes.
-  assert.strictEqual(await page.locator('#inbox input:not([type="checkbox"]), #inbox textarea, #inbox [contenteditable="true"]').count(), 0, 'no key or secret input');
+  assert.strictEqual(await page.locator('#inbox [data-part="only-you"] :is(input:not([type="checkbox"]), textarea, [contenteditable="true"])').count(), 0, 'no key or secret input');
   const ticks = task.locator('input[type="checkbox"]');
   await ticks.nth(0).check();
   assert.strictEqual(await task.getAttribute('data-state'), 'doing');
@@ -101,5 +101,64 @@ test('clicking the item opens it as her document; the inbox steps aside; the ans
   await page.keyboard.press('PageDown');
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'q2', 3000, 'forward opens it');
   await page.evaluate(() => BYOC.focusDoc.close(true));
+  assert.deepStrictEqual(errors, []);
+});
+
+// ---- quick unblocks (DEMO 0:50): a real run on this server, raised and answered through the real routes; no models ----
+async function newRun() {
+  const r = await page.evaluate(async () => (await fetch('/api/run', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ idea: 'An ordering website for a small bakery' }) })).json());
+  return r.run;
+}
+const raise = (run, body) => page.evaluate(async ([run, body]) => { const r = await fetch(`/api/run/${run}/unblock`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, json: await r.json() }; }, [run, body]);
+const BO = { seat: 'engineering', question: 'When do orders close?', suggestion: '8pm the night before', kind: 'call' };
+
+test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in the team space as hers, Bo carries on', async () => {
+  await page.unroute('**/api/run/**');
+  await page.evaluate(() => { BYOC.reset(); });
+  const run = await newRun();
+  await page.evaluate(run => { BYOC.stage(5, { instant: true }); BYOC.run = run; }, run);
+  const r = await raise(run, BO);
+  assert.strictEqual(r.status, 200, JSON.stringify(r.json));
+  await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 6000, 'the unblock in her inbox');
+  assert.strictEqual(await page.evaluate(() => BYOC.beat), 5, 'it did not move the beat');
+  assert.match((await page.locator('#inbox .inbox-now').innerText()).replace(/\s+/g, ' '), /Bo's blocked/);
+  await page.click('#inbox .inbox-now');
+  const card = page.locator('#inbox [data-component="unblock-card"]');
+  await card.waitFor();
+  assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'expanded');
+  assert.strictEqual(await card.getAttribute('data-state'), 'asking');
+  assert.match(await card.locator('.inbox-unblock-q').innerText(), /^Bo's blocked: when do orders close\?$/);
+  assert.match(await card.locator('.inbox-unblock-sug').innerText(), /^We suggest 8pm the night before\.$/);
+  assert.ok(!(await page.evaluate(() => BYOC.focusDoc && BYOC.focusDoc.isOpen())), 'no document: it is answered right here');
+  await card.locator('.inbox-unblock-yes').click();
+  await waitFor(() => document.getElementById('inbox').dataset.needs === 'no', 6000, 'answered, it leaves Needs you');
+  await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 6000, 'a decided card in the team space');
+  const ts = page.locator('.team-space .ts-card[data-kind="unblock"]');
+  assert.match(await ts.locator('.ts-headline').innerText(), /^When do orders close: 8pm the night before$/);
+  assert.strictEqual(await ts.locator('.ts-mark').getAttribute('data-seat'), 'engineering', 'owned by Bo\'s seat');
+  assert.strictEqual((await ts.locator('.ts-yours').innerText()).trim().toLowerCase(), 'your call');
+  const evs = await page.evaluate(() => BYOC.events().map(e => e.type + ':' + (e.unblock ? 'u' : '') + (e.cites || '')));
+  assert.ok(evs.includes('decided:uher yes'), evs.join(' '));
+  assert.ok(evs.some(e => e.startsWith('chatter')), 'Bo carries on');
+});
+
+test('her own words instead of the suggestion; the cap still counts the unblock', async () => {
+  await page.evaluate(() => { BYOC.reset(); });
+  const run = await newRun();
+  await page.evaluate(run => { BYOC.stage(5, { instant: true }); BYOC.run = run; }, run);
+  assert.strictEqual((await raise(run, BO)).status, 200);
+  await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 6000, 'the unblock');
+  await page.click('#inbox .inbox-now');
+  const own = page.locator('#inbox .inbox-unblock-own');
+  assert.strictEqual(await own.getAttribute('data-voice'), 'unblock', 'she can say it (voice opts in)');
+  await own.fill('7pm, so the starter can rise');
+  await own.press('Enter');
+  await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 6000, 'her answer in the team space');
+  assert.match(await page.locator('.team-space .ts-card[data-kind="unblock"] .ts-headline').innerText(), /: 7pm, so the starter can rise$/);
+  // Two more raises fill her three; a fourth is refused and decided on the suggestion, never asked.
+  assert.strictEqual((await raise(run, { ...BO, seat: 'design', question: 'Which loaf leads the page?', suggestion: 'Sourdough', kind: 'call' })).status, 200);
+  assert.strictEqual((await raise(run, { ...BO, seat: 'strategy', question: 'What does a loaf cost?', suggestion: '£4.50', kind: 'fact' })).status, 200);
+  const fourth = await raise(run, { ...BO, seat: 'data', question: 'What counts as a regular?', suggestion: 'Twice a month', kind: 'fact' });
+  assert.strictEqual(fourth.status, 409, 'the fourth is refused by the policy');
   assert.deepStrictEqual(errors, []);
 });

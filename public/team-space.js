@@ -76,7 +76,8 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     }
     li.append(marks, slot(h('span', 'ts-headline', a.headline), 'headline'));
     if (a.withTakeaways === true) li.appendChild(slot(h('span', 'ts-takeaways', 'with your takeaways in mind'), 'takeaways-note'));
-    li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
+    if (a.unblock) { li.dataset.kind = 'unblock'; if (a.yours) li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); }
+    else li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
     const ex = slot(h('ol', 'ts-exchange'), 'exchange');
     for (const t of a.turns || []) {
       const row = slot(h('li', 'ts-turn'), 'turn'); row.dataset.seat = t.seat || '';
@@ -92,8 +93,11 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     const evs = typeof B.events === 'function' ? B.events() : [];
     // A card her takeaways revisited at Build (`joint.revised`) shows the new agreement, with her takeaways in mind.
     const revised = new Map(evs.filter(e => e.type === 'joint.revised').map(e => [e.id, e]));
-    const agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()]
+    let agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()]
       .map(a => (revised.has(a.id) ? { ...a, headline: revised.get(a.id).headline || a.headline, withTakeaways: true, revised: true } : a));
+    // A quick unblock she answered (or the team decided, once her three were spent) lands here too, owned by its seat.
+    for (const d of new Map(evs.filter(e => e.type === 'decided' && e.unblock && e.choice).map(e => [e.id, e])).values())
+      agreed.push({ id: 'ub-' + d.id, seats: [d.seat], headline: `${String(d.decision || '').replace(/[.?]+$/, '')}: ${d.choice}`, unblock: true, yours: /^her /.test(d.cites || '') });
     for (const c of [...list.children]) {
       const a = agreed.find(x => x.id === c.dataset.joint);
       if (!a || (a.revised && c.dataset.revised !== '1')) c.remove();
@@ -114,6 +118,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
   B.teamSpace = { render, count: 0 };
   if (typeof B.on === 'function') {
     B.on('joint.agreed', () => requestAnimationFrame(render));
+    B.on('decided', ev => { if (ev && ev.unblock) requestAnimationFrame(render); });
     B.on('joint.revised', () => requestAnimationFrame(render));
     B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; } B.teamSpace.count = 0; });
     B.on('run.start', () => requestAnimationFrame(render));
