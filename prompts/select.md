@@ -16,6 +16,10 @@ decision, by its id:
   she might well disagree. 2 = a general line touches it without settling it. 3 = nothing in her file bears on it.
   A line whose own condition is met by the decision no longer settles it: if a line says to wait for evidence and
   the decision comes with a source, her answer is open again.
+- `expertise`: 0 to 3, how much the answer needs her craft as a {{HER_SEAT}} lead, rather than a sensible default any
+  teammate could pick. 3 = only someone who knows these customers and this journey can call it. 0 = a convention, a
+  technical detail or a matter of taste the team can settle. Bring her only what changes what gets built and needs
+  her expertise.
 - `dupOf`: the id of an earlier decision in this list that is essentially the same choice, or null.
 - `kind`: "fork" if it is a choice between paths in her flow, "pin" if it is a note about one box.
 
