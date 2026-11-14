@@ -90,10 +90,13 @@ the claim.
   who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
-  1. **She speaks her piece**, a real paragraph (or types it). Her raw words land first; then a fast tidy call turns
-     them into a composed note in her voice (Vincent, 14 Nov). The tidy only cleans: no new claims or content. It shows
+  1. **She speaks her piece**, a real paragraph (or types it). **While she captures, the team is out of view and
+     doesn't react at all** (Vincent, 14 Nov; this replaces any "team visibly listening" idea). She speaks in pieces,
+     pauses as long as she likes, and can remove or redo a piece. **One Send gathers it**, and only then do the
+     relevant teammates arrive and act. Each piece's raw words land first; then a fast tidy call turns
+     them into a composed note in her voice (Vincent, 14 Nov), piece by piece as it lands. The tidy only cleans: no new claims or content. It shows
      as a visible moment, with "See what you said" and "Use mine". The raw words stay in the log, and the tidy never
-     delays the room: it runs in parallel with the first chime-in.
+     delays the room: each piece is tidied while she carries on, so Send is never waiting on it.
      **Layout:** the work stays in view on the left with inked pins where her notes apply; the meeting thread on the
      right is the record (her note, then teammates' replies; earlier rounds fold into honest one-line summaries); the
      takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
@@ -109,13 +112,17 @@ the claim.
        Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
+     - **never forced** (Vincent, 14 Nov): only the teammates whose craft her comment actually touches reply. A
+       design comment might get Mika alone; Theo (data) and Ines (strategy) stay quiet unless it touches measurement
+       or money. 1 reply is normal, 2 common, 3 rare; nobody adds filler to have a turn.
      **Her pace, their speed** (Vincent, 14 Nov). Nothing rushes her: she can think, pause, speak, edit and pause
      again; nothing is cut off by silence, and **she submits when she's ready**. The real-time part is the team: the
      instant she submits, the first reaction lands (aim: under a second) and the thread follows, so she feels heard
      and the room is visibly excited with her. Warm and genuine, never sycophantic: excitement carried by substance
      ("Love that. Then no logins, I'll remember them."), not empty praise.
      Build: each turn is its own fast call that gets her answer plus the thread so far, so they genuinely see each
-     other (3–4 turns, ~1 s each, fastest model; start the first call the moment she submits).
+     other (usually 1–2 turns, at most 3, ~1 s each, fastest model; a cheap routing step picks who replies by
+     relevance, never round-robin; start the first call the moment she submits).
   3. **The meeting's takeaways appear**: a short, beautiful summary of *this* meeting, in her voice, that she can
      reword: **what I believe** about this, and **guidance to the team** for it. Not a template look; it should read
      like the best summary a great colleague would write.
