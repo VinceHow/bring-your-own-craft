@@ -89,6 +89,9 @@
       { state: 'filled', src: F, run: async h => { h.play('fixture'); } },
       { state: 'her', src: F, sel: '.seat-product', run: async h => { h.play('fixture'); } },
     ] },
+    { name: 'pick-card', sel: '#pick-card', note: 'Her first choice: sit in Product, or bring her own craft. (picked is a moment: the card hides as she chooses.)', states: [
+      { state: 'open', src: '', run: async h => { if (!h.B.pick) throw new Error('missing: the pick card is not on this branch yet'); h.B.reset(); h.B.pick.open(); await wait(400); } },
+    ] },
     { name: 'place-card', sel: '.seat-design .card', states: [
       { state: 'thinking', src: F, run: async h => { h.play('fixture', { until: ev => ev.type === 'candidate' }); } },
       { state: 'working', src: F, run: async h => { h.play('fixture', { count: { 'teammate.done': 0 } }); } },
