@@ -192,3 +192,14 @@ body.stage .her-hint { display: none; }
 .roll .col span { height: 1em; display: block; text-align: center; }
 .roll .dash { display: block; }
 .roll-pink { background: var(--product); padding: 0 6px; border: var(--line); border-radius: 3px; height: calc(1em + 4px); }
+
+/* Design's grey sketches: a big sheet that slides over from Design's seat */
+.sketch-sheet { position: absolute; left: 410px; top: 196px; width: 1130px; height: 600px; background: var(--sheet); border: var(--line);
+  border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; overflow: hidden; z-index: 5; }
+.sketch-sheet::before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 8px; background: var(--design); border-bottom: var(--line); }
+.sketch-inner { transform-origin: 0 0; margin-top: 6px; }
+.sketch-wait { font: 500 15px var(--mono); margin-top: 8px; }
+.sketch-wait:empty { display: none; }
+.her-flow > .fl-wrap { transform-origin: 0 0; }
+.sounds-like .sl-hint { display: block; margin-top: 6px; font: 400 11.5px var(--mono); color: rgba(20,20,20,.6); }
+.sounds-like .sl-words[contenteditable="true"] { outline: 0; caret-color: var(--product); }
