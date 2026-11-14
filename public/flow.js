@@ -315,6 +315,22 @@
     return ids[ids.length - 1] || null;
   }
 
+  // "Research: found <source>. It's your call: ..." Built only from what the run logged: the seat, its source if any,
+  // and the selector's reasons for bringing it to her (score: in her seat, how much it changes, her file silent).
+  function voiceLine(ask) {
+    const sc = ask.score || {};
+    const name = (ask.seat || 'team').replace(/^./, c => c.toUpperCase());
+    const parts = [];
+    parts.push(sc.inSeat === false ? 'it’s costly to undo' : 'it’s your craft');
+    if ((sc.changes || 0) >= 2) parts.push('it changes the journey'); else if (sc.changes) parts.push('it changes what customers get');
+    if (sc.silent) parts.push('your file doesn’t say yet');
+    const why = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts.at(-1) : parts[0];
+    const v = h('div', 'fl-voice');
+    v.appendChild(h('b', 'fl-voice-who', name + ': '));
+    v.appendChild(document.createTextNode(`${ask.source && ask.source.title ? `“I found this: ${ask.source.title}. ` : '“'}Your call, because ${why}.”`));
+    return v;
+  }
+
   // One of her three: a fork off a box, or a note pinned on one.
   function showAsk(ask) {
     if (!ask || !S.canvas) return null;
@@ -332,6 +348,8 @@
     q.appendChild(h('span', 'fl-qtext', ask.decision));
     if (kind === 'pin') el.appendChild(h('span', 'fl-pinhead'));
     el.appendChild(q);
+    // The check-in in its teammate's voice: what it found, and why this one is hers (DEMO 1:15).
+    el.appendChild(voiceLine(ask));
     const opts = h('div', 'fl-opts');
     (ask.options || []).forEach((o, i) => {
       const btn = h('button', 'fl-opt');
@@ -344,7 +362,7 @@
       opts.appendChild(btn);
     });
     el.appendChild(opts);
-    if (ask.reason) el.appendChild(h('div', 'fl-why', ask.reason));
+    if (ask.reason) el.appendChild(h('div', 'fl-why', 'Why we’d go that way: ' + ask.reason));
     if (ask.source && ask.source.title) {
       const s = h('div', 'fl-src');
       s.appendChild(h('span', 'fl-src-k', 'Researched before the demo: '));
