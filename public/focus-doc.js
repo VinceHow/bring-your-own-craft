@@ -43,8 +43,10 @@
         <div class="brief-part brief-guidance"><span class="brief-label" data-slot="label">Guidance to the team</span><p class="brief-text" data-slot="guidance" data-k="guidance"></p></div>
         <button type="button" class="fd-keep" data-slot="keep">Keep</button>
       </div>
-      <div class="fd-team" data-slot="team"></div>
-      <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
+      <div class="fd-hearing" data-component="team-reading" data-state="idle">
+        <div class="fd-team" data-slot="team"></div>
+        <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
+      </div>
     </aside>`;
   room.appendChild(doc);
   const $ = sel => doc.querySelector(sel);
@@ -60,7 +62,7 @@
   let hearing = null; // { ask, body, timer, heard, readers }
   const names = list => list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`;
   function status(text, state, retry = false) {
-    const t = $('.fd-team'); t.textContent = text; t.dataset.state = state || '';
+    $('.fd-team').textContent = text; $('.fd-hearing').dataset.state = state || 'idle';
     $('.fd-retry').hidden = !retry;
   }
   function reading() {
@@ -74,14 +76,14 @@
     if (!hearing || hearing.heard || cur !== hearing.ask) return;
     clearTimeout(hearing.timer);
     status('The team couldn’t read that just now. Your words are kept.', 'failed', true);
-    $('.fd-team').dataset.why = why || 'logged'; // the status code or the log's error type, for the e2e and the presenter's eye
+    $('.fd-hearing').dataset.why = why || 'logged'; // the status code or the log's error type, for the e2e and the presenter's eye
   }
   function heard() {
     if (!hearing || hearing.heard) return;
     hearing.heard = true; clearTimeout(hearing.timer);
-    if (['reading', 'slow', 'failed'].includes($('.fd-team').dataset.state)) status('', '');
+    if (['reading', 'slow', 'failed'].includes($('.fd-hearing').dataset.state)) status('', 'heard');
   }
-  function clearWait() { if (hearing) clearTimeout(hearing.timer); hearing = null; $('.fd-retry').hidden = true; $('.fd-team').dataset.state = ''; }
+  function clearWait() { if (hearing) clearTimeout(hearing.timer); hearing = null; $('.fd-retry').hidden = true; $('.fd-hearing').dataset.state = 'idle'; delete $('.fd-hearing').dataset.why; }
   async function postAnswer(w, body) {
     try {
       const r = await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false });
@@ -393,7 +395,7 @@
     reading(); // at once, before the request leaves
     await postAnswer(hearing, body);
   }
-  B.on('thread.start', ev => { if (!forCur(ev) || !hearing || hearing.heard) return; hearing.readers = ev.by || []; if ($('.fd-team').dataset.state === 'reading') reading(); });
+  B.on('thread.start', ev => { if (!forCur(ev) || !hearing || hearing.heard) return; hearing.readers = ev.by || []; if ($('.fd-hearing').dataset.state === 'reading') reading(); });
   for (const type of ['chime', 'takeaways', 'brief', 'answer.mapped']) B.on(type, ev => { if (forCur(ev)) heard(); });
   for (const type of ['chime.error', 'interpret.error', 'propose.error', 'teammate.error']) B.on(type, ev => { if (forCur(ev)) failed(type); });
 

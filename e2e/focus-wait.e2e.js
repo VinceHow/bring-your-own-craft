@@ -40,7 +40,7 @@ const WAIT_MS = 15000;
 const waitFor = (fn, what, arg, ms = WAIT_MS) => page.waitForFunction(fn, arg, { timeout: ms })
   .catch(async () => { throw new Error(`timed out: ${what}; team line: ${await page.evaluate(() => document.querySelector('#focus-doc .fd-team')?.outerHTML)}`); });
 const dispatch = ev => page.evaluate(e => BYOC.dispatch({ run: 'stub-run', ...e }, 'live'), ev);
-const team = () => page.evaluate(() => { const t = document.querySelector('#focus-doc .fd-team'); return { text: t.textContent, state: t.dataset.state, retry: !document.querySelector('#focus-doc .fd-retry').hidden }; });
+const team = () => page.evaluate(() => { const t = document.querySelector('#focus-doc .fd-team'); return { text: t.textContent, state: t.closest('[data-component="team-reading"]').dataset.state, retry: !document.querySelector('#focus-doc .fd-retry').hidden }; });
 async function openAsk(id) {
   await dispatch({ type: 'ask', id, seat: 'research', by: 'Noor', question: 'Who walks into this bakery most often?', artifact: { kind: 'journey' } });
   await page.evaluate(i => BYOC.openNote(i), id);
@@ -73,7 +73,7 @@ test('at once: "The team is reading…", then within 300 ms the routed teammates
   assert.match(await page.locator('#focus-doc .fd-said').innerText(), /same few regulars/);
   await dispatch({ type: 'chime', askId: 'w1', seat: 'research', by: 'Noor', text: 'Regulars are a third of bakery visitors.', turn: 1 });
   await waitFor(() => !document.querySelector('#focus-doc .fd-team').textContent, 'the reading line clears on the first reply');
-  assert.strictEqual((await team()).retry, false);
+  assert.deepStrictEqual(await team(), { text: '', state: 'heard', retry: false });
   await page.evaluate(() => BYOC.focusDoc.close(true));
 });
 
@@ -82,7 +82,7 @@ test('a 502 from /answer: a plain line and Retry; Retry resends the same comment
   onAnswer = async r => r.fulfill({ status: 502, json: { error: 'claude exited 1' } });
   await openAsk('w2');
   await sendIt();
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'failed', 'the failure line');
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'failed', 'the failure line');
   let t = await team();
   assert.strictEqual(t.text, 'The team couldn’t read that just now. Your words are kept.');
   assert.ok(t.retry, 'Retry is offered');
@@ -107,11 +107,11 @@ test('an error in the run log for this focus (chime.error) shows the same line a
   onAnswer = async () => {}; // the request stays open, as it does while the server hears her
   await openAsk('w3');
   await sendIt();
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'reading', 'reading');
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'reading', 'reading');
   await dispatch({ type: 'chime.error', askId: 'w3', seat: 'design', error: 'claude timed out' });
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'failed', 'the failure line');
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'failed', 'the failure line');
   assert.ok((await team()).retry);
-  assert.strictEqual(await page.getAttribute('#focus-doc .fd-team', 'data-why'), 'chime.error');
+  assert.strictEqual(await page.getAttribute('#focus-doc [data-component="team-reading"]', 'data-why'), 'chime.error');
   await page.evaluate(() => BYOC.focusDoc.close(true));
 });
 
@@ -120,16 +120,16 @@ test('slow beyond 25 s: "Still reading…" with Retry; a resend while the first 
   onAnswer = async () => {}; // never answers
   await openAsk('w4');
   await sendIt();
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'reading', 'reading');
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'reading', 'reading');
   await page.waitForTimeout(20000);
   assert.strictEqual((await team()).state, 'reading', 'still the reading line at 20 s');
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'slow', 'Still reading at 25 s', undefined, 15000);
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'slow', 'Still reading at 25 s', undefined, 15000);
   const t = await team();
   assert.match(t.text, /^Still reading…/);
   assert.ok(t.retry);
   onAnswer = async r => r.fulfill({ status: 202, json: { pending: true } });
   await page.click('#focus-doc .fd-retry');
-  await waitFor(() => document.querySelector('#focus-doc .fd-team').dataset.state === 'reading', 'back to reading after a pending resend');
+  await waitFor(() => document.querySelector('#focus-doc [data-component="team-reading"]').dataset.state === 'reading', 'back to reading after a pending resend');
   assert.strictEqual(answers.length, 2);
   await page.evaluate(() => BYOC.focusDoc.close(true));
   assert.deepStrictEqual(errors, []);
