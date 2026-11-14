@@ -261,3 +261,20 @@ test('picks spread across her work: one per box, no two that are the same questi
   const scores = new Map(strongScores(cs).scores.map(s => [s.id, s]));
   assert.deepEqual(pickAsks(cs, scores, { flow }).picks.map(p => p.candidate.id), ['c1', 'c4', 'c5']);
 });
+
+test('what she settled in a focus moment (answer.mapped) is never re-decided at Build', async () => {
+  const { logEvent } = await import('../lib/events.js');
+  const run = newRun();
+  const cs = [cand(1, { decision: 'Who the page is for first' }), cand(2, { decision: 'Topic two' }), cand(3, { decision: 'Topic three' })];
+  for (const c of cs) logEvent(run, 'candidate', { pane: c.seat, ...c });
+  logEvent(run, 'answer', { askId: 'c1', text: 'Regulars first.' });
+  logEvent(run, 'answer.mapped', { askId: 'c1', decisions: [{ id: 'c2', choice: 'B' }] });
+  assert.deepEqual(loadRest(run).map(c => c.id), ['c1', 'c3']); // c1 was never logged as an ask here; c2 is hers
+  let seen = [];
+  const decide = items => { seen = items.map(c => c.id); return { decisions: items.map(c => ({ id: c.id, choice: 'A', cites: 'team default' })) }; };
+  // Even if a caller hands decideRest everything, her settled ones are skipped: not sent to the model, not logged.
+  const out = await decideRest(cs, readTaste(run), { run, callModel: fakeModel({ decide }), round: 'build' });
+  assert.deepEqual(out.map(d => d.id), ['c1', 'c3']);
+  assert.ok(!seen.includes('c2'));
+  assert.ok(!readEvents(run).some(e => e.type === 'decided' && e.id === 'c2'));
+});
