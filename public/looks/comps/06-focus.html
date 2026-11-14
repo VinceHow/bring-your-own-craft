@@ -48,14 +48,14 @@
 .share.gone { opacity: 0; pointer-events: none; }
 
 /* the takeaways: the meeting summed up, in her voice */
-.take { position: absolute; left: 64px; right: 64px; bottom: 36px; padding: 22px 26px 20px; border-radius: 4px; background: #F2E7D6;
+.take { position: absolute; left: 64px; right: 64px; bottom: 40px; padding: 24px 28px 26px; border-radius: 4px; background: #F2E7D6;
   border: 1px solid rgba(201,80,111,.28); opacity: 0; transform: translateY(14px); display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; }
 .take.in { transition: opacity 600ms var(--settle), transform 900ms var(--settle); opacity: 1; transform: none; }
 .take .head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; }
 .take .head b { font: 500 15px/1 var(--sans); color: var(--ink); }
 .take .reword { font: 500 14px/1 var(--sans); color: var(--product); }
 .take h3 { margin: 0 0 4px; font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
-.take p { margin: 0; font: italic 400 19px/1.38 var(--serif); color: var(--ink); }
+.take p { margin: 0; font: italic 400 21px/1.36 var(--serif); color: var(--ink); text-wrap: pretty; }
 .take .line { opacity: 0; transform: translateY(5px); }
 .take.in .line { transition: opacity 500ms var(--settle), transform 700ms var(--settle); opacity: 1; transform: none; }
 .take.in .line:nth-of-type(2) { transition-delay: 350ms; }
@@ -93,7 +93,7 @@
         <div class="cap"><span class="label">Rough journey · Noor and Mika</span><span class="label">Who · stages they go through</span></div>
         <div class="journey">
           <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
-          <span class="who">Morning regulars</span><span class="step grow" id="s1">Browse today’s bread<span class="tag">her call</span></span><span class="step grow" id="s2">Order with an account<span class="tag">her call</span></span><span class="step end grow" id="s3">Collect at opening<span class="tag">her call</span></span>
+          <span class="who">Morning regulars</span><span class="step grow" id="s1">Browse today’s bread</span><span class="step grow" id="s2">Order with an account</span><span class="step end grow" id="s3">Collect at opening</span>
           <span class="who">Weekend pastry crowd</span><span class="step">Browse the pastries</span><span class="step">Order by Friday</span><span class="step end">Collect Saturday</span>
           <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span>
         </div>
@@ -129,8 +129,8 @@
   const words = $('#words');
   text.split(/(?<= )/).forEach(w => { const s = document.createElement('span'); s.textContent = w; words.appendChild(s); });
   const caret = document.createElement('i'); caret.className = 'caret'; words.appendChild(caret);
-  const redraw = () => { [['#s1','Their usual loaf'],['#s2','One tap, no account'],['#s3','Held till ten']].forEach(([id, t]) => {
-    const el = $(id); el.firstChild.textContent = t; el.classList.add('now'); }); };
+  const redraw = () => { [['#s1','Their usual loaf'],['#s2','One tap, no account'],['#s3','Held till ten']].forEach(([id, t], i) => setTimeout(() => {
+    const el = $(id); el.textContent = t; el.classList.add('now'); }, i * 260)); };
   const land = () => { $('.say').classList.add('landed'); $('.state').style.opacity = 0; };
 
   if (still) {
