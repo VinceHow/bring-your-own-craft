@@ -81,8 +81,9 @@ Who adds the attributes, file by file:
 | `inbox-item` (one thing that needs her) | `.inbox-item[data-ask][data-seat]` ✅ | `top` · `folded` | `who`, `text` | click opens it as her document |
 | `owner-task` (a thing only she can do) | `article.inbox-task[data-task]` ✅ | `todo` · `doing` · `done` | `title`, `steps` > `step` (each `data-state` todo·done, with a `tick` box); never a text or key field | on `owner.task` `{ id, title, steps[] }` |
 | `inbox-action` (a quick unblock: a named teammate needs a fact or call only she has; the studio's comp m2-moments) | `article.inbox-action[data-action][data-seat]` in Needs you ✅ | `asking` · `speaking` · `yes` | `who` > `face` · `blocked` ("Bo's blocked") · `doing`, `question`, `suggestion` (`.ia-sug`; `.hers` once her words replace it, old one in `was`, struck), `yes`, `say` ("Say something else" → "Listening…" → "Say it again"), `hers` (`data-voice`), `note` | on `owner.action {id, seat, by, question, suggestion}` (rides on an `ask` with `unblock: true`, granted by lib/policy.js, counts toward her three); emit `action.say {id, text}`, `action.yes {id, choice}`; POST `/api/run/:id/unblock/answer`; lands as `decided` (`unblock`, `headline` from `topic`) → `li.ts-card[data-kind=unblock][data-seat][data-her]` with marks `product` + the seat. Collapsed it waits as `.inbox-item[data-action][data-seat]` |
-| `focus-doc` (her document) | `section#focus-doc.focus-doc[data-seat]` ✅ | `asking` · `speaking` · `answered` · `chiming` · `takeaways` · `working` | `kicker` (`.fd-kicker`), `by` (`.fd-by`), `close` (`.fd-close`), `work` (`.fd-work`, with `data-kind`: `journey\|finding\|wires\|page`), `question` (`.fd-question`), `input` (`.fd-input`), `add-piece` (`.fd-add`), `send` (`.fd-send`), `read-conversation` (`.fd-read`, `aria-expanded`), `chimes` (`ol.fd-chimes`, hidden until she opens it), `team` (`.fd-team`). Also `data-capture`: `on` (she's capturing; `.fd-side` hidden) · `off`, and `data-conversation`: `closed` · `open` | on `chime`, `takeaways` (`brief` for old runs), `answer`, `answer.mapped`, `answer.piece.tidy`, `flow.line`; emit `focus.open`, `focus.close`, `focus` |
+| `focus-doc` (her document) | `section#focus-doc.focus-doc[data-seat]` ✅ | `asking` · `speaking` · `answered` · `chiming` · `takeaways` · `working` | `kicker` (`.fd-kicker`), `by` (`.fd-by`), `close` (`.fd-close`), `work` (`.fd-work`, with `data-kind`: `journey\|finding\|wires\|page`), `question` (`.fd-question`), `input` (`.fd-input`), `add-piece` (`.fd-add`), `send` (`.fd-send`), `read-conversation` (`.fd-read`, `aria-expanded`), `chimes` (`ol.fd-chimes`, hidden until she opens it), `team-reading` (holds `team` and `retry`). Also `data-capture`: `on` (she's capturing; `.fd-side` hidden) · `off`, and `data-conversation`: `closed` · `open` | on `chime`, `takeaways` (`brief` for old runs), `answer`, `answer.mapped`, `answer.piece.tidy`, `flow.line`, `thread.start`, `chime.error`, `interpret.error`, `propose.error`, `teammate.error`; emit `focus.open`, `focus.close`, `focus` |
 | `her-answer` (her spoken words) | `.fd-said` ✅ | `speaking` · `landed` | `words` (`.fd-words`) | (inside `focus-doc`) |
+| `team-reading` (after Send: the team heard her, or what went wrong) | `.fd-hearing` ✅ | `idle` · `reading` ("Noor and Mika are reading what you said…", at once; names from `thread.start`) · `slow` ("Still reading…", nothing from the team in 25 s; `?answerWait=ms` shortens it) · `failed` ("The team couldn’t read that just now. Your words are kept."; `data-why`: the HTTP status, `no connection`, or the log's error type) · `heard` (the first reply, takeaways or mapping arrived) | `team` (`.fd-team`, the line; also "The team is on it."), `retry` (`button.fd-retry`, shown in `slow` and `failed`) | (inside `focus-doc`) on `thread.start`, `chime`, `takeaways`, `answer.mapped`, `chime.error`, `interpret.error`, `propose.error`, `teammate.error`; Retry POSTs `/answer` `{ askId, text, retry: true }` (the server re-reads the answer it logged: 202 while still heard, 409 once heard) |
 | `chime` (a teammate's reaction) | `li.chime[data-seat]` in `ol.fd-chimes` ✅ | `in` | `who` (`.chime-who`), `text` (`.chime-text`) | on `chime`; the full thread, shown only after "Read the conversation" |
 | `pieces` (her answer, in pieces) | `ol.fd-pieces` ✅ | (none) | (holds `piece`) | (inside `focus-doc`) |
 | `piece` (one spoken or typed take) | `li.fd-piece[data-piece]` ✅ (`data-anim`: `swapping` · `done` · `none`, when raw and tidy are identical) | `raw` (tidy not back yet) · `tidying` (the swap) · `tidy` · `raw-shown` (she's looking at what she said) · `mine` (she kept her own words) | `words` (`.fd-piece-words`, `data-view` `raw\|tidy`), and in it one `span.fd-w` per word from the word diff (`public/word-diff.js`): `kept-word`, `removed-word` (`data-state` `leaving` → `gone`), `changed-word` (`changed`: new case or punctuation, or a new word in a dropped one's place), `added-word` (`arriving`); `see-said` (`.fd-piece-see-said`), `use-mine` (`.fd-piece-use-mine`), `redo` (`.fd-piece-redo`), `remove` (`.fd-piece-remove`) | on `answer.piece.tidy`; POSTs `/api/run/:id/piece` |
@@ -434,6 +435,19 @@ inside other components. A look should always scope a state to its component, as
         <span class="brief-label" data-slot="label">Guidance to the team</span>
         <p class="brief-text" data-slot="guidance" contenteditable="false"></p>
   …
+```
+
+### `team-reading` (reading, then failed)
+
+```html
+<div class="fd-hearing" data-component="team-reading" data-state="reading">
+  <div class="fd-team" data-slot="team">Noor and Mika are reading what you said…</div>
+  <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
+</div>
+<div class="fd-hearing" data-component="team-reading" data-state="failed" data-why="502">
+  <div class="fd-team" data-slot="team">The team couldn’t read that just now. Your words are kept.</div>
+  <button type="button" class="fd-retry" data-slot="retry">Retry</button>
+</div>
 ```
 
 ### `takeaways` (shown)
