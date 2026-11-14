@@ -35,13 +35,13 @@ she's the expert, they build on what she said, it's all of ours.
 |---|---|---|
 | **0:00–0:05** Her seat | Six seats plus a dashed seventh, "Your own craft"; she **clicks Product**. | live |
 | **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
-| **0:22–0:30** Her card | One natural sentence about what she loves → a fun name tag in her words (editable); L1 of her file; Stance empty. Unseen: the private profile. | live |
+| **0:22–0:30** Her character | "Build your character": one natural sentence about what she loves → her character card in her words (editable); L1 of her hidden file. Unseen: the private profile. No stance slot. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
 | **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared yoga sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
 | **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions (all the granular ones) with reasons; caption "N handled by your team · 3 for you" (from the log). | live |
 | **1:15–1:35** Focus moment 2 | From her tray at a pause: one piece of work + one big question; she talks; reactions; the work updates. | live |
-| **1:35–2:00** Focus moment 3 | Mika's grey wireframes + a big question about the feel; her answer → "Sounds like" → reworded → her file and Stance. | live |
+| **1:35–2:00** Focus moment 3 | Mika's grey wireframes + a big question about the feel; the meeting's takeaways (what I believe / guidance), rewordable; the hidden philosophy updates. | live |
 | **2:00–2:20** Symphony | One press; every seat slides its part into the idea sheet; the page is built. | **live**, from her answers |
 | **2:20–2:34** Her page | The page they built together. No credits. One margin note on cancel citing her new line. | live |
 | **2:34–3:00** Close | Judge's idea live: their rough journey + the first big question for them draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
@@ -73,8 +73,9 @@ real run.
    open, natural question attached to one piece of work (journey, finding, wireframes), no options or recommendation.
    Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
    teammate reactions that promise only what the build will show, streamed one after another as she finishes, and (c)
-   writes her brief (what I believe / why / guidance to the team), rewordable; briefs build up into her file and
-   replace the separate "Sounds like" step. The work updates. Polish goes into her engagement with the document, not
+   writes the meeting's takeaways (what I believe about this / guidance to the team for it), user-facing and
+   rewordable; separately updates the hidden philosophy (profile + `taste.md`), never shown unless she asks. No
+   stance slot; the "Sounds like" step is gone. The work updates. Polish goes into her engagement with the document, not
    literal staging. On stage: moment 1 in full, moments 2–3 short. Overrule, YOUR CALL and
    strike-through are cut. Unanswered at Build → decided by the team.
 9. **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
@@ -104,7 +105,7 @@ glance at, never to approve.
 - **Type, bundled locally:** **Archivo Black** display (seat names, the counter, the meter at 120px+), **IBM Plex Sans**
   UI, **IBM Plex Mono** for her file and the reasons. Stage mode (one key): body ≥ 20px, no chrome.
 - **Motion** (springs ~500/30; no fade over 150ms): cards land tilted 1–3°; lines snap into boxes; forks and pins slide
-  in like sticky notes; "Sounds like" **types in** with a yellow highlighter sweep; counter and meter **roll**.
+  in like sticky notes; the meeting takeaways **type in** with a yellow highlighter sweep; counter and meter **roll**.
 - **Banned:** gradients, glassmorphism, purple, emoji, sparkle icons, chat bubbles, spinners (show the current step),
   question cards or pop-ups.
 
@@ -142,7 +143,7 @@ code validates against a schema, retrying once.
    default"; code rejects a citation to a missing line.
 4. **Ask policy:** only the selector's output reaches her, as a focus moment (one question, one piece of work). Any other ask is refused, decided and
    logged; a question in plain model text counts as a stamp.
-5. **Infer:** after her answer, one call writes the "Sounds like" line; keeping or rewording it writes `taste.md`.
+5. **Infer:** after her answer, one call writes the meeting takeaways (user-facing, rewordable) and updates her hidden philosophy (`taste.md` + profile).
 6. **Build:** re-decide the rest against her updated file (so cancel cites her new line), then one call turns flow +
    answers + file into the template's slot JSON; our code writes the page.
 7. **Counter, reasons, meter:** pure functions of the log; each UI pane tags its events `craft` or `stamp`.
@@ -200,7 +201,7 @@ plugin are credited open-source libraries.
 **One shot, no mistakes on the core.** Four builders work at once, so the seams are fixed in `CONTRACT.md` and only the
 lead changes them. Each piece ships with its own tests and passes them before review. `npm run e2e` (Playwright,
 `--trace off`) walks the yoga script through the real UI: room → flow → three asks arrive in her work (never more) →
-pin → "Sounds like" written to her file → Build → page shows her choices and a decision citing her new line → counter
+focus moments → takeaways shown and her hidden file written → Build → page shows her choices and a decision citing her new line → counter
 and meter match the log → the key appears nowhere. The lead merges to `main` only with `npm test` and `npm run e2e`
 green, and re-runs e2e after every merge. A failure gets a diagnosis before a patch.
 
