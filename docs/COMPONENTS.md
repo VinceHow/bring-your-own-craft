@@ -45,7 +45,8 @@ Who adds the attributes, file by file:
 | `place-card` (a seat's card once filled) | `.seat .card` | `idle` · `working` · `done` · `error` | `band` (`.card-band`), `name` (`.card-name`), `agent` (`.card-agent-name`), `agent-mark` (`.agent-mark`), `stance` (`.card-stance`), `note` (`.card-note`) | on `teammate.start` / `teammate.done` / `teammate.error` |
 | `her-place-card` | `.seat-product .card` | `empty` · `named` (her character is set) | `band`, `who` (`.card-who`), `title` (`.card-title`, planned), `traits` (`.card-traits`, planned); `stance` (`.card-her-stance`) is to be removed | on `intro` |
 | `teammate-card` (big, mid-table, while the team assembles) | `.big-card[data-seat]` | `arriving` · `holding` · `seating` | `band`, `loves` (`.bc-loves`), `brings` (`.bc-brings`), `stance` (`.bc-stance`, to be removed) | on `stage` (beat 2) |
-| `character-card` (her card: build your character; one component, two roots) | DIY craft: `.name-tag` (builder 6, built) · her seat path: `.big-card[data-seat="product"]` (beats, planned) | `asking` (her sentence) · `thinking` (the team is writing it) · `shown` (every word swappable) | `input` (`.tag-input` / `#intro-input`), `title` (`.tag-title`), `trait` (`.tag-trait`), `superpower` (`.tag-power`), `craft` (`.tag-craft`) | `BYOC.nameTag.open()`; on `stage`, `reset` |
+| `character-card` (her card: build your character; one component, two roots) | DIY craft: `.name-tag` ✅ (builder 6) · her seat path: `.big-card[data-seat="product"]` (beats, planned) | `asking` (her sentence) · `thinking` (the team is writing it) · `shown` (every word swappable) | `head`, `ask`, `input`, `title`, `traits` > `trait`, `superpower`, `craft`, `hint` | `BYOC.nameTag.open()`; on `stage`, `reset` |
+| `no-page-note` (DIY idea with no page template) | `.idea-note` ✅ | (one state) | (none) | (builder 6) |
 
 ## 3. The work
 
@@ -56,7 +57,7 @@ Who adds the attributes, file by file:
 | `idea-layer` | `.idea-layer` (`#sketch-sheet`, `#page-sheet`) ✅ | `on` · `off` | (none) | (none) |
 | `her-idea` (her rough sentence) | `#her-sheet .her-q` + `.her-idea` + `.her-form` | `asking` · `said` | `question` (`.her-q`), `idea` (`.her-idea`), `input` (`.her-form input`), `hint` (`.her-hint`) | on `stage` |
 | `journey` (the rough journey) | `.fl-wrap` inside `#her-flow` ✅ | `empty` · `drawing` (new boxes landing, ~0.6 s) · `drawn` | `box` (`.fl-box`, with `data-node`), `arrow`, `label` (`.fl-label`), `note` (`.her-notes`) | on `flow.line`, `flow.reset`, `pin` |
-| `first-sketch` (her journey sketched by Noor and Mika) | `.fs-box` / `.fs-users` | `drawing` · `drawn` · `reshaping` | `user` (`.fs-user`), `box` (`.fs-box`), `arrow` (`.fs-arrow`), `said` (`.fs-said`), `who` (`.fs-who`) | on `sketch.user`, `sketch.done`, `reshape`, `sketch.error` |
+| `first-sketch` (her journey sketched by Noor and Mika) | `.fs-bar` ✅ (in the close: `.fs-close-sketch`) | `drawing` · `drawn` · `reshaping` | `users`, `user`, `who`, `tag` (PREPARED / timing), `said`, `edit` (`.fs-pop`); in the close: `boxes`, `box`, `arrow` | on `sketch.user`, `sketch.done`, `reshape`, `sketch.error` |
 | `wireframes` | `.sk-host` ✅ | `shown` · `drafting` (she is pinning a note); the wait before them is `#sketch-wait` in room.js | `frame` (`.sk-frame`), `screen` (`.sk-screen`), `head` (`.sk-head`), `title` (`.sk-title`), `caption` (`.sk-cap`), `tag` (`.sk-tag`), `note` (`.sk-note`), `row` (`.sk-row`), `pinned` (`.sk-pinned`) | on `sketches` |
 | `page-frame` (her page) | `.page-frame` in `#page-sheet` | `building` · `built` · `error` | `head` (`.page-head`), `title` (`.page-title`), `url` (`.page-url`), `frame` (`iframe`) | on `build.step`, `build.done`, `build.error` |
 | `her-file` (taste.md) | `#file-card.file-card` | `empty` · `filled` | `name` (`.file-name`), `path` (`.file-path`), `lines` (`.file-lines`), `line` (`.file-lines li`), `note` (`.file-note`), `sounds-like` (`.sounds-like`, to be removed) | on `taste.suggested`, `taste.written` |
@@ -82,7 +83,7 @@ Who adds the attributes, file by file:
 | `team-space` | `section.team-space` ✅ | `empty` (hidden) · `shown` | `title` (`.ts-title`), `cards` (`.ts-cards`) | on `joint.agreed`, `run.start`, `reset` |
 | `decision-card` | `li.ts-card[data-joint]` ✅ | `closed` · `open` (mirrors `aria-expanded`) | `marks` (`.ts-marks`), `mark` (`.ts-mark[data-seat]`), `headline` (`.ts-headline`), `takeaways-note` (`.ts-takeaways`), `label` (`.ts-label`), `exchange` (`.ts-exchange`), `turn` (`.ts-turn[data-seat]`) > `by` (`.ts-by`), `text` (`.ts-text`) | on `joint.agreed` |
 | `check-in` (older in-sheet question card; may retire in favour of the tray) | `.fl-item[data-ask]` ✅ | `waiting` · `open` · `answered` (each option keeps `is-rec` / `is-chosen` / `is-dropped`) | `question` (`.fl-qtext`), `options` (`.fl-opts`), `option` (`.fl-opt`), `why` (`.fl-why`), `source` (`.fl-src`) | on `ask`, `answer`; emit `checkin.open`, `checkin.close` |
-| `guest-card` (optional) | `.guest-card` | `in` · `shown` | `tag` (`.guest-tag`), `head` (`.guest-head`), `who` (`.guest-who`), `says` (`.guest-says`), `points` (`.guest-points`), `note` (`.guest-note`) | on `guest` |
+| `guest-card` (optional) | `.guest-card` ✅ | `in` · `shown` | `head`, `tag`, `who`, `note`, `says`, `points` | on `guest` |
 
 ## 6. The close and labels
 
