@@ -43,7 +43,7 @@ she's the expert, they build on what she said, it's all of ours.
 | **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; no queue badges, no timers. She overrules once (YOUR CALL). | live |
 | **1:50–2:08** Design's workspace | Grey wireframes on her shape; her note on confirm → "Sounds like" → reworded → her file and her Stance slot. | live |
 | **2:08–2:26** Symphony | One press; every seat slides its part into the gem; the page is built. | **live**, from her answers |
-| **2:26–2:38** Page + credits | Credits (teammate + what it did; YOUR CALL; "Engineering applied your line", citing her new line). | live |
+| **2:26–2:38** Her page | The page they built together, full size. **No credits** (Vincent). One margin note on cancel: "follows your line", citing her new line, only if a logged decision cites it. | live |
 | **2:38–3:00** Close | Judge's idea live: Design's first sketch + first check-in draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
 
 The café run ("a pre-order page for a café's morning pastries") is the **fallback** for the judge's idea, REPLAY of a
@@ -52,8 +52,9 @@ real run.
 **New build pieces, cheapest first** (lead to price and split):
 1. **Focus time:** while a check-in is open, other seats dim and freeze; no queue badges (replace the "waiting as a seat
    badge" pattern), no counters moving, no timers; next check-in after a ~1 s breath.
-2. **Words:** "What's the idea?"; check-ins and credits in the teammate's voice; open seats read "Seat open: invite a
-   teammate. Your agents hold it until they arrive." (label, not a button); credits replace "decided for you".
+2. **Words:** "What's the idea?"; check-ins in the teammate's voice; open seats read "Seat open: invite a
+   teammate. Your agents hold it until they arrive." (label, not a button); the "decided for you" list and any credits are cut: one margin note on the page where a
+   decision cites her line.
 3. **First sketch + reshape:** Design returns user types and stage lines (reuse `parseFlow` for the stages) from her
    sentence, streamed, fast model; her spoken/typed reaction → one call that returns the redrawn shape; direct box
    edits without a model. Her typed journey is no longer the main path.
@@ -65,7 +66,7 @@ real run.
    chair in the room.
 7. Optional, last: one soft chord at the symphony.
 
-**Slow build:** credits so far until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
+**Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
 rehearsal means fixing the ranking, never the script.
 

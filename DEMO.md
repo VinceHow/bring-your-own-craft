@@ -12,8 +12,9 @@ stance you never had to write.
 1. **They're good** (assembling the team).
 2. **They handle it** (the team's focus time: their own decisions, with reasons, nothing pings her).
 3. **They check in because you're the expert** (her focus time: questions from a named teammate, saying why it's hers).
-4. **They build on what you said** (her note travels: "Engineering applied your line").
-5. **It's all of ours** (the symphony and the credits).
+4. **They build on what you said** (her note travels: a step she never touched follows her line).
+5. **It's all of ours** (the symphony, and the page they built together). The proof is the thing built, never a
+   list of who did what.
 
 **The feel: a cozy studio, not a meeting.** Same table, same seats, same riso paper, but warmer: teammates' sheets are
 sketchpads, nobody is waiting on anyone, no timers, no pressure. Nothing childish: ink and riso colours, no points,
@@ -35,7 +36,7 @@ on screen.
 | **1:15–1:50** Her focus time | **The room goes quiet around her**: the other seats dim and stop moving; no badges, counters or timers. One check-in at a time, each **from a named teammate, saying why it's hers**: *Research: "Small studios fill their popular classes. You know your regulars. Waitlist?"* It sits on her shape (a fork on a stage, a note on a user type), with the team's recommendation and reason. She answers properly, briefly, out loud or by picking. **At least once she overrules the team** (YOUR CALL, recommendation struck through). The next check-in arrives only after she answers. Her face of the gem gets polished with each answer. **The run decides the questions.** | **They check in because she's the expert.** Deep focus, no one waiting on her. | "When she's in the zone, nobody is waiting on her. One question at a time, each one hers." | live |
 | **1:50–2:08** Over Design's shoulder | She opens Design's workspace: grey wireframes of the key screens, built on her shape. She leaves a note on confirm: *"Cut the phone field. Name's enough; regulars hate forms."* On her card: **"Sounds like: never ask for what you could remember."** She rewords it: *"…anything you could remember or skip."* It writes into her file and **fills her empty Stance**. | Recognition: "that *is* what I think." | "She didn't write a principle. She cut a field, and the team named why, in her words." | live |
 | **2:08–2:26** The symphony | Her one press. Every seat plays at once: each sketchpad slides its part into the gem, and the gem turns into **her page**. | Everyone's work becoming one thing. | "Everyone brings their part." | **live**, built from her actual answers |
-| **2:26–2:38** Her page, and the credits | Her booking page: regulars first, no phone field, her words, her overruled call. Under it, **credits** instead of a "decided for you" list: each line names the teammate and what it did, her calls marked **YOUR CALL**, and *"Engineering applied your line: cancel is one tap, no reason asked"*, **citing the line she wrote a minute ago**. | **They built on her. It's all of ours.** | "A step she never designed follows the rule she just wrote." | live |
+| **2:26–2:38** Her page | Her booking page, full size, the thing the team built together: regulars first, no phone field, her words, her overruled call. **No credits, no list of who did what.** One small margin note on the cancel step, the only annotation: *"One tap, no reason asked: follows your line, '…anything you could remember or skip'"*, **citing the line she wrote a minute ago**. | **It's all of ours, and it's hers.** | "A step she never designed follows the rule she just wrote." | live |
 | **2:38–3:00** The close | **A judge's idea, live.** Vincent types or says it; within seconds Design's first sketch of *their* idea draws in, and the team's first check-in lands on it. **While it draws**, the contrast from the real baseline: a default coding agent **asked 0 questions and guessed 22 things** about the studio, beside her **3 asked, the rest handled by the team**. Last line. | Seen. Nothing here was scripted. | "The default agent didn't ask anything. It guessed twenty-two things. Her team asked three, about her craft, and handled the rest. This project was built the same way. And tomorrow, the engineer at this table is a person, with their own team." | live |
 
 **The team cards** (0:05–0:22). "Brings" must stay true of what each teammate actually runs on; change the line, not
@@ -69,8 +70,8 @@ first sketch is slow, a sketch prepared ahead for the yoga idea comes in, labell
 face is cut only by a real decision from that seat; her face only by her own answers. All read from the run's log.
 Fallback if the gem runs late: six ink bars, one per seat, filling the same way.
 
-**Credits are real.** Each line comes from a logged decision or answer; "applied your line" only where a decision
-cites her line.
+**The margin note is real.** It appears only where a logged decision cites her line; no other annotation on the
+page. Who did what stays in the run's log, out of scope for the demo.
 
 **The guest chair** (Vincent, 14 Nov). Some ideas need a voice the team doesn't have: the customer. After the first
 sketch, one guest joins, drawn from the main user type the sketch named (chosen by the run, not pre-set):
@@ -101,14 +102,14 @@ explains itself with a hook, intro text or tutorial.
 **The café run is the fallback, not a beat.** If the judge's idea is slow or weak, **R** brings in the café run
 ("a pre-order page for a café's morning pastries", a recorded real run), labelled REPLAY, and the presenter says so.
 
-**If the build is slow:** the symphony holds, she opens the credits so far, and at about 2:30 the rehearsal build comes
+**If the build is slow:** the symphony holds, and at about 2:30 the rehearsal build comes
 in, labelled REPLAY, and the presenter says what was replayed.
 
 ## 2. How it works, in brief
 - **The room is the frame, a cozy studio.** Her work lies in front of her seat, full size. Each teammate's work sits
   as a sketchpad in front of its seat, to glance at or open, never to approve. Teammates are flat printed cards (role,
   glyph, the craft's ink): no faces, no names, no chit-chat; their personality is the "loves" line and the one or two
-  lines in their check-ins and credits.
+  lines in their check-ins.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
   the desk), and at least one "decided for you" line on her page visibly comes from it. It reaches her three only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
