@@ -171,6 +171,21 @@
   }, true);
   window.addEventListener('blur', () => { if (state === 'listening') stop(); });
 
+  // ---- the speech tidy, shared ------------------------------------------------------------------------
+  // BYOC.tidy(text, { seat }) -> Promise<string>: her spoken words, tidied into her own note (POST /api/tidy,
+  // lib/tidy.js). Never rejects: on a failure or after ~4 s it resolves to her raw words. (seat: reserved; the
+  // tidy is the same for every seat.)
+  BYOC.tidy = function (text, opts = {}) {
+    const raw = String(text || '');
+    if (!raw.trim()) return Promise.resolve(raw);
+    const ctl = window.AbortController ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), opts.timeoutMs || 4000);
+    return fetch('/api/tidy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl ? ctl.signal : undefined,
+      body: JSON.stringify({ text: raw, run: BYOC.run || undefined }) })
+      .then(r => r.ok ? r.json() : null).then(j => (j && typeof j.text === 'string' && j.text.trim()) ? j.text : raw)
+      .catch(() => raw).finally(() => clearTimeout(timer));
+  };
+
   // ---- is voice there? -------------------------------------------------------------------------
   BYOC.voice = { get available() { return available; }, get state() { return state; }, start: () => start(currentTarget()), stop };
   if (available !== false) {

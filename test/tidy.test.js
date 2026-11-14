@@ -7,7 +7,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-tidy-'));
 process.env.THREAD_WARM = '0';
-const { addPiece, removePiece, choosePiece, gatherPieces, checkTidy, alreadyClean } = await import('../lib/tidy.js');
+const { addPiece, removePiece, choosePiece, gatherPieces, checkTidy, alreadyClean, tidyText } = await import('../lib/tidy.js');
 const { interpret } = await import('../lib/interpret.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste } = await import('../lib/taste.js');
@@ -114,4 +114,17 @@ test('Send: one gathered comment is the answer; only it reaches the chimes and t
   const firstChime = evs.find(e => e.type === 'chime');
   assert.ok(firstChime && firstChime.ms < 1000, 'the first reply right after Send');
   assert.equal(addPiece({ run, askId: 'a1', pieceId: 'p9', text: 'late', callModel }).code, 409, 'no pieces after Send');
+});
+
+test('tidyText, shared (her name-tag sentence): the tidy, or her raw words on any failure; no run needed', async () => {
+  const ok = await tidyText({ text: RAW, callModel: async () => ({ text: TIDY }) });
+  assert.deepEqual({ text: ok.text, tidied: ok.tidied }, { text: TIDY, tidied: true });
+  const t0 = Date.now();
+  const slow = await tidyText({ text: RAW, limitMs: 200, callModel: async () => { await sleep(1500); return { text: TIDY }; } });
+  assert.ok(Date.now() - t0 < 1000);
+  assert.equal(slow.text, RAW); assert.equal(slow.tidied, false);
+  assert.equal((await tidyText({ text: RAW, callModel: async () => { throw new Error('down'); } })).text, RAW);
+  assert.equal((await tidyText({ text: RAW, callModel: async () => ({ text: 'Croissants and coffee prices today, nothing she said.' }) })).text, RAW);
+  const short = 'I love bread.';
+  assert.equal((await tidyText({ text: short, callModel: async () => { throw new Error('never called'); } })).text, short);
 });
