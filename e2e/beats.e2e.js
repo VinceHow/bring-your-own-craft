@@ -153,7 +153,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
     await page.waitForTimeout(400); // the dim fades in (under 150ms)
     assert.ok(await page.evaluate(() => document.getElementById('room').classList.contains('focus')), '#room.focus while a check-in is open');
     assert.strictEqual(await page.locator('#her-flow .checkin-open').count(), 1, 'the open check-in is marked .checkin-open');
-    assert.ok(+(await page.evaluate(() => getComputedStyle(document.querySelector('.seat-design')).opacity)) < 0.6, 'the other seats dim');
+    // dimming was cut (po/questions: two states, no dim or freeze); the beats session rewrites this step
   }
   await checkSizes('after her first answer');
   assert.deepStrictEqual(errors, []);
