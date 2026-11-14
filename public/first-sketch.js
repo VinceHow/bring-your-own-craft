@@ -93,7 +93,7 @@
     if (ev.prepared) setTag('PREPARED · sketched before the demo', true);
     else setTag((ev.reshape ? 'Design redrew it from what you said' : "Design's first sketch") + secs);
     if (canReact()) {
-      hint('React to it, or click a box', 'Enter: redraw · empty Enter: team, go');
+      hint('React to it, or click a box', 'Enter: redraw · empty Enter or “let’s build it”: team, go');
       const inp = document.getElementById('her-input');
       if (inp) inp.dataset.voice = 'reaction'; // voice.js puts its mic mark on it; her words arrive as an 'input' event
     }

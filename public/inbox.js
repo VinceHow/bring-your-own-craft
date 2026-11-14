@@ -21,6 +21,8 @@
 .inbox .inbox-now, .inbox .inbox-toggle, .inbox .inbox-item { display: block; width: 100%; text-align: left; font: inherit; cursor: pointer; }
 .inbox .inbox-drawer { max-height: 520px; overflow: auto; }
 .inbox .inbox-steps { margin: 0; padding-left: 0; list-style: none; }
+.inbox .inbox-who, .inbox .inbox-text { display: block; }
+.inbox[data-pulse="on"] { outline: 3px solid currentColor; outline-offset: 3px; }
 `;
   const style = document.createElement('style'); style.dataset.byoc = 'inbox'; style.textContent = css;
   document.head.appendChild(style);
@@ -28,7 +30,15 @@
   const slot = (e, name) => { e.dataset.slot = name; return e; };
   const NAME = { design: 'Design', data: 'Data', research: 'Research', strategy: 'Strategy', engineering: 'Engineering', product: 'Product' };
   const AGENT = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
-  const who = n => { const s = NAME[n.seat] || n.seat || 'Team'; const a = n.by || (B.info && B.info(n.seat) && B.info(n.seat).agent) || AGENT[n.seat]; return a ? `${a} · ${s}` : s; };
+  // Who asks: the teammate's own name ("Noor asks"), from `by`, else the seat's agent; never "<her seat>'s teammate"
+  // (her own seat's engine has no name of its own: then "The team asks").
+  const asker = n => {
+    const by = String(n.by || '').trim();
+    if (by && !/teammate$/i.test(by) && !Object.values(NAME).includes(by)) return by;
+    return (B.info && B.info(n.seat) && B.info(n.seat).agent) || AGENT[n.seat] || 'The team';
+  };
+  B.asker = asker;
+  const who = n => `${asker(n)} asks`;
   const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
 
   // ---- the frame ----------------------------------------------------------------------------------
@@ -58,6 +68,7 @@
   const inWindow = () => B.beat >= 4 && B.beat < 9; // from her first idea to her page
 
   // The tray's arrival rule, unchanged: new waiting items appear about 1 s after a natural pause, never mid-typing.
+  let pulseTimer = null;
   function render() {
     const f = B.focus || { open: null, waiting: [] };
     box.hidden = !inWindow() || !!f.open;
@@ -69,8 +80,16 @@
     arriveTimer = setTimeout(function slideIn() {
       if (isTypingNow()) { arriveTimer = setTimeout(slideIn, 500); return; }
       if ((B.focus || {}).open) return;
+      const before = new Set(shown.map(n => n.id));
       shown = (B.focus || { waiting: [] }).waiting.slice();
       paint();
+      // Something new for her: a short pulse on the inbox (data-pulse, ~2.4 s), and the room says who (inbox.new).
+      const fresh = shown.find(n => !before.has(n.id));
+      if (fresh && !B.replay) {
+        box.dataset.pulse = 'on'; now.dataset.state = 'new';
+        clearTimeout(pulseTimer); pulseTimer = setTimeout(() => { box.dataset.pulse = 'off'; now.dataset.state = 'top'; }, 2400);
+        B.emit && B.emit('inbox.new', { id: fresh.id, seat: fresh.seat, by: asker(fresh), unblock: !!fresh.unblock });
+      }
     }, B.replay || B.instant ? 0 : 1000);
   }
 
@@ -137,6 +156,7 @@
     // Collapsed: the one item that needs her now, or nothing.
     now.replaceChildren(...(top ? item(top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
     now.dataset.ask = top ? top.id : '';
+    now.dataset.component = 'inbox-item'; if (now.dataset.state !== 'new' || !top) now.dataset.state = top ? 'top' : 'empty';
     if (top && top.unblock) now.dataset.action = top.id; else delete now.dataset.action;
     if (top) now.dataset.seat = top.seat || ''; else delete now.dataset.seat;
     box.dataset.needs = top ? 'yes' : 'no';
@@ -153,7 +173,23 @@
       }
     }
     paintTasks();
+    keepInView();
   }
+  // Never off-screen (Vincent's 1440x900 window clipped it at the left edge): after each paint and on resize, if any
+  // edge of the inbox is outside the viewport, shift it back in (in the room's own scaled pixels). A look can place
+  // it anywhere; this only keeps it visible.
+  function keepInView() {
+    if (box.hidden) return;
+    box.style.translate = '';
+    const r = box.getBoundingClientRect(); if (!r.width) return;
+    const k = r.width / (box.offsetWidth || r.width) || 1, M = 8;
+    let dx = 0, dy = 0;
+    if (r.left < M) dx = M - r.left; else if (r.right > innerWidth - M) dx = innerWidth - M - r.right;
+    if (r.top < M) dy = M - r.top; else if (r.bottom > innerHeight - M) dy = innerHeight - M - r.bottom;
+    if (dx || dy) box.style.translate = `${(dx / k).toFixed(1)}px ${(dy / k).toFixed(1)}px`;
+  }
+  B.inboxKeepInView = keepInView;
+  addEventListener('resize', () => requestAnimationFrame(keepInView));
 
   // ---- Things only you can do: owner.task only, plain steps she ticks; never an input for a key ---------
   function paintTasks() {
@@ -195,6 +231,7 @@
     drawer.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
     toggle.textContent = open ? 'Close your inbox' : 'Open your inbox';
+    keepInView();
   }
   toggle.addEventListener('click', () => expand(box.dataset.state !== 'expanded'));
   // Clicking the item that needs her opens it as her document; with nothing waiting, the click opens the drawer.
