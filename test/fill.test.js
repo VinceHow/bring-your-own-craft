@@ -93,9 +93,50 @@ for (const template of ['yoga', 'cafe']) {
     const order = html => [...html.matchAll(/<section[^>]*data-step="([\w-]+)"/g)].map(m => m[1]);
     assert.deepEqual(order(read(a)).slice(0, 2), ['hero', 'regulars']);
     assert.notEqual(order(read(b))[1], 'regulars');
-    assert.equal(order(read(a)).at(-1), 'decided');
+    const o = order(read(a));
+    assert.ok(o.indexOf('decided') > o.indexOf('booked'), '"decided for you" stays under the booking steps');
   });
 }
+
+test('an answer where she overruled the team: the page follows her branch, and the fill is told so', async () => {
+  const ev = [
+    { type: 'run.start', idea: 'A booking page for a small yoga studio.' },
+    { type: 'ask', id: 'c1', decision: 'Do full classes get a waitlist?', options: ['Waitlist', 'Show as full'], recommendation: 'Waitlist' },
+    { type: 'answer', askId: 'c1', choice: 'Show as full' },
+  ];
+  const g = gatherRun(ev, '');
+  assert.equal(g.answers[0].overruled, true);
+  const out = tmp();
+  // The model leaves the waitlist on (the team's recommendation); her answer must win.
+  const call = fakeModel({ switches: { waitlist: true } });
+  const r = await fillPage({ run: 'r', outDir: out, ...g, taste: TASTE, template: 'yoga', call });
+  assert.equal(r.slots.switches.waitlist, false);
+  assert.doesNotMatch(read(out), /data-switch="waitlist"/);
+  const sent = JSON.parse(call.calls[0].user).herAnswers[0];
+  assert.deepEqual([sent.choice, sent.recommendation, sent.overruled], ['Show as full', 'Waitlist', true]);
+  // and when she takes the recommendation, the waitlist stays
+  const g2 = gatherRun([...ev.slice(0, 2), { type: 'answer', askId: 'c1', choice: 'Waitlist' }], '');
+  const r2 = await fillPage({ run: 'r', outDir: tmp(), ...g2, taste: TASTE, template: 'yoga', call: fakeModel({ switches: { waitlist: false } }) });
+  assert.equal(g2.answers[0].overruled, false);
+  assert.equal(r2.slots.switches.waitlist, true);
+});
+
+test('her pin "Cut the phone field" removes the phone field even if the model keeps it', async () => {
+  const g = gatherRun([{ type: 'pin', nodeId: 'n3', text: "Cut the phone field. Name's enough; regulars hate forms." }], '');
+  const out = tmp();
+  await fillPage({ run: 'r', outDir: out, ...g, taste: TASTE, template: 'yoga', call: fakeModel({ switches: { phone: true } }) });
+  assert.doesNotMatch(read(out), /type="tel"/);
+});
+
+test('"does cancel ask for a reason?" decided "No, one tap" removes the reason line', async () => {
+  const out = tmp();
+  const decided = [{ id: 'c4', decision: 'Does cancel ask for a reason?', choice: 'No, one tap', cites: 'L3' }];
+  const r = await fillPage({ run: 'r', outDir: out, idea: 'x', taste: TASTE, decided, newestLine: 'L3', template: 'yoga',
+    call: fakeModel({ switches: { cancelReason: true }, decidedShown: [] }) });
+  assert.equal(r.slots.switches.cancelReason, false);
+  assert.doesNotMatch(read(out), /data-switch="cancel-reason"/);
+  assert.match(read(out), /data-decided="c4" data-cites="L3"/);
+});
 
 test('a slot JSON that breaks the schema is refused, nothing written', async () => {
   const out = tmp();
