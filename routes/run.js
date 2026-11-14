@@ -10,7 +10,7 @@ import { tally } from '../lib/tally.js';
 import { parseFlow } from '../lib/flow.js';
 import { currentLines } from '../lib/sketch.js';
 import { cleanTag, templateFor, nameTag } from '../lib/tag.js';
-import { interpret, saveBrief } from '../lib/interpret.js';
+import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
 const SEAT_IDS = [...SEATS, 'diy'];
@@ -18,7 +18,7 @@ import path from 'node:path';
 
 const running = new Set();
 // Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
-const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|intro|tag)$/;
+const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|takeaways|intro|tag)$/;
 const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 
 function state(run) {
@@ -74,8 +74,9 @@ const handlers = {
     return [200, { soundsLike }];
   },
 
-  // Her brief, as she keeps it: "what I believe" becomes the next line of her file.
-  async brief(run, body) { const r = saveBrief({ run, ...(body || {}) }); return [r.code, r.body]; },
+  // This meeting's takeaways, as she keeps them: her hidden file and her profile's philosophy grow (lib/interpret.js).
+  async takeaways(run, body) { const r = saveTakeaways({ run, ...(body || {}) }); return [r.code, r.body]; },
+  async brief(run, body) { const r = saveTakeaways({ run, ...(body || {}) }); return [r.code, r.body]; },
 
   // Her intro, one natural sentence -> her name tag (editable), and the team's private profile starts.
   async intro(run, body) {

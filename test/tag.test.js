@@ -30,7 +30,7 @@ test('her name tag: one call, her words; a failed call keeps her words, split ro
   assert.equal(r.code, 200);
   assert.deepEqual({ craft: r.body.craft, goodAt: r.body.goodAt, loves: r.body.loves }, BAKER);
   assert.match(seen.user, /mixing dough/);
-  assert.match(seen.system, /in her own way/);
+  assert.match(seen.system, /character card/);
   const rough = await nameTag("I'm good at mixing dough, and I love the first batch out at 6am", { callModel: async () => { throw new Error('down'); } });
   assert.equal(rough.body.rough, true);
   assert.equal(rough.body.goodAt, 'mixing dough');
@@ -54,7 +54,7 @@ function call(routes, method, pathname, body) {
 test('a DIY run logs her seat, her tag and the template her idea fits (none for a tattoo studio)', async () => {
   const baker = await call(runRoutes, 'POST', '/api/run', { idea: 'A pre-order page for my bakery', seat: 'diy', tag: BAKER });
   const s1 = readEvents(baker.body.run).find(e => e.type === 'run.start');
-  assert.deepEqual([s1.seat, s1.tag, s1.template], ['diy', BAKER, 'cafe']);
+  assert.deepEqual([s1.seat, s1.tag.craft, s1.tag.goodAt, s1.tag.loves, s1.template], ['diy', BAKER.craft, BAKER.goodAt, BAKER.loves, 'cafe']);
   const ink = await call(runRoutes, 'POST', '/api/run', { idea: 'Flash day sign-ups for my tattoo shop', seat: 'diy', tag: TATTOO });
   const s2 = readEvents(ink.body.run).find(e => e.type === 'run.start');
   assert.equal(s2.template, null);

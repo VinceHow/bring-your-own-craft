@@ -155,3 +155,12 @@ test('the close: sketchForIdea returns the shape without logging a run', async (
   const slow = await sketchForIdea(YOGA, { callModel: () => new Promise(() => {}), limitMs: 100 });
   assert.equal(slow.body.prepared, true);
 });
+
+test('prepared sketches: yoga, and the bakery once its file exists; nothing for other ideas', async () => {
+  const { preparedFor } = await import('../lib/sketch.js');
+  const fsm = await import('node:fs'), pathm = await import('node:path');
+  assert.ok(preparedFor('A booking page for a small yoga studio.'));
+  const bakery = pathm.join(pathm.dirname(new URL(import.meta.url).pathname), '..', 'data', 'prepared-sketch-bakery.json');
+  assert.equal(!!preparedFor('A pre-order page for my bakery'), fsm.existsSync(bakery));
+  assert.equal(preparedFor('Flash day sign-ups for my tattoo shop'), null);
+});
