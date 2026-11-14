@@ -12,7 +12,8 @@ what a tech lead already ran against the real tools; re-measure here, don't re-r
 ## 1. The idea
 Prompt-to-app tools guess everything; coding agents ask about everything. Here you take one of six seats (**Product,
 Design, Data, Research, Strategy, Engineering**), do your craft, and the team brings you only the decisions worth your time,
-inside your work. One polished journey: **Priya, a product lead, in the Product seat**, building a booking page for a
+inside your work. One polished journey: **Priya, a product manager, in the Product seat** (relatable to a panel of researchers, PMs, directors and
+investors), building, as a side project, a booking page for a friend's
 small yoga studio. **Pitch line:** *"Bring your own craft."*
 
 **Craft vs stamping (the meter, IN YOUR CRAFT %, uses this).** *Craft:* working in your own medium, including a choice
