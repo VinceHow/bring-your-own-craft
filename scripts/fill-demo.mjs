@@ -39,19 +39,19 @@ const C = (id, seat, decision, options, recommendation, cost = 'low', attachTo =
 const candidates = [
   C('c1', 'research', 'Do full classes get a waitlist?', ['Waitlist', 'Show as full'], 'Waitlist', 'high', 'n2'),
   C('c2', 'product', 'How is a regular recognised?', ['Remembered on this device', 'Log in'], 'Remembered on this device', 'high', 'n5'),
-  C('c3', 'product', 'What does confirm ask for?', ['Name and email', 'Name, email and phone'], 'Name and email', 'low', 'n3'),
-  C('c4', 'product', 'How does cancelling work?', ['One tap, no reason', 'One tap, with a reason'], 'One tap, with a reason'),
+  C('c3', 'product', 'How late can a booking be cancelled?', ['Up to 2 hours before', 'Up to 12 hours before'], 'Up to 2 hours before', 'low', 'n4'),
+  C('c4', 'product', 'Does cancel ask for a reason?', ['No, one tap', 'Yes, ask for a reason'], 'Yes, ask for a reason'),
   C('c5', 'engineering', 'Ask for a phone number?', ['No', 'Optional'], 'Optional'),
   C('c6', 'product', 'Does booking need an account?', ['No account', 'Account'], 'No account'),
   C('c7', 'design', 'Where do regulars land?', ['Their usual first', 'The timetable first'], 'Their usual first'),
   C('c8', 'design', 'Offer "remember me on this device"?', ['Yes', 'No'], 'Yes'),
 ];
 const asks = candidates.slice(0, 3).map((c, i) => ({ ...c, kind: i === 1 ? 'pin' : 'fork', why: 'sample' }));
-const answers = [{ askId: 'c1', choice: 'Waitlist' }, { askId: 'c2', choice: 'Remembered on this device' }, { askId: 'c3', choice: 'Name and email' }];
+const answers = [{ askId: 'c1', choice: 'Waitlist' }, { askId: 'c2', choice: 'Remembered on this device' }, { askId: 'c3', choice: 'Up to 2 hours before' }];
 
 // SAMPLE re-decision (what decideRest should return after her new line L3).
 const sampleDecideRest = () => [
-  { id: 'c4', seat: 'product', decision: 'How does cancelling work?', choice: 'Cancel is one tap, no reason asked', cites: 'L3' },
+  { id: 'c4', seat: 'product', decision: 'Does cancel ask for a reason?', choice: 'No, one tap', cites: 'L3' },
   { id: 'c5', seat: 'engineering', decision: 'Ask for a phone number?', choice: 'No phone field', cites: 'L3' },
   { id: 'c6', seat: 'product', decision: 'Does booking need an account?', choice: 'No account needed to book', cites: 'L2' },
   { id: 'c7', seat: 'design', decision: 'Where do regulars land?', choice: 'Regulars see their usual class first', cites: 'L1' },

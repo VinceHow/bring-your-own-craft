@@ -28,12 +28,16 @@ async function getDecideRest() {
 }
 export function _setDecideRest(fn) { decideRestImpl = fn ? { fn, real: true } : null; } // tests
 
-// Re-decide: the real decideRest gets the whole picture; it may return Decided[] or { decided }.
-async function redecide(run, events, tasteMd) {
+// Re-decide the candidates she wasn't asked, against her updated file. piece 3's signature:
+//   decideRest(candidates, tasteLines, { run, idea, flow, round }) -> Decided[] (and it logs `decided` itself).
+async function redecide(run, events, tasteMd, { idea, flow }) {
   const { fn, real } = await getDecideRest();
-  const candidates = events.filter(e => e.type === 'candidate');
-  const asks = events.filter(e => e.type === 'ask');
-  const out = await fn({ run, candidates, asks, taste: tasteMd, events });
+  const asked = new Set(events.filter(e => e.type === 'ask').map(e => e.id));
+  const rest = events.filter(e => e.type === 'candidate' && !asked.has(e.id))
+    .map(({ t, run: _r, type, pane, mode, ...c }) => c);
+  const out = real
+    ? await fn(rest, tasteMd, { run, idea, flow, round: 'build' })
+    : fn({ candidates: rest, asks: [] });
   const decided = Array.isArray(out) ? out : (out?.decided || []);
   return { decided, real };
 }
@@ -47,10 +51,11 @@ export async function buildRun(run, { call } = {}) {
   step('Reading her flow, her three answers and her file');
   const events = readEvents(run);
   const tasteFile = path.join(dir, 'taste.md');
-  const tasteMd = fs.existsSync(tasteFile) ? fs.readFileSync(tasteFile, 'utf8') : '';
+  const seed = new URL('../data/taste.seed.md', import.meta.url).pathname;
+  const tasteMd = fs.existsSync(tasteFile) ? fs.readFileSync(tasteFile, 'utf8') : fs.existsSync(seed) ? fs.readFileSync(seed, 'utf8') : '';
   const g = gatherRun(events, tasteMd);
   step('Re-deciding the rest against her file');
-  const { decided, real } = await redecide(run, events, tasteMd);
+  const { decided, real } = await redecide(run, events, tasteMd, g);
   if (!real) step('Using team defaults (the re-decision is not wired yet)');
   const r = await fillPage({ run, outDir: path.join(dir, 'page'), ...g, decided, call, onStep: step });
   const url = `/runs/${run}/page/`;
