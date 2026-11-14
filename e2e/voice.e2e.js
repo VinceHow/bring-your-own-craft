@@ -140,3 +140,25 @@ test('a failed transcription goes quiet: "typed", and the field keeps what she h
   assert.strictEqual(await page.inputValue('#intro-input'), 'maps');
   await page.close();
 });
+
+test('any field with data-voice gets the mic: her reaction lands there, and nowhere else', async () => {
+  const { page, sent } = await openPage({ voice: true });
+  await page.evaluate(() => BYOC.stage(3, { instant: true }));
+  await waitFor(page, () => document.body.classList.contains('voice-on'), 3000, 'voice on');
+  // A stand-in for the reaction field another piece adds; it only opts in with data-voice.
+  await page.evaluate(() => {
+    const t = document.createElement('textarea'); t.id = 'test-reaction'; t.dataset.voice = 'reaction';
+    t.style.cssText = 'position:absolute;left:40px;top:40px;width:400px;height:60px;z-index:50';
+    document.getElementById('room').appendChild(t);
+  });
+  await waitFor(page, () => document.getElementById('test-reaction').nextElementSibling?.classList.contains('voice-mic'), 3000, 'a mic beside it');
+  await page.focus('#test-reaction');
+  await page.keyboard.down('Backquote'); await page.waitForTimeout(1000); await page.keyboard.up('Backquote');
+  await waitFor(page, () => document.getElementById('test-reaction').value.length > 0, 8000, 'words in the reaction field');
+  assert.strictEqual(sent.at(-1).field, 'reaction');
+  assert.strictEqual(await page.inputValue('#her-input'), '', 'her sheet untouched');
+  await page.keyboard.type(' yes');
+  assert.match(await page.inputValue('#test-reaction'), / yes$/);
+  assert.deepStrictEqual(errors, []);
+  await page.close();
+});
