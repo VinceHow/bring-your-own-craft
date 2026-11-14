@@ -39,15 +39,23 @@ h1.xl { font-size: 168px; }
 .s0 .qr svg { display: block; width: 100%; height: 100%; position: relative; }
 
 /* 1, 2, 5 · one line */
-.one { left: 160px; top: 50%; translate: 0 -50%; width: fit-content; max-width: 1500px; }
-.one.mid { left: 0; right: 0; margin-inline: auto; max-width: 1760px; white-space: nowrap; }
-.s1 .one { width: 1320px; }
+/* centred both ways, headline ~20% bigger than the other slides */
+.one { left: 0; right: 0; margin-inline: auto; top: 50%; translate: 0 -50%; width: fit-content; max-width: 1840px; text-align: center; }
+.one h1 { font-size: 134px; }
+.one .cap { margin-inline: auto; }
+.one h1.xl { font-size: 184px; }
+.one.mid { white-space: nowrap; }
+.s1 .one { width: 1420px; }
 
 /* 3 · the numbers */
 .s3 .head { left: 120px; top: 80px; width: fit-content; padding: 48px 64px; }
 .s3 .head h1 { font-size: 96px; white-space: nowrap; }
 .s3 .row { left: 120px; right: 120px; bottom: 80px; display: flex; gap: 40px; align-items: stretch; }
-.s3 .ours { width: 480px; padding: 40px 48px; border-radius: 40px; }
+.s3 .ours { width: 520px; padding: 40px 48px; border-radius: 40px; }
+.s3 .ours > .gl { --sheet: var(--ip-paper-her); }
+.s3 .them { --c: rgba(120, 98, 76, .35); }
+.s3 .them .fig b { color: var(--ip-ink-2); }
+.s3 .ours .fig b { color: color-mix(in srgb, var(--ip-her-t) 75%, #1A100A); }
 .s3 .them { flex: 1; padding: 40px 52px; border-radius: 40px; }
 .fig { display: flex; gap: 64px; margin-top: 8px; }
 .fig div { display: flex; flex-direction: column; }
@@ -91,7 +99,7 @@ h1.xl { font-size: 168px; }
       <div class="ours card" data-who="her"><p class="label">Our team, bakery run</p>
         <div class="fig"><div><b id="n-her"></b><span>reached her</span></div></div>
         <p class="src" id="src-her"></p></div>
-      <div class="them card" data-who="theo"><p class="label">A default coding agent, same bakery prompt</p>
+      <div class="them card"><p class="label">A default coding agent, same bakery prompt</p>
         <div class="fig"><div><b id="n-asked"></b><span>asked</span></div><div><b id="n-guessed"></b><span>guessed</span></div><div><b id="n-appr"></b><span>approvals</span></div></div>
         <p class="src" id="src-base"></p></div>
     </div>
