@@ -31,3 +31,16 @@ Shots are in `design/studio/shots/cast-living/`. Tools are in this folder: `qc.p
 - Long runs.
 - Clicks checked once in Chromium (`step4-clicks.jpg`): the cat stretches with no seam, the coffee machine steams, the record player's arm moves and the string lights glow.
 - Music: playback starts on the click in code, but sound can't be heard in a headless browser, so it is unconfirmed by ear.
+
+## Night (added 14 Nov evening)
+- Painting: `painting-night.jpg`, a nano-banana-pro edit of the evening painting (2 tries at $0.15 each; try 2 kept). Rain on the window, a lamp on the table, fairy lights, the TV's glow.
+- Loop and rain: `scene-night.*` (Wan, generated in the design studio's session at $0.25; the loop point is softened with a 10-frame blend, seam 0.04/255). `music/rain.mp3` (sonilo v1.1, about $0.05 at listed rates, studio session; trimmed to a seamless 28 s loop and raised to −13 dB peak).
+- Grade: a colour matrix plus a soft multiply light map per patch (`lightmap-*-night.png`), fitted with the lamp left out. Hand tune on top: Noor gets a little more saturation and contrast, Ines a little less.
+- The lamp stays on top of every patch at night (`mask-*-night.png` cut it out).
+- Code: rain on the window panes, a brighter fairy-light glow, electronic as the night track, and rain under the music only at night while a record plays.
+
+## Painted look for the room (`?look=painted`)
+- `public/looks/painted-living.js` + `painted-living.css` mount `cast-living.html?embed=1` as the first child of `#room` (z-index 0, 1600 x 900) and map room events to moods: start → working; thinking; chatter and chime → talking; ask → note; decided → signature (the others perk up); joint.agreed → a code nod; build.done → celebrating; focus.open/close → focus.
+- Time of day comes from progress (morning, then building, then evening) and is mirrored on `#room[data-scene]`. Night follows `?night=1` or a dark laptop.
+- Shared events: document `studio:time` {time} and `studio:poke` {obj: record|cat|coffee}.
+- Needs one loader line in `index.html` (not my file): `<script src="looks/painted-living.js"></script>`. It does nothing unless `look=painted`.
