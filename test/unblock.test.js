@@ -22,6 +22,7 @@ test('Bo raises an unblock: it is an ask (counted), with the team suggestion, an
   assert.equal(askCount(run), 1, 'counts toward her three');
   const evs = readEvents(run);
   assert.ok(evs.some(e => e.type === 'ask.unblock' && e.id === a.id), 'the seat\'s raise is logged');
+  assert.ok(evs.some(e => e.type === 'owner.action' && e.id === a.id && e.suggestion === '8pm the night before'), 'the studio\'s owner.action event');
 });
 
 test('"Yes" takes the suggestion; it lands as a decided item owned by the seat, and the seat carries on', () => {
@@ -67,6 +68,14 @@ test('only her facts and calls; only lib/unblock.js holds the door; a look-alike
   assert.equal(askUnblock(run, u, Object.freeze({ run, id: 'u-x' })), null, 'forged grant');
   assert.equal(askCount(run), 0);
   assert.ok(readEvents(run).some(e => e.type === 'ask.refused' && /not from the unblock door/.test(e.reason)));
+});
+
+test('a topic makes the team-space headline from her choice ("Orders close 8pm the night before")', () => {
+  const run = newRunId(uid());
+  const a = raiseUnblock(run, { ...BO, topic: 'Orders close', doing: 'Setting up ordering' });
+  assert.equal(a.doing, 'Setting up ordering');
+  const [, body] = answerUnblock(run, { askId: a.id, yes: true });
+  assert.equal(body.decided.headline, 'Orders close 8pm the night before');
 });
 
 // The mixed case (the lead's condition): two asks through the selector's own door plus one unblock spend her three;
