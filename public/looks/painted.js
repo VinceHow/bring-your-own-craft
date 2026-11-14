@@ -24,17 +24,11 @@
   B.on('focus', f => { if (f && typeof f.open === 'boolean') focus(f.open); });
   B.on('reset', () => focus(false));
 
-  // ---- 1. the living painting, moved inside the room so it scales with it and lines up with the name pills ----
-  css('painted-living.css');
-  js('painted-living.js').then(ok => {
-    const frame = ok && document.querySelector('iframe.painted-living');
-    if (!frame) return;
-    frame.classList.add('in-room');
-    room.prepend(frame);                                   // an iframe reloads when moved; it has barely started
+  // ---- 1. the living painting: it puts itself first in #room at z 0 and sets #room[data-scene] ----
+  js('painted-living.js').then(() => {
     document.addEventListener('studio:time', e => {
-      const t = e.detail && e.detail.time; if (!t || (e.detail && e.detail.from === 'painted')) return;
+      const t = e.detail && e.detail.time; if (!t) return;
       room.dataset.time = t === 'night' ? 'night' : 'day';
-      try { const l = frame.contentWindow && frame.contentWindow.living; if (l && l.setTime) l.setTime(t === 'night' ? 'night' : 'afternoon'); } catch (err) { /* not ready */ }
     });
   });
 
@@ -44,7 +38,7 @@
     if (!ok || !window.PlayfulInk) return;
     const box = document.createElement('div');
     box.className = 'painted-playful';                     // the painting's box: 1612 x 900, centred, as the backdrop draws it
-    room.insertBefore(box, room.firstChild.nextSibling);
+    const bg = room.querySelector(':scope > iframe.painted-living'); room.insertBefore(box, bg ? bg.nextSibling : room.firstChild);
     const night = new URLSearchParams(location.search).get('night') === '1';
     room.dataset.time = night ? 'night' : 'day';
     try { window.PlayfulInk.mount(box, { night: base + 'cast/living/painting-night.jpg', music: base + 'cast/music', time: night ? 'night' : 'day' }); }
