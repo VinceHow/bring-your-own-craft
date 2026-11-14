@@ -58,6 +58,8 @@
     S.lens = h('div', 'fl-lens');
     el.appendChild(S.lens);
     S.nodes = new Map(); S.edges = []; S.drawn = new Set(); S.items = []; S.lines = []; S.focus = null;
+    S.breath = false; clearTimeout(S.breathTimer); S.checkinKey = '';
+    document.dispatchEvent(new CustomEvent('byoc:checkin', { detail: { open: null, breath: false, waiting: [] } }));
     if (!S.subscribed && typeof B.on === 'function') {
       S.subscribed = true;
       B.on('flow.line', ev => ev.nodes && render(ev));
@@ -153,15 +155,10 @@
       for (const it of [...mine.filter(waiting), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind !== 'fork'), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind === 'fork')]) {
         const b = S.nodes.get(it.nodeId);
         const w = it.el.offsetWidth, ih = it.el.offsetHeight;
-        // An ask still waiting is a small badge on its box's top edge: no room taken; a click opens it.
+        // An ask still waiting isn't on her flow at all (focus time: nothing queued shows); it waits in the tray at
+        // her seat, which the room shows only between check-ins.
         it.badge = it.ask && !it.answered && !isOpen(it);
-        if (it.badge) {
-          const n = placed.filter(p => p.badge && p.nodeId === it.nodeId).length;
-          it.left = b.x + b.w - w + 10 - n * (w + 8); it.top = b.y - ih + 8; it.w = w; it.h = ih; it.side = false;
-          Object.assign(it.el.style, { left: it.left + 'px', top: it.top + 'px' });
-          placed.push(it);
-          continue;
-        }
+        if (it.badge) { it.left = null; continue; }
         let left = it.kind === 'fork' ? b.x + b.w / 2 - 40 : b.x + 24;
         let top = it.kind === 'fork' ? b.y + b.h + 30 : b.y + b.h - 16;
         // A closed note goes beside its box when nothing sits to its right in that row: the flow stays short.
@@ -371,9 +368,12 @@
 
   // Only one ask is open at a time, full size: the one she picked, else the first she hasn't answered.
   // The rest stay on their boxes as short notes; an answered one keeps her call and the struck recommendation.
+  // Focus time: one check-in at a time. After she answers, a short breath (~1 s) with nothing open; then the one she
+  // picked from the tray, else the next. The room hears 'byoc:checkin' { open, waiting } to dim, freeze and show the tray.
+  const BREATH_MS = 1000;
   function refocus(doLayout = true) {
     const open = S.items.filter(i => i.ask && !i.answered);
-    const cur = open.find(i => i.ask.id === S.focus) || open[0] || null;
+    const cur = S.breath ? null : (open.find(i => i.ask.id === S.focus) || open[0] || null);
     const moves = [];
     for (const i of S.items) if (i.ask) {
       i.el.classList.toggle('is-open', i === cur);
@@ -389,6 +389,19 @@
       const sc = r0.width / r1.width;
       settle(el, `translate(${(r0.left - r1.left) / (el.parentNode === S.lens ? 1 : (S.k || 1))}px, ${(r0.top - r1.top) / (el.parentNode === S.lens ? 1 : (S.k || 1))}px) scale(${sc.toFixed(3)})`, 'none');
     }
+    const key = (cur ? cur.ask.id : '') + '|' + open.filter(i => i !== cur).map(i => i.ask.id).join(',');
+    if (key !== S.checkinKey) {
+      S.checkinKey = key;
+      document.dispatchEvent(new CustomEvent('byoc:checkin', { detail: {
+        open: cur ? cur.ask.id : null, breath: !!S.breath,
+        waiting: open.filter(i => i !== cur).map(i => ({ id: i.ask.id, seat: i.ask.seat, decision: i.ask.decision })) } }));
+    }
+  }
+  // She picks a waiting note from the tray: it opens now (ends the breath).
+  function openCheckin(askId) {
+    const it = S.items.find(i => i.ask && i.ask.id === askId && !i.answered);
+    if (!it) return false;
+    S.focus = askId; S.breath = false; clearTimeout(S.breathTimer); refocus(); return true;
   }
 
   async function answer(askId, choice) {
@@ -422,6 +435,9 @@
       if (mine && !tag) o.insertBefore(h('span', 'fl-yours', 'YOUR CALL'), o.firstChild);
     });
     if (S.focus === askId) S.focus = null;
+    // A short breath before the next check-in.
+    S.breath = true; clearTimeout(S.breathTimer);
+    S.breathTimer = setTimeout(() => { S.breath = false; refocus(); }, BREATH_MS);
     refocus();
   }
 
@@ -484,5 +500,5 @@
     if (text) { try { await pin(nodeId, text); } catch (e) { console.error('pin not saved', e); } }
   }
 
-  B.flow = { mount, addLine, render, showAsk, answer, markAnswer, pin, addPinNote, noteEditor, _state: S };
+  B.flow = { mount, addLine, render, showAsk, answer, markAnswer, pin, addPinNote, noteEditor, openCheckin, _state: S };
 })();

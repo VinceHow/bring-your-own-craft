@@ -354,3 +354,22 @@ body.stage .fl-item .fl-q .fl-tag { font-size: 13px; }
 .page-url { margin-left: auto; font: 500 13px var(--mono); }
 .page-frame { flex: 1; position: relative; overflow: hidden; }
 .page-frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 702px; border: 0; transform: scale(0.7833); transform-origin: 0 0; background: #fff; }
+
+/* Focus time: while a check-in is open the room goes quiet around her. Other seats and sheets dim and stop moving;
+   the counter and meter hold (room.js); no step line or seconds. Fades stay under 150ms. */
+.seat, .mini-sheet, .tally, .file-card { transition: opacity 140ms linear, filter 140ms linear; }
+body.focus .seat:not(.seat-product), body.focus .mini-sheet, body.focus .tally { opacity: .32 !important; filter: saturate(.25); }
+body.focus .seat:not(.seat-product) *, body.focus .mini-sheet *, body.focus .tally * { animation-play-state: paused !important; transition: none !important; }
+
+/* The tray: notes still waiting for her, at her seat, shown only between check-ins. No number, no red, no pulse. */
+.tray { position: absolute; left: 1052px; top: 806px; width: 216px; z-index: 9; display: flex; flex-direction: column; gap: 6px; }
+.tray-note { display: flex; align-items: baseline; gap: 8px; padding: 6px 10px; text-align: left; cursor: pointer; background: var(--sheet);
+  color: var(--ink); border: 2px solid var(--ink); border-left: 8px solid var(--seat-ink, var(--ink)); border-radius: 3px;
+  box-shadow: var(--shadow-sm); font: 500 14px/1.2 var(--ui); transform: rotate(-0.6deg); }
+.tray-note:nth-child(2) { transform: rotate(0.8deg); }
+.tray-note:hover { box-shadow: 4px 4px 0 var(--ink); }
+.tray-seat { font: 600 12px var(--mono); text-transform: uppercase; }
+.tray-note[data-seat="design"] { --seat-ink: var(--design); } .tray-note[data-seat="data"] { --seat-ink: var(--data); }
+.tray-note[data-seat="research"] { --seat-ink: var(--research); } .tray-note[data-seat="strategy"] { --seat-ink: var(--strategy); }
+.tray-note[data-seat="engineering"] { --seat-ink: var(--engineering); } .tray-note[data-seat="product"] { --seat-ink: var(--product); }
+body.stage .tray-note { font-size: 16px; }
