@@ -90,4 +90,30 @@
   if (chat) new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
     const t = n.querySelector && n.querySelector('.chatter-text'); if (t && !t.dataset.short) { t.dataset.short = '1'; t.textContent = few(t.textContent, 15); }
   }))).observe(chat, { childList: true });
+
+  // ---- a new note for her arrives (port of the her-inbox comp, ?st=arrive): the teammate holds up its note in the
+  // painting (painted-living plays 'found' on ask), it drifts across the tabletop on a soft paper arc, below every
+  // face, and tucks into her inbox, which rises a touch to take it. Nothing flies while she's in focus.
+  const HAND = { design: [472, 474], research: [695, 443], data: [850, 452], strategy: [1012, 440], engineering: [1125, 475] };
+  const M = window.Motion;
+  B.on('ask', ev => {
+    const inbox = document.getElementById('inbox');
+    if (!M || !inbox || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const [hx, hy] = HAND[ev.seat];
+    inbox.classList.add('pt-awaiting');
+    setTimeout(() => {
+      const r = room.getBoundingClientRect(), k = r.width / 1600, ib = inbox.getBoundingClientRect();
+      const x1 = (ib.left - r.left) / k + 40, y1 = (ib.top - r.top) / k + 6;
+      const n = document.createElement('div'); n.className = 'pt-flying-note'; n.dataset.seat = ev.seat;
+      n.innerHTML = `<b>${WHO[ev.seat] || ''}</b><span>${few(ev.question || ev.decision || '', 8)}</span>`;
+      room.appendChild(n);
+      const x0 = hx - 100, y0 = hy - 30, mx = (x0 + x1) / 2 + 30, my = 600;
+      M.animate(n, { opacity: [0, 1] }, { duration: .3 });
+      M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
+        n.remove(); inbox.classList.remove('pt-awaiting');
+        M.animate(inbox, { y: [0, -8, 0] }, { duration: 1.1, ease: [.33, 0, .2, 1] });
+      });
+    }, 1400);                                                  // the note is up in their hand first
+    setTimeout(() => inbox.classList.remove('pt-awaiting'), 6000);   // never leave it hidden
+  });
 })();

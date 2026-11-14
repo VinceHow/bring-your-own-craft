@@ -886,3 +886,48 @@ html #room .painted-status::after { content: ''; position: absolute; inset: 0; z
 @keyframes pt-status { from { opacity: 0; translate: 0 6px; } }
 /* chatter bubbles sit ABOVE their speaker's pill (the room places them under it), clear of every face */
 html #room .chatter-line { translate: 0 calc(-100% - 58px); border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; max-width: 300px; }
+/* the note in flight (painted.js), a small ink-paper card in the teammate's crayon */
+html #room .pt-flying-note { position: absolute; left: 0; top: 0; z-index: 20; width: 220px; padding: 10px 14px 11px; border-radius: var(--r-md); pointer-events: none;
+  isolation: isolate; color: var(--ink); font: 400 16px/1.3 var(--display); transform-origin: 0 0; }
+html #room .pt-flying-note b { display: block; font: 500 13px/1.2 var(--ui); color: var(--ct, var(--ink-2)); margin-bottom: 3px; }
+html #room .pt-flying-note::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--cc, var(--kraft));
+  -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; translate: 5px 6px; rotate: 1.4deg; }
+html #room .pt-flying-note::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--sheet) var(--tooth); background-clip: padding-box;
+  border: 2px solid transparent; border-image: var(--ink-card) 34 / 34px / 2px stretch; box-shadow: var(--paper-shadow-hi); }
+/* the inbox holds its new line back until the note has landed */
+html #room .inbox.pt-awaiting .inbox-now > * { opacity: 0; }
+html #room .inbox .inbox-now > * { transition: opacity 400ms var(--ease-land); }
+
+/* ---- setup at 0:00 (room.js #setup): her paper name tag over the studio door, softly blurred (the first-open v3 comp).
+   Only the look: the steps, fields and voice are the room's own. ---- */
+html #room .setup { background: #E8D8BC; overflow: hidden; }
+html #room .setup::before { content: ''; position: absolute; inset: -24px; background: url(cast/intro/door.jpg) center / cover no-repeat; filter: blur(8px) saturate(1.05); opacity: .95; }
+html #room .setup::after { content: ''; position: absolute; inset: 0; background: rgba(246,236,219,.28); pointer-events: none; }
+html #room .setup-stage { position: relative; z-index: 1; width: 720px; }
+html #room .setup .big-card.nt-paper { padding: 30px 36px 28px; gap: 18px; border-radius: 30px 26px 32px 24px / 26px 32px 24px 30px; --cx: 9px; --cy: 9px; --crot: .8deg;
+  animation: pt-land 760ms var(--ease-land) backwards; }
+html #room .setup .nt-head { font: 500 15px/1 var(--ui); color: var(--product-t); }
+html #room .setup .nt-label, html #room .setup .pick-q { font: 400 22px/1.25 var(--display); color: var(--ink); }
+html #room .setup .nt-name { font: 400 34px/1.1 var(--display); color: var(--ink); background: transparent; border: 0; border-bottom: 1.5px solid rgba(80,55,35,.35);
+  border-radius: 0; padding: 2px 2px 6px; outline: 0; }
+html #room .setup .nt-name:focus, html #room .setup .nt-love:focus { border-bottom-color: var(--product); }
+html #room .setup .nt-love { font: italic 400 24px/1.4 var(--display); color: var(--ink); background: transparent; border: 0; border-bottom: 1.5px solid rgba(80,55,35,.35);
+  border-radius: 0; outline: 0; padding: 4px 2px 8px; resize: none; }
+html #room .setup .nt-love::placeholder { color: var(--ink-3); }
+html #room .setup .pick-options { display: flex; gap: 10px; }
+html #room .setup .pick-option { flex: none; height: 44px; padding: 0 22px; border: 0; border-radius: 999px; font: 500 17px/1 var(--ui); color: var(--ink); cursor: pointer;
+  background: #FFFDF8; box-shadow: inset 0 0 0 1.5px rgba(80,55,35,.28); transition: transform 240ms var(--ease-land); }
+html #room .setup .pick-option[aria-pressed="true"] { background: #FBE3E9; color: var(--product-t); box-shadow: inset 0 0 0 2px var(--product); }
+html #room .setup .pick-option:hover { transform: translateY(-2px); }
+html #room .setup .pick-option:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+html #room .setup .nt-hint { font: 400 15px/1.35 var(--ui); color: var(--ink-2); }
+html #room .setup .voice-mic { border: 0 !important; border-radius: 999px; background: #FDF0F2; color: var(--product-t); box-shadow: inset 0 0 0 1px rgba(210,122,141,.45) !important;
+  font: 500 14px/1 var(--ui); padding: 7px 14px; }
+/* the team's read of her, once it's written */
+html #room .setup .char-body, html #room .setup .nt-paper .char-body { border-top: 1px dashed rgba(80,55,35,.3); padding-top: 14px; }
+html #room .setup .char-title { font: 500 30px/1.15 var(--display) !important; color: var(--ink); }
+html #room .setup :is(.char-swap, .char-trait) { font: 500 16px/1.2 var(--ui); color: var(--ink); background: #FFFDF8; border: 0; border-radius: 999px; padding: 6px 12px;
+  box-shadow: inset 0 0 0 1px rgba(80,55,35,.2); text-decoration: none; }
+html #room .setup :is(.char-power, .char-power-text) { font: italic 400 19px/1.35 var(--display); color: var(--ink); }
+html #room .setup .char-label { font: 500 13px/1 var(--ui) !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--product-t); background: none !important; padding: 0 !important; }
+html #room .setup .char-hint { font: 400 14px/1.3 var(--ui); color: var(--ink-2); }
