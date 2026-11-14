@@ -17,7 +17,7 @@ Until then the polish follows `BRIEF.md` §3 (risograph room) only.
 | Spacing | One 4px scale (`--s1`…`--s6`) for paddings and gaps in cards, sheets, file, counter and meter | Consistent rhythm |
 | Back-of-room legibility | Counter numbers 54→64px, meter 124→132px, counter labels 600 weight, meter bar 22px, small sheet lines 12.5→13px (14px in stage mode), card notes 13px (14px in stage) | Read from the back of a room |
 | Small sheets | Titles stay on one line; the "to her" tag is pinned right and never clipped (it read "t…" before) | Clipped labels |
-| Stopgap | `.fl-box { transform: none !important }` | **Break on main**: flow boxes spring to `'none'`, which the motion library reads as `scale(0)`, so her boxes were invisible. Remove once `public/flow.js:98` lands on `translateY(0px) scale(1) rotate(0deg)` |
+| (removed) | The `.fl-box` stopgap is gone: main's flow.js fix (b2f4f46) brings the boxes and their landing motion back |
 
 Banned list checked: no gradients, glass, purple, emoji, sparkles, chat bubbles, spinners or pop-ups added.
 

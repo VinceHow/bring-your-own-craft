@@ -72,10 +72,6 @@ body::after {
 .meter-craft { border-right: 2px solid var(--ink); }
 .meter-counts { margin-top: var(--s2); font-size: 14px; }
 
-/* ---- stopgap: her flow's boxes must land visible (flow.js springs them to 'none', read as scale 0).
-   Remove once flow.js lands its boxes on 'translateY(0) scale(1) rotate(0)'. ---- */
-.fl-box { transform: none !important; }
-
 /* ---- stage mode: body at 20px+ already; lift the smallest printed text too ---- */
 body.stage .card-note { font-size: 14px; }
 body.stage .mini-lines li { font-size: 14px; }
