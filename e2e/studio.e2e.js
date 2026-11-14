@@ -84,8 +84,8 @@ test('2b. the guest chair: a stand-in for the main user type joins as the sketch
   assert.strictEqual(g.userType, evs.find(e => e.type === 'sketch.user').label, 'persona from the main user type');
   assert.ok(g.points.length >= 1 && g.points.every((p, i) => p.id === `G${i + 1}`));
   assert.ok(g.points.filter(p => p.confidence === 'low').every(p => /^check with a real /.test(p.check)));
-  await waitFor(() => !!document.querySelector('.fs-guest:not([hidden])'), 2000, 'the GUEST card');
-  assert.match(await page.locator('.fs-guest').innerText(), /GUEST[\s\S]*not a real one/);
+  await waitFor(() => !!document.querySelector('.guest-card:not([hidden])'), 2000, 'the GUEST card');
+  assert.match(await page.locator('.guest-card').innerText(), /GUEST[\s\S]*not a real one/);
   assert.ok(!evs.some(e => e.type === 'ask'), 'no ask from the guest');
 });
 

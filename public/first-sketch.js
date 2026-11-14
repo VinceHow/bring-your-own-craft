@@ -28,19 +28,19 @@
 .fs-mini .fs-box { font: 500 13px/1.15 var(--ui, sans-serif); padding: 8px 10px; background: var(--sheet, #FBF9F4); border: 2px solid var(--ink, #141414);
   border-radius: 4px; box-shadow: 3px 3px 0 var(--ink, #141414); max-width: 150px; }
 .fs-mini .fs-arrow { font: 600 16px var(--ui, sans-serif); }
-.fs-guest { position: absolute; left: 1206px; top: 392px; width: 300px; z-index: 3; padding: 12px 14px 12px; background: var(--sheet, #FBF9F4);
+.guest-card { position: absolute; left: 1206px; top: 392px; width: 300px; z-index: 3; padding: 12px 14px 12px; background: var(--sheet, #FBF9F4);
   border: 2px dashed var(--ink, #141414); border-radius: 6px; box-shadow: 4px 4px 0 rgba(20,20,20,.18); transform: rotate(1deg); }
-.fs-guest[hidden], body[data-beat="6"] .fs-guest, body[data-beat="7"] .fs-guest, body[data-beat="8"] .fs-guest, body[data-beat="9"] .fs-guest,
-  body[data-beat="10"] .fs-guest, body[data-beat="11"] .fs-guest { display: none; }
-.fs-guest-head { display: flex; align-items: baseline; gap: 8px; }
-.fs-guest-tag { font: 600 12px var(--mono, monospace); letter-spacing: .12em; border: 2px dashed var(--ink, #141414); padding: 2px 6px 1px; border-radius: 3px; }
-.fs-guest-who { font: 600 14px/1.2 var(--ui, sans-serif); }
-.fs-guest-note { margin-top: 4px; font: 400 11px var(--mono, monospace); color: rgba(20,20,20,.7); }
-.fs-guest-says { margin: 10px 0 8px; font: italic 500 15px/1.35 var(--ui, sans-serif); }
-.fs-guest-points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.fs-guest-points li { font: 400 12px/1.3 var(--ui, sans-serif); }
-.fs-guest-points b { font: 600 11px var(--mono, monospace); margin-right: 4px; }
-.fs-guest-points i { color: rgba(20,20,20,.7); }
+.guest-card[hidden], body[data-beat="6"] .guest-card, body[data-beat="7"] .guest-card, body[data-beat="8"] .guest-card, body[data-beat="9"] .guest-card,
+  body[data-beat="10"] .guest-card, body[data-beat="11"] .guest-card { display: none; }
+.guest-head { display: flex; align-items: baseline; gap: 8px; }
+.guest-tag { font: 600 12px var(--mono, monospace); letter-spacing: .12em; border: 2px dashed var(--ink, #141414); padding: 2px 6px 1px; border-radius: 3px; }
+.guest-who { font: 600 14px/1.2 var(--ui, sans-serif); }
+.guest-note { margin-top: 4px; font: 400 11px var(--mono, monospace); color: rgba(20,20,20,.7); }
+.guest-says { margin: 10px 0 8px; font: italic 500 15px/1.35 var(--ui, sans-serif); }
+.guest-points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.guest-points li { font: 400 12px/1.3 var(--ui, sans-serif); }
+.guest-points b { font: 600 11px var(--mono, monospace); margin-right: 4px; }
+.guest-points i { color: rgba(20,20,20,.7); }
 .fs-in { animation: fs-in 180ms cubic-bezier(.2,1.3,.4,1) both; }
 @keyframes fs-in { from { transform: translateY(-8px) rotate(-2deg) scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
 `;
@@ -120,19 +120,19 @@
   function onGuest(ev) {
     const room = B.el && B.el.room;
     if (!room) return;
-    if (!S.guest || !S.guest.isConnected) { S.guest = h('section', 'fs-guest'); S.guest.setAttribute('aria-label', 'Guest chair'); room.appendChild(S.guest); }
+    if (!S.guest || !S.guest.isConnected) { S.guest = h('section', 'guest-card'); S.guest.setAttribute('aria-label', 'Guest chair'); S.guest.dataset.seat = 'guest'; room.appendChild(S.guest); }
     const g = S.guest;
     g.innerHTML = '';
-    g.className = 'fs-guest fs-in';
-    const head = h('div', 'fs-guest-head');
-    head.append(h('span', 'fs-guest-tag', 'GUEST'), h('span', 'fs-guest-who', ev.persona || ev.userType || 'a customer'));
-    const pts = h('ul', 'fs-guest-points');
+    g.className = 'guest-card fs-in';
+    const head = h('div', 'guest-head');
+    head.append(h('span', 'guest-tag', 'GUEST'), h('span', 'guest-who', ev.persona || ev.userType || 'a customer'));
+    const pts = h('ul', 'guest-points');
     for (const p of ev.points || []) {
       const li = h('li'); li.append(h('b', null, p.id), document.createTextNode(p.text));
       if (p.check) { li.append(' '); li.append(h('i', null, `(${p.check})`)); }
       pts.appendChild(li);
     }
-    g.append(head, h('div', 'fs-guest-note', ev.label || 'a stand-in for your customer, not a real one'), h('p', 'fs-guest-says', `“${ev.reaction}”`), pts);
+    g.append(head, h('div', 'guest-note', ev.label || 'a stand-in for your customer, not a real one'), h('p', 'guest-says', `“${ev.reaction}”`), pts);
     g.hidden = false;
   }
   function clear() {
