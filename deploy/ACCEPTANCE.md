@@ -1,103 +1,92 @@
 # Bakery app: acceptance contract
 
-The gate an agent-built bakery ordering app must pass before it deploys. Bo builds to this; the suite in
-`deploy/acceptance/bakery.acceptance.js` checks it over HTTP only, against `BASE_URL`. The app is plain Node 22 with
-`node:sqlite` (Railway). The suite never imports the app's code.
+The gate the team-built bakery must pass before it ships. Source: Vincent's brief, `docs/BAKERY-BRIEF.md`, with its
+10 acceptance tests. Bo builds to this contract. The suite in `deploy/acceptance/bakery.acceptance.js` checks it over
+HTTP only, against `BASE_URL`. The app is plain Node 22 with `node:sqlite`, on Railway. The suite never imports the
+app's code.
 
-Every rule below comes from a decision the team made in the run, or a line in `DEMO.md`. Rules are named, not keyed
-to run ids, so a fresh recorded run keeps the same tests. The suite names the decision and its author in each test.
+## Identity and limits
+- **A device** is the `X-Device-Id` header: an opaque id the storefront keeps in `localStorage` and sends with every
+  request.
+- **A person** is a device, or a first name compared case-insensitively. The brief's rule is "one of each loaf per
+  person: per device, and per first name".
+- **Rate limit:** at most 10 reservation attempts per device per minute. The 11th within the minute gets `429`. Reset
+  demo clears the counters.
 
-## Test mode
-- The app runs with `TEST_MODE=1` for the suite. Without it, `/api/test/*` answers `404`, and the clock override
-  is ignored.
-- **The clock:** in test mode, every request may carry `X-Test-Now: <ISO 8601 with offset>`, for example
-  `2027-01-14T20:30:00+00:00`. The app uses it as "now" for that request. A `?now=` query parameter does the same
-  job, for a browser.
-- **The bakery's time zone** is `Europe/London`. "Today", "tomorrow" and "20:00" are wall-clock times there. The
-  suite only uses winter dates, so the UTC offset is `+00:00`.
+## Customer side
+### `GET /api/loaves`
+Returns `200 { loaves: [{ id, name, description, start, left, sold_out, label }] }`.
+- `left` is what can still be reserved, and is never below 0.
+- `start` is the starting stock. Sourdough's `start` is **4**, and every other loaf's is at least 4.
+- When `left` is 0, `sold_out` is `true` and `label` is `"Sold out for today"`. Otherwise `label` is `"<left> left"`,
+  for example `"4 left"`.
 
-## Shapes
-Money is in whole pence. Dates are `YYYY-MM-DD`. A loaf is `{ id, name, price_pence, limit, left }`, where `limit` is the
-per-pickup-day cap and `left` is what's still orderable for that day.
+### `POST /api/reservations` (with `X-Device-Id`)
+Body `{ loaf_id, first_name }`. Those are the only fields. `first_name` is 1–30 characters after trimming.
+- **201 `{ id, loaf_id, first_name, status: "reserved", message }`:** the reservation is made, and stock drops by 1
+  atomically.
+- **400 `{ error: "field_not_allowed", field }`:** the body has any other field (phone, email, last name, address, …).
+  It's refused, not dropped.
+- **400 `{ error: "bad_reservation", message }`:** an unknown loaf, a missing or blank first name, or one over 30
+  characters.
+- **409 `{ error: "already_reserved", message }`:** this device, or this first name, already holds this loaf. The
+  `message` is kind and non-empty.
+- **409 `{ error: "sold_out", message: "Sold out for today" }`:** `left` is 0. Two simultaneous requests for the last
+  loaf give exactly one `201`.
+- **429 `{ error: "rate_limited" }`:** over the rate limit.
 
-### `POST /api/test/reset` (test mode only)
-Body `{ loaves: [{ id, name, price_pence, limit }] }`. This wipes every order and seeds these loaves, and the same limit
-applies to every pickup day. Returns `200 { ok: true }`.
+### `GET /api/reservations/:id`
+Returns `200 { id, loaf_id, first_name, status, message }`, or `404`. `status` is `reserved` or `delivered`.
 
-### `GET /api/loaves?date=YYYY-MM-DD`
-Returns `200 { date, loaves: [loaf] }`, where `left` is the stock for that pickup date.
+### `GET /api/reservations/:id/events`: server-sent events
+`text/event-stream`. On connect, the stream sends one `data:` line with the current
+`{ "status": "...", "message": "..." }`. It then sends one more each time the status changes.
+- **On Deliver** it sends, within 1 s, `{ "status": "delivered", "message": "Delivered: your <loaf> is here" }`, with
+  the loaf name in lower case, for example `Delivered: your sourdough is here`.
 
-### `POST /api/orders`
-Body `{ pickup_date, items: [{ loaf_id, qty }], first_name? }`.
-
-- **201: the order is held.** Returns
-  `{ id, status: "held", pickup_date, pickup_window: { from: "07:00", to: "10:00" }, items: [{ loaf_id, qty, price_pence }], total_pence, first_name? }`.
-- **422 `{ error: "cutoff", message }`:** the order is after the cut-off. Orders for tomorrow close at 20:00 today.
-  Same-day orders, and pickup dates in the past, are refused the same way.
-- **409 `{ error: "sold_out", loaf_id, offer: { action: "hold_for_tomorrow", pickup_date } }`:** a loaf has fewer
-  left than asked for. `offer.pickup_date` is the first day after the requested one with room for the order, which
-  is usually the next day. When no day could take it (more than a day's limit), `offer` is left out.
-- **400 `{ error: "bad_order", message }`:** the order is malformed, for example no items, an unknown loaf, or a
-  `qty` below 1.
-- **Personal data:** the only personal field accepted is `first_name`, which is optional.
-  - Any other field (`phone`, `email`, `last_name`, `address`, …) is either refused with
-    `400 { error: "field_not_allowed", field }` or dropped.
-  - It must never appear in any response, now or later.
-
-### `GET /api/orders/:id`
-Returns `200` with the same shape as a created order, or `404`.
-
-### `GET /api/bake-list?date=YYYY-MM-DD`
-Returns `200 { date, loaves: [{ loaf_id, name, qty }] }`. Each loaf's `qty` is the sum of that day's held orders
-for it. It lists every seeded loaf, with `0` where nothing is ordered.
-
-### `GET /api/orders/:id/status`: the customer's status page
-Returns `200 { id, status, message }`. `status` is `held` until the baker delivers, then `delivered`.
-- **When held,** `message` names the pickup window.
-- **When delivered,** it reads `Delivered: your <loaves> is here`, with the loaf names in lower case and joined with
-  " and ". For example: `Delivered: your sourdough is here`. Use "are" for more than one loaf.
-- **Never** includes anything personal beyond `first_name`.
-
-### Admin routes: the baker's
-Every `/api/admin/*` route needs `Authorization: Bearer <ADMIN_TOKEN>`.
-- **Wrong or missing token:** `401`.
-- **`ADMIN_TOKEN` unset in the app's environment:** every admin route refuses (`401` or `503`) whatever is sent. It
-  fails closed, never open.
+## The baker's side: all locked
+Every admin route needs `Authorization: Bearer <ADMIN_TOKEN>`. That includes the admin page itself.
+- **A wrong or missing token:** `401`.
+- **`ADMIN_TOKEN` unset in the app's environment:** every admin route answers `401` whatever is sent. It fails
+  closed, never open.
 
 The routes:
-- `GET /api/admin/orders?date=YYYY-MM-DD` returns `200 { date, orders: [{ id, status, pickup_date, items, total_pence, first_name? }] }`.
-- `GET /api/admin/stock?date=YYYY-MM-DD` returns `200 { date, loaves: [{ id, name, limit, left }] }`.
-- `POST /api/admin/restock` with body `{ date, loaf_id, qty }` (where `qty` ≥ 1) raises that day's stock of that loaf
-  by `qty`. Returns `200 { date, loaf_id, left }`. An unknown loaf or a bad `qty` is `400`.
-- `POST /api/admin/deliver` with body `{ date }` flips every held order for that pickup date to `delivered`. Returns
-  `200 { date, delivered: <count> }`.
+- `GET /admin` is the admin page (HTML).
+- `GET /api/admin/orders` returns `200 { orders: [{ id, first_name, loaf_id, at, status }] }`, newest first.
+- `GET /api/admin/stock` returns `200 { loaves: [{ id, name, start, left, sold_out }] }`.
+- `POST /api/admin/deliver` delivers every reserved order. Returns `200 { delivered: <count> }`.
+- `POST /api/admin/restock` puts every loaf back to `start`. Returns `200 { loaves }`.
+- `POST /api/admin/reset` clears every order, puts every loaf back to `start`, and clears the rate-limit counters.
+  Returns `200 { ok: true }`.
 
-**What is stored:** only a first name is ever stored about a customer, and nothing else personal. Over HTTP the suite
-checks what the app can still show about an order: the admin order list and the customer's status page. It can't
-see inside the database, so a code review of the app's schema has to back this up.
+## Logs
+Nothing the app logs may contain a first name, the `ADMIN_TOKEN`, or any API key.
 
-## The rules the suite checks
-| Rule | The decision behind it | Author |
+## The tests (`docs/BAKERY-BRIEF.md` § Acceptance suite)
+| # | Test | Checks |
 |---|---|---|
-| `ordering` | A valid order is held, with each loaf's price and the total; she pays the same at pickup. Decided as "Show each loaf's price and total, pay the same at pickup", plus "Pay at pickup". | Ines · Strategy |
-| `cutoff-8pm` | "Orders close at 8pm for the next morning." Also decided as "Order by evening before" (Product seat) and "Free changes until the evening before" (Ines · Strategy). | Bo · Engineering, with Ines and Mika (team space) |
-| `hold-until-10` | "Then we hold it for them till ten." Also in her answer: "hold their usual for them". | Bo · Engineering |
-| `no-phone` | "Then the phone field goes, and so does every question we can remember." | Mika · Design |
-| `stock` | Decided as "Cap each loaf per pickup day and show 'sold out' on the page" (Bo · Engineering) and "Guaranteed up to a daily limit per loaf" (Noor · Research; team space: Noor, Bo, Ines). A sold-out loaf links to a different day (Mika · Design). | Bo · Engineering, Noor · Research |
-| `bake-list` | Decided as "Both totals and list" for how the baker sees orders (Noor · Research), and "Simple daily order list page" (Bo · Engineering). | Noor · Research |
-| `personal-data` | Her takeaway: "Never ask for what we could remember." Contact stays on her device, never the server, decided as "Pay at pickup, remember name and contact on this device" (Bo · Engineering). | Priya (her takeaways), Bo · Engineering |
-| `restock` | The baker can add loaves for a day, and the stock left goes up by that much. This is the other half of "Cap each loaf per pickup day". | Bo · Engineering |
-| `deliver` | "Deliver" flips every held order to delivered, and her customers see "Delivered: your sourdough is here" (Vincent's stage flow). | Vincent (stage flow), Bo · Engineering |
-| `admin-auth` | The baker's routes (orders, stock, restock, deliver) need `ADMIN_TOKEN`, and are closed when it's unset. Never open by default. | the build's security rule (BRIEF: secrets server-side only) |
-| `first-name-only` | Only a first name is stored about a customer. Checked through the admin order list and the status page. | her takeaway "Never ask for what we could remember"; Bo · Engineering |
+| 1 | Reserve with a first name | `201` reserved; `left` drops by 1; the order is on `/api/admin/orders` within 1 s |
+| 2 | Only a first name | any other field is a `400`; a blank or 31-character name is a `400` |
+| 3 | One of each loaf per person | the same device, or the same first name, gets a kind `409` |
+| 4 | Sold out | at 0: `"Sold out for today"` on the storefront; the reservation is refused |
+| 5 | The race for the last loaf | two simultaneous reservations: exactly one succeeds; `left` is 0, never below |
+| 6 | Deliver | every reserved order's event stream says "Delivered: your … is here" within 1 s; the admin shows them delivered |
+| 7 | Restock | stock back to `start`; the storefront shows it within 1 s |
+| 8 | Admin locked | `401` without the token or with a wrong one; when no token is set, `401` whatever is sent |
+| 9 | Reset demo | no orders, starting stock (sourdough 4) |
+| 10 | No secrets or first names in logs | the app's log (`APP_LOG`) has no first name, no `ADMIN_TOKEN`, no API key |
+| + | Rate limit (the brief's rules) | the 11th attempt in a minute from one device is a `429` |
 
 ## Running it
 ```
-TEST_MODE=1 ADMIN_TOKEN=<token> PORT=8787 node server.js   # the bakery app
-BASE_URL=http://localhost:8787 ADMIN_TOKEN=<the app's token> node --test deploy/acceptance/bakery.acceptance.js
+ADMIN_TOKEN=<token> PORT=8787 node server.js > app.log 2>&1    # the bakery app, its log captured
+BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test deploy/acceptance/bakery.acceptance.js
 ```
-Without `ADMIN_TOKEN` in the suite's environment, the suite assumes the app has none either. It checks that every
-admin route stays closed, and skips the restock and deliver tests, saying why.
+- **Without `ADMIN_TOKEN`,** the suite assumes the app has none set either. It runs only test 8, checking the admin
+  stays locked, and skips the rest, saying why.
+- **Without `APP_LOG`,** test 10 is skipped, saying why.
+- **Every test starts with Reset demo,** so it's safe to run again.
+- **Don't point it at the live site during a demo:** it resets the shop.
 
 `test/acceptance.test.js` proves the suite against a throwaway stub (`test/fixtures/bakery-stub.mjs`). It also checks
-that the suite fails against deliberately broken stubs.
+that the suite fails against stubs that each break one rule.

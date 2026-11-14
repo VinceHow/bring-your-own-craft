@@ -1,244 +1,194 @@
-// Acceptance suite for the agent-built bakery app: the gate before deploy. HTTP only, against BASE_URL; never
-// imports the app. The contract is deploy/ACCEPTANCE.md. Each test names its rule, the decision behind it and its
-// author (rules, not run ids, so a fresh recorded run keeps the same tests).
-// Run: BASE_URL=http://localhost:8787 node --test deploy/acceptance/bakery.acceptance.js   (app started with TEST_MODE=1)
+// Acceptance suite for the team-built bakery (docs/BAKERY-BRIEF.md, its 10 tests): the gate before it ships. HTTP only,
+// against BASE_URL; never imports the app. Contract: deploy/ACCEPTANCE.md. Every test starts with Reset demo.
+// Run: BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test deploy/acceptance/bakery.acceptance.js
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
 
 const BASE = (process.env.BASE_URL || '').replace(/\/+$/, '');
-if (!BASE) throw new Error('BASE_URL is not set: point it at the bakery app running with TEST_MODE=1');
+if (!BASE) throw new Error('BASE_URL is not set: point it at the bakery app');
+const TOKEN = process.env.ADMIN_TOKEN || '';
+const APP_LOG = process.env.APP_LOG || '';
+const NO_TOKEN = TOKEN ? false : 'ADMIN_TOKEN is not set: the suite assumes the app has none either, and only checks the admin stays locked (test 8)';
 
-// Winter dates, so Europe/London is +00:00 and "20:00" means 20:00Z.
-const TODAY = '2027-01-14', TOMORROW = '2027-01-15', DAY_AFTER = '2027-01-16';
-const at = (date, hhmm) => `${date}T${hhmm}:00+00:00`;
-const MORNING = at(TODAY, '09:30');
+const device = () => 'dev-' + crypto.randomUUID();
+const names = new Set(); // every first name used, for the log check
+const NAME = s => { names.add(s); return s; };
 
-const LOAVES = [
-  { id: 'sourdough', name: 'Sourdough', price_pence: 450, limit: 3 },
-  { id: 'rye', name: 'Seeded rye', price_pence: 400, limit: 10 },
-  { id: 'baguette', name: 'Baguette', price_pence: 250, limit: 10 },
-];
-// Fields the app must never hand back. first_name is the only personal field allowed.
-const PERSONAL = ['phone', 'phone_number', 'mobile', 'email', 'last_name', 'surname', 'address', 'postcode'];
-const PHONE = '07700 900123';
-
-async function call(method, path, { body, now = MORNING } = {}) {
-  const res = await fetch(BASE + path, {
-    method, headers: { 'content-type': 'application/json', 'x-test-now': now },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+async function req(method, path, { body, dev, token, raw } = {}) {
+  const headers = { 'content-type': 'application/json' };
+  if (dev) headers['x-device-id'] = dev;
+  if (token != null) headers.authorization = `Bearer ${token}`;
+  const res = await fetch(BASE + path, { method, headers, body: raw ?? (body === undefined ? undefined : JSON.stringify(body)) });
   const text = await res.text();
   let json = null; try { json = text ? JSON.parse(text) : null; } catch { /* not JSON */ }
   return { status: res.status, json, text };
 }
-const order = (items, extra = {}, now) => call('POST', '/api/orders', { body: { pickup_date: TOMORROW, items, ...extra }, now });
-// Nothing personal beyond an optional first name, anywhere in a response, at any depth; and never the phone number.
-function assertNoPersonalData(r, what) {
-  assert.ok(!r.text.includes(PHONE) && !r.text.includes(PHONE.replace(/\s/g, '')), `${what}: the phone number came back`);
-  const walk = (v, path) => {
-    if (Array.isArray(v)) return v.forEach((x, i) => walk(x, `${path}[${i}]`));
-    if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) {
-      assert.ok(!PERSONAL.includes(k.toLowerCase()), `${what}: personal field "${k}" at ${path}`);
-      walk(x, `${path}.${k}`);
+const admin = (method, path, body) => req(method, path, { body, token: TOKEN });
+const reserve = (loaf_id, first_name, dev = device(), extra = {}) => req('POST', '/api/reservations', { body: { loaf_id, first_name: first_name && NAME(first_name), ...extra }, dev });
+const loaves = async () => (await req('GET', '/api/loaves')).json.loaves;
+const loaf = async id => (await loaves()).find(l => l.id === id);
+// Poll until fn() is truthy, within ms (the brief's "within 1 s").
+async function within(ms, fn, what) {
+  const end = Date.now() + ms; let last;
+  while (Date.now() < end) { last = await fn(); if (last) return last; await new Promise(r => setTimeout(r, 50)); }
+  assert.fail(`not within ${ms} ms: ${what}`);
+}
+// Read a reservation's event stream until a message matches, or time out. Returns every message seen.
+async function watch(id, until, ms) {
+  const ac = new AbortController(); const seen = [];
+  const timer = setTimeout(() => ac.abort(), ms);
+  try {
+    const res = await fetch(`${BASE}/api/reservations/${encodeURIComponent(id)}/events`, { signal: ac.signal, headers: { accept: 'text/event-stream' } });
+    assert.match(res.headers.get('content-type') || '', /text\/event-stream/);
+    const dec = new TextDecoder(); let buf = '';
+    for await (const chunk of res.body) {
+      buf += dec.decode(chunk, { stream: true });
+      let i; while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith('data:')) continue;
+        let m; try { m = JSON.parse(line.slice(5)); } catch { continue; }
+        seen.push(m); if (until(m)) return seen;
+      }
     }
-  };
-  walk(r.json, '$');
+  } catch (e) { if (e.name !== 'AbortError') throw e; } finally { clearTimeout(timer); ac.abort(); }
+  return seen;
 }
 
 beforeEach(async () => {
-  const r = await call('POST', '/api/test/reset', { body: { loaves: LOAVES } });
-  assert.equal(r.status, 200, `reset (TEST_MODE=1?) answered ${r.status}`);
+  if (!TOKEN) return;
+  const r = await admin('POST', '/api/admin/reset');
+  assert.equal(r.status, 200, `Reset demo answered ${r.status}: ${r.text}`);
 });
 
-test('ordering: a valid order is held, priced per loaf, total = what she pays at pickup [Ines · Strategy: "Show each loaf\'s price and total, pay the same at pickup"]', async () => {
-  const r = await order([{ loaf_id: 'sourdough', qty: 1 }, { loaf_id: 'rye', qty: 2 }], { first_name: 'Ana' });
+test('1. reserve with a first name: reserved, stock -1, on the admin page within 1 s', { skip: NO_TOKEN }, async () => {
+  const before = await loaf('sourdough');
+  const r = await reserve('sourdough', 'Ana');
   assert.equal(r.status, 201, r.text);
-  assert.equal(r.json.status, 'held');
-  assert.equal(r.json.pickup_date, TOMORROW);
-  assert.deepEqual(r.json.items.map(i => [i.loaf_id, i.qty, i.price_pence]), [['sourdough', 1, 450], ['rye', 2, 400]]);
-  assert.equal(r.json.total_pence, 450 + 2 * 400);
+  assert.equal(r.json.status, 'reserved');
   assert.equal(r.json.first_name, 'Ana');
-  const back = await call('GET', `/api/orders/${encodeURIComponent(r.json.id)}`);
-  assert.equal(back.status, 200);
-  assert.equal(back.json.total_pence, r.json.total_pence);
-  // A malformed order is a plain 400, never a 500.
-  for (const bad of [[], [{ loaf_id: 'cake', qty: 1 }], [{ loaf_id: 'rye', qty: 0 }]]) {
-    const b = await order(bad);
-    assert.equal(b.status, 400, `bad order ${JSON.stringify(bad)} answered ${b.status}`);
+  assert.equal((await loaf('sourdough')).left, before.left - 1);
+  assert.equal((await loaf('sourdough')).label, `${before.left - 1} left`, '"N left" on the storefront');
+  await within(1000, async () => (await admin('GET', '/api/admin/orders')).json?.orders?.find(o => o.id === r.json.id && o.first_name === 'Ana' && o.loaf_id === 'sourdough' && o.status === 'reserved'), 'the order on the admin page');
+});
+
+test('2. any field other than a first name is rejected', { skip: NO_TOKEN }, async () => {
+  for (const extra of [{ phone: '07700 900123' }, { email: 'ana@example.org' }, { last_name: 'Silva' }, { address: '1 High St' }]) {
+    const r = await reserve('sourdough', 'Ana', device(), extra);
+    assert.equal(r.status, 400, `${Object.keys(extra)[0]} answered ${r.status}`);
+    assert.equal(r.json?.error, 'field_not_allowed');
   }
+  for (const bad of ['', '   ', 'A'.repeat(31)]) assert.equal((await reserve('sourdough', bad)).status, 400, `name ${JSON.stringify(bad)}`);
+  assert.equal((await reserve('cake', 'Ana')).status, 400, 'unknown loaf');
+  assert.equal((await loaf('sourdough')).left, (await loaf('sourdough')).start, 'nothing reserved');
 });
 
-test('cutoff-8pm: orders for tomorrow close at 20:00 [Bo · Engineering, with Ines and Mika: "Orders close at 8pm for the next morning"]', async () => {
-  const before = await order([{ loaf_id: 'rye', qty: 1 }], {}, at(TODAY, '19:59'));
-  assert.equal(before.status, 201, `19:59 should still order: ${before.text}`);
-  for (const t of ['20:00', '20:01', '23:30']) {
-    const late = await order([{ loaf_id: 'rye', qty: 1 }], {}, at(TODAY, t));
-    assert.equal(late.status, 422, `${t} for tomorrow should be refused, got ${late.status}`);
-    assert.equal(late.json?.error, 'cutoff');
-  }
-  // Late tonight, the day after is still open; and a same-day order is never possible.
-  const later = await call('POST', '/api/orders', { body: { pickup_date: DAY_AFTER, items: [{ loaf_id: 'rye', qty: 1 }] }, now: at(TODAY, '21:00') });
-  assert.equal(later.status, 201, later.text);
-  const sameDay = await call('POST', '/api/orders', { body: { pickup_date: TODAY, items: [{ loaf_id: 'rye', qty: 1 }] }, now: at(TODAY, '06:00') });
-  assert.equal(sameDay.status, 422, 'a same-day order is past the cut-off');
-  // The refused order took no stock.
-  const loaves = await call('GET', `/api/loaves?date=${TOMORROW}`);
-  assert.equal(loaves.json.loaves.find(l => l.id === 'rye').left, 10 - 1);
+test('3. a second reservation of the same loaf by the same person is refused, kindly', { skip: NO_TOKEN }, async () => {
+  const dev = device();
+  assert.equal((await reserve('sourdough', 'Ana', dev)).status, 201);
+  const sameDevice = await reserve('sourdough', 'Bea', dev);
+  assert.equal(sameDevice.status, 409, 'same device');
+  assert.equal(sameDevice.json?.error, 'already_reserved');
+  assert.ok((sameDevice.json?.message || '').trim().length > 0, 'a kind message');
+  const sameName = await reserve('sourdough', 'ana', device());
+  assert.equal(sameName.status, 409, 'same first name, any case');
+  assert.equal((await reserve('baguette', 'Ana', dev)).status, 201, 'one of EACH loaf: another loaf is fine');
 });
 
-test('hold-until-10: a held order shows its pickup window, held till ten [Bo · Engineering: "we hold it for them till ten"]', async () => {
-  const r = await order([{ loaf_id: 'sourdough', qty: 1 }]);
-  assert.equal(r.status, 201, r.text);
-  assert.equal(r.json.status, 'held');
-  assert.equal(r.json.pickup_window?.to, '10:00');
-  assert.match(r.json.pickup_window?.from || '', /^\d\d:\d\d$/);
-  assert.ok(r.json.pickup_window.from < r.json.pickup_window.to, 'the window opens before it closes');
-  const back = await call('GET', `/api/orders/${encodeURIComponent(r.json.id)}`);
-  assert.deepEqual(back.json.pickup_window, r.json.pickup_window);
+test('4. stock 0: "Sold out for today", and the reservation is refused', { skip: NO_TOKEN }, async () => {
+  const s = await loaf('sourdough');
+  assert.equal(s.start, 4, 'sourdough starts at 4');
+  for (let i = 0; i < 4; i++) assert.equal((await reserve('sourdough', `Judge${i}`)).status, 201);
+  const out = await loaf('sourdough');
+  assert.deepEqual([out.left, out.sold_out, out.label], [0, true, 'Sold out for today']);
+  const r = await reserve('sourdough', 'Late');
+  assert.equal(r.status, 409);
+  assert.equal(r.json?.error, 'sold_out');
+  assert.equal(r.json?.message, 'Sold out for today');
+  assert.equal((await loaf('sourdough')).left, 0, 'never below 0');
 });
 
-test('no-phone: an order carrying a phone is refused or the phone is dropped, and it never comes back [Mika · Design: "the phone field goes"]', async () => {
-  const r = await order([{ loaf_id: 'rye', qty: 1 }], { first_name: 'Ana', phone: PHONE });
-  assert.ok([201, 400].includes(r.status), `refuse (400) or drop (201), got ${r.status}`);
-  if (r.status === 400) assert.equal(r.json?.error, 'field_not_allowed');
-  assertNoPersonalData(r, 'the order reply');
-  if (r.status === 201) {
-    assertNoPersonalData(await call('GET', `/api/orders/${encodeURIComponent(r.json.id)}`), 'the order read back');
-    assertNoPersonalData(await call('GET', `/api/bake-list?date=${TOMORROW}`), 'the bake list');
-  }
+test('5. two simultaneous reservations for the last loaf: exactly one succeeds', { skip: NO_TOKEN }, async () => {
+  for (let i = 0; i < 3; i++) assert.equal((await reserve('sourdough', `Early${i}`)).status, 201);
+  assert.equal((await loaf('sourdough')).left, 1);
+  const race = await Promise.all([reserve('sourdough', 'Racer A'), reserve('sourdough', 'Racer B'), reserve('sourdough', 'Racer C')]);
+  assert.equal(race.filter(r => r.status === 201).length, 1, `statuses ${race.map(r => r.status)}`);
+  assert.ok(race.filter(r => r.status !== 201).every(r => r.status === 409 && r.json?.error === 'sold_out'));
+  assert.equal((await loaf('sourdough')).left, 0);
+  assert.equal((await admin('GET', '/api/admin/orders')).json.orders.filter(o => o.loaf_id === 'sourdough').length, 4, 'four sourdough orders, not five');
 });
 
-test('stock: counts down per pickup day; at zero she is refused with "hold one for tomorrow" [Bo · Engineering: "Cap each loaf per pickup day"; Noor · Research: "Guaranteed up to a daily limit per loaf"]', async () => {
-  const left = async date => (await call('GET', `/api/loaves?date=${date}`)).json.loaves.find(l => l.id === 'sourdough').left;
-  assert.equal(await left(TOMORROW), 3);
-  assert.equal((await order([{ loaf_id: 'sourdough', qty: 2 }])).status, 201);
-  assert.equal(await left(TOMORROW), 1);
-  assert.equal((await order([{ loaf_id: 'sourdough', qty: 1 }])).status, 201);
-  assert.equal(await left(TOMORROW), 0);
-  const out = await order([{ loaf_id: 'sourdough', qty: 1 }]);
-  assert.equal(out.status, 409, `sold out should refuse, got ${out.status}`);
-  assert.equal(out.json?.error, 'sold_out');
-  assert.equal(out.json?.loaf_id, 'sourdough');
-  assert.equal(out.json?.offer?.action, 'hold_for_tomorrow');
-  assert.equal(out.json?.offer?.pickup_date, DAY_AFTER, 'the offer is the next day');
-  // The offer is real: the next day still has the loaf, and ordering it works.
-  assert.equal(await left(DAY_AFTER), 3);
-  const held = await call('POST', '/api/orders', { body: { pickup_date: out.json.offer.pickup_date, items: [{ loaf_id: 'sourdough', qty: 1 }] } });
-  assert.equal(held.status, 201, held.text);
-  // Asking for more than is left is refused too, and takes nothing.
-  assert.equal((await order([{ loaf_id: 'rye', qty: 11 }])).status, 409);
-  assert.equal((await call('GET', `/api/loaves?date=${TOMORROW}`)).json.loaves.find(l => l.id === 'rye').left, 10);
-});
-
-test('bake-list: equals the sum of tomorrow\'s orders per loaf [Noor · Research: "Both totals and list"]', async () => {
-  const orders = [
-    [{ loaf_id: 'sourdough', qty: 2 }, { loaf_id: 'rye', qty: 1 }],
-    [{ loaf_id: 'rye', qty: 3 }],
-    [{ loaf_id: 'sourdough', qty: 1 }, { loaf_id: 'rye', qty: 2 }],
-  ];
-  for (const items of orders) assert.equal((await order(items)).status, 201);
-  // Another day's order and a refused order must not count.
-  assert.equal((await call('POST', '/api/orders', { body: { pickup_date: DAY_AFTER, items: [{ loaf_id: 'rye', qty: 4 }] } })).status, 201);
-  assert.equal((await order([{ loaf_id: 'rye', qty: 1 }], {}, at(TODAY, '21:00'))).status, 422);
-  const want = { sourdough: 3, rye: 6, baguette: 0 };
-  const r = await call('GET', `/api/bake-list?date=${TOMORROW}`);
-  assert.equal(r.status, 200, r.text);
-  assert.equal(r.json.date, TOMORROW);
-  const got = Object.fromEntries(r.json.loaves.map(l => [l.loaf_id, l.qty]));
-  assert.deepEqual(got, want);
-});
-
-test('personal-data: nothing beyond an optional first name is ever returned [her takeaway: "Never ask for what we could remember"; Bo · Engineering: contact stays on her device]', async () => {
-  const r = await order([{ loaf_id: 'baguette', qty: 1 }], { first_name: 'Ana', email: 'ana@example.org', last_name: 'Silva', address: '1 High St' });
-  assert.ok([201, 400].includes(r.status), `refuse (400) or drop (201), got ${r.status}`);
-  assertNoPersonalData(r, 'the order reply');
-  // With only a first name, or none, the order goes through, and every read stays clean.
-  const ok = await order([{ loaf_id: 'baguette', qty: 1 }], { first_name: 'Ana' });
-  assert.equal(ok.status, 201, ok.text);
-  const anon = await order([{ loaf_id: 'baguette', qty: 1 }]);
-  assert.equal(anon.status, 201, anon.text);
-  assert.ok(!('first_name' in anon.json) || anon.json.first_name == null || anon.json.first_name === '', 'no name made up');
-  for (const [what, path] of [['the order', `/api/orders/${encodeURIComponent(ok.json.id)}`], ['the loaves', `/api/loaves?date=${TOMORROW}`], ['the bake list', `/api/bake-list?date=${TOMORROW}`]]) {
-    const g = await call('GET', path);
-    assert.equal(g.status, 200, `${what}: ${g.status}`);
-    assertNoPersonalData(g, what);
-    assert.ok(!g.text.includes('ana@example.org') && !g.text.includes('Silva') && !g.text.includes('High St'), `${what}: personal data came back`);
-  }
-});
-
-// ---- the baker's side: admin routes behind ADMIN_TOKEN, restock, deliver; and what is stored ----------------------
-const TOKEN = process.env.ADMIN_TOKEN || '';
-async function admin(method, path, { body, token = TOKEN, now = MORNING } = {}) {
-  const headers = { 'content-type': 'application/json', 'x-test-now': now };
-  if (token !== null) headers.authorization = `Bearer ${token}`;
-  const res = await fetch(BASE + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
-  const text = await res.text();
-  let json = null; try { json = text ? JSON.parse(text) : null; } catch { /* not JSON */ }
-  return { status: res.status, json, text };
-}
-const ADMIN_ROUTES = [['GET', `/api/admin/orders?date=${TOMORROW}`], ['GET', `/api/admin/stock?date=${TOMORROW}`],
-  ['POST', '/api/admin/restock', { date: TOMORROW, loaf_id: 'sourdough', qty: 5 }], ['POST', '/api/admin/deliver', { date: TOMORROW }]];
-const noToken = TOKEN ? false : 'ADMIN_TOKEN is not set for the suite: the app should have none either (admin-auth checks it stays closed)';
-
-test('admin-auth: the baker\'s routes need ADMIN_TOKEN, and stay closed when it is unset [security rule: secrets server-side only, fail closed]', async () => {
-  for (const [method, path, body] of ADMIN_ROUTES) {
-    for (const token of [null, '', 'wrong-token', 'Bearer']) {
-      const r = await admin(method, path, { body, token });
-      assert.ok([401, 403, 503].includes(r.status), `${method} ${path} with token ${JSON.stringify(token)} answered ${r.status}`);
-    }
-    if (TOKEN) {
-      const ok = await admin(method, path, { body });
-      assert.equal(ok.status, 200, `${method} ${path} with the right token: ${ok.status} ${ok.text}`);
-    }
-  }
-  // Nothing was changed by the refused calls: the stock is as seeded.
-  const loaves = await call('GET', `/api/loaves?date=${TOMORROW}`);
-  assert.equal(loaves.json.loaves.find(l => l.id === 'sourdough').left, TOKEN ? 3 + 5 : 3);
-});
-
-test('restock: the baker adds loaves for a day and the stock left goes up by that much [Bo · Engineering: "Cap each loaf per pickup day"]', { skip: noToken }, async () => {
-  assert.equal((await order([{ loaf_id: 'sourdough', qty: 3 }])).status, 201);
-  assert.equal((await order([{ loaf_id: 'sourdough', qty: 1 }])).status, 409, 'sold out first');
-  const r = await admin('POST', '/api/admin/restock', { body: { date: TOMORROW, loaf_id: 'sourdough', qty: 4 } });
-  assert.equal(r.status, 200, r.text);
-  assert.equal(r.json.left, 4);
-  assert.equal((await call('GET', `/api/loaves?date=${TOMORROW}`)).json.loaves.find(l => l.id === 'sourdough').left, 4);
-  assert.equal((await call('GET', `/api/loaves?date=${DAY_AFTER}`)).json.loaves.find(l => l.id === 'sourdough').left, 3, 'only that day');
-  assert.equal((await order([{ loaf_id: 'sourdough', qty: 2 }])).status, 201, 'orderable again');
-  for (const bad of [{ date: TOMORROW, loaf_id: 'cake', qty: 1 }, { date: TOMORROW, loaf_id: 'rye', qty: 0 }])
-    assert.equal((await admin('POST', '/api/admin/restock', { body: bad })).status, 400, `bad restock ${JSON.stringify(bad)}`);
-});
-
-test('deliver: every held order flips to delivered, and her customer sees "Delivered: your sourdough is here" [Vincent\'s stage flow; Bo · Engineering]', { skip: noToken }, async () => {
-  const a = await order([{ loaf_id: 'sourdough', qty: 1 }], { first_name: 'Ana' });
-  const b = await order([{ loaf_id: 'rye', qty: 2 }]);
-  const later = await call('POST', '/api/orders', { body: { pickup_date: DAY_AFTER, items: [{ loaf_id: 'rye', qty: 1 }] } });
-  for (const o of [a, b, later]) assert.equal(o.status, 201, o.text);
-  const before = await call('GET', `/api/orders/${a.json.id}/status`);
-  assert.equal(before.status, 200, before.text);
-  assert.equal(before.json.status, 'held');
-  const d = await admin('POST', '/api/admin/deliver', { body: { date: TOMORROW } });
+test('6. Deliver: every reserved page shows "Delivered" within 1 s (SSE), and the admin shows it delivered', { skip: NO_TOKEN }, async () => {
+  const a = await reserve('sourdough', 'Ana'), b = await reserve('baguette', 'Ben');
+  for (const r of [a, b]) assert.equal(r.status, 201, r.text);
+  const done = m => m.status === 'delivered';
+  const watching = [watch(a.json.id, done, 4000), watch(b.json.id, done, 4000)];
+  await new Promise(r => setTimeout(r, 300)); // both pages open, as on the judges' phones
+  const t0 = Date.now();
+  const d = await admin('POST', '/api/admin/deliver');
   assert.equal(d.status, 200, d.text);
   assert.equal(d.json.delivered, 2);
-  const after = await call('GET', `/api/orders/${a.json.id}/status`);
-  assert.equal(after.json.status, 'delivered');
-  assert.equal(after.json.message, 'Delivered: your sourdough is here');
-  assert.match((await call('GET', `/api/orders/${b.json.id}/status`)).json.message, /^Delivered: your .+ (is|are) here$/);
-  assert.equal((await call('GET', `/api/orders/${later.json.id}/status`)).json.status, 'held', 'another day stays held');
-  const list = await admin('GET', `/api/admin/orders?date=${TOMORROW}`);
-  assert.deepEqual(list.json.orders.map(o => o.status).sort(), ['delivered', 'delivered']);
+  const [sa, sb] = await Promise.all(watching);
+  const ms = Date.now() - t0;
+  assert.ok(sa.some(done) && sb.some(done), `both pages flipped (saw ${JSON.stringify(sa)} / ${JSON.stringify(sb)})`);
+  assert.ok(ms <= 1000, `within 1 s, took ${ms} ms`);
+  assert.equal(sa.find(done).message, 'Delivered: your sourdough is here');
+  assert.equal(sb.find(done).message, 'Delivered: your baguette is here');
+  assert.ok(sa[0].status === 'reserved', 'the stream starts with the current status');
+  const orders = (await admin('GET', '/api/admin/orders')).json.orders;
+  assert.ok(orders.length === 2 && orders.every(o => o.status === 'delivered'));
+  assert.equal((await req('GET', `/api/reservations/${a.json.id}`)).json.status, 'delivered');
 });
 
-test('first-name-only: only a first name is stored about a customer: the admin list and status page show nothing else [her takeaway; Bo · Engineering]', { skip: noToken }, async () => {
-  const r = await order([{ loaf_id: 'baguette', qty: 1 }], { first_name: 'Ana', phone: PHONE, email: 'ana@example.org', last_name: 'Silva' });
-  // Refusing the order is fine too; then place it with the first name only.
-  const o = r.status === 201 ? r : await order([{ loaf_id: 'baguette', qty: 1 }], { first_name: 'Ana' });
-  assert.equal(o.status, 201, o.text);
-  const list = await admin('GET', `/api/admin/orders?date=${TOMORROW}`);
-  assert.equal(list.status, 200, list.text);
-  assertNoPersonalData(list, 'the admin order list');
-  assert.ok(!/ana@example\.org|Silva/.test(list.text), 'the admin order list holds personal data beyond a first name');
-  assert.ok(list.json.orders.some(x => x.first_name === 'Ana'), 'the first name is kept');
-  const st = await call('GET', `/api/orders/${o.json.id}/status`);
-  assertNoPersonalData(st, 'the status page');
+test('7. Restock: stock back to the starting values; the storefront shows it within 1 s', { skip: NO_TOKEN }, async () => {
+  for (let i = 0; i < 4; i++) await reserve('sourdough', `R${i}`);
+  await reserve('baguette', 'Rb');
+  assert.equal((await loaf('sourdough')).left, 0);
+  const r = await admin('POST', '/api/admin/restock');
+  assert.equal(r.status, 200, r.text);
+  await within(1000, async () => (await loaves()).every(l => l.left === l.start && !l.sold_out), 'the storefront back to starting stock');
+  assert.equal((await loaf('sourdough')).label, '4 left');
+});
+
+test('8. the admin is locked without the token, and when no token is set: 401, never open', async () => {
+  const routes = [['GET', '/admin'], ['GET', '/api/admin/orders'], ['GET', '/api/admin/stock'], ['POST', '/api/admin/deliver'],
+    ['POST', '/api/admin/restock'], ['POST', '/api/admin/reset']];
+  for (const [method, path] of routes) {
+    for (const token of [null, '', 'wrong-token', 'undefined', 'null']) {
+      const r = await req(method, path, { token });
+      assert.equal(r.status, 401, `${method} ${path} with ${JSON.stringify(token)} answered ${r.status}`);
+    }
+    if (TOKEN) assert.equal((await req(method, path, { token: TOKEN })).status, 200, `${method} ${path} with the token`);
+  }
+});
+
+test('9. Reset demo: no orders, starting stock (sourdough 4)', { skip: NO_TOKEN }, async () => {
+  await reserve('sourdough', 'Ana'); await reserve('baguette', 'Ben');
+  assert.equal((await admin('POST', '/api/admin/reset')).status, 200);
+  assert.deepEqual((await admin('GET', '/api/admin/orders')).json.orders, []);
+  const ls = await loaves();
+  assert.ok(ls.length >= 2, 'a few loaves');
+  assert.ok(ls.every(l => l.left === l.start), 'starting stock');
+  assert.equal(ls.find(l => l.id === 'sourdough').start, 4);
+  assert.ok(ls.filter(l => l.id !== 'sourdough').every(l => l.start >= 4), 'the other loaves a few more');
+  assert.equal((await reserve('sourdough', 'Ana')).status, 201, 'the same name can reserve again after a reset');
+});
+
+test('+ rate limit: one device cannot empty the shop by accident (the brief\'s rules)', { skip: NO_TOKEN }, async () => {
+  const dev = device(); const statuses = [];
+  for (let i = 0; i < 11; i++) statuses.push((await reserve(i % 2 ? 'baguette' : 'sourdough', `Burst${i}`, dev)).status);
+  assert.equal(statuses[10], 429, `the 11th attempt in a minute: ${statuses}`);
+  assert.equal((await reserve('baguette', 'Other', device())).status, 201, 'another device is unaffected');
+});
+
+test('10. no API key and no first name appears in any log line', { skip: !APP_LOG ? 'APP_LOG is not set: capture the app\'s output to a file and point APP_LOG at it' : NO_TOKEN }, async () => {
+  await reserve('sourdough', 'Zephyrine'); await admin('POST', '/api/admin/deliver');
+  await new Promise(r => setTimeout(r, 200)); // let the app flush
+  const log = fs.readFileSync(APP_LOG, 'utf8');
+  assert.ok(log.trim().length > 0, 'the app wrote a log (capture its stdout and stderr)');
+  for (const n of names) if (n.trim().length >= 3) assert.ok(!log.includes(n), `a first name is in the log: ${n}`);
+  assert.ok(!log.includes(TOKEN), 'ADMIN_TOKEN is in the log');
+  for (const re of [/sk-[A-Za-z0-9_-]{16,}/, /\bfal_[A-Za-z0-9]{16,}/i, /Bearer\s+[A-Za-z0-9._-]{12,}/, /api[_-]?key["':=\s]+[A-Za-z0-9._-]{12,}/i])
+    assert.ok(!re.test(log), `something like an API key is in the log (${re})`);
 });
