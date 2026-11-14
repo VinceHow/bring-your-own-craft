@@ -32,6 +32,17 @@ Rules for each decision:
   money taken); else true.
 - `attachTo`: the id of the box in her journey it is about (e.g. "n3"), or null if it is about the whole page.
 - `usesFinding`: true only if the decision rests on the research finding you were given; else false.
+- `seats`: the other crafts whose own work changes with this decision, from: product, design, data, research,
+  strategy, engineering. Usually empty: most decisions are yours alone. Name another craft only if it must do
+  something different depending on the choice (e.g. a deposit amount: strategy sets it, engineering takes it).
+  Never list a craft just because it will see or display the result.
+- `question`: if this decision changes the shape of the product (who it's for, the problem, the promise, how it
+  feels) and draws on what she knows or loves, the one question you'd ask her about it, in your own voice: one
+  sentence, open (it starts with What, How, Who, Why, When, Where or If), plain words, thought-provoking. Rise above
+  the setting to what's underneath it: not "Should regulars get a Book your usual button?" but "What makes someone
+  come back to a studio week after week?". When it rests on the finding, ask the human question the finding
+  informs, not its mechanics. No options, no recommendation, no "you should". Null for details the team settles
+  (accounts, logins, devices, waitlist mechanics, fields, data, measures, colours, layout, technical choices).
 
 List {{COUNT}} decisions, the real ones for this idea, most important first. No duplicates of each other.
 `note`: one line describing what you worked on, as it would be written on your sheet. A statement, not a question.

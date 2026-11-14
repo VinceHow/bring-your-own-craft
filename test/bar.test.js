@@ -80,3 +80,10 @@ test('a group is asked through the teammate whose work it sits on: Design over R
   const { picks } = pickAsks(cs, scores([{ id: 'c1' }, { id: 'c2', dupOf: 'c1', silent: 2, question: 'What should booking a class feel like?' }]), { flow });
   assert.deepStrictEqual(picks.map(p => [p.candidate.id, p.artifact.kind]), [['c2', 'wires']]);
 });
+
+test('the question is the one the teammate drafted in its own call, when the scorer writes none; it must still be natural', () => {
+  const cs = [cand(1, { attachTo: 'n1', question: 'What makes someone come back to a studio week after week?' }),
+    cand(2, { attachTo: 'n2', decision: 'Other topic', question: 'Should regulars get a button?' })];
+  const { picks } = pickAsks(cs, scores([{ id: 'c1', question: null }, { id: 'c2', question: null }]), { flow });
+  assert.deepStrictEqual(picks.map(p => [p.candidate.id, p.question]), [['c1', 'What makes someone come back to a studio week after week?']]);
+});

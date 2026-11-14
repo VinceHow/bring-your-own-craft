@@ -1,0 +1,11 @@
+{
+  "name": "bakery-preorder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Order-ahead website for a small bakery",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=18" }
+}

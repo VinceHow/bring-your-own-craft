@@ -1,0 +1,12 @@
+{
+  "prepared": true,
+  "label": "researched before the demo",
+  "placeholder": false,
+  "title": "Small bakeries lose bread to guessing how much to bake",
+  "claim": "A 2025 study of small bakeries found bread waste is common there and that production-planning inefficiencies contribute significantly to it: bakers have to guess how many loaves to make. Knowing orders ahead is the direct fix for that guess.",
+  "url": "https://www.hippocampus.si/ISSN/1854-6935/23.259-294.pdf",
+  "source": "Managing Global Transitions 23(3), 2025: inventory models (EOQ, newsvendor) applied to small bakeries",
+  "how_verified": "Seen in web search result summaries on 14 Nov 2026; the paper itself could not be opened from the build session (host not reachable). Open the link to check before relying on it.",
+  "not_claimed": "No figure on how often bakeries sell out, or on pre-orders' measured effect: none was found from a reliable source.",
+  "fits": ["bakery", "bread", "pastry", "pre-order", "order ahead", "sell out", "sold out", "waste", "how many to bake"]
+}

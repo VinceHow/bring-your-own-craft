@@ -270,6 +270,24 @@ body.stage #room .tray-note { font-size: 14px; }
 .focus-doc .chime[data-seat="research"] { --chime-ink: var(--research); } .focus-doc .chime[data-seat="strategy"] { --chime-ink: var(--strategy); }
 .focus-doc .chime[data-seat="engineering"] { --chime-ink: var(--engineering); }
 @keyframes fd-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* the real document (focus-doc.js): her words land as one quote with one pink rule; the input is a sheet she writes on */
+.focus-doc .fd-said:has(.fd-words) { border-left: 0; padding: 0; }
+#room .focus-doc .fd-words { margin: 0; padding: var(--s2) 0 var(--s2) var(--s4); background: transparent; border-left: 6px solid var(--product);
+  font: italic 400 22px/1.45 var(--ui); max-width: 60ch; }
+#room .focus-doc .fd-input { font: 400 22px/1.4 var(--ui); color: var(--ink); background: #FFFEFB; border: 2px solid var(--ink); border-radius: var(--r);
+  box-shadow: var(--shadow-sm); padding: 12px 14px; }
+#room .focus-doc .fd-input::placeholder { color: rgba(20,20,20,.55); font-style: italic; }
+#room .focus-doc .fd-input:focus { outline: 3px solid var(--ink); outline-offset: 2px; }
+#room .focus-doc .fd-keep { font: 600 14px var(--ui); color: var(--ink); background: var(--product); border: var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow-sm); padding: 8px 14px; cursor: pointer; }
+#room .focus-doc .fd-keep:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+#room .focus-doc .fd-keep:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+#room .focus-doc .fd-team { font: 600 13px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .06em; display: flex; align-items: center; gap: 8px; }
+#room .focus-doc .fd-team:not(:empty)::before { content: ''; width: 10px; height: 10px; background: var(--ink); border-radius: 2px; }
+#room .focus-doc .fd-empty { font: italic 400 18px/1.4 var(--ui); color: rgba(20,20,20,.75); }
+#room .focus-doc .fd-finding-src { color: rgba(20,20,20,.75); }
+#room .focus-doc .fd-side .fd-brief { margin-top: var(--s3); padding: var(--s4); }
+#room .focus-doc .fd-side .brief-believe .brief-text { font-size: 24px; }
 /* the meeting's takeaways: the best summary a great colleague would write, in her voice. A memo on its own sheet,
    two short parts (what I believe / guidance to the team), every word hers to reword */
 .focus-doc .fd-brief { margin-top: var(--s5); background: #FFFEFB; border: 2px solid var(--ink); border-top: 8px solid var(--product);
@@ -353,3 +371,35 @@ body.stage .chatter-line { font-size: 14px; }
 .card-her .card-traits { display: block; margin-top: 3px; font: 400 13px/1.3 var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(20,20,20,.8); }
 .card-her:has(.card-title) .card-her-stance { display: none; }
 @media (prefers-reduced-motion: reduce) { .char-card .char-trait { transform: none; } }
+
+/* ======== the team space (DEMO 1:05-1:15): in the middle of the table, one slip per real agreement the team talked
+   out. A one-line headline, the ink marks of who agreed it, tap for the real exchange inline. Printed, never bubbles. ======== */
+#room .team-space { gap: 8px; }
+#room .team-space .ts-title { font: 400 15px/1 var(--display); letter-spacing: 0; text-transform: none; background: var(--sheet);
+  border: 2px solid var(--ink); border-radius: 2px; padding: 5px 9px 4px; box-shadow: 2px 2px 0 var(--ink); transform: rotate(-1.2deg);
+  text-shadow: 1.5px 1.5px 0 rgba(255,72,176,.4); }
+#room .team-space .ts-cards { gap: 12px 14px; }
+#room .team-space .ts-card { width: 340px; padding: 10px 14px 10px; background: #FFFEFB; border: 2px solid var(--ink); border-radius: var(--r);
+  box-shadow: 4px 4px 0 var(--ink); font: 500 15px/1.3 var(--ui); transition: transform 120ms ease-out, box-shadow 120ms ease-out; }
+#room .team-space .ts-card:nth-child(odd) { transform: rotate(-.6deg); } #room .team-space .ts-card:nth-child(even) { transform: rotate(.5deg); }
+#room .team-space .ts-card:hover { transform: translate(-1px,-2px); box-shadow: 5px 6px 0 var(--ink); }
+#room .team-space .ts-card[aria-expanded="true"] { transform: none; width: 420px; z-index: 2; }
+#room .team-space .ts-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+#room .team-space .ts-marks { gap: 6px; margin-bottom: 6px; }
+#room .team-space .ts-mark { font: 600 11px/1 var(--mono); letter-spacing: .06em; padding: 3px 6px 2px; border: 1.5px solid var(--ink); border-radius: 2px;
+  background: var(--mark-ink); color: var(--ink); }
+#room .team-space .ts-mark[data-seat="design"] { color: var(--sheet); }
+#room .team-space .ts-headline { font: 600 16px/1.3 var(--ui); }
+#room .team-space .ts-takeaways { margin-top: 4px; font: italic 400 13px/1.3 var(--ui); color: var(--ink); }
+#room .team-space .ts-takeaways::before { content: ''; display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: 3px; background: var(--product); }
+#room .team-space .ts-label { margin-top: 6px; font: 400 11.5px/1.2 var(--mono); opacity: 1; color: rgba(20,20,20,.62); }
+#room .team-space .ts-exchange { margin: 9px 0 2px; padding: 8px 0 0; border-top: 1.5px dashed rgba(20,20,20,.5); gap: 5px; }
+#room .team-space .ts-card[aria-expanded="true"] .ts-exchange { display: grid; }
+#room .team-space .ts-card:not([aria-expanded="true"]) .ts-exchange { display: none; }
+#room .team-space .ts-turn { margin: 0; display: grid; grid-template-columns: 10px auto 1fr; column-gap: 7px; align-items: baseline; font: 400 14px/1.35 var(--ui); }
+#room .team-space .ts-turn::before { content: ''; width: 10px; height: 10px; border: 1.5px solid var(--ink); border-radius: 2px; background: var(--turn-ink, var(--ink)); transform: translateY(1px); }
+#room .team-space .ts-turn[data-seat="design"] { --turn-ink: var(--design); } #room .team-space .ts-turn[data-seat="data"] { --turn-ink: var(--data); }
+#room .team-space .ts-turn[data-seat="research"] { --turn-ink: var(--research); } #room .team-space .ts-turn[data-seat="strategy"] { --turn-ink: var(--strategy); }
+#room .team-space .ts-turn[data-seat="engineering"] { --turn-ink: var(--engineering); } #room .team-space .ts-turn[data-seat="product"] { --turn-ink: var(--product); }
+#room .team-space .ts-by { font: 600 12px/1.35 var(--mono); text-transform: uppercase; letter-spacing: .04em; }
+@media (prefers-reduced-motion: reduce) { #room .team-space .ts-card { transform: none; transition: none; } }

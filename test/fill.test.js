@@ -85,7 +85,7 @@ for (const template of ['yoga', 'cafe']) {
     assert.ok(!rows.some(x => x.id === 'nope'), 'an invented decision never shows');
     const html = read(out);
     assert.match(html, /data-decided="c4"/);
-    assert.match(html, /Never ask for anything you could remember or skip/);
+    assert.doesNotMatch(html, /follows your line/, "no notes quoting her line on her page");
     assert.doesNotMatch(html, />L7</);
   });
 
@@ -159,19 +159,12 @@ test('"decided for you" tags each row with its seat, and a Strategy payment deci
   assert.doesNotMatch(html, /decided__seat/);
 });
 
-test('one margin note on the cancel step, only when a decision about cancelling cites her newest line', async () => {
+test('no margin note on her page, even when a decision about cancelling cites her newest line', async () => {
   const cancel = [{ id: 'c4', seat: 'engineering', decision: 'Does cancel ask for a reason?', choice: 'No, one tap', cites: 'L3' }];
   const on = tmp();
-  await fillPage({ run: 'r', outDir: on, idea: 'x', taste: TASTE, decided: cancel, newestLine: 'L3', template: 'yoga', call: fakeModel({ decidedShown: [] }) });
-  const html = read(on);
-  const line = TASTE.find(l => l.id === 'L3').text;
-  assert.strictEqual((html.match(/data-note="cancel"/g) || []).length, 1, 'exactly one note');
-  assert.ok(html.includes(`One tap, no reason asked: follows your line, “${line}”`), 'its words, quoting her line');
-  // Not about cancelling, or citing an older line: no note at all.
-  const off = tmp();
-  await fillPage({ run: 'r', outDir: off, idea: 'x', taste: TASTE, newestLine: 'L3', template: 'yoga', call: fakeModel({ decidedShown: [] }),
-    decided: [{ id: 'g1', seat: 'engineering', decision: 'Guest booking?', choice: 'Yes', cites: 'L3' }, { id: 'c5', seat: 'engineering', decision: 'Cancel by link?', choice: 'Yes', cites: 'L1' }] });
-  assert.doesNotMatch(read(off), /data-note="cancel"/);
+  const r = await fillPage({ run: 'r', outDir: on, idea: 'x', taste: TASTE, decided: cancel, newestLine: 'L3', template: 'yoga', call: fakeModel({ decidedShown: [] }) });
+  assert.doesNotMatch(read(on), /data-note=|class="margin-note"/);
+  assert.equal(r.slots.cancelNote, undefined);
 });
 
 test('she overrules cancel-by-link with "contact the studio": the one-tap cancel line goes', async () => {

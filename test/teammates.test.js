@@ -156,3 +156,14 @@ test('the finding attaches only on its topic: end to end, a café run asks nothi
   const cands = readEvents(r.run).filter(e => e.type === 'candidate');
   assert.ok(cands.every(c => !c.source));
 });
+
+test('each candidate lists every seat it touches, its own first, real seats only', async () => {
+  const { normalise } = await import('../lib/teammates.js');
+  let n = 0;
+  const raw = { candidates: [
+    { decision: 'Deposit at booking', options: ['Yes', 'No'], recommendation: 'Yes', reason: 'r', cost: 'high', undoable: false, attachTo: null, usesFinding: false, seats: ['Engineering', 'strategy', 'pastry', 'strategy'] },
+    { decision: 'Accent colour', options: ['Sage', 'Clay'], recommendation: 'Sage', reason: 'r', cost: 'low', undoable: true, attachTo: null, usesFinding: false },
+  ] };
+  const out = normalise('strategy', raw, { flow: { nodes: [] }, nextId: () => `c${++n}`, idea: 'x' });
+  assert.deepEqual(out.map(c => c.seats), [['strategy', 'engineering'], ['strategy']]);
+});
