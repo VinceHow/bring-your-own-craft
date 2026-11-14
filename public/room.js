@@ -330,7 +330,7 @@
     panel.append(top, body);
     panel.hidden = false;
   }
-  function openSketchpad(seat) {
+  function openSketchpad(seat, { refresh = false } = {}) {
     if (!INFO[seat] || seat === 'product' || BYOC.beat < 2) return;
     const i = INFO[seat];
     const ev = seen;
@@ -348,10 +348,39 @@
       if (c.reason) { const r = h('span', 'sp-reason'); r.textContent = c.reason; r.dataset.slot = 'reason'; li.appendChild(r); }
       list.appendChild(li);
     }
-    if (!items.length) { const e = h('p', 'sp-empty'); e.textContent = thinking.has(seat) ? 'Thinking it through.' : 'Nothing on the pad yet.'; e.dataset.slot = 'empty'; list.appendChild(e); }
+    if (!items.length) { // never a bare "nothing yet": one plain line on what this teammate is doing or waiting for
+      const st = padStatus(seat, ev);
+      const e = h('p', 'sp-status'); e.textContent = st.text; e.dataset.component = 'pad-status'; e.dataset.slot = 'status'; e.dataset.state = st.state;
+      list.appendChild(e);
+    }
+    if (refresh) { const old = panel.querySelector('.sp-items'); if (old) old.replaceWith(list); return; }
     openPanel('sketchpad-open', seat, `${i.agent} · ${i.name}`, list);
     emit('seat.open', { seat });
   }
+  // What an empty pad says, from the run's real events, in this order: a snag, at work, waiting (on her, or on a joint
+  // decision), not started yet, or done with nothing for her. States: error · working · waiting · empty.
+  function padStatus(seat, ev) {
+    const A = INFO[seat].agent;
+    const at = (type, f = () => true) => ev.findLastIndex(e => e.type === type && f(e));
+    const started = at('teammate.start', e => e.seat === seat), ended = Math.max(at('teammate.done', e => e.seat === seat), at('teammate.error', e => e.seat === seat));
+    if (at('teammate.error', e => e.seat === seat) > started && started >= 0) return { state: 'error', text: `${A} hit a snag; the team carries on.` };
+    if (started >= 0 && started > ended) return { state: 'working', text: `${A} is thinking it through…` };
+    const quote = t => { const q = String(t || '').trim(); return q.length > 70 ? q.slice(0, 68).replace(/\s+\S*$/, '') + '…' : q; };
+    const answered = new Set(ev.filter(e => e.type === 'answer').map(e => e.askId));
+    const open = ev.filter(e => (e.type === 'ask' || e.type === 'ask.unblock') && !answered.has(e.id));
+    const joints = ev.filter(e => e.type === 'joint.start' && !ev.some(x => (x.type === 'joint.agreed' || x.type === 'joint.kept') && x.id === e.jointId));
+    const inJoint = joints.findLast(j => (j.seats || []).includes(seat));
+    if (inJoint) { const others = inJoint.seats.filter(s => s !== seat && INFO[s]).map(s => INFO[s].agent); return { state: 'working', text: `${A} is agreeing “${quote(inJoint.decision)}”${others.length ? ` with ${others.join(' and ')}` : ''}…` }; }
+    const mine = open.findLast(a => a.seat === seat);
+    if (mine) return { state: 'waiting', text: mine.type === 'ask.unblock' ? `${A} is blocked until you answer: “${quote(mine.question)}”` : `${A} is waiting on your answer: “${quote(mine.question || mine.decision)}”` };
+    const other = open.findLast(a => INFO[a.seat]);
+    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${INFO[other.seat].agent}'s question.` };
+    if (joints.length) return { state: 'waiting', text: `${A} starts once the team has agreed “${quote(joints.at(-1).decision)}”.` };
+    if (!ev.some(e => e.type === 'teammate.start')) return { state: 'empty', text: `${A} joins once the team gets going.` };
+    return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
+  }
+  // An open pad follows the run: each event redraws it in place (no second seat.open).
+  function refreshPad() { if (!panel.hidden && panel.dataset.component === 'sketchpad-open' && panel.dataset.seat) openSketchpad(panel.dataset.seat, { refresh: true }); }
   BYOC.openSketchpad = openSketchpad;
   function openWorkspace() {
     if (BYOC.beat < 1) return;
@@ -954,6 +983,7 @@
     }
     seen.push(ev);
     try { react(ev, source); } catch (e) { console.error('room', ev.type, e); }
+    try { refreshPad(); } catch (e) { console.error('pad', e); }
     if (ev.mode === 'craft' || ev.mode === 'stamp') refreshTally(); // the meter counts every craft or stamp event, whatever its type
     emit(ev.type, ev);
   }
