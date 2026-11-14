@@ -5,49 +5,34 @@
 (function () {
   'use strict';
   const B = (window.BYOC = window.BYOC || {});
-  const INK = '#0078BF'; // Design's blue
+  // Structure only (Vincent, 14 Nov: builders build the skeleton; looks come from the design studio via
+  // data-component / data-state / data-slot, docs/COMPONENTS.md). The PREPARED label keeps a plain border: it must show.
   const css = `
 .fs-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; min-height: 0; }
 .fs-bar[hidden] { display: none; }
-.fs-who { font: 500 11px var(--mono, monospace); letter-spacing: .06em; text-transform: uppercase; color: ${INK}; }
-.fs-user { font: 500 13px/1 var(--ui, sans-serif); padding: 6px 9px 5px 9px; background: var(--sheet, #FBF9F4);
-  border: 2px solid var(--ink, #141414); border-left: 6px solid ${INK}; border-radius: 4px; box-shadow: 3px 3px 0 var(--ink, #141414); }
 .fs-users { display: flex; gap: 8px; flex-wrap: wrap; }
-.fs-tag { margin-left: auto; font: 400 11px var(--mono, monospace); color: rgba(20,20,20,.65); white-space: nowrap; }
-.fs-tag.prepared { color: var(--ink, #141414); font-weight: 600; border: 2px solid var(--ink, #141414); padding: 3px 6px 2px; letter-spacing: .08em;
-  background: #FFE800; border-radius: 3px; }
-.fs-said { flex-basis: 100%; font: italic 400 13px/1.3 var(--ui, sans-serif); color: rgba(20,20,20,.75); }
+.fs-user { padding: 4px 8px; border: 1px solid currentColor; }
+.fs-tag { margin-left: auto; white-space: nowrap; }
+.fs-tag.prepared { border: 2px solid currentColor; padding: 2px 6px; font-weight: 600; }
+.fs-said { flex-basis: 100%; }
 .fs-said:empty { display: none; }
-.fs-pop { position: absolute; z-index: 9; display: flex; gap: 6px; align-items: center; padding: 6px; background: var(--sheet, #FBF9F4);
-  border: 2px solid var(--ink, #141414); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink, #141414); }
-.fs-pop input { font: 500 14px var(--ui, sans-serif); width: 170px; border: 0; border-bottom: 2px solid ${INK}; background: transparent; outline: 0; }
-.fs-pop button { font: 500 12px var(--mono, monospace); background: var(--sheet, #FBF9F4); border: 2px solid var(--ink, #141414);
-  border-radius: 3px; padding: 3px 6px; cursor: pointer; }
+.fs-pop { position: absolute; z-index: 9; display: flex; gap: 6px; align-items: center; padding: 6px; background: Canvas; border: 1px solid currentColor; }
+.fs-pop input { width: 170px; }
 .fs-close-sketch { display: flex; flex-direction: column; gap: 10px; }
 .fs-mini { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.fs-mini .fs-box { font: 500 13px/1.15 var(--ui, sans-serif); padding: 8px 10px; background: var(--sheet, #FBF9F4); border: 2px solid var(--ink, #141414);
-  border-radius: 4px; box-shadow: 3px 3px 0 var(--ink, #141414); max-width: 150px; }
-.fs-mini .fs-arrow { font: 600 16px var(--ui, sans-serif); }
-.guest-card { position: absolute; left: 1206px; top: 392px; width: 300px; z-index: 3; padding: 12px 14px 12px; background: var(--sheet, #FBF9F4);
-  border: 2px dashed var(--ink, #141414); border-radius: 6px; box-shadow: 4px 4px 0 rgba(20,20,20,.18); transform: rotate(1deg); }
+.fs-mini .fs-box { padding: 6px 8px; border: 1px solid currentColor; max-width: 150px; }
+.guest-card { position: absolute; left: 1206px; top: 392px; width: 300px; z-index: 3; padding: 12px; background: Canvas; border: 1px dashed currentColor; }
 .guest-card[hidden], body[data-beat="6"] .guest-card, body[data-beat="7"] .guest-card, body[data-beat="8"] .guest-card, body[data-beat="9"] .guest-card,
   body[data-beat="10"] .guest-card, body[data-beat="11"] .guest-card { display: none; }
 .guest-head { display: flex; align-items: baseline; gap: 8px; }
-.guest-tag { font: 600 12px var(--mono, monospace); letter-spacing: .12em; border: 2px dashed var(--ink, #141414); padding: 2px 6px 1px; border-radius: 3px; }
-.guest-who { font: 600 14px/1.2 var(--ui, sans-serif); }
-.guest-note { margin-top: 4px; font: 400 11px var(--mono, monospace); color: rgba(20,20,20,.7); }
-.guest-says { margin: 10px 0 8px; font: italic 500 15px/1.35 var(--ui, sans-serif); }
 .guest-points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.guest-points li { font: 400 12px/1.3 var(--ui, sans-serif); }
-.guest-points b { font: 600 11px var(--mono, monospace); margin-right: 4px; }
-.guest-points i { color: rgba(20,20,20,.7); }
-.fs-in { animation: fs-in 180ms cubic-bezier(.2,1.3,.4,1) both; }
-@keyframes fs-in { from { transform: translateY(-8px) rotate(-2deg) scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
 `;
   const style = document.createElement('style'); style.dataset.byoc = 'first-sketch'; style.textContent = css;
   document.head.appendChild(style);
 
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const slot = (e, name) => { e.dataset.slot = name; return e; };
+  const setState = st => { if (S.bar) S.bar.dataset.state = st; };
   const ARROW = /\s*(?:→|->|⟶|➔)\s*/;
   const norm = s => String(s || '').trim().toLowerCase().replace(/^["'“”‘’]+|["'“”‘’]+$/g, '').replace(/\s+/g, ' ').replace(/[.!?:;,]+$/, '');
 
@@ -59,7 +44,9 @@
     if (!sheet || !flow) return null;
     if (S.bar && S.bar.isConnected) return S.bar;
     S.bar = h('div', 'fs-bar'); S.bar.hidden = true; S.bar.setAttribute('aria-label', "Design's first sketch: who it's for");
-    S.bar.append(h('span', 'fs-who', 'Who'), S.list = h('div', 'fs-users'), S.tag = h('span', 'fs-tag'), S.said = h('div', 'fs-said'));
+    S.bar.dataset.component = 'first-sketch'; S.bar.dataset.state = 'drawing';
+    S.bar.append(slot(h('span', 'fs-who', 'Who'), 'who'), S.list = slot(h('div', 'fs-users'), 'users'), S.tag = slot(h('span', 'fs-tag'), 'tag'),
+      S.said = slot(h('div', 'fs-said'), 'said'));
     flow.parentNode.insertBefore(S.bar, flow);
     flow.addEventListener('click', onBoxClick, true); // capture: in the reaction beat a click edits the box, not a pin
     return S.bar;
@@ -77,7 +64,7 @@
     if (!ensureBar()) return;
     if (S.freshUsers) { S.list.innerHTML = ''; S.users = []; S.freshUsers = false; }
     S.users.push(ev.label);
-    const c = h('span', 'fs-user fs-in', ev.label); c.dataset.user = ev.id;
+    const c = slot(h('span', 'fs-user fs-in', ev.label), 'user'); c.dataset.user = ev.id;
     S.list.appendChild(c);
     S.bar.hidden = false;
     if (ev.prepared) setTag('PREPARED', true);
@@ -94,11 +81,13 @@
     S.freshUsers = true;
     S.said.textContent = `You: “${ev.text}”`;
     S.state = 'busy';
+    setState('reshaping');
     setTag('Design is redrawing');
   }
   function onDone(ev) {
     if (ev.skipped) { S.state = 'off'; if (S.bar && !S.users.length) S.bar.hidden = true; return; }
     S.state = 'landed';
+    setState('drawn');
     S.freshUsers = true;
     const secs = ev.ms != null ? ` · ${(ev.ms / 1000).toFixed(1)} s` : '';
     if (ev.prepared) setTag('PREPARED · sketched before the demo', true);
@@ -110,7 +99,7 @@
     }
   }
   function onError(ev) {
-    if (ev.reshape) { S.state = 'landed'; setTag('Design could not redraw it: try saying it another way'); return; }
+    if (ev.reshape) { S.state = 'landed'; setState('drawn'); setTag('Design could not redraw it: try saying it another way'); return; }
     S.state = 'off';
     if (S.bar) S.bar.hidden = true;
     if (canReact()) hint('One step of the journey', 'Enter for each step · empty Enter: team, go');
@@ -120,19 +109,20 @@
   function onGuest(ev) {
     const room = B.el && B.el.room;
     if (!room) return;
-    if (!S.guest || !S.guest.isConnected) { S.guest = h('section', 'guest-card'); S.guest.setAttribute('aria-label', 'Guest chair'); S.guest.dataset.seat = 'guest'; room.appendChild(S.guest); }
+    if (!S.guest || !S.guest.isConnected) { S.guest = h('section', 'guest-card'); S.guest.setAttribute('aria-label', 'Guest chair'); S.guest.dataset.seat = 'guest'; S.guest.dataset.component = 'guest-card'; room.appendChild(S.guest); }
     const g = S.guest;
     g.innerHTML = '';
-    g.className = 'guest-card fs-in';
+    g.className = 'guest-card fs-in'; g.dataset.state = 'in'; setTimeout(() => { g.dataset.state = 'shown'; }, 200);
     const head = h('div', 'guest-head');
-    head.append(h('span', 'guest-tag', 'GUEST'), h('span', 'guest-who', ev.persona || ev.userType || 'a customer'));
-    const pts = h('ul', 'guest-points');
+    head.dataset.slot = 'head';
+    head.append(slot(h('span', 'guest-tag', 'GUEST'), 'tag'), slot(h('span', 'guest-who', ev.persona || ev.userType || 'a customer'), 'who'));
+    const pts = slot(h('ul', 'guest-points'), 'points');
     for (const p of ev.points || []) {
       const li = h('li'); li.append(h('b', null, p.id), document.createTextNode(p.text));
       if (p.check) { li.append(' '); li.append(h('i', null, `(${p.check})`)); }
       pts.appendChild(li);
     }
-    g.append(head, h('div', 'guest-note', ev.label || 'a stand-in for your customer, not a real one'), h('p', 'guest-says', `“${ev.reaction}”`), pts);
+    g.append(head, slot(h('div', 'guest-note', ev.label || 'a stand-in for your customer, not a real one'), 'note'), slot(h('p', 'guest-says', `“${ev.reaction}”`), 'says'), pts);
     g.hidden = false;
   }
   function clear() {
@@ -156,6 +146,7 @@
   async function start(run, idea) {
     if (!run || String(run).startsWith('local-') || B.replay) return null;
     S.run = run; S.state = 'pending'; S.freshUsers = true;
+    ensureBar(); setState('drawing');
     setTag('Design is sketching');
     hint('Design is sketching… or type your own steps', 'Enter for each step');
     try { return await B.api(`/api/run/${encodeURIComponent(run)}/sketch`, { idea }, { step: false }); }
@@ -207,7 +198,7 @@
     const label = box.querySelector('.fl-label')?.textContent || box.textContent;
     const sr = sheet.getBoundingClientRect(), br = box.getBoundingClientRect();
     const k = sr.width / (sheet.offsetWidth || sr.width) || 1;
-    const pop = h('div', 'fs-pop');
+    const pop = slot(h('div', 'fs-pop'), 'edit');
     pop.style.left = Math.max(8, (br.left - sr.left) / k) + 'px';
     pop.style.top = ((br.bottom - sr.top) / k + 6) + 'px';
     const inp = h('input'); inp.value = label; inp.setAttribute('aria-label', 'Rename the box');
@@ -249,19 +240,20 @@
     try { r = await B.api('/api/sketch-for-idea', { idea }, { step: false }); } catch (e) { return null; }
     if (!host) return r;
     host.innerHTML = '';
-    const wrap = h('div', 'fs-close-sketch');
+    const wrap = h('div', 'fs-close-sketch'); wrap.dataset.component = 'first-sketch'; wrap.dataset.state = 'drawing';
     const users = h('div', 'fs-users'), mini = h('div', 'fs-mini');
     const tag = h('span', 'fs-tag' + (r.prepared ? ' prepared' : ''), r.prepared ? 'PREPARED' : `Design's first sketch · ${(r.ms / 1000).toFixed(1)} s`);
-    wrap.append(h('span', 'fs-who', 'Who'), users, mini, tag);
+    wrap.append(slot(h('span', 'fs-who', 'Who'), 'who'), slot(users, 'users'), slot(mini, 'boxes'), slot(tag, 'tag'));
     host.appendChild(wrap);
     const wait = ms => new Promise(res => setTimeout(res, ms));
-    for (const u of r.users) { users.appendChild(h('span', 'fs-user fs-in', u.label)); await wait(dripMs); }
+    for (const u of r.users) { users.appendChild(slot(h('span', 'fs-user fs-in', u.label), 'user')); await wait(dripMs); }
     for (let i = 0; i < r.nodes.length; i++) {
-      if (i) mini.appendChild(h('span', 'fs-arrow fs-in', '→'));
-      const b = h('span', 'fs-box fs-in', r.nodes[i].label); b.dataset.node = r.nodes[i].id;
+      if (i) mini.appendChild(slot(h('span', 'fs-arrow fs-in', '→'), 'arrow'));
+      const b = slot(h('span', 'fs-box fs-in', r.nodes[i].label), 'box'); b.dataset.node = r.nodes[i].id;
       mini.appendChild(b);
       await wait(dripMs);
     }
+    wrap.dataset.state = 'drawn';
     return r;
   }
 

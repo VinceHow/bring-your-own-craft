@@ -32,7 +32,7 @@ function newRun({ seat = 'product', sketch = false } = {}) {
     artifact: { kind: sketch ? 'journey' : 'wires' }, decisionIds: ['c1', 'c2'] });
   return run;
 }
-const LINES = { Mika: 'Then their usual class goes first, one tap.', Ines: 'Hmm, regulars buy passes too. Show the pass first?',
+const LINES = { Mika: 'Then their usual class goes first, one tap.', Ines: 'Mika, regulars buy passes too. Show the pass first?',
   Bo: 'Pass right under it, but one tap stays one tap.', Theo: 'Then I count rebooks, so we know the tap works.' };
 const fake = (reply = REPLY, seen = {}) => async a => {
   if (task(a.system) === 'thread') { const who = a.user.match(/^You are (\w+)/)[1]; (seen.turns ||= []).push(a.user); return { text: LINES[who] }; }
@@ -59,6 +59,8 @@ test('her answer: logged first (craft); chime, ~1 s, chime, then the takeaways, 
   assert.deepEqual(evs.slice(1, 5).map(c => [c.by, c.seat, c.turn]), [['Mika', 'design', 1], ['Ines', 'strategy', 2], ['Bo', 'engineering', 3], ['Theo', 'data', 4]],
     'the asker, then whose decisions her answer touches; a 4th settles the push-back; Research only on her finding');
   assert.match(seen.turns[1], /Mika \(Design\): Then their usual class goes first/, 'each turn hears the thread so far');
+  assert.match(seen.turns[1], /Answer Mika directly: start with "Mika,"/, 'turn 2 answers turn 1 by name');
+  assert.equal(seen.turns.length, 4, 'no retries needed');
   assert.match(seen.turns[3], /Bo \(Engineering\): Pass right under it, but/);
   assert.match(seen.turns[3], /You speak last: if someone pushed back, settle it/);
   assert.match(seen.turns[0], /She answered \(everything follows from this\): "Knowing their spot is theirs/);
@@ -164,6 +166,9 @@ test('the thread: lines are spoken (≤15 words, no filler, never to her); 3 tur
   const { cleanLine, okLine, problem, speakers, runThread } = await import('../lib/thread.js');
   assert.equal(cleanLine('Mika: "Great point! Their usual class goes first."'), 'Their usual class goes first.');
   assert.equal(cleanLine('Love that. Then pass holders first.'), 'Then pass holders first.');
+  assert.equal(cleanLine("You've hit your weekly limit · resets Nov 15, 9pm (UTC)"), null, 'the service talking is never a line');
+  assert.equal(cleanLine('API Error: 529 overloaded'), null);
+  const limited = async () => ({ text: "You've hit your weekly limit · resets Nov 15, 9pm (UTC)" });
   const long = 'One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen.';
   assert.equal(cleanLine(long), long, 'never cut mid-sentence');
   assert.match(problem(long), /Shorter/);
@@ -173,22 +178,37 @@ test('the thread: lines are spoken (≤15 words, no filler, never to her); 3 tur
   assert.equal(problem('Ines, pass holders first, then?'), null, 'a light question to a teammate is fine');
   assert.ok(!okLine('Then your regulars go first.'), 'never addressed to her');
   assert.ok(okLine('Hmm, regulars buy passes too. Show the pass first?'), 'a light question between teammates is fine');
+  assert.match(problem('Pass price right beside it.', [], { by: 'Mika' }), /Answer Mika by name/);
+  assert.equal(problem('Mika, pass price right beside it.', [], { by: 'Mika' }), null);
   const run = newRun();
   const evs = readEvents(run);
   const ask = evs.find(e => e.type === 'ask');
   assert.deepEqual(speakers(ask, evs, 'product'), ['design', 'strategy', 'engineering', 'data']);
   assert.ok(speakers({ ...ask, artifact: { kind: 'finding' } }, evs, 'product').includes('research'), 'Research speaks on her finding');
   assert.ok(!speakers(ask, evs, 'strategy').includes('strategy'), 'her seat never speaks');
-  const calm = async a => ({ text: { Mika: 'Mika: usual class first, one tap.', Ines: 'Pass price right under it, then.', Bo: 'One tap to rebook, signed in.', Theo: 'Counting rebooks from day one.' }[a.user.match(/^You are (\w+)/)[1]] });
+  const calm = async a => ({ text: { Mika: 'Mika here: usual class first, one tap.', Ines: 'Mika, pass price right under it, then.', Bo: 'One tap to rebook, signed in.', Theo: 'Counting rebooks from day one.' }[a.user.match(/^You are (\w+)/)[1]] });
   const t0 = Date.now();
   const thread = await runThread({ run, ask, text: 'Their spot is theirs.', callModel: calm, gapMs: 150 });
   assert.equal(thread.length, 3, 'nothing to settle: three turns');
   assert.equal(thread[0].text, 'Usual class first, one tap.', 'nobody calls themselves by name');
   assert.ok(Date.now() - t0 >= 300, 'lines at least a gap apart');
   assert.ok(thread.every((t, i) => !i || t.ms - thread[i - 1].ms >= 140));
+  assert.equal((await runThread({ run, ask, text: 'x', callModel: limited, gapMs: 0 })).length, 0, 'a usage-limit message is never said');
   const askHer = async () => ({ text: 'Do you want your regulars first?' });
   assert.equal((await runThread({ run, ask, text: 'x', callModel: askHer, gapMs: 0 })).length, 0, 'a question to her is never said');
   let n = 0;
   const firstToHer = async () => ({ text: n++ % 2 ? 'Then your regulars go first, one tap.' : 'Then your regulars go first, one tap.' });
   assert.equal((await runThread({ run, ask, text: 'x', callModel: firstToHer, gapMs: 0 })).length >= 1, true, 'better a whole line about her regulars than silence');
+});
+
+test('each teammate only brings its own work that touches what was raised (no pet topics)', async () => {
+  const { workOf } = await import('../lib/thread.js');
+  const evs = [
+    { type: 'candidate', id: 'w1', seat: 'engineering', decision: 'Whether full classes get a waitlist', options: ['Waitlist', 'No waitlist'], recommendation: 'Waitlist' },
+    { type: 'candidate', id: 'w2', seat: 'engineering', decision: 'Whether regulars stay signed in', options: ['Remember them on the device', 'Sign in each time'], recommendation: 'Remember them on the device' },
+  ];
+  const w = workOf('engineering', evs, { decisionIds: [] }, '', 'Fast. Never ask regulars for anything you already know; remember them.');
+  assert.match(w, /signed in/);
+  assert.ok(!/waitlist/i.test(w), 'the waitlist was never raised, so it never comes up');
+  assert.match(workOf('engineering', evs, { decisionIds: [] }, '', 'The smell of fresh bread.'), /nothing of yours touches this yet/);
 });
