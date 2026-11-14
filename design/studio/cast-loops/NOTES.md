@@ -36,3 +36,8 @@ Total about **$2.70** (8 Wan clips at $0.05/s × 5 s, plus 1 Kling clip at $0.14
 ## Not tested
 Safari and Firefox playback, and long runs (over 30 min) for decoder hiccups. The recording tool captures frames unevenly,
 so it only shows a mood switch frame by frame, not exactly as a viewer sees it.
+
+## Heads-up: Ines's new look
+The scene loop is painted from the afternoon studio as it was, so Ines appears in her old look. Vincent has since picked the explorer
+(khaki hat with a feather, rolled map). Switching means repainting the scene with the new Ines, then remaking the scene loop:
+one Wan clip, about $0.25 and a few minutes. The Mika and Bo patches are unaffected, as long as the repainted scene keeps them and the table where they are.
