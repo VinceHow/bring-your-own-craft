@@ -10,9 +10,11 @@ import { RUNS_DIR } from '../lib/events.js';
 import { scrub } from '../lib/model.js';
 import { firstSketch, reshape, editFlow, sketchForIdea, installLean } from '../lib/sketch.js';
 import { installChatter } from '../lib/chatter.js';
+import { installWarmth } from '../lib/thread.js';
 
 installLean();
 installChatter(); // the room's light talk, from real run events (lib/chatter.js)
+installWarmth(); // a few warm model processes per run once she has a question, so the thread's first line is fast
 
 const MINE = /^\/api\/run\/([^/]+)\/(sketch|reshape|flow)$/;
 const validRun = id => /^[\w-]{1,80}$/.test(id) && fs.existsSync(path.join(RUNS_DIR, id, 'events.jsonl'));

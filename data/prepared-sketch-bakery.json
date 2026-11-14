@@ -1,0 +1,6 @@
+{
+  "note": "Prepared for the demo: Design's first sketch for the bakery idea, used only if the live sketch fails or takes over 12 s. Shown labelled PREPARED.",
+  "idea": "A website for a small bakery, so customers can order bread ahead.",
+  "users": ["Morning regulars", "The weekend crowd", "The bakers"],
+  "stages": ["See tomorrow's bake", "Choose the bread", "Order ahead", "Collect in the morning"]
+}

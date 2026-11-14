@@ -1,6 +1,7 @@
-// "Your own craft": her name tag, made with her. She says or types a few words; one fast call turns them into
-// craft · good at · loves, in her words, every word editable; Enter keeps it. No form.
-// Provides BYOC.nameTag.open() -> Promise<{ craft, goodAt, loves } | null>. On keep it sets BYOC.herSeat = 'diy',
+// "Your own craft": her character card, made with her. She says or types a few words; one fast call gives the team's
+// own fun read of them (a playful title, two or three traits, maybe a superpower; a click swaps any piece) and her
+// craft (editable); Enter keeps it. No form.
+// Provides BYOC.nameTag.open() -> Promise<{ craft, title, traits, superpower, goodAt, loves } | null>. On keep it sets BYOC.herSeat = 'diy',
 // BYOC.herTag and BYOC.intro ("I love …", so her file's L1 is in her words). The beats session seats her.
 // Known limit, said quietly: two page templates, so a DIY idea neither fits gets her sketch and check-ins, no page.
 (function () {
@@ -9,6 +10,7 @@
   const css = `
 .name-tag { position: absolute; left: 560px; top: 300px; width: 480px; z-index: 30; padding: 18px 22px 16px; background: var(--sheet, #FBF9F4);
   border: 2px dashed var(--ink, #141414); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink, #141414); transform: rotate(-0.6deg); }
+.name-tag:focus { outline: 0; }
 .name-tag .tag-head { font: 600 12px var(--mono, monospace); letter-spacing: .12em; text-transform: uppercase; }
 .name-tag .tag-ask { margin: 8px 0 10px; font: 500 15px/1.35 var(--ui, sans-serif); }
 .name-tag .tag-input { width: 100%; font: 500 18px var(--ui, sans-serif); border: 0; border-bottom: 2px solid var(--ink, #141414);
@@ -18,6 +20,12 @@
 .name-tag .tag-craft { display: block; font: 400 34px/1.1 var(--display, serif); margin: 6px 0 10px; }
 .name-tag .tag-row { display: flex; gap: 8px; align-items: baseline; margin: 4px 0; font: 500 16px/1.3 var(--ui, sans-serif); }
 .name-tag .tag-key { flex: 0 0 72px; font: 500 11px var(--mono, monospace); text-transform: uppercase; letter-spacing: .08em; }
+.name-tag .tag-title { display: block; font: 400 30px/1.1 var(--display, serif); margin: 4px 0 6px; cursor: pointer; }
+.name-tag .tag-traits { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.name-tag .tag-trait { font: 500 13px var(--ui, sans-serif); padding: 3px 8px; border: 2px solid var(--ink, #141414); border-radius: 3px; cursor: pointer; background: var(--sheet, #FBF9F4); }
+.name-tag .tag-power { font: italic 500 14px/1.3 var(--ui, sans-serif); cursor: pointer; margin: 6px 0; }
+.name-tag .tag-power:empty { display: none; }
+.name-tag .tag-craftline { font: 500 12px var(--mono, monospace); text-transform: uppercase; letter-spacing: .08em; }
 .name-tag [contenteditable] { outline: 0; border-bottom: 1px dashed rgba(20,20,20,.4); min-width: 2ch; }
 .name-tag [contenteditable]:empty::before { content: attr(data-placeholder); color: rgba(20,20,20,.38); }
 .idea-note { position: absolute; left: 30px; right: 30px; bottom: 14px; z-index: 8; font: 400 12px var(--mono, monospace); color: rgba(20,20,20,.7); }
@@ -45,19 +53,31 @@
   function openTag() {
     if (open) return open.promise;
     const room = B.el && B.el.room; if (!room) return Promise.resolve(null);
-    const el = h('section', 'name-tag'); el.setAttribute('aria-label', 'Your name tag');
+    const el = h('section', 'name-tag'); el.setAttribute('aria-label', 'Your character card'); el.tabIndex = -1;
     const say = h('div', 'tag-say');
     const input = h('input', 'tag-input'); input.type = 'text'; input.spellcheck = false; input.dataset.voice = 'tag';
     input.placeholder = "I'm good at mixing dough, and I love the first batch out at 6am";
     say.append(h('div', 'tag-ask', 'Your own craft. In a few words: what do you do, and what do you love about it?'), input,
       h('div', 'tag-hint', 'Enter: the team makes your name tag · Esc: back'));
     const card = h('div', 'tag-card'); card.hidden = true;
+    const title = h('span', 'tag-title'); title.title = 'Swap the title';
     const craft = field('tag-craft', '', 'your craft');
-    const good = field('tag-good', '', 'what you’re good at');
-    const loves = field('tag-loves', '', 'what you love');
-    const row = (k, f) => { const r = h('div', 'tag-row'); r.append(h('span', 'tag-key', k), f); return r; };
-    const hint = h('div', 'tag-hint', 'Every word is yours to change · Enter: take the seat');
-    card.append(craft, row('good at', good), row('loves', loves), hint);
+    const craftLine = h('div', 'tag-craftline'); craftLine.append(craft);
+    const traits = h('div', 'tag-traits');
+    const power = h('div', 'tag-power'); power.title = 'Swap the superpower';
+    const hint = h('div', 'tag-hint', 'The team’s read of you · click any piece to swap it · Enter: take the seat');
+    card.append(craftLine, title, traits, power, hint);
+    let cur = null; // the card as it stands, with its pools of swaps
+    // A click swaps a piece for the next one in its pool; the one it replaces goes back in the pool.
+    // Focus stays on her card, so Enter keeps it whatever she clicked last.
+    const swap = (pool, value) => { const next = cur.alternates[pool].shift(); if (next) cur.alternates[pool].push(value); el.focus(); return next || value; };
+    title.addEventListener('click', () => { cur.title = swap('titles', cur.title); title.textContent = cur.title; });
+    power.addEventListener('click', () => { cur.superpower = swap('superpowers', cur.superpower); power.textContent = cur.superpower; });
+    function drawTraits() {
+      traits.innerHTML = '';
+      cur.traits.forEach((t, i) => { const b = h('span', 'tag-trait', t); b.title = 'Swap this trait';
+        b.addEventListener('click', () => { cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); }); traits.appendChild(b); });
+    }
     el.append(h('div', 'tag-head', 'Name tag'), say, card);
     room.appendChild(el);
     let resolve; const promise = new Promise(r => { resolve = r; });
@@ -71,7 +91,8 @@
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
       if (!card.hidden) { // keep it
-        const tag = { craft: craft.textContent.trim(), goodAt: good.textContent.trim(), loves: loves.textContent.trim() };
+        const { alternates, ...rest } = cur;
+        const tag = { ...rest, craft: craft.textContent.trim() };
         if (!tag.craft) { craft.focus(); return; }
         keep(tag);
         return;
@@ -85,8 +106,10 @@
       try { r = await B.api('/api/name-tag', { text }, { step: false }); } catch (e) { r = null; }
       busy = false;
       if (!open || open.el !== el) return;
-      craft.textContent = r?.craft || ''; good.textContent = r?.goodAt || ''; loves.textContent = r?.loves || '';
-      if (!r || r.rough) hint.textContent = 'In your words, as you said them: write your craft · Enter: take the seat';
+      cur = { craft: r?.craft || '', title: r?.title || '', traits: r?.traits || [], superpower: r?.superpower || '', goodAt: r?.goodAt || '', loves: r?.loves || '',
+        alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
+      craft.textContent = cur.craft; title.textContent = cur.title; power.textContent = cur.superpower; drawTraits();
+      if (!r || r.rough) hint.textContent = 'The team couldn’t make your card just now: write your craft · Enter: take the seat';
       say.hidden = true; card.hidden = false;
       (craft.textContent ? card : craft).focus();
       if (!craft.textContent) craft.focus();
