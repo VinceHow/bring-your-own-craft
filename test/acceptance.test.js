@@ -85,3 +85,20 @@ test('without BASE_URL the suite refuses to run, instead of passing by accident'
   const code = await new Promise(r => c.on('close', r));
   assert.notEqual(code, 0);
 });
+
+test('the slim gate (BAKERY_SLIM=1) passes a bakery without the collection, and still checks one-per-drop', async () => {
+  await withStub('nocollection', async (base, log) => {
+    const full = await runSuite(base, { log });
+    assert.ok(full.failed.includes('3'), 'the full gate needs the collection');
+    const slim = await new Promise(resolve => {
+      const c = spawn(process.execPath, ['--test', '--test-reporter=tap', SUITE], { env: cleanEnv({ BASE_URL: base, ADMIN_TOKEN: TOKEN, APP_LOG: log, BAKERY_SLIM: '1' }) });
+      let out = ''; c.stdout.on('data', d => (out += d)); c.stderr.on('data', d => (out += d));
+      c.on('close', code => resolve({ code, out }));
+    });
+    assert.equal(slim.code, 0, slim.out.slice(-3000));
+  });
+  await withStub('twice', async (base, log) => {
+    const c = spawn(process.execPath, ['--test', SUITE], { env: cleanEnv({ BASE_URL: base, ADMIN_TOKEN: TOKEN, APP_LOG: log, BAKERY_SLIM: '1' }) });
+    assert.notEqual(await new Promise(r => c.on('close', r)), 0, 'slim still catches a second of the same item');
+  });
+});

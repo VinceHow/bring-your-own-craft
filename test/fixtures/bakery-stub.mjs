@@ -1,7 +1,7 @@
 // A throwaway stand-in for the team-built bakery, only to prove deploy/acceptance/bakery.acceptance.js runs and has
 // teeth. In-memory node:http keeping deploy/ACCEPTANCE.md. STUB_FLAW=<flaw> breaks one rule on purpose so
 // test/acceptance.test.js can check the suite catches it:
-//   field · twice · nodrop · soldout · race · nosse · restock · reset · adminopen · logname · ratelimit · hold · clock
+//   field · twice · nodrop · nocollection · soldout · race · nosse · restock · reset · adminopen · logname · ratelimit · hold · clock
 // Never deployed.
 import http from 'node:http';
 import crypto from 'node:crypto';
@@ -92,7 +92,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'GET' && u.pathname === '/api/loaves') return send(res, 200, { loaves: ITEMS.map(loafView) }, cookie);
   if (req.method === 'POST' && u.pathname === '/api/reservations') { const [s, b] = await reserve(body, dev); return send(res, s, b, cookie); }
-  if (req.method === 'GET' && u.pathname === '/api/collection')
+  if (req.method === 'GET' && u.pathname === '/api/collection' && FLAW !== 'nocollection')
     return send(res, 200, { items: orders.filter(o => o.device === dev && o.status === 'delivered').map(o => ({ reservation_id: o.id, loaf_id: o.loaf_id, name: item(o.loaf_id).name, drop: o.drop })) }, cookie);
   const ev = u.pathname.match(/^\/api\/reservations\/([\w-]+)\/events$/);
   if (req.method === 'GET' && ev) {

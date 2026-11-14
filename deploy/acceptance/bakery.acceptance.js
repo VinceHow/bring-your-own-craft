@@ -11,6 +11,7 @@ if (!BASE) throw new Error('BASE_URL is not set: point it at the bakery app');
 const TOKEN = process.env.ADMIN_TOKEN || '';
 const APP_LOG = process.env.APP_LOG || '';
 const NO_TOKEN = TOKEN ? false : 'ADMIN_TOKEN is not set: the suite assumes the app has none either, and only checks the admin stays locked (test 8)';
+const SLIM = process.env.BAKERY_SLIM === '1'; // the cut path: no bread collection (only if the lead calls the cut)
 const TIERS = { rare: 3, medium: 8, plentiful: 40 }; // the brief's starting stock per drop
 
 const names = new Set(); // every first name used, for the log check
@@ -112,7 +113,7 @@ test('2. any field other than a first name is rejected', { skip: NO_TOKEN }, asy
   assert.equal((await loaf(item.id)).left, item.start, 'nothing reserved');
 });
 
-test('3. one of each item per device per drop: a second is refused, kindly; after a Restock it is allowed, and the collection shows both', { skip: NO_TOKEN }, async () => {
+test('3. one of each item per device per drop: a second is refused, kindly; after a Restock it is allowed, and the collection shows both', { skip: NO_TOKEN }, async t => {
   const dev = await device();
   const item = await byTier('medium'), other = await byTier('plentiful');
   const a = await reserve(item.id, 'Ana', dev);
@@ -132,6 +133,7 @@ test('3. one of each item per device per drop: a second is refused, kindly; afte
   assert.equal(b.status, 201, `after a Restock (new drop): ${b.text}`);
   assert.equal(b.json.drop, 2, 'the second drop');
   assert.equal((await admin('POST', '/api/admin/deliver')).status, 200);
+  if (SLIM) { t.diagnostic('BAKERY_SLIM=1: the collection is cut; its checks are skipped'); return; }
   const col = await req('GET', '/api/collection', { dev });
   assert.equal(col.status, 200, col.text);
   const mine = col.json.items.filter(x => x.loaf_id === item.id);
