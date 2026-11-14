@@ -35,7 +35,7 @@
     "regularsFirst": true,
     "standingOrder": true,
     "cutoff": true,
-    "phone": true,
+    "phone": false,
     "remember": true,
     "oneTapCancel": true,
     "cancelReason": true

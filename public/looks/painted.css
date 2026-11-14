@@ -683,7 +683,25 @@ html #room .her-sheet:not(.big), html #room .her-sheet.big { scale: 1; translate
   padding: 14px 20px 12px; border-radius: 30px 26px 32px 24px / 26px 32px 24px 30px; }
 html #room .her-sheet .her-q { font: 500 15px/1.2 var(--ui); color: var(--ink-3); margin: 0; }
 html #room .her-sheet .her-idea { font: 400 18px/1.25 var(--display); color: var(--ink); margin: 3px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-html #room .her-sheet :is(.her-form, .her-notes, .idea-tabs, .fs-bar, .sketch-sheet, .page-sheet) { display: none !important; }
+html #room .her-sheet :is(.her-notes, .idea-tabs, .fs-bar, .sketch-sheet, .page-sheet) { display: none !important; }
+/* her idea input and Team, go are functional controls: a look restyles them, never hides them. While the room asks
+   her to type (#her-form not [hidden]), the glance card grows to hold the form (builder 7, P0 for painted). */
+html #room .her-sheet:has(.her-form:not([hidden])) { height: auto !important; overflow: visible; }
+html #room .her-sheet .her-form:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; padding-top: 8px; }
+html #room .her-sheet .her-form[hidden] { display: none !important; }
+html #room .her-sheet .her-form .her-input { flex: 1 1 100%; font: 400 17px/1.3 var(--ui); padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.6); }
+html #room .her-sheet .her-form .her-hint { font: 500 12px/1.2 var(--ui); color: var(--ink-3); }
+/* she types or says her idea on the glance card itself (builder 7, P0): the form shows while the room asks for it,
+   and the card grows to hold it. Hooks: [data-component="her-idea"], #her-input, [data-component="team-go"]. */
+html #room .her-sheet [data-component="her-idea"][hidden] { display: none !important; }
+html #room .her-sheet:has([data-component="her-idea"]:not([hidden])) { height: auto !important; min-height: 150px; width: 460px; overflow: visible; }
+html #room .her-sheet [data-component="her-idea"]:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border-top: 0; padding: 4px 0 2px; margin: 0; }
+html #room .her-sheet [data-component="her-idea"] #her-input { flex: 1 1 240px; min-width: 0; font: 400 19px/1.3 var(--display); color: var(--ink);
+  background: transparent; border: 0; border-bottom: 1.5px solid var(--ink-3); border-radius: 0; padding: 6px 2px; outline: none; }
+html #room .her-sheet [data-component="her-idea"] #her-input:focus-visible { border-bottom-color: var(--product, #C76B83); }
+html #room .her-sheet [data-component="her-idea"] #her-input::placeholder { color: var(--ink-3); font-style: italic; }
+html #room .her-sheet [data-component="team-go"]:not([hidden]) { font: 500 15px/1 var(--ui); padding: 9px 16px; border: 0; border-radius: 999px;
+  background: var(--ink); color: var(--paper, #FCF6EA); cursor: pointer; }
 html #room .her-sheet .her-flow { height: 44px; overflow: hidden; margin: 0; }
 html #room .her-sheet .fl-canvas { transform: none !important; }
 html #room .her-sheet .fl-box { padding: 5px 10px; }
@@ -864,3 +882,97 @@ html #room .inbox .inbox-action ~ * , html #room .inbox .inbox-action { box-sizi
 html #room .inbox[data-state="expanded"], html #room .inbox:has(.inbox-drawer:not([hidden])) { left: 22px; right: auto; bottom: 22px; width: 372px; }
 html #room .inbox:has(.inbox-drawer:not([hidden])) .inbox-drawer { max-height: 640px; overflow: auto; }
 html #room .inbox[data-state="expanded"], html #room .inbox:has(.inbox-drawer:not([hidden])) { width: 300px; }
+
+/* ---------- her name tag, as the first-open paper step (design studio, 14 Nov) ----------
+   Hooks only (docs/COMPONENTS.md): setup[data-step], character-card[data-state], data-slot name · label · question ·
+   options · option[aria-pressed] · input · hint · status[data-state] · actions · make[data-state] · character · title ·
+   traits · trait · superpower; the mic is voice.js's [data-field="intro"]. No class names. Behind it: the studio door,
+   softly blurred and warm, the same door she walks through at the reveal. */
+html #room [data-component="setup"][data-step="nametag"] { background: #E9DCC6; isolation: isolate; }
+html #room [data-component="setup"][data-step="nametag"]::before { content: ''; position: absolute; inset: -24px; z-index: -1; pointer-events: none;
+  background: url(cast/intro/door.jpg) center 42% / cover no-repeat; filter: blur(9px) saturate(.92); }
+html #room [data-component="setup"][data-step="nametag"]::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(80% 80% at 50% 45%, rgba(255,240,215,.10), rgba(239,220,190,.26)); }
+html #room [data-component="character-card"][data-seat="product"] { width: min(720px, 92vw); padding: 30px 36px 30px; }
+html #room [data-component="character-card"] [data-slot="head"] { font: 500 15px/1 var(--ui); color: #93374F; margin: 0 0 18px; text-transform: none; letter-spacing: 0; }
+html #room [data-component="character-card"] [data-slot="label"], html #room [data-component="character-card"] [data-slot="question"] {
+  display: block; font: 500 15px/1.2 var(--ui); color: var(--ink-2); text-transform: none; letter-spacing: 0; margin: 0 0 8px; }
+/* her name: an inked underline, not a box */
+html #room [data-component="character-card"] [data-slot="name"] { display: block; width: 100%; margin: 0 0 22px; padding: 2px 2px 6px; border: 0; border-radius: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' preserveAspectRatio='none'%3E%3Cpath d='M1 3.6 C80 2.2 160 4.6 250 3.2 S430 2.4 520 3.8 S580 3.1 599 2.9' fill='none' stroke='%2333261C' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 100% 6px no-repeat;
+  font: 400 36px/1.15 var(--display); color: var(--ink); box-shadow: none; outline: none; }
+html #room [data-component="character-card"] [data-slot="name"]:focus { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' preserveAspectRatio='none'%3E%3Cpath d='M1 3.6 C80 2.2 160 4.6 250 3.2 S430 2.4 520 3.8 S580 3.1 599 2.9' fill='none' stroke='%2393374F' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+/* the two seat choices: ink pills; hers in her pink crayon */
+html #room [data-component="character-card"] [data-component="pick-card"] { margin: 0 0 22px; padding: 0; border: 0; background: none; box-shadow: none; }
+html #room [data-component="character-card"] [data-slot="options"] { display: flex; flex-wrap: wrap; gap: 12px; }
+html #room [data-component="character-card"] [data-slot="option"] { appearance: none; height: 48px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
+  background: #FFFBF3; box-shadow: inset 0 0 0 1.5px rgba(51,38,28,.55); font: 500 17px/1 var(--ui); color: var(--ink); outline: none;
+  transition: translate .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s; }
+html #room [data-component="character-card"] [data-slot="option"]:hover { translate: 0 -2px; }
+html #room [data-component="character-card"] [data-slot="option"][aria-pressed="true"] { background: #FCEBEF; color: #93374F;
+  box-shadow: inset 0 0 0 1.7px #93374F, 3px 3px 0 0 var(--product); }
+html #room [data-component="character-card"] [data-slot="option"]:focus-visible { box-shadow: inset 0 0 0 2.4px #93374F, 3px 3px 0 0 var(--product); }
+/* what she loves: her words on her paper */
+html #room [data-component="character-card"] [data-slot="input"] { display: block; width: 100%; min-height: 92px; margin: 0; padding: 14px 16px; resize: none;
+  border: 0; border-radius: 16px; background: #FFFBF3; box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); outline: none;
+  font: 400 22px/1.4 var(--display); color: var(--ink); }
+html #room [data-component="character-card"] [data-slot="input"]::placeholder { color: #8A7462; font-style: italic; }
+html #room [data-component="character-card"] [data-slot="input"]:focus { box-shadow: inset 0 0 0 2px rgba(147,55,79,.7); }
+/* the mic: our voice pill */
+html #room [data-component="character-card"] [data-field="intro"] { display: inline-flex; align-items: center; gap: 10px; height: 46px; margin: 12px 0 0; padding: 0 18px 0 7px;
+  border: 0; border-radius: 999px; background: #FCEBEF; box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.55); cursor: pointer; position: static; transform: none; }
+html #room [data-component="character-card"] [data-field="intro"] svg { box-sizing: content-box; width: 16px; height: 16px; padding: 8px; border-radius: 50%; background: #93374F; color: #fff; }
+html #room [data-component="character-card"] [data-field="intro"] > span { font: 500 15px/1 var(--ui); color: #93374F; text-transform: none; letter-spacing: 0; }
+html #room [data-component="character-card"] [data-field="intro"][data-state="listening"] svg { animation: pt-nt-breathe 1.1s ease-in-out infinite; }
+@keyframes pt-nt-breathe { 50% { transform: scale(1.08); } }
+html #room [data-component="character-card"] [data-slot="hint"] { margin: 12px 0 0; font: 400 14px/1.35 var(--ui); color: var(--ink-2); }
+/* what the card is doing: always a plain line, never a spinner */
+html #room [data-component="character-card"] [data-slot="status"] { margin: 12px 0 0; font: italic 400 17px/1.35 var(--display); color: var(--ink-2); }
+html #room [data-component="character-card"] [data-slot="status"]:empty { display: none; }
+html #room [data-component="character-card"] [data-slot="status"][data-state="failed"] { color: #93374F; }
+html #room [data-component="character-card"] [data-slot="actions"] { display: flex; justify-content: flex-end; gap: 12px; margin: 18px 0 0; }
+html #room [data-component="character-card"] [data-slot="make"] { appearance: none; height: 52px; padding: 0 28px; border: 0; border-radius: 999px; cursor: pointer;
+  background: #33261C; color: #FBF5EA; font: 500 17px/1 var(--ui); box-shadow: 4px 4px 0 0 var(--product); outline: none; transition: translate .3s cubic-bezier(.2,.7,.2,1), opacity .3s; }
+html #room [data-component="character-card"] [data-slot="make"]:hover:not(:disabled) { translate: 0 -2px; }
+html #room [data-component="character-card"] [data-slot="make"]:focus-visible { box-shadow: 4px 4px 0 0 var(--product), 0 0 0 3px #FBF5EA, 0 0 0 5px #33261C; }
+html #room [data-component="character-card"] [data-slot="make"][data-state="busy"] { opacity: .72; cursor: default; }
+html #room [data-component="character-card"] [data-slot="make"][data-state="retry"] { background: #FFFBF3; color: var(--ink); box-shadow: inset 0 0 0 1.6px #33261C, 3px 3px 0 0 var(--product); }
+/* the team's read of her, once made */
+html #room [data-component="character-card"] [data-slot="character"] { margin: 20px 0 0; padding: 18px 0 0; border-top: 1px dashed rgba(147,55,79,.4); }
+html #room [data-component="character-card"] [data-slot="title"] { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: italic 400 32px/1.2 var(--display); color: #93374F; }
+html #room [data-component="character-card"] [data-slot="traits"] { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+html #room [data-component="character-card"] [data-slot="trait"] button { appearance: none; border: 0; cursor: pointer; padding: 6px 13px; border-radius: 999px; background: #FFFBF3;
+  box-shadow: inset 0 0 0 1.3px rgba(51,38,28,.45); font: 500 15px/1.2 var(--ui); color: var(--ink); }
+html #room [data-component="character-card"] [data-slot="superpower"] { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: italic 400 19px/1.35 var(--display); color: var(--ink); text-align: left; }
+html #room [data-component="character-card"][data-state="thinking"] [data-slot="input"] { opacity: .75; }
+/* once made: her tag reads top to bottom, the way on ("Meet your team") last; the asking hint and the mic step aside */
+html #room [data-component="character-card"][data-seat="product"] { display: flex; flex-direction: column; }
+html #room [data-component="character-card"] > [data-slot="character"] { order: 1; }
+html #room [data-component="character-card"] > [data-slot="actions"] { order: 2; }
+html #room [data-component="character-card"]:focus { outline: none; }
+html #room [data-component="character-card"][data-state="shown"] > [data-slot="hint"],
+html #room [data-component="character-card"][data-state="shown"] [data-field="intro"] { display: none; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="input"] { min-height: 0; padding: 10px 14px; font-size: 19px; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="name"] { margin-bottom: 16px; }
+html #room [data-component="character-card"][data-state="shown"] [data-component="pick-card"] { margin-bottom: 16px; }
+/* ---- the team at work (painted.js): one calm status line on the table's near edge, cream paper, no counts ---- */
+html #room .painted-status { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; z-index: 8; margin: 0; max-width: 760px; padding: 9px 20px 10px;
+  border-radius: 999px; background: rgba(251,245,234,.94); color: var(--ink); font: italic 400 18px/1.3 var(--display); text-align: center; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; box-shadow: var(--paper-shadow); }
+html #room .painted-status.in { animation: pt-status 700ms var(--ease-land) backwards; }
+@keyframes pt-status { from { opacity: 0; translate: -50% 6px; } }
+
+/* chatter: at most two on screen, and each fades */
+html #room .chatter .chatter-line:nth-last-child(n+3) { display: none; }
+html #room .chatter-line[data-state="leaving"] { opacity: 0; transition: opacity 700ms var(--ease-glide); }
+@media (prefers-reduced-motion: reduce) { html #room .painted-status.in { animation: none; } }
+/* the status note: bottom left on the rug, clear of her inbox and stool; one teammate per line */
+html #room .painted-status { left: 230px; bottom: 26px; translate: none; max-width: 520px; padding: 11px 20px 12px; border-radius: 22px 18px 24px 16px / 18px 24px 16px 22px;
+  white-space: pre-line; text-align: left; font-size: 19px; line-height: 1.4; isolation: isolate; background: none; box-shadow: none; }
+html #room .painted-status::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--kraft);
+  -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; translate: 5px 6px; rotate: 1deg; }
+html #room .painted-status::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--sheet) var(--tooth); background-clip: padding-box;
+  border: 2px solid transparent; border-image: var(--ink-pill) 34 / 20px / 2px stretch; box-shadow: var(--paper-shadow); }
+@keyframes pt-status { from { opacity: 0; translate: 0 6px; } }
+/* chatter bubbles sit ABOVE their speaker's pill (the room places them under it), clear of every face */
+html #room .chatter-line { translate: 0 calc(-100% - 58px); border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; max-width: 300px; }

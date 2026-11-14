@@ -270,7 +270,7 @@
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
-    pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === what)));
+    pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
     if (what === 'craft') {
       BYOC.herName = herNameField();
@@ -318,7 +318,7 @@
   // agreed (team space) and her takeaways so far. Structure only; the tray stays the way into each question.
   const panel = h('section', 'room-panel'); panel.id = 'room-panel'; panel.hidden = true;
   el.room.appendChild(panel);
-  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
+  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.dataset.state = 'closed'; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
   function openPanel(component, seat, head, body) {
     panel.innerHTML = '';
     panel.dataset.component = component; panel.dataset.state = 'open';
@@ -330,7 +330,7 @@
     panel.append(top, body);
     panel.hidden = false;
   }
-  function openSketchpad(seat) {
+  function openSketchpad(seat, { refresh = false } = {}) {
     if (!INFO[seat] || seat === 'product' || BYOC.beat < 2) return;
     const i = INFO[seat];
     const ev = seen;
@@ -348,15 +348,54 @@
       if (c.reason) { const r = h('span', 'sp-reason'); r.textContent = c.reason; r.dataset.slot = 'reason'; li.appendChild(r); }
       list.appendChild(li);
     }
-    if (!items.length) { const e = h('p', 'sp-empty'); e.textContent = thinking.has(seat) ? 'Thinking it through.' : 'Nothing on the pad yet.'; e.dataset.slot = 'empty'; list.appendChild(e); }
+    if (!items.length) { // never a bare "nothing yet": one plain line on what this teammate is doing or waiting for
+      const st = padStatus(seat, ev);
+      const e = h('p', 'sp-status'); e.textContent = st.text; e.dataset.component = 'pad-status'; e.dataset.slot = 'status'; e.dataset.state = st.state;
+      list.appendChild(e);
+    }
+    if (refresh) { const old = panel.querySelector('.sp-items'); if (old) old.replaceWith(list); return; }
     openPanel('sketchpad-open', seat, `${i.agent} · ${i.name}`, list);
     emit('seat.open', { seat });
   }
+  // What an empty pad says, from the run's real events, in this order: a snag, at work, waiting (on her, or on a joint
+  // decision), not started yet, or done with nothing for her. States: error · working · waiting · empty.
+  function padStatus(seat, ev) {
+    const A = INFO[seat].agent;
+    const at = (type, f = () => true) => ev.findLastIndex(e => e.type === type && f(e));
+    const started = at('teammate.start', e => e.seat === seat), ended = Math.max(at('teammate.done', e => e.seat === seat), at('teammate.error', e => e.seat === seat));
+    if (at('teammate.error', e => e.seat === seat) > started && started >= 0) return { state: 'error', text: `${A} hit a snag; the team carries on.` };
+    if (started >= 0 && started > ended) return { state: 'working', text: `${A} is thinking it through…` };
+    const quote = t => { const q = String(t || '').trim(); return q.length > 70 ? q.slice(0, 68).replace(/\s+\S*$/, '') + '…' : q; };
+    const answered = new Set(ev.filter(e => e.type === 'answer').map(e => e.askId));
+    const open = ev.filter(e => (e.type === 'ask' || e.type === 'ask.unblock') && !answered.has(e.id));
+    const joints = ev.filter(e => e.type === 'joint.start' && !ev.some(x => (x.type === 'joint.agreed' || x.type === 'joint.kept') && x.id === e.jointId));
+    const inJoint = joints.findLast(j => (j.seats || []).includes(seat));
+    if (inJoint) { const others = inJoint.seats.filter(s => s !== seat && INFO[s]).map(s => INFO[s].agent); return { state: 'working', text: `${A} is agreeing “${quote(inJoint.decision)}”${others.length ? ` with ${others.join(' and ')}` : ''}…` }; }
+    const mine = open.findLast(a => a.seat === seat);
+    if (mine) return { state: 'waiting', text: mine.type === 'ask.unblock' ? `${A} is blocked until you answer: “${quote(mine.question)}”` : `${A} is waiting on your answer: “${quote(mine.question || mine.decision)}”` };
+    const other = open.findLast(a => INFO[a.seat]);
+    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${INFO[other.seat].agent}'s question.` };
+    if (joints.length) return { state: 'waiting', text: `${A} starts once the team has agreed “${quote(joints.at(-1).decision)}”.` };
+    if (!ev.some(e => e.type === 'teammate.start')) return { state: 'empty', text: `${A} joins once the team gets going.` };
+    return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
+  }
+  // An open pad follows the run: each event redraws it in place (no second seat.open).
+  function refreshPad() {
+    if (panel.hidden) return;
+    if (panel.dataset.component === 'sketchpad-open' && panel.dataset.seat) openSketchpad(panel.dataset.seat, { refresh: true });
+    else if (panel.dataset.component === 'workspace') openWorkspace({ refresh: true }); // her workspace follows the run too
+  }
   BYOC.openSketchpad = openSketchpad;
-  function openWorkspace() {
+  function openWorkspace({ refresh = false } = {}) {
     if (BYOC.beat < 1) return;
     const body = h('div', 'ws-body');
-    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; p.dataset.state = 'filled'; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    // An empty part never says "not yet": one plain line on what happens next (data-state empty, data-slot status).
+    const pending = (p, tag, text) => { p.dataset.state = 'empty'; const e = h(tag, tag === 'li' ? 'ws-none' : 'ws-status'); e.dataset.slot = 'status'; e.textContent = text; return e; };
+    const answered = new Set(seen.filter(e => e.type === 'answer').map(e => e.askId));
+    const openAsk = seen.findLast(e => (e.type === 'ask' || e.type === 'ask.unblock') && !answered.has(e.id) && INFO[e.seat]);
+    const openJoint = seen.findLast(e => e.type === 'joint.start' && !seen.some(x => (x.type === 'joint.agreed' || x.type === 'joint.kept') && x.id === e.jointId));
+    const teamStarted = seen.some(e => e.type === 'teammate.start');
     // her character card
     const t = BYOC.herTag || {};
     const ch = part('character', 'Your character');
@@ -365,15 +404,20 @@
     if (t.superpower) { const sp = h('p', 'ws-power'); sp.textContent = t.superpower; ch.appendChild(sp); }
     // her idea and its journey
     const id = part('idea', 'Your idea');
-    const it = h('p', 'ws-idea'); it.textContent = el.herIdea.textContent || 'Not said yet.'; id.appendChild(it);
+    // Her idea from the sheet, else from the run itself (run.start), so it's there the moment the run has it.
+    const idea = (el.herIdea.textContent || '').trim() || (seen.findLast(e => e.type === 'run.start' && e.idea)?.idea || '').trim();
+    if (idea) { const it = h('p', 'ws-idea'); it.textContent = idea; it.dataset.slot = 'idea-text'; id.appendChild(it); }
+    else id.appendChild(pending(id, 'p', 'You’ll say it on the idea sheet; it shows here the moment you do.'));
     const S = BYOC.flow && BYOC.flow._state;
     if (S && S.nodes.size) { const j = h('p', 'ws-journey'); j.textContent = [...S.nodes.values()].map(n => n.label).join(' → '); j.dataset.slot = 'journey'; id.appendChild(j); }
+    else if (idea) { const j = h('p', 'ws-status'); j.dataset.slot = 'status'; j.textContent = `Its journey shows here once ${INFO.design.agent} has sketched it.`; id.appendChild(j); }
     // what the team agreed
     const ts = part('team-space', 'What the team agreed');
     const agreed = [...new Map(seen.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()];
     const tl = h('ul', 'ws-list');
     for (const a of agreed) { const li = h('li', 'ws-agreed'); li.textContent = a.headline; tl.appendChild(li); }
-    if (!agreed.length) { const li = h('li', 'ws-none'); li.textContent = 'Nothing agreed yet.'; tl.appendChild(li); }
+    if (!agreed.length) tl.appendChild(pending(ts, 'li', openJoint ? `The team is agreeing “${openJoint.decision}” now; it lands here.`
+      : teamStarted ? 'What the team agrees lands here as they work.' : 'The team gets going once you’ve said your idea; what they agree lands here.'));
     ts.appendChild(tl);
     // her takeaways so far (the latest per question; what she kept wins)
     const tk = part('takeaways', 'Your takeaways so far');
@@ -381,8 +425,9 @@
     for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
     const kl = h('ul', 'ws-list');
     for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
-    if (!byAsk.size) { const li = h('li', 'ws-none'); li.textContent = 'None yet: they come from your answers.'; kl.appendChild(li); }
+    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${INFO[openAsk.seat].agent}’s question.` : 'They come from your answers to the team’s questions.'));
     tk.appendChild(kl);
+    if (refresh) { const old = panel.querySelector('.ws-body'); if (old) old.replaceWith(body); return; }
     openPanel('workspace', null, 'Your workspace', body);
     emit('workspace.open', {});
   }
@@ -487,7 +532,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : {}), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -857,8 +902,10 @@
   function chat(ev) {
     const s = el.seat[ev.seat]; if (!s || !ev.text) return;
     const line = h('div', 'chatter-line'); line.dataset.seat = ev.seat; line.dataset.component = 'chatter-line'; line.dataset.state = 'in';
-    const cw = h('span', 'chatter-who'); cw.textContent = `${ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name}: `; cw.dataset.slot = 'who';
-    const ct = h('span', 'chatter-text'); ct.textContent = ev.text; ct.dataset.slot = 'text';
+    const who = ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name;
+    const cw = h('span', 'chatter-who'); cw.textContent = `${who}: `; cw.dataset.slot = 'who';
+    // The log's line already starts with the speaker ("Noor: found a source…"); say the name once.
+    const ct = h('span', 'chatter-text'); ct.textContent = String(ev.text).replace(new RegExp('^\\s*' + who.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*', 'i'), ''); ct.dataset.slot = 'text';
     line.append(cw, ct);
     line.style.left = (s.offsetLeft + 12) + 'px';
     line.style.top = (s.offsetTop + s.offsetHeight - 6) + 'px';
@@ -954,6 +1001,7 @@
     }
     seen.push(ev);
     try { react(ev, source); } catch (e) { console.error('room', ev.type, e); }
+    try { refreshPad(); } catch (e) { console.error('pad', e); }
     if (ev.mode === 'craft' || ev.mode === 'stamp') refreshTally(); // the meter counts every craft or stamp event, whatever its type
     emit(ev.type, ev);
   }
@@ -1052,7 +1100,7 @@
       // its shape and lands in her inbox like any ask. Her answer redraws the journey and settles a run of decisions,
       // each with its teammate: a line on its sketchpad and a word under its card, one after another.
       case 'sketch.done':
-        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) {
+        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) { // the server raises it too (lib/first.js)
           firstAskedFor = BYOC.run;
           BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
         }
@@ -1064,11 +1112,11 @@
         const at = seen.findIndex(x => x.type === 'reshape' && x.askId === ev.askId);
         if (ev.reshaped && list && at > 0) {
           const now = [...list.querySelectorAll('.fs-user:not(.later)')];
-          now.forEach((u, i) => u.classList.toggle('main', i === 0));
+          now.forEach((u, i) => { u.classList.toggle('main', i === 0); u.dataset.state = i === 0 ? 'main' : 'kept'; });
           const norm = t => String(t || '').trim().toLowerCase();
           const kept = new Set(now.map(u => norm(u.textContent)));
           for (const e of seen.slice(0, at)) if (e.type === 'sketch.user' && !kept.has(norm(e.label)) && !list.querySelector(`.fs-user.later[data-user="${CSS.escape(e.id || '')}"]`)) {
-            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
+            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.state = 'later'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
           }
         }
         emit('first.settled', { askId: ev.askId, decided: ev.decided });
@@ -1119,7 +1167,7 @@
   let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
-  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
+  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
   // Her paper name tag. One component with the DIY name tag (character-card), so voice, swaps and the gallery carry on.
   function openPaper() {
     if (!setup) return;
@@ -1133,8 +1181,8 @@
       <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
         <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
         <div class="pick-options" data-slot="options">
-          <button type="button" class="pick-option" data-pick="product" data-slot="option" aria-pressed="true">Product</button>
-          <button type="button" class="pick-option" data-pick="craft" data-slot="option" aria-pressed="false">Your own craft</button>
+          <button type="button" class="pick-option" data-pick="product" data-slot="option" data-state="picked" aria-pressed="true">Product</button>
+          <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
@@ -1155,56 +1203,72 @@
   }
   // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
   // traits, maybe a superpower, each swappable with a click (builder 6's POST /api/name-tag, as on the craft seat).
-  // What the card is doing, always visible (never silence): 'thinking' within a frame of Enter, 'slow' after a while,
-  // 'failed' with a plain line and Try again. Hooks: [data-slot="status"][data-state], [data-slot="make"].
+  // What the card is doing, always visible (never silence), and never blocking her: within a frame of Enter it says
+  // so ('thinking'); once her words are tidied, her ROUGH card is on the paper at once (her name, her words;
+  // character-card data-state="rough") with "Meet your team" ready, and the status says the team is polishing it
+  // ('polishing', then 'slow' after a while). When the team's read lands it fills the card in place
+  // (data-state="shown"); if it never lands, her rough card simply stays (status 'rough', a plain line). A slow or
+  // failed call never stops her meeting the team. Hooks: [data-slot="status"][data-state], [data-slot="make"].
   const TAG_LIMIT_MS = 25000, TAG_SLOW_MS = 6000;
   function tagStatus(c, state, text, button) {
     const st = $('.nt-status', c), mk = $('.nt-make', c);
     if (st) { st.dataset.state = state; st.textContent = text || ''; }
     if (mk) {
-      mk.textContent = button || 'Make my tag'; mk.disabled = state === 'thinking' || state === 'slow';
-      mk.dataset.state = state === 'failed' ? 'retry' : state === 'done' ? 'meet' : (state === 'thinking' || state === 'slow') ? 'busy' : 'make';
+      const ready = ['polishing', 'slow', 'rough', 'done'].includes(state);
+      mk.textContent = button || (ready ? 'Meet your team' : 'Make my tag'); mk.disabled = state === 'thinking';
+      mk.dataset.state = state === 'failed' ? 'retry' : ready ? 'meet' : state === 'thinking' ? 'busy' : 'make';
     }
   }
-  async function makeCharacter(c, said) {
-    c.dataset.state = 'thinking';
-    let r = null, failed = false;
-    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'thinking') tagStatus(c, 'slow', 'Still making your name tag… the team is warming up.'); }, TAG_SLOW_MS);
-    try {
-      r = await Promise.race([
-        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }),
-        new Promise((_, no) => setTimeout(() => no(new Error('timeout')), TAG_LIMIT_MS)),
-      ]);
-    } catch { failed = true; r = null; }
-    clearTimeout(slow);
-    if (introCard !== c) return;
-    // Nothing usable back (an error, a timeout, or no title and no traits): say so plainly, and let her try again.
-    if (failed || !r || (!r.title && !(Array.isArray(r.traits) && r.traits.length))) {
-      c.dataset.state = 'asking';
-      const inp = $('#intro-input', c); if (inp) { inp.readOnly = false; inp.focus(); }
-      tagStatus(c, 'failed', 'The team couldn’t make your name tag just now. Press Enter or Try again.', 'Try again');
-      return;
-    }
-    tagStatus(c, 'done', '', 'Meet your team');
-    const cur = { craft: 'Product', title: r?.title || '', traits: Array.isArray(r?.traits) ? r.traits.slice(0, 3) : [], superpower: r?.superpower || '',
-      loves: said, alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
-    c._char = cur;
+  // Her card's body, drawn from `cur` (rough: her name only; then the team's title, traits and superpower).
+  function drawCharacter(c, cur) {
+    $('.char-body', c)?.remove();
     const body = h('div', 'char-body'); body.dataset.slot = 'character';
     const swap = (pool, value) => { const next = cur.alternates[pool] && cur.alternates[pool].shift(); if (next) cur.alternates[pool].push(value); return next || value; };
-    const title = h('div', 'char-who', `<span class="char-name">${esc(herName())}</span>${cur.title ? `, <button type="button" class="char-title" data-slot="title">${esc(cur.title)}</button>` : ''}`);
+    const title = h('div', 'char-who', `<span class="char-name">${esc(herNameField())}</span>${cur.title ? `, <button type="button" class="char-title" data-slot="title">${esc(cur.title)}</button>` : ''}`);
     const traits = h('ul', 'char-traits'); traits.dataset.slot = 'traits';
     const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
     drawTraits();
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
-    const hint = h('div', 'char-hint', 'The team’s read of you · click any piece to swap it · Enter: meet your team'); hint.dataset.slot = 'hint';
+    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · click any piece to swap it · Enter: meet your team' : 'Your name tag, in your words · Enter: meet your team'); hint.dataset.slot = 'hint';
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
     traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
     if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
     body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
     c.appendChild(body);
-    c.dataset.state = 'shown';
+  }
+  async function makeCharacter(c, said) {
+    // Her rough card, at once: she can meet the team now.
+    const cur = { craft: 'Product', title: '', traits: [], superpower: '', loves: said, alternates: { titles: [], traits: [], superpowers: [] } };
+    c._char = cur;
+    drawCharacter(c, cur);
+    c.dataset.state = 'rough';
+    tagStatus(c, 'polishing', 'The team is polishing your tag…');
+    if (!c._keys) {
+      c._keys = true;
+      c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
+    }
     c.tabIndex = -1; c.focus(); // Enter or the clicker: meet the team
-    c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
+    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'rough') tagStatus(c, 'slow', 'Still polishing your tag… meet the team whenever you like.'); }, TAG_SLOW_MS);
+    let r = null;
+    try {
+      r = await Promise.race([
+        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }),
+        new Promise((_, no) => setTimeout(() => no(new Error('timeout')), TAG_LIMIT_MS)),
+      ]);
+    } catch { r = null; }
+    clearTimeout(slow);
+    const usable = r && !r.rough && (r.title || (Array.isArray(r.traits) && r.traits.length));
+    if (usable) {
+      Object.assign(cur, { title: r.title || '', traits: Array.isArray(r.traits) ? r.traits.slice(0, 3) : [], superpower: r.superpower || '',
+        alternates: { titles: [], traits: [], superpowers: [], ...(r.alternates || {}) } });
+    }
+    // She already met the team: the team's read still reaches her place card.
+    if (introCard !== c) { if (usable && BYOC.herTag && !BYOC.herTag.title) { BYOC.herTag = { ...BYOC.herTag, ...cur, alternates: undefined }; drawHerCharacter(el.seat.product && el.seat.product.querySelector('.card')); emit('tag.polished', { title: cur.title }); } return; }
+    if (!usable) { tagStatus(c, 'rough', 'Your name tag, in your own words.'); return; }
+    drawCharacter(c, cur);
+    c.dataset.state = 'shown';
+    tagStatus(c, 'done', '');
+    if (!c.contains(document.activeElement) || document.activeElement === c) c.focus();
   }
   // Enter (or the clicker) on her paper: the first time with her words, they're tidied (builder 7's speech tidy) and
   // the team writes her name tag; the next time, she meets the team. Empty words move on without a line (her file

@@ -150,7 +150,7 @@
     card.appendChild(sl(h('blockquote', 'ff-claim', f.quote || f.claim || ''), 'claim'));
     if (f.users && f.users.length) card.appendChild(sl(h('p', 'ff-about', `Design's first sketch: ${f.users.join(' · ')}`), 'about'));
     const a = sl(h('a', 'ff-src'), 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
-    a.append(sl(h('span', 'ff-src-title', f.title || f.url), 'source-title'), sl(h('span', 'ff-src-site', [f.site, f.fetched && `read ${f.fetched}`].filter(Boolean).join(' · ')), 'source-site'));
+    a.append(sl(h('span', 'ff-src-title', f.title || f.url), 'source-title'), ' ', sl(h('span', 'ff-src-site', [f.site, f.fetched && `read ${f.fetched}`].filter(Boolean).join(' · ')), 'source-site'));
     card.appendChild(a);
     w.appendChild(card);
   }
@@ -449,7 +449,7 @@
     const r = h('div', 'pin-reply'); r.dataset.component = 'pin-reply'; r.dataset.seat = ev.seat || ''; r.dataset.pin = pin.dataset.pin;
     const w = h('span', 'pin-reply-who', ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)); w.dataset.slot = 'who';
     const t = h('span', 'pin-reply-text', ev.text || ''); t.dataset.slot = 'text';
-    r.append(w, t); r._pin = pin; r._text = ev.text;
+    r.append(w, ' ', t); r._pin = pin; r._text = ev.text; // the space: "Noor You're right…", never "NoorYou're"
     pin.querySelector('.fd-pin-replies').appendChild(r);
     showReply(r);
     if (M) M.animate(r, { y: [6, 0] }, SPRING);
