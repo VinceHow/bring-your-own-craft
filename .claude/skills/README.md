@@ -11,3 +11,10 @@ commands taken; ECC is not installed.
 
 Skipped: agents `build-error-resolver` (TypeScript/ESLint focused; we have no build step) and `e2e-runner` (asks
 for a global `agent-browser` install and `playwright install`, which breaks the preinstalled browser here).
+
+# taste-skill (design-taste-frontend)
+
+Installed in full at Vincent's request (14 Nov), on `design/studio`: github.com/Leonxlnx/taste-skill at f6b7657
+(tasteskill 2.5.1), folder `skills/taste-skill` copied unmodified as `design-taste-frontend` (MIT, its `LICENSE`).
+Used by the design studio for the room's looks. Its Stop hook only runs its finish gate when a `.taste-skill/build.json`
+exists, so it is quiet in every other session. `vendor/taste-skill/` (the earlier partial copy) stays as it was.
