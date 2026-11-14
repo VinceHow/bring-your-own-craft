@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The team walks in · casting</title>
+<!-- The team walks in, cast for her seat (design/studio/SEATS.md). Fixed teammates are introduced first, about 2 s each;
+     the flex teammate comes last, its card writing itself in (that hides the one fast call that writes its role).
+     ?cast=product (the stage path: she is Product, she said she's a baker's friend building the ordering site)
+     ?cast=design  (she took Design, so Mika moves to Product)
+     ?cast=own     (Your own craft, a baker: Ines moves to Product, Theo's flex seat becomes the morning bake list)
+     &step=0..6 &still=1 for a moment. Names and faces never change; only the role line does. -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #1A120D; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat; }
+.abs { position: absolute; }
+.canvas .abs.pane { position: absolute; }
+.pill .role { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); padding-left: 9px; border-left: 1px solid rgba(80,55,35,.2); }
+.pill .role b { font-weight: 500; color: var(--t); }
+/* the intro card: who they are, what they bring this time */
+.intro { width: 300px; z-index: 6; }
+.canvas .intro { padding: 16px 18px 17px; }
+.intro .hd { display: flex; align-items: center; gap: 10px; }
+.intro .hd .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; }
+.intro .hd .nm { font: 500 21px/1 var(--ip-serif); color: var(--t); }
+.intro .hd .rl { margin-left: auto; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.intro p { margin: 10px 0 0; font: 400 17px/1.35 var(--ip-serif); }
+.intro .brings { margin-top: 8px; font: italic 400 15px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.intro .caret { display: inline-block; width: 1.5px; height: 17px; background: var(--t); vertical-align: -3px; margin-left: 1px; }
+.intro.flex .writing { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); margin-top: 8px; }
+.cap { position: absolute; left: 22px; top: 18px; z-index: 8; }
+.her { z-index: 4; }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div>
+  <span class="abs tag replay" style="right:22px;top:18px;z-index:9">Replay<small>recorded run</small></span>
+  <span class="cap tag" id="cap"></span>
+  <div id="stage"></div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search), CAST = q.get('cast') || 'product', STEP = q.get('step'), still = q.get('still') === '1';
+  const instant = still || STEP != null, wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
+  const c = document.getElementById('c'), stage = document.getElementById('stage'), { animate } = Motion;
+  // where each teammate's pill and intro card sit (clear of every face)
+  const POS = { mika: [404, 304, 96, 392], noor: [612, 290, 470, 38], theo: [790, 322, 680, 120], ines: [1060, 232, 1150, 40], bo: [1150, 372, 1282, 600] };
+  // the casting tables (SEATS.md). Each: role, a line in their voice, what they bring this time.
+  const T = {
+    product: { her: ['Priya', 'Product', 'the Customer Whisperer'], order: ['mika', 'noor', 'bo', 'ines', 'theo'], flex: 'theo', cast: {
+      mika: ['Design', 'I sketch it rough, then we make it lovely.', 'Brings journeys and screens.'],
+      noor: ['Research', 'I find out what’s really true, with sources.', 'Brings customer evidence.'],
+      bo:   ['Engineering', 'Boring, correct, shipped.', 'Brings the working site.'],
+      ines: ['Strategy', 'Who pays, and why now.', 'Brings the business case.'],
+      theo: ['Data', 'One number that says it worked.', 'Brings the measure that matters.'] } },
+    design: { her: ['Priya', 'Design', 'the Feel Finder'], order: ['mika', 'noor', 'bo', 'ines', 'theo'], flex: 'theo', cast: {
+      mika: ['Product', 'You make it feel right; I keep us on the problem.', 'Brings the journey and the priorities.'],
+      noor: ['Research', 'I find out what’s really true, with sources.', 'Brings customer evidence.'],
+      bo:   ['Engineering', 'Boring, correct, shipped.', 'Brings the working site.'],
+      ines: ['Strategy', 'Who pays, and why now.', 'Brings the business case.'],
+      theo: ['Data', 'One number that says it worked.', 'Brings the measure that matters.'] } },
+    own: { her: ['Sam', 'Baker', 'the Dawn Baker'], order: ['mika', 'noor', 'bo', 'ines', 'theo'], flex: 'theo', cast: {
+      mika: ['Design', 'I sketch it rough, then we make it lovely.', 'Brings journeys and screens.'],
+      noor: ['Research', 'I find out what’s really true, with sources.', 'Brings customer evidence.'],
+      bo:   ['Engineering', 'Boring, correct, shipped.', 'Brings the working site.'],
+      ines: ['Product', 'I’ll map where this goes, you bake.', 'Brings the journey and the priorities.'],
+      theo: ['Morning bake list', 'And for this one, Theo looks after the morning bake list.', 'Brings tomorrow’s list, counted from the orders.'] } },
+  }[CAST] || null;
+  const cap = document.getElementById('cap');
+  cap.innerHTML = `She took <b>${T.her[1]}</b>`;
+  const NAMES = { mika: 'Mika', noor: 'Noor', theo: 'Theo', ines: 'Ines', bo: 'Bo' };
+  // her pill at her seat, already made
+  stage.insertAdjacentHTML('beforeend', `<button class="abs pill is-her her" data-who="her" style="left:584px;top:616px"><span class="dot">${T.her[0][0]}</span><span class="nm">${T.her[0]}</span><span class="agent">${T.her[2]}</span></button>`);
+  T.order.forEach(w => {
+    const [px, py, cx, cy] = POS[w], [role, line, brings] = T.cast[w], flex = w === T.flex && CAST === 'own';
+    stage.insertAdjacentHTML('beforeend',
+      `<button class="abs pill" data-who="${w}" id="p-${w}" style="left:${px}px;top:${py}px;opacity:0"><span class="dot"></span><span class="nm">${NAMES[w]}</span><span class="role">agent · <b>${role}</b></span></button>
+       <div class="abs card intro ${flex ? 'flex' : ''}" data-who="${w}" id="i-${w}" style="left:${cx}px;top:${cy}px;opacity:0">
+         <div class="hd"><span class="dot"></span><span class="nm">${NAMES[w]}</span><span class="rl">${role}</span></div>
+         <p class="say"></p><div class="brings"></div></div>`);
+  });
+  const els = InkPaper.dress(c);
+  const type = async (el, text, ms = 22) => { if (instant) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(ms); } };
+  const show = (el, on = true) => { el.style.opacity = on ? 1 : 0; };
+  (async () => {
+    await document.fonts.ready; els.forEach(InkPaper.redraw);
+    const n = STEP == null ? 99 : +STEP;
+    for (let k = 0; k < T.order.length && k < n; k++) {
+      const w = T.order[k], pill = document.getElementById('p-' + w), card = document.getElementById('i-' + w), [, line, brings] = T.cast[w];
+      const flex = w === T.flex;
+      show(pill); show(card); if (!instant) { InkPaper.lay(pill); InkPaper.lay(card, .15); }
+      InkPaper.redraw(card);
+      if (flex && !instant) {
+        // the flex teammate's card writes itself in: its role was being written while the others were introduced
+        card.querySelector('.rl').textContent = '';
+        await wait(700); await type(card.querySelector('.rl'), T.cast[w][0], 45);
+        const rp = pill.querySelector('.role b'); rp.textContent = ''; await type(rp, T.cast[w][0], 45);
+      }
+      await wait(flex ? 300 : 500); await type(card.querySelector('.say'), line); card.querySelector('.brings').textContent = brings;
+      InkPaper.redraw(card);
+      const last = k === T.order.length - 1 || k === n - 1;
+      if (!last) { await wait(1300); if (!instant) await animate(card, { opacity: 0, y: -6 }, { duration: .35 }).finished; else show(card, false); }
+    }
+  })();
+})();
+</script>
+</body>
+</html>

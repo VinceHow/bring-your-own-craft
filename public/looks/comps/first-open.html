@@ -24,7 +24,11 @@ html, body { margin: 0; background: #120C08; }
 .q-lab { color: var(--ip-her-t) !important; }
 .sheet-q h3 { margin: 6px 0 4px; font: 400 24px/1.2 var(--ip-serif); letter-spacing: -.01em; }
 .sheet-q p.sub { margin: 0 0 16px; font: italic 400 16px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
-.choices { display: flex; gap: 10px; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+/* every craft is a small inked pill; Product comes first, already chosen on the stage path */
+.choices .choice { height: 38px; padding: 0 15px; font-size: 15px; }
+.choices .choice#product { padding-left: 8px; }
+.choices .choice.own { flex-basis: 100%; justify-content: center; height: 40px; }
 .choice { display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 18px 0 9px; border-radius: 999px; border: 0; cursor: pointer; background: #FFFDF8;
   font: 500 16px/1 var(--ip-sans); color: var(--ip-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.2); transition: translate .18s var(--ip-land), box-shadow .18s; }
 .choice i { width: 26px; height: 26px; border-radius: 50%; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px var(--ip-her); }
@@ -115,7 +119,7 @@ html, body { margin: 0; background: #120C08; }
   const wait = ms => new Promise(r => setTimeout(r, still || STEP != null ? 0 : ms));
   const SENT = 'I love working on the customer journey, understanding the problems customers face, and building products that solve them.';
   const QUESTION = `<span class="lab q-lab">This seat is yours</span><h3>What do you bring to the table?</h3><p class="sub">Pick a craft. The team fills every other seat.</p>
-    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own">Your own craft</button></div>`;
+    <div class="choices"><button class="choice on" id="product"><i></i>Product</button><button class="choice">Design</button><button class="choice">Research</button><button class="choice">Engineering</button><button class="choice">Data</button><button class="choice">Strategy</button><button class="choice own">Your own craft</button></div>`;
   const SAY = `<span class="lab q-lab">Product, the customer side</span><h3>What do you love about it?</h3><p class="sub">One sentence. Say it or type it.</p>
     <div class="nmf"><span class="lab">What should the team call you?</span><div class="nmbox">Priya<button class="skip">Skip</button></div></div>
     <div class="say"><span class="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>

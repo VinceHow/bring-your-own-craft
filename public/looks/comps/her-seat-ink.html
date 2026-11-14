@@ -53,7 +53,11 @@ html, body { margin: 0; background: #2B1F17; }
 .pick .lab { color: var(--ps-her-deep); }
 .pick h3 { margin: 6px 0 4px; font: 400 21px/1.2 var(--ps-serif); letter-spacing: -.005em; }
 .pick p { margin: 0 0 14px; font: italic 400 15px/1.35 var(--ps-serif); color: var(--ps-ink-2); }
-.choices { display: flex; gap: 8px; }
+.choices { display: flex; flex-wrap: wrap; gap: 7px; }
+.choices .choice { height: 36px; padding: 0 13px; font-size: 14px; }
+.choices .choice#product { padding-left: 7px; } .choices .choice#product i { width: 22px; height: 22px; }
+.choices .choice.own { flex-basis: 100%; justify-content: center; height: 38px; }
+.pick { width: 356px !important; }
 .choice { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 8px; border-radius: var(--ps-r-pill); border: 0; cursor: pointer;
   font: 500 15px/1 var(--ps-sans); color: var(--ps-ink); background: #FFFDF8; box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.18);
   transition: translate var(--ps-t-fast) var(--ps-settle), box-shadow var(--ps-t-fast) var(--ps-settle), background var(--ps-t-mid); }
@@ -197,7 +201,7 @@ html, body { margin: 0; background: #2B1F17; }
     <div class="p1"><span class="lab">This seat is yours</span>
     <h3>What do you bring to the table?</h3>
     <p>Pick a craft. The team fills every other seat.</p>
-    <div class="choices"><button class="choice" id="product"><i></i>Product</button><button class="choice own" id="own">Your own craft</button></div></div>
+    <div class="choices"><button class="choice on" id="product"><i></i>Product</button><button class="choice">Design</button><button class="choice">Research</button><button class="choice">Engineering</button><button class="choice">Data</button><button class="choice">Strategy</button><button class="choice own" id="own">Your own craft</button></div></div>
     <!-- your own craft: one sentence, typed or said -->
     <div class="p2 hide"><span class="lab">Your own craft</span>
     <h3>What do you love doing?</h3>
@@ -384,7 +388,7 @@ html, body { margin: 0; background: #2B1F17; }
     $('#herPill .nm').textContent = shown; $('#herPill .dot').textContent = init;
   }
   async function ownCraft() {
-    $('#own').classList.add('on'); await wait(350);
+    $('#product').classList.remove('on'); $('#own').classList.add('on'); await wait(350);
     hide($('#pick .p1')); show($('#pick .p2'));
     // taller now, so it moves over the kitchen counter on the left, clear of every character, tail pointing back to her seat
     const pk = $('#pick'), tl = $('#pick .tail'); Object.assign(pk.style, { left: '14px', top: '392px' }); Object.assign(tl.style, { left: 'auto', right: '-8px', top: (seat.invite[1] + 20 - 392 - 9) + 'px' });
