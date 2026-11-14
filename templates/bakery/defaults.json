@@ -1,0 +1,57 @@
+{
+  "words": {
+    "title": "Hearth: bread to order ahead in Walkley, Sheffield",
+    "brand": "Hearth",
+    "heroTitle": "Tomorrow’s bread, baked for you in Walkley",
+    "heroLead": "Order tonight, collect it warm on your way to work, Tuesday to Sunday.",
+    "cutoffLine": "Order by 20:00 for the next morning’s bake.",
+    "regularsTitle": "Your usual loaf",
+    "regularsLead": "Your last order on this device, ready to send again for tomorrow morning.",
+    "regularsUsual": "One country sourdough",
+    "regularsWhen": "Tomorrow at 07:30",
+    "regularsAction": "Order my usual",
+    "regularsSent": "Your usual is ordered. The confirmation email is on its way.",
+    "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here the next evening.",
+    "standingLine": "Every Tuesday and Saturday, until you stop it",
+    "standingLabel": "Make this a standing weekly order",
+    "breadTitle": "Tomorrow’s bread",
+    "breadLead": "Baked overnight, out of the oven by 06:30; the counts drop as orders come in.",
+    "loafBody": "Flour, water, salt and a starter older than the bakery, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out.",
+    "confirmTitle": "Order for tomorrow",
+    "confirmLead": "No account needed. Your loaf is held at the counter under your name.",
+    "confirmSent": "Your bread is ordered. The confirmation email is on its way.",
+    "phoneLabel": "Phone (optional)",
+    "rememberLabel": "Remember me on this device",
+    "orderedTitle": "After you order",
+    "orderedBody": "The confirmation email arrives once the order is in.",
+    "cancelLine": "Cancel in one tap from your confirmation email.",
+    "cancelReasonLine": "Tell us why (optional)",
+    "decidedTitle": "Decided for you",
+    "decidedLead": "Four choices behind this order page, each with where it came from.",
+    "heroAction": "Order bread"
+  },
+  "switches": {
+    "regulars": true,
+    "regularsFirst": true,
+    "standingOrder": true,
+    "cutoff": true,
+    "phone": true,
+    "remember": true,
+    "oneTapCancel": true,
+    "cancelReason": true
+  },
+  "steps": [
+    "regulars",
+    "bread",
+    "loaf",
+    "confirm",
+    "ordered"
+  ],
+  "tokens": {
+    "p-bg": "#efe9e0",
+    "p-surface": "#e2d9cb",
+    "p-ink": "#22261f",
+    "p-accent": "#2e5b44",
+    "p-action": "#2e5b44"
+  }
+}

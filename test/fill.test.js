@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fillPage, loadTemplate, parseTaste, gatherRun } from '../lib/fill.js';
+import { fillPage, loadTemplate, parseTaste, gatherRun, pickTemplate } from '../lib/fill.js';
 import { readForm, storeBooking } from '../routes/book.js';
 
 const TASTE = parseTaste([
@@ -27,7 +27,7 @@ function fakeModel(over = {}) {
     const tpl = loadTemplate(over.template || 'yoga');
     return {
       words: { ...tpl.defaults.words, heroTitle: 'Yoga in Hackney for people who come back', brand: 'Fieldhouse Yoga', ...(over.words || {}) },
-      steps: over.steps || ['classes', 'class', 'confirm', 'booked', 'regulars'],
+      steps: over.steps || [...tpl.defaults.steps.filter(s => s !== 'regulars'), 'regulars'],
       switches: { ...tpl.defaults.switches, ...(over.switches || {}) },
       decidedShown: over.decidedShown || [{ id: 'c6', label: 'No account needed to book' }, { id: 'c9', label: 'Type' }, { id: 'nope', label: 'Invented' }],
     };
@@ -42,7 +42,7 @@ const read = d => fs.readFileSync(path.join(d, 'index.html'), 'utf8');
 const built = t => fs.existsSync(new URL(`../templates/${t}/index.html`, import.meta.url));
 const opts = t => (built(t) ? {} : { todo: `${t === 'cafe' ? 'café' : t} template not built yet` });
 
-for (const template of ['yoga', 'cafe']) {
+for (const template of ['yoga', 'cafe', 'bakery']) {
   test(`${template}: slot JSON fills the template, no slot markers left`, opts(template), async () => {
     const out = tmp();
     const call = fakeModel({ template, words: { heroTitle: 'A headline only the fill could write' } });
@@ -97,7 +97,8 @@ for (const template of ['yoga', 'cafe']) {
     assert.deepEqual(order(read(a)).slice(0, 2), ['hero', 'regulars']);
     assert.notEqual(order(read(b))[1], 'regulars');
     const o = order(read(a));
-    assert.ok(o.indexOf('decided') > o.indexOf('booked'), '"decided for you" stays under the booking steps');
+    const last = loadTemplate(template).defaults.steps.at(-1);
+    assert.ok(o.indexOf('decided') > o.indexOf(last), '"decided for you" stays under the booking steps');
   });
 }
 
@@ -206,4 +207,92 @@ test('/api/book reads a FormData body as server.js hands it over, and stores the
   const form = readForm(Object.fromEntries(new URLSearchParams(b)));
   assert.deepEqual([form.run, form.name, form.email, form.class], ['book-test', 'Priya', 'priya@studio.example', 'Tue 07:30 Slow flow']);
   assert.equal(storeBooking({ ...form, run: '../etc' }).code, 404);
+});
+
+// ---- the bakery (the demo's idea): built from the café pre-order template ----
+const BAKERY_IDEA = 'A website for a small bakery, so customers can order bread ahead.';
+const sections = html => [...html.matchAll(/<section[^>]*data-step="([\w-]+)"/g)].map(m => m[1]);
+
+test('a bakery idea picks the bakery template; the café and yoga ideas keep theirs', () => {
+  assert.equal(pickTemplate(BAKERY_IDEA), 'bakery');
+  assert.equal(pickTemplate('Sourdough to order for my neighbours'), 'bakery');
+  assert.equal(pickTemplate('Pastry pre-orders for a café'), 'cafe');
+  assert.equal(pickTemplate('A booking page for a small yoga studio.'), 'yoga');
+});
+
+test('bakery: it fills with no café, coffee or pastry left over, and a bakery idea builds it without naming it', async () => {
+  const out = tmp();
+  const r = await fillPage({ run: 'r', outDir: out, idea: BAKERY_IDEA, taste: TASTE, call: fakeModel({ template: 'bakery' }) });
+  assert.equal(r.template, 'bakery');
+  const html = read(out);
+  assert.doesNotMatch(html, /\{\{|\}\}|<!--(step|if|unless|\/step|\/if|\/unless):/);
+  assert.doesNotMatch(html.replace(/<!--[\s\S]*?-->/g, ''), /caf[eé]|espresso|coffee|pastr|cardamom/i);
+  assert.match(html, /name="page" value="bakery"/);
+  assert.ok(fs.existsSync(path.join(out, 'img', 'photo-m33603672-1200.webp')), 'its own photographs copied');
+  assert.ok(!fs.existsSync(path.join(out, 'img', 'photo-m187311853-1200.webp')), 'no coffee photographs');
+});
+
+const BAKERY_SWITCHES = [
+  ['regulars', /data-switch="regulars"/],
+  ['standingOrder', /data-switch="standing"/],
+  ['cutoff', /data-switch="cutoff"/],
+  ['phone', /type="tel"/],
+  ['oneTapCancel', /data-switch="cancel"/],
+  ['remember', /data-switch="remember"/],
+];
+for (const [key, mark] of BAKERY_SWITCHES) {
+  test(`bakery: ${key} on shows it, off removes it`, async () => {
+    const on = tmp(), off = tmp();
+    await fillPage({ run: 'r', outDir: on, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { [key]: true } }) });
+    await fillPage({ run: 'r', outDir: off, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { [key]: false } }) });
+    assert.match(read(on), mark);
+    assert.doesNotMatch(read(off), mark);
+  });
+}
+
+test('bakery: regulars first on puts their usual straight after the top; off puts the bread first', async () => {
+  const a = tmp(), b = tmp();
+  await fillPage({ run: 'r', outDir: a, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { regulars: true, regularsFirst: true } }) });
+  await fillPage({ run: 'r', outDir: b, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { regulars: true, regularsFirst: false } }) });
+  assert.deepEqual(sections(read(a)).slice(0, 3), ['hero', 'regulars', 'bread']);
+  assert.deepEqual(sections(read(b)).slice(0, 3), ['hero', 'bread', 'regulars']);
+});
+
+test('bakery: the cut-off line shows in the words she reads, and only when the switch is on', async () => {
+  const on = tmp(), off = tmp();
+  await fillPage({ run: 'r', outDir: on, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', words: { cutoffLine: 'Orders close at 8pm for the next morning.' }, switches: { cutoff: true } }) });
+  await fillPage({ run: 'r', outDir: off, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', words: { cutoffLine: 'Orders close at 8pm for the next morning.' }, switches: { cutoff: false } }) });
+  assert.equal((read(on).match(/Orders close at 8pm for the next morning\./g) || []).length, 3, 'top, bread list and close');
+  assert.doesNotMatch(read(off), /Orders close at 8pm/);
+});
+
+test('bakery: decisions the team logged set the switches even when the model reads them otherwise', async () => {
+  const out = tmp();
+  const decided = [
+    { id: 'j1', seat: 'engineering', decision: 'When orders close for the morning bake', choice: 'Orders close at 8pm the night before', cites: 'team' },
+    { id: 'c2', seat: 'strategy', decision: 'Whether regulars can set a standing weekly order', choice: 'Yes, a standing weekly order', cites: 'team default' },
+    { id: 'c3', seat: 'design', decision: 'Whether the order form asks for a phone number', choice: 'No phone field', cites: 'L3' },
+    { id: 'c4', seat: 'engineering', decision: 'How cancelling works', choice: 'One tap from the confirmation email', cites: 'team default' },
+  ];
+  const r = await fillPage({ run: 'r', outDir: out, idea: BAKERY_IDEA, taste: TASTE, decided, template: 'bakery',
+    call: fakeModel({ template: 'bakery', switches: { cutoff: false, standingOrder: false, phone: true, oneTapCancel: false } }) });
+  assert.deepEqual([r.slots.switches.cutoff, r.slots.switches.standingOrder, r.slots.switches.phone, r.slots.switches.oneTapCancel], [true, true, false, true]);
+  const html = read(out);
+  assert.match(html, /data-switch="cutoff"/);
+  assert.match(html, /data-switch="standing"/);
+  assert.doesNotMatch(html, /type="tel"/);
+});
+
+test('bakery: a switch the yoga page doesn\'t have is never added to it', async () => {
+  const r = await fillPage({ run: 'r', outDir: tmp(), idea: 'yoga', taste: TASTE, template: 'yoga', call: fakeModel(),
+    decided: [{ id: 'x', seat: 'strategy', decision: 'Whether regulars get a standing weekly booking', choice: 'Yes', cites: 'team default' }] });
+  assert.ok(!('standingOrder' in r.slots.switches));
+});
+
+test('bakery: a decision about regulars landing first stays a regulars-first decision, even if it says "repeat"', async () => {
+  const r = await fillPage({ run: 'r', outDir: tmp(), idea: BAKERY_IDEA, taste: TASTE, template: 'bakery',
+    call: fakeModel({ template: 'bakery', switches: { regularsFirst: false, standingOrder: false } }),
+    decided: [{ id: 'x', seat: 'design', decision: 'Should regulars see a repeat of their usual order first', choice: 'Yes, their usual first', cites: 'team default' }] });
+  assert.equal(r.slots.switches.regularsFirst, true);
+  assert.equal(r.slots.switches.standingOrder, false);
 });
