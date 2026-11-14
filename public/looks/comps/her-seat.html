@@ -81,7 +81,7 @@ html, body { margin: 0; background: #2B1F17; }
 .youtag { position: absolute; left: 662px; top: 520px; padding: 5px 10px; border-radius: 999px; background: var(--her); color: #fff; font: 500 13px/1 var(--sans); box-shadow: var(--shadow); }
 
 /* ---------- the workspace she opens (same for every option) ---------- */
-.ws { position: absolute; left: 70px; top: 44px; right: 70px; bottom: 40px; display: grid; grid-template-columns: 300px 1fr 300px; gap: 0; border-radius: 6px; overflow: hidden; }
+.ws { overflow: visible !important; position: absolute; left: 70px; top: 56px; right: 70px; bottom: 40px; display: grid; grid-template-columns: 300px 1fr 300px; gap: 0; border-radius: 6px; overflow: hidden; }
 .ws > div { padding: 26px 26px; }
 .ws .left { background: var(--paper-2); border-right: 1px solid rgba(58,44,34,.1); display: flex; flex-direction: column; gap: 18px; }
 .ws .right { background: var(--paper-2); border-left: 1px solid rgba(58,44,34,.1); display: flex; flex-direction: column; gap: 12px; }
@@ -103,7 +103,8 @@ html, body { margin: 0; background: #2B1F17; }
 .dec { background: var(--paper); padding: 10px 12px; border-radius: 4px; box-shadow: var(--shadow); font: 400 15px/1.3 var(--serif); }
 .dec .label { display: block; margin-top: 5px; }
 .foot { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
-.close { position: absolute; right: 88px; top: 60px; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.close { position: absolute; right: 70px; top: 8px; padding: 8px 14px; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow); font: 500 14px/1 var(--sans); color: var(--ink); }
+.ws .close { top: -36px; right: 0; }
 </style>
 </head>
 <body>
