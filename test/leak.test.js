@@ -82,7 +82,7 @@ test('the fal key appears nowhere: runs/, console, HTTP responses, SSE', async (
     const prop = await call('POST', `/api/run/${run}/propose`, { wait: true });
     assert.equal(prop.status, 200, prop.text);
     const p = JSON.parse(prop.text);
-    assert.equal(p.came, 15);
+    assert.equal(p.came, 18); // six seats x 3
     assert.equal(p.brought, 3);
     await call('POST', `/api/run/${run}/answer`, { askId: p.asks[0].id, choice: 'B' });
     const pin = await call('POST', `/api/run/${run}/pin`, { nodeId: 'n3', text: 'Never ask for a phone number. Regulars hate it.' });
@@ -90,7 +90,7 @@ test('the fal key appears nowhere: runs/, console, HTTP responses, SSE', async (
     const kept = JSON.parse(pin.text).soundsLike;
     await call('POST', `/api/run/${run}/taste`, { text: kept });
     const tally = JSON.parse((await call('GET', `/api/run/${run}/tally`)).text);
-    assert.deepEqual([tally.came, tally.brought], [15, 3]);
+    assert.deepEqual([tally.came, tally.brought], [18, 3]);
     assert.ok(tally.reasons.filter(r => r.kind === 'decided').every(r => r.cites === 'team default')); // its bogus cite was rejected
     await call('POST', '/api/select-for-idea', { idea: "A pre-order page for a café's morning pastries." });
     await call('POST', `/api/run/${run}/propose`, { wait: true }); // 409, still scrubbed
