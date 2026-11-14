@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "watchPatterns": ["deploy/app/**", "railway.json"]
+  },
+  "deploy": {
+    "startCommand": "sh -c 'cd deploy/app 2>/dev/null; exec node server.js'",
+    "healthcheckPath": "/health",
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
