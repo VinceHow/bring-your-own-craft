@@ -42,7 +42,8 @@ Rules for each decision:
   sentence, open (it starts with What, How, Who, Why, When, Where or If), plain words, thought-provoking. Rise above
   the setting to what's underneath it: not "Should regulars get a Book your usual button?" but "What makes someone
   come back to a studio week after week?". When it rests on the finding, ask the human question the finding
-  informs, not its mechanics. No options, no recommendation, no "you should". Null for details the team settles
+  informs, not its mechanics. One question at a time, answerable in one breath: a single "?", 20 words or fewer,
+  never two joined by "and what/how/why". No options, no recommendation, no "you should". Null for details the team settles
   (accounts, logins, devices, waitlist mechanics, fields, data, measures, colours, layout, technical choices).
 
 List {{COUNT}} decisions, the real ones for this idea, most important first. No duplicates of each other.
