@@ -12,6 +12,10 @@
   // seats in the room -> teammates in the painting (product is her seat: no character)
   const WHO = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo' };
 
+  const room = document.getElementById('room');
+  if (!room) return;
+  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/looks/painted-living.css'; document.head.appendChild(css);
+
   const frame = document.createElement('iframe');
   frame.className = 'painted-living';
   frame.title = '';
@@ -19,7 +23,7 @@
   frame.tabIndex = -1;
   const night = q.get('night') === '1' || (q.get('night') !== '0' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   frame.src = '/looks/comps/cast-living.html?embed=1&run=0' + (night ? '&night=1' : '&time=morning');
-  document.body.prepend(frame);
+  room.prepend(frame);                                                // first child of #room, z-index 0: under every UI layer
   document.documentElement.classList.add('painted-on');
 
   // The living page exposes window.living once it has started. Events that arrive earlier wait in a short queue.
@@ -33,6 +37,8 @@
   }, 200);
   setTimeout(() => clearInterval(poll), 20000);                       // never loaded: the plain look stays
   frame.addEventListener('error', () => { frame.remove(); document.documentElement.classList.remove('painted-on'); });
+  // a hard stop: if the painting hasn't started within 20 s, take it out so the plain look shows as it was
+  setTimeout(() => { if (!living) { frame.remove(); document.documentElement.classList.remove('painted-on'); delete room.dataset.scene; } }, 20000);
 
   const run = (type, seat, extra) => {
     const who = seat ? WHO[seat] : undefined;
@@ -58,10 +64,19 @@
 
   // time of day from the run's progress: morning before the team starts, building while it works, evening once her
   // page is built. Night (?night=1, or a dark laptop) holds all run long.
+  // #room[data-scene] follows the painting, so each painting can place the room's pills its own way
   let tod = night ? 'night' : 'morning';
-  const to = t => { if (night || t === tod) return; tod = t; call(l => l.setTime(t)); };
+  room.dataset.scene = tod;
+  let nightOn = night;
+  const to = (t, force) => { if ((nightOn && !force) || t === tod) return; tod = t; room.dataset.scene = t; call(l => l.setTime(t)); };
   BYOC.on('teammate.start', () => to('building'));
   BYOC.on('build.step', () => to('building'));
   BYOC.on('build.done', () => setTimeout(() => to('evening'), 9000));   // after the celebration
-  BYOC.on('reset', () => { if (!night) { tod = 'morning'; call(l => l.setTime('morning')); } });
+  BYOC.on('reset', () => { if (!nightOn) to('morning'); });
+
+  // shared with the other painted layers (PlayfulInk owns the toys and the day/night toggle):
+  //   document 'studio:time' {time: morning|afternoon|building|evening|night} sets the painting's time of day;
+  //   document 'studio:poke' {obj: record|cat|coffee} plays that object's clip (PlayfulInk draws hearts, notes, steam, music).
+  document.addEventListener('studio:time', e => { const t = e.detail && e.detail.time; if (!t) return; nightOn = t === 'night'; to(t, true); });
+  document.addEventListener('studio:poke', e => { const o = e.detail && e.detail.obj; if (o) call(l => l.poke(o)); });
 })();
