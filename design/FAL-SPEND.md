@@ -11,6 +11,8 @@ Vincent's fal dashboard is the source of truth. The request-log estimate (~$27) 
 | 18:23 | loops designer | Ines "note" mood clip redo (failed QC: note in front of Theo) | alibaba/wan-3.0-prime/image-to-video, 5 s | $0.25 | $0.25 |
 | 18:47 | loops designer | Night painting, try 1 (lamp over Theo) | fal-ai/nano-banana-pro/edit, 2K | $0.15 | $0.40 |
 | 18:48 | loops designer | Night painting, try 2 (used) | fal-ai/nano-banana-pro/edit, 2K | $0.15 | $0.55 |
+| 18:55 | design studio | Night rain ambience, 30 s mp3 | sonilo/v1.1/text-to-sound-effects ($0.0018/s) | $0.05 | $0.60 |
+| 18:56 | design studio | Night room loop, 5 s, 720p, start = end | alibaba/wan-3.0-prime/image-to-video | $0.25 | $0.85 |
 
 ## Before the cap (for the record; part of the $54)
 The loops designer's own log, at listed rates. These are low-end figures: the rates for 720p, 1:1 output and 2K edits aren't confirmed.
