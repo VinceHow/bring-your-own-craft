@@ -158,6 +158,10 @@ svg * { transform-box: fill-box; }
   const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
   const ink = '#1F2A44';
   // fit the 1600x900 stage to the window
+  const Q = new URLSearchParams(location.search);
+  if (Q.get('bare') === '1') { // the empty room, as a reference for the painter
+    const st = document.createElement('style'); st.textContent = '#bodies,#props,#sheet,#cat,#tags,.hint{display:none!important}'; document.head.appendChild(st);
+  }
   const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); $('#stage').style.transform = `scale(${s})`; };
   addEventListener('resize', fit); fit();
 
