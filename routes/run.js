@@ -1,10 +1,10 @@
 // Piece 3's API: a run, her lines, the team's proposals and the selector, her answers, her pin and her file, the tally.
-// The server matches exact paths or '*' prefixes, so the /api/run/:id/... endpoints share one prefix route here.
+// The /api/run/:id/... endpoints use match(url) so they never catch another piece's /api/run/:id/x.
 import fs from 'node:fs';
 import { sendJson } from '../lib/http.js';
 import { logEvent, readEvents, newRunId, RUNS_DIR } from '../lib/events.js';
 import { scrub } from '../lib/model.js';
-import { proposeAndSelect } from '../lib/select.js';
+import { proposeAndSelect, selectForIdea } from '../lib/select.js';
 import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../lib/taste.js';
 import { tally } from '../lib/tally.js';
 import path from 'node:path';
@@ -30,6 +30,9 @@ export function fallbackParseFlow(lines) {
 }
 
 const running = new Set();
+// Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
+const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste)$/;
+const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 
 function state(run) {
   const evs = readEvents(run);
@@ -121,6 +124,20 @@ export default [
       return sendJson(res, 200, { run });
     },
   },
-  { method: 'POST', path: '/api/run/*', handler: dispatch },
-  { method: 'GET', path: '/api/run/*', handler: dispatch },
+  { method: 'POST', match: url => MINE_POST.test(url.pathname), handler: dispatch },
+  { method: 'GET', match: url => MINE_GET.test(url.pathname), handler: dispatch },
+  {
+    // The close: a judge's idea -> the three questions it would bring, plus the counter. Logs a fresh run.
+    method: 'POST', path: '/api/select-for-idea', handler: async (req, res, { body }) => {
+      const idea = String(body?.idea || '').trim();
+      if (!idea) return sendJson(res, 400, { error: 'idea required' });
+      const lines = Array.isArray(body?.lines) ? body.lines.map(String).filter(Boolean) : [];
+      try {
+        return sendJson(res, 200, await selectForIdea(idea, lines, { parseFlow }));
+      } catch (e) {
+        console.error(scrub(e.message));
+        return sendJson(res, 500, { error: scrub(e.message) });
+      }
+    },
+  },
 ];

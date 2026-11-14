@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // Terminal dry run of steps 1-3: idea + journey -> five teammates' candidates -> her (at most) three -> the rest
 // decided, cited. Real model calls through lib/model.js; logs a real run under runs/.
-// Usage: node scripts/dry-run.mjs [yoga|cafe] [--team sonnet] [--select sonnet] [--count 5] [--out file.md]
+// Usage: node scripts/dry-run.mjs [yoga|cafe] [--idea "..." --name x --lines "a|b|c"] [--team sonnet]
+//          [--select sonnet] [--count 5] [--out file.md]   (--count 3 is the close's fast path)
 import fs from 'node:fs';
 import { newRunId, logEvent, readEvents } from '../lib/events.js';
-import { proposeAndSelect } from '../lib/select.js';
+import { proposeAndSelect, SELECT_MODEL, SELECT_EFFORT } from '../lib/select.js';
+import { TEAM_MODEL, TEAM_EFFORT, PER_SEAT } from '../lib/teammates.js';
 import { initTaste } from '../lib/taste.js';
 import { tally } from '../lib/tally.js';
 import { backend } from '../lib/model.js';
@@ -22,8 +24,10 @@ const IDEAS = {
 };
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : d; };
-const which = args.find(a => !a.startsWith('--') && IDEAS[a]) || 'yoga';
-const { idea, lines } = IDEAS[which];
+const which = opt('idea') ? (opt('name') || 'custom') : args.find(a => !a.startsWith('--') && IDEAS[a]) || 'yoga';
+const { idea, lines } = opt('idea')
+  ? { idea: opt('idea'), lines: (opt('lines') || '').split('|').map(s => s.trim()).filter(Boolean) }
+  : IDEAS[which];
 
 let parseFlow = fallbackParseFlow;
 try { ({ parseFlow } = await import('../lib/flow.js')); } catch {}
@@ -47,9 +51,9 @@ const out = [];
 const p = s => out.push(s);
 p(`# Dry run: ${which}`);
 p('');
-p(`- Run: \`runs/${run}/\` (backend: ${backend()}, team model: ${opt('team') || process.env.TEAM_MODEL || 'sonnet'}, select model: ${opt('select') || process.env.SELECT_MODEL || 'sonnet'})`);
+p(`- Run: \`runs/${run}/\` (backend: ${backend()}, team: ${opt('team') || TEAM_MODEL} effort ${TEAM_EFFORT}, ${opt('count') || PER_SEAT} per seat; select: ${opt('select') || SELECT_MODEL} effort ${SELECT_EFFORT})`);
 p(`- Idea: ${idea}`);
-p(`- Her journey: ${lines.map(l => `"${l}"`).join(', ')}`);
+p(`- Her journey: ${lines.length ? lines.map(l => `"${l}"`).join(', ') : '(none given)'}`);
 p(`- Boxes: ${flow.nodes.map(n => `${n.id} ${n.label}`).join(' · ')}`);
 p(`- Her file: ${taste.map(l => `[${l.id}] ${l.text}`).join(' / ')}`);
 p('');
