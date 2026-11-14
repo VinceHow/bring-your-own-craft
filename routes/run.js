@@ -9,18 +9,23 @@ import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../
 import { tally } from '../lib/tally.js';
 import { parseFlow } from '../lib/flow.js';
 import { currentLines } from '../lib/sketch.js';
+import { cleanTag, templateFor, nameTag } from '../lib/tag.js';
+import { interpret, saveBrief } from '../lib/interpret.js';
+import { buildProfile } from '../lib/profile.js';
+import { SEATS } from '../lib/teammates.js';
+const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
 const running = new Set();
 // Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
-const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste)$/;
+const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|intro|tag)$/;
 const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 
 function state(run) {
   const evs = readEvents(run);
   const start = evs.find(e => e.type === 'run.start');
   const lines = currentLines(evs); // journey lines since the last flow.reset (a reshape or box edit replaces them)
-  return { evs, idea: start?.idea, seat: start?.seat || 'product', lines, flow: parseFlow(lines) };
+  return { evs, idea: start?.idea, seat: start?.seat || 'product', tag: start?.tag || null, lines, flow: parseFlow(lines) };
 }
 const validRun = id => /^[\w-]{1,80}$/.test(id) && fs.existsSync(path.join(RUNS_DIR, id, 'events.jsonl'));
 
@@ -38,7 +43,7 @@ const handlers = {
     const s = state(run);
     if (running.has(run) || s.evs.some(e => e.type === 'select.done')) return [409, { error: 'already proposed for this run' }];
     running.add(run);
-    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat })
+    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag })
       .catch(e => { logEvent(run, 'propose.error', { error: scrub(e.message) }); return null; })
       .finally(() => running.delete(run));
     if (!body?.wait) return [202, { started: true }];
@@ -49,6 +54,8 @@ const handlers = {
   },
 
   async answer(run, body) {
+    // A focus moment: her words, heard by one interpret call (lib/interpret.js). { choice } stays for the old path.
+    if (body?.text != null) { const r = await interpret({ run, askId: body.askId, text: body.text }); delete r.body.profile; return [r.code, r.body]; }
     const { askId, choice } = body || {};
     const a = state(run).evs.find(e => e.type === 'ask' && e.id === askId);
     if (!a) return [404, { error: 'no such ask' }];
@@ -65,6 +72,30 @@ const handlers = {
     const { text: soundsLike, ms } = await inferSoundsLike(text, { idea: s.idea, taste: readTaste(run) });
     logEvent(run, 'taste.suggested', { pane: 'file', text: soundsLike, ms });
     return [200, { soundsLike }];
+  },
+
+  // Her brief, as she keeps it: "what I believe" becomes the next line of her file.
+  async brief(run, body) { const r = saveBrief({ run, ...(body || {}) }); return [r.code, r.body]; },
+
+  // Her intro, one natural sentence -> her name tag (editable), and the team's private profile starts.
+  async intro(run, body) {
+    const text = String(body?.text || '').trim();
+    if (!text) return [400, { error: 'text required' }];
+    const s = state(run);
+    logEvent(run, 'intro', { pane: 'sheet', mode: 'craft', text });
+    const r = await nameTag(text, { seat: s.seat });
+    const tag = cleanTag(r.body) || { craft: s.seat === 'diy' ? '' : s.seat[0].toUpperCase() + s.seat.slice(1), goodAt: r.body.goodAt || '', loves: r.body.loves || '' };
+    logEvent(run, 'tag', { pane: 'sheet', tag, ms: r.body.ms, ...(r.body.rough ? { rough: true } : {}) });
+    buildProfile(run).catch(() => {}); // never waited on; the team assumes and keeps moving
+    return [200, { tag, ms: r.body.ms }];
+  },
+
+  // Her edits to her name tag.
+  async tag(run, body) {
+    const tag = cleanTag(body);
+    if (!tag) return [400, { error: 'craft required' }];
+    logEvent(run, 'tag', { pane: 'sheet', mode: 'craft', tag, edited: true });
+    return [200, { tag }];
   },
 
   async taste(run, body) {
@@ -103,7 +134,11 @@ export default [
       const run = newRunId();
       const intro = String(body?.intro || '').trim();
       initTaste(run, { intro });
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat: body?.seat || 'product', ...(intro ? { intro } : {}) });
+      // "Your own craft": her seat is 'diy' and her name tag travels with the run (lib/craft.js).
+      const seat = SEAT_IDS.includes(body?.seat) ? body.seat : 'product';
+      const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}) });
+      if (intro || tag) buildProfile(run).catch(() => {}); // her sentence + idea: the private profile starts, never waited on
       return sendJson(res, 200, { run });
     },
   },

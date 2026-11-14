@@ -325,7 +325,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', BYOC.intro ? { idea, intro: BYOC.intro } : { idea });
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
