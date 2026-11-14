@@ -101,7 +101,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   await waitFor(n => document.querySelectorAll('#her-flow .fl-fork, #her-flow .fl-pin').length >= n, 5000, 'asks in her flow', asks.length);
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
-  assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), 'her flow and its asks are all on screen at 1280x720');
+  assert.ok(await onScreen('#her-flow .fl-item:not(.is-waiting), #her-flow .fl-box'), 'her flow and its asks are all on screen at 1280x720');
   // What the audience sees: the question she's on, at its rendered size (the room and the flow both scale).
   // Only that ask is open; one still waiting is a badge on its box, an answered one keeps her call.
   // The open one zooms next to its box. Stage mode: question >= 18 px and options >= 16 px at 1280x720;
@@ -126,7 +126,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
       assert.ok(q.min >= floor, `${when}: question >= ${floor} px at ${w}x${h}, got ${q.min}`);
       assert.ok(q.opt >= optFloor, `${when}: options >= ${optFloor} px at ${w}x${h}, got ${q.opt}`);
       assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'never a modal');
-      assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), `${when}: all on screen at ${w}x${h}`);
+      assert.ok(await onScreen('#her-flow .fl-item:not(.is-waiting), #her-flow .fl-box'), `${when}: all on screen at ${w}x${h}`);
     }
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.waitForTimeout(300);
@@ -143,7 +143,15 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   const closed = page.locator(`#her-flow .fl-item.is-answered[data-ask="${firstId}"]`);
   assert.strictEqual(await closed.locator('.fl-opt.is-chosen .fl-yours').count(), 1, 'YOUR CALL stays on the closed note');
   assert.strictEqual(await closed.locator('.fl-opt.is-rec.is-dropped').count(), 1, 'the struck recommendation stays too');
-  if (asks.length > 1) assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').count(), 1, 'the next ask opens');
+  // Focus time: a short breath with nothing open, and the tray of waiting notes at her seat (no number); then the next.
+  if (asks.length > 1) {
+    await waitFor(() => !document.getElementById('tray').hidden || document.querySelectorAll('#her-flow .fl-item.is-open').length === 1, 3000, 'the breath or the next');
+    await waitFor(() => document.querySelectorAll('#her-flow .fl-item.is-open').length === 1, 3000, 'the next ask opens after a breath');
+    assert.ok(await page.evaluate(() => document.body.classList.contains('focus')), 'the room is in focus time while it is open');
+    assert.ok(await page.evaluate(() => document.getElementById('tray').hidden), 'no tray during a check-in');
+    assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'no step line or seconds during a check-in');
+    assert.ok(+(await page.evaluate(() => getComputedStyle(document.querySelector('.seat-design')).opacity)) < 0.5, 'the other seats dim');
+  }
   await checkSizes('after her first answer');
   assert.deepStrictEqual(errors, []);
 });

@@ -47,6 +47,16 @@ test('the fake run at 20x settles the counter and meter on the log\'s numbers, d
   await page.waitForTimeout(4500);
   const t = await page.evaluate(() => BYOC.tallyFromEvents(BYOC.events()));
   assert.strictEqual(t.meter.pct, 90);
+  // Her focus time: a check-in is open (the fixture never answers), so nothing counts up while it is.
+  if (await page.evaluate(() => !!(BYOC.focus && BYOC.focus.open))) {
+    assert.notStrictEqual(await shown('pct'), String(t.meter.pct), 'the meter holds still during her focus time');
+    // She answers each (the replay's log has no answers; mark them as the log would), and the numbers settle.
+    for (let i = 0; i < 3; i++) {
+      await page.evaluate(() => { const id = BYOC.focus.open; if (!id) return; const a = BYOC.events().find(e => e.type === 'ask' && e.id === id); BYOC.flow.markAnswer(id, a.recommendation); });
+      await page.waitForTimeout(1300);
+    }
+    await page.waitForTimeout(1500);
+  }
   assert.strictEqual(await shown('pct'), String(t.meter.pct));
   assert.strictEqual(await shown('came'), String(t.came));
   assert.strictEqual(await shown('brought'), String(t.brought));
