@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · lantern paper</title>
+<!-- Direction "Lantern paper": every surface is translucent washi lit warmly from behind, like a shoji screen at dusk.
+     The painting glows softly through the paper fibre (heavy backdrop blur, a luminous cream tint, an SVG fibre texture);
+     text is ink on lit paper, so it stays dark and sharp. Soft rounded rims in pale bamboo. Radii 14 / 22 / 30, pill.
+     Signature motion: each panel lights up, warming from dim paper to glowing cream as it arrives, like a lantern being lit.
+     Views: ?view=parts|room|focus · ?still=1 end state. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --ink: #241811; --ink-2: #47331F; --ink-3: #5E4732;
+  --mika: #3E5C8E; --noor: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
+  --mika-t: #2B4472; --noor-t: #8A3D24; --theo-t: #3C5A38; --ines-t: #6E4A14; --bo-t: #634908; --her-t: #923852;
+  /* the paper: luminous cream washi over a heavily blurred painting */
+  --paper: rgba(255,243,220,.74); --paper-hi: rgba(255,246,228,.84); --paper-lo: rgba(255,240,214,.60);
+  --blur: blur(34px) saturate(1.25) brightness(1.16);
+  /* fibre: long horizontal fibres plus a fine tooth, very faint, warm */
+  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='k' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.008 .012' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62 0 0 0 0 .44 0 0 0 0 .24 0 0 0 .7 -.3'/%3E%3C/filter%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .6' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .2 0 0 0 1.4 -.72'/%3E%3C/filter%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .35 0 0 0 0 .2 0 0 0 .8 -.42'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23k)' opacity='.35'/%3E%3Crect width='420' height='420' filter='url(%23f)' opacity='.35'/%3E%3Crect width='420' height='420' filter='url(%23g)' opacity='.4'/%3E%3C/svg%3E");
+  /* the lamp behind the paper: brightest at the heart, warmer towards the rim */
+  --lamp: radial-gradient(110% 130% at 50% 48%, rgba(255,253,242,.62), rgba(255,238,204,.16) 58%, rgba(226,160,90,.16) 100%);
+  --rim: inset 0 0 0 1.5px rgba(176,128,78,.42), inset 0 0 0 3px rgba(255,248,232,.55), inset 0 0 18px rgba(255,214,150,.28);
+  --halo: 0 0 0 1px rgba(120,80,40,.10), 0 0 28px -6px rgba(255,196,120,.55), 0 18px 36px -18px rgba(70,38,12,.45);
+  --halo-hi: 0 0 0 1px rgba(120,80,40,.12), 0 0 40px -4px rgba(255,196,120,.70), 0 24px 44px -18px rgba(70,38,12,.50);
+  --r-sm: 14px; --r-md: 22px; --r-lg: 30px;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --land: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-who="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-who="ines"] { --c: var(--ines); --t: var(--ines-t); }
+[data-who="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-who="her"] { --c: var(--her); --t: var(--her-t); }
+.lab { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+
+/* ---------- the one lit-paper surface every part is made of ---------- */
+.pill, .bubble, .note, .decision, .sheet, .pop, .tag, .btn.quiet, .doc, .board .cell, .b-head {
+  position: relative; isolation: isolate; background: var(--fibre), var(--lamp), var(--paper); background-size: 420px 420px, 100% 100%, auto;
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); box-shadow: var(--rim), var(--halo); }
+/* the unlit state, which the signature motion fades away: a dusk shade laid over the paper */
+.pill::after, .bubble::after, .note::after, .decision::after, .sheet::after, .pop::after, .doc::after, .btn.quiet::after, .tag::after, .cell::after, .b-head::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+  background: radial-gradient(90% 120% at 50% 50%, rgba(92,60,34,.30), rgba(60,36,18,.62)); opacity: 0; }
+.tag.replay::after { display: none; }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 14px 0 9px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 500 18px/1 var(--serif); color: var(--ink); white-space: nowrap; transition: transform 300ms var(--land), box-shadow 300ms var(--land), background-color 300ms; }
+.pill .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -2px 3px rgba(0,0,0,.14), inset 0 2px 2px rgba(255,255,255,.35); flex: none;
+  display: grid; place-items: center; font: 600 13px/1 var(--sans); color: #fff; }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 9px; border-left: 1px solid rgba(84,58,38,.18); }
+.pill:hover, .pill.is-hover { transform: translateY(-2px); background: var(--paper-hi); box-shadow: var(--rim), var(--halo-hi); }
+.pill:active { transform: translateY(0) scale(.98); }
+.pill:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+.pill.is-talking .dot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent), inset 0 -2px 3px rgba(0,0,0,.14); }
+.pill.is-open { background: var(--paper-hi); box-shadow: var(--rim), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent), var(--halo-hi); }
+.pill.is-her, .pill.is-invite { background: var(--fibre), var(--lamp), rgba(255,232,236,.84); background-size: 420px 420px, 100% 100%, auto; }
+.pill.is-her .nm { color: var(--her-t); }
+.pill.is-her .dot { background: #A64B65; }
+.pill.is-her .agent { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pill.is-invite { color: var(--her-t); }
+.pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; }
+
+/* chatter */
+.bubble { display: block; max-width: 300px; padding: 12px 16px 13px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); font: italic 400 18px/1.35 var(--serif); color: var(--ink); }
+.bubble b { display: flex; align-items: center; gap: 7px; font: 500 13px/1 var(--sans); font-style: normal; color: var(--t); margin-bottom: 5px; }
+.bubble b::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+/* note for her */
+.note { display: block; width: 236px; padding: 13px 16px 15px; border-radius: var(--r-md); font: 400 17px/1.35 var(--serif); }
+.note .lab { display: flex; align-items: center; gap: 7px; color: var(--t); margin-bottom: 5px; }
+.note .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.note::before { content: ''; position: absolute; left: 16px; right: 16px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--c); opacity: .8; }
+/* decision */
+.decision { display: block; width: 250px; padding: 15px 17px 14px; border-radius: var(--r-md); font: 400 18px/1.32 var(--serif); }
+.decision .by { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.marks { display: inline-flex; } .marks i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #FFF6E4; }
+.marks i + i { margin-left: -5px; }
+/* her sheet */
+.sheet { width: 380px; padding: 16px 20px 16px; border-radius: var(--r-lg); background: var(--paper-hi); }
+.sheet h3 { margin: 5px 0 10px; font: 400 21px/1.2 var(--serif); letter-spacing: -.01em; }
+.steps { display: flex; gap: 6px; margin-bottom: 12px; }
+.step { padding: 7px 11px; border-radius: var(--r-sm); background: rgba(255,250,238,.70); font: 400 14px/1.2 var(--sans); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(150,105,60,.26); }
+.step.hers { background: rgba(255,232,236,.92); box-shadow: inset 0 0 0 1px rgba(196,104,126,.50); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(120,80,40,.10); box-shadow: inset 0 0 0 1px rgba(150,105,60,.16); }
+.tabs span { padding: 7px 14px; border-radius: 999px; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { background: #FFF9EC; color: var(--ink); box-shadow: inset 0 0 0 1px rgba(176,128,78,.35), 0 0 12px rgba(255,200,130,.55); }
+/* a teammate's work */
+.pop { width: 320px; padding: 16px 20px 18px; border-radius: var(--r-lg); background: var(--paper-hi); }
+.pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding-bottom: 11px; border-bottom: 1px solid rgba(84,58,38,.12); }
+.pop .pop-head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); }
+.pop .pop-head .nm { font: 500 20px/1 var(--serif); color: var(--t); }
+.pop .t { margin: 3px 0 12px; font: 400 18px/1.35 var(--serif); }
+.pop ul { margin: 5px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pop li { display: flex; gap: 9px; font: 400 15px/1.35 var(--sans); }
+.pop li::before { content: ''; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: var(--c); flex: none; }
+/* buttons */
+.btns { display: flex; gap: 10px; }
+.btn { height: 46px; padding: 0 22px; border: 0; border-radius: 999px; font: 500 16px/1 var(--sans); cursor: pointer; color: #FFF8EE;
+  background: #33241A; box-shadow: inset 0 0 0 1.5px rgba(214,170,110,.35), 0 10px 22px -10px rgba(50,28,10,.6); transition: transform 240ms var(--land), box-shadow 240ms var(--land); }
+.btn.quiet { color: var(--ink); background: var(--paper); box-shadow: var(--rim), var(--halo); }
+.btn:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px rgba(214,170,110,.5), 0 14px 26px -10px rgba(50,28,10,.65); }
+.btn.quiet:hover { box-shadow: var(--rim), var(--halo-hi); }
+.btn:active { transform: translateY(0) scale(.98); }
+/* quiet labels */
+.tag { display: inline-flex; align-items: baseline; gap: 5px; padding: 9px 15px; border-radius: 999px; font: 400 14px/1 var(--sans); color: var(--ink-2); }
+.tag b { font: 500 16px/1 var(--serif); color: var(--ink); }
+.tag.replay { flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 16px 10px; border-radius: var(--r-sm); background: rgba(44,30,20,.86); color: #FFF6EA; box-shadow: inset 0 0 0 1.5px rgba(214,170,110,.32), 0 8px 20px -10px rgba(30,16,6,.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font: 500 16px/1 var(--serif); }
+.tag.replay small { font: 400 13px/1 var(--sans); opacity: .9; }
+
+/* ---------- the room ---------- */
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,232,190,.50), rgba(255,214,160,.20) 60%, rgba(255,210,170,0)); }
+.a-bubble .bubble::before { content: ''; position: absolute; left: 20px; bottom: -7px; width: 14px; height: 14px; rotate: 45deg; border-radius: 3px;
+  background: inherit; -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.a-bubble .bubble { border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; }
+.a-pop .pop { box-shadow: var(--rim), var(--halo-hi); }
+.a-pop .pop::before { content: ''; position: absolute; right: 64px; bottom: -8px; width: 16px; height: 16px; rotate: 45deg; border-radius: 4px; background: var(--paper-hi); }
+.a-note .note { rotate: -2deg; } .a-dec .decision { rotate: 1.5deg; }
+
+/* her sheet on the table: tabs up beside the label, so it lies low and wide */
+.a-sheet .sheet { width: 420px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; padding: 12px 16px 14px 20px; }
+.a-sheet .sheet .tabs { grid-column: 2; grid-row: 1; } .a-sheet .sheet .tabs span { padding: 6px 11px; font-size: 13px; }
+.a-sheet .sheet h3, .a-sheet .sheet .steps { grid-column: 1 / -1; } .a-sheet .sheet h3 { font-size: 19px; margin: 6px 0 9px; } .a-sheet .steps { margin: 0; }
+/* ---------- the parts board ---------- */
+.board { position: absolute; inset: 34px 40px; align-content: start; display: grid; grid-template-columns: 1.15fr 1fr 1fr; grid-template-rows: auto auto auto; gap: 18px; }
+.b-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 22px; padding: 18px 26px; border-radius: var(--r-lg); }
+.b-title { margin: 0; font: 400 32px/1 var(--serif); letter-spacing: -.015em; }
+.b-lede { margin: 0; font: 400 16px/1.4 var(--sans); color: var(--ink-2); max-width: 70ch; }
+.board .cell { padding: 18px 22px 20px; border-radius: var(--r-lg); background: var(--paper-lo); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.board .cell h2 { margin: 0; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.board .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.board .cap { margin: 0; font: 400 13px/1.3 var(--sans); color: var(--ink-3); }
+.c-pills { grid-column: 1 / 3; } .c-sheet { grid-column: 3; grid-row: 2 / 4; } .c-pop { grid-column: 3; grid-row: 2 / 4; }
+.c-sheet .sheet, .c-pop .pop { width: 100%; }
+.board { grid-template-columns: 1fr 1fr 1fr 1.05fr; }
+.c-pills { grid-column: 1 / 4; } .c-chat { grid-column: 1; } .c-note { grid-column: 2; } .c-dec { grid-column: 3; }
+.c-sheet { grid-column: 4; grid-row: 2 / 3; } .c-pop { grid-column: 4; grid-row: 3 / 4; } .c-act { grid-column: 1 / 4; }
+.c-pills { grid-row: 2; } .c-chat, .c-note, .c-dec { grid-row: 3; } .c-act { grid-row: 4; }
+.c-sheet { grid-row: 2 / 4; } .c-pop { grid-row: 4; }
+.c-sheet { justify-content: flex-start; } .c-pop .pop { width: 100%; }
+.c-act { flex-direction: row; align-items: center; gap: 22px; align-self: start; } .c-act h2 { margin-right: 6px; }
+
+/* ---------- the focus document: one big pane of frost over the room ---------- */
+.v-focus .painting { filter: saturate(1.05); }
+.doc { position: absolute; left: 70px; top: 52px; right: 70px; bottom: 44px; display: grid; grid-template-columns: 1fr 390px; gap: 26px; padding: 26px;
+  border-radius: 40px; background: var(--fibre), var(--lamp), rgba(255,242,218,.74); background-size: 420px 420px, 100% 100%, auto; box-shadow: inset 0 0 0 2px rgba(176,128,78,.40), inset 0 0 0 5px rgba(255,248,232,.40), inset 0 0 60px rgba(255,214,150,.30), var(--halo-hi); }
+.doc .main { padding: 18px 26px; border-radius: var(--r-lg); background: var(--fibre), rgba(255,250,238,.90); background-size: 420px 420px, auto; box-shadow: inset 0 0 0 1px rgba(176,128,78,.28), 0 0 30px rgba(255,214,150,.35); }
+.doc h1 { margin: 8px 0 18px; font: 400 34px/1.15 var(--serif); letter-spacing: -.015em; max-width: 26ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 8px 10px; padding: 14px; border-radius: var(--r-md); background: rgba(150,105,60,.07); }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.doc .q { margin: 22px 0 10px; font: 400 30px/1.2 var(--serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { margin: 0; padding-left: 18px; border-left: 3px solid var(--her); font: italic 400 22px/1.45 var(--serif); color: var(--ink); max-width: 52ch; }
+.side { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
+.side .bubble { max-width: none; }
+.take { margin-top: 4px; padding: 16px 18px; border-radius: var(--r-md); background: var(--fibre), rgba(255,234,238,.92); background-size: 420px 420px, auto; box-shadow: inset 0 0 0 1.5px rgba(196,104,126,.40), 0 0 24px rgba(255,190,170,.35); }
+.take .lab { color: var(--her-t); }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--serif); }
+.take .b { font-style: italic; font-size: 21px; }
+.take em { display: block; font: normal 500 13px/1.2 var(--sans); color: var(--ink-3); margin: 10px 0 3px; }
+.side .btns { margin-top: auto; }
+
+</style>
+</head>
+<body>
+<div class="canvas" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+// Signature motion: each panel is lit like a lantern. It arrives as dim dusk paper, then warms from the heart outward:
+// the shade over the paper lifts and the warm halo around it grows. No flicker, no bounce.
+(function () {
+  const { view, still, c } = window.UIW;
+  const head = c.querySelector('.b-head');
+  if (head) { head.querySelector('.b-title').textContent = 'Lantern paper'; head.querySelector('.b-lede').textContent = 'Washi lit from behind: the room glows through the paper, the ink stays dark on top, soft bamboo rims, big soft corners.'; }
+  if (still || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const animate = window.Motion && Motion.animate;
+  const order = view === 'room'
+    ? ['.at[data-in] .pill', '.a-her .pill', '.a-sheet .sheet', '.a-bubble .bubble', '.a-dec .decision', '.a-note .note', '.a-pop .pop', '.a-tally .tag']
+    : view === 'focus' ? ['.doc', '.side .bubble', '.take'] : ['.b-head', '.cell'];
+  let t = .3;
+  order.forEach(sel => c.querySelectorAll(sel).forEach(el => {
+    el.style.opacity = 0;
+    const d = t; t += sel.includes('pill') ? .14 : .5;
+    setTimeout(() => {
+      // the unlit paper is there first (quick, quiet arrival), then it is lit
+      if (animate) {
+        animate(el, { opacity: [0, 1] }, { duration: .28, ease: 'easeOut' });
+        animate(el, { y: [8, 0] }, { type: 'spring', visualDuration: .6, bounce: 0 }).then(() => { el.style.transform = 'none'; });
+      } else el.style.opacity = 1;
+      // the light catching: dusk shade lifts slowly at first, then the paper fills with warmth
+      el.animate([{ opacity: .95 }, { opacity: .8, offset: .3 }, { opacity: 0 }], { duration: 1500, easing: 'cubic-bezier(.45,0,.25,1)', pseudoElement: '::after', fill: 'backwards' });
+      const lit = getComputedStyle(el).boxShadow;
+      el.animate([{ boxShadow: lit.replace(/rgba\(255, 196, 120, 0\.[0-9]+\)/g, 'rgba(255, 196, 120, 0)') }, { boxShadow: lit }], { duration: 1600, easing: 'cubic-bezier(.45,0,.25,1)' });
+    }, d * 1000);
+  }));
+})();
+</script>
+</body>
+</html>
