@@ -170,7 +170,42 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
 });
 
 test('6. Build -> page reflects her choices; a decision cites her new line', async t => {
-  t.todo('press build; wait build.done; page has no phone field; "decided for you" cites the new line id');
+  if (!RUN) return t.todo('needs step 3');
+  const written = (await events()).find(e => e.type === 'taste.written');
+  if (!written) return t.todo('needs step 5');
+  // Her one press. The room's own build key/button is piece 1's; until it exists, the same POST the button makes.
+  const pressed = await page.evaluate(() => typeof BYOC.build === 'function' ? (BYOC.build(), 'room') : null);
+  if (!pressed) await page.evaluate(run => BYOC.api(`/api/run/${run}/build`, {}), RUN);
+  await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 120000, 'build.done');
+  lap('2:05 build done');
+  const evs = await events();
+  const steps = evs.filter(e => e.type === 'build.step').map(e => e.step);
+  assert.ok(!steps.some(s => /^Build failed/.test(s)), 'build ran: ' + steps.join(' / '));
+  assert.ok(steps.length >= 3, 'the build shows its steps');
+  const done = evs.find(e => e.type === 'build.done');
+  assert.strictEqual(done.url, `/runs/${RUN}/page/`);
+  // The build re-decided the rest against her updated file, and at least one decision cites her new line.
+  const redecided = evs.filter(e => e.type === 'decided' && e.round === 'build');
+  assert.ok(redecided.some(d => d.cites === written.id), `a re-decision cites ${written.id}: ${redecided.map(d => d.id + ':' + d.cites).join(' ')}`);
+  // Her page.
+  const pg = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: SCREENS ? 2 : 1 });
+  await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
+  assert.strictEqual(await pg.locator('input[type=tel]').count(), 0, 'no phone field (her pin)');
+  const cited = pg.locator(`#decided [data-decided][data-cites="${written.id}"]`);
+  assert.ok((await cited.count()) >= 1, `"decided for you" shows a decision citing ${written.id}`);
+  assert.match(await cited.first().innerText(), /remember or skip/i, 'with her line quoted');
+  assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
+  // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
+  const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
+  const answered = evs.filter(e => e.type === 'answer');
+  assert.strictEqual(slots.inputs.answers.filter(a => a.decision !== 'her pinned note').length, answered.length, 'every answer reached the fill');
+  assert.ok(slots.inputs.answers.some(a => a.overruled), 'her overruled call reached the fill as overruled');
+  if (SCREENS) {
+    await pg.screenshot({ path: path.join(SCREENS, 'live-page.png') });
+    await cited.first().scrollIntoViewIfNeeded();
+    await pg.screenshot({ path: path.join(SCREENS, 'live-page-decided.png') });
+  }
+  await pg.close();
 });
 
 test('7. counter and meter match the log', async t => {
