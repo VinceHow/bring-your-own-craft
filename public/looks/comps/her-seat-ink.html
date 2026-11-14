@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 /* Her seat, the teammate popover and her workspace, in ink and paper (../ink-paper.css, ../ink-paper.js).
-   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays;
+   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 (&note=1 opens a meeting note) · &still=1. No params: the walk-through autoplays;
    ?flow=own autoplays the "your own craft" path (pick, her name once, one sentence, the team's spin as her card, seated).
    &name=Sam sets the name; &name= (empty) shows the skipped case, where the card says "You".
    Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
@@ -78,8 +78,8 @@ html, body { margin: 0; background: #2B1F17; }
 .pick .say .mic svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 1.6; stroke-linecap: round; }
 .pick .row-end { display: flex; justify-content: flex-end; }
 .pick .btn { height: 42px; font-size: 15px; }
-.char { width: 356px; z-index: 5; }
-.canvas.ink-paper .char { padding: 18px 20px 18px; }
+.card.char { width: 356px; z-index: 5; }
+.canvas.ink-paper .card.char { padding: 18px 20px 18px; }
 .char > .gl { --sheet: var(--ip-paper-her); }
 .char .lab { color: var(--ip-her-t); }
 .char .who { display: flex; align-items: center; gap: 12px; margin: 10px 0 12px; }
@@ -99,6 +99,35 @@ html, body { margin: 0; background: #2B1F17; }
 .pick .nmbox .skip { position: absolute; right: 6px; top: 5px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; cursor: pointer;
   font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
 .pick .nmbox .skip:hover { background: rgba(84,58,38,.08); }
+/* meeting notes in her workspace */
+.mnote { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: start; width: 100%; padding: 12px 12px 13px; border: 0; border-radius: var(--ip-r-md); cursor: pointer; text-align: left;
+  background: rgba(255,253,248,.7); box-shadow: inset 0 0 0 1px var(--ip-rule); transition: translate .18s var(--ip-land), box-shadow .18s; font: inherit; color: var(--ip-ink); }
+.mnote:hover, .mnote.is-hover { translate: 0 -2px; box-shadow: inset 0 0 0 1px var(--ip-rule), var(--ip-lift); }
+.mnote .thumb { position: relative; width: 56px; height: 44px; border-radius: 10px; background: var(--ip-paper) var(--ip-tooth); box-shadow: 3px 3px 0 0 var(--c), inset 0 0 0 1px rgba(74,48,32,.35); padding: 7px; display: grid; gap: 3px; }
+.mnote .thumb.journey { grid-template-columns: repeat(3, 1fr); } .mnote .thumb.journey i { border-radius: 3px; background: rgba(212,114,136,.35); }
+.mnote .thumb.journey i:nth-child(n+3) { background: rgba(84,58,38,.14); }
+.mnote .thumb.finding i { height: 5px; border-radius: 3px; background: var(--c); align-self: center; } .mnote .thumb.finding i:nth-child(2) { width: 80%; } .mnote .thumb.finding i:nth-child(3) { width: 45%; }
+.mnote .mt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mnote .q { font: 400 15px/1.3 var(--ip-serif); }
+.mnote .bel { font: italic 400 14px/1.35 var(--ip-serif); color: var(--ip-her-t); padding: 4px 8px; border-radius: 8px; background: var(--ip-paper-her); align-self: flex-start; }
+.ws .mopen { position: absolute; left: 356px; top: 22px; right: 24px; bottom: 96px; z-index: 3; }
+.canvas.ink-paper .ws .mopen { padding: 26px 30px 26px; }
+.mopen .x { position: absolute; right: 18px; top: 18px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--ip-inset); cursor: pointer; display: grid; place-items: center; }
+.mopen .x svg { width: 12px; height: 12px; stroke: var(--ip-ink-2); stroke-width: 2; stroke-linecap: round; }
+.mopen h2 { margin: 8px 0 18px; font: 400 30px/1.2 var(--ip-serif); letter-spacing: -.012em; max-width: 30ch; }
+.mopen .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.canvas.ink-paper .mopen .snap { padding: 18px 20px; }
+.mopen .snap .lab { display: flex; align-items: center; gap: 7px; color: var(--t); } .mopen .snap .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.mopen .snap p { margin: 8px 0 14px; font: 400 17px/1.4 var(--ip-serif); }
+.mopen .bars { display: grid; gap: 7px; }
+.mopen .bars span { position: relative; padding: 5px 10px; font: 400 14px/1.2 var(--ip-sans); }
+.mopen .bars span::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--w); border-radius: 8px; background: color-mix(in srgb, var(--ip-noor) 26%, transparent); z-index: -1; }
+.mopen .snap .src { margin-top: 12px; color: var(--ip-ink-2); }
+.mopen .wr { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.canvas.ink-paper .mopen .take { padding: 16px 18px; width: 100%; }
+.mopen .take p { margin: 4px 0 0; font: 400 17px/1.35 var(--ip-serif); } .mopen .take .b { font-style: italic; font-size: 19px; }
+.mopen .chimes { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.mopen .bubble { max-width: none; font-size: 16px; }
 /* notes waiting, resting beside the stool: in the ink of who left them, no number */
 .rest { z-index: 2; }
 .rest .note { position: absolute; width: 168px; padding: 10px 12px 11px; font-size: 14px; line-height: 1.3; }
@@ -267,7 +296,6 @@ html, body { margin: 0; background: #2B1F17; }
         <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
       <div class="gap"></div>
       <h4>Waiting for you, when you’re ready</h4>
-      <div class="note" data-who="noor"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
       <div class="note" data-who="mika"><span class="lab"><i></i>Mika</span>If ordering could feel like one thing, what should it feel like?</div>
     </div>
     <div class="mid">
@@ -293,8 +321,35 @@ html, body { margin: 0; background: #2B1F17; }
       <div class="decision" style="--c:var(--ip-ines);--c2:var(--ip-bo);--c3:transparent">Regulars cancel in one tap, up to the cut-off.<div class="by"><span class="marks"><i data-who="ines"></i><i data-who="bo"></i></span><span class="lab" style="margin-left:6px">Ines and Bo</span></div></div>
       <div class="decision" style="--c:var(--ip-noor);--c2:var(--ip-mika);--c3:transparent">Sold out shows as sold out, never hidden.<div class="by"><span class="marks"><i data-who="noor"></i><i data-who="mika"></i></span><span class="lab" style="margin-left:6px">Noor and Mika</span></div></div>
       <div class="gap"></div>
-      <h4>Your takeaways</h4>
-      <div class="take ta"><p>People come for bread that’s still warm, and for being known.</p><em>Guidance</em><p>Their usual loaf first, one tap away.</p></div>
+      <h4>Meeting notes</h4>
+      <!-- past reviews, newest first: the question, the work it was about, her one-line belief. Shape agreed with the wrap-up page. -->
+      <button class="mnote" data-who="noor" id="mn1"><span class="thumb finding"><i></i><i></i><i></i></span>
+        <span class="mt"><span class="lab">Today · Noor’s finding</span><span class="q">What sells out first, and what should we do about it?</span>
+        <span class="bel">Hold the regulars’ loaves first. Never sell out on them.</span></span></button>
+      <button class="mnote" data-who="mika" id="mn2"><span class="thumb journey"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="mt"><span class="lab">Today · the rough journey</span><span class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</span>
+        <span class="bel">People come for bread that’s still warm, and for being known.</span></span></button>
+    </div>
+    <!-- one meeting note, opened: the full write-up -->
+    <div class="card mopen hide" data-who="noor" id="mopen">
+      <button class="x" id="mclose" aria-label="Back to your workspace"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
+      <span class="lab">Meeting notes · today · with Noor, Bo and Ines</span>
+      <h2>What sells out first, and what should we do about it?</h2>
+      <div class="mgrid">
+        <div class="snap card" data-who="noor"><span class="lab"><i></i>Noor’s finding, as you saw it</span>
+          <p>At small bakeries, sourdough and morning buns sell out first, often before nine. Regulars feel it most.</p>
+          <div class="bars"><span style="--w:92%">Sourdough</span><span style="--w:78%">Morning buns</span><span style="--w:41%">Rye</span><span style="--w:22%">Pastries</span></div>
+          <span class="lab src">Two sources: baker interviews, a bakery forum thread</span></div>
+        <div class="wr">
+          <div class="take"><span class="lab">What I believe</span><p class="b">Hold the regulars’ loaves first. Never sell out on them.</p>
+            <span class="lab" style="margin-top:12px;display:block">Guidance</span><p>Their usual loaf is set aside at 7am; walk-ins get the rest.</p></div>
+          <div class="chimes">
+            <div class="bubble" data-who="bo"><b>Bo</b>Then we reserve their loaf when the order lands, not at the till.</div>
+            <div class="bubble" data-who="ines"><b>Ines</b>And a standing order makes that free to promise.</div>
+          </div>
+          <button class="btn quiet">Read the conversation</button>
+        </div>
+      </div>
     </div>
     <div class="foot"><button class="btn">Build it</button><span class="lab">When you’re happy, the team builds the page.</span>
       <button class="btn quiet close" id="wsClose">Back to the room</button></div>
@@ -456,6 +511,11 @@ html, body { margin: 0; background: #2B1F17; }
   }
   $('#herPill').addEventListener('click', openWs);
   $('#wsClose').addEventListener('click', closeWs);
+  // a meeting note opens into the full write-up, over the workspace's middle, and closes back
+  async function openNote() { const m = $('#mopen'); show(m); m.querySelectorAll('.pane').forEach(InkPaper.redraw); InkPaper.redraw(m);
+    if (!still) { InkPaper.lay(m); m.querySelectorAll('.pane').forEach((el, i) => InkPaper.lay(el, .25 + i * .1)); } }
+  $('#mn1').addEventListener('click', openNote);
+  $('#mclose').addEventListener('click', () => hide($('#mopen')));
 
   /* ---------- views ---------- */
   const st = q.get('st');
@@ -488,7 +548,7 @@ html, body { margin: 0; background: #2B1F17; }
     if (st === 'setup' || st === 'choose') { setup(); $('#team').style.opacity = 1; if (st === 'choose') openPick(); }
     else after();
     if (q.get('pop')) popover(q.get('pop'));
-    if (q.get('ws')) openWs();
+    if (q.get('ws')) openWs().then(() => { if (q.get('note')) openNote(); });
     return;
   }
 
