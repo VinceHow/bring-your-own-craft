@@ -68,6 +68,8 @@
     // A teammate's open sketchpad or her workspace: Esc (or the clicker's back key) returns to the room.
     const panel = document.getElementById('room-panel');
     if (panel && !panel.hidden && !isTyping(e.target) && (k === 'Escape' || k === 'PageUp' || k === 'ArrowLeft')) { e.preventDefault(); BYOC.closePanel(); return; }
+    // Her idea sheet opened large: Esc puts it back.
+    if (k === 'Escape' && !isTyping(e.target) && BYOC.isSheetOpen && BYOC.isSheetOpen()) { e.preventDefault(); BYOC.sheetOpen(false); return; }
     // The presenter's own keys (Home, 0, R, C, J, S, F) always work: they close her document first.
     if (BYOC.focusDoc && BYOC.focusDoc.isOpen() && !isTyping(e.target)) {
       const back = k === 'Escape' || ((k === 'PageDown' || k === 'ArrowRight') && document.querySelector('#focus-doc .fd-brief:not([hidden])'));

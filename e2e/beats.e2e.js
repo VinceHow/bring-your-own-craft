@@ -132,6 +132,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   assert.strictEqual(await p.textContent('.seat-product .card-title'), 'the Journey Mapper');
   assert.match(await p.textContent('.seat-product .card-traits'), /customer-obsessed · question asker · problem hunter/);
   assert.strictEqual(await p.getAttribute('.seat-product .card', 'data-state'), 'named');
+  assert.strictEqual(await p.textContent('.seat-product .card-who'), 'Priya', 'her title replaces "your seat"');
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot');
   assert.ok(await p.locator('#file-card').isHidden(), 'her file stays off screen');
   assert.deepStrictEqual(perrs, []);
@@ -186,6 +187,14 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
   assert.ok(await p.evaluate(() => typeof BYOC.openWorkspace === 'function'));
   await p.click('#room-panel .rp-close');
   assert.ok(await p.locator('#room-panel').isHidden());
+  // A click on the idea sheet's paper opens it large; Esc puts it back.
+  await p.evaluate(() => { window.__ev = []; BYOC.on('sheet.open', d => window.__ev.push(['sheet.open', d])); });
+  await p.click('#her-sheet .her-q');
+  assert.strictEqual(await p.getAttribute('#her-sheet', 'data-open'), 'true', 'the idea sheet opens large');
+  assert.ok((await p.locator('#her-sheet').boundingBox()).width > 1000, 'large');
+  assert.deepStrictEqual(await p.evaluate(() => window.__ev), [['sheet.open', {}]]);
+  await p.keyboard.press('Escape');
+  assert.strictEqual(await p.getAttribute('#her-sheet', 'data-open'), null, 'Esc puts it back');
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });
