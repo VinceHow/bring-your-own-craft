@@ -1,0 +1,71 @@
+/* Look: Quiet riso. Today's riso paper, turned down: same paper and inks, but ink lives in thin rules and small
+   swatches, outlines are fine, the hard black offset shadows become a faint second-ink pass. Fewer shouty caps.
+   Layered on top of room.css + polish.css via ?look=quiet-riso. Look only: no behaviour. */
+
+:root {
+  --paper: #F1ECE2;
+  --table: #ECE6DA;
+  --sheet: #FCFAF6;
+  --ink: #1D1B19;
+  --shadow: 3px 3px 0 rgba(29,27,25,.10);
+  --shadow-sm: 2px 2px 0 rgba(29,27,25,.08);
+  --line: 1.25px solid rgba(29,27,25,.55);
+  --r: 3px;
+  --pad-back: #E4DACA;
+}
+
+/* the table: a sheet of paper on paper; no thick border, no black slab */
+html #room .table { border: 1.25px solid rgba(29,27,25,.25); box-shadow: 6px 6px 0 rgba(29,27,25,.06); border-radius: 4px; }
+html #room .seat-empty { border: 1.25px dashed rgba(29,27,25,.3); font-family: var(--ui); font-weight: 500; letter-spacing: .12em; color: rgba(29,27,25,.55); }
+
+/* seat cards: the ink is a 6px rule across the top; the name prints in the seat's ink, sentence case */
+html #room .card { border: var(--line); box-shadow: var(--shadow); }
+html #room .card-band { background: var(--sheet); color: var(--ink); border-bottom: 0; border-top: 6px solid var(--seat-ink); height: 44px; }
+html #room .card-band svg { filter: none; width: 20px; height: 20px; }
+html #room .card-name { font: 600 19px/1 var(--ui); text-transform: none; letter-spacing: 0; color: var(--ink); text-shadow: none; }
+html #room .card-stance { font-size: 17px; color: rgba(29,27,25,.8); }
+html #room .card-note { border-top: 1px dotted rgba(29,27,25,.3); color: rgba(29,27,25,.7); }
+html #room .seat-product .card-band { border-top: 0; border-left: 8px solid var(--seat-ink); border-right: 1px solid rgba(29,27,25,.15); }
+html #room .seat-product .card-name { font-size: 24px; }
+
+/* teammates' pads: thin, the rings stay, the ink is a swatch */
+html #room .mini-sheet { border: var(--line); box-shadow: 2px 3px 0 -1px var(--pad-back), 3px 4px 0 0 rgba(29,27,25,.25); }
+html #room .mini-sheet .mini-head { border-bottom: 1px dotted rgba(29,27,25,.3); }
+html #room .mini-head i { border: 0; border-radius: 1px; }
+html #room .mini-title { font-weight: 600; text-transform: none; font-size: 13px; letter-spacing: 0; }
+html #room .mini-lines li { font-family: var(--ui); }
+html #room .mini-lines li::before { border: 0; }
+html #room .mini-lines li.brought::after { border: 0; }
+
+/* her sheet: generous, the pink is a hairline spine, the question in her voice not a poster */
+html #room .her-sheet { border: var(--line); box-shadow: 4px 4px 0 rgba(255,72,176,.22); }
+html #room .her-sheet::before { width: 4px; border-right: 0; }
+html #room .her-q { font: 600 30px/1.1 var(--ui); letter-spacing: -.01em; }
+html #room .her-form { border-top: 1.25px solid rgba(29,27,25,.4); }
+
+/* her file */
+html #room .file-card { border: var(--line); box-shadow: var(--shadow); }
+html #room .file-head { background: var(--sheet); border-bottom: 1px dotted rgba(29,27,25,.3); border-top: 6px solid var(--product); }
+html #room .file-name { font: 600 15px var(--ui); text-transform: none; }
+html #room .sounds-like { border: 1px solid rgba(29,27,25,.25); }
+html #room .file-lines .prep { border-color: rgba(29,27,25,.35); }
+html #room .file-lines li.new .ltext, html #room .sounds-like .sl-mark { background: rgba(255,232,0,.55); }
+
+/* counter and meter: smaller numbers, fine lines */
+html #room .counter, html #room .meter { border: var(--line); box-shadow: var(--shadow); }
+html #room .counter .roll { font: 600 40px/1 var(--ui); }
+html #room .meter-num { font: 600 84px/1 var(--ui); }
+html #room .meter-unit { font-size: 40px; }
+html #room .roll-pink { border: 0; }
+html #room .meter-bar { border: 1px solid rgba(29,27,25,.3); height: 10px; }
+html #room .meter-label { font-weight: 500; letter-spacing: .1em; color: rgba(29,27,25,.7); }
+
+/* the journey */
+html #room .fl-box { border: var(--line); box-shadow: 3px 3px 0 rgba(29,27,25,.12); }
+html #room .fl-box:hover { box-shadow: 4px 4px 0 rgba(29,27,25,.18); }
+html #room .fl-edge { stroke-width: 1.5; }
+html #room .fl-opt.is-rec, html #room .fl-opt.is-chosen { box-shadow: 3px 3px 0 rgba(255,72,176,.3); }
+html #room .note { border: var(--line); box-shadow: var(--shadow-sm); background: #FFD3EA; }
+html #room .sketch-sheet { border: var(--line); box-shadow: var(--shadow); }
+
+html body .replay-label { box-shadow: 3px 3px 0 var(--engineering); font-family: var(--ui); font-weight: 700; font-size: 22px; }

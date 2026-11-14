@@ -1,6 +1,6 @@
 // Keyboard-driven beats, stage mode, the help card, and fitting the 1600x900 room to any screen.
 // One line per key, here and in docs/KEYS.md (keep them the same):
-//   Right / PageDown / Space : next beat (a clicker's forward button); in the empty room: her seat's pick card, then Product
+//   Right / PageDown / Space : next beat (a clicker's forward button); on her name tag: make it, then meet the team; one teammate at a time
 //   Left / PageUp            : previous beat (a clicker's back button)
 //   Home or 0                : reset to the empty room
 //   S                        : stage mode (body >= 20px, no chrome, no help card)
@@ -19,7 +19,7 @@
   const room = document.getElementById('room');
 
   const KEYS = [
-    ['→ · PageDown · Space', 'next beat (clicker forward); empty room: pick card, then Product'],
+    ['→ · PageDown · Space', 'next beat (clicker forward); name tag, then each teammate'],
     ['← · PageUp', 'previous beat (clicker back)'],
     ['Home · 0', 'reset to the empty room'],
     ['S', 'stage mode: big type, no chrome'],
@@ -28,6 +28,7 @@
     ['J', 'the close: type a judge’s idea'],
     ['B', 'build her page'],
     ['F', 'fake fixture run (labelled FAKE)'],
+    ['V · `', 'speak: hold to talk, or tap to start and tap to stop (Esc cancels)'],
     ['Enter', 'back to her input'],
     ['Esc', 'leave the input'],
     ['?', 'this card (hidden in stage mode)'],
@@ -68,9 +69,8 @@
     // A teammate's open sketchpad or her workspace: Esc (or the clicker's back key) returns to the room.
     const panel = document.getElementById('room-panel');
     if (panel && !panel.hidden && !isTyping(e.target) && (k === 'Escape' || k === 'PageUp' || k === 'ArrowLeft')) { e.preventDefault(); BYOC.closePanel(); return; }
-    // Her seat's pick card: Enter and Space press the focused choice (a button's own behaviour); Esc closes it.
-    if (BYOC.pick && BYOC.pick.isOpen() && document.activeElement?.closest?.('#pick-card') && (k === 'Enter' || k === ' ')) return;
-    if (BYOC.pick && BYOC.pick.isOpen() && k === 'Escape') { e.preventDefault(); BYOC.pick.close(); return; }
+    // Her role buttons on the paper name tag: Enter and Space press the focused choice (a button's own behaviour).
+    if (document.activeElement?.closest?.('.pick-card') && (k === 'Enter' || k === ' ')) return;
     // Her idea sheet opened large: Esc puts it back.
     if (k === 'Escape' && !isTyping(e.target) && BYOC.isSheetOpen && BYOC.isSheetOpen()) { e.preventDefault(); BYOC.sheetOpen(false); return; }
     // The presenter's own keys (Home, 0, R, C, J, S, F) always work: they close her document first.
@@ -114,12 +114,11 @@
   function next() {
     const b = BYOC.beat;
     const idea = document.getElementById('her-idea').textContent;
-    if (b === 0) { // her seat's pick card first; forward again picks Product (same as her click on it)
-      if (BYOC.pick && BYOC.pick.isOpen()) return BYOC.pick.choose('product');
-      if (BYOC.pick && !BYOC.replay) return BYOC.pick.open();
+    if (b === 0) { // her paper name tag: forward makes her name tag from her words, then moves on to the team
+      if (BYOC.introOpen && BYOC.introOpen()) return BYOC.introDone();
       return BYOC.stage(1);
     }
-    if (b === 2 && BYOC.introOpen && BYOC.introOpen()) return BYOC.introDone(); // keeps whatever she typed
+    if (b === 1) return BYOC.meetNext ? BYOC.meetNext() : BYOC.stage(2); // the next teammate; after the last, the reveal
     if (b === 3 && !idea) return focusInput();
     if (b >= 11 || inClose()) return;
     if (BYOC.openTopNote && BYOC.openTopNote()) return; // her tray is out: forward opens the team's suggested note

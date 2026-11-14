@@ -1,5 +1,7 @@
 // Voice: push-to-talk for her "I love…" line (her card) and her agenda answer (her sheet's first line).
 // Hold the mic mark, or hold ` (anywhere) or V (when no field is focused), to record; release to send.
+// Or tap (a press under TAP_MS) to start, and tap again to stop: she talks as long as she likes. Esc cancels.
+// A recording never stops silently: at MAX_MS (2 min) it sends what it has and the mic says so.
 // The words land as editable text through BYOC.typeInto. Typing always works: if voice is unavailable
 // (no key, no mic, a failed call) the mic hides and a quiet "typed" mark shows instead.
 (function () {
@@ -7,10 +9,12 @@
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'voice.css';
   document.head.appendChild(css); // before polish.css, which loads last
 
-  const MIN_MS = 300, MAX_MS = 20000;
+  const MIN_MS = 300, TAP_MS = 300;
+  const MAX_MS = Number(new URLSearchParams(location.search).get('voicemax')) || 120000; // ?voicemax=<ms> for tests
   const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
   let available = canRecord ? null : false; // null: still asking the server
   let stream = null, rec = null, chunks = [], t0 = 0, maxTimer = 0, target = null, state = 'idle'; // idle|listening|writing
+  let toggled = false, limited = false; // toggled: a tap started it, the next tap stops it; limited: it hit MAX_MS
 
   const MIC = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="5" y="1.5" width="6" height="8.5" rx="3" fill="currentColor"/>' +
     '<path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5M5 15h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>';
@@ -46,16 +50,17 @@
   function mark(field, el) {
     const b = document.createElement('span');
     b._field = el; b.className = 'voice-mic'; b.dataset.field = field;
-    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Hold to speak');
-    b.title = 'Hold to speak (or hold `)';
-    b.innerHTML = MIC + '<span class="voice-word">hold to speak</span>';
+    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak');
+    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V)';
+    b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak</span>';
     b.addEventListener('pointerdown', e => {
+      if (state === 'listening' && toggled) { e.preventDefault(); stop(); return; } // the second tap
       if (!available || state !== 'idle') return;
       e.preventDefault(); // keep the caret where it is
       try { b.setPointerCapture(e.pointerId); } catch {}
       start(b._field && b._field.isConnected ? b._field : field === 'intro' ? intro() : herInput());
     });
-    const up = () => { if (state === 'listening') stop(); };
+    const up = () => release();
     b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
     b.addEventListener('lostpointercapture', up);
     return b;
@@ -78,7 +83,10 @@
       const w = m.querySelector('.voice-word');
       const mine = target && (m._field ? m._field === target : fieldFor(target) === m.dataset.field);
       const s = available === false ? 'typed' : mine && state !== 'idle' ? state : 'idle';
-      const word = s === 'typed' ? 'typed' : s === 'listening' ? 'listening' : s === 'writing' ? 'writing it down' : 'hold to speak';
+      const word = s === 'typed' ? 'typed' : s === 'listening' ? (toggled ? 'listening · tap to stop' : 'listening')
+        : s === 'writing' ? (limited ? 'that’s 2 minutes: writing it down' : 'writing it down') : 'tap or hold to speak';
+      const mode = mine && s === 'listening' && toggled ? 'toggle' : null;
+      if ((m.dataset.mode || null) !== mode) { if (mode) m.dataset.mode = mode; else delete m.dataset.mode; }
       // Write only on a change: these writes are inside the observed room, and must not wake the observer forever.
       if (m.dataset.state !== s) m.dataset.state = s;
       if (w.textContent !== word) w.textContent = word;
@@ -101,7 +109,7 @@
   // ---- record and send --------------------------------------------------------------------------
   async function start(field) {
     if (!available || state !== 'idle' || !field) return;
-    target = field; state = 'listening'; t0 = Date.now(); chunks = []; sync();
+    target = field; state = 'listening'; t0 = Date.now(); chunks = []; toggled = false; limited = false; sync();
     try {
       if (!stream || !stream.active) stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch { state = 'idle'; target = null; return unavailable(); } // no mic, or permission refused: she types
@@ -112,13 +120,26 @@
     rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
     rec.onstop = send;
     rec.start(250);
-    maxTimer = setTimeout(stop, MAX_MS);
+    maxTimer = setTimeout(() => { limited = true; stop(); if (BYOC.status) BYOC.status('voice: 2-minute limit reached, sending what was said'); }, MAX_MS);
+  }
+  // A release: a short press was a tap, so it keeps listening until the next tap; a longer one was a hold, so it sends.
+  function release() {
+    if (state !== 'listening' || toggled) return;
+    if (Date.now() - t0 < TAP_MS) { toggled = true; return sync(); }
+    stop();
+  }
+  // Esc: throw the recording away, nothing is sent.
+  function cancel() {
+    clearTimeout(maxTimer);
+    if (state !== 'listening') return;
+    if (rec && rec.state !== 'inactive') { rec.onstop = null; rec.stop(); }
+    rec = null; chunks = []; state = 'idle'; target = null; toggled = false; sync();
   }
   function stop() {
     clearTimeout(maxTimer);
     if (state !== 'listening') return;
     if (!rec || rec.state === 'inactive') { state = 'idle'; target = null; return sync(); } // mic never opened
-    if (Date.now() - t0 < MIN_MS) { rec.onstop = null; rec.stop(); rec = null; state = 'idle'; target = null; return sync(); }
+    if (!toggled && Date.now() - t0 < MIN_MS) { rec.onstop = null; rec.stop(); rec = null; state = 'idle'; target = null; return sync(); }
     state = 'writing'; sync();
     rec.stop();
   }
@@ -150,7 +171,7 @@
         try { field.setSelectionRange(field.value.length, field.value.length); } catch {}
       }
     } catch { state = 'idle'; target = null; return unavailable(); }
-    state = 'idle'; target = null; sync();
+    state = 'idle'; target = null; toggled = false; limited = false; sync();
   }
 
   // ---- keys: hold ` anywhere, or V when she isn't typing -------------------------------------------
@@ -158,6 +179,8 @@
   const isTalkKey = e => !e.metaKey && !e.ctrlKey && !e.altKey &&
     (e.code === 'Backquote' || ((e.key === 'v' || e.key === 'V') && !typing(e.target)));
   window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && state === 'listening') { e.preventDefault(); e.stopPropagation(); cancel(); return; }
+    if (state === 'listening' && toggled && isTalkKey(e)) { e.preventDefault(); e.stopPropagation(); if (!e.repeat) stop(); return; } // the second tap
     if (!isTalkKey(e)) return;
     const f = currentTarget();
     if (!f || !available) return; // nothing to speak into: the key does what it always did
@@ -165,12 +188,12 @@
     if (!e.repeat && state === 'idle') start(f);
   }, true);
   window.addEventListener('keyup', e => {
-    if (e.code === 'Backquote' || e.key === 'v' || e.key === 'V') { if (state === 'listening') { e.preventDefault(); stop(); } }
+    if (e.code === 'Backquote' || e.key === 'v' || e.key === 'V') { if (state === 'listening' && !toggled) { e.preventDefault(); release(); } }
   }, true);
-  window.addEventListener('blur', () => { if (state === 'listening') stop(); });
+  window.addEventListener('blur', () => { if (state === 'listening' && !toggled) stop(); }); // a held key can't be released after a blur; a tapped one carries on
 
   // ---- is voice there? -------------------------------------------------------------------------
-  BYOC.voice = { get available() { return available; }, get state() { return state; }, start: () => start(currentTarget()), stop };
+  BYOC.voice = { get available() { return available; }, get state() { return state; }, get toggled() { return toggled; }, start: () => start(currentTarget()), stop, cancel };
   if (available !== false) {
     fetch('/api/voice/status').then(r => r.json()).then(j => { available = !!j.available; sync(); })
       .catch(() => unavailable());

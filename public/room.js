@@ -28,7 +28,7 @@
     engineering: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
     strategy: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 12V3.3A8.7 8.7 0 0 1 20.7 12z" fill="currentColor"/></svg>',
   };
-  const BEATS = ['empty room', 'her seat', 'team assembles, her card', 'first move', 'her journey', 'team works', 'her three',
+  const BEATS = ['her name tag', 'meet the team', 'the reveal', 'first move', 'her journey', 'team works', 'her three',
     'her taste', 'build', 'her page', 'not scripted', 'close'];
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -160,8 +160,10 @@
     const seat = BYOC.flexSeat || 'data';
     applyCast({ ...BYOC.cast, roles: { ...BYOC.cast.roles, [seat]: 'flex' }, flex });
     BYOC.flexState = how;
+    const late = document.querySelector(`.meet-card.meet-late[data-seat="${seat}"]`); // she's meeting the team: it pops in here
+    if (late) { const i = Number(($('.meet-count', late)?.textContent || '').split(' ')[0]) - 1; const c = meetCard(seat, Math.max(0, i)); late.replaceWith(c); place(c, { y: [16, 0], opacity: [0, 1] }, !instantMode); }
     const s = el.seat[seat];
-    const due = s && (s.querySelector('.late-note') || (BYOC.beat >= 2 && !assembling));
+    const due = s && (s.querySelector('.late-note') || (BYOC.beat >= 2 && !meeting));
     if (due) {
       s.querySelector('.late-note')?.remove();
       s.querySelector('.card')?.remove(); s.classList.remove('filled');
@@ -178,6 +180,7 @@
   function flexLost() {
     if (!BYOC.cast || BYOC.cast.flex) return;
     BYOC.flexState = 'lost';
+    document.querySelectorAll('.meet-card.meet-late .late-note').forEach(n => { n.textContent = 'Still on the way.'; });
     if (el.seat[BYOC.flexSeat]?.querySelector('.late-note')) showLate(BYOC.flexSeat, 'Still on the way.');
   }
   const handlers = new Map(); // type -> Set(fn); '*' gets every event
@@ -311,7 +314,7 @@
       // No stance slot on her card (DEMO: her philosophy is the team's to keep, never shown unless she asks).
       c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${esc(i.name)}</span></div>
         <span class="card-character" data-slot="character"></span>
-        <div class="card-her"><span class="card-who" data-slot="who">Priya · your seat</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
+        <div class="card-her"><span class="card-who" data-slot="who">${esc(herName())} · your seat</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
       c.dataset.component = 'her-place-card'; c.dataset.state = 'empty';
       drawHerCharacter(c);
     } else {
@@ -329,7 +332,7 @@
     if (ti) ti.textContent = t.title || ''; if (tr) tr.textContent = (t.traits || []).join(' · ');
     // Once she has a character, her card says who she is: "Priya" and the title, not "Priya · your seat".
     const who = c.querySelector('.card-who');
-    if (who && c.dataset.component === 'her-place-card' && BYOC.herSeat !== 'diy') who.textContent = t.title ? 'Priya' : 'Priya · your seat';
+    if (who && c.dataset.component === 'her-place-card' && BYOC.herSeat !== 'diy') who.textContent = t.title ? herName() : `${herName()} · your seat`;
     c.dataset.state = t.title || (t.traits || []).length ? 'named' : 'empty';
   }
   // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
@@ -357,35 +360,27 @@
     }
   }
 
-  // ---- her seat's pick card: "What do you bring to the table?" Product, or her own craft ----------------
-  // A click on her empty seat (or the clicker's forward) opens it; Product (or forward again) seats her as Product.
-  // "Your own craft" makes her name tag with her (public/name-tag.js), then she sits in her seat with that craft.
-  const pickCard = $('#pick-card');
-  const pickOpen = () => !!pickCard && !pickCard.hidden;
-  function openPick() {
-    if (!pickCard || BYOC.beat !== 0 || BYOC.replay || pickOpen()) return;
-    pickCard.hidden = false; pickCard.dataset.state = 'open';
-    place(pickCard, { y: [30, 0], opacity: [0, 1] }, !instantMode);
-    emit('pick.open', {});
-    pickCard.querySelector('.pick-option')?.focus();
-  }
-  function closePick() { if (!pickCard) return; pickCard.hidden = true; pickCard.dataset.state = 'hidden'; }
+  // ---- her role on her paper name tag: Product, or her own craft ------------------------------------
+  // Product is prefilled (the stage path). "Your own craft" makes her name tag with builder 6's flow (public/name-tag.js);
+  // once she keeps it, she meets the team and sits in her seat with that craft.
   async function pick(what) {
-    if (!pickOpen() || BYOC.beat !== 0 || pickCard.dataset.state === 'picked') return;
-    pickCard.dataset.state = 'picked'; pickCard.dataset.pick = what;
+    if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
+    const pc = $('.pick-card', introCard); if (!pc) return;
+    pc.dataset.pick = what;
+    pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === what)));
     emit('pick.done', { pick: what });
+    // Any seat is hers (lib/cast.js): another craft recasts the table now, while she writes her tag (Product: as it was).
+    if (CRAFT_LABEL[what] && what !== 'product') { BYOC.castP = castFor(what); }
+    else if (BYOC.cast) { applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.castP = null; }
     if (what === 'craft') {
-      closePick();
+      BYOC.herName = herNameField();
       const tag = await takeDiySeat();
-      if (!tag && BYOC.beat === 0) openPick(); // she closed her tag without keeping it: back to the choice
+      if (!tag && BYOC.beat === 0 && pc.isConnected) { pc.dataset.pick = 'product'; pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === 'product'))); }
       return;
     }
-    // Any other craft: the table recasts around her before the team walks in (Product: nothing changes).
-    if (what !== 'product' && CRAFT_LABEL[what]) await castFor(what);
-    closePick(); stage(1);
+    $('#intro-input', introCard)?.focus();
   }
-  if (pickCard) pickCard.addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
-  BYOC.pick = { open: openPick, close: closePick, choose: pick, isOpen: pickOpen };
+  BYOC.pick = { choose: pick, current: () => (introCard && $('.pick-card', introCard)?.dataset.pick) || null };
   // Her card in her own craft: in her seat, with the craft her name tag says.
   function seatDiy(animate) {
     const s = el.seat.product;
@@ -405,7 +400,8 @@
     if (BYOC.beat !== 0 || BYOC.replay || !BYOC.nameTag || !BYOC.nameTag.open) return null;
     const tag = await BYOC.nameTag.open();
     if (!tag || BYOC.beat !== 0) return null;
-    await castFor('diy'); // Ines takes Product; the flex teammate's card is written for her craft while the team walks in
+    introCard = null; // her name tag is made: next, she meets the team
+    BYOC.castP = castFor('diy'); await BYOC.castP; // Ines takes Product; the flex card is written for her craft while she meets the team
     stage(1);
     return tag;
   }
@@ -461,7 +457,7 @@
     // her character card
     const t = BYOC.herTag || {};
     const ch = part('character', 'Your character');
-    const ct = h('p', 'ws-title'); ct.textContent = t.title ? `Priya, ${t.title}` : 'Priya'; ch.appendChild(ct);
+    const ct = h('p', 'ws-title'); ct.textContent = t.title ? `${herName()}, ${t.title}` : herName(); ch.appendChild(ct);
     if ((t.traits || []).length) { const tr = h('p', 'ws-traits'); tr.textContent = t.traits.join(' · '); ch.appendChild(tr); }
     if (t.superpower) { const sp = h('p', 'ws-power'); sp.textContent = t.superpower; ch.appendChild(sp); }
     // her idea and its journey
@@ -882,36 +878,11 @@
     return true;
   }
   BYOC.openNote = openNote;
-  // The tray: a small stack of notes at the edge of her seat, each in its teammate's ink: "Noor · Research" and a few
-  // words of the question. The top note is the team's suggestion; she picks which to open. Notes slide in only at a
-  // natural pause, about 1 s after it, never while she's typing or speaking. No number, no red, no pulse.
-  const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true; tray.dataset.component = 'tray'; tray.dataset.state = 'empty';
-  tray.setAttribute('aria-label', 'Notes from your team');
-  el.room.appendChild(tray);
-  let trayTimer = null;
-  const isTypingNow = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); };
-  const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
-  function renderTray() {
-    const w = BYOC.focus.waiting;
-    const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 5 && BYOC.beat < 8;
-    clearTimeout(trayTimer);
-    if (!show) { tray.hidden = true; tray.dataset.state = 'empty'; return; }
-    const ids = w.map(n => n.id).join(',');
-    if (!tray.hidden && tray.dataset.ids === ids) return;
-    trayTimer = setTimeout(function slideIn() {
-      if (isTypingNow()) { trayTimer = setTimeout(slideIn, 500); return; }
-      if (BYOC.focus.open) return;
-      tray.dataset.ids = ids;
-      tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-component="tray-note" data-state="${i ? 'waiting' : 'top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
-        <span class="tray-seat" data-slot="seat">${esc(who(n))}</span><span class="tray-text" data-slot="text">${esc(fewWords(n.question))}</span></button>`).join('');
-      tray.dataset.state = 'waiting';
-      const was = tray.hidden; tray.hidden = false;
-      if (was && !instantMode) place(tray, { y: [24, 0], opacity: [0, 1] }, true);
-    }, instantMode || BYOC.replay ? 0 : 1000);
-  }
-  // The clicker's forward key opens the top note when the tray is out (stage.js asks first).
-  BYOC.openTopNote = () => { const top = tray.hidden ? null : tray.querySelector('.tray-note'); return top ? openNote(top.dataset.ask) : false; };
-  tray.addEventListener('click', e => { const b = e.target.closest('.tray-note'); if (b) openNote(b.dataset.ask); });
+  // Her inbox (public/inbox.js) replaced the tray: it shows what waits here (BYOC.focus.waiting), with the tray's
+  // arrival rules (a natural pause, never while she types; no number, no red), plus Things only you can do and Past meetings.
+  function renderTray() { if (BYOC.inbox) BYOC.inbox.render(); }
+  // The clicker's forward key opens the item that needs her now (stage.js asks first).
+  BYOC.openTopNote = () => (BYOC.inbox ? BYOC.inbox.openTop() : false);
 
   // ---- the room's chatter (DEMO focus rules): the team talking about its own work, never to her ----------
   // chatter { by, seat, text } events (written by the server from real run events). Each line shows a few seconds
@@ -1152,71 +1123,44 @@
   // stage(n, {instant:true}) jumps there with no motion. Going back to 0-3 rebuilds instantly.
   let walkToken = 0;
 
-  // ---- assembling the team (DEMO 0:06-0:26) and her card (0:26-0:34) ------------------------------
-  // Each teammate's card lands big mid-table (Loves / Brings / Stance), holds, then shrinks into its seat.
-  let assembling = false, assembleSkip = false, introCard = null;
-  function bigCard(seat) {
-    const i = INFO[seat];
-    const c = h('div', 'big-card'); c.dataset.seat = seat;
-    if (seat !== 'product') { c.dataset.component = 'teammate-card'; c.dataset.state = 'arriving'; }
-    const loves = seat === 'product'
-      ? `<span class="bc-love-start">I love</span><textarea class="bc-love-input" id="intro-input" rows="2" spellcheck="false" maxlength="160" placeholder="…" aria-label="I love…"></textarea>`
-      : `“${esc(i.loves)}”`;
-    c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${esc(i.name)}</span><span class="card-who">${seat === 'product' ? 'your seat' : `<span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span>`}</span></div>
-      <dl class="bc-body"><dt>Loves</dt><dd class="bc-loves">${loves}</dd>
-      <dt>Brings</dt><dd class="bc-brings">${esc(i.brings)}</dd>
-      ${i.stance ? `<dt>Stance</dt><dd class="bc-stance">${esc(i.stance)}</dd>` : ''}</dl>`;
-    el.room.appendChild(c);
-    return c;
-  }
-  // Shrink a big card into its seat, then the seat's own card takes over.
-  async function flyToSeat(c, seat, animate) {
-    const s = el.seat[seat];
-    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
-    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
-    if (animate) await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT[seat] }, true)).catch(() => {});
-    c.remove();
-    seatCard(seat, false);
-  }
-  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !assembleSkip) await wait(50); }
-  async function assemble(animate, tok) {
-    if (!animate) { for (const s of TEAM) if (flexAway(s)) showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); else seatCard(s, false); return; }
-    assembling = true; assembleSkip = false;
-    // Any seat is hers: the flex teammate walks in last, its card written while the fixed teammates were introduced.
-    const order = BYOC.flexSeat && BYOC.cast ? [...TEAM.filter(x => x !== BYOC.flexSeat), BYOC.flexSeat] : TEAM;
-    try {
-      for (const s of order) {
-        if (tok !== walkToken) return;
-        if (flexAway(s)) { showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); continue; } // never waits
-        if (el.seat[s].querySelector('.card')) continue;
-        if (assembleSkip) { seatCard(s, false); continue; }
-        const c = bigCard(s);
-        await Promise.resolve(place(c, { y: [260, 0], scale: [0.6, 1], rotate: [4, TILT[s] * 0.5] }, true)).catch(() => {});
-        c.dataset.state = 'holding';
-        await holdFor(HOLD_MS);
-        c.dataset.state = 'seating';
-        if (tok !== walkToken) { c.remove(); return; }
-        await flyToSeat(c, s, !assembleSkip);
-      }
-    } finally { assembling = false; }
-    if (tok !== walkToken || assembleSkip || BYOC.beat !== 2 || BYOC.replay) return;
-    if (BYOC.herSeat === 'diy') { stage(3); return; } // her tag already said what she loves
-    openIntro();
-  }
-  // Her card lifts mid-table, same layout: she finishes "I love…" (typed; voice can fill the same input).
-  function openIntro() {
-    const prod = el.seat.product.querySelector('.card');
-    if (prod) prod.style.visibility = 'hidden';
-    introCard = bigCard('product');
-    place(introCard, { y: [300, 0], scale: [0.6, 1], rotate: [-3, -0.6] }, true);
-    const inp = $('#intro-input', introCard);
-    inp.value = BYOC.intro ? String(BYOC.intro).replace(/^i love\s*/i, '') : '';
-    introCard.dataset.component = 'character-card'; introCard.dataset.state = 'asking';
-    inp.dataset.slot = 'input';
-    inp.addEventListener('keydown', ev => {
-      if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+  // ---- the setup (DEMO 0:00-0:30): her name tag on paper, meeting the team, the reveal ------------------
+  // The room is hidden under #setup until the reveal. Beat 0: her paper name tag (name, role, what she loves and brings,
+  // tidied, then the team's fun spin). Beat 1: each teammate met up close, one by one (forward: the next). Beat 2: the
+  // studio appears with everyone seated, and she takes her seat. Replays jump past it to beat 3, so they reveal at once.
+  const setup = $('#setup');
+  let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
+  const herName = () => (BYOC.herName || 'Priya');
+  const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
+  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
+  // Her paper name tag. One component with the DIY name tag (character-card), so voice, swaps and the gallery carry on.
+  function openPaper() {
+    if (!setup) return;
+    setSetup('nametag');
+    const st = $('#setup-stage'); st.innerHTML = '';
+    const c = h('div', 'big-card nt-paper'); c.dataset.seat = 'product';
+    c.dataset.component = 'character-card'; c.dataset.state = 'asking';
+    c.innerHTML = `<div class="nt-head" data-slot="head">Name tag</div>
+      <label class="nt-row nt-name-row"><span class="nt-label" data-slot="label">Your name</span>
+        <input class="nt-name" id="nt-name" data-slot="name" type="text" spellcheck="false" maxlength="40" value="${esc(herName())}" aria-label="Your name"></label>
+      <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
+        <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
+        <div class="pick-options" data-slot="options">
+          <button type="button" class="pick-option" data-pick="product" data-slot="option" aria-pressed="true">Product</button>
+          ${['design', 'research', 'engineering', 'data', 'strategy'].map(k => `<button type="button" class="pick-option" data-pick="${k}" data-slot="option" aria-pressed="false">${CRAFT_LABEL[k]}</button>`).join('')}
+          <button type="button" class="pick-option" data-pick="craft" data-slot="option" aria-pressed="false">Your own craft</button>
+        </div>
+      </div>
+      <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
+        <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
+      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>`;
+    st.appendChild(c);
+    introCard = c;
+    $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
+    $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
+    $('#intro-input', c).addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
     });
-    setTimeout(() => inp.focus(), 30);
+    place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
   // traits, maybe a superpower, each swappable with a click (builder 6's POST /api/name-tag, as on the craft seat).
@@ -1230,47 +1174,107 @@
     c._char = cur;
     const body = h('div', 'char-body'); body.dataset.slot = 'character';
     const swap = (pool, value) => { const next = cur.alternates[pool] && cur.alternates[pool].shift(); if (next) cur.alternates[pool].push(value); return next || value; };
-    const title = h('div', 'char-who', `<span class="char-name">Priya</span>${cur.title ? `, <button type="button" class="char-title" data-slot="title">${esc(cur.title)}</button>` : ''}`);
+    const title = h('div', 'char-who', `<span class="char-name">${esc(herName())}</span>${cur.title ? `, <button type="button" class="char-title" data-slot="title">${esc(cur.title)}</button>` : ''}`);
     const traits = h('ul', 'char-traits'); traits.dataset.slot = 'traits';
     const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
     drawTraits();
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
-    const hint = h('div', 'char-hint', 'The team’s read of you · click any piece to swap it · Enter: take the seat'); hint.dataset.slot = 'hint';
+    const hint = h('div', 'char-hint', 'The team’s read of you · click any piece to swap it · Enter: meet your team'); hint.dataset.slot = 'hint';
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
     traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
     if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
     body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
     c.appendChild(body);
     c.dataset.state = 'shown';
-    c.tabIndex = -1; c.focus(); // Enter or the clicker takes the seat
+    c.tabIndex = -1; c.focus(); // Enter or the clicker: meet the team
     c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
   }
-  // Her line is kept (sent as intro with the run; it becomes L1 of her file), and her card settles into her seat.
+  // Enter (or the clicker) on her paper: the first time with her words, they're tidied (builder 7's speech tidy) and
+  // the team writes her name tag; the next time, she meets the team. Empty words move on without a line (her file
+  // keeps its prepared lines).
   async function introDone() {
-    if (!introCard) return;
-    const c0 = introCard;
-    const said0 = $('#intro-input', c0).value.trim();
-    // First Enter with her sentence: the team writes her character card. The next Enter takes the seat.
-    if (said0 && c0.dataset.state === 'asking') { $('#intro-input', c0).readOnly = true; return makeCharacter(c0, said0); }
-    if (c0.dataset.state === 'thinking') return;
-    const c = introCard; introCard = null;
-    const said = $('#intro-input', c).value.trim();
+    const c = introCard; if (!c || BYOC.beat !== 0) return;
+    const inp = $('#intro-input', c);
+    const raw = inp.value.trim();
+    if (raw && c.dataset.state === 'asking') {
+      inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
+      let said = raw;
+      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro' }) || raw).trim() || raw; } catch { said = raw; } }
+      if (introCard !== c) return;
+      inp.value = said;
+      return makeCharacter(c, said);
+    }
+    if (c.dataset.state === 'thinking') return;
+    introCard = null;
+    BYOC.herName = herNameField();
     if (c._char) BYOC.herTag = { ...c._char, alternates: undefined };
+    const said = inp.value.trim();
     BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
-    $('#intro-input', c).blur();
-    const tok = walkToken;
-    const s = el.seat.product;
-    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
-    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
-    await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT.product }, !instantMode)).catch(() => {});
-    c.remove();
-    const prod = s.querySelector('.card'); if (prod) { prod.style.visibility = ''; drawHerCharacter(prod); }
-    emit('intro', { intro: BYOC.intro });
-    if (tok === walkToken && BYOC.beat === 2) stage(3);
+    inp.blur();
+    emit('intro', { intro: BYOC.intro, name: BYOC.herName });
+    if (BYOC.castP) await BYOC.castP; // the table as she picked it (one instant call), before she meets the team
+    stage(1);
   }
-  BYOC.introOpen = () => !!introCard;
+  BYOC.introOpen = () => !!introCard && BYOC.beat === 0;
   BYOC.introShown = () => !!introCard && introCard.dataset.state === 'shown';
   BYOC.introDone = introDone;
+
+  // Meet the team: each teammate up close, one at a time (name · role, a line in its own voice, what it brings, the
+  // agent mark, an empty face slot for the studio's art). Today's order; the teammate fitted to the idea comes last
+  // once builder 8's roster lands. Each holds HOLD_MS (?hold=); forward moves to the next at once.
+  // Any seat is hers: the teammates in their roles this run; the flex one last, and if its card isn't written yet, its
+  // place in the line is an inked note (it pops in when the card lands, here or at the table).
+  const meetOrder = () => (BYOC.flexSeat && BYOC.cast ? [...TEAM.filter(x => x !== BYOC.flexSeat), BYOC.flexSeat] : TEAM);
+  function lateMeetCard(seat, i) {
+    const c = h('div', 'meet-card meet-late'); c.dataset.component = 'meet-card'; c.dataset.seat = seat; c.dataset.state = 'late';
+    c.innerHTML = `<span class="meet-face" data-slot="face"></span>
+      <p class="meet-line late-note" data-slot="line"></p>
+      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>`;
+    $('.late-note', c).textContent = BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote();
+    return c;
+  }
+  function meetCard(seat, i) {
+    if (flexAway(seat)) return lateMeetCard(seat, i);
+    const t = INFO[seat];
+    const c = h('div', 'meet-card'); c.dataset.component = 'meet-card'; c.dataset.seat = seat; c.dataset.state = 'in';
+    c.innerHTML = `<span class="meet-face" data-slot="face"></span>
+      <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
+      <p class="meet-line" data-slot="line">“${esc(t.loves)}”</p>
+      <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
+      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>`;
+    return c;
+  }
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; }
+  async function meetTeam(animate, tok) {
+    if (!setup || !animate || BYOC.replay) return;
+    setSetup('team');
+    const st = $('#setup-stage');
+    meeting = true; meetSkip = false; meetAdvance = false;
+    try {
+      const order = meetOrder();
+      for (let i = 0; i < order.length; i++) {
+        if (tok !== walkToken || meetSkip) return;
+        const c = meetCard(order[i], i);
+        st.replaceChildren(c);
+        place(c, { x: [60, 0], opacity: [0, 1] }, true);
+        emit('meet', { seat: order[i], index: i });
+        await holdFor(HOLD_MS);
+      }
+    } finally { meeting = false; }
+    if (tok === walkToken && BYOC.beat === 1 && !meetSkip) stage(2);
+  }
+  // The clicker's forward during "meet the team": the next teammate (after the last: the reveal).
+  BYOC.meetNext = () => { if (meeting) meetAdvance = true; else if (BYOC.beat === 1) stage(2); };
+  // The reveal: the studio, everyone already seated; then she takes her seat.
+  async function reveal(animate, tok) {
+    meetSkip = true;
+    setSetup('off');
+    for (const s of TEAM) if (flexAway(s)) showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); else seatCard(s, false);
+    if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
+    const prod = el.seat.product.querySelector('.card'); if (prod) drawHerCharacter(prod);
+    emit('reveal', {});
+    if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 2) stage(3); }
+  }
   // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
   BYOC.typeInto = function (text) {
     const t = document.activeElement;
@@ -1281,19 +1285,15 @@
     target.dispatchEvent(new Event('input', { bubbles: true }));
     return true;
   };
-  // She takes her seat herself: a click on her empty seat opens its pick card.
-  el.seat.product.addEventListener('click', () => { if (BYOC.beat === 0 && !BYOC.replay) openPick(); });
 
   async function enter(b, animate) {
     const tok = walkToken;
     switch (b) {
       case 1:
-        if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
-        // She took her seat; the team assembles on its own (DEMO 0:06).
-        if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 1) stage(2); }
+        await meetTeam(animate, tok); // her name tag is made: she meets the team, one by one
         break;
       case 2:
-        await assemble(animate, tok);
+        await reveal(animate, tok); // the studio, everyone seated; she takes her seat
         break;
       case 3:
         el.herSheet.hidden = false; // her file (taste.md) stays off screen: her philosophy is the team's to keep
@@ -1330,10 +1330,9 @@
   }
   function stage(n, opts = {}) {
     setSheetOpen(false);
-    if (n !== 0) closePick();
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
-    if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
+    if (n > 1 && meeting) meetSkip = true; // moving on mid-introductions goes straight to the reveal
     if (n < 9) pageSheet.hidden = true;
     if (n < BYOC.beat) {
       if (n <= 3 && !BYOC.replay && !el.herIdea.textContent) { reset(); const prev = instantMode; instantMode = true; for (let b = 1; b <= n; b++) enter(b, false); instantMode = prev; }
@@ -1342,7 +1341,7 @@
       const from = BYOC.beat;
       BYOC.beat = n;
       const prev = instantMode; if (!animate) instantMode = true;
-      (async () => { for (let b = from + 1; b <= n; b++) { const p = enter(b, animate); if (animate && b === 2) await p; } })();
+      for (let b = from + 1; b <= n; b++) { if (b === 1 && n > 1) continue; enter(b, animate); } // jumping past the introductions skips them
       instantMode = prev;
     }
     document.body.dataset.beat = String(n);
@@ -1358,8 +1357,8 @@
     setSheetOpen(false);
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
-    BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
-    closePick(); if (pickCard) delete pickCard.dataset.pick; delete el.room.dataset.herSeat; BYOC.herSeat = null; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null;
+    BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
+    delete el.room.dataset.herSeat; BYOC.herSeat = null; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; BYOC.castP = null;
     el.room.querySelectorAll('.late-note').forEach(n => n.remove());
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
@@ -1381,6 +1380,7 @@
     document.body.dataset.beat = '0';
     status('');
     emit('reset', {});
+    openPaper(); // the room hides again: her name tag on paper first
   }
   BYOC.reset = reset;
   BYOC.setInstant = v => { instantMode = !!v; };

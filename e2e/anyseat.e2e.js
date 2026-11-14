@@ -20,6 +20,13 @@ let hasMain = false;
 const servers = [];
 let browser;
 
+// The setup, as she does it: her paper name tag (pick a role on it), Enter with no "I love" line (no model call), then
+// the team one by one (?hold=200) and the reveal. Main and this branch share this flow.
+async function setUp(p, base, pick) {
+  await p.goto(base + '/?hold=200'); await p.waitForTimeout(600);
+  if (pick) await p.click(`.nt-paper [data-pick="${pick}"]`);
+  await p.focus('#intro-input'); await p.keyboard.press('Enter');
+}
 function serve(root, port) {
   const runs = fs.mkdtempSync(path.join(TMP, 'runs-'));
   const p = spawn('node', ['server.js'], { cwd: root, env: { ...process.env, PORT: String(port), RUNS_DIR: runs } });
@@ -85,10 +92,7 @@ test('guard: the Product path is byte-for-byte main (prompts, events, roster)', 
   await sm.ready(); await sb.ready();
   const roster = async base => {
     const p = await browser.newPage({ viewport: { width: 1600, height: 930 } });
-    await p.goto(base + '/?hold=200'); await p.waitForTimeout(600);
-    await p.click('.seat-product');
-    // main may predate the pick card (it lives on build/beats); where it exists, she picks Product on it
-    if (await p.locator('#pick-card [data-pick="product"]').count()) await p.click('#pick-card [data-pick="product"]');
+    await setUp(p, base, 'product');
     await p.waitForFunction(() => document.querySelectorAll('.seat .card[data-component="place-card"]').length >= 5, null, { timeout: 30000 });
     const out = await p.evaluate(() => ({
       info: ['product', 'design', 'data', 'research', 'strategy', 'engineering'].map(s => BYOC.info(s)),
@@ -107,9 +111,12 @@ test('a real run in the Design seat: Mika wears Product, her seat speaks Design,
   await s.ready();
   const p = await browser.newPage({ viewport: { width: 1600, height: 930 } });
   const errors = []; p.on('pageerror', e => errors.push(String(e)));
-  await p.goto(s.base + '/?hold=200'); await p.waitForTimeout(600);
-  await p.click('.seat-product'); await p.click('#pick-card [data-pick="design"]');
+  const met = [];
+  await p.exposeFunction('metCard', t => met.push(t));
+  await p.addInitScript(() => { window.addEventListener('DOMContentLoaded', () => { new MutationObserver(() => { const c = document.querySelector('.meet-card'); if (c && c.dataset.seen !== '1') { c.dataset.seen = '1'; window.metCard(c.textContent.replace(/\s+/g, ' ').trim()); } }).observe(document.body, { subtree: true, childList: true }); }); });
+  await setUp(p, s.base, 'design');
   await p.waitForFunction(() => document.querySelectorAll('.seat .card[data-component="place-card"]').length >= 5, null, { timeout: 30000 });
+  assert.ok(met.some(t => /Mika · Product/.test(t)), `she met Mika as Product: ${JSON.stringify(met)}`);
   const mika = await p.evaluate(() => document.querySelector('.seat[data-seat="design"] .card').innerText);
   assert.match(mika, /Product/i); assert.match(mika, /Mika/);
   assert.match(await p.evaluate(() => document.querySelector('.seat[data-seat="product"] .card').textContent), /Design/i);
@@ -144,8 +151,10 @@ test('the flex seat: a late card is a note in the chair, then the teammate pops 
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mode === 'fail' ? { role: null, failed: 'boom' }
         : { role: 'flex', flex: { name: 'Operations', focus: 'the morning bake list', stance: 'nothing wasted', loves: 'Every loaf has a home.', brings: 'the morning bake list calls for this page' } }) });
     });
-    await p.goto(s.base + '/?hold=200'); await p.waitForTimeout(600);
-    await p.click('.seat-product'); await p.click('#pick-card [data-pick="data"]');
+    await setUp(p, s.base, 'data');
+    // meeting the team: Theo comes last, and his card isn't written yet: a note in his place
+    await p.waitForSelector('.meet-card.meet-late[data-seat="data"]', { state: 'attached', timeout: 30000 });
+    assert.match(await p.textContent('.meet-card.meet-late .late-note'), /Theo.s running a little late/);
     await p.waitForSelector('.seat[data-seat="data"] .late-note', { timeout: 30000 });
     assert.match(await p.textContent('.seat[data-seat="data"] .late-note'), /Theo.s running a little late/);
     assert.equal(await p.evaluate(() => document.querySelectorAll('.seat .card[data-component="place-card"]').length), 4, 'four teammates seated; the room did not wait');
