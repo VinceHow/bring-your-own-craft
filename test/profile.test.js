@@ -86,3 +86,13 @@ test('her domains survive an update that leaves them out; the selector reads the
   assert.deepEqual(readProfile(run).domains, ['the bake', 'the morning rush']);
   assert.deepEqual(domainsFor(run, 'diy'), ['the bake', 'the morning rush']);
 });
+
+test('/intro in the Product seat returns the full character card (title, traits, superpower, swaps), craft = the seat', async () => {
+  const { cleanTag } = await import('../lib/tag.js');
+  const r = await nameTag('I love working on the customer journey', { seat: 'product', callModel: async () => ({ craft: 'Product manager', title: 'Customer Whisperer',
+    traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: 'finds the friction first', goodAt: 'customer problems', loves: 'the customer journey',
+    alternates: { titles: ['the Journey Mapper'], traits: ['empathy-first'], superpowers: ['reads a funnel like a map'] } }) });
+  assert.deepEqual([r.body.craft, r.body.title, r.body.traits.length, r.body.superpower], ['Product', 'the Customer Whisperer', 3, 'finds the friction first']);
+  assert.deepEqual(r.body.alternates.titles, ['the Journey Mapper']);
+  assert.deepEqual(cleanTag(r.body).title, 'the Customer Whisperer', 'what /intro logs and returns keeps the whole card');
+});
