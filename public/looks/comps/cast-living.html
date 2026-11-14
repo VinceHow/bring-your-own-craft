@@ -116,6 +116,8 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   };
   const MOODS = ['idle', 'working', 'thinking', 'talking', 'delighted', 'note', 'signature', 'celebrating'];
   const LOOPING = new Set(['idle', 'working', 'thinking']);
+  // clips that failed QC are not shown; the mood falls back to a close neighbour (see design/studio/cast-loops/NOTES-living.md)
+  const STANDIN = { ines: { note: 'talking' } };
 
   // Time of day
   const LABEL = { morning: 'Morning', afternoon: 'Afternoon', building: 'Afternoon, building her page', evening: 'Evening' };
@@ -173,6 +175,8 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   let held = false;                                     // focus: no new moods
   async function play(id, mood, cut = XFADE) {
     const p = P[id];
+    const asked = mood;
+    if (mood && STANDIN[id] && STANDIN[id][mood]) mood = STANDIN[id][mood];
     let v = clip(id, mood);
     if (!v && mood !== 'idle') { v = clip(id, 'idle'); mood = 'idle'; }
     if (!v) return;
@@ -182,7 +186,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     v.classList.add('on');
     if (!p.live) { p.live = true; p.el.style.opacity = 1; }
     if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => { prev.classList.remove('on'); prev.style.opacity = ''; prev.pause(); });
-    if (p.onStart) { const f = p.onStart; p.onStart = null; f(mood); }
+    if (p.onStart) { const f = p.onStart; p.onStart = null; f(asked); }
     const next = () => (held ? 'idle' : (p.queue[0] || p.base));
     const tick = () => {
       if (p.cur !== v) return;
