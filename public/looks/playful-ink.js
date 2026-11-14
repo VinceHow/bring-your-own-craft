@@ -2,8 +2,11 @@
    PlayfulInk.mount(container, { day, night, music, time, still }) draws a layer over a painted room that fills `container`.
    Everything is placed in fractions of the painting, so it scales with it.
    - Record player: hover shows the track in an inked pill; a click starts it, then cycles Piano, Electronic, Chiptune,
-     Night rain (made in code), off. Never autoplays. Ducks while a focus document is open: PlayfulInk.duck(true), or a
+     Night rain, off. Never autoplays. At night, while a record plays, rain sits softly under the music. Rain is
+     cast/music/rain.mp3 when present, else made in code. Ducks while a focus document is open: api.duck(true), or a
      `studio:focus` event with detail { open: true }.
+   - Owns every playful object in the painted look; the living layer owns the backdrop and moods. They share the time of
+     day through a `studio:time` event { time } (either side may fire it), or api.setNight(on).
    - Cat: two ink-drawn hearts rise when you pet it.
    - Coffee machine: inked steam curls, a little more when you come near.
    - String lights: a click toggles a soft glow (on by default at night).
@@ -89,27 +92,46 @@
     const track = el('button', 'pi-pill pi-track is-hidden', L);
     track.innerHTML = `<svg class="ic" viewBox="0 0 18 18">${ICON.disc}</svg><span class="nm">Record player</span><span class="pi-sub">tap to play</span><span class="eq" hidden><i></i><i></i><i></i></span>`;
     track.style.right = '2.2%'; track.style.top = pct(SPOTS.record.y - .035);
-    let audio = null, ctx = null, master = null, stopRain = null;
+    // Sound: one music track at a time; "Night rain" is a track too. At night, while a record plays, rain sits softly under it.
+    // Rain uses public/looks/cast/music/rain.mp3 when it is there, and falls back to rain made in code.
+    let music = null, rainTrack = null, ambient = null, ctx = null;
     const vol = () => (state.duck ? .12 : 1) * o.volume;
-    function setVolume(ramp = .6) {
-      if (audio) { const from = audio.volume, to = vol(), t0 = performance.now();
-        (function step(t) { const k = Math.min(1, (t - t0) / (ramp * 1000)); audio.volume = from + (to - from) * k; if (k < 1) requestAnimationFrame(step); })(t0); }
-      if (master) master.gain.setTargetAtTime(vol(), ctx.currentTime, ramp / 3);
+    const AMBIENT = .3;   // rain under the music, relative to the music
+    function ramp(a, to, secs = .6) { const from = a.volume, t0 = performance.now();
+      (function step(t) { const k = Math.min(1, (t - t0) / (secs * 1000)); a.volume = Math.max(0, Math.min(1, from + (to - from) * k)); if (k < 1) requestAnimationFrame(step); })(t0); }
+    function startRain(level) {
+      const layer = { level, a: null, g: null, stop: null };
+      const fallback = () => {
+        if (layer.dead || layer.g) return;
+        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume();
+        layer.g = ctx.createGain(); layer.g.gain.value = level * vol(); layer.g.connect(ctx.destination); layer.stop = rain(ctx, layer.g);
+      };
+      if (o.music) {
+        const a = new Audio(`${o.music}/rain.mp3`); a.loop = true; a.volume = level * vol(); layer.a = a;
+        const fail = () => { a.pause(); a.removeAttribute('src'); a.load(); layer.a = null; fallback(); };
+        a.addEventListener('error', fail, { once: true });
+        a.play().catch(err => { if (err && err.name === 'NotSupportedError' && layer.a) fail(); });
+      } else fallback();
+      layer.set = secs => { if (layer.a) ramp(layer.a, layer.level * vol(), secs); if (layer.g) layer.g.gain.setTargetAtTime(layer.level * vol(), ctx.currentTime, secs / 3); };
+      layer.end = () => { layer.dead = true; if (layer.a) layer.a.pause(); if (layer.stop) layer.stop(); if (layer.g) layer.g.disconnect(); };
+      return layer;
     }
-    function stopAll() { if (audio) { audio.pause(); audio = null; } if (stopRain) { stopRain(); stopRain = null; } }
+    function setVolume(secs = .6) { if (music) ramp(music, vol(), secs); [rainTrack, ambient].forEach(l => l && l.set(secs)); }
+    function syncAmbient() {
+      const want = state.night && state.track >= 0 && TRACKS[state.track].id !== 'rain';
+      if (want && !ambient) ambient = startRain(AMBIENT);
+      if (!want && ambient) { ambient.end(); ambient = null; }
+    }
+    function stopAll() { if (music) { music.pause(); music = null; } if (rainTrack) { rainTrack.end(); rainTrack = null; } }
     function play(i) {
       stopAll(); state.track = i;
       const nm = track.querySelector('.nm'), sub = track.querySelector('.pi-sub'), eq = track.querySelector('.eq');
-      if (i < 0) { nm.textContent = 'Record player'; sub.textContent = 'tap to play'; eq.hidden = true; track.classList.remove('playing'); inkPill(track); return; }
+      if (i < 0) { nm.textContent = 'Record player'; sub.textContent = 'tap to play'; eq.hidden = true; track.classList.remove('playing'); inkPill(track); syncAmbient(); return; }
       const t = TRACKS[i];
       nm.textContent = t.name; sub.textContent = i < TRACKS.length - 1 ? `next: ${TRACKS[i + 1].name}` : 'next: off'; eq.hidden = false; track.classList.add('playing');
-      if (t.id === 'rain') {
-        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume();
-        master = master || (() => { const g = ctx.createGain(); g.connect(ctx.destination); return g; })(); master.gain.value = vol();
-        stopRain = rain(ctx, master);
-      } else if (o.music) {
-        audio = new Audio(`${o.music}/${t.id}.mp3`); audio.loop = true; audio.volume = vol(); audio.play().catch(() => {});
-      }
+      if (t.id === 'rain') rainTrack = startRain(1);
+      else if (o.music) { music = new Audio(`${o.music}/${t.id}.mp3`); music.loop = true; music.volume = vol(); music.play().catch(() => {}); }
+      syncAmbient();
       inkPill(track);
       noteFloat();
     }
@@ -164,26 +186,31 @@
     // ---------- day / night ----------
     const sky = el('button', 'pi-pill pi-sky', L);
     sky.style.left = '1.6%'; sky.style.top = '2.4%';
-    function setNight(on) {
+    function setNight(on, fromEvent) {
       state.night = on; plate.classList.toggle('on', on); L.classList.toggle('night', on);
       sky.innerHTML = on ? `<svg class="ic" viewBox="0 0 18 18">${ICON.moon}</svg>Night<span class="pi-sub">rain on the window</span>`
                          : `<svg class="ic" viewBox="0 0 18 18">${ICON.sun}</svg>Afternoon<span class="pi-sub">tap for night</span>`;
       sky.setAttribute('aria-label', on ? 'Switch to afternoon' : 'Switch to night');
-      inkPill(sky); setLights(on);
+      inkPill(sky); setLights(on); syncAmbient();
+      // tell the living layer (backdrop and moods) so both stay on the same time of day
+      if (!fromEvent) document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: on ? 'night' : 'afternoon', from: 'playful-ink' } }));
     }
     sky.addEventListener('click', () => setNight(!state.night));
 
     // ---------- ducking during focus ----------
     document.addEventListener('studio:focus', e => api.duck(!!(e.detail && e.detail.open)));
+    // the living layer can set the time too: night is the only time with its own painting here, every other time is day
+    document.addEventListener('studio:time', e => { const d = e.detail || {}; if (d.from === 'playful-ink') return; const n = d.time === 'night'; if (n !== state.night) setNight(n, true); });
 
     const api = {
       el: L, state,
       duck(on) { state.duck = on; setVolume(); },
       setNight, setLights, play, hearts,
       cue(key, on = true) { L.querySelector(`[data-spot="${key}"]`)?.classList.toggle('is-cue', on); if (key === 'record') showTrack(on); },
-      destroy() { stopAll(); L.remove(); },
+      destroy() { stopAll(); if (ambient) ambient.end(); L.remove(); },
     };
-    setNight(o.time === 'night');
+    setNight(o.time === 'night', true);
+    window.PlayfulInk.current = api;
     return api;
   }
   window.PlayfulInk = { mount, TRACKS };
