@@ -6,9 +6,10 @@
 <!-- Round 2, "Painted glass": the frosted glass Vincent likes, made glassier, then set into the painting with two quiet
      hand marks. 1. Glass: less blur and a lighter frost at the edges so the room reads through, a denser frost at the
      heart where the words sit, a soft sheen. 2. A thin hand-inked outline in the painting's brown, wobbled by an SVG
-     filter (the line, never the words). 3. A crayon-grained mark in the teammate's colour under the glass, peeking out
+     filter (the line, never the words). 2b. The lantern's light inside: the glass glows warmly from behind (a warm
+     lamp gradient, amber towards the rim, an amber halo outside). 3. A crayon-grained mark in the teammate's colour under the glass, peeking out
      at the bottom-left, as if the pane were set down on it. Radii 16 / 24 / 32, pill.
-     Signature motion, one move: the ink line draws itself round the pane as the glass clears into place.
+     Signature motion, one move: the pane is drawn and lit at once; the ink line runs round it while it warms from dusk to glow.
      Views: ?view=parts|room|focus · ?still=1 end state. -->
 <style>
 @font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
@@ -21,14 +22,14 @@
   --mika-t: #2F4A78; --noor-t: #93432A; --theo-t: #43633F; --ines-t: #7A5217; --bo-t: #6E520B; --her-t: #87304A;
   /* the glass: a warm cream frost over a blurred painting */
   /* glassier: the frost is dense at the heart (where text sits) and thin at the edges, so the room reads through the rim */
-  --frost: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(ellipse 90% 100% at 50% 50%, rgba(255,248,236,.72) 55%, rgba(255,248,236,.38) 100%);
-  --frost-strong: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(ellipse 95% 100% at 50% 50%, rgba(255,249,239,.82) 60%, rgba(255,249,239,.46) 100%);
-  --frost-soft: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(ellipse 95% 100% at 50% 50%, rgba(255,246,232,.50) 50%, rgba(255,246,232,.24) 100%);
+  --frost: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(110% 130% at 50% 46%, rgba(255,252,238,.30), rgba(255,232,190,.10) 58%, rgba(240,172,96,.18) 100%), radial-gradient(ellipse 90% 100% at 50% 50%, rgba(255,248,236,.72) 55%, rgba(255,248,236,.38) 100%);
+  --frost-strong: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(110% 130% at 50% 46%, rgba(255,252,238,.30), rgba(255,232,190,.10) 58%, rgba(240,172,96,.18) 100%), radial-gradient(ellipse 95% 100% at 50% 50%, rgba(255,249,239,.82) 60%, rgba(255,249,239,.46) 100%);
+  --frost-soft: linear-gradient(150deg, rgba(255,255,255,.40), rgba(255,255,255,.05) 30%, rgba(255,255,255,0) 55%), radial-gradient(110% 130% at 50% 46%, rgba(255,252,238,.30), rgba(255,232,190,.10) 58%, rgba(240,172,96,.18) 100%), radial-gradient(ellipse 95% 100% at 50% 50%, rgba(255,246,232,.50) 50%, rgba(255,246,232,.24) 100%);
   --ink-line: rgba(74,48,32,.52);
   --blur: blur(11px) saturate(1.45) brightness(1.1);
-  --rim: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.42), inset 0 -1px 0 rgba(160,110,60,.10);
-  --lift: 0 2px 6px rgba(80,45,15,.10), 0 18px 40px -16px rgba(80,45,15,.38);
-  --lift-hi: 0 4px 10px rgba(80,45,15,.12), 0 26px 50px -16px rgba(80,45,15,.46);
+  --rim: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.42), inset 0 0 16px rgba(255,206,140,.30);
+  --lift: 0 0 26px -6px rgba(255,190,110,.55), 0 2px 6px rgba(80,45,15,.10), 0 18px 40px -16px rgba(80,45,15,.36);
+  --lift-hi: 0 0 36px -4px rgba(255,190,110,.65), 0 4px 10px rgba(80,45,15,.12), 0 26px 50px -16px rgba(80,45,15,.44);
   --r-sm: 16px; --r-md: 24px; --r-lg: 32px;
   --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
   --land: cubic-bezier(.16,1,.3,1);
@@ -49,6 +50,9 @@ html, body { margin: 0; background: #2B1F17; }
   position: relative; background: var(--frost); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   box-shadow: var(--rim), var(--lift); }
 /* the hand-inked outline: an SVG rect injected per pane, wobbled; the crayon mark: a sibling under the pane */
+/* the unlit state, faded away by the signature move: a dusk shade laid over the pane while it is being lit */
+.pane-dusk { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2; opacity: 0;
+  background: radial-gradient(90% 120% at 50% 50%, rgba(92,60,34,.22), rgba(60,36,18,.50)); }
 svg.ol { position: absolute; left: -2px; top: -2px; overflow: visible; pointer-events: none; z-index: 3; }
 svg.ol rect { fill: none; stroke: var(--ink-line); stroke-width: 1.3; filter: url(#wobble); }
 .crayon { position: absolute; pointer-events: none; background: var(--c);
@@ -72,7 +76,7 @@ svg.ol rect { fill: none; stroke: var(--ink-line); stroke-width: 1.3; filter: ur
 .pill.is-her .nm { color: var(--her-t); }
 .pill.is-her .dot { background: #A64B65; }
 /* pills are small, so their frost is even across: the words reach almost to the rim */
-.pill { background: linear-gradient(150deg, rgba(255,255,255,.4), rgba(255,255,255,0) 45%), linear-gradient(90deg, rgba(255,248,236,.62), rgba(255,248,236,.80) 14%, rgba(255,248,236,.80) 86%, rgba(255,248,236,.62)); }
+.pill { background: linear-gradient(150deg, rgba(255,255,255,.4), rgba(255,255,255,0) 45%), radial-gradient(120% 160% at 50% 50%, rgba(255,250,236,0) 55%, rgba(240,172,96,.16) 100%), linear-gradient(90deg, rgba(255,248,236,.62), rgba(255,248,236,.80) 14%, rgba(255,248,236,.80) 86%, rgba(255,248,236,.62)); }
 .pill.is-her .agent { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
 .pill.is-invite { background: rgba(253,236,240,.82); color: var(--her-t); }
 .pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; }
@@ -186,7 +190,7 @@ svg.ol rect { fill: none; stroke: var(--ink-line); stroke-width: 1.3; filter: ur
 <script src="../../vendor/motion/motion.js"></script>
 <script>
 // Hand marks: an inked outline on every pane and a crayon mark under the teammate's panes, then the one signature move:
-// the ink line draws itself round the pane while the glass clears into place.
+// the pane is drawn and lit at once: the ink line runs round it while it warms from dusk to its glow.
 (function () {
   const { view, still, c } = window.UIW;
   const head = c.querySelector('.b-head');
@@ -217,10 +221,12 @@ svg.ol rect { fill: none; stroke: var(--ink-line); stroke-width: 1.3; filter: ur
     const marks = [el, el._cr].filter(Boolean);
     marks.forEach(m => m.style.opacity = 0);
     const line = el.querySelector(':scope > svg.ol rect');
+    const dusk = document.createElement('i'); dusk.className = 'pane-dusk'; el.appendChild(dusk);
     if (line) { line.style.strokeDasharray = 1; line.style.strokeDashoffset = 1; }
     const d = t; t += sel.includes('pill') ? .12 : .45;
     setTimeout(() => {
       marks.forEach(m => animate ? animate(m, { opacity: [0, m === el ? 1 : .9] }, { duration: .7, ease: [.16, 1, .3, 1] }) : (m.style.opacity = ''));
+      dusk.animate([{ opacity: .9 }, { opacity: .7, offset: .3 }, { opacity: 0 }], { duration: 1300, easing: 'cubic-bezier(.45,0,.25,1)' });
       if (line) line.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 950, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' });
     }, d * 1000);
   }));
