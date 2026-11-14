@@ -335,3 +335,8 @@ body[data-beat="0"] .seat-product:hover .seat-empty { background: rgba(255,72,17
   border-bottom: 2px solid var(--ink); outline: 0; padding: 0; caret-color: var(--product); }
 .bc-love-input { flex: 1 1 100%; resize: none; height: 2.5em; overflow: hidden; }
 .seat:not(.seat-product) .card-who { display: none; }
+
+/* Her three: her sheet takes the width of the table (over the tally) while she answers, so her flow fits unscaled */
+body[data-beat="6"] .her-sheet.big { width: 1130px; z-index: 7; }
+/* Stage mode: her journey's boxes a size up */
+body.stage .fl-box { font-size: 19px; }

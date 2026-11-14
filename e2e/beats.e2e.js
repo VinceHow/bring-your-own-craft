@@ -102,10 +102,12 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
   assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), 'her flow and its asks are all on screen at 1280x720');
-  // Reported, not asserted: the room scales her flow down to fit her sheet, so this is what the audience sees.
-  const px = await page.evaluate(() => { const q = document.querySelector('#her-flow .fl-q');
-    return q ? (parseFloat(getComputedStyle(q).fontSize) * q.getBoundingClientRect().height / q.offsetHeight).toFixed(1) : null; });
-  console.log(`asks beat at 1280x720: question text renders at ${px} px`);
+  // What the audience sees: the room scales her flow to fit her sheet. Only the ask she's on is open, so it stays near 1.
+  const px = await page.evaluate(() => { const rp = q => q ? +(parseFloat(getComputedStyle(q).fontSize) * q.getBoundingClientRect().height / q.offsetHeight).toFixed(1) : 0;
+    return { box: rp(document.querySelector('#her-flow .fl-box')), open: rp(document.querySelector('#her-flow .fl-item.is-open .fl-q')), k: BYOC.flow._state.k }; });
+  console.log(`asks beat at 1280x720: box text ${px.box} px, open question ${px.open} px (flow scale ${px.k.toFixed(2)})`);
+  assert.ok(px.box >= 12, `box text readable at 1280x720 (>= 12 px rendered), got ${px.box}`);
+  assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').count(), 1, 'one ask open at a time');
   assert.deepStrictEqual(errors, []);
 });
 
