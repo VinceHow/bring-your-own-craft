@@ -1,5 +1,5 @@
 // Regenerates the markup skeletons in docs/COMPONENTS.md from the live DOM in /gallery (server on PORT, default 3700).
-// Usage: PORT=3700 node server.js & then OUT=skel.json node design/skeletons.js. No model calls.
+// Usage: PORT=3700 node server.js & then OUT=skel.json node design/skeletons.cjs. No model calls.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1500, height: 1000 } });
