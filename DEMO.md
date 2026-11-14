@@ -97,9 +97,11 @@ the claim.
      them into a composed note in her voice (Vincent, 14 Nov), piece by piece as it lands. The tidy only cleans: no new claims or content. It shows
      as a visible moment, with "See what you said" and "Use mine". The raw words stay in the log, and the tidy never
      delays the room: each piece is tidied while she carries on, so Send is never waiting on it.
-     **Layout:** the work stays in view on the left with inked pins where her notes apply; the meeting thread on the
-     right is the record (her note, then teammates' replies; earlier rounds fold into honest one-line summaries); the
-     takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
+     **Layout:** the work fills the view, with inked pins where her notes apply. **After Send she stays on her page,
+     in flow** (Vincent, 14 Nov): the relevant replies appear briefly beside their pins (readable for a few seconds),
+     then fade into the pins; the changes to the work stay. The full conversation is recorded but opens only when she
+     asks ("Read the conversation"; earlier rounds fold into honest one-line summaries). The goal: encouragement
+     without breaking her focus until she has said everything about the document. The takeaways grow at the bottom. If she adds another round, it's her choice: no "your turn", no typing dots aimed at
      her, and she can close at any time. On close, the meeting is kept in her workspace as "Meeting notes"
      (conversation + takeaways only; her philosophy stays hidden).
   2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
