@@ -330,3 +330,37 @@ test('the build: three options all with the phone + her L5 -> no phone field on 
   assert.doesNotMatch(html, /type="tel"/);
   assert.ok(readEvents(run).some(e => e.type === 'joint.revised' && e.newOption));
 });
+
+// The race the yoga e2e hit: she writes her pin and presses Build while a joint talk is still going. The build waits
+// for the talk (bounded), so its agreement is revisited against her pin instead of landing after the build and winning.
+test('Build pressed mid-talk: the build waits for the joint talk, then revisits it against her pin (no phone field)', async () => {
+  const { buildRun, _setDecideRest, _setDecideCore, _setDeal } = await import('../routes/build.js');
+  const { loadTemplate } = await import('../lib/fill.js');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const run = newRunId(`jr-${Math.random().toString(36).slice(2, 8)}`);
+  initTaste(run);
+  logEvent(run, 'run.start', { mode: 'craft', idea: 'A website for a small bakery, so customers can order bread ahead.', seat: 'product' });
+  logEvent(run, 'candidate', KEEP);
+  logEvent(run, 'decided', { id: 'c20', seat: 'data', decision: KEEP.decision, choice: KEEP.options[0], cites: 'team default', round: 'select' });
+  logEvent(run, 'select.done', { came: 1, brought: 0, ms: 1 });
+  const slow = fakeModel({ close: { choice: KEEP.options[0], headline: 'Name, phone and order history' } });
+  const talk = J.runJoint(run, { callModel: async a => { await new Promise(r => setTimeout(r, 150)); return slow(a); } });
+  await new Promise(r => setTimeout(r, 50)); // the talk has started; her pin lands, then Build
+  assert.ok(readEvents(run).some(e => e.type === 'joint.start') && !readEvents(run).some(e => e.type === 'joint.agreed'));
+  logEvent(run, 'taste.written', { mode: 'craft', id: 'L5', text: 'Never ask for anything we could remember or skip.', askId: 'a3' });
+  const tpl = loadTemplate('bakery');
+  _setDecideRest(async cs => { assert.ok(!cs.some(c => c.id === 'c20'), 'the talked-out decision is not re-decided with the rest'); return []; });
+  _setDeal(async () => ({ skipped: 'test' }));
+  _setDecideCore(async () => ({ decisions: [{ id: 'c20', choice: 'Name and order history; no phone', cites: 'L5', newOption: true }] }));
+  try {
+    await buildRun(run, { call: async () => ({ words: tpl.defaults.words, steps: tpl.defaults.steps, switches: { ...tpl.defaults.switches, phone: true }, decidedShown: [] }) });
+  } finally { _setDecideRest(null); _setDecideCore(null); _setDeal(null); }
+  await talk;
+  const evs = readEvents(run);
+  const agreedAt = evs.findIndex(e => e.type === 'joint.agreed'), revisedAt = evs.findIndex(e => e.type === 'joint.revised');
+  assert.ok(agreedAt > 0 && revisedAt > agreedAt, 'the agreement landed first, then the build revised it');
+  assert.equal(evs.filter(e => e.type === 'decided' && e.id === 'c20').at(-1).round, 'build', 'the last word on c20 is the build\'s');
+  const html = fs.readFileSync(path.join(process.env.RUNS_DIR, run, 'page', 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /type="tel"/);
+});
