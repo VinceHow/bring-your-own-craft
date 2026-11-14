@@ -9,7 +9,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-stage-'));
 const { proposeAndSelect, askOne } = await import('../lib/select.js');
-const { firstAsk, firstAnswer, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA } = await import('../lib/first.js');
+const { firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
 const { answerUnblock } = await import('../lib/unblock.js');
 const { firstSketch } = await import('../lib/sketch.js');
 const { MAX_ASKS, askCount } = await import('../lib/policy.js');
@@ -50,40 +50,59 @@ const newRun = stagePath => {
   return run;
 };
 
-test('the stage path: the first decision, then the unblock, then one focus moment are the three grants, in order; a fourth is refused', async () => {
+const FINDING = { title: 'A third of artisan-bakery visitors buy bread there every week', claim: 'A third buy bread weekly.',
+  quote: 'A third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week', url: 'https://example.org/report',
+  site: 'Bakery Business', fetched: '2026-11-14', label: 'researched before the demo' };
+const STEPS = { steps: [{ time: '7:05', text: 'Sam leaves for work, thinking of the sourdough' }, { time: '7:10', text: 'Sam reserves the usual on the bus' },
+  { time: '7:40', text: 'Sam picks it up, still warm' }, { time: '', text: 'The baker knows how many to bake' }] };
+const fake2 = async (o) => o.schema === STEPS_SCHEMA
+  ? (/herWords/.test(o.user) ? { steps: STEPS.steps.map((x, i) => i === 1 ? { ...x, text: 'Sam does nothing: the usual is already held' } : x) } : STEPS)
+  : fake(o);
+
+test('the stage path: Focus 1, then the unblock, then Focus 2 are the three grants, in order; the selector brings none; a fourth is refused', async () => {
   const run = newRun(true);
   assert.equal((await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false })).code, 200);
-  // 1. The first decision, from Design's sketch (no selector, no model call).
-  const a1 = firstAsk({ run });
+  // 1. Focus 1: Noor asks who to build it for first, with the verified finding (quote, URL, date) in front of her.
+  const a1 = firstAsk({ run, finding: FINDING });
   assert.equal(a1.code, 200);
-  assert.equal(a1.body.question, 'Who is this really for?');
-  assert.equal(a1.body.by, 'Mika');
+  assert.equal(a1.body.question, 'Who should we build this for first?');
+  assert.deepEqual([a1.body.seat, a1.body.by, a1.body.artifact.kind], ['research', 'Noor', 'finding']);
+  assert.equal(a1.body.artifact.ref.quote, FINDING.quote);
+  assert.equal(a1.body.artifact.ref.url, FINDING.url);
   assert.deepEqual(a1.body.users, SHAPE.users);
-  assert.equal(firstAsk({ run }).code, 409, 'asked once');
-  // Her answer: the journey redraws and a run of decisions settles at once, each with its teammate.
-  const r = await firstAnswer({ run, askId: a1.body.id, text: "It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.", callModel: fake, unblockDelayMs: 0 });
+  assert.equal(firstAsk({ run, finding: FINDING }).code, 409, 'asked once');
+  // Her answer (logged by the meeting, POST /answer) is followed: the journey redraws, a run of decisions settles.
+  logEvent(run, 'answer', { askId: a1.body.id, text: "It's really for the regulars." });
+  const r = await followFirst({ run, askId: a1.body.id, text: "It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.", callModel: fake, unblockDelayMs: 0 });
   assert.equal(r.code, 200);
-  assert.equal(reshaped, 1, 'Design reshaped from her answer');
+  assert.equal((await followFirst({ run, askId: a1.body.id, text: 'again', callModel: fake })).code, 409, 'followed once');
   const evs = readEvents(run);
-  assert.ok(evs.some(e => e.type === 'reshape' && e.askId === a1.body.id));
+  assert.ok(evs.some(e => e.type === 'reshape' && e.askId === a1.body.id), 'Design redrew the journey from her answer');
   const dec = evs.filter(e => e.type === 'decided' && e.round === 'first');
   assert.deepEqual(dec.map(d => d.choice), ['Their usual loaf one tap away', 'Held until 10am', 'No login', 'No phone field']);
   assert.ok(dec.every(d => d.cites === 'her answer' && d.follows === a1.body.id && ['design', 'engineering'].includes(d.seat) && d.by));
   assert.ok(evs.some(e => e.type === 'first.done' && e.decided === 4 && e.reshaped));
-  // 2. The quick unblock (builder 1's card) is raised once the decisions have settled: Bo, with the team's suggestion.
+  // 2. The quick unblock follows: Bo, with the team's suggestion; she says yes.
   const ub = readEvents(run).filter(e => e.type === 'ask' && e.unblock);
   assert.equal(ub.length, 1, 'the unblock is granted');
-  assert.equal(ub[0].seat, 'engineering');
   assert.match(ub[0].question, /When do orders close/);
-  assert.deepEqual(answerUnblock(run, { askId: ub[0].id, yes: true })[0], 200);
-  assert.ok(readEvents(run).some(e => e.type === 'decided' && e.unblock && e.choice === '8pm the night before'));
-  // 3. The selector, on the stage path, brings one focus moment.
-  assert.equal(selectorMax(run), 1);
+  assert.equal(answerUnblock(run, { askId: ub[0].id, yes: true })[0], 200);
+  // 3. Focus 2: Mika's rough morning journey in words, then her answer, then Mika's rewrite.
+  const a2 = await feelAsk({ run, callModel: fake2 });
+  assert.equal(a2.code, 200);
+  assert.deepEqual([a2.body.question, a2.body.by, a2.body.artifact.kind], ['What should this feel like for a regular?', 'Mika', 'journey-words']);
+  assert.equal(a2.body.steps.length, 4);
+  assert.ok(readEvents(run).some(e => e.type === 'journey.words' && e.steps.length === 4));
+  const rw = await rewriteFeel({ run, text: 'Like the baker already knows you.', callModel: fake2 });
+  assert.equal(rw.code, 200);
+  assert.deepEqual(rw.body.steps.map(x => !!x.new), [false, true, false, false], 'only the steps her words change are rewritten');
+  // The selector brings none on the stage path: the three are spent, in order.
+  assert.equal(selectorMax(run), 0);
   const lines = readEvents(run).filter(e => e.type === 'flow.line').slice(-3).map(e => e.text);
   const sel = await proposeAndSelect({ run, idea: BAKERY, flow: parseFlow(lines), taste: readTaste(run), callModel: fake, max: selectorMax(run) });
-  assert.equal(sel.asks.length, 1, 'one focus moment');
+  assert.equal(sel.asks.length, 0);
   assert.equal(askCount(run), MAX_ASKS);
-  assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.id), [a1.body.id, ub[0].id, sel.asks[0].id], 'first decision, unblock, focus moment');
+  assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.id), [a1.body.id, ub[0].id, a2.body.id], 'Focus 1, unblock, Focus 2');
   // 4. A fourth, by any door, is refused and decided for her.
   assert.equal(askOne(run, { id: 'extra', seat: 'data', decision: 'One more', question: 'One more?' }, { source: 'test' }), null);
   const refused = readEvents(run).filter(e => e.type === 'ask.refused' && e.id === 'extra');
@@ -92,13 +111,35 @@ test('the stage path: the first decision, then the unblock, then one focus momen
   assert.equal(askCount(run), 3);
 });
 
-test('off the stage path the selector may bring up to the rest of the three', async () => {
+test('her answers drive it: the installed listener follows Focus 1, raises Focus 2 after the unblock, and rewrites', async () => {
+  installStagePath({ callModel: fake2 });
+  const run = newRun(true);
+  await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
+  const a1 = firstAsk({ run, finding: FINDING }).body;
+  const until = async (fn, what) => { for (let i = 0; i < 250; i++) { if (fn(readEvents(run))) return; await new Promise(r => setTimeout(r, 30)); } throw new Error('timed out: ' + what); };
+  // the unblock follows UNBLOCK_DELAY_MS (3.5 s) after the decisions, as on stage
+  logEvent(run, 'answer', { askId: a1.id, text: "It's for the regulars." });
+  await until(evs => evs.some(e => e.type === 'first.done'), 'Focus 1 followed');
+  await until(evs => evs.some(e => e.type === 'ask' && e.unblock), 'the unblock');
+  const ub = readEvents(run).find(e => e.type === 'ask' && e.unblock);
+  answerUnblock(run, { askId: ub.id, yes: true });
+  await until(evs => evs.some(e => e.type === 'ask' && e.feel), 'Focus 2');
+  logEvent(run, 'answer', { askId: 'feel', text: 'Like being known.' });
+  await until(evs => evs.some(e => e.type === 'journey.words.rewritten'), 'Mika rewrote it');
+  assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel']);
+});
+
+test('off the stage path the selector brings up to three, and nothing of Act 2 runs; with no verified finding Focus 1 makes no claim', async () => {
   const run = newRun(false);
   await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
   assert.equal(selectorMax(run), 3);
-  firstAsk({ run });
-  assert.equal(selectorMax(run), 2);
-  assert.equal(selectorMax(newRun(true)), 1);
+  assert.equal((await feelAsk({ run, callModel: fake2 })).code, 409);
+  assert.equal(selectorMax(newRun(true)), 0);
+  const run2 = newRun(true);
+  await firstSketch({ run: run2, callModel: fake, dripMs: 0, withGuest: false });
+  const plain = firstAsk({ run: run2, finding: null }).body;
+  assert.deepEqual([plain.seat, plain.artifact.kind], ['design', 'journey']);
+  assert.equal(JSON.stringify(plain).includes('researched before the demo'), false);
 });
 
 test('the first decision waits for the sketch; her answer needs words; the model never adds a question or a stranger', async () => {

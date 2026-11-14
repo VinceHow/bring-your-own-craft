@@ -56,7 +56,9 @@
     const w = $('.fd-work'); w.innerHTML = '';
     if (!cur) return;
     const kind = (cur.artifact && cur.artifact.kind) || 'journey';
-    w.dataset.kind = kind;
+    w.dataset.kind = kind; doc.dataset.doc = kind; // finding · journey-words · journey · wires · page
+    if (kind === 'journey-words') return renderSteps(w);
+    if (kind === 'finding' && cur.artifact.ref && cur.artifact.ref.quote) return renderResearch(w, cur.artifact.ref);
     if (kind === 'finding') return renderFinding(w);
     if (kind === 'wires') return renderWires(w);
     if (kind === 'page') return renderPage(w);
@@ -95,6 +97,44 @@
     card.appendChild(src);
     w.appendChild(card);
   }
+  // Noor's finding for Focus 1 (lib/first.js): researched before the demo, quoted exactly, with its source and date.
+  function renderResearch(w, f) {
+    const card = h('article', 'finding ff'); card.dataset.component = 'research-card'; card.dataset.slot = 'finding';
+    const sl = (e, n) => { e.dataset.slot = n; return e; };
+    card.appendChild(sl(h('span', 'ff-prepared', f.label || 'researched before the demo'), 'prepared'));
+    card.appendChild(sl(h('blockquote', 'ff-claim', f.quote || f.claim || ''), 'claim'));
+    if (f.users && f.users.length) card.appendChild(sl(h('p', 'ff-about', `Design's first sketch: ${f.users.join(' · ')}`), 'about'));
+    const a = sl(h('a', 'ff-src'), 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
+    a.append(sl(h('span', 'ff-src-title', f.title || f.url), 'source-title'), sl(h('span', 'ff-src-site', [f.site, f.fetched && `read ${f.fetched}`].filter(Boolean).join(' · ')), 'source-site'));
+    card.appendChild(a);
+    w.appendChild(card);
+  }
+  // Mika's rough morning journey in words for Focus 2 (lib/first.js): 4-6 steps; after her answer the ones her words
+  // change are struck (draft -> struck) and rewritten (.jw-new, her pink).
+  function renderSteps(w) {
+    const box = h('div', 'jw'); box.dataset.component = 'journey-words'; box.dataset.slot = 'journey-words';
+    const ol = h('ol', 'jw-steps'); ol.dataset.slot = 'steps';
+    const rewritten = (B.events ? B.events() : []).findLast(e => e.type === 'journey.words.rewritten' && e.id === cur.id);
+    for (const st of (rewritten ? rewritten.steps : cur.steps) || []) {
+      const li = h('li', 'jw-step'); li.dataset.step = st.step; li.dataset.state = st.new ? 'rewritten' : 'draft'; li.dataset.slot = 'step';
+      if (st.time) { const t = h('span', 'jw-time', st.time); t.dataset.slot = 'time'; li.appendChild(t); }
+      const tx = h('span', 'jw-text'); tx.dataset.slot = 'text'; const sx = document.createElement(st.new ? 's' : 'span'); sx.textContent = st.text; tx.appendChild(sx); li.appendChild(tx);
+      if (st.new) { const n = h('span', 'jw-new', st.new); n.dataset.slot = 'new'; li.appendChild(n); }
+      ol.appendChild(li);
+    }
+    box.appendChild(ol); w.appendChild(box);
+  }
+  // Mika's rewrite lands on the open document: each changed step is struck, then its new line appears.
+  if (typeof B.on === 'function') B.on('journey.words.rewritten', ev => {
+    if (!cur || cur.id !== ev.id) return;
+    for (const st of ev.steps || []) {
+      if (!st.new) continue;
+      const li = doc.querySelector(`.jw-step[data-step="${st.step}"]`); if (!li) continue;
+      const tx = li.querySelector('.jw-text'); tx.innerHTML = ''; const sx = document.createElement('s'); sx.textContent = st.text; tx.appendChild(sx);
+      li.dataset.state = 'struck';
+      setTimeout(() => { const n = h('span', 'jw-new', st.new); n.dataset.slot = 'new'; li.appendChild(n); li.dataset.state = 'rewritten'; }, B.replay ? 0 : 500);
+    }
+  });
   // Design's grey wireframes, from the same request the room makes.
   async function renderWires(w) {
     const hold = h('p', 'fd-empty', `${AGENT('design') || 'Design'} is laying out the screens`);
@@ -301,15 +341,7 @@
     $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
     $('.fd-said').classList.remove('speaking');
     const held = pieces; pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
-    // The first decision ("Who is this really for?", lib/first.js) has its own door: her answer redraws the journey and
-    // settles a run of decisions; there is no meeting or takeaways, so her document closes once they've landed.
-    if (ask.first) {
-      const said = [...mine.map(shownText), text].filter(Boolean).join(' ');
-      doc.dataset.state = 'answered';
-      try { await B.api(`/api/run/${encodeURIComponent(B.run)}/first`, { askId: ask.id, text: said }, { step: false }); if (cur === ask) setTimeout(() => { if (cur === ask) close(); }, 1200); }
-      catch (e) { if (cur !== ask) return; sent = false; pieces = held; $('.fd-form').hidden = false; $('.fd-input').value = text; $('.fd-team').textContent = `Not sent (${e.status || e.message}). Enter to try again.`; }
-      return;
-    }
+    // Every ask, Focus 1 and Focus 2 included, is a meeting through /answer; the stage path follows it on the server (lib/first.js).
     try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false }); }
     catch (e) {
       if (cur !== ask) return;
@@ -393,7 +425,7 @@
     const li = h('li', 'chime'); li.dataset.seat = ev.seat || ''; li.dataset.component = 'chime'; li.dataset.state = 'in';
     const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
     const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
-    li.append(w, t); doc.dataset.state = 'chiming';
+    li.append(w, t); if (doc.dataset.state !== 'takeaways') doc.dataset.state = 'chiming'; // never back from her takeaways
     $('.fd-chimes').appendChild(li); readToggle();
     pinReply(ev);
     if (M) M.animate(li, { x: [24, 0], y: [-6, 0] }, SPRING);

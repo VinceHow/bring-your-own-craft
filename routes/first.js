@@ -5,7 +5,9 @@ import path from 'node:path';
 import { sendJson } from '../lib/http.js';
 import { RUNS_DIR } from '../lib/events.js';
 import { scrub } from '../lib/model.js';
-import { firstAsk, firstAnswer } from '../lib/first.js';
+import { firstAsk, firstAnswer, installStagePath } from '../lib/first.js';
+
+installStagePath(); // her answers drive the stage path's Act 2 (lib/first.js)
 
 const MINE = /^\/api\/run\/([^/]+)\/first$/;
 const validRun = id => /^[\w-]{1,80}$/.test(id) && fs.existsSync(path.join(RUNS_DIR, id, 'events.jsonl'));

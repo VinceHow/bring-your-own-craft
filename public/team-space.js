@@ -132,6 +132,16 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     const seat = document.querySelector(`#room .seat-${CSS.escape((a.seats || [])[0] || '')}`);
     const room = document.getElementById('room');
     if (B.replay || !seat || !room || typeof li.animate !== 'function') return land();
+    const fly = () => flyFrom(li, a, i, seat, room, land);
+    // Her document covers the room: the cascade waits until she's back, so she sees it (Focus 1, DEMO 0:58).
+    if (document.body.classList.contains('focus-open') && typeof B.on === 'function') {
+      li.style.visibility = 'hidden';
+      let done = false; const go = () => { if (done) return; done = true; li.style.visibility = ''; fly(); };
+      B.on('focus.close', () => setTimeout(go, 300)); return;
+    }
+    fly();
+  }
+  function flyFrom(li, a, i, seat, room, land) {
     const k = room.getBoundingClientRect().width / (room.offsetWidth || 1600) || 1; // the room is scaled to fit
     const s = seat.getBoundingClientRect(), c = li.getBoundingClientRect();
     const dx = (s.left + s.width / 2 - (c.left + c.width / 2)) / k, dy = (s.top + s.height / 2 - (c.top + c.height / 2)) / k;

@@ -936,9 +936,9 @@
         break;
       case 'ask': {
         // The first decision (0:38) and a quick unblock wait in her inbox where she is: neither moves the beat.
-        if (BYOC.beat < 6 && !ev.first && !ev.unblock) stage(6);
+        if (BYOC.beat < 6 && !ev.first && !ev.unblock && !ev.feel) stage(6); // Act 2's three wait in her inbox where she is
         // An empty input she isn't using shouldn't hold them back (the inbox waits while she types).
-        if ((ev.first || ev.unblock) && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
+        if ((ev.first || ev.unblock || ev.feel) && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
         const it = findItem(ev.id); if (it) it.classList.add('brought');
         asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
