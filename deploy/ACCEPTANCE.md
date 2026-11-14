@@ -114,8 +114,8 @@ BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test d
 - **Without `ADMIN_TOKEN`,** the suite assumes the app has none set either. It runs only test 8, checking the admin
   stays locked, and skips the rest, saying why.
 - **Without `APP_LOG`,** test 11 is skipped, saying why.
-- **The slim gate (cut path only):** `BAKERY_SLIM=1` skips test 3's collection checks, and keeps its one-per-drop
-  checks. Use it only if the lead cuts the bread collection.
+- **The collection is cut (the lead, 14 Nov, for usage):** test 3b, the collection, is skipped with "cut for usage".
+  Test 3 still checks one of each item per device per drop. 3b is kept as written, for if the collection returns.
 - **Every test starts with Reset demo,** so it's safe to run again.
 - **Don't point it at the live site during a demo:** it resets the shop.
 
