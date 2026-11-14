@@ -7,7 +7,8 @@
 <style>
 /* Her seat, the teammate popover and her workspace, in ink and paper (../ink-paper.css, ../ink-paper.js).
    Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays;
-   ?flow=own autoplays the "your own craft" path (pick, one sentence, the team's spin as her card, seated).
+   ?flow=own autoplays the "your own craft" path (pick, her name once, one sentence, the team's spin as her card, seated).
+   &name=Sam sets the name; &name= (empty) shows the skipped case, where the card says "You".
    Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
 .ink-paper { --ps-paper: var(--ip-paper); --ps-paper-2: #F3E8D4; --ps-linen: #EFE3CD; --ps-ink: var(--ip-ink); --ps-ink-2: var(--ip-ink-2); --ps-ink-3: var(--ip-ink-3);
   --ps-rule: var(--ip-rule); --ps-her: var(--ip-her); --ps-her-deep: var(--ip-her-t); --ps-her-soft: var(--ip-paper-her);
@@ -86,6 +87,14 @@ html, body { margin: 0; background: #2B1F17; }
 .char .from { margin: 12px 0 14px; font: italic 400 14px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
 .char .acts { display: flex; gap: 8px; } .char .btn { height: 40px; padding: 0 16px; font-size: 15px; white-space: nowrap; }
 
+.pick .nmf { margin: 0 0 10px; }
+.pick .nmf .lab { display: block; margin-bottom: 5px; color: var(--ip-ink-2); }
+.pick .nmbox { position: relative; display: flex; align-items: center; height: 42px; padding: 0 70px 0 14px; border-radius: 999px; background: var(--ip-inset);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.45); font: 400 18px/1 var(--ip-serif); color: var(--ip-ink); }
+.pick .nmbox .caret2 { width: 1.5px; height: 18px; background: var(--ip-her-t); margin-left: 1px; }
+.pick .nmbox .skip { position: absolute; right: 6px; top: 5px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.pick .nmbox .skip:hover { background: rgba(84,58,38,.08); }
 /* notes waiting, resting beside the stool: in the ink of who left them, no number */
 .rest { z-index: 2; }
 .rest .note { position: absolute; width: 168px; padding: 10px 12px 11px; font-size: 14px; line-height: 1.3; }
@@ -193,6 +202,7 @@ html, body { margin: 0; background: #2B1F17; }
     <div class="p2 hide"><span class="lab">Your own craft</span>
     <h3>What do you love doing?</h3>
     <p>One sentence is plenty. Say it or type it.</p>
+    <div class="nmf"><span class="lab">What should the team call you?</span><div class="nmbox"><span id="nameTyped"></span><span class="caret2"></span><button class="skip" id="skipName">Skip</button></div></div>
     <div class="say"><span class="typed" id="typed"></span><span class="caret"></span><button class="mic" aria-label="Say it instead"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></button></div>
     <div class="row-end"><button class="btn" id="makeCard">Make my card</button></div></div>
     <span class="tail"></span>
@@ -366,14 +376,27 @@ html, body { margin: 0; background: #2B1F17; }
 
   /* ---------- your own craft: one sentence, then the team's spin as her card, then she sits ---------- */
   const SENTENCE = 'I bake sourdough before sunrise and love knowing my regulars’ orders by heart.';
+  // asked once, inline, before the sentence; skippable (the card then says "You")
+  const NAME = q.has('name') ? q.get('name') : 'Sam';
+  function setName(n) {
+    const shown = n || 'You', init = (n || 'You')[0].toUpperCase();
+    $('#charCard .name').textContent = shown; $('#charCard .seal').textContent = init;
+    $('#herPill .nm').textContent = shown; $('#herPill .dot').textContent = init;
+  }
   async function ownCraft() {
     $('#own').classList.add('on'); await wait(350);
-    hide($('#pick .p1')); show($('#pick .p2')); InkPaper.redraw($('#pick'));
+    hide($('#pick .p1')); show($('#pick .p2'));
+    // taller now, so it moves over the kitchen counter on the left, clear of every character, tail pointing back to her seat
+    const pk = $('#pick'), tl = $('#pick .tail'); Object.assign(pk.style, { left: '14px', top: '392px' }); Object.assign(tl.style, { left: 'auto', right: '-8px', top: (seat.invite[1] + 20 - 392 - 9) + 'px' });
+    InkPaper.redraw(pk);
     go('#pick .p2', { opacity: [0, 1] }, { duration: .3 });
   }
   async function typeIt() {
     const t = $('#typed');
-    if (still) { t.textContent = SENTENCE; return; }
+    const nt = $('#nameTyped');
+    if (still) { nt.textContent = NAME; t.textContent = SENTENCE; setName(NAME); return; }
+    for (let i = 1; i <= NAME.length; i++) { nt.textContent = NAME.slice(0, i); await wait(90); }
+    setName(NAME); await wait(400);
     for (let i = 1; i <= SENTENCE.length; i++) { t.textContent = SENTENCE.slice(0, i); await wait(SENTENCE[i - 1] === ' ' ? 55 : 32); }
   }
   async function makeCard() {
@@ -391,10 +414,10 @@ html, body { margin: 0; background: #2B1F17; }
     marks(true, false); state = 'after'; go('#team', { opacity: 1 }, { duration: .8 });
   }
   $('#own').addEventListener('click', async () => { await ownCraft(); typeIt(); });
+  $('#skipName').addEventListener('click', () => { $('#nameTyped').textContent = ''; setName(''); });
   $('#makeCard').addEventListener('click', makeCard);
   $('#sit').addEventListener('click', sit);
-  if (q.get('flow') === 'own') place($('#charCard'), [744, seat.pick[1] - 60]);
-  else place($('#charCard'), [790, 510]);
+  place($('#charCard'), [744, seat.pick[1] - 60]);
 
   /* ---------- the popover: opens beside the teammate, closes back into the pill ---------- */
   let openPop = null;
@@ -435,8 +458,8 @@ html, body { margin: 0; background: #2B1F17; }
   if (st === 'own' || st === 'card' || st === 'seated') {
     setup(); $('#team').style.opacity = 1; place($('#charCard'), [744, seat.pick[1] - 60]);
     if (st === 'own') { openPick(); ownCraft().then(typeIt); }
-    if (st === 'card') { $('#typed').textContent = SENTENCE; makeCard(); }
-    if (st === 'seated') { $('#herPill .agent').textContent = 'the Dawn Baker'; after(); }
+    if (st === 'card') { $('#typed').textContent = SENTENCE; $('#nameTyped').textContent = NAME; setName(NAME); makeCard(); }
+    if (st === 'seated') { setName(NAME); $('#herPill .agent').textContent = 'the Dawn Baker'; after(); }
     return;
   }
   if (q.get('flow') === 'own') {

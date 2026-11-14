@@ -675,7 +675,41 @@ html #room > .painted-playful { position: absolute; left: -6px; top: 0; width: 1
 html #room > .painted-playful .pi-layer { pointer-events: none; }
 html.painted-on #viewport { z-index: auto; }
 /* the teammate's face, cut from the painting by the living layer, takes the dot's place in the pill */
-html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card { gap: 0; padding-left: 7px; }
-html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card-character { order: -1; width: 28px; height: 28px; margin-right: 8px; flex: none;
-  box-shadow: 0 0 0 2px var(--cc), 0 1px 2px rgba(60,35,15,.3); }
-html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card:has(.card-character) .card-band::before { display: none; }
+/* the character slot is free (the moods live in the painting): hidden so the pill keeps its crayon dot */
+html #room .seat .card .card-character:empty { display: none !important; }
+
+/* ---- her sheet, at a glance (handover fix): real size, not scaled; the idea line and the first journey row, 13px+.
+   Clipped to a small card on the table, right of Mika's writing hand and clear of Noor's book. A click on it opens
+   large once the room's sheet.open hook lands. ---- */
+html #room .her-sheet:not(.big), html #room .her-sheet.big { scale: 1; translate: none; left: 660px; top: 470px; width: 380px; height: 150px; overflow: hidden;
+  padding: 14px 20px 12px; border-radius: 30px 26px 32px 24px / 26px 32px 24px 30px; }
+html #room .her-sheet .her-q { font: 500 15px/1.2 var(--ui); color: var(--ink-3); margin: 0; }
+html #room .her-sheet .her-idea { font: 400 18px/1.25 var(--display); color: var(--ink); margin: 3px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+html #room .her-sheet :is(.her-form, .her-notes, .idea-tabs, .fs-bar, .sketch-sheet, .page-sheet) { display: none !important; }
+html #room .her-sheet .her-flow { height: 44px; overflow: hidden; margin: 0; }
+html #room .her-sheet .fl-canvas { transform: none !important; }
+html #room .her-sheet .fl-box { padding: 5px 10px; }
+html #room .her-sheet .fl-box .fl-label { font: 500 14px/1.2 var(--ui) !important; }
+html #room .her-sheet::after { box-shadow: var(--paper-shadow-hi); }
+/* notes by the stool: on the rug's busiest patch, so the paper is fully opaque and a touch lifted */
+html #room .tray-note::after { box-shadow: 0 1px 1px rgba(60,35,15,.2), 4px 8px 16px -6px rgba(60,35,15,.55) !important; }
+html #room .her-sheet .her-flow, html #room .her-sheet .fl-wrap { height: 52px !important; overflow: hidden; }
+html #room .her-sheet .fl-canvas { scale: 1; transform: none !important; transform-origin: 0 0; }
+html #room .her-sheet .fl-wrap { -webkit-mask: linear-gradient(90deg, #000 85%, transparent); mask: linear-gradient(90deg, #000 85%, transparent); }
+html #room .her-sheet .her-flow, html #room .her-sheet .fl-wrap { height: 60px !important; margin-top: 0 !important; padding: 0 !important; }
+html #room .her-sheet .fl-canvas { margin-top: -18px; }
+html #room .her-sheet { height: 160px; }
+/* the glance: the journey's boxes as one row of small paper steps (the room's drawn layout stays for the big sheet) */
+html #room .her-sheet:not(.big) .fl-canvas, html #room .her-sheet .fl-canvas { display: flex; flex-wrap: wrap; gap: 6px 8px; width: auto !important; height: auto !important; margin-top: 0; }
+html #room .her-sheet .fl-canvas > svg, html #room .her-sheet .fl-item, html #room .her-sheet .fl-lens { display: none !important; }
+html #room .her-sheet .fl-box { position: static !important; height: auto !important; padding: 6px 11px 7px !important; border-radius: 999px !important; }
+html #room .her-sheet .fl-box .fl-label { font: 500 14px/1.1 var(--ui) !important; white-space: nowrap; }
+html #room .her-sheet .her-flow, html #room .her-sheet .fl-wrap { height: 66px !important; }
+html #room .her-sheet .fl-box { width: auto !important; min-width: 0 !important; flex: none; }
+html #room .her-sheet .fl-canvas { flex-wrap: nowrap; padding-top: 2px; }
+html #room .her-sheet .fl-box { height: 30px !important; min-height: 0 !important; max-height: 30px; display: inline-flex !important; align-items: center; padding: 0 12px !important; border-left-width: 3px !important; }
+html #room .her-sheet .her-flow, html #room .her-sheet .fl-wrap { height: 40px !important; }
+html #room .her-sheet { height: 140px; }
+html #room .her-sheet .her-flow, html #room .her-sheet .fl-wrap { height: 36px !important; }
+html #room .her-sheet .fl-box::after, html #room .her-sheet .fl-box > :not(.fl-label) { display: none !important; }
+html #room .her-sheet { height: 128px; }
