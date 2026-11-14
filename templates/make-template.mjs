@@ -80,7 +80,7 @@ const ulEnd = elementEnd(dec, ul.index);
 dec = dec.slice(0, ul.index) + ul[0].replace('class="rows', 'class="rows decided') + '{{{raw.decidedRows}}}\n      </ul>' + dec.slice(ulEnd);
 html = html.slice(0, dm.index) + dec + html.slice(dEnd);
 if (!/<input type="hidden" name="page"[^>]*>/.test(html)) fail('no hidden page input');
-html = html.replace(/(<input type="hidden" name="page"[^>]*>)/, '$1\n            <input type="hidden" name="run" value="{{{raw.run}}}">');
+html = html.replace(/(<input type="hidden" name="page"[^>]*>)/g, '$1\n            <input type="hidden" name="run" value="{{{raw.run}}}">');
 const rootStyle = html.match(/<style>\s*:root \{[\s\S]*?<\/style>/);
 if (!rootStyle) fail('no :root block');
 html = html.replace(rootStyle[0], rootStyle[0] + '\n<style>:root { {{{raw.tokens}}} }</style>' +
@@ -118,7 +118,10 @@ async function loaded() {
   await browser.close(); srv.close();
   return [...seen].filter(p => p && p !== 'index.html');
 }
-const files = await loaded();
+// plus every own file the markup names (srcset sizes a 1440 x1 browser never asks for, on a x2 or phone screen)
+const named = [...html.matchAll(/(?:src|srcset|href)="([^"]+)"/g)].flatMap(m => m[1].split(',').map(s => s.trim().split(/\s+/)[0]))
+  .filter(p => p && !/^(https?:|mailto:|#|\/|data:|\{)/.test(p) && !p.startsWith('assets/'));
+const files = [...new Set([...(await loaded()), ...named])];
 fs.rmSync(path.join(OUT, 'files'), { recursive: true, force: true });
 let kitN = 0, ownN = 0;
 for (const p of files) {
