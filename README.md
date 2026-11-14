@@ -2,138 +2,159 @@
 
 **Start with [VISION.md](VISION.md)**: the one-page picture of the product and this hackathon build.
 
-**Take the seat of the craft you love, and a team fills the rest.**
+**Do the part you love, and a team of agents gets your idea built.**
 
-A team of autonomous agents that builds with you: it decides almost everything your way, and asks you only the few
-questions worth your time. Hackathon build, 14–15 Nov 2026, Autonomous Agents track. Licence:
-[PolyForm Noncommercial 1.0.0](LICENSE).
+You take the seat of the craft you love. A team of autonomous agents fills every other seat, handles everything it
+can, and brings you only the few big questions that need you. Hackathon build, 14–15 Nov 2026, Autonomous Agents
+track. Licence: [PolyForm Noncommercial 1.0.0](LICENSE). The Devpost write-up is [`SUBMISSION.md`](SUBMISSION.md);
+how we built it is [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md).
 
 ## The problem
-Prompt-to-app tools guess everything. Coding agents ask about everything, or approve-and-continue you to death. Either
-way the person stops doing their own craft. They end up stamping papers: saying yes or no to a tool.
+Most projects don't die from bad ideas. They die in the questions nobody signed up for. Prompt-to-app tools guess
+everything; coding agents ask about everything, or approve-and-continue you to death. Either way the person stops
+doing their own craft.
 
-We measured the first half. We gave a default coding agent our demo prompt, "Build me a booking page for a small yoga
-studio." It asked **0 questions** and made **22 guesses** about the studio: its name, teachers, prices, cancel rule
-and more. Each guess is listed with evidence in [`docs/baseline/GUESSES.md`](docs/baseline/GUESSES.md); both
-transcripts are kept in [`docs/baseline/`](docs/baseline/).
+We measured it before writing any code. We gave a default coding agent one prompt: "Build me an ordering website for
+a small bakery, so customers can order bread ahead." It asked **0 questions**, made **24 guesses** about the bakery
+(its name, opening hours, the whole menu and its prices, a 6 pm cut-off, pay at pickup…) and stopped for **20
+approvals**. Every guess, with evidence, is in
+[`docs/baseline/run-3-bakery/GUESSES.md`](docs/baseline/run-3-bakery/GUESSES.md); the earlier runs are kept in
+[`docs/baseline/`](docs/baseline/).
 
 ## What we built
-A room with five seats: Product, Design, Data, Research, Engineering. You take one (in the demo, Priya takes
-Product) and do your own work: you write the idea and the customer journey, one line a step. The four other seats are
-agents, working in parallel without waiting on you. Each one raises the decisions its craft needs.
+A hand-painted studio with a round table and six seats: Product, Design, Research, Data, Strategy and Engineering,
+plus "Your own craft" for anyone else (a baker, a tattoo artist). In the demo, Priya, a product manager, takes the
+Product seat to build an ordering website for a friend's small bakery. Her teammates are agents with names, each with
+its own craft: Mika (Design), Noor (Research), Theo (Data), Ines (Strategy) and Bo (Engineering).
 
-The point is the autonomy, with a hard limit on interruptions. A selector, enforced in code, brings you **at most
-three** of those decisions. They arrive inside your own work, as a fork on your flow or a pin on a box, each with a
-recommendation and a reason. Never as a pop-up. You can take the recommendation or overrule it (it's then marked YOUR
-CALL). The agents decide everything else themselves, and each decision cites the line of your file that decided it,
-or says "team default".
+1. **She introduces herself** in one sentence, spoken or typed, and the team turns it into a playful character card.
+2. **She says the idea** in one sentence. Within seconds Noor and Mika put a rough journey on the table: who the
+   users are and the stages they go through. She reacts in plain words, and it redraws.
+3. **The team works on its own.** Each teammate proposes the decisions its craft needs and settles every small one
+   itself. Joint decisions are talked out between teammates, each turn its own model call, and land as cards in a
+   team space. Nothing is addressed to her.
+4. **A few questions reach her**, only if they're big and draw on what she knows best. One waits in her tray; when
+   she opens it the room goes quiet: one document with the work, and one open question in plain words. Code enforces
+   a hidden ceiling of three.
+5. **She says her piece**, in pieces if she likes, and a quick tidy turns her spoken words into her own note. When
+   she sends, only the teammates her words touch reply, building on her and on each other, and the meeting's
+   takeaways sum up what she believes and her guidance to the team.
+6. **One press, and her page appears**, built from her answers.
 
-Your file is a short list of your own principles. It grows from your decisions: when you pin a comment, the team
-suggests a "Sounds like" line; you keep it or reword it, and it is written to the file. You never fill in a
-questionnaire.
-
-At the end you get a booking page built from your flow, your answers and your file (the build is in progress; see
-below).
+Behind the scenes the team keeps a private picture of her (her customers, her taste, her philosophy) and decides
+everything else her way.
 
 ## How it works
 ```
- her idea + journey lines
+ her intro + idea (voice or typed)
           |
           v
-   [1 Flow]  lines -> boxes and arrows (code, no model)
+ [1 First sketch]   Research's finding feeds Design's rough journey (live call; PREPARED fallback if slow)
           |
           v
-   [2 Propose]  five teammates in parallel, each a model call -> candidate decisions
+ [2 Propose]        each teammate, in parallel, a model call -> candidate decisions in its craft
           |
           v
-   [3 Select]  one model call scores each candidate
-          |    CODE applies the rules: at most 3, in her seat first, nothing her file already decides
-          |
-     +----+-------------------------------+
-     v                                    v
- [4 Ask policy] up to 3 asks         the rest: decided, each citing
-  -> a fork or pin on her flow        a line of her file or "team default"
-     |                               (code rejects a citation to a missing line)
-     v
- [5 Infer]  her pin -> one "Sounds like" line -> she keeps or rewords -> written to her file
+ [3 Select]         one model call scores every candidate; CODE applies the bar:
+          |         big, hers, in one of her domains, not granular -> at most 3 asks (lib/policy.js is the only door)
+     +----+--------------------------------+
+     v                                     v
+ [4 Focus moment]                      the rest: decided by the team, joint ones talked out
+  one document, one question            in the team space (each turn its own call)
      |
      v
- [6 Build]  re-decide the rest against her updated file, then fill a prepared page template
+ [5 Her answer]     pieces -> tidy -> Send -> relevant teammates chime in -> takeaways -> her profile updates
      |
      v
- [7 Counter, reasons, meter]  pure functions of the run's log
+ [6 Build]          the page, filled from her answers into a prepared template
 ```
-Every step writes to one event log per run, `runs/<id>/events.jsonl`. The counter ("25 decisions came up, 3 brought
-to you"), the reasons and the IN YOUR CRAFT % meter are all computed from that log, never typed in.
+Every step writes to one event log per run, `runs/<id>/events.jsonl`. Every number on screen (how many came up, how
+many reached her, how long things took) is computed from that log, never typed in.
 
-More detail on the cap, the ask policy, her file and the key: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
+More detail on the ceiling, the ask policy and the key: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
 
 ## Run it
 Needs Node 22 and, for the default backend, Claude Code installed and logged in on the machine. No `npm install`:
 there are no dependencies (Playwright is only needed for `npm run e2e`).
 
 ```
-npm start        # the room, at http://localhost:3000 (PORT to change)
-npm test         # unit tests, offline, no model calls (LIVE=1 adds one real-model test)
-npm run e2e      # walks the yoga script through the real UI in Chromium (Playwright)
+npm start        # the studio, at http://localhost:3000 (PORT to change)
+npm test         # unit tests, offline, fake models, no model calls (LIVE=1 adds one real-model test)
+npm run e2e      # the demo walked through the real UI in Chromium (Playwright), with real model calls
 ```
 
-`MODEL_BACKEND` picks where model calls go. Every call goes through one function, `callModel` in `lib/model.js`.
-- `claude-code` (default): Claude Code run headless (`claude -p`), with our own system prompt, no tools and no
-  project files loaded. It uses the machine's own Claude Code login, so no key is needed.
-- `fal`: code for Claude through fal's OpenRouter router on your own key (`FAL_KEY`) exists and is covered by the
-  leak test against a fake fal, but it is **not used**: it never ran against the real fal service, and it is
-  not the default, and not used on the day. The demo runs on `claude-code`.
+`MODEL_BACKEND` picks where model calls go. Every call goes through one function, `callModel` in `lib/model.js`, and
+returns JSON validated against a schema.
+- `claude-code` (default, and what runs in the demo): Claude Code run headless (`claude -p`), with our own system
+  prompt, no tools and no project files loaded. It uses the machine's own Claude Code login, so no key is needed.
+- `fal`: Claude through fal's OpenRouter router on your own key (`FAL_KEY`). The code is there and tested against a
+  fake fal (including the leak test), but it is not the default and is not used in the demo.
+
+Voice is ElevenLabs speech-to-text, on the server, with a key in `ELEVENLABS_API_KEY` (or injected by the cloud
+proxy). Without a key the mic hides and she types; everything still works.
 
 ## What's real and what's prepared
 **Real, and tested:**
-- The selector and the cap of three. Tests: a fourth never gets through; a different idea changes the picks; a cheap
-  pick from outside her seat is refused.
-- Nothing else can ask her. Any other ask is refused, decided and logged. A question in a teammate's plain text counts
-  as a stamp on the meter.
-- Every decision cites a real line of her file or "team default"; a citation to a missing line is rejected.
-- The counter, the reasons and the meter, from the log.
-- The "Sounds like" line and her rewording, written to her file.
-- The fal key never leaving server memory (leak test).
-- The baseline count, from a real plain coding-agent run with its transcript kept.
+- Every teammate's work comes from a live run on her idea; the rough journey is a live call.
+- The questions are chosen live, never scripted. The ceiling of three is enforced in code (`lib/policy.js` is the
+  only code that can ask her), with tests that a fourth never gets through; granular decisions never reach her.
+- The team's replies and the takeaways come from what she actually said; a reply never ends on a question to her.
+- Her answers change the page.
+- Voice is real speech-to-text.
+- The counts come from the run's log.
+- The fal key never leaves server memory (leak test).
+- The baseline, from a real default-agent run with its transcript kept.
 
-**Prepared, and labelled where shown:**
-- The page templates and their booking logic. The build fills them; it doesn't write new code.
-- The first two lines of her file ("prepared for the demo").
-- Research's finding, gathered before the demo from a real source, with its URL (`data/research-finding.json`).
+**Prepared, and labelled where it shows:**
+- The page templates (`templates/`): the build fills them, it doesn't write new code.
+- Research's finding, gathered before the demo from a real source (`data/research-finding-bakery.json`, labelled
+  "seen in search summaries").
+- A prepared bakery journey if the live one is slow (PREPARED), and recorded runs as fallbacks (REPLAY).
+- The room's light chatter and the motion.
 
-**In progress at the time of writing** (not yet merged to `main`): the page templates and the live fill
-(`lib/fill.js`, `routes/build.js`, `routes/book.js`); the recorded café run (the REPLAY fallback if a judge's live
-idea fails) and the rehearsal run (the REPLAY fallback for any live beat), both to be committed under `runs/`; and
-the e2e steps from "asks arrive" to "counter matches the
-log", which are marked pending in `e2e/yoga.e2e.js`.
+**Said, not built:** multiplayer (a real engineer in the Engineering seat); the team chiming in mid-sentence.
+
+## Timings (from real runs)
+| Moment | Time |
+|---|---|
+| The first rough journey draws in | about 2.5 s |
+| The first teammate replies after she sends | about 1 s |
+| The team's work plus choosing what reaches her | about 18–20 s |
+| The page builds | about 22 s |
+| A judge's own idea: journey and first question | about 11 s |
+| The whole demo run, one sentence to her page | **TBD** |
+
+Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-runs/).
 
 ## Built with: APIs, models and open-source
 | What | Used for | Licence |
 |---|---|---|
-| Claude Code, headless (`claude -p`) | the model backend that runs in the demo; teammates, selector and "Sounds like" use Claude Sonnet (Claude Code's `sonnet` alias) at low effort | Anthropic commercial terms; not redistributed |
-| [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | builds the page templates in a separate folder; its design rules guide the room's look. Its kit files and licence arrive in `vendor/taste-skill/` with the page build (in progress). Never installed in this repo. | MIT |
+| Claude Code, headless (`claude -p`) | the model backend that runs in the demo: teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
+| [ElevenLabs](https://elevenlabs.io) speech-to-text | her spoken intro, idea and answers | ElevenLabs terms; API only |
+| [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | the Design teammate and the built page: Design deals the page's palette and type live when the skill's scripts are installed on the machine (otherwise the template's own type stays); its rules guide the studio's look. Vendored in `vendor/taste-skill/` with its licence; never installed as a plugin in this repo | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
-| [`motion`](https://motion.dev) 14.14.0 | springs for the room's animation; copied to `public/vendor/motion/` for offline use | MIT |
+| [`motion`](https://motion.dev) 14.14.0 | springs for the studio's animation; copied to `public/vendor/motion/` for offline use | MIT |
 | Archivo Black, via [@fontsource](https://fontsource.org) | display type | SIL OFL 1.1 (`public/fonts/LICENSE-archivo-black.txt`) |
-| IBM Plex Sans and IBM Plex Mono, via @fontsource | UI type, her file and the reasons | SIL OFL 1.1 (`public/fonts/LICENSE-ibm-plex.txt`) |
-| The 22 typefaces taste-skill can deal for a place page (Fraunces, Figtree, Besley, Albert Sans and others), via @fontsource | the built page's type, dealt live by Design and served locally | SIL OFL 1.1 (each `vendor/fonts/<face>/LICENSE`) |
+| IBM Plex Sans and IBM Plex Mono, via @fontsource | UI type | SIL OFL 1.1 (`public/fonts/LICENSE-ibm-plex.txt`) |
+| The typefaces taste-skill can deal for a place page (Fraunces, Figtree, Besley, Albert Sans and others), via @fontsource | the built page's type, dealt live by Design and served locally | SIL OFL 1.1 (each `vendor/fonts/<face>/LICENSE`) |
 | Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-Not used: fal and OpenRouter (an optional backend is in `lib/model.js`; not the default, and not used on the day). No paid APIs beyond the
-Claude Code login.
+Not used in the demo: fal and OpenRouter (an optional backend in `lib/model.js`). No paid APIs beyond the Claude Code
+login and ElevenLabs.
 
-Datasets: none. Research's one finding is a public web page, cited with its URL in `data/research-finding.json`.
+Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
 
 All project code was written during the hackathon. The libraries above are credited open-source.
 
 ## Where things are
-- `BRIEF.md`: what we build and the schedule. `DEMO.md`: the 3-minute demo script. `CONTRACT.md`: the seams
-  between the four build pieces.
-- `lib/`: model adapter, flow parser, teammates, selector, ask policy, her file, tally.
-- `prompts/`: the system prompts for each teammate and each model call.
-- `docs/baseline/`: the default-agent baseline. `docs/dry-runs/`: real runs on six ideas, with timings.
-- `docs/DECISIONS.md`: who decided what during the build.
+- `VISION.md`: the one-pager. `DEMO.md`: the 3-minute demo script. `BRIEF.md`: what we build and the schedule.
+  `CONTRACT.md`: the seams between the build pieces. `NEXT.md`: parked ideas.
+- `lib/`: model adapter, first sketch, teammates, selector, ask policy, her profile and file, the team's replies
+  (`thread.js`), the speech tidy, the team space (`joint.js`), the page fill.
+- `prompts/`: the system prompt for each teammate and each model call.
+- `public/`: the studio (vanilla JavaScript, no build step). `docs/COMPONENTS.md`: every component's hooks, for design.
+- `docs/baseline/`: the default-agent baseline. `docs/dry-runs/`: real runs on other ideas, with timings.
+- `docs/DECISIONS.md`: who decided what during the build. `docs/HOW-THE-IDEA-EVOLVED.md`: how the experience changed.
