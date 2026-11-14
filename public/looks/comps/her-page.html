@@ -114,6 +114,49 @@ html, body { margin: 0; background: #2B1F17; }
 .conv .take p { margin: 5px 0 0; font: 400 16px/1.38 var(--ip-serif); }
 .conv .take p b { display: block; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); margin-bottom: 2px; }
 .conv .take .new { background: rgba(212,114,136,.16); border-radius: 4px; }
+/* the end of a review */
+.wrapbtn { margin-left: auto; }
+.art { transition: width .7s var(--ip-land), top .7s var(--ip-land), bottom .7s var(--ip-land); }
+.art.snap { width: 400px; top: 160px; bottom: 120px; }
+.art.snap .stage { padding-right: 0; } .art.snap .wire { zoom: .82; } .art.snap .finding { zoom: .55; }
+.art.snap .cap::after { content: ' · after'; }
+.canvas .wrapup { position: absolute; left: 474px; right: 44px; top: 130px; bottom: 30px; padding: 26px 32px; display: flex; flex-direction: column; z-index: 4; }
+.wrapup .wcols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; margin-top: 10px; flex: 1; }
+.wrapup h4 { margin: 18px 0 6px; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); }
+.wrapup h4:first-child { margin-top: 6px; }
+.wrapup .big { margin: 0; font: 400 30px/1.3 var(--ip-serif); letter-spacing: -.008em; }
+.wrapup .g { margin: 0 0 10px; font: 400 21px/1.42 var(--ip-serif); }
+.wrapup .ed { position: relative; border-radius: 6px; padding: 1px 3px; margin: -1px -3px; }
+.wrapup .ed:hover, .wrapup .ed.editing { background: rgba(255,255,255,.7); box-shadow: 0 0 0 1.5px rgba(212,114,136,.6); }
+.wrapup .pen { display: inline-flex; margin-left: 6px; color: var(--ip-her-t); opacity: .55; vertical-align: 1px; }
+.wrapup .chg { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 6px; border-radius: 14px; background: rgba(255,255,255,.6); font: 400 15px/1.3 var(--ip-sans); }
+.wrapup .chg i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
+.wrapup .chg s { text-decoration-color: var(--t); text-decoration-thickness: 2px; color: var(--ip-ink-3); }
+.wrapup .chg.add span { color: var(--t); }
+.wrapup .chg em { margin-left: auto; font: 500 13px/1 var(--ip-sans); font-style: normal; color: var(--t); }
+.wrapup .rd { padding: 6px 0; border-bottom: 1px solid var(--ip-rule); font: italic 400 16px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+.wrapup .rd b { display: block; font: 500 13px/1 var(--ip-sans); font-style: normal; color: var(--ip-ink-3); margin-bottom: 3px; }
+.wrapup .wfoot { display: flex; align-items: center; gap: 16px; }
+.wrapup .wfoot .hint { font: italic 400 16px/1.3 var(--ip-serif); color: var(--ip-ink-3); }
+.wrapup .wfoot .btn { margin-left: auto; }
+/* in the room */
+.inroom .room { filter: none; transform: none; }
+.canvas .sheet.table, .canvas .notes, .canvas .inprog, .canvas.inroom .bubble { position: absolute; }
+.sheet.table { left: 638px; top: 500px; width: 380px; rotate: -1.2deg; padding: 14px 16px; z-index: 2; }
+.sheet.table h3 { font-size: 18px; margin: 3px 0 9px; } .sheet.table .steps { margin: 0; } .sheet.table .step { font-size: 13px; padding: 6px 9px; }
+.reviewed { position: absolute; right: -18px; top: -16px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 7px; rotate: 6deg; border-radius: 16px;
+  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.55), 1px 2px 3px rgba(60,35,15,.25); font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); }
+.reviewed svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.notes { left: 24px; top: 70px; width: 380px; padding: 18px 20px; z-index: 6; }
+.notes .nh { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.nrow { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 16px; margin-bottom: 6px; background: rgba(255,255,255,.55); }
+.nrow.on { box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5); }
+.nrow i { width: 12px; height: 12px; margin-top: 4px; border-radius: 50%; background: var(--c); flex: none; }
+.nrow b { display: block; font: 400 18px/1.2 var(--ip-serif); } .nrow small { display: block; font: 500 13px/1.3 var(--ip-sans); color: var(--ip-ink-3); }
+.nrow p { margin: 4px 0 0; font: italic 400 15px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.nrow .open { margin-left: auto; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.inprog { left: 760px; top: 760px; width: 220px; padding: 11px 13px 12px; font-size: 15px; line-height: 1.3; rotate: -2deg; z-index: 3; }
+.inprog small { display: block; margin-top: 5px; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); }
 </style>
 </head>
 <body>
@@ -186,12 +229,15 @@ function capture(r, state, folds = []) {
   const fold = folds.map(i => { const F = M.rounds[i]; const who = [...new Set(['her', ...F.replies.map(x => x.who)])];
     return `<div class="folded"><span class="dots">${who.map(w => `<i data-who="${w}"></i>`).join('')}</span><span>Round ${i + 1} · ${F.sum}</span></div>`; }).join('');
   const body = state === 'ready'
-    ? `<div class="ready">Ready for your next thought. Or close; your takeaways are kept as they are.</div>`
+    ? `<div class="ready">Ready for your next thought, whenever you have one.</div>`
     : `<div class="pieces">${R.pieces.map(p => `<div class="piece">${p}</div>`).join('')}</div>
        ${state === 'tidy' ? `<div class="tidy"><small>Tidied, in your words</small>${R.her.t}</div>` : ''}
        <span class="anchor"><i></i>On: ${R.anchorName}</span>`;
-  const bar = state === 'ready' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to speak</span>`
-    : state === 'tidy' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to add more</span><button class="btn" id="send">Send</button>`
+  // her way out, never prompted: quiet before she has sent anything, fuller once she has
+  const sent = state === 'ready' || folds.length > 0;
+  const wrap = `<button class="btn ${sent ? '' : 'quiet'} wrapbtn" id="wrap">That’s my piece</button>`;
+  const bar = state === 'ready' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to speak</span>${wrap}`
+    : state === 'tidy' ? `<span class="mic">${MIC}</span><span class="hint">Hold V to add more</span><button class="btn quiet" id="send">Send</button>`
     : `<span class="mic" style="box-shadow:0 0 0 5px rgba(212,114,136,.3)">${MIC}</span><span class="hint">Listening</span>`;
   const link = state === 'ready' ? `<span class="readlink" id="readlink"><span class="dots">${['her', 'mika', 'bo'].map(w => `<i data-who="${w}"></i>`).join('')}</span>Read the conversation</span>` : '';
   $('#side').innerHTML = `${fold}<div class="capture"><div class="take" data-who="her"><span class="lab"><span>Your thoughts</span></span>${body}<div class="capbar">${bar}</div></div></div>${link}`;
@@ -243,7 +289,74 @@ function still(s) {
   if (s >= 4 && two) { $$('.pin').forEach(p => p.classList.add('quiet')); sendRound(1); capture(1, 'ready', [0]); if (s === 4) reply(M.rounds[1].replies[0], '1-0'); }
   if (s === 4 && !two) capture(0, 'ready');
   if (s === 5) { if (!two) capture(0, 'ready'); conversation(two ? [0, 1] : [0]); }
+  if (s === 6) { $('.wrapbtn').classList.add('is-hover'); }
+  if (s === 7) wrapup(two ? [0, 1] : [0]);
+  if (s === 8) { wrapup(two ? [0, 1] : [0]); rewordDemo(); }
+  if (s === 9) roomAfter();
+  if (s === 10) { roomAfter(); notesList(); }
+  if (s === 11) roomInProgress();
   requestAnimationFrame(() => $$('.pane').forEach(InkPaper.redraw));
+}
+
+// ---------- the end of a review ----------
+// "That's my piece": the work slides into a small "after" snapshot and the write-up takes over the page, on her paper.
+const CHANGES = { mika: [['mika', 'cut', 'Phone'], ['bo', 'cut', 'Sign in or make an account'], ['mika', 'add', 'Every Monday? Set it up once']],
+                  noor: [['bo', 'add', 'Their usual loaf is held for them till ten']] };
+const PEN2 = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12l1-3 7-7 2 2-7 7z"/></svg>';
+function wrapup(rounds) {
+  $$('.reply, #conv').forEach(x => x.remove()); $('#side').remove();
+  const art = $('#art'); art.classList.add('snap'); $$('.pin', art).forEach(p => p.classList.add('quiet'));
+  const host = document.createElement('div'); host.className = 'abs wrapup take'; host.dataset.who = 'her'; host.id = 'wrapup';
+  const ed = t => `<span class="ed">${t}<i class="pen">${PEN2}</i></span>`;
+  host.innerHTML = `<div class="wh"><span class="label" style="color:var(--ip-her-t)">Your write-up · on your paper, every line yours to reword</span></div>
+    <div class="wcols"><div>
+      <h4>What I believe</h4><p class="big">${ed(M.take.believe)}</p>
+      <h4>Guidance to the team</h4>${M.take.guide.slice(0, rounds.length).map(g => `<p class="g">${ed(g)}</p>`).join('')}
+    </div><div>
+      <h4>What changed in the work</h4>${CHANGES[W].map(([w, k, t]) => `<div class="chg ${k}" data-who="${w}"><i></i><span>${k === 'cut' ? `<s>${t}</s>` : `+ ${t}`}</span><em>${NAME[w]}</em></div>`).join('')}
+      <h4>Each round</h4>${rounds.map(i => `<div class="rd"><b>Round ${i + 1}</b>${M.rounds[i].sum}</div>`).join('')}
+      <span class="readlink" style="margin-top:12px">Read the conversation</span>
+    </div></div>
+    <div class="wfoot"><span class="hint">The team’s already on it; nobody’s waiting on this page.</span><button class="btn" id="looks">Looks right</button></div>`;
+  $('#doc').appendChild(host); InkPaper.dress(host); requestAnimationFrame(() => $$('.pane').forEach(InkPaper.redraw));
+  return host;
+}
+function rewordDemo() {   // rewording one line, inline
+  const e = $('#wrapup .big .ed'); e.classList.add('editing');
+  e.firstChild.textContent = 'Ordering should feel like being known. Never ask for anything we could remember or skip.';
+}
+// back in the room: the work on the table is the new version, with a small inked "reviewed" mark; Mika gets to work
+function roomAfter() {
+  $('#doc').remove(); c.classList.add('inroom');
+  c.insertAdjacentHTML('beforeend', `
+    <button class="abs pill" data-who="mika" style="left:420px;top:306px" id="pMika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+    <button class="abs pill" data-who="noor" style="left:612px;top:250px"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="abs pill" data-who="theo" style="left:790px;top:300px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+    <button class="abs pill" data-who="ines" style="left:1056px;top:226px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+    <button class="abs pill" data-who="bo" style="left:1150px;top:362px"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+    <button class="abs pill is-her" data-who="her" style="left:590px;top:682px" id="herPill"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+    <div class="abs sheet table" data-who="her" id="tsheet"><div style="display:flex;justify-content:space-between;align-items:center"><span class="lab">By Mika · wireframes</span><div class="tabs"><span>Journey</span><span class="on">Screens</span><span>Page</span></div></div>
+      <h3>Ordering, for regulars and newcomers</h3><div class="steps"><span class="step hers">Their usual loaf</span><span class="step hers">Weekly, quietly</span><span class="step">Name only</span></div>
+      <span class="reviewed" id="reviewed"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>Reviewed with you</span></div>
+    <div class="abs bubble" data-who="mika" style="left:196px;top:220px;width:290px"><b>Mika</b>Cutting every field we already know.</div>`);
+  InkPaper.dress(c); InkPaper.talk($('#pMika'));
+}
+// her workspace: Meeting notes, a list of past reviews (the ink-paper designer owns the workspace; this is the content)
+function notesList() {
+  document.querySelectorAll('.inroom > .bubble').forEach(b => b.remove());   // her workspace opens over the window; chatter steps aside
+  c.insertAdjacentHTML('beforeend', `<div class="abs card notes" data-who="her" id="notes"><div class="nh"><span class="lab" style="color:var(--ip-her-t)">Meeting notes</span><span class="label">Your reviews, newest first</span></div>
+    ${[['mika', 'How ordering should feel', 'Mika’s wireframes · two rounds', 'Ordering should feel like being known.'],
+       ['noor', 'What sells out first', 'Noor’s finding · one round', 'A regular should never find their bread gone.'],
+       ['noor', 'What people come for', 'The rough journey · one round', 'Bread that’s still warm, and being known.']].map(([w, t, s, b], i) =>
+      `<div class="nrow${i === 0 ? ' on' : ''}" data-who="${w}"><i></i><div><b>${t}</b><small>${s}</small><p>${b}</p></div><span class="open">Open</span></div>`).join('')}
+    <div class="label" style="margin-top:6px">Each opens the write-up, the work as it was, and the conversation.</div></div>`);
+  InkPaper.dress($('#notes'));
+}
+// she went back to the room without wrapping up: her pieces are kept and the note waits in her tray, in progress
+function roomInProgress() {
+  roomAfter(); $('#reviewed').remove(); $$('.bubble').forEach(b => b.remove());
+  c.insertAdjacentHTML('beforeend', `<div class="abs note inprog" data-who="mika"><span class="lab"><i></i>Mika · in progress</span>If ordering could feel like one thing…<small>Your pieces are kept</small></div>`);
+  InkPaper.dress(c);
 }
 
 // ---------- the flow ----------
@@ -307,6 +420,19 @@ document.addEventListener('studio:said', async e => {
     const n = reply(x, `${r}-${j}`); InkPaper.lay($('.bubble', n)); linger(n, 5000);
   }
 });
+// the end, as a flow: she wraps up, rewords one line, files it, and the room moves on
+async function playEnd() {
+  still(4); await wait(1800);
+  const b = $('.wrapbtn'); b.classList.add('is-hover'); await wait(500); b.classList.add('is-pressed'); await wait(180);
+  $('#side').style.opacity = 0; await wait(200);
+  const w = wrapup(M.rounds.length > 1 ? [0, 1] : [0]); InkPaper.lay(w); await wait(3200);
+  rewordDemo(); await wait(2600); $('.ed.editing')?.classList.remove('editing'); await wait(800);
+  $('#looks').classList.add('is-pressed'); await wait(200);
+  await animate($('#doc'), { opacity: 0, scale: .97 }, spring(.45)).finished;
+  roomAfter(); const rv = $('#reviewed'); animate(rv, { opacity: [0, 1], scale: [1.3, 1], rotate: [14, 6] }, spring(.5)); await wait(3000);
+  notesList(); InkPaper.lay($('#notes'));
+}
+if (q.get('play') === 'end') { playEnd(); } else
 PLAY ? play() : still(S);
 if (q.get('open')) setTimeout(() => openConv(q.get('open')), 900);
 </script>
