@@ -78,11 +78,16 @@ the claim.
   a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
   **How she engages with that document is where the polish goes:**
   1. **She speaks her piece**, a real paragraph (or types it); her words land on the document as she said them.
-  2. **The team chimes in**, one teammate after another, about a second apart, as soon as she finishes: each a line
-     with its own real finding or what it will now do (*Noor: "That matches what small studios report."* *Mika:
-     "Then their usual class goes first, one tap."*). Streamed from one call, so it feels live and is true. Reacting
-     mid-sentence is the vision, not tonight. Every line comes from the run; reactions only promise what the build
-     will show.
+  2. **The team chimes in, like people in a real meeting** (Vincent, 14 Nov: "a lot of thought and polish"). A short
+     thread, close to real time, one teammate after another, each **seeing the comments before it** and building on
+     them: agreeing, adding a real finding, or pushing back (*Noor: "That matches what small studios report."* *Bo:
+     "Then no logins. I'll remember them."* *Ines: "Hmm, regulars also buy passes. Show that first?"*). Style:
+     - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
+     - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
+     - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
+     - disagreement is welcome but light, and resolves in the thread or in the takeaways.
+     Build: each turn is its own fast call that gets her answer plus the thread so far, so they genuinely see each
+     other (3–4 turns, ~1 s each). Chiming in mid-sentence is the vision, not tonight.
   3. **The meeting's takeaways appear**: a short, beautiful summary of *this* meeting, in her voice, that she can
      reword: **what I believe** about this, and **guidance to the team** for it. Not a template look; it should read
      like the best summary a great colleague would write.
