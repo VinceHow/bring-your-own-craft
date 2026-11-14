@@ -121,7 +121,7 @@ test('clicking the item opens it as her document; the inbox steps aside; the ans
 
 // ---- quick unblocks (DEMO 0:50): a real run on this server, raised and answered through the real routes; no models ----
 async function newRun() {
-  const r = await page.evaluate(async () => (await fetch('/api/run', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ idea: 'An ordering website for a small bakery' }) })).json());
+  const r = await page.evaluate(async () => (await fetch('/api/run', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ idea: 'An ordering website for a small bakery', path: 'full' }) })).json());
   return r.run;
 }
 const raise = (run, body) => page.evaluate(async ([run, body]) => { const r = await fetch(`/api/run/${run}/unblock`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, json: await r.json() }; }, [run, body]);

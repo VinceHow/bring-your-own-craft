@@ -115,7 +115,8 @@ test('her answers drive it: the installed listener follows Focus 1, raises Focus
   installStagePath({ callModel: fake2 });
   const run = newRun(true);
   await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
-  const a1 = firstAsk({ run, finding: FINDING }).body;
+  firstAsk({ run, finding: FINDING });
+  const a1 = readEvents(run).find(e => e.type === 'ask' && e.first); // raised by the listener on sketch.done, or just now
   const until = async (fn, what) => { for (let i = 0; i < 250; i++) { if (fn(readEvents(run))) return; await new Promise(r => setTimeout(r, 30)); } throw new Error('timed out: ' + what); };
   // the unblock follows UNBLOCK_DELAY_MS (3.5 s) after the decisions, as on stage
   logEvent(run, 'answer', { askId: a1.id, text: "It's for the regulars." });
@@ -135,9 +136,8 @@ test('off the stage path the selector brings up to three, and nothing of Act 2 r
   assert.equal(selectorMax(run), 3);
   assert.equal((await feelAsk({ run, callModel: fake2 })).code, 409);
   assert.equal(selectorMax(newRun(true)), 0);
-  const run2 = newRun(true);
-  await firstSketch({ run: run2, callModel: fake, dripMs: 0, withGuest: false });
-  const plain = firstAsk({ run: run2, finding: null }).body;
+  const run2 = newRun(true); // no sketch yet, so the listener hasn't raised it
+  const plain = firstAsk({ run: run2, finding: null, early: true }).body;
   assert.deepEqual([plain.seat, plain.artifact.kind], ['design', 'journey']);
   assert.equal(JSON.stringify(plain).includes('researched before the demo'), false);
 });
@@ -176,8 +176,7 @@ test('Mika\'s morning never puts a pronoun in the room: any that slip through be
 
 test('Focus 1 says why it fell back to the journey (never silently): no finding, unreadable file, or not a bakery idea', async () => {
   const run = newRun(true);
-  await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
-  const a = firstAsk({ run, finding: null, why: 'could not read the data file: ENOENT' }).body;
+  const a = firstAsk({ run, finding: null, why: 'could not read the data file: ENOENT', early: true }).body;
   assert.equal(a.findingFallback, 'could not read the data file: ENOENT');
   const fs2 = await import('node:fs'), os2 = await import('node:os'), path2 = await import('node:path');
   const dir = fs2.mkdtempSync(path2.join(os2.tmpdir(), 'with space '));
@@ -186,4 +185,19 @@ test('Focus 1 says why it fell back to the journey (never silently): no finding,
   fs2.writeFileSync(path2.join(dir, 'research-finding-bakery.json'), JSON.stringify({ regulars: { quote: 'q', url: 'https://x', fetched: '2026-11-14', title: 't' } }));
   assert.equal(regularsFinding(dir).quote, 'q', 'reads from a folder with a space in its name');
   assert.ok(regularsFinding().quote.startsWith('A third (33%)'), 'the repo\'s verified finding');
+});
+
+test('an old client (no stagePath sent) with the team started before Design\'s sketch: Focus 1 with Noor\'s finding is still her first question', async () => {
+  const { gateFirst } = await import('../lib/first.js');
+  const run = newRunId(`s-${Math.random().toString(36).slice(2, 10)}`);
+  initTaste(run);
+  // routes/run.js marks every run the stage path unless the room asks for ?path=full; an old client sends nothing.
+  logEvent(run, 'run.start', { mode: 'craft', idea: BAKERY, seat: 'product', stagePath: true });
+  const sel = await proposeAndSelect({ run, idea: BAKERY, flow: parseFlow([]), taste: readTaste(run), callModel: fake, gate: () => gateFirst(run) });
+  assert.equal(sel.asks.length, 0, 'the selector brings none on the stage path');
+  const asks = readEvents(run).filter(e => e.type === 'ask');
+  assert.equal(asks.length, 1);
+  assert.equal(asks[0].first, true);
+  assert.equal(asks[0].artifact.kind, 'finding', "Noor's finding, not a model-written question");
+  assert.match(asks[0].artifact.ref.quote, /^A third \(33%\)/);
 });

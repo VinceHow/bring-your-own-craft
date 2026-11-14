@@ -59,7 +59,8 @@ for (const template of ['yoga', 'cafe', 'bakery']) {
   test(`${template}: the phone field is absent when the switch is off, present when on`, opts(template), async () => {
     const off = tmp(), on = tmp();
     await fillPage({ run: 'r', outDir: off, idea: 'x', taste: TASTE, decided: DECIDED, template, call: fakeModel({ template, switches: { phone: false } }) });
-    await fillPage({ run: 'r', outDir: on, idea: 'x', taste: TASTE, decided: DECIDED, template, call: fakeModel({ template, switches: { phone: true } }) });
+    const collect = [...DECIDED, { id: 'cP', seat: 'design', decision: 'The order form', choice: "Ask for the customer's phone", cites: 'team' }];
+    await fillPage({ run: 'r', outDir: on, idea: 'x', taste: TASTE, decided: collect, template, call: fakeModel({ template, switches: { phone: true } }) });
     assert.doesNotMatch(read(off), /type="tel"|data-switch="phone"/);
     assert.match(read(on), /type="tel"/);
   });
@@ -243,7 +244,9 @@ const BAKERY_SWITCHES = [
 for (const [key, mark] of BAKERY_SWITCHES) {
   test(`bakery: ${key} on shows it, off removes it`, async () => {
     const on = tmp(), off = tmp();
-    await fillPage({ run: 'r', outDir: on, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { [key]: true } }) });
+    // The phone is opt-in: only a decision to collect the customer's phone shows it (the model's switch alone can't).
+    const collect = key === 'phone' ? { decided: [{ id: 'cP', seat: 'design', decision: 'The order form', choice: "Ask for the customer's phone for pickup texts", cites: 'team' }] } : {};
+    await fillPage({ run: 'r', outDir: on, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', ...collect, call: fakeModel({ template: 'bakery', switches: { [key]: true } }) });
     await fillPage({ run: 'r', outDir: off, idea: BAKERY_IDEA, taste: TASTE, template: 'bakery', call: fakeModel({ template: 'bakery', switches: { [key]: false } }) });
     assert.match(read(on), mark);
     assert.doesNotMatch(read(off), mark);
@@ -322,4 +325,14 @@ test('the phone FIELD: a confirmation by text with a phone fallback is not the c
   const phone = (decision, choice, start = false) => { const sw = { phone: start }; applyChoices(sw, [{ decision, choice }]); return sw.phone; };
   assert.equal(phone('How the customer is told the order went through, and what shows if it fails', 'On-screen confirmation plus text message, with a clear retry and phone fallback on failure'), false);
   assert.equal(phone('What we keep about customers', 'Name and order history; no phone', true), false);
+});
+
+test('the phone field is opt-in: the two phrasings from the yoga run, c16 and c12 stay off; collecting the customer\'s phone turns it on', async () => {
+  for (const template of ['bakery', 'cafe', 'yoga']) assert.equal(loadTemplate(template).defaults.switches.phone, false, `${template}: off by default`);
+  const phone = (decision, choice) => { const sw = { phone: false }; applyChoices(sw, [{ decision, choice }]); return sw.phone; };
+  assert.equal(phone('What the confirm step asks of the customer', 'Name and email only, no account'), false);
+  assert.equal(phone('What is collected and stored, and how confirmation is sent', 'Name and email only, confirmation by email'), false);
+  assert.equal(phone('What the page does when saving an order fails', 'Show a clear error, keep the choices, offer retry and the bakery phone number'), false);
+  assert.equal(phone('How the customer is told the order went through, and what shows if it fails', 'On-screen confirmation plus text message, with a clear retry and phone fallback on failure'), false);
+  assert.equal(phone('How we tell them it is ready', "Collect customers' phone for pickup texts"), true);
 });
