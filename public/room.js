@@ -937,6 +937,8 @@
     $('#page-url', pageSheet).textContent = url;
     if (!pageSheet.hidden) return;
     pageSheet.hidden = false;
+    // Her page appears over the table: the sheet it lives on opens large (a look may keep the closed sheet small).
+    if (BYOC.beat >= 9) setSheetOpen(true);
     place(pageSheet, { y: animate ? [520, 0] : 0, rotate: animate ? [3, 0.3] : 0.3 }, animate);
   }
 
