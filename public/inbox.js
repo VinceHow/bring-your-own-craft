@@ -3,6 +3,7 @@
 //   Needs you: one item at a time, the next ones folded. The tray's arrival rules, moved here unchanged: an item
 //     slides in only at a natural pause (about 1 s after it), never while she's typing or speaking; no numbers, no red,
 //     no pulse. The ceiling of three questions is the server's and is unchanged.
+//   A quick unblock (ask.unblock, granted by lib/policy.js) is a Needs-you item answered right here: Yes, or her words.
 //   Things only you can do: fed only by `owner.task` events { id, title, steps[] }, shown as plain steps she ticks.
 //     There is no key or secret input of any kind here (a key field is Milestone 2, server-side only).
 //   Past meetings: her editable "Meeting notes" (builder 7's focus work); a stub until that lands.
@@ -73,6 +74,34 @@
     }, B.replay || B.instant ? 0 : 1000);
   }
 
+  // A quick unblock (DEMO 0:50): "Bo's blocked: when do orders close? We suggest 8pm the night before." Yes takes the
+  // suggestion; or she says or types her own. Her answer goes to the server, which decides it in the team space.
+  function unblockCard(n) {
+    const c = h('article', 'inbox-unblock'); c.dataset.component = 'unblock-card'; c.dataset.state = 'asking';
+    c.dataset.ask = n.id; c.dataset.seat = n.seat || '';
+    const name = (n.by || AGENT[n.seat] || NAME[n.seat] || 'The team');
+    c.append(slot(h('span', 'inbox-who', who(n)), 'who'),
+      slot(h('p', 'inbox-unblock-q', `${name}'s blocked: ${String(n.question || '').replace(/^\w/, ch => ch.toLowerCase())}`), 'question'),
+      slot(h('p', 'inbox-unblock-sug', `We suggest ${String(n.suggestion || '').replace(/[.]$/, '')}.`), 'suggestion'));
+    const yes = slot(h('button', 'inbox-unblock-yes', 'Yes'), 'yes'); yes.type = 'button';
+    const own = slot(h('input', 'inbox-unblock-own'), 'own'); own.type = 'text'; own.dataset.voice = 'unblock';
+    own.placeholder = 'Or say it your way'; own.setAttribute('aria-label', 'Your answer'); own.autocomplete = 'off'; own.spellcheck = false;
+    const send = slot(h('button', 'inbox-unblock-send', 'Send'), 'send'); send.type = 'button';
+    const note = slot(h('span', 'inbox-unblock-note'), 'note');
+    const go = async body => {
+      if (c.dataset.state === 'sending') return;
+      c.dataset.state = 'sending'; note.textContent = '';
+      try {
+        if (!B.replay) await B.api(`/api/run/${encodeURIComponent(B.run)}/unblock/answer`, { askId: n.id, ...body }, { step: false });
+        c.dataset.state = 'done'; // the answer event takes it out of Needs you
+      } catch (e) { c.dataset.state = 'asking'; note.textContent = 'Not sent. Try again.'; }
+    };
+    yes.addEventListener('click', () => go({ yes: true }));
+    send.addEventListener('click', () => { const t = own.value.trim(); if (t) go({ text: t }); else own.focus(); });
+    own.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); send.click(); } if (e.key === 'Escape') own.blur(); });
+    c.append(yes, own, send, note);
+    return c;
+  }
   function item(n, state) {
     const b = h('button', 'inbox-item'); b.type = 'button';
     b.dataset.component = 'inbox-item'; b.dataset.state = state; b.dataset.ask = n.id; b.dataset.seat = n.seat || '';
@@ -82,7 +111,7 @@
   function paint() {
     const top = shown[0];
     // Collapsed: the one item that needs her now, or nothing.
-    now.replaceChildren(...(top ? item(top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
+    now.replaceChildren(...(top ? item(top.unblock ? { ...top, question: `${top.by || AGENT[top.seat] || 'The team'}'s blocked: ${top.question}` } : top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
     now.dataset.ask = top ? top.id : '';
     if (top) now.dataset.seat = top.seat || ''; else delete now.dataset.seat;
     box.dataset.needs = top ? 'yes' : 'no';
@@ -90,7 +119,7 @@
     needsBody.replaceChildren();
     if (!top) needsBody.appendChild(slot(h('p', 'inbox-empty', 'Nothing needs you right now'), 'empty'));
     else {
-      needsBody.appendChild(item(top, 'top'));
+      needsBody.appendChild(top.unblock ? unblockCard(top) : item(top, 'top'));
       if (shown.length > 1) {
         const fold = slot(h('details', 'inbox-next'), 'next');
         fold.appendChild(slot(h('summary', 'inbox-next-label', 'Next'), 'next-label'));
@@ -145,8 +174,20 @@
   toggle.addEventListener('click', () => expand(box.dataset.state !== 'expanded'));
   // Clicking the item that needs her opens it as her document; with nothing waiting, the click opens the drawer.
   now.addEventListener('click', () => { if (now.dataset.ask) openItem(now.dataset.ask); else expand(true); });
-  needsBody.addEventListener('click', e => { const b = e.target.closest('.inbox-item'); if (b) openItem(b.dataset.ask); });
-  function openItem(id) { if (!id || !B.openNote) return false; expand(false); return B.openNote(id); }
+  needsBody.addEventListener('click', e => { const b = e.target.closest('button.inbox-item'); if (b) openItem(b.dataset.ask); });
+  function openItem(id) {
+    if (!id || !B.openNote) return false;
+    if ((shown.find(n => n.id === id) || {}).unblock) return showUnblock(id);
+    expand(false); return B.openNote(id);
+  }
+  // An unblock is answered right here: open the drawer on it, ready for Yes or her words.
+  function showUnblock(id) {
+    if (!shown.some(n => n.id === id)) return false;
+    expand(true);
+    const c = needsBody.querySelector(`.inbox-unblock[data-ask="${CSS.escape(id)}"]`);
+    if (c) c.querySelector('.inbox-unblock-yes').focus();
+    return true;
+  }
   // The clicker's forward key opens the top item when one needs her (stage.js asks room.js, which asks here).
   function openTop() { return box.hidden || !shown[0] ? false : openItem(shown[0].id); }
 
@@ -155,6 +196,6 @@
     B.on('stage', () => render());
     B.on('reset', () => { tasks.clear(); shown = []; clearTimeout(arriveTimer); expand(false); paint(); box.hidden = true; });
   }
-  B.inbox = { render, openTop, expand, get shown() { return shown.slice(); }, tasks: () => [...tasks.values()].map(t => ({ id: t.id, title: t.title, steps: t.steps.slice(), done: [...t.done] })) };
+  B.inbox = { render, openTop, expand, showUnblock, get shown() { return shown.slice(); }, tasks: () => [...tasks.values()].map(t => ({ id: t.id, title: t.title, steps: t.steps.slice(), done: [...t.done] })) };
   paint();
 })();

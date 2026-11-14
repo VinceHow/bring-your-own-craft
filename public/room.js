@@ -759,7 +759,7 @@
   function syncFocus() {
     const open = BYOC.focusDoc && BYOC.focusDoc.openId ? BYOC.focusDoc.openId() : null;
     const waiting = [...asks.values()].filter(a => !answeredIds.has(a.id) && a.id !== open)
-      .map(a => ({ id: a.id, seat: a.seat, by: a.by || null, question: askText(a) }));
+      .map(a => ({ id: a.id, seat: a.seat, by: a.by || null, question: askText(a), ...(a.unblock ? { unblock: true, suggestion: a.suggestion } : {}) }));
     BYOC.focus = { open, waiting };
     renderTray();
     renderStep();
@@ -768,6 +768,7 @@
   BYOC.asks = () => [...asks.values()];
   function openNote(id) {
     const a = asks.get(id);
+    if (a && a.unblock) return BYOC.inbox ? BYOC.inbox.showUnblock(id) : false; // a quick unblock is answered in her inbox
     if (!a || !BYOC.focusDoc) return false;
     BYOC.focusDoc.open(a);
     return true;
@@ -934,9 +935,10 @@
         refreshTally();
         break;
       case 'ask': {
-        if (BYOC.beat < 6 && !ev.first) stage(6); // the first decision (0:38) waits in her inbox before the team goes
-        // An empty input she isn't using shouldn't hold it back (the inbox waits while she types).
-        if (ev.first && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
+        // The first decision (0:38) and a quick unblock wait in her inbox where she is: neither moves the beat.
+        if (BYOC.beat < 6 && !ev.first && !ev.unblock) stage(6);
+        // An empty input she isn't using shouldn't hold them back (the inbox waits while she types).
+        if ((ev.first || ev.unblock) && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
         const it = findItem(ev.id); if (it) it.classList.add('brought');
         asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
