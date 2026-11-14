@@ -200,7 +200,10 @@ html, body { margin: 0; background: #1A120D; }
   // Pace: the stage pace is the default (about 2.2 s a teammate, about 3.5 s from the door sign to her seat, per DEMO.md);
   // &pace=slow is the older, roomier pace for people exploring. Taps only add time when someone actually taps.
   const SLOW = q.get('pace') === 'slow';
-  const CODE = q.get('door') === 'code', TAPDEMO = q.get('taps') === '1', TAPSTILL = q.get('tap');
+  // &stage=1: the stage path, the whole opening in under 30 s (paper about 12 s, team about 9.5 s, door to seat under
+  // 4 s). Her name is already filled in, Product is already chosen, and there are no teammate taps.
+  const STAGE = q.get('stage') === '1' && !SLOW, P = (st, nat) => STAGE ? st : nat;
+  const CODE = q.get('door') === 'code', TAPDEMO = q.get('taps') === '1' && !STAGE, TAPSTILL = q.get('tap');
   const c = document.getElementById('c'), ground = document.getElementById('ground'), $ = s => c.querySelector(s), { animate } = Motion;
   const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
   const wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
@@ -216,15 +219,15 @@ html, body { margin: 0; background: #1A120D; }
     InkPaper.dress(el); InkPaper.redraw(el); el.querySelectorAll('.pane').forEach(InkPaper.redraw);
     if (old && !instant) {
       // one sheet becomes the next: the words crossfade, never an empty card
-      animate(old, { opacity: 0 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished.then(() => old.remove());
-      await animate(el, { opacity: [0, 1] }, { duration: .4, ease: [.4, 0, .6, 1] }).finished;
+      animate(old, { opacity: 0 }, { duration: P(.3, .4), ease: [.4, 0, .6, 1] }).finished.then(() => old.remove());
+      await animate(el, { opacity: [0, 1] }, { duration: P(.3, .4), ease: [.4, 0, .6, 1] }).finished;
     } else { if (old) old.remove(); if (!instant) InkPaper.lay(el); }
     cur = el; return el;
   }
   const typeIn = async (el, text, ms = 70) => { if (instant) { el.textContent = text; return; } for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await wait(ms); } };
   const ptr = $('#pointer');
   const at = el => { const r = el.getBoundingClientRect(), cr = c.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 }; };
-  const tap = async el => { if (instant) return; animate(ptr, { opacity: 1 }, { duration: .2 }); await animate(ptr, { x: at(el).x - 12, y: at(el).y - 12 }, spring(.7)).finished; el.classList.add('is-hover'); await wait(200);
+  const tap = async el => { if (instant) return; animate(ptr, { opacity: 1 }, { duration: .2 }); await animate(ptr, { x: at(el).x - 12, y: at(el).y - 12 }, spring(P(.45, .7))).finished; el.classList.add('is-hover'); await wait(P(100, 200));
     await animate(ptr, { scale: [1, .8, 1] }, { duration: .28 }).finished; el.classList.remove('is-hover'); };
   const hidePtr = () => { if (!instant) animate(ptr, { opacity: 0 }, { duration: .3 }); };
 
@@ -271,28 +274,28 @@ html, body { margin: 0; background: #1A120D; }
     // ---- 0 her name ----
     let s = await sheet(`<span class="lab kicker">Welcome to the studio</span><h2>What should the team call you?</h2><p class="sub">Your first name is plenty.</p>
       <div class="field"><span id="nm"></span><span class="caret"></span></div><div class="row-end"><button class="btn" id="go1">That’s me</button></div>`);
-    await wait(900); await typeIn(s.querySelector('#nm'), 'Priya', 120); if (N < 1) return;
-    await wait(500); await tap(s.querySelector('#go1'));
+    if (STAGE) s.querySelector('#nm').textContent = 'Priya'; else { await wait(900); await typeIn(s.querySelector('#nm'), 'Priya', 120); } if (N < 1) return;
+    await wait(P(350, 500)); await tap(s.querySelector('#go1'));
     // ---- 1 her craft ----
     s = await sheet(`<span class="lab kicker">Hello, Priya</span><h2>What do you bring to the table?</h2><p class="sub">Pick your craft. The team fills every other seat.</p>
       <div class="choices"><button class="choice on" id="pr"><i></i>Product</button><button class="choice">Design</button><button class="choice">Research</button><button class="choice">Engineering</button>
       <button class="choice">Data</button><button class="choice">Strategy</button><button class="choice own">Your own craft</button></div>
       <div class="row-end"><button class="btn" id="go2">Product it is</button></div>`);
     if (N < 2) return;
-    await wait(1600); await tap(s.querySelector('#go2'));
+    await wait(P(250, 1600)); await tap(s.querySelector('#go2'));
     // ---- 2 she says what she loves, rough ----
     s = await sheet(`<span class="lab kicker">Product, in your own words</span><h2>What do you love about it, and what do you bring?</h2><p class="sub">Just talk. Ums and all.</p>
       <div class="speak" id="speak"></div>
       <div class="row-end"><span class="mic" id="mic"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span>Hold to talk</span></div>`, 'stepcard', 'her');
     const sp = s.querySelector('#speak'), ring = s.querySelector('.ring');
-    if (!instant) { await wait(700); hidePtr(); s.querySelector('#mic').lastChild.textContent = 'Listening… take your time'; }
+    if (!instant) { await wait(P(200, 700)); hidePtr(); s.querySelector('#mic').lastChild.textContent = 'Listening… take your time'; }
     const pulse = !instant && setInterval(() => ring.style.scale = (1 + Math.random() * .12).toFixed(3), 120);
     const tks = RAW.map(t => { const e = document.createElement('span'); e.className = 'tk' + (t[1] === 0 ? ' filler' : ''); e.textContent = t[0]; e._t = t; return e; });
-    for (const e of tks) { sp.appendChild(e); if (!instant) { A(e, { opacity: [0, 1] }, { duration: .25 }); await wait(e._t[1] === 0 ? 240 : 150); } }
+    for (const e of tks) { sp.appendChild(e); if (!instant) { A(e, { opacity: [0, 1] }, { duration: .25 }); await wait(e._t[1] === 0 ? P(200, 240) : P(130, 150)); } }
     if (pulse) clearInterval(pulse); ring.style.scale = ''; s.querySelector('#mic').lastChild.textContent = 'Hold to talk';
     InkPaper.redraw(s); if (N < 3) return;
     // ---- 3 the tidy: fillers fold away, the words close up, the ink dries into her pink ----
-    await wait(700);
+    await wait(P(250, 700));
     const before = new Map(tks.map(e => [e, e.getBoundingClientRect()]));
     const drop = tks.filter(e => e._t[1] === 0), change = tks.filter(e => typeof e._t[1] === 'string');
     drop.forEach(e => A(e, { opacity: 0, filter: ['blur(0px)', 'blur(2px)'] }, { duration: .28 }));
@@ -304,14 +307,19 @@ html, body { margin: 0; background: #1A120D; }
     s.querySelector('.row-end').insertAdjacentHTML('afterbegin', '<a class="see" href="#">See what you said</a>');
     InkPaper.redraw(s); if (N < 4) return;
     // ---- 4 her name tag: the team's spin on what she said ----
-    await wait(2200);
+    await wait(P(700, 2200));
     s = await sheet(`<span class="lab kicker">The name your teammates will know you as</span>
       <div class="who"><span class="seal">P</span><div><div class="name">Priya</div><div class="title">the Customer Whisperer</div></div></div>
       <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div>
       <p class="kn">From what you said: the journey, the problem, and the thing that fixes it.</p>
       <div class="row-end"><button class="btn quiet">Change a word</button><button class="btn" id="go4">Meet your team</button></div>`, 'tag-her', 'her');
+    if (STAGE && !instant) {
+      // stage: the team's name for her writes itself, then the team arrives
+      const ti = s.querySelector('.title'), tr = s.querySelectorAll('.traits span'); tr.forEach(e => e.style.opacity = 0);
+      await typeIn(ti, 'the Customer Whisperer', 34); tr.forEach((e, i) => animate(e, { opacity: [0, 1] }, { duration: .3, delay: i * .1 }));
+    }
     if (N < 5) return;
-    await wait(2600); await tap(s.querySelector('#go4')); hidePtr();
+    if (STAGE) await wait(350); else { await wait(2600); await tap(s.querySelector('#go4')); hidePtr(); }
     // her tag goes small to the top left, and stays with her while she meets the team
     if (SLOW || instant) { if (!instant) await animate(s, { opacity: 0, scale: .9 }, { duration: .4 }).finished; s.remove(); cur = null; } // stage: Mika crossfades over it
     const mini = document.createElement('button'); mini.className = 'abs pill is-her'; mini.dataset.who = 'her'; mini.id = 'mini';
@@ -343,27 +351,27 @@ html, body { margin: 0; background: #1A120D; }
         // stage pace: the next teammate's wave starts unseen, so their hand is up when they appear; then a crossfade
         if (card) { card.querySelector('.line').textContent = t.line; InkPaper.redraw(card); }
         await wait(v ? 800 : 0);
-        if (prev) animate(prev, { opacity: 0 }, { duration: .35 }).finished.then(() => prev.remove());
-        await animate(m, { opacity: [0, 1] }, { duration: .35 }).finished;
+        if (prev) animate(prev, { opacity: 0 }, { duration: P(.3, .35) }).finished.then(() => prev.remove());
+        await animate(m, { opacity: [0, 1] }, { duration: P(.3, .35) }).finished;
       } else if (prev) prev.remove();
-      if (late) { await wait(SLOW ? 3600 : 2600); if (N === 9 && STEP != null) return;
+      if (late) { await wait(SLOW ? 3600 : P(500, 2600)); // stage: + Theo's 0.8 s pre-roll and the fade = about 1.6 s on screen if (N === 9 && STEP != null) return;
         // the role is ready: the note lifts away and Theo hurries in
         if (SLOW) { if (!instant) await animate(m, { opacity: 0 }, { duration: .4 }).finished; m.remove(); cur = null; }
         lateDone = true; k--; continue; }
       const rr = card.querySelector('.rr'), ln = card.querySelector('.line');
-      if (t.flex) { await wait(SLOW ? 800 : 150); await typeIn(rr, t.role === 'Data' ? 'Morning bake list' : t.role, SLOW ? 55 : 32); }
+      if (t.flex) { await wait(SLOW ? 800 : P(80, 150)); await typeIn(rr, t.role === 'Data' ? 'Morning bake list' : t.role, SLOW ? 55 : P(20, 32)); }
       if (SLOW || instant) { await wait(500); await typeIn(ln, t.line, 20); InkPaper.redraw(card); }
       if (instant && TAPSTILL === t.who && N === 5 + k) { fr._react(2.6); return; }
       if (TAPDEMO && !instant && (t.who === 'mika' || t.who === 'theo')) {
         while (fr._busy) await wait(200);
         await wait(900); await tap(fr); fr._react(); hidePtr(); await wait(5800);
       }
-      if (k < TEAM.length - 1) await wait(SLOW ? 1900 : (t.flex ? 1300 : 1050));
+      if (k < TEAM.length - 1) await wait(SLOW ? 1900 : P(700, t.flex ? 1300 : 1050));
     }
     if (N < 10) return;
     // ---- 10 THE REVEAL: the paper parts, the room is there, she sits down ----
-    await wait(SLOW ? 2000 : 1500);
-    if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, scale: .97 }, { duration: .5 }).finished; old.remove(); }
+    await wait(SLOW ? 2000 : P(1100, 1500));
+    if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, scale: .97 }, { duration: P(.3, .5) }).finished; old.remove(); }
     dots.remove();
     const tag = $('#mini'); const vid = $('#scene'); vid.play().catch(() => {});
     const room = $('#room'), door = $('#door'), bw = $('#blurwrap');
@@ -373,8 +381,8 @@ html, body { margin: 0; background: #1A120D; }
       if (SLOW) await animate(tag, { opacity: 0 }, { duration: .4 }).finished; else animate(tag, { opacity: 0 }, { duration: .3 });
       bw.classList.remove('soft'); animate(bw, { filter: ['blur(8px)', 'blur(0px)'] }, { duration: SLOW ? 1.4 : .7, ease: [.33, 0, .2, 1] });
       animate('#warmth', { opacity: 0 }, { duration: SLOW ? 1.4 : .7 });
-      await wait(SLOW ? 1200 : 300);
-      await animate($('#signrect'), { width: [0, 330] }, { duration: SLOW ? 1.6 : .8, ease: [.45, .05, .3, 1] }).finished;
+      await wait(SLOW ? 1200 : P(150, 300));
+      await animate($('#signrect'), { width: [0, 330] }, { duration: SLOW ? 1.6 : P(.5, .8), ease: [.45, .05, .3, 1] }).finished;
       animate('#htag', { opacity: [0, 1], rotate: [8, -3, 0] }, { duration: SLOW ? 1.4 : .8, ease: [.33, 0, .2, 1] });
       await wait(SLOW ? 1800 : 100);
       if (CODE) {
