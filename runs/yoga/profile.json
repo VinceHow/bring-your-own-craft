@@ -1,0 +1,65 @@
+{
+  "business": {
+    "text": "A booking page for a small yoga studio where students see classes and reserve spots. It is a product she wants to build, not yet a full business.",
+    "confidence": "high"
+  },
+  "positioning": {
+    "text": "Likely wins by being fast and effortless for a regular: it never asks for what it already knows, and when a class is full it moves them quickly to the next option, unlike generic booking tools or big-studio apps. The warm, held-for-you confirmation probably still applies, but studio specifics are assumed.",
+    "confidence": "medium"
+  },
+  "customers": {
+    "text": "Regulars at a small local yoga studio who take the same class every week, like the Tuesday class, and are who the page is for first. Newcomers are probably secondary.",
+    "confidence": "high"
+  },
+  "whatSells": {
+    "text": "Certainty that their spot is theirs, without friction: in her words, people come back when they know their spot is theirs, and a full class should feel fast and never ask for what is already known.",
+    "confidence": "high"
+  },
+  "brandFeel": {
+    "text": "Small, warm, calm and quick, with no wasted steps. 'Fast' is her word for the full-class moment; the wider feel is still inferred.",
+    "confidence": "medium"
+  },
+  "strengths": {
+    "text": "She loves the customer journey and understanding customer problems, then building products that solve them. She reasons from real student behavior, so frame questions around real student situations and trade-offs.",
+    "confidence": "high"
+  },
+  "waysOfWorking": {
+    "text": "Probably wants to lead on the problem and the user flow and leave execution details to the team. Her answer was terse and decisive, so keep questions short and concrete, and never ask her for what the team already knows.",
+    "confidence": "low"
+  },
+  "domains": [
+    "customer problem",
+    "user journey",
+    "target customer",
+    "what success looks like"
+  ],
+  "philosophy": [
+    {
+      "id": "L3",
+      "believe": "People come back when they know their spot is theirs, and my regulars, who take the same Tuesday class every week, are who this page is for first.",
+      "guidance": "Build for regulars first: make rebooking their usual class a one-tap step that clearly confirms the spot is held, with no hunting through the schedule. Newcomers and extras wait until that works end to end.",
+      "askId": "c17"
+    },
+    {
+      "id": "L4",
+      "believe": "A student feels sure of their spot when the confirmation is small and warm, and when a full class never leaves anyone feeling turned away.",
+      "guidance": "Keep the booking confirmation short and friendly, and when a class is full, point students to the next class instead of a dead end. Her answer doesn't cover how students pay, so ask her about that separately.",
+      "askId": "c19"
+    },
+    {
+      "id": "L5",
+      "believe": "Never ask for anything you could remember or skip.",
+      "guidance": "Make the full-class path one quick step. Put the student on the waitlist with the details we already have, and offer them a spot automatically if one opens, so they never have to re-enter anything or feel turned away.",
+      "askId": "c18"
+    }
+  ],
+  "tag": null,
+  "version": 4,
+  "from": [
+    "intro",
+    "idea",
+    "answer",
+    "answer",
+    "answer"
+  ]
+}

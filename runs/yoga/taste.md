@@ -1,0 +1,5 @@
+- [L1] I love working on the customer journey, understanding the problems customers face, and building products that solve them. (her own words, today)
+- [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
+- [L3] People come back when they know their spot is theirs, and my regulars, who take the same Tuesday class every week, are who this page is for first.
+- [L4] A student feels sure of their spot when the confirmation is small and warm, and when a full class never leaves anyone feeling turned away.
+- [L5] Never ask for anything you could remember or skip.
