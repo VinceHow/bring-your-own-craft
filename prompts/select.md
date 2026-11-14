@@ -10,11 +10,12 @@ Her file of principles:
 
 Her team listed the decisions below. Only a few are worth her time; the rest will be decided for her. Score every
 decision, by its id:
-- `inSeat`: true if it is a call in her craft. For the product seat that is: the journey, who it serves first, what
-  each step asks of the customer, what is in or out, what happens at the edges, the words. False if it belongs to
-  another craft (visual style, layout, tracking, storage, infrastructure, tooling), even if it sounds important.
 - `changes`: 0 to 3, how much her answer would change what her customers get. 3 = a different journey.
-- `silent`: 0 to 3, how little her file already says about it. 3 = no line touches it; 0 = a line clearly decides it.
+- `silent`: 0 to 3, how open her file leaves her answer. Ask: from her file alone, could you say what she would
+  choose here, with no reasonable doubt? 0 = yes, a line settles this very choice. 1 = a line points one way but
+  she might well disagree. 2 = a general line touches it without settling it. 3 = nothing in her file bears on it.
+  A line whose own condition is met by the decision no longer settles it: if a line says to wait for evidence and
+  the decision comes with a source, her answer is open again.
 - `dupOf`: the id of an earlier decision in this list that is essentially the same choice, or null.
 - `kind`: "fork" if it is a choice between paths in her flow, "pin" if it is a note about one box.
 
