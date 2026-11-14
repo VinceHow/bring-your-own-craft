@@ -58,11 +58,11 @@ test('prepared fallback: over the limit, the yoga sketch comes in labelled prepa
   assert.deepEqual(currentLines(evs), ['Find a class', 'Pick one', 'Confirm', 'Booked']);
 });
 
-test('prepared fallback on a model error too; a non-yoga idea gets no prepared sketch, just an error', async () => {
+test('prepared fallback on a model error too; an idea with no prepared sketch gets just an error', async () => {
   const boom = async () => { throw new Error('model error'); };
   const run = newRun();
   assert.equal((await firstSketch({ run, callModel: boom, ...opts })).body.prepared, true);
-  const other = newRun('A pre-order page for a bakery.');
+  const other = newRun('A booking page for a small tattoo studio.');
   const r = await firstSketch({ run: other, callModel: boom, ...opts });
   assert.equal(r.code, 502);
   assert.deepEqual(types(other), ['run.start', 'sketch.error']);
