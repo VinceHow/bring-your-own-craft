@@ -7,5 +7,7 @@
   "url": "https://www.activemonash.vic.gov.au/News/Update-to-Group-Fitness-Waitlist",
   "source": "Active Monash, \"Update to Group Fitness Waitlist\"",
   "how_verified": "Seen in a web search result summary on 14 Nov 2026; the page itself could not be opened from the build session (host not reachable). Open the link to check before relying on it.",
-  "not_claimed": "No numbers on how often waitlisted people get a spot: the only figures found were from software vendors' blogs and were unsourced."
+  "not_claimed": "No numbers on how often waitlisted people get a spot: the only figures found were from software vendors' blogs and were unsourced.",
+  "verified": false,
+  "why_unverified": "The page was never opened (seen only in search summaries), so nothing was quoted from it. Code never shows or cites a finding without its URL, a quoted line and the date it was read."
 }

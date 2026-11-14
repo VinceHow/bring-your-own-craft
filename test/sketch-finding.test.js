@@ -17,36 +17,29 @@ const WITHOUT = { users: ['Regulars', 'First-timers'], stages: ['Find a class', 
 const opts = { dripMs: 0, withGuest: false };
 const done = run => readEvents(run).find(e => e.type === 'sketch.done');
 
-test('yoga: the finding goes into the sketch prompt; a shape that shows it is flagged used, by Noor and Mika', async () => {
+test('yoga: its finding was never opened, so it never reaches the sketch and the flag stays false', async () => {
   const run = newRun('A booking page for a small yoga studio.');
-  const callModel = recorder(WITH);
+  const callModel = recorder(WITH); // even a shape that shows a waitlist isn't Noor's work: her finding is unread
   await firstSketch({ run, callModel, ...opts });
-  assert.match(callModel.seen[0], /Noor \(Research\) found/);
-  assert.match(callModel.seen[0], /waitlist on full group fitness classes/);
-  assert.equal(done(run).usedFinding, true);
-  assert.deepEqual(done(run).by, ['research', 'design']);
-  assert.ok(!JSON.stringify(readEvents(run)).includes('activemonash') || done(run).finding.url, 'the source travels only as the finding');
-});
-
-test('yoga: given the finding but the shape ignores it, the flag stays false', async () => {
-  const run = newRun('A booking page for a small yoga studio.');
-  await firstSketch({ run, callModel: recorder(WITHOUT), ...opts });
+  assert.doesNotMatch(callModel.seen[0], /Noor|waitlist on full group fitness classes/);
   assert.equal(done(run).usedFinding, false);
   assert.equal(done(run).by, undefined);
 });
 
-test('bakery: the bakery finding reaches the sketch, never the yoga one; ordering ahead in the shape counts as used', async () => {
+test('bakery: only the verified regulars finding reaches the sketch, never the unread waste one; regulars in the shape count as used', async () => {
   const run = newRun('A website for a small bakery, so customers can order bread ahead.');
-  const callModel = recorder({ users: ['Morning regulars', 'Weekend crowd'], stages: ['Choose bread', 'Order ahead', 'Pick up'] });
+  const callModel = recorder({ users: ['Weekly regulars', 'Weekend crowd'], stages: ['Choose bread', 'Order ahead', 'Pick up'] });
   await firstSketch({ run, callModel, ...opts });
-  assert.match(callModel.seen[0], /guess how many loaves/);
-  assert.doesNotMatch(callModel.seen[0], /group fitness/);
+  assert.match(callModel.seen[0], /Noor \(Research\) found/);
+  assert.match(callModel.seen[0], /artisan bakeries buy bread there at least once a week/);
+  assert.doesNotMatch(callModel.seen[0], /guess how many loaves|group fitness/);
   assert.equal(done(run).usedFinding, true);
+  assert.deepEqual(done(run).by, ['research', 'design']);
   const { shapeUsesFinding } = await import('../lib/sketch.js');
   const { findingFor } = await import('../lib/teammates.js');
   const shows = findingFor('a bakery').shows;
-  assert.ok(shapeUsesFinding({ stages: ['Place order', 'Baker sees total', 'Pick up bread'] }, shows), 'real sketch, 14 Nov');
-  assert.ok(!shapeUsesFinding({ stages: ['Browse breads', 'Pick loaves', 'Pick up bread'] }, shows));
+  assert.ok(shapeUsesFinding({ users: ['Weekly regulars'], stages: ['Place order', 'Pick up bread'] }, shows));
+  assert.ok(!shapeUsesFinding({ users: ['Customers'], stages: ['Browse breads', 'Pick loaves', 'Pick up bread'] }, shows));
 });
 
 test('a bike shop and a tattoo studio: no finding reaches the sketch, the flag is false', async () => {
@@ -59,9 +52,11 @@ test('a bike shop and a tattoo studio: no finding reaches the sketch, the flag i
   }
 });
 
-test('the close\'s sketch carries the same flag', async () => {
+test('the close\'s sketch carries the same flag, verified findings only', async () => {
   const a = await sketchForIdea('Sign-ups for a pilates class.', { callModel: recorder(WITH) });
   const b = await sketchForIdea('A booking site for a tattoo studio.', { callModel: recorder(WITH) });
-  assert.equal(a.body.usedFinding, true);
+  assert.equal(a.body.usedFinding, false, 'the waitlist finding was never opened');
   assert.equal(b.body.usedFinding, false);
+  const c = await sketchForIdea('A website for a small bakery.', { callModel: recorder({ users: ['Weekly regulars'], stages: ['Order', 'Pick up'] }) });
+  assert.equal(c.body.usedFinding, true);
 });
