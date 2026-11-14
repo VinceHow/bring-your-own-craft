@@ -47,7 +47,7 @@ The product has two moments: a short setup that ends in her first question, then
 
 **1. The setup: walking in to the first question** (under a minute)
 
-1. **Take a seat.** Her pink stool glows warm. Its pick card asks *"What do you bring to the table?"*: Product, or "Your own craft". Priya picks Product.
+1. **Take a seat.** Her pink stool glows warm. Its pick card asks *"What do you bring to the table?"*: any craft (Product, Design, Research, Engineering, Data, Strategy), or "Your own craft". The teammates are people, not job titles: they wear whichever role the table needs. Priya picks Product.
 2. **The team appears.** Mika, Noor, Theo, Ines and Bo pop into their chairs at the round table, one by one (no walking), each card showing what they love and what they bring.
 3. **She introduces herself in one sentence.** *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* The team puts its own fun spin on it to make her character card, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
 4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
