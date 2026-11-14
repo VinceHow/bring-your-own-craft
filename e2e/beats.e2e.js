@@ -143,13 +143,20 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   const closed = page.locator(`#her-flow .fl-item.is-answered[data-ask="${firstId}"]`);
   assert.strictEqual(await closed.locator('.fl-opt.is-chosen .fl-yours').count(), 1, 'YOUR CALL stays on the closed note');
   assert.strictEqual(await closed.locator('.fl-opt.is-rec.is-dropped').count(), 1, 'the struck recommendation stays too');
-  // Focus time: a short breath with nothing open, and the tray of waiting notes at her seat (no number); then the next.
+  // Focus time: after her answer nothing opens by itself. About 1 s later the tray slides in at her seat: one note per
+  // waiting question, "<Seat> · <a few words>?", in the teammate's ink, no number. She picks; the clicker opens the top.
   if (asks.length > 1) {
-    await waitFor(() => !document.getElementById('tray').hidden || document.querySelectorAll('#her-flow .fl-item.is-open').length === 1, 3000, 'the breath or the next');
-    await waitFor(() => document.querySelectorAll('#her-flow .fl-item.is-open').length === 1, 3000, 'the next ask opens after a breath');
-    assert.ok(await page.evaluate(() => document.body.classList.contains('focus')), 'the room is in focus time while it is open');
-    assert.ok(await page.evaluate(() => document.getElementById('tray').hidden), 'no tray during a check-in');
-    assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'no step line or seconds during a check-in');
+    await waitFor(() => !document.getElementById('tray').hidden, 3000, 'the tray at her seat');
+    assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').count(), 0, 'nothing opens until she picks');
+    const notes = await page.locator('#tray .tray-note').allInnerTexts();
+    assert.strictEqual(notes.length, asks.length - 1, 'one note per waiting question');
+    for (const t of notes) assert.match(t.replace(/\s+/g, ' ').trim(), /^(Design|Data|Research|Strategy|Engineering|Product) · .+\?$/i, `a note's face: ${t}`);
+    assert.ok(!(await page.locator('#tray').innerText()).match(/\b\d+\b|waiting/i), 'no number, no "waiting"');
+    const top = await page.locator('#tray .tray-note').first().getAttribute('data-ask');
+    await page.keyboard.press('PageDown'); // the clicker opens the team's suggested (top) note
+    await waitFor(() => document.querySelectorAll('#her-flow .fl-item.is-open').length === 1, 3000, 'the note she opened');
+    assert.strictEqual(await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask'), top, 'the top note opened');
+    assert.strictEqual(await page.evaluate(() => BYOC.beat), 6, 'and the beat did not move');
     await page.waitForTimeout(400); // the dim fades in (under 150ms)
     assert.ok(await page.evaluate(() => document.getElementById('room').classList.contains('focus')), '#room.focus while a check-in is open');
     assert.strictEqual(await page.locator('#her-flow .checkin-open').count(), 1, 'the open check-in is marked .checkin-open');

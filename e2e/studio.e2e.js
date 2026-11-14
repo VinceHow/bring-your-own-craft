@@ -141,6 +141,8 @@ test('6. she answers the check-ins, overruling once', async t => {
   const asks = (await events()).filter(e => e.type === 'ask');
   let overruled = false;
   for (let i = 0; i < asks.length; i++) {
+    // After her first answer nothing opens by itself (DEMO focus rules): she picks the next note from her tray.
+    if (i > 0) { await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 }); await page.locator('#tray .tray-note').first().click(); }
     await waitFor(() => !!document.querySelector('#her-flow .fl-item.is-open'), 8000, 'an open check-in');
     const id = await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask');
     const item = page.locator(`#her-flow .fl-item[data-ask="${id}"]`);

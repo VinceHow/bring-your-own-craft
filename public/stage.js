@@ -100,6 +100,7 @@
     if (b === 2 && BYOC.introOpen && BYOC.introOpen()) return BYOC.introDone(); // keeps whatever she typed
     if (b === 3 && !idea) return focusInput();
     if (b >= 11 || inClose()) return;
+    if (BYOC.openTopNote && BYOC.openTopNote()) return; // her tray is out: forward opens the team's suggested note
     BYOC.stage(b + 1);
   }
 })();

@@ -58,7 +58,7 @@
     S.lens = h('div', 'fl-lens');
     el.appendChild(S.lens);
     S.nodes = new Map(); S.edges = []; S.drawn = new Set(); S.items = []; S.lines = []; S.focus = null;
-    S.breath = false; clearTimeout(S.breathTimer); S.checkinKey = '';
+    S.breath = false; clearTimeout(S.breathTimer); S.checkinKey = ''; S.autoFirst = true;
     document.dispatchEvent(new CustomEvent('byoc:checkin', { detail: { open: null, breath: false, waiting: [] } }));
     if (!S.subscribed && typeof B.on === 'function') {
       S.subscribed = true;
@@ -386,12 +386,14 @@
 
   // Only one ask is open at a time, full size: the one she picked, else the first she hasn't answered.
   // The rest stay on their boxes as short notes; an answered one keeps her call and the struck recommendation.
-  // Focus time: one check-in at a time. After she answers, a short breath (~1 s) with nothing open; then the one she
-  // picked from the tray, else the next. The room hears 'byoc:checkin' { open, waiting } to dim, freeze and show the tray.
+  // Focus time: one check-in at a time. The team's first opens by itself; after that nothing opens until she picks a
+  // note from the tray at her seat (DEMO 1:15: "she picks the next note from her tray when she's ready"). A replay
+  // plays the recorded order: the next opens after a ~1 s breath. The room hears 'byoc:checkin' { open, waiting }.
   const BREATH_MS = 1000;
   function refocus(doLayout = true) {
     const open = S.items.filter(i => i.ask && !i.answered);
-    const cur = S.breath ? null : (open.find(i => i.ask.id === S.focus) || open[0] || null);
+    let cur = S.breath ? null : (open.find(i => i.ask.id === S.focus) || null);
+    if (!cur && !S.breath && (S.autoFirst || B.replay) && open.length) { cur = open[0]; S.focus = cur.ask.id; S.autoFirst = false; }
     const moves = [];
     for (const i of S.items) if (i.ask) {
       i.el.classList.toggle('is-open', i === cur);
