@@ -6,14 +6,14 @@ spec; this only fixes the seams so four people can build at once.
 ## Already on main (lead owns; don't rewrite, ask)
 - `server.js`: one `node:http` server. Serves `public/` at `/`, built pages at `/runs/<id>/page/`, SSE at `/events`
   (every logged event, as `data: <json>`). Loads every `routes/*.js`, each exporting
-  `default [{ method, path, handler(req, res, { body, url }) }]`; a `path` ending in `*` is a prefix match.
+  `default [{ method, path, handler(req, res, { body, url }) }]`; a `path` ending in `*` is a prefix match, or give `match(url) => bool` instead (use this for `/api/run/:id/...` routes so pieces don't catch each other's).
 - `lib/model.js`: `callModel({ system, user, schema, model?, timeoutMs? })` returns validated JSON (retries once).
   `MODEL_BACKEND=claude-code` (default) or `fal`. `scrub(s)` strips the key. `setFalKey(k)` keeps it in memory.
   Measured: one Opus call with a ~1.8k-token system prompt, ~6.5 s API time, ~$0.02. Pass `model: 'sonnet'` or
   `'haiku'` where speed matters more than depth, and say which you chose.
 - `lib/events.js`: `logEvent(run, type, data)`, `readEvents(run)`, `newRunId()`, `runDir(run)`, `onEvent(fn)`.
 - `lib/http.js`: `sendJson(res, code, obj)` (scrubs).
-- Tests: `node --test test/` (`npm test`). Node 22, ES modules, no build step, no framework.
+- Tests: `node --test` (`npm test`; runs `test/**/*.test.js`). Node 22, ES modules, no build step, no framework.
 
 ## Who owns what
 | Piece | Branch | Owns |
