@@ -1,6 +1,6 @@
 # Brief: Bring your own craft
 
-> **Take the seat of the craft you love, and a team fills the rest.** They bring you **at most three questions**,
+> **Take the seat of the craft you love, and a team fills the rest.** They bring you **only the questions worth your time** (never more than three, enforced in code),
 > chosen for your craft and what you're building, and decide everything else your way. You leave with a page that's
 > yours, and a file of your own philosophy you never had to write.
 
@@ -40,7 +40,7 @@ she's the expert, they build on what she said, it's all of ours.
 | **0:35–0:45** First sketch | **Design** drafts user types + stages (boxes/arrows, no screens) in ~10 s, streamed. Fallback: prepared yoga sketch, labelled PREPARED. | live |
 | **0:45–1:05** Her reaction | *(Optional, if time:)* a **guest chair** joins: a labelled stand-in for the main user the sketch named, one reaction in its voice (citable by teammates, never asks her). She reframes out loud or edits boxes; the shape redraws (one call); touched teammates lean in (real events only). | live |
 | **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions with reasons; caption "N handled by your team · 3 for you" (from the log). | live |
-| **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; no queue badges, no timers. She overrules once (YOUR CALL). | live |
+| **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; the rest wait in a calm tray she picks from; no timers. She overrules once (YOUR CALL). | live |
 | **1:50–2:08** Design's workspace | Grey wireframes on her shape; her note on confirm → "Sounds like" → reworded → her file and her Stance slot. | live |
 | **2:08–2:26** Symphony | One press; every seat slides its part into the idea sheet; the page is built. | **live**, from her answers |
 | **2:26–2:38** Her page | The page they built together, full size. **No credits** (Vincent). One margin note on cancel: "follows your line", citing her new line, only if a logged decision cites it. | live |
@@ -50,8 +50,10 @@ The café run ("a pre-order page for a café's morning pastries") is the **fallb
 real run.
 
 **New build pieces, cheapest first** (lead to price and split):
-1. **Focus time:** while a check-in is open, other seats dim and freeze; no queue badges (replace the "waiting as a seat
-   badge" pattern), no counters moving, no timers; next check-in after a ~1 s breath.
+1. **Focus time and the tray:** while a check-in is open, other seats dim and freeze; no counters moving, no timers,
+   no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
+   pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
+   if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
 2. **Words:** "What's the idea?"; check-ins in the teammate's voice; open seats read "Seat open: invite a
    teammate. Your agents hold it until they arrive." (label, not a button); the "decided for you" list and any credits are cut: one margin note on the page where a
    decision cites her line.
