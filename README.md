@@ -6,7 +6,9 @@ A coding harness where you take the seat of your own craft, and a team fills eve
 - `BRIEF.md`: what we're building and the schedule.
 - `DEMO.md`: the 3-minute demo script.
 
-Built on [taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) for design and Anthropic's [product-management plugin](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0) for product. Models run through fal with your own key.
+Built on [taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) for design and Anthropic's [product-management plugin](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0) for product. Models run through Claude Code (headless) by default; fal on your own key is a one-variable swap.
+
+- Product teammate: the `write-spec` skill from Anthropic's product-management plugin, vendored unchanged in `vendor/product-management/` (commit e91a134) with its Apache-2.0 licence.
 
 Agent skills `verification-loop`, `e2e-testing`, `frontend-design-direction` and `ui-demo` are from [everything-claude-code](https://github.com/affaan-m/everything-claude-code) (MIT), in `.claude/skills/`.
 
