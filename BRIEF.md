@@ -38,7 +38,7 @@ she's the expert, they build on what she said, it's all of ours.
 | **0:22–0:30** Her card | She says "I love…" (L1 of her file); Brings pre-filled; Stance empty. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a rough six-faced gem. | live |
 | **0:35–0:45** First sketch | **Design** drafts user types + stages (boxes/arrows, no screens) in ~10 s, streamed. Fallback: prepared yoga sketch, labelled PREPARED. | live |
-| **0:45–1:05** Her reaction | A **guest chair** joins: a labelled stand-in for the main user the sketch named, one reaction in its voice (citable by teammates, never asks her). She reframes out loud or edits boxes; the shape redraws (one call); touched teammates lean in (real events only). | live |
+| **0:45–1:05** Her reaction | *(Optional, if time:)* a **guest chair** joins: a labelled stand-in for the main user the sketch named, one reaction in its voice (citable by teammates, never asks her). She reframes out loud or edits boxes; the shape redraws (one call); touched teammates lean in (real events only). | live |
 | **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions with reasons; gem faces cut per seat; caption "N handled by your team · 3 for you" (from the log). | live |
 | **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; no queue badges, no timers. She overrules once (YOUR CALL). | live |
 | **1:50–2:08** Design's workspace | Grey wireframes on her shape; her note on confirm → "Sounds like" → reworded → her file and her Stance slot. | live |
@@ -60,7 +60,7 @@ real run.
 4. **Leaning in:** a teammate card nudges toward her work on a real event (a candidate attached to a node she touched).
 5. **The gem:** six faces in seat inks, cut by logged decisions per seat, her face by her answers; turns into the page
    at build. **Cut line:** six flat ink bars.
-6. **Guest chair:** one more teammate-style call after the first sketch, persona = the main user type; returns one
+6. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
 7. Optional, last: one soft chord at the symphony.
