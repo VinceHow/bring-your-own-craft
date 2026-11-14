@@ -95,7 +95,7 @@
     }
     S.edges = (g.edges || []).filter(e => S.nodes.has(e.from) && S.nodes.has(e.to));
     layout();
-    for (const r of fresh) settle(r.el, 'translateY(-10px) scale(0.94) rotate(-2deg)', 'none');
+    for (const r of fresh) settle(r.el, 'translateY(-10px) scale(0.94) rotate(-2deg)', 'translateY(0px) scale(1) rotate(0deg)');
   }
 
   // Columns by order along the arrows; a branch drops to the next free row under its parent.
