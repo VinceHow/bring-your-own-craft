@@ -282,6 +282,7 @@
     herForm: $('#her-form'),
     herInput: $('#her-input'),
     herHint: $('#her-hint'),
+    teamGoBtn: $('#team-go'),
     fileCard: $('#file-card'),
     fileLines: $('#file-lines'),
     fileNote: $('#file-note'),
@@ -370,7 +371,7 @@
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
-    pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === what)));
+    pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
     // Any seat is hers (lib/cast.js): another craft recasts the table now, while she writes her tag (Product: as it was).
     if (CRAFT_LABEL[what] && what !== 'product') { BYOC.castP = castFor(what); }
@@ -422,7 +423,7 @@
   // agreed (team space) and her takeaways so far. Structure only; the tray stays the way into each question.
   const panel = h('section', 'room-panel'); panel.id = 'room-panel'; panel.hidden = true;
   el.room.appendChild(panel);
-  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
+  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.dataset.state = 'closed'; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
   function openPanel(component, seat, head, body) {
     panel.innerHTML = '';
     panel.dataset.component = component; panel.dataset.state = 'open';
@@ -567,6 +568,7 @@
     const inp = el.herInput;
     if (mode === 'idea') { inp.placeholder = 'Write the idea'; el.herHint.textContent = 'Enter to write it down'; }
     if (mode === 'line') { inp.placeholder = 'One step of the journey'; el.herHint.textContent = 'Enter for each step · empty Enter: team, go'; }
+    if (el.teamGoBtn) el.teamGoBtn.hidden = mode !== 'line';
     el.herForm.hidden = mode === 'off' || BYOC.replay;
     if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
   }
@@ -596,7 +598,7 @@
     try {
       // Any seat is hers: a craft other than Product travels with the run, with its flex card (the Product path sends nothing new).
       const castBody = BYOC.cast ? { ...(BYOC.cast.craft !== 'diy' ? { craft: BYOC.cast.craft } : {}), ...(BYOC.cast.flex ? { flex: BYOC.cast.flex } : {}) } : {};
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : {}), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       if (BYOC.cast && BYOC.cast.flex && !castBody.flex) postArrive(); // the flex card landed while the run was starting
       status(`run ${r.run}`);
@@ -628,25 +630,92 @@
   }
   // The team's work arrives as events; the step stays up until the selector is done (or the team stops).
   let teamStep = null;
+  // "Team, go": always visible the moment it starts, never a silent wait. #team-status[data-component="team-status"]
+  // data-state: idle · working · slow (no teammate has reported in 15 s) · failed (a plain line and Retry) · done.
+  // The room also carries data-team="working|failed|done" for design.
+  const TEAM_SLOW_MS = Number(new URLSearchParams(location.search).get('teamslow')) || 15000; // ?teamslow=<ms> to test
+  const teamStatusEl = h('div', 'team-status');
+  teamStatusEl.id = 'team-status'; teamStatusEl.dataset.component = 'team-status'; teamStatusEl.dataset.state = 'idle';
+  teamStatusEl.setAttribute('role', 'status'); teamStatusEl.setAttribute('aria-live', 'polite'); teamStatusEl.hidden = true;
+  // On the main sheet, right under her idea: where she is looking while the team works (not a corner).
+  el.herIdea.after(teamStatusEl);
+  let teamSlowTimer = null;
+  const teamNames = () => SEATS.filter(x => x !== 'product' && INFO[x]).map(x => INFO[x].agent || INFO[x].name);
+  const listNames = n => n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n.at(-1)}` : (n[0] || 'The team');
+  function teamStatus(state, text, retry) {
+    teamStatusEl.dataset.state = state; el.room.dataset.team = state;
+    teamStatusEl.hidden = state === 'idle' || BYOC.replay;
+    teamStatusEl.innerHTML = `<span data-slot="text">${esc(text || '')}</span>`;
+    if (retry) {
+      const b = h('button', 'team-retry', 'Retry'); b.type = 'button'; b.dataset.slot = 'retry';
+      b.addEventListener('click', () => teamGo());
+      teamStatusEl.appendChild(b);
+    }
+  }
+  function teamFailed(why) {
+    clearTimeout(teamSlowTimer);
+    // The line says it (with Retry); the teammates' cards keep whatever their own events last said.
+    teamStatus('failed', `The team couldn’t start${why ? ` (${why})` : ''}. Retry, or press R for the rehearsal.`, true);
+  }
   async function teamGo() {
-    if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); return; }
+    if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); teamFailed('no run yet'); return; }
+    teamStatus('working', `${listNames(teamNames())} are on it…`);
+    for (const x of SEATS) if (x !== 'product') sheetStep(x, '', 'thinking'); // teammates visibly at work at once
+    clearTimeout(teamSlowTimer);
+    teamSlowTimer = setTimeout(() => {
+      if (teamStatusEl.dataset.state === 'working' && !seen.some(e => e.type === 'teammate.start' || e.type === 'candidate' || e.type === 'teammate.done'))
+        teamStatus('slow', 'Still starting… the team is warming up.');
+    }, TEAM_SLOW_MS);
     teamStep = stepBegin('The team is proposing');
     try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}, { step: false }); }
-    catch (e) { status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; } }
+    catch (e) {
+      if (e.status === 409) return; // already under way (a second press): the events carry on
+      status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; }
+      teamFailed(e.status ? `error ${e.status}` : 'no answer');
+    }
   }
+  BYOC.teamGo = teamGo;
+  // A note just landed in her inbox: the sheet says who, with a way straight to it ("Noor has a question for you →").
+  // data-state 'question'; the inbox itself pulses (public/inbox.js).
+  BYOC.on('inbox.new', n => {
+    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) return;
+    clearTimeout(teamSlowTimer);
+    teamStatus('question', n.unblock ? `${n.by} is blocked: one quick answer →` : `${n.by} has a question for you →`);
+    const go = h('button', 'team-open', 'Open it'); go.type = 'button'; go.dataset.slot = 'open';
+    go.addEventListener('click', () => { const b = document.querySelector('#inbox .inbox-now'); if (b) b.click(); });
+    teamStatusEl.appendChild(go);
+  });
+  BYOC.on('focus.open', () => { if (teamStatusEl.dataset.state === 'question') teamStatus('idle', ''); }); // she's on it
   function teamProgress() {
-    if (!teamStep) return;
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
+    const all = SEATS.length - 1;
+    if (teamStatusEl.dataset.state === 'working' || teamStatusEl.dataset.state === 'slow')
+      teamStatus('working', done >= all ? 'The team is choosing what to bring you…' : `${listNames(teamNames())} are on it… ${done} of ${all} done`);
+    if (!teamStep) return;
     stepSet(teamStep, done >= SEATS.length ? 'The team is choosing what to bring you' : `The team is proposing · ${done} of ${SEATS.length} done`);
   }
+  // "Sounds good. Let's build it": a short go-phrase is go, as an empty Enter is; anything with more in it is a redraw.
+  const GO = new Set(['go', 'go ahead', 'go for it', 'lets go', 'team go', 'go team', 'build', 'build it', 'lets build', 'lets build it',
+    'lets build this', 'build this', 'sounds good', 'sounds great', 'sounds right', 'looks good', 'looks great', 'looks right', 'good',
+    'great', 'perfect', 'nice', 'cool', 'love it', 'yes', 'yep', 'yeah', 'yup', 'ok', 'okay', 'sure', 'ship it', 'lets ship it',
+    'do it', 'lets do it', 'lets do this', 'thats it', 'thats right', 'all good', 'go on', 'start', 'lets start', 'onwards', 'done']);
+  function isGo(text) {
+    const t = String(text || '').toLowerCase().replace(/[’']/g, '');
+    if (!t.trim() || t.split(/\s+/).filter(Boolean).length > 8) return false;
+    const parts = t.split(/[.,!?;:\n]+|\s+(?:and|then|so)\s+/).map(p => p.replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+    return parts.length > 0 && parts.every(p => GO.has(p) || GO.has(p.replace(/^(ok|okay|yes|yeah|great|perfect|right|alright|so|now)\s+/, '').replace(/\s+(now|please|then|team)$/, '')));
+  }
+  BYOC.isGo = isGo;
   let buildStep = null;
+  // The click path for "team, go", next to her field (shown while she shapes the journey).
+  if (el.teamGoBtn) el.teamGoBtn.addEventListener('click', e => { e.preventDefault(); if (inputMode === 'line') { el.herInput.value = ''; setInputMode('off'); stage(5); } });
   el.herForm.addEventListener('submit', e => {
     e.preventDefault();
     const text = el.herInput.value.trim();
     if (inputMode === 'idea') { if (!text) return; el.herInput.value = ''; startRun(text); }
     else if (inputMode === 'line') {
       el.herInput.value = '';
-      if (!text) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
+      if (!text || isGo(text)) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
 
@@ -1057,6 +1126,7 @@
         break;
       case 'select.done':
         if (teamStep) { stepEnd(teamStep); teamStep = null; }
+        clearTimeout(teamSlowTimer); if (!['idle', 'question'].includes(teamStatusEl.dataset.state)) teamStatus('done', 'The team has done its first pass.');
         refreshTally();
         break;
       case 'ask': {
@@ -1107,7 +1177,7 @@
       // its shape and lands in her inbox like any ask. Her answer redraws the journey and settles a run of decisions,
       // each with its teammate: a line on its sketchpad and a word under its card, one after another.
       case 'sketch.done':
-        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) {
+        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) { // the server raises it too (lib/first.js)
           firstAskedFor = BYOC.run;
           BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
         }
@@ -1119,11 +1189,11 @@
         const at = seen.findIndex(x => x.type === 'reshape' && x.askId === ev.askId);
         if (ev.reshaped && list && at > 0) {
           const now = [...list.querySelectorAll('.fs-user:not(.later)')];
-          now.forEach((u, i) => u.classList.toggle('main', i === 0));
+          now.forEach((u, i) => { u.classList.toggle('main', i === 0); u.dataset.state = i === 0 ? 'main' : 'kept'; });
           const norm = t => String(t || '').trim().toLowerCase();
           const kept = new Set(now.map(u => norm(u.textContent)));
           for (const e of seen.slice(0, at)) if (e.type === 'sketch.user' && !kept.has(norm(e.label)) && !list.querySelector(`.fs-user.later[data-user="${CSS.escape(e.id || '')}"]`)) {
-            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
+            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.state = 'later'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
           }
         }
         emit('first.settled', { askId: ev.askId, decided: ev.decided });
@@ -1136,6 +1206,7 @@
       case 'propose.error':
         status(`the team stopped: ${ev.error || 'error'}`);
         if (teamStep) { stepEnd(teamStep, { status: 500 }); teamStep = null; }
+        if (source === 'live') teamFailed('a model call failed');
         break;
       case 'build.step':
         if (BYOC.beat < 8) stage(8);
@@ -1173,7 +1244,7 @@
   let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
-  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
+  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
   // Her paper name tag. One component with the DIY name tag (character-card), so voice, swaps and the gallery carry on.
   function openPaper() {
     if (!setup) return;
@@ -1187,30 +1258,60 @@
       <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
         <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
         <div class="pick-options" data-slot="options">
-          <button type="button" class="pick-option" data-pick="product" data-slot="option" aria-pressed="true">Product</button>
-          ${['design', 'research', 'engineering', 'data', 'strategy'].map(k => `<button type="button" class="pick-option" data-pick="${k}" data-slot="option" aria-pressed="false">${CRAFT_LABEL[k]}</button>`).join('')}
-          <button type="button" class="pick-option" data-pick="craft" data-slot="option" aria-pressed="false">Your own craft</button>
+          <button type="button" class="pick-option" data-pick="product" data-slot="option" data-state="picked" aria-pressed="true">Product</button>
+          ${['design', 'research', 'engineering', 'data', 'strategy'].map(k => `<button type="button" class="pick-option" data-pick="${k}" data-slot="option" data-state="idle" aria-pressed="false">${CRAFT_LABEL[k]}</button>`).join('')}
+          <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>`;
+      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>
+      <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
+      <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
-      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
     });
+    // The click path, as well as Enter: "Make my tag", then "Meet your team" once it's made; "Try again" after a failure.
+    $('.nt-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); introDone(); });
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
   // traits, maybe a superpower, each swappable with a click (builder 6's POST /api/name-tag, as on the craft seat).
+  // What the card is doing, always visible (never silence): 'thinking' within a frame of Enter, 'slow' after a while,
+  // 'failed' with a plain line and Try again. Hooks: [data-slot="status"][data-state], [data-slot="make"].
+  const TAG_LIMIT_MS = 25000, TAG_SLOW_MS = 6000;
+  function tagStatus(c, state, text, button) {
+    const st = $('.nt-status', c), mk = $('.nt-make', c);
+    if (st) { st.dataset.state = state; st.textContent = text || ''; }
+    if (mk) {
+      mk.textContent = button || 'Make my tag'; mk.disabled = state === 'thinking' || state === 'slow';
+      mk.dataset.state = state === 'failed' ? 'retry' : state === 'done' ? 'meet' : (state === 'thinking' || state === 'slow') ? 'busy' : 'make';
+    }
+  }
   async function makeCharacter(c, said) {
     c.dataset.state = 'thinking';
-    let r = null;
-    try { r = await BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }); } catch { r = null; }
+    let r = null, failed = false;
+    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'thinking') tagStatus(c, 'slow', 'Still making your name tag… the team is warming up.'); }, TAG_SLOW_MS);
+    try {
+      r = await Promise.race([
+        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }),
+        new Promise((_, no) => setTimeout(() => no(new Error('timeout')), TAG_LIMIT_MS)),
+      ]);
+    } catch { failed = true; r = null; }
+    clearTimeout(slow);
     if (introCard !== c) return;
+    // Nothing usable back (an error, a timeout, or no title and no traits): say so plainly, and let her try again.
+    if (failed || !r || (!r.title && !(Array.isArray(r.traits) && r.traits.length))) {
+      c.dataset.state = 'asking';
+      const inp = $('#intro-input', c); if (inp) { inp.readOnly = false; inp.focus(); }
+      tagStatus(c, 'failed', 'The team couldn’t make your name tag just now. Press Enter or Try again.', 'Try again');
+      return;
+    }
+    tagStatus(c, 'done', '', 'Meet your team');
     const cur = { craft: INFO.product.name, title: r?.title || '', traits: Array.isArray(r?.traits) ? r.traits.slice(0, 3) : [], superpower: r?.superpower || '',
       loves: said, alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
     c._char = cur;
@@ -1240,8 +1341,9 @@
     const raw = inp.value.trim();
     if (raw && c.dataset.state === 'asking') {
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
+      tagStatus(c, 'thinking', 'The team is making your name tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro' }) || raw).trim() || raw; } catch { said = raw; } }
+      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
@@ -1406,6 +1508,7 @@
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
+    clearTimeout(teamSlowTimer); teamStatus('idle', '');
     for (const s of SEATS) {
       el.seat[s].classList.remove('filled'); el.seat[s].dataset.state = 'empty';
       el.seat[s].querySelector('.card')?.remove();

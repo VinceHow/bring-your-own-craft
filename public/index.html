@@ -35,7 +35,7 @@
   <div class="seat seat-engineering" data-seat="engineering" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Engineering</div></div>
   <div class="seat seat-product" data-seat="product" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Product</div></div>
   <!-- The setup (room.js): her name tag on paper, then the team one by one; the room stays hidden until the reveal -->
-  <section id="setup" class="setup" data-component="setup" data-step="nametag" aria-label="Before the room"><div class="setup-stage" id="setup-stage" data-slot="stage"></div></section>
+  <section id="setup" class="setup" data-component="setup" data-step="nametag" data-state="nametag" aria-label="Before the room"><div class="setup-stage" id="setup-stage" data-slot="stage"></div></section>
 
   <!-- Teammates' small sheets, one in front of each seat -->
   <section class="mini-sheet" data-sheet="design" hidden></section>
@@ -61,6 +61,7 @@
     <form id="her-form" class="her-form" autocomplete="off" data-component="her-idea" data-state="asking">
       <input id="her-input" class="her-input" type="text" spellcheck="false" placeholder="Write the idea">
       <span class="her-hint" id="her-hint">Enter to write it down</span>
+      <button type="button" class="team-go" id="team-go" data-component="team-go" data-slot="team-go" hidden>Team, go →</button>
     </form>
   </section>
 

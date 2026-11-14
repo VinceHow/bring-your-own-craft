@@ -32,7 +32,7 @@
     "regulars": true,
     "regularsFirst": true,
     "waitlist": true,
-    "phone": true,
+    "phone": false,
     "remember": true,
     "oneTapCancel": true,
     "cancelReason": true
