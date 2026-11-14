@@ -1,0 +1,116 @@
+@@@name
+Cut paper collage
+@@@lede
+Coloured papers torn soft and laid one over another, each teammate in their own ink, cream paper for every word.
+@@@css
+:root {
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #33251C; --ink-2: #5F4A3B; --ink-3: #7F6A58;
+  --cream: #FBF4E6; --paper2: #F1E6D0; --kraft: #C9A77E; --kraft-2: #D9BE98; --bark: #3E2C21;
+  --mika: #44629A; --noor: #CF6A42; --theo: #7EA88C; --ines: #C69238; --bo: #E3BE45; --her: #C2627A; --her-deep: #9C4259;
+  --mika-soft: #D8E0EF; --noor-soft: #F5D8CA; --theo-soft: #DAEADF; --ines-soft: #F1E1C0; --bo-soft: #F7EABD; --her-soft: #F4D5DD;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+@@@css2
+.v-parts { background: #E9DCC4 var(--grain); }
+/* each piece is two papers: a coloured one behind, a cream one on top. The edges are torn soft by an SVG filter;
+   the words sit on the cream, never on a torn edge. */
+.mat { position: relative; isolation: isolate; background: none; transition: translate .18s cubic-bezier(.16,1,.3,1), scale .18s cubic-bezier(.16,1,.3,1); }
+.abs.mat { position: absolute; }
+.lay { position: absolute; inset: 0; z-index: -1; border-radius: var(--r, 18px); pointer-events: none; }
+.lay.front { background: var(--front, var(--cream)) var(--grain); filter: url(#deckle) drop-shadow(1px 1.5px 0 rgba(50,30,15,.22)) drop-shadow(3px 6px 8px rgba(50,30,15,.16)); }
+.lay.back { background: var(--back, var(--kraft)) var(--grain); filter: url(#deckle2) drop-shadow(1px 1.5px 0 rgba(50,30,15,.2)); translate: var(--bx, -5px) var(--by, 5px); rotate: var(--br, -1.2deg); }
+.lay.back2 { background: var(--back2) var(--grain); filter: url(#deckle2); translate: var(--b2x, 5px) var(--b2y, 7px); rotate: 1.4deg; }
+.lay.back3 { background: var(--back3) var(--grain); filter: url(#deckle2); translate: 10px 10px; rotate: 2.4deg; }
+button.mat:hover, .note:hover, .decision:hover { translate: 0 -2px; }
+button.mat:active { scale: .97; translate: 0 0; }
+.ink i { display: block; height: 54px; width: 54px; border-radius: 50%; background: var(--c) var(--grain); filter: url(#deckle2) drop-shadow(1px 2px 0 rgba(50,30,15,.22)); }
+.pill { --r: 999px; --back: var(--c); --bx: -3px; --by: 3px; --br: -1deg; }
+.pill .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--c) var(--grain); filter: url(#deckle2); flex: none; }
+.pill .agent { border-left: 1px solid rgba(51,37,28,.18); }
+.pill.her { --front: var(--her); --back: var(--her-deep); color: #fff; }
+.pill.her .dot { background-color: var(--cream); color: var(--her-deep); display: grid; place-items: center; font: 500 14px/1 var(--serif); filter: none; }
+.pill.her .agent { color: rgba(255,255,255,.95); border-color: rgba(255,255,255,.45); font: italic 400 14px/1 var(--serif); }
+.pill.invite { --back: var(--her); color: var(--her-deep); }
+.pill.is-open { --bx: -4px; --by: 5px; }
+.pill.is-open .lay.back { box-shadow: 0 0 0 3px var(--c); }
+.bubble { --r: 20px 22px 22px 8px; --back: var(--c); --bx: -6px; --by: -5px; --br: -1.5deg; }
+.note { --r: 20px; --back: var(--c); --bx: 4px; --by: -7px; --br: 1.8deg; }
+.decision { --r: 22px; --back: var(--bo); --back2: var(--ines); --back3: var(--mika); --bx: 3px; --by: 4px; --br: .8deg; }
+.decision .marks i { box-shadow: 0 0 0 2px var(--cream); filter: url(#deckle2); }
+.pop { --r: 26px; --back: var(--c); --bx: -7px; --by: 7px; --br: -1.2deg; }
+.pop .head .dot { filter: url(#deckle2); }
+.sheet { --r: 28px; --back: var(--her); --bx: -6px; --by: 6px; --br: -.8deg; }
+.tabs { border-radius: 999px; background: var(--kraft-2) var(--grain); }
+.tabs span { border-radius: 999px; }
+.tabs span.on { background: var(--cream) var(--grain); color: var(--ink); box-shadow: 1px 1.5px 0 rgba(50,30,15,.22); }
+.btn { --r: 999px; --front: var(--bark); --back: var(--kraft); color: var(--cream); --bx: -3px; --by: 4px; }
+.btn.quiet { --front: var(--cream); --back: var(--kraft); color: var(--ink); }
+.tag { --r: 999px; --bx: -2px; --by: 3px; --back: var(--kraft-2); }
+.tag.replay { --front: #EBCB72; --back: var(--ines); color: #45320E; }
+.doc { --r: 40px; --back: var(--kraft); --bx: -10px; --by: 10px; --br: -.6deg; }
+.doc .q { isolation: isolate; }
+.doc .q::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 22px; background: var(--paper2) var(--grain); filter: url(#deckle2); }
+.doc .said::before { content: ''; position: absolute; left: 0; top: 2px; bottom: 2px; width: 6px; border-radius: 4px; background: var(--her) var(--grain); filter: url(#deckle2); }
+.doc .ta { --r: 22px; --front: var(--her-soft); --back: var(--her); --bx: 5px; --by: -5px; --br: 1deg; }
+.step { border-radius: 12px; background: var(--cream) var(--grain); box-shadow: 1px 1.5px 0 rgba(50,30,15,.2); }
+.step.hers { background-color: var(--her-soft); box-shadow: 1px 1.5px 0 rgba(50,30,15,.2), inset 0 -3px 0 rgba(194,98,122,.35); }
+@@@defs
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- torn-soft edges: low-frequency wobble plus a fine fibrous fray -->
+  <filter id="deckle" x="-4%" y="-8%" width="108%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="5" result="w"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="8" result="f"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="5" xChannelSelector="R" yChannelSelector="G" result="a"/>
+    <feDisplacementMap in="a" in2="f" scale="2.2" xChannelSelector="G" yChannelSelector="R"/>
+  </filter>
+  <filter id="deckle2" x="-8%" y="-12%" width="116%" height="124%">
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="12" result="w"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="3" result="f"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="6" xChannelSelector="R" yChannelSelector="G" result="a"/>
+    <feDisplacementMap in="a" in2="f" scale="2.4" xChannelSelector="G" yChannelSelector="R"/>
+  </filter>
+</svg>
+@@@js
+// Each piece is laid as paper: the coloured sheet goes down first, the cream sheet slides over it a beat later and
+// settles a few pixels off, so the colour peeks out. That small overlap is the signature.
+const view = c.querySelector('.v-' + c.dataset.view);
+const layers = new Map();
+view.querySelectorAll('.mat').forEach(el => {
+  // paint order: the deepest coloured sheet first, the cream sheet last, the words above them all
+  const ls = [], first = el.firstChild;
+  ['back3', 'back2', 'back', 'front'].forEach(k => {
+    if ((k === 'back2' || k === 'back3') && !el.matches('.decision')) return;
+    const s = document.createElement('span'); s.className = 'lay ' + k; el.insertBefore(s, first); ls.push(s);
+  });
+  layers.set(el, ls);
+});
+const lay = (el, delay = 0) => {
+  const ls = layers.get(el); if (!ls) return;
+  const backs = ls.filter(s => !s.classList.contains('front')), front = ls.find(s => s.classList.contains('front'));
+  const kids = [...el.children].filter(k => !k.classList.contains('lay'));
+  const from = el.matches('.note, .pop') ? [-60, -24] : [-40, 18];
+  backs.forEach((b, i) => Motion.animate(b, { opacity: [0, 1], x: [from[0], 0], y: [from[1], 0] }, { type: 'spring', visualDuration: .55, bounce: 0, delay: delay + i * .1 }));
+  Motion.animate(front, { opacity: [0, 1], x: [from[0] * .7, 0], y: [from[1] * .7, 0] }, { type: 'spring', visualDuration: .55, bounce: 0, delay: delay + .18 + backs.length * .08 });
+  kids.forEach(k => Motion.animate(k, { opacity: [0, 1] }, { duration: .4, delay: delay + .45 + backs.length * .08 }));
+  el.style.opacity = 1;
+};
+if (!still) {
+  const all = [...view.querySelectorAll('.mat')].filter(el => !el.parentElement.closest('.mat'));
+  all.forEach(el => { el.style.opacity = 0; });
+  view.querySelectorAll('.mat').forEach(el => [...el.children].forEach(k => { if (!k.classList.contains('lay')) k.style.opacity = 0; }));
+  view.querySelectorAll('.lay').forEach(s => s.style.opacity = 0);
+  const pick = s => [...view.querySelectorAll(s)];
+  const seq = (els, gap) => els.forEach((el, i) => { lay(el, i * gap); el.querySelectorAll('.mat').forEach(m => lay(m, i * gap + .5)); });
+  if (c.dataset.view === 'room') {
+    (async () => {
+      const w = ms => new Promise(r => setTimeout(r, ms));
+      await w(400); seq(pick(':scope > .pill:not(.her)'), .12);
+      await w(1000); seq(pick('.room-sheet .mat, .room-dec .mat'), .45);
+      await w(1200); seq(pick(':scope > .bubble'), 0);
+      await w(1100); seq(pick(':scope > .pill.her, :scope > .note'), .45);
+      await w(1300); seq(pick('.abs > .pop'), 0);
+      seq(pick(':scope > .tag'), .1);
+    })();
+  } else seq(all, .07);
+}
