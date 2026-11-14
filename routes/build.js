@@ -5,7 +5,7 @@ import path from 'node:path';
 import { logEvent, readEvents, RUNS_DIR } from '../lib/events.js';
 import { sendJson } from '../lib/http.js';
 import { scrub } from '../lib/model.js';
-import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
+import { fillPage, gatherRun, pickTemplate, loadTemplate } from '../lib/fill.js';
 import { dealDesign } from '../lib/design.js';
 import { decideRest, loadRest } from '../lib/select.js';
 import { revisitJoint, jointSettled, revisitSettled } from '../lib/joint.js';
@@ -67,19 +67,51 @@ export async function buildRun(run, { call } = {}) {
   const r = await fillPage({ run, outDir: path.join(dir, 'page'), ...g, decided, call, design: design.skipped ? null : design, onStep: step });
   const url = `/runs/${run}/page/`;
   const ms = Date.now() - t0;
-  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template });
+  // The app button (public/room.js): which version this is, and what changed, in plain words (from the page's switches).
+  const prev = events.filter(e => e.type === 'build.done').at(-1);
+  const switches = r.slots?.switches || {};
+  const version = events.filter(e => e.type === 'build.done').length + 1;
+  const changes = whatChanged(switches, prev?.switches || loadTemplate(r.template).defaults.switches, r.slots?.words || {}, !!prev);
+  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template, version, switches, changes });
   return { url, ms, decideMs, fillMs: r.modelMs, template: r.template, decided };
+}
+
+// What a version changed, in her words' register: switches that differ from the last version (or, for v1, from the
+// template's defaults), at most three. Never her text, only the cut-off line the page itself shows.
+const SAY = {
+  phone: ['phone field', 'no phone field'], remember: ['remembers regulars', 'remembers no one'],
+  cancelReason: ['asks why on cancel', 'no reason asked to cancel'], oneTapCancel: ['one-tap cancel', 'cancel by asking'],
+  standingOrder: ['a standing weekly order', 'no standing order'], cutoff: ['a clear cut-off', 'no cut-off'],
+  regularsFirst: ['regulars’ usual first', 'the bread first'], regulars: ['a regulars’ corner', 'no regulars’ corner'],
+  waitlist: ['a waitlist for full classes', 'no waitlist'],
+};
+export function whatChanged(now, before, words = {}, rebuilt = false) {
+  const out = [];
+  for (const k of Object.keys(SAY)) {
+    if (!(k in now) || now[k] === before?.[k]) continue;
+    out.push(k === 'cutoff' && now[k] && words.cutoffLine ? String(words.cutoffLine).slice(0, 40) : SAY[k][now[k] ? 0 : 1]);
+  }
+  return out.length ? out.slice(0, 3) : [rebuilt ? 'same calls, fresh words' : 'the template as the team agreed it'];
 }
 
 // Built pages are served from RUNS_DIR (server.js's static /runs/ reads <repo>/runs, which misses a RUNS_DIR set
 // elsewhere, as e2e does). Same path rules: nothing outside RUNS_DIR.
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.md': 'text/plain; charset=utf-8' };
+// Only a run's built app: /runs/<run id>/page/... and the page's own kinds of file. Nothing else in a run folder (its
+// event log, taste.md, profile, the build's slots.json) is ever served, and nothing outside that run's page folder.
+const PAGE_FILES = new Set(['.html', '.js', '.css', '.svg', '.woff2', '.webp', '.jpg', '.png']);
 function servePage(req, res, { url }) {
-  const rel = decodeURIComponent(url.pathname).slice('/runs/'.length);
+  let rel;
+  try { rel = decodeURIComponent(url.pathname).slice('/runs/'.length); } catch { res.writeHead(400); return res.end(); }
+  const [run, folder] = rel.split('/');
+  if (!RUN_ID.test(run || '') || run.startsWith('.')) { res.writeHead(403); return res.end(); } // traversal or a bad id
+  if (folder !== 'page') { res.writeHead(404); return res.end('not found'); }
+  const root = path.join(RUNS_DIR, run, 'page');
   let f = path.normalize(path.join(RUNS_DIR, rel));
-  if (!f.startsWith(RUNS_DIR + path.sep)) { res.writeHead(403); return res.end(); }
+  if (f !== root && !f.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
   if (fs.statSync(f, { throwIfNoEntry: false })?.isDirectory()) f = path.join(f, 'index.html');
+  if (!PAGE_FILES.has(path.extname(f).toLowerCase())) { res.writeHead(404); return res.end('not found'); }
   fs.readFile(f, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('not found'); }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream' });
