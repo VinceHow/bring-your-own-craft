@@ -176,3 +176,11 @@ test('the build passes the team\'s agreement to her page as agreed, and re-decid
   const agreedIn = readEvents(run).some(e => e.type === 'build.step') && JSON.stringify(filled ?? '').includes('Whether payment is taken online');
   assert.ok(agreedIn, 'the agreed decision reached the fill');
 });
+
+test('a decision her file already decides is hers: never talked out by the team', async () => {
+  const run = newRun();
+  logEvent(run, 'decided', { id: 'c2', seat: 'strategy', decision: CANDS[1].decision, choice: 'A way', cites: 'L2', round: 'select' });
+  const out = await J.runJoint(run, { callModel: fakeModel() });
+  assert.ok(!out.some(a => a.candidateId === 'c2'));
+  assert.deepEqual(out.map(a => a.candidateId).sort(), ['c1', 'c5']);
+});
