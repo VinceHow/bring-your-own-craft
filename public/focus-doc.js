@@ -27,8 +27,10 @@
       <div class="fd-work" data-slot="work"></div>
       <h2 class="fd-question" data-slot="question"></h2>
       <div class="fd-said" data-component="her-answer" data-state="speaking"></div>
+      <ol class="fd-pieces" data-component="pieces"></ol>
       <form class="fd-form" autocomplete="off">
         <textarea class="fd-input" data-slot="input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Take your time; send when you’re ready."></textarea>
+        <button type="button" class="fd-add" data-slot="add-piece">Add this</button>
         <button type="submit" class="fd-send" data-slot="send">Send</button>
       </form>
     </div>
@@ -126,7 +128,7 @@
     $('.fd-said').innerHTML = ''; $('.fd-said').classList.remove('speaking');
     $('.fd-chimes').innerHTML = ''; $('.fd-team').textContent = '';
     $('.fd-brief').hidden = true; doc.querySelectorAll('.brief-text').forEach(p => { p.textContent = ''; p.contentEditable = 'false'; });
-    $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay;
+    $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay; clearPieces();
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
     $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
     doc.hidden = false;
@@ -152,50 +154,88 @@
   const briefShown = () => !$('.fd-brief').hidden;
 
   // ---- her piece: words land on the document ----------------------------------------------------
-  let rawSaid = '', tidySaid = '';
   function landSaid(text) {
     const said = $('.fd-said');
     said.innerHTML = '';
-    rawSaid = text; tidySaid = '';
     const q = h('blockquote', 'fd-words', text); q.dataset.slot = 'words';
     said.appendChild(q); said.dataset.state = 'landed'; doc.dataset.state = 'answered';
     if (M) M.animate(q, { y: [10, 0] }, SPRING);
   }
-  // Her raw words land first; the tidy (answer.tidy, lib/tidy.js) swaps in when it's ready. She can look at what
-  // she said, or keep her own words. Hooks only (data-component / data-slot / data-state); the look is design's.
-  function landTidy(text) {
-    const said = $('.fd-said'), q = said.querySelector('[data-slot="words"]');
-    if (!q || !text) return;
-    tidySaid = text;
-    q.textContent = text; said.dataset.state = 'tidied';
-    const bar = h('div', 'fd-tidy'); bar.dataset.component = 'tidy'; bar.dataset.state = 'tidy';
-    const see = h('button', 'fd-tidy-see', 'See what you said'); see.type = 'button'; see.dataset.slot = 'see-said';
-    const mine = h('button', 'fd-tidy-mine', 'Use mine'); mine.type = 'button'; mine.dataset.slot = 'use-mine';
-    see.addEventListener('click', () => {
-      const showing = bar.dataset.state === 'raw-shown';
-      q.textContent = showing ? tidySaid : rawSaid;
-      bar.dataset.state = showing ? 'tidy' : 'raw-shown';
-      see.textContent = showing ? 'See what you said' : 'See the tidy';
-    });
-    mine.addEventListener('click', async () => {
-      const toMine = bar.dataset.state !== 'mine';
-      q.textContent = toMine ? rawSaid : tidySaid;
-      bar.dataset.state = toMine ? 'mine' : 'tidy';
-      said.dataset.state = toMine ? 'mine' : 'tidied';
-      mine.textContent = toMine ? 'Use the tidy' : 'Use mine';
-      see.hidden = toMine;
-      if (cur) B.api(`/api/run/${encodeURIComponent(B.run)}/tidy`, { askId: cur.id, use: toMine ? 'mine' : 'tidy' }, { step: false }).catch(() => {});
-    });
-    bar.append(see, mine);
-    said.appendChild(bar);
-    if (M) M.animate(q, { opacity: [0.4, 1] }, SPRING);
+
+  // ---- capture: her answer in pieces (lib/tidy.js) ------------------------------------------------
+  // Each spoken take (or a typed one she adds) is a piece. It shows raw at once; its tidy swaps in when it lands
+  // (answer.piece.tidy). Per piece: "See what you said", "Use mine", redo, remove. While she captures, the team is
+  // out of view and makes no calls; Send gathers the pieces (tidy where ready, raw where not) and never waits.
+  // Hooks only (data-component / data-slot / data-state); the look is design's.
+  let pieces = [], pieceN = 0;
+  const pieceApi = body => B.api(`/api/run/${encodeURIComponent(B.run)}/piece`, body, { step: false });
+  const shownText = p => (p.use === 'mine' || !p.tidy) ? p.raw : p.tidy;
+  function capturing(on) {
+    doc.dataset.capture = on ? 'on' : 'off';
+    $('.fd-side').hidden = !!on;
   }
-  B.on('answer.tidy', ev => { if (forCur(ev) && rawSaid) landTidy(ev.text); });
+  function clearPieces() {
+    pieces = []; const ol = $('.fd-pieces'); if (ol) ol.innerHTML = '';
+    capturing(false);
+  }
+  function pieceState(p) {
+    const s = !p.tidy ? 'raw' : p.use === 'mine' ? 'mine' : p.showRaw ? 'raw-shown' : 'tidy';
+    p.li.dataset.state = s;
+    p.words.textContent = s === 'tidy' ? p.tidy : p.raw;
+    p.see.hidden = !p.tidy || p.use === 'mine';
+    p.see.textContent = p.showRaw ? 'See the tidy' : 'See what you said';
+    p.mine.hidden = !p.tidy;
+    p.mine.textContent = p.use === 'mine' ? 'Use the tidy' : 'Use mine';
+  }
+  function dropPiece(p) {
+    pieces = pieces.filter(x => x !== p); p.li.remove();
+    if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
+    if (!pieces.length) capturing(false);
+  }
+  function addPiece(text) {
+    text = String(text || '').trim();
+    if (!text || !cur || sent || B.replay) return;
+    const p = { id: `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: '', use: 'tidy', showRaw: false, askId: cur.id };
+    p.li = h('li', 'fd-piece'); p.li.dataset.component = 'piece'; p.li.dataset.piece = p.id;
+    p.words = h('span', 'fd-piece-words', text); p.words.dataset.slot = 'words';
+    const btn = (slot, label) => { const b = h('button', `fd-piece-${slot}`, label); b.type = 'button'; b.dataset.slot = slot; return b; };
+    p.see = btn('see-said', 'See what you said'); p.mine = btn('use-mine', 'Use mine');
+    const redo = btn('redo', 'Redo'), rm = btn('remove', 'Remove');
+    p.see.addEventListener('click', () => { p.showRaw = !p.showRaw; pieceState(p); });
+    p.mine.addEventListener('click', () => {
+      p.use = p.use === 'mine' ? 'tidy' : 'mine'; p.showRaw = false; pieceState(p);
+      if (cur) pieceApi({ askId: cur.id, pieceId: p.id, use: p.use }).catch(() => {});
+    });
+    // Redo: the piece goes (its pending tidy is ignored server-side) and its words come back to the field to fix or re-say.
+    redo.addEventListener('click', () => { dropPiece(p); const f = $('.fd-input'); f.value = p.raw; f.focus(); f.dispatchEvent(new Event('input', { bubbles: true })); });
+    rm.addEventListener('click', () => dropPiece(p));
+    p.li.append(p.words, p.see, p.mine, redo, rm);
+    $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
+    capturing(true);
+    if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
+    pieceApi({ askId: cur.id, pieceId: p.id, text }).catch(() => {}); // a failed post still sends raw at Send
+  }
+  B.on('answer.piece.tidy', ev => {
+    const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
+    if (!p || sent || ev.raw !== p.raw || !ev.text) return;
+    p.tidy = ev.text; pieceState(p);
+    if (M) M.animate(p.words, { opacity: [0.4, 1] }, SPRING);
+  });
+  $('.fd-add').addEventListener('click', () => {
+    const f = $('.fd-input'); addPiece(f.value); f.value = ''; f.focus();
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  // A spoken take becomes a piece as soon as its words arrive (public/voice.js fires byoc:voice on the field).
+  $('.fd-input').addEventListener('byoc:voice', e => {
+    const f = e.target; addPiece(e.detail && e.detail.text); f.value = '';
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
   $('.fd-input').addEventListener('input', e => {
     // As she speaks or types, the words show on the document.
     const t = e.target.value.trim();
     $('.fd-said').classList.toggle('speaking', !!t);
-    if (!sent) doc.dataset.state = t ? 'speaking' : 'asking';
+    if (!sent) doc.dataset.state = t || pieces.length ? 'speaking' : 'asking';
   });
   $('.fd-input').addEventListener('keydown', e => {
     e.stopPropagation();
@@ -206,17 +246,22 @@
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
   async function send() {
     const text = $('.fd-input').value.trim();
-    if (!text || !cur || sent) return;
+    if ((!text && !pieces.length) || !cur || sent) return;
     sent = true;
-    const ask = cur;
-    landSaid(text);
+    const ask = cur, mine = pieces.filter(p => p.askId === ask.id);
+    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
+    const body = mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text } : { askId: ask.id, text };
+    landSaid([...mine.map(shownText), text].filter(Boolean).join(' '));
     $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
     $('.fd-said').classList.remove('speaking');
-    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, { askId: ask.id, text }, { step: false }); }
+    const held = pieces; pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false }); }
     catch (e) {
       if (cur !== ask) return;
       sent = false; $('.fd-form').hidden = false; $('.fd-input').value = text;
+      pieces = held; for (const p of held) $('.fd-pieces').appendChild(p.li); if (held.length) capturing(true);
       $('.fd-team').textContent = `Not sent (${e.status || e.message}). Enter to try again.`;
+      $('.fd-side').hidden = false;
     }
   }
 

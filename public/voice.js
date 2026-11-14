@@ -145,6 +145,8 @@
         else { // a data-voice field: typeInto only knows her card and sheet, so the words go straight in, as typing would
           if ('value' in field) field.value = text; else field.textContent = text;
           field.dispatchEvent(new Event('input', { bubbles: true }));
+          // One spoken take, for a field that keeps takes as pieces (the focus doc, public/focus-doc.js).
+          field.dispatchEvent(new CustomEvent('byoc:voice', { detail: { text } }));
         }
         // Caret at the end, so she can fix a word and press Enter.
         try { field.setSelectionRange(field.value.length, field.value.length); } catch {}
