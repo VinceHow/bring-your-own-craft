@@ -134,32 +134,6 @@ body.stage .meter-counts { font-size: 15px; }
 #room .file-card:has(.sounds-like:not([hidden])) { height: 284px; }
 #room .sounds-like { padding: var(--s2) 10px; font-size: 13.5px; line-height: 1.4; margin-bottom: var(--s2); }
 
-/* ---- the gem (public/gem.js): the idea as a stone on the table, cut face by face in the seat inks ---- */
-#room .gem { position: absolute; left: var(--gem-x, 1052px); top: var(--gem-y, 770px); z-index: 14;
-  display: flex; flex-direction: row; align-items: center; gap: var(--s2); pointer-events: none; }
-#room .gem[hidden] { display: none; }
-.gem-stone { width: 124px; height: 124px; flex: none; overflow: visible; transform: rotate(-4deg); }
-.gem-shadow polygon { fill: var(--ink); }
-.gem-face { fill: color-mix(in srgb, var(--ink) calc(var(--cut, 0) * 100%), #CFC8BA);
-  stroke: #141414; stroke-width: 2; stroke-linejoin: round; }
-.gem-facet { fill: #FBF9F4; pointer-events: none; }
-.gem-face[data-seat="design"] { --ink: #0078BF; }
-/* rough: the stone is uncut paper-grey with a printed hatch; it loses the hatch as faces are cut */
-.gem-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* for screen readers; the stone speaks for itself */
-.gem-label:empty { display: none; }
-/* the bars: a quiet legend under the gem; on their own (?gem=bars) they are the whole thing */
-.gem-bars { list-style: none; margin: 0; padding: 0; display: none; width: 100%; }
-.gem[data-mode="bars"] { padding: var(--s2) var(--s3); background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
-.gem[data-mode="bars"] .gem-bars { display: flex; gap: 6px; align-items: flex-end; }
-.gem-bars li { display: flex; flex-direction: column; align-items: center; gap: 3px; font: 600 10px/1 var(--mono); }
-.gem-bar-name { width: 18px; overflow: hidden; white-space: nowrap; text-align: center; }
-.gem-bar { width: 18px; height: 64px; border: 2px solid #141414; border-radius: 2px; background: var(--paper); overflow: hidden; display: flex; align-items: flex-end; }
-.gem-bar i { display: block; width: 100%; height: 100%; background: var(--ink); transform-origin: center bottom; transform: scaleY(0); }
-/* the symphony: the stone settles flat, every face in full ink; then it is her page */
-.gem[data-stage="symphony"] .gem-stone { transform: rotate(0deg) scale(1.06); transition: transform 900ms cubic-bezier(.2,.8,.2,1); }
-.gem[data-stage="page"] { transform: translateY(-40px) scale(0); transform-origin: left center; transition: transform 700ms cubic-bezier(.5,0,.75,0) 600ms; }
-@media (prefers-reduced-motion: reduce) { .gem-stone { transition: none !important; } }
-
 /* ---- studio warmth: teammates' sheets are sketchpads (spiral rings along the top, a card back under the pad) ---- */
 :root { --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14'%3E%3Crect x='6' y='1' width='6' height='12' rx='3' fill='%23FBF9F4' stroke='%23141414' stroke-width='1.6'/%3E%3C/svg%3E");
   --pad-back: #D8CBB2; }
@@ -171,13 +145,13 @@ body.stage .meter-counts { font-size: 15px; }
 
 /* ---- studio: her focus time. While a check-in is open (#room.focus, set by the room), the other seats dim and
    hold still; her sheet, her seat, her file and the open check-in stay lit. No badge, count or timer anywhere. ---- */
-#room.focus .seat:not(.seat-product), #room.focus .mini-sheet, #room.focus .gem, #room.focus .tally {
+#room.focus .seat:not(.seat-product), #room.focus .mini-sheet, #room.focus .tally {
   opacity: .42 !important; filter: saturate(.45); transition: opacity 140ms linear, filter 140ms linear; }
-#room.focus .seat:not(.seat-product) *, #room.focus .mini-sheet *, #room.focus .gem * {
+#room.focus .seat:not(.seat-product) *, #room.focus .mini-sheet * {
   animation-play-state: paused !important; transition: none !important; }
 #room.focus .checkin-open { opacity: 1; filter: none; position: relative; z-index: 20; }
-#room .seat, #room .mini-sheet, #room .gem, #room .tally { transition: opacity 140ms linear, filter 140ms linear; }
-@media (prefers-reduced-motion: reduce) { #room .seat, #room .mini-sheet, #room .gem, #room .tally { transition: none; } }
+#room .seat, #room .mini-sheet, #room .tally { transition: opacity 140ms linear, filter 140ms linear; }
+@media (prefers-reduced-motion: reduce) { #room .seat, #room .mini-sheet, #room .tally { transition: none; } }
 
 /* ---- studio: the tray of waiting notes at her seat: a shallow paper tray, the notes resting slightly askew ---- */
 #room .tray { background: var(--pad-back); border: var(--line); border-radius: var(--r);
@@ -186,3 +160,26 @@ body.stage .meter-counts { font-size: 15px; }
 #room .tray > *:nth-child(2n) { transform: rotate(.9deg); }
 #room .tray > *:nth-child(3n) { transform: rotate(-.3deg); }
 #room .tray .badge, #room .tray .count { display: none; } /* nothing shows how many are waiting */
+
+/* ---- studio: Design's first-sketch user cards (first-sketch.js) as small index cards, slightly askew ---- */
+#room .fs-users { gap: var(--s3); }
+#room .fs-user { padding: 7px 10px 6px; font-weight: 600; box-shadow: 3px 3px 0 var(--ink); transform: rotate(-1deg); }
+#room .fs-user:nth-child(2n) { transform: rotate(1.2deg); }
+#room .fs-user:nth-child(3n) { transform: rotate(-.4deg); }
+#room .fs-who { color: var(--ink); font-weight: 600; }
+#room .fs-who::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: 0; background: var(--design); border: 1.5px solid var(--ink); border-radius: 2px; }
+#room .fs-tag { color: rgba(20,20,20,.78); }   /* 4.5:1 on the sheet */
+#room .fs-said { color: rgba(20,20,20,.82); }
+
+/* ---- studio: the guest chair. A stand-in for her customer, drawn as a dashed card so it never passes for a real
+   person: paper, a dashed ink border, a GUEST tag, and one reaction printed as a quote (never a chat bubble). ---- */
+#room .guest-card { background: var(--sheet); border: 2px dashed var(--ink); border-radius: var(--r); box-shadow: var(--shadow-sm);
+  padding: var(--s3) var(--s4) var(--s4); transform: rotate(1.4deg); font-family: var(--ui); color: var(--ink); max-width: 320px; }
+#room .guest-tag { display: inline-block; padding: 2px 7px 1px; font: 600 11px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  border: 1.5px dashed var(--ink); border-radius: 3px; background: var(--paper); }
+#room .guest-who { margin-top: var(--s2); font: 600 16px/1.25 var(--ui); }
+#room .guest-note { margin-top: 2px; font: 400 12.5px/1.3 var(--mono); color: rgba(20,20,20,.78); }
+#room .guest-says { margin-top: var(--s3); padding-left: var(--s3); border-left: 3px solid var(--ink); font: italic 400 18px/1.35 var(--ui); }
+#room .guest-says::before { content: '\201C'; } #room .guest-says::after { content: '\201D'; }
+body.stage #room .guest-says { font-size: 20px; }
+#room .fs-user.fs-in { animation-fill-mode: backwards; } /* the landing animation lets go, so the resting tilt shows */
