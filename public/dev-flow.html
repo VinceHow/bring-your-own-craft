@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow dev page</title>
+<style>
+  :root { --paper: #F2EEE6; --ink: #141414; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+  .bar { display: flex; gap: 10px; align-items: center; padding: 10px 24px; border-bottom: 2px solid var(--ink); font: 500 13px 'IBM Plex Mono', monospace; }
+  .bar b { font-family: 'Archivo Black', 'IBM Plex Sans', sans-serif; font-size: 15px; margin-right: 8px; }
+  .bar button, .bar input { font: inherit; border: 2px solid var(--ink); border-radius: 3px; background: #fff; padding: 4px 8px; }
+  .bar input { width: 260px; }
+  .dev { margin-left: auto; padding: 2px 6px; border: 2px solid var(--ink); }
+  main { padding: 18px 24px; }
+  .sheet { padding: 14px 18px 18px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); }
+  .sheet h2 { margin: 0 0 6px; font: 700 15px 'IBM Plex Mono', monospace; }
+  #sketches { margin-top: 18px; }
+  #sketches:empty { display: none; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <b>Flow dev page</b>
+  <input id="line" placeholder="Type a step, Enter">
+  <button id="journey">Her journey</button>
+  <button id="asks">Fork + pin</button>
+  <button id="sk">Sketches</button>
+  <span class="dev">DEV PAGE: fake room, sample asks</span>
+</div>
+<main>
+  <div class="sheet"><h2>What are we building today? A booking page for a small yoga studio.</h2><div id="her"></div></div>
+  <div class="sheet" id="sketches"></div>
+</main>
+<script>
+// A minimal stand-in for the room (piece 1). Lines go through the real parser on the server.
+// Answers and pins are only printed to the console here; nothing is logged.
+(function () {
+  const params = new URLSearchParams(location.search);
+  const lines = [];
+  window.BYOC = {
+    run: params.get('run') || 'dev-flow',
+    replay: false,
+    async api(path, body) {
+      if (path.endsWith('/line')) {
+        lines.push(body.text);
+        const r = await fetch('/api/flow/parse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lines }) });
+        return r.json();
+      }
+      if (path.endsWith('/sketches')) {
+        const r = await fetch('/api/sketches/' + encodeURIComponent(BYOC.run) + (params.has('fresh') ? '?fresh=1' : ''));
+        if (!r.ok) throw new Error((await r.json()).error);
+        return r.json();
+      }
+      console.log('[dev] would POST', path, body);
+      return path.endsWith('/pin') ? { soundsLike: '(dev page: no inference)' } : { ok: true };
+    },
+  };
+})();
+</script>
+<script src="flow.js"></script>
+<script src="sketches.js"></script>
+<script>
+(function () {
+  const her = document.getElementById('her');
+  BYOC.flow.mount(her);
+  const JOURNEY = ['classes', 'a class', 'confirm', 'booked', 'regulars → "Book your usual"'];
+  // Sample asks shaped like the contract's Ask. Not from a run: the selector (piece 3) makes the real ones.
+  const ASKS = [
+    { id: 'dev-1', seat: 'research', kind: 'fork', attachTo: 'n2', decision: 'When a class is full, what happens?',
+      options: ['Offer a waitlist', 'Show it as full'], recommendation: 'Offer a waitlist',
+      reason: 'Small studios fill their popular slots; a waitlist keeps the regular instead of sending them elsewhere.',
+      source: { title: 'sample finding (dev page placeholder)' }, cost: 'high', undoable: true, why: 'in her seat' },
+    { id: 'dev-2', seat: 'product', kind: 'pin', attachTo: 'n5', decision: 'How is a regular recognised?',
+      options: ['Remember this device', 'Sign in with email'], recommendation: 'Remember this device',
+      reason: 'No account to make; the second visit is one tap.', cost: 'low', undoable: true, why: 'in her seat' },
+  ];
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  async function journey() { for (const l of JOURNEY) { await BYOC.flow.addLine(l); await wait(220); } }
+  function asks() { ASKS.forEach((a, i) => setTimeout(() => BYOC.flow.showAsk(a), i * 250)); }
+  async function sketches() { await BYOC.sketches.load(document.getElementById('sketches')); }
+  document.getElementById('journey').onclick = journey;
+  document.getElementById('asks').onclick = asks;
+  document.getElementById('sk').onclick = sketches;
+  document.getElementById('line').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.value.trim()) { BYOC.flow.addLine(e.target.value); e.target.value = ''; }
+  });
+  window.dev = { journey, asks, sketches, ASKS };
+})();
+</script>
+</body>
+</html>
