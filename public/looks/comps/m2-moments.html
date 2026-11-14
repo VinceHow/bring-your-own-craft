@@ -86,28 +86,27 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
 .fd-work > .cap { position: absolute; left: 22px; top: 18px; font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-2); }
 .fd-work .stage { position: absolute; inset: 0; display: grid; place-items: center; }
 /* Noor's finding */
-.finding { position: relative; width: 680px; zoom: 1.12; padding: 32px 36px; border-radius: 28px; background: rgba(255,255,255,.82); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
-.finding .lab2 { display: flex; align-items: center; justify-content: space-between; font: 500 14px/1.2 var(--ip-sans); color: var(--ip-noor-t); }
-.finding .prep { font: 500 12px/1 var(--ip-sans); color: var(--ip-ink-2); padding: 5px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(84,58,38,.3); }
-.finding .big { margin-top: 14px; font: 400 32px/1.25 var(--ip-serif); }
-.finding .by { margin-top: 14px; font: italic 400 18px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
-.finding .src { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 10px 14px; border-radius: 16px; background: rgba(201,94,56,.09); color: var(--ip-noor-t); font: 500 15px/1.2 var(--ip-sans); text-decoration: none; width: fit-content; }
+.finding { position: relative; width: 800px; padding: 40px 46px 42px; border-radius: 28px; background: rgba(255,255,255,.82); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
+.finding .lab2 { display: flex; align-items: center; justify-content: space-between; font: 500 16px/1.2 var(--ip-sans); color: var(--ip-noor-t); }
+.finding .prep { font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); padding: 5px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(84,58,38,.3); }
+.finding .big { margin-top: 18px; font: 400 34px/1.25 var(--ip-serif); }
+.finding .by { margin-top: 16px; font: italic 400 20px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+.finding .src { display: flex; align-items: center; gap: 8px; margin-top: 26px; padding: 12px 16px; border-radius: 16px; background: rgba(201,94,56,.09); color: var(--ip-noor-t); font: 500 18px/1.2 var(--ip-sans); text-decoration: none; width: fit-content; }
 .finding .src span { color: var(--ip-ink-2); font-weight: 400; }
 .ph { padding: 0 4px; border-radius: 6px; box-shadow: inset 0 0 0 1.2px rgba(84,58,38,.35); background: rgba(84,58,38,.05); }
 /* Mika's rough journey, in words: short timed lines, small ink step marks down the side in her blue crayon */
-.fd-work[data-kind="journey-words"] .stage { padding-right: 300px; }
-.jw { position: relative; width: 620px; padding: 30px 36px 32px 30px; border-radius: 28px; background: #FFFCF6 var(--ip-tooth); box-shadow: inset 0 0 0 1px rgba(84,58,38,.16); }
-.jw .lab2 { font: 500 14px/1.2 var(--ip-sans); color: var(--ip-mika-t); margin: 0 0 18px 50px; }
-.jw-steps { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
-.jw-rail { position: absolute; left: 12px; top: 18px; bottom: 18px; width: 3px; border-radius: 2px; background: var(--ip-mika); opacity: .5; }
-.jw-step { position: relative; display: grid; grid-template-columns: 50px 1fr; align-items: start; }
-.jw-step .mk { position: relative; width: 26px; height: 26px; margin-top: 10px; border-radius: 50%; background: var(--ip-mika); -webkit-mask: var(--ip-wax) 0 0 / 60px 60px; mask: var(--ip-wax) 0 0 / 60px 60px; }
-.jw-time { display: block; font: 500 14px/1 var(--ip-sans); color: var(--ip-mika-t); margin-bottom: 6px; }
-.jw-text { position: relative; display: block; width: fit-content; font: 400 25px/1.32 var(--ip-serif); color: var(--ip-ink); }
+.jw { position: relative; width: 800px; padding: 36px 40px 38px 34px; border-radius: 28px; background: #FFFCF6 var(--ip-tooth); box-shadow: inset 0 0 0 1px rgba(84,58,38,.16); }
+.jw .lab2 { font: 500 16px/1.2 var(--ip-sans); color: var(--ip-mika-t); margin: 0 0 22px 64px; }
+.jw-steps { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; }
+.jw-rail { position: absolute; left: 16px; top: 24px; bottom: 24px; width: 4px; border-radius: 2px; background: var(--ip-mika); opacity: .5; }
+.jw-step { position: relative; display: grid; grid-template-columns: 64px minmax(0, 470px); align-items: start; }   /* a reading measure; the right of the page keeps room for pins and a reply */
+.jw-step .mk { position: relative; width: 36px; height: 36px; margin-top: 12px; border-radius: 50%; background: var(--ip-mika); -webkit-mask: var(--ip-wax) 0 0 / 60px 60px; mask: var(--ip-wax) 0 0 / 60px 60px; }
+.jw-time { display: block; font: 500 16px/1 var(--ip-sans); color: var(--ip-mika-t); margin-bottom: 6px; }
+.jw-text { position: relative; display: block; width: fit-content; font: 400 24px/1.34 var(--ip-serif); color: var(--ip-ink); }
 .jw-text s { position: absolute; left: -4px; right: -4px; top: 54%; height: 2.4px; border-radius: 2px; background: var(--ip-mika-t); transform-origin: left; transform: scaleX(0); }
 .jw-step[data-state="struck"] .jw-text, .jw-step[data-state="rewritten"] .jw-text { color: #6E5A49; font-size: 19px; }
 .jw-step[data-state="struck"] .jw-text s, .jw-step[data-state="rewritten"] .jw-text s { transform: scaleX(1); }
-.jw-new { display: block; margin-top: 6px; font: italic 400 25px/1.32 var(--ip-serif); color: var(--ip-her-t); }
+.jw-new { display: block; margin-top: 6px; font: italic 400 24px/1.34 var(--ip-serif); color: var(--ip-her-t); }
 /* pins on the work, and a teammate's short reply beside its pin */
 .fd-pin { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--c); z-index: 3;
   box-shadow: 0 0 0 2px var(--ip-paper), 1px 2px 3px rgba(60,35,15,.35); display: grid; place-items: center; }
@@ -149,7 +148,7 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
 .ia-sug p { margin: 0; font: 400 18px/1.3 var(--ip-serif); }
 .ia-sug.hers { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.3px rgba(147,55,79,.5); }
 .ia-sug.hers .k { color: var(--ip-her-t); } .ia-sug.hers p { color: var(--ip-her-t); font-style: italic; }
-.ia-sug .was { display: block; margin-top: 5px; font: 400 13px/1.2 var(--ip-sans); color: #8A7462; text-decoration: line-through; }
+.ia-sug .was { display: block; margin-top: 5px; font: 400 13px/1.2 var(--ip-sans); color: #6A5444; text-decoration: line-through; }
 .ia-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
 .ia-yes { height: 58px; flex: 1; font-size: 21px; }
 .ia-else { height: 46px; padding: 0 14px 0 7px; font-size: 15px; gap: 8px; }
@@ -397,16 +396,16 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
     await wait(700); await tap($('#send')); hidePtr();
     emit('answer', { askId: 'feel', text: fd.querySelector('.fd-words').textContent });
     fd.dataset.state = 'answered'; $('#send').classList.add('hide'); $('#fhint').textContent = 'Sent. Ready for your next thought.';
-    A(fd.querySelector('.fd-said'), { opacity: [1, .8] }, { duration: .4 });
+    A(fd.querySelector('.fd-said'), { opacity: [1, .9] }, { duration: .4 });
     // her words go quiet in her column; her pin lands on the line it's about; Mika answers briefly by the pin
     const step = fd.querySelector('.jw-step[data-step="2"]'), txt = step.querySelector('.jw-text');
-    const card = fd.querySelector('.jw'); pinOn(fd, txt, 'her', 'product', 0, card);
+    const card = fd.querySelector('.jw'); pinOn(fd, txt, 'her', 'product', -190, card);
     await wait(500);
-    const mp = pinOn(fd, txt, 'mika', 'design', 34, card);
+    const mp = pinOn(fd, txt, 'mika', 'design', -156, card);
     const w = fd.querySelector('.fd-work'), wr = w.getBoundingClientRect(), pr = mp.getBoundingClientRect();
     const rp = document.createElement('div'); rp.className = 'fd-reply'; rp.dataset.seat = 'design';
     rp.innerHTML = '<div class="bubble" data-who="mika"><b>Mika</b>Then nothing to fill in. One tap, and it’s hers.</div>';
-    rp.style.left = (pr.left - wr.left - 30) + 'px'; rp.style.top = (pr.bottom - wr.top + 12) + 'px'; w.appendChild(rp); InkPaper.dress(rp); redrawAll(rp);
+    rp.style.left = (pr.left - wr.left - 74) + 'px'; rp.style.top = (pr.bottom - wr.top + 12) + 'px'; w.appendChild(rp); InkPaper.dress(rp); redrawAll(rp);
     if (!instant) InkPaper.lay(rp.querySelector('.bubble'));
     emit('chime', { by: 'Mika', seat: 'design', text: 'Then nothing to fill in. One tap, and it’s hers.' });
     // the line is struck and rewritten in her direction, in front of her
