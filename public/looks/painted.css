@@ -562,7 +562,6 @@ html #room .seat .card:active { transform: scale(.98); }
 html #room .seat .card:focus-visible { outline: 2px solid var(--cc); outline-offset: 5px; }
 html #room .seat .card[data-state="working"] .card-band::before, html #room .seat .card[data-state="thinking"] .card-band::before { -webkit-mask: none; mask: none; animation: pt-breathe-ink 3.6s ease-in-out infinite; }
 @keyframes pt-breathe-ink { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cc) 40%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--cc) 0%, transparent); } }
-html #room .seat .card .card-character { position: absolute; }   /* the character slot belongs to the loops designer; never clipped by the pill */
 
 /* ---- (e) her pill on the stool ---- */
 html #room .seat-product .card, html #room .seat-diy .card { border-radius: 999px; --pp: var(--sheet-her); --cx: 3px; --cy: 4px; --crot: -1deg; cursor: pointer; }
@@ -669,3 +668,14 @@ html #room .fs-user { border: 0 !important; border-radius: 999px; padding: 6px 1
   background: #FFFDF8; box-shadow: inset 0 0 0 1px rgba(80,55,35,.22), 2px 3px 6px -3px rgba(60,35,15,.3) !important; }
 html #room .fs-who { font: 500 14px var(--ui); color: var(--ink-2); }
 html #room .fs-who::before { border: 0 !important; border-radius: 50%; }
+
+/* ---- integration (painted.js): the living backdrop and the playful layer sit inside the room, under its UI ---- */
+html #room > iframe.painted-living.in-room { position: absolute; inset: 0; width: 1600px; height: 900px; z-index: 0; border: 0; pointer-events: none; background: transparent; }
+html #room > .painted-playful { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; z-index: 2; pointer-events: none; }
+html #room > .painted-playful .pi-layer { pointer-events: none; }
+html.painted-on #viewport { z-index: auto; }
+/* the teammate's face, cut from the painting by the living layer, takes the dot's place in the pill */
+html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card { gap: 0; padding-left: 7px; }
+html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card-character { order: -1; width: 28px; height: 28px; margin-right: 8px; flex: none;
+  box-shadow: 0 0 0 2px var(--cc), 0 1px 2px rgba(60,35,15,.3); }
+html.painted-on #room .seat:not(.seat-product):not(.seat-diy) .card:has(.card-character) .card-band::before { display: none; }
