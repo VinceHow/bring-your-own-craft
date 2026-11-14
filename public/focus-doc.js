@@ -27,13 +27,16 @@
       <div class="fd-work" data-slot="work"></div>
       <h2 class="fd-question" data-slot="question"></h2>
       <div class="fd-said" data-component="her-answer" data-state="speaking"></div>
+      <ol class="fd-pieces" data-component="pieces"></ol>
       <form class="fd-form" autocomplete="off">
         <textarea class="fd-input" data-slot="input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Take your time; send when you’re ready."></textarea>
+        <button type="button" class="fd-add" data-slot="add-piece">Add this</button>
         <button type="submit" class="fd-send" data-slot="send">Send</button>
       </form>
     </div>
     <aside class="fd-side">
-      <ol class="fd-chimes" data-slot="chimes"></ol>
+      <button type="button" class="fd-read" data-slot="read-conversation" aria-expanded="false" hidden>Read the conversation</button>
+      <ol class="fd-chimes" data-slot="chimes" hidden></ol>
       <div class="fd-brief" data-component="takeaways" data-state="hidden" hidden>
         <div class="brief-head" data-slot="head">Takeaways</div>
         <div class="brief-part brief-believe"><span class="brief-label" data-slot="label">What I believe about this</span><p class="brief-text" data-slot="believe" data-k="believe"></p></div>
@@ -125,8 +128,9 @@
     $('.fd-question').textContent = ask.question || ask.decision || '';
     $('.fd-said').innerHTML = ''; $('.fd-said').classList.remove('speaking');
     $('.fd-chimes').innerHTML = ''; $('.fd-team').textContent = '';
+    doc.querySelectorAll('.pin-reply').forEach(r => { clearTimeout(r._t1); clearTimeout(r._t2); }); conversation(false); readToggle();
     $('.fd-brief').hidden = true; doc.querySelectorAll('.brief-text').forEach(p => { p.textContent = ''; p.contentEditable = 'false'; });
-    $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay;
+    $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay; clearPieces();
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
     $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
     doc.hidden = false;
@@ -159,11 +163,125 @@
     said.appendChild(q); said.dataset.state = 'landed'; doc.dataset.state = 'answered';
     if (M) M.animate(q, { y: [10, 0] }, SPRING);
   }
+
+  // ---- capture: her answer in pieces (lib/tidy.js) ------------------------------------------------
+  // Each spoken take (or a typed one she adds) is a piece. It shows raw at once; its tidy swaps in when it lands
+  // (answer.piece.tidy). Per piece: "See what you said", "Use mine", redo, remove. While she captures, the team is
+  // out of view and makes no calls; Send gathers the pieces (tidy where ready, raw where not) and never waits.
+  // Hooks only (data-component / data-slot / data-state); the look is design's.
+  let pieces = [], pieceN = 0;
+  const pieceApi = body => B.api(`/api/run/${encodeURIComponent(B.run)}/piece`, body, { step: false });
+  const shownText = p => (p.use === 'mine' || !p.tidy) ? p.raw : p.tidy;
+  function capturing(on) {
+    doc.dataset.capture = on ? 'on' : 'off';
+    $('.fd-side').hidden = !!on;
+  }
+  function clearPieces() {
+    pieces = []; const ol = $('.fd-pieces'); if (ol) ol.innerHTML = '';
+    capturing(false);
+  }
+  function pieceState(p) {
+    const s = !p.tidy ? 'raw' : p.use === 'mine' ? 'mine' : p.showRaw ? 'raw-shown' : 'tidy';
+    p.li.dataset.state = s;
+    if (!p.animating) wordsInto(p, s === 'tidy' ? 'tidy' : 'raw');
+    p.see.hidden = !p.tidy || p.use === 'mine';
+    p.see.textContent = p.showRaw ? 'See the tidy' : 'See what you said';
+    p.mine.hidden = !p.tidy;
+    p.mine.textContent = p.use === 'mine' ? 'Use the tidy' : 'Use mine';
+  }
+  // Her words as word spans, from the raw → tidy diff (public/word-diff.js). Slots: kept-word, removed-word (the
+  // tidy took it out), changed-word (same word, new case or punctuation, or a new word in a dropped one's place),
+  // added-word. view 'raw' shows what she said; 'tidy' the clean words.
+  const SLOT = { keep: 'kept-word', drop: 'removed-word', becomes: 'changed-word', added: 'added-word' };
+  function wordsInto(p, view) {
+    p.words.dataset.view = view;
+    if (!p.diff) { p.words.textContent = p.raw; return []; }
+    p.words.innerHTML = '';
+    const spans = [];
+    for (const t of p.diff.tokens) {
+      const text = view === 'raw' ? t.word : t.as;
+      const sp = h('span', 'fd-w', text); sp.dataset.slot = SLOT[t.kind]; sp._t = t;
+      if (!text) sp.hidden = true; // an added word in the raw view, a removed one in the tidy view
+      p.words.append(sp, ' '); spans.push(sp);
+    }
+    return spans;
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  // The swap: removed words leave (data-state leaving, then gone), changed words take their new spelling, added
+  // words arrive, and the kept ones slide together. Identical raw and tidy: no animation, just the tidy state.
+  async function landPieceTidy(p, tidy) {
+    p.tidy = tidy;
+    p.diff = B.wordDiff ? B.wordDiff(p.raw, tidy) : null;
+    if (!p.diff || p.diff.same || p.showRaw || p.use === 'mine') { p.li.dataset.anim = 'none'; return pieceState(p); }
+    p.animating = true; p.li.dataset.state = 'tidying'; p.li.dataset.anim = 'swapping';
+    const spans = wordsInto(p, 'raw');
+    for (const sp of spans) if (sp._t.kind === 'drop') sp.dataset.state = 'leaving';
+    await wait(280);
+    if (!p.li.isConnected || p.showRaw || p.use === 'mine') { p.animating = false; return pieceState(p); }
+    const before = new Map(spans.map(sp => [sp, sp.getBoundingClientRect()]));
+    for (const sp of spans) {
+      const k = sp._t.kind;
+      if (k === 'drop') { sp.dataset.state = 'gone'; sp.hidden = true; }
+      if (k === 'becomes') { sp.textContent = sp._t.as; sp.dataset.state = 'changed'; }
+      if (k === 'added') { sp.textContent = sp._t.as; sp.hidden = false; sp.dataset.state = 'arriving'; }
+    }
+    if (M) for (const sp of spans) {
+      if (sp.hidden || sp._t.kind === 'added') continue;
+      const b = before.get(sp), n = sp.getBoundingClientRect();
+      if (b.width || b.height) M.animate(sp, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, SPRING);
+    }
+    await wait(500);
+    p.animating = false; p.li.dataset.anim = 'done';
+    pieceState(p);
+  }
+  function dropPiece(p) {
+    pieces = pieces.filter(x => x !== p); p.li.remove();
+    if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
+    if (!pieces.length) capturing(false);
+  }
+  function addPiece(text) {
+    text = String(text || '').trim();
+    if (!text || !cur || sent || B.replay) return;
+    const p = { id: `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: '', use: 'tidy', showRaw: false, askId: cur.id };
+    p.li = h('li', 'fd-piece'); p.li.dataset.component = 'piece'; p.li.dataset.piece = p.id;
+    p.words = h('span', 'fd-piece-words', text); p.words.dataset.slot = 'words';
+    const btn = (slot, label) => { const b = h('button', `fd-piece-${slot}`, label); b.type = 'button'; b.dataset.slot = slot; return b; };
+    p.see = btn('see-said', 'See what you said'); p.mine = btn('use-mine', 'Use mine');
+    const redo = btn('redo', 'Redo'), rm = btn('remove', 'Remove');
+    p.see.addEventListener('click', () => { p.showRaw = !p.showRaw; pieceState(p); });
+    p.mine.addEventListener('click', () => {
+      p.use = p.use === 'mine' ? 'tidy' : 'mine'; p.showRaw = false; pieceState(p);
+      if (cur) pieceApi({ askId: cur.id, pieceId: p.id, use: p.use }).catch(() => {});
+    });
+    // Redo: the piece goes (its pending tidy is ignored server-side) and its words come back to the field to fix or re-say.
+    redo.addEventListener('click', () => { dropPiece(p); const f = $('.fd-input'); f.value = p.raw; f.focus(); f.dispatchEvent(new Event('input', { bubbles: true })); });
+    rm.addEventListener('click', () => dropPiece(p));
+    p.li.append(p.words, p.see, p.mine, redo, rm);
+    $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
+    capturing(true);
+    if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
+    pieceApi({ askId: cur.id, pieceId: p.id, text }).catch(() => {}); // a failed post still sends raw at Send
+  }
+  B.on('answer.piece.tidy', ev => {
+    const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
+    if (!p || sent || ev.raw !== p.raw || !ev.text) return;
+    landPieceTidy(p, ev.text);
+  });
+  $('.fd-add').addEventListener('click', () => {
+    const f = $('.fd-input'); addPiece(f.value); f.value = ''; f.focus();
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  // A spoken take becomes a piece as soon as its words arrive (public/voice.js fires byoc:voice on the field).
+  $('.fd-input').addEventListener('byoc:voice', e => {
+    const f = e.target; addPiece(e.detail && e.detail.text); f.value = '';
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
   $('.fd-input').addEventListener('input', e => {
     // As she speaks or types, the words show on the document.
     const t = e.target.value.trim();
     $('.fd-said').classList.toggle('speaking', !!t);
-    if (!sent) doc.dataset.state = t ? 'speaking' : 'asking';
+    if (!sent) doc.dataset.state = t || pieces.length ? 'speaking' : 'asking';
   });
   $('.fd-input').addEventListener('keydown', e => {
     e.stopPropagation();
@@ -174,19 +292,89 @@
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
   async function send() {
     const text = $('.fd-input').value.trim();
-    if (!text || !cur || sent) return;
+    if ((!text && !pieces.length) || !cur || sent) return;
     sent = true;
-    const ask = cur;
-    landSaid(text);
+    const ask = cur, mine = pieces.filter(p => p.askId === ask.id);
+    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
+    const body = mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text } : { askId: ask.id, text };
+    landSaid([...mine.map(shownText), text].filter(Boolean).join(' '));
     $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
     $('.fd-said').classList.remove('speaking');
-    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, { askId: ask.id, text }, { step: false }); }
+    const held = pieces; pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false }); }
     catch (e) {
       if (cur !== ask) return;
       sent = false; $('.fd-form').hidden = false; $('.fd-input').value = text;
+      pieces = held; for (const p of held) $('.fd-pieces').appendChild(p.li); if (held.length) capturing(true);
       $('.fd-team').textContent = `Not sent (${e.status || e.message}). Enter to try again.`;
+      $('.fd-side').hidden = false;
     }
   }
+
+  // ---- after Send she stays on her page: replies show by their pins, then fold into them ------------------
+  // Each reply is anchored to a pin on the work: the journey box it names, else the box the question is about,
+  // else the work itself. It shows (readable 4–8 s, by its length), fades, then folds into the pin; clicking the pin
+  // shows its replies again. The full thread stays in ol.fd-chimes, opened only by "Read the conversation".
+  // Hooks only (data-component / data-slot / data-state); the look is design's.
+  const READ_MIN_MS = 4000, READ_MAX_MS = 8000, FADE_MS = 600;
+  const readMs = text => Math.max(READ_MIN_MS, Math.min(READ_MAX_MS, 2500 + String(text || '').split(/\s+/).filter(Boolean).length * 180));
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  function anchorFor(text) {
+    const w = $('.fd-work'), t = ` ${norm(text)} `;
+    const named = [...w.querySelectorAll('[data-node]')].find(b => { const l = norm(b.textContent); return l.length > 2 && t.includes(` ${l} `); });
+    const el = named || w.querySelector('.fd-target') || w;
+    const ref = named ? named.dataset.node : (el.dataset.node || (cur && cur.artifact && typeof cur.artifact.ref === 'string' && cur.artifact.ref) || w.dataset.kind || 'work');
+    return { el, id: `pin-${String(ref).replace(/[^\w-]/g, '').slice(0, 40) || 'work'}` };
+  }
+  function pinFor(text) {
+    const { el, id } = anchorFor(text);
+    let pin = $(`.fd-pin[data-pin="${id}"]`);
+    if (!pin) {
+      pin = h('span', 'fd-pin'); pin.dataset.component = 'pin'; pin.dataset.pin = id; pin.dataset.state = 'replying';
+      pin.setAttribute('role', 'button'); pin.tabIndex = 0; pin.setAttribute('aria-label', 'Show the replies here');
+      const mark = h('span', 'fd-pin-mark'); mark.dataset.slot = 'mark';
+      const count = h('span', 'fd-pin-count'); count.dataset.slot = 'count';
+      const list = h('div', 'fd-pin-replies'); list.dataset.slot = 'replies';
+      pin.append(mark, count, list);
+      const reopen = e => { if (e.target.closest('.pin-reply')) return; e.preventDefault(); pin.querySelectorAll('.pin-reply').forEach(showReply); };
+      pin.addEventListener('click', reopen);
+      pin.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') reopen(e); });
+      el.appendChild(pin);
+    }
+    return pin;
+  }
+  function pinState(pin) {
+    const rs = [...pin.querySelectorAll('.pin-reply')];
+    pin.dataset.state = rs.some(r => r.dataset.state !== 'folded') ? 'replying' : 'folded';
+    pin.querySelector('.fd-pin-count').textContent = String(rs.length);
+  }
+  function showReply(r) {
+    clearTimeout(r._t1); clearTimeout(r._t2);
+    r.dataset.state = 'shown'; r.hidden = false; pinState(r._pin);
+    r._t1 = setTimeout(() => {
+      r.dataset.state = 'fading';
+      r._t2 = setTimeout(() => { r.dataset.state = 'folded'; r.hidden = true; pinState(r._pin); }, FADE_MS);
+    }, readMs(r._text));
+  }
+  function pinReply(ev) {
+    const pin = pinFor(ev.text);
+    const r = h('div', 'pin-reply'); r.dataset.component = 'pin-reply'; r.dataset.seat = ev.seat || ''; r.dataset.pin = pin.dataset.pin;
+    const w = h('span', 'pin-reply-who', ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)); w.dataset.slot = 'who';
+    const t = h('span', 'pin-reply-text', ev.text || ''); t.dataset.slot = 'text';
+    r.append(w, t); r._pin = pin; r._text = ev.text;
+    pin.querySelector('.fd-pin-replies').appendChild(r);
+    showReply(r);
+    if (M) M.animate(r, { y: [6, 0] }, SPRING);
+  }
+  function conversation(open) {
+    doc.dataset.conversation = open ? 'open' : 'closed';
+    $('.fd-chimes').hidden = !open;
+    const b = $('.fd-read');
+    b.setAttribute('aria-expanded', String(!!open));
+    b.textContent = open ? 'Hide the conversation' : 'Read the conversation';
+  }
+  $('.fd-read').addEventListener('click', () => conversation(doc.dataset.conversation !== 'open'));
+  function readToggle() { $('.fd-read').hidden = !$('.fd-chimes').children.length; }
 
   // ---- the team chimes in, one after another; then her brief -------------------------------------
   const forCur = ev => cur && (!ev.askId || ev.askId === cur.id);
@@ -197,7 +385,8 @@
     const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
     const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
     li.append(w, t); doc.dataset.state = 'chiming';
-    $('.fd-chimes').appendChild(li);
+    $('.fd-chimes').appendChild(li); readToggle();
+    pinReply(ev);
     if (M) M.animate(li, { x: [24, 0], y: [-6, 0] }, SPRING);
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
   }
@@ -236,7 +425,8 @@
   }
 
   // ---- the team gets to work; the document updates ----------------------------------------------
-  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; doc.dataset.state = 'working'; });
+  // The team is on it. Takeaways already showing stay the document's state (with fewer replies they can land first).
+  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; if (doc.dataset.state !== 'takeaways') doc.dataset.state = 'working'; });
   const refreshJourney = () => { if (cur && $('.fd-work').dataset.kind === 'journey') setTimeout(renderWork, 60); };
   B.on('flow.line', refreshJourney);
   B.on('flow.reset', refreshJourney);
