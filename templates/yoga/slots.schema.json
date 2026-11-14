@@ -1,0 +1,83 @@
+{
+  "type": "object",
+  "required": ["words", "steps", "switches", "decidedShown"],
+  "additionalProperties": false,
+  "properties": {
+    "words": {
+      "type": "object",
+      "description": "Every visible line of the page, in her words. Same keys as the template's defaults; each about as long as its default.",
+      "required": ["brand", "title", "heroTitle", "heroLead", "heroFact", "heroAction", "regularsTitle", "regularsLead", "regularsUsual", "regularsAction", "classesTitle", "classesLead", "waitlistAction", "classTitle", "classBody", "confirmTitle", "confirmLead", "confirmAction", "confirmSent", "rememberLabel", "phoneLabel", "bookedTitle", "bookedBody", "cancelLine", "cancelReasonLine", "decidedTitle", "decidedLead"],
+      "additionalProperties": false,
+      "properties": {
+        "brand": { "type": "string", "description": "the studio's name" },
+        "title": { "type": "string", "description": "the browser tab title" },
+        "heroTitle": { "type": "string" },
+        "heroLead": { "type": "string" },
+        "heroFact": { "type": "string", "description": "one hard fact on the first screen" },
+        "heroAction": { "type": "string", "description": "the main button: a verb and an object" },
+        "regularsTitle": { "type": "string" },
+        "regularsLead": { "type": "string" },
+        "regularsUsual": { "type": "string", "description": "the regular's usual class, e.g. Tuesday 07:30, Slow flow" },
+        "regularsAction": { "type": "string" },
+        "classesTitle": { "type": "string" },
+        "classesLead": { "type": "string" },
+        "waitlistAction": { "type": "string" },
+        "classTitle": { "type": "string" },
+        "classBody": { "type": "string" },
+        "confirmTitle": { "type": "string" },
+        "confirmLead": { "type": "string" },
+        "confirmAction": { "type": "string" },
+        "confirmSent": { "type": "string", "description": "shown only after the booking really went through" },
+        "rememberLabel": { "type": "string" },
+        "phoneLabel": { "type": "string" },
+        "bookedTitle": { "type": "string" },
+        "bookedBody": { "type": "string" },
+        "cancelLine": { "type": "string" },
+        "cancelReasonLine": { "type": "string" },
+        "decidedTitle": { "type": "string" },
+        "decidedLead": { "type": "string" }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Order of the movable sections, following her flow. Allowed: regulars, classes, class, confirm, booked.",
+      "items": { "type": "string", "enum": ["regulars", "classes", "class", "confirm", "booked"] }
+    },
+    "switches": {
+      "type": "object",
+      "required": ["regulars", "regularsFirst", "waitlist", "phone", "remember", "oneTapCancel", "cancelReason"],
+      "additionalProperties": false,
+      "properties": {
+        "regulars": { "type": "boolean", "description": "show the 'book your usual' section" },
+        "regularsFirst": { "type": "boolean", "description": "regulars' section comes straight after the hero" },
+        "waitlist": { "type": "boolean", "description": "a full class offers a waitlist" },
+        "phone": { "type": "boolean", "description": "the confirm form has a phone field" },
+        "remember": { "type": "boolean", "description": "'remember me on this device' checkbox" },
+        "oneTapCancel": { "type": "boolean", "description": "cancel is one tap from the confirmation email" },
+        "cancelReason": { "type": "boolean", "description": "cancelling asks for a reason" }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Optional colour overrides (#rrggbb). Leave out unless her answers or file speak to the look.",
+      "additionalProperties": false,
+      "properties": {
+        "p-accent": { "type": "string" },
+        "p-action": { "type": "string" },
+        "p-bg": { "type": "string" },
+        "p-surface": { "type": "string" },
+        "p-ink": { "type": "string" }
+      }
+    },
+    "decidedShown": {
+      "type": "array",
+      "description": "Up to 5 decided items that touch this page, by id, each with the label she reads on the page.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" }, "label": { "type": "string" } }
+      }
+    }
+  }
+}

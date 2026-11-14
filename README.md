@@ -8,4 +8,8 @@ A coding harness where you take the seat of your own craft, and a team fills eve
 
 Built on [taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) for design and Anthropic's [product-management plugin](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0) for product. Models run through fal with your own key.
 
+- taste-skill (MIT, © Leonxlnx): the kit files our page templates load are vendored in `vendor/taste-skill/` with its
+  `LICENSE`, from upstream commit `f6b7657`. The two page templates in `templates/` were built with it through its
+  finish gate in a separate folder; it is not installed in this repo.
+
 Licence: [PolyForm Noncommercial 1.0.0](LICENSE).
