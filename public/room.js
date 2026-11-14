@@ -216,7 +216,7 @@
     } else {
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
         <div class="card-stance">${esc(i.stance)}</div>
-        <div class="card-note">Your team sits here today. Own mode for this seat: coming.</div>`;
+        <div class="card-note">Seat open: invite a teammate. Your agents hold it until they arrive.</div>`;
     }
     return c;
   }
@@ -329,6 +329,7 @@
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
+      if (BYOC.firstSketch) BYOC.firstSketch.start(r.run, idea); // Design's first sketch (public/first-sketch.js)
     } catch (e) {
       BYOC.run = 'local-' + Date.now();
       status(`no run API yet (${e.status || e.message}): drawing here only`);
@@ -373,7 +374,7 @@
     if (inputMode === 'idea') { if (!text) return; el.herInput.value = ''; startRun(text); }
     else if (inputMode === 'line') {
       el.herInput.value = '';
-      if (!text) { setInputMode('off'); stage(5); } else addHerLine(text);
+      if (!text) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
 

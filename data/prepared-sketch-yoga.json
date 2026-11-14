@@ -1,0 +1,6 @@
+{
+  "note": "Prepared for the demo: Design's first sketch for the yoga idea, used only if the live sketch fails or takes over 12 s. Shown labelled PREPARED.",
+  "idea": "A booking page for a small yoga studio.",
+  "users": ["First-timers", "Regulars", "The studio owner"],
+  "stages": ["Find a class", "Pick one", "Confirm", "Booked"]
+}
