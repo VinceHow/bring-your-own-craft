@@ -27,29 +27,47 @@ MIT). Vendor and credit both. Ours: the room, the selector, her file, the counte
 ## 2. The demo, beat by beat (~3:00)
 The presenter's lines are in the PO's demo doc (Vincent has it). Keyboard-driven. If a live beat fails, **R** swaps in the dress-rehearsal run, labelled **REPLAY** while on screen.
 
+**Studio version (14 Nov, after user feedback).** `DEMO.md` section 1 is now the beat-by-beat source; this is the
+build view. The demo's job is to make the **team dynamic** felt: they're good, they handle it, they check in because
+she's the expert, they build on what she said, it's all of ours.
+
 | Time | On screen | Live? |
 |---|---|---|
-| **0:00–0:06** Her seat | An empty table from above, six seats. She **clicks Product**; her card drops in. | live |
-| **0:06–0:26** Assembling the team | Five teammates, one by one: each card lands big mid-table showing what it **loves**, what it **brings** (true) and its **stance**, holds ~2 s, then shrinks into its seat. Silent, no names. Card copy in `DEMO.md`. | live |
-| **0:26–0:34** Her card | Her card lifts mid-table, same layout as the team's. **Loves:** she finishes *"I love…"* (spoken via ElevenLabs, core; typed if voice is unavailable); it becomes L1 of her file. **Brings:** pre-filled, true. **Stance:** empty, *"We'll find out today."*, filled later by her reworded "Sounds like" line. | live |
-| **0:34–0:40** First move | A blank sheet in front of her, the meeting's one agenda item: **"What are we building today?"** She says or writes: "A booking page for a small yoga studio." | live |
-| **0:40–0:56** Her journey | She writes one line a step; each becomes a box with arrows: classes → a class → confirm → booked; regulars → "Book your usual". | live |
-| **0:56–1:04** Team works | Sheets fill at each seat; a counter rolls: **"23 decisions came up · 3 brought to you"** (real numbers). | live |
-| **1:02–1:35** Her three | **In her work**: a fork on her flow, a pin on a box, each with a recommendation and reason (in rehearsal: a waitlist, backed by Research's sourced finding; how a regular is recognised; what confirm asks for). **The run picks them.** At least once she overrules the team: the other branch is marked **YOUR CALL**, the recommendation struck through, and the page follows her. | live |
-| **1:35–1:55** Her taste, named | Design's grey sketches slide over. She pins a call on confirm, not a principle: *"Cut the phone field. Name's enough; regulars hate forms."* Her file card: **"Sounds like: never ask for what you could remember."** She rewords it (*"…anything you could remember or skip"*); it writes into her file. | live |
-| **1:55–2:20** Build | One press; Engineering's sheet ticks through the build. She taps the counter: why her three made the cut; for each of the rest, the line of her file that decided it. | **live**, from her answers |
-| **2:20–2:32** Her page | Regulars first, no phone field, her words, her overruled call. Under it, "decided for you": cancel is one tap, no reason asked, **citing the line she wrote a minute ago**. | live |
-| **2:32–3:00** Close (28 s) | **A judge's idea, live:** a judge gives an idea, I type it, the team starts (selector only, ~15 s). **While it runs**, the contrast from the real baseline: **"A default coding agent asked 0 questions and guessed 22 things about your studio"** (`docs/baseline/GUESSES.md`) beside her **3 asked, M decided from her file**. Then the judge's three questions land, with counter and reasons. Last line, true: this project was built the same way (`BUILT-THIS-WAY.md`). | live / real counts |
+| **0:00–0:05** Her seat | Six empty seats; she **clicks Product**. | live |
+| **0:05–0:22** Assembling the team | Five team cards, each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
+| **0:22–0:30** Her card | She says "I love…" (L1 of her file); Brings pre-filled; Stance empty. | live |
+| **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a rough six-faced gem. | live |
+| **0:35–0:45** First sketch | **Design** drafts user types + stages (boxes/arrows, no screens) in ~10 s, streamed. Fallback: prepared yoga sketch, labelled PREPARED. | live |
+| **0:45–1:05** Her reaction | She reframes out loud or edits boxes; the shape redraws (one call); touched teammates lean in (real events only). | live |
+| **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions with reasons; gem faces cut per seat; caption "N handled by your team · 3 for you" (from the log). | live |
+| **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; no queue badges, no timers. She overrules once (YOUR CALL). | live |
+| **1:50–2:08** Design's workspace | Grey wireframes on her shape; her note on confirm → "Sounds like" → reworded → her file and her Stance slot. | live |
+| **2:08–2:26** Symphony | One press; every seat slides its part into the gem; the page is built. | **live**, from her answers |
+| **2:26–2:38** Page + credits | Credits (teammate + what it did; YOUR CALL; "Engineering applied your line", citing her new line). | live |
+| **2:38–3:00** Close | Judge's idea live: Design's first sketch + first check-in draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
 
-The café run ("a pre-order page for a café's morning pastries") is no longer a beat: it's the **fallback** for the
-judge's idea, REPLAY of a real run. Earlier beats are each a few seconds shorter to make room (see `DEMO.md`).
+The café run ("a pre-order page for a café's morning pastries") is the **fallback** for the judge's idea, REPLAY of a
+real run.
 
-**Slow build:** reasons until ~2:25, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
+**New build pieces, cheapest first** (lead to price and split):
+1. **Focus time:** while a check-in is open, other seats dim and freeze; no queue badges (replace the "waiting as a seat
+   badge" pattern), no counters moving, no timers; next check-in after a ~1 s breath.
+2. **Words:** "What's the idea?"; check-ins and credits in the teammate's voice; open seats read "Seat open: invite a
+   teammate. Your agents hold it until they arrive." (label, not a button); credits replace "decided for you".
+3. **First sketch + reshape:** Design returns user types and stage lines (reuse `parseFlow` for the stages) from her
+   sentence, streamed, fast model; her spoken/typed reaction → one call that returns the redrawn shape; direct box
+   edits without a model. Her typed journey is no longer the main path.
+4. **Leaning in:** a teammate card nudges toward her work on a real event (a candidate attached to a node she touched).
+5. **The gem:** six faces in seat inks, cut by logged decisions per seat, her face by her answers; turns into the page
+   at build. **Cut line:** six flat ink bars.
+6. Optional, last: one soft chord at the symphony.
+
+**Slow build:** credits so far until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
 rehearsal means fixing the ranking, never the script.
 
 ## 3. The look: a risograph-printed room
-Physical, inky, a little playful. Her work lies full size in front of her seat; teammates' sheets are small, to
+Physical, inky, a little playful: **a cozy studio, not a meeting** (no timers, no pressure, no points or levels). Her work lies full size in front of her seat; teammates' sheets are small, to
 glance at, never to approve.
 - **Paper and ink:** background `#F2EEE6`; ink `#141414` for text, 2px borders, **hard offset shadows** (`4px 4px 0
   #141414`, no blur); corners ≤ 6px.
@@ -89,7 +107,8 @@ code validates against a schema, retrying once.
   **Test:** a full run with a sentinel key; assert it appears nowhere in `runs/`, logs or any HTTP response.
 
 **The pipeline, all logged to `runs/<id>/events.jsonl`:**
-1. **Flow:** each line she types becomes a node, arrows by order ("→" branches). No model.
+1. **First sketch:** Design's fast call turns her sentence into user types and stage lines; each stage line becomes a
+   node, arrows by order ("→" branches, `parseFlow`). Her reaction is one call that redraws; direct edits need no model.
 2. **Propose:** six parallel calls (Product with write-spec's SKILL.md; the others with their stance; Strategy covers price, payment and who pays) return
    `{seat, decision, options, recommendation, reason, cost, undoable, attachTo}`. Research cites only its finding.
 3. **Select:** one call scores each (in her seat? changes the build? her file silent on it?). **Code** lets **at most
@@ -136,7 +155,7 @@ one inference, design checking on stage, a build that writes new code, any quest
 |---|---|---|
 | **16:00** | Selector + cap + ask policy with tests; teammates; decide-with-citations; template built; flow parsing. Terminal run: idea + flow → candidates → 3 picks → the rest decided, cited. | Template not gate-passing → fill taste-skill's `starter.html` by hand. Teammates + select over 20 s → fewer candidates, faster model. |
 | **20:00** | **The whole demo runs roughly on `main`:** room → flow → three questions → frames → "Sounds like" → Build → page → close. I see it before leaving. | Walk-in motion → plain placement. Sketches → static images per node. |
-| **00:00** | **Core done.** Voice: ElevenLabs speech-to-text for her "I love…" line and her agenda answer, push-to-talk, editable text, typed fallback (core, Vincent's call; key `xi-api-key` for `api.elevenlabs.io` from Vincent). Live fill, reasons, counter and meter from the log, café run and rehearsal run recorded, the close with real baseline counts, the e2e check passing. Tag `demo-core`. | Café run → its three questions only, no page. Live build unreliable → build beat REPLAY. Voice key missing or speech unreliable → typed, said plainly. Never cut the cap, the file write or the live fill. |
+| **00:00** | **Core done.** Voice: ElevenLabs speech-to-text for her "I love…" line, her idea, her reaction to the first sketch and her answers, push-to-talk, editable text, typed fallback (core, Vincent's call; key `xi-api-key` for `api.elevenlabs.io` from Vincent). Live fill, reasons, counter and meter from the log, café run and rehearsal run recorded, the close with real baseline counts, the e2e check passing. Tag `demo-core`. | Café run → its three questions only, no page. Live build unreliable → build beat REPLAY. Voice key missing or speech unreliable → typed, said plainly. Never cut the cap, the file write or the live fill. |
 | **00:00–03:00** | Sponsor layers (`docs/SPONSORS.md`, in order, each behind a flag), then reliability. | Any sponsor over budget → drop it. |
 | **03:00–07:00** | Polish: the look, motion, timings, every beat; the judge's-idea close rehearsed against 10+ varied ideas (fix the selector where picks are weak); `BUILT-THIS-WAY.md`; README and `SUBMISSION.md`; two recorded rehearsal runs; a backup video. Tag `demo-final`. | Judge's idea weak → café replay closes. |
 | **07:00** | Check-in: screenshots and a short list of polish choices for me. | |

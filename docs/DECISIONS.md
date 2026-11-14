@@ -50,3 +50,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 14:25 | Vincent (via PO) | Voice (ElevenLabs STT, push-to-talk) is core for her intro and idea; typed fallback always | |
 | Sat 14:25 | agents (lead) | Her open ask zooms to readable size (≥18 px at 1280) rather than trimming the selector's words | 13 px was too small on stage |
 | Sat 14:32 | agents (lead) | demo-3: both templates gate-passing (yoga 2 waivers, café 1), café build 12 s, all core pieces on main; npm test 61, e2e 15/15 | |
+| Sat 14:58 | agents (lead) | Studio version accepted and priced (~6–7 builder-hours, 3 in parallel, ~3 h wall clock); gem starts as ink bars, upgraded if time; CONTRACT.md seams for sketch/reshape/flow/lean/gem | fits 20:00 rough demo and 00:00 core |
