@@ -115,9 +115,12 @@
   // written while the others walk in (BYOC.flexP). No fallback (SEATS.md): if the card isn't back when the intro reaches
   // that teammate, the chair gets an inked note and the flow goes on; the teammate pops in the moment the card lands,
   // even mid-flow. If the call fails, the note says "Still on the way" and the run goes on with four. No spinner, no timer.
+  let castAsk = 0; // the latest pick wins: a reply for an earlier pick (or after she went back to Product) is dropped
   async function castFor(craft) {
+    const mine = ++castAsk;
     let r = null;
     try { r = await BYOC.api('/api/cast', { craft }, { step: false }); } catch { r = null; }
+    if (mine !== castAsk) return;
     const roles = r && r.roles ? r.roles : null;
     if (!roles) { applyCast(null); return; }
     applyCast({ craft, roles });
@@ -371,7 +374,7 @@
     emit('pick.done', { pick: what });
     // Any seat is hers (lib/cast.js): another craft recasts the table now, while she writes her tag (Product: as it was).
     if (CRAFT_LABEL[what] && what !== 'product') { BYOC.castP = castFor(what); }
-    else if (BYOC.cast) { applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.castP = null; }
+    else { castAsk++; if (BYOC.cast) applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.castP = null; }
     if (what === 'craft') {
       BYOC.herName = herNameField();
       const tag = await takeDiySeat();
@@ -1358,7 +1361,7 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
-    delete el.room.dataset.herSeat; BYOC.herSeat = null; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; BYOC.castP = null;
+    delete el.room.dataset.herSeat; BYOC.herSeat = null; castAsk++; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; BYOC.castP = null;
     el.room.querySelectorAll('.late-note').forEach(n => n.remove());
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
