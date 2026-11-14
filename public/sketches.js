@@ -6,6 +6,7 @@
   const here = document.currentScript && document.currentScript.src;
   const base = here ? new URL('.', here).href : '';
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const slot = (e, name) => { e.dataset.slot = name; return e; }; // docs/COMPONENTS.md hooks for looks
 
   function css(href, key) {
     if (document.querySelector(`link[data-byoc="${key}"]`)) return;
@@ -41,23 +42,23 @@
   async function show(el, frames) {
     const data = Array.isArray(frames) ? { frames } : (frames || {});
     const kitApi = await loadKit();
-    el.classList.add('sk-host');
+    el.classList.add('sk-host'); el.dataset.component = 'wireframes'; el.dataset.state = 'shown';
     el.innerHTML = '';
-    const head = h('div', 'sk-head');
-    const tag = h('span', 'sk-tag', 'DESIGN');
+    const head = slot(h('div', 'sk-head'), 'head');
+    const tag = slot(h('span', 'sk-tag', 'DESIGN'), 'tag');
     head.appendChild(tag);
-    head.appendChild(h('span', 'sk-title', 'First sketches'));
-    if (data.source === 'fallback') head.appendChild(h('span', 'sk-note', 'sketched by rule: the model call failed'));
-    if (data.replay || B.replay) head.appendChild(h('span', 'sk-note', 'REPLAY'));
+    head.appendChild(slot(h('span', 'sk-title', 'First sketches'), 'title'));
+    if (data.source === 'fallback') head.appendChild(slot(h('span', 'sk-note', 'sketched by rule: the model call failed'), 'note'));
+    if (data.replay || B.replay) head.appendChild(slot(h('span', 'sk-note', 'REPLAY'), 'note'));
     el.appendChild(head);
-    const row = h('div', 'sk-row');
+    const row = slot(h('div', 'sk-row'), 'row');
     el.appendChild(row);
     const list = data.frames || [];
     list.forEach((f, i) => {
-      const fr = h('div', 'sk-frame');
+      const fr = slot(h('div', 'sk-frame'), 'frame');
       fr.dataset.node = f.nodeId;
-      fr.appendChild(h('div', 'sk-cap', f.title || f.nodeId));
-      const screen = h('div', 'sk-screen');
+      fr.appendChild(slot(h('div', 'sk-cap', f.title || f.nodeId), 'caption'));
+      const screen = slot(h('div', 'sk-screen'), 'screen');
       for (const b of f.blocks || []) screen.appendChild(kitApi.render(b));
       fr.appendChild(screen);
       fr.addEventListener('click', e => startPin(fr, f.nodeId, e));
@@ -75,15 +76,15 @@
   async function startPin(fr, nodeId, e) {
     if (B.replay || fr.dataset.drafting || e.target.closest('.fl-item')) return;
     if (!B.flow || !B.flow.noteEditor) return;
-    fr.dataset.drafting = '1';
+    fr.dataset.drafting = '1'; fr.closest('.sk-host') && (fr.closest('.sk-host').dataset.state = 'drafting');
     const r = fr.getBoundingClientRect();
     const k = r.width / fr.offsetWidth || 1;
     const left = Math.max(-20, Math.min(fr.offsetWidth - 120, (e.clientX - r.left) / k - 40));
     const top = Math.max(20, (e.clientY - r.top) / k - 20);
     const text = await B.flow.noteEditor(fr, { left, top });
-    delete fr.dataset.drafting;
+    delete fr.dataset.drafting; fr.closest('.sk-host') && (fr.closest('.sk-host').dataset.state = 'shown');
     if (!text) return;
-    const note = h('div', 'fl-item fl-mine sk-pinned');
+    const note = slot(h('div', 'fl-item fl-mine sk-pinned'), 'pinned');
     note.appendChild(h('span', 'fl-pinhead'));
     note.appendChild(h('div', 'fl-tag', 'YOUR NOTE'));
     note.appendChild(h('div', 'fl-mtext', text));

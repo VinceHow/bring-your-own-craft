@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Component gallery</title>
+<style>
+  /* A working page for builders and the design studio: plain on purpose, so it never competes with a look. */
+  :root { --ink: #141414; --paper: #F4F1EA; --line: #CFC8BA; --muted: #5E594F; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; padding: 12px 20px;
+    background: var(--paper); border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0; font-size: 18px; }
+  header p { margin: 0; color: var(--muted); }
+  header label { margin-left: auto; color: var(--muted); }
+  header input { font: inherit; padding: 3px 6px; width: 140px; }
+  nav { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 8px 20px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  nav a { color: var(--ink); }
+  main { padding: 8px 20px 60px; }
+  section.comp { margin: 26px 0 0; }
+  section.comp h2 { margin: 0; font-size: 16px; }
+  section.comp h2 code { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  section.comp .note { margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
+  .states { display: flex; flex-wrap: wrap; gap: 14px; }
+  figure { margin: 0; width: 460px; max-width: 100%; }
+  figcaption { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; font-size: 13px; }
+  figcaption b { font-family: ui-monospace, Menlo, monospace; }
+  figcaption .why { color: var(--muted); }
+  .frame { position: relative; width: 460px; max-width: 100%; height: 300px; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1600px; height: 960px; border: 0; transform-origin: 0 0; visibility: hidden; }
+  .frame.ready iframe { visibility: visible; }
+  .frame .msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; color: var(--muted); font-size: 13px; }
+  .frame.ready .msg { display: none; }
+  .frame.missing { background: #FAF8F3; border-style: dashed; }
+  .frame.missing .msg { display: grid; }
+  .hooks { margin-top: 3px; font: 11.5px/1.35 ui-monospace, Menlo, monospace; color: var(--muted); word-break: break-word; }
+  .hooks .ok { color: #1A7F37; } .hooks .no { color: #B42318; }
+  @media (max-width: 520px) { figure, .frame { width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Component gallery</h1>
+  <p>Every component in its states, drawn by the real room scripts from recorded and sample events. No models, no flow.</p>
+  <label>look <input id="look" placeholder="e.g. riso" spellcheck="false"></label>
+</header>
+<nav id="toc"></nav>
+<main id="gallery"></main>
+<script src="gallery.js"></script>
+</body>
+</html>

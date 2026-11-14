@@ -33,6 +33,7 @@
     el.style.transform = to;
   }
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const slot = (e, name) => { e.dataset.slot = name; return e; }; // docs/COMPONENTS.md hooks for looks
   const sv = (tag, attrs) => { const e = document.createElementNS(SVG, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
   const seatInk = seat => INK[seat] || '#141414';
   const seatName = seat => (seat || 'team').toUpperCase();
@@ -41,7 +42,7 @@
     S.host = el;
     el.classList.add('fl-host');
     el.innerHTML = '';
-    S.wrap = h('div', 'fl-wrap');
+    S.wrap = h('div', 'fl-wrap'); S.wrap.dataset.component = 'journey'; S.wrap.dataset.state = 'empty';
     S.canvas = h('div', 'fl-canvas');
     S.svg = sv('svg', { class: 'fl-svg', 'aria-hidden': 'true' });
     const defs = sv('defs', {});
@@ -89,10 +90,10 @@
     for (const n of g.nodes) {
       let rec = S.nodes.get(n.id);
       if (!rec) {
-        const el = h('button', 'fl-box');
+        const el = slot(h('button', 'fl-box'), 'box');
         el.type = 'button';
         el.dataset.node = n.id;
-        el.appendChild(h('span', 'fl-label', n.label));
+        el.appendChild(slot(h('span', 'fl-label', n.label), 'label'));
         el.addEventListener('click', () => startPin(n.id));
         S.canvas.appendChild(el);
         rec = { id: n.id, el };
@@ -104,6 +105,7 @@
     S.edges = (g.edges || []).filter(e => S.nodes.has(e.from) && S.nodes.has(e.to));
     layout();
     for (const r of fresh) settle(r.el, 'translateY(-10px) scale(0.94) rotate(-2deg)', 'translateY(0px) scale(1) rotate(0deg)');
+    if (S.wrap) { S.wrap.dataset.state = fresh.length ? 'drawing' : 'drawn'; clearTimeout(S.stateTimer); S.stateTimer = setTimeout(() => { if (S.wrap) S.wrap.dataset.state = S.nodes.size ? 'drawn' : 'empty'; }, 600); }
   }
 
   // Columns by order along the arrows; a branch drops to the next free row under its parent.
@@ -339,20 +341,21 @@
     if (!nodeId) return null;
     const kind = ask.kind === 'pin' ? 'pin' : 'fork';
     const el = h('div', 'fl-item fl-' + kind);
+    el.dataset.component = 'check-in'; el.dataset.state = 'waiting';
     el.dataset.seat = ask.seat || '';
     el.dataset.ask = ask.id;
     el.style.setProperty('--seat', seatInk(ask.seat));
     const q = h('div', 'fl-q');
     q.title = ask.decision;
     q.appendChild(h('span', 'fl-tag', seatName(ask.seat)));
-    q.appendChild(h('span', 'fl-qtext', ask.decision));
+    q.appendChild(slot(h('span', 'fl-qtext', ask.decision), 'question'));
     if (kind === 'pin') el.appendChild(h('span', 'fl-pinhead'));
     el.appendChild(q);
     // The check-in in its teammate's voice: what it found, and why this one is hers (DEMO 1:15).
     el.appendChild(voiceLine(ask));
-    const opts = h('div', 'fl-opts');
+    const opts = slot(h('div', 'fl-opts'), 'options');
     (ask.options || []).forEach((o, i) => {
-      const btn = h('button', 'fl-opt');
+      const btn = slot(h('button', 'fl-opt'), 'option');
       btn.type = 'button';
       btn.dataset.choice = o;
       if (o === ask.recommendation) { btn.classList.add('is-rec'); btn.appendChild(h('span', 'fl-rec', 'TEAM RECOMMENDS')); }
@@ -362,9 +365,9 @@
       opts.appendChild(btn);
     });
     el.appendChild(opts);
-    if (ask.reason) el.appendChild(h('div', 'fl-why', 'Why we’d go that way: ' + ask.reason));
+    if (ask.reason) el.appendChild(slot(h('div', 'fl-why', 'Why we’d go that way: ' + ask.reason), 'why'));
     if (ask.source && ask.source.title) {
-      const s = h('div', 'fl-src');
+      const s = slot(h('div', 'fl-src'), 'source');
       s.appendChild(h('span', 'fl-src-k', 'Researched before the demo: '));
       s.appendChild(h('span', null, ask.source.title));
       el.appendChild(s);
@@ -399,6 +402,7 @@
       i.el.classList.toggle('is-open', i === cur);
       i.el.classList.toggle('checkin-open', i === cur); // polish's hook: the one thing lit in her focus time
       i.el.classList.toggle('is-waiting', !i.answered && i !== cur);
+      i.el.dataset.state = i.answered ? 'answered' : i === cur ? 'open' : 'waiting';
       const want = i === cur ? S.lens : S.canvas;
       if (want && i.el.parentNode !== want) { moves.push([i.el, i.el.isConnected ? i.el.getBoundingClientRect() : null]); want.appendChild(i.el); }
     }
@@ -446,7 +450,7 @@
     const it = S.items.find(i => i.ask && i.ask.id === askId);
     if (!it) return;
     it.answered = true;
-    it.el.classList.add('is-answered');
+    it.el.classList.add('is-answered'); it.el.dataset.state = 'answered';
     it.el.querySelector('.fl-status').textContent = '';
     it.el.querySelectorAll('.fl-opt').forEach(o => {
       const mine = o.dataset.choice === choice;
