@@ -14,6 +14,15 @@
   if (!B || !room) return;
   const base = '/looks/';
   const css = href => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + href; document.head.appendChild(l); };
+  css('painted-focus.css');   // her focus document as her review page (look only; after painted.css so it wins)
+  // Her thoughts sit on one sheet of her pink paper: a decorative layer behind her column (aria-hidden, no events,
+  // nothing reads it). focus-doc.js keeps its markup; painted-focus.css places this sheet in the document's grid.
+  const fdoc = document.getElementById('focus-doc');
+  if (fdoc && !fdoc.querySelector(':scope > .pfd-sheet')) {
+    const sheet = document.createElement('div');
+    sheet.className = 'pfd-sheet'; sheet.setAttribute('aria-hidden', 'true'); sheet.textContent = 'Your thoughts';
+    fdoc.appendChild(sheet);
+  }
   const js = src => new Promise(res => { const s = document.createElement('script'); s.src = base + src; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); }; document.body.appendChild(s); });
 
   // ---- focus: one event for every layer (the living painting holds still, the music ducks) ----

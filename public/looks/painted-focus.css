@@ -1,0 +1,201 @@
+/* Look: Painted · her focus document (focus-doc.js), as her review page.
+   One ink-paper document over the room: the question across the top, the work large on the left (journey, research card,
+   journey in words, wireframes, the page), her thoughts on the right on her own pink paper. After Send: her pin lands on
+   the work, each reply sits by its pin for a few seconds and folds into it, changes show on the work itself, then the
+   takeaways card. "Read the conversation" is a quiet inked link. Loaded by painted.js after painted.css; look only:
+   it styles focus-doc.js's classes and data-component / data-slot / data-state hooks and never changes behaviour.
+   Two grid columns; .fd-main and .fd-side are display: contents so their parts can sit in either column. */
+
+/* ---------- the document ---------- */
+html #room .focus-doc { inset: 18px 26px; padding: 24px 34px 28px; display: grid; column-gap: 34px; row-gap: 0;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  grid-template-rows: auto auto auto auto auto auto auto auto auto auto minmax(0, 1fr);
+  border-radius: 26px 22px 28px 20px / 22px 28px 20px 26px; overflow: visible; --cx: 10px; --cy: 11px; --crot: .4deg; }
+/* the paper and the crayon under it are painted.css's (::after the sheet with its ink line, ::before the crayon in the
+   ink of the teammate whose work it is, through [data-seat] → --cc) */
+html #room .focus-doc[data-seat="design"] { --fd-ink: var(--design); --fd-t: var(--design-t); }
+html #room .focus-doc[data-seat="research"] { --fd-ink: var(--research); --fd-t: var(--research-t); }
+html #room .focus-doc[data-seat="data"] { --fd-ink: var(--data); --fd-t: var(--data-t); }
+html #room .focus-doc[data-seat="strategy"] { --fd-ink: var(--strategy); --fd-t: var(--strategy-t); }
+html #room .focus-doc[data-seat="engineering"] { --fd-ink: var(--engineering); --fd-t: var(--engineering-t); }
+html #room .focus-doc[data-seat="product"] { --fd-ink: var(--product); --fd-t: var(--product-t); }
+html #room .focus-doc .fd-main, html #room .focus-doc .fd-side { display: contents; }
+html #room .focus-doc > *, html #room .focus-doc .fd-main > *, html #room .focus-doc .fd-side > * { position: relative; z-index: 1; min-width: 0; }
+
+/* ---------- the top: who it's from, the one big question, the way back ---------- */
+html #room .focus-doc .fd-head { grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; }
+html #room .focus-doc .fd-kicker { display: inline-flex; align-items: center; gap: 8px; font: 500 16px/1 var(--ui); color: var(--fd-t, var(--ink-2)); }
+html #room .focus-doc .fd-kicker:not(:empty)::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--fd-ink, var(--product)); }
+html #room .focus-doc .fd-by { font: italic 400 17px/1.2 var(--display); color: var(--ink-2); }
+html #room .focus-doc .fd-close { margin-left: auto; font: 500 16px/1 var(--ui); color: var(--ink); background: var(--sheet); border: 0; padding: 11px 18px;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 0 0 0 1.5px rgba(51,38,28,.7), 3px 4px 0 -1px rgba(210,122,141,.75); cursor: pointer;
+  transition: translate .2s var(--ease-land), box-shadow .2s var(--ease-land); }
+html #room .focus-doc .fd-close:hover { translate: 0 -1px; }
+html #room .focus-doc .fd-question { grid-column: 1 / -1; grid-row: 2; margin: 12px 0 20px; max-width: 34ch; text-wrap: balance;
+  font: 400 40px/1.14 var(--display); letter-spacing: -.014em; color: var(--ink); }
+html #room .focus-doc .fd-question::before { display: none; }
+
+/* ---------- the work, large, on the left ---------- */
+html #room .focus-doc .fd-work { grid-column: 1; grid-row: 3 / -1; align-self: stretch; max-height: none; min-height: 0; overflow: visible;
+  display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 28px 30px 30px;
+  border-radius: 22px 18px 24px 17px / 18px 24px 17px 22px; --pp: #FFFDF8; --cc: rgba(160,128,96,.55); --cx: 5px; --cy: 6px; --crot: -.3deg; }
+html #room .focus-doc .fd-row { gap: 10px 8px; position: relative; }
+html #room .focus-doc .fd-box { position: relative; font: 500 19px/1.25 var(--ui); color: var(--ink); background: var(--sheet); border: 0; padding: 12px 16px;
+  border-radius: 14px 12px 15px 11px / 12px 15px 11px 14px; box-shadow: 0 0 0 1.2px rgba(51,38,28,.55), 3px 4px 0 -1px color-mix(in srgb, var(--fd-ink, var(--product)) 70%, transparent); }
+html #room .focus-doc .fd-box.fd-target { outline: 0; box-shadow: 0 0 0 1.5px rgba(51,38,28,.75), 3px 4px 0 -1px var(--product), 0 0 0 7px rgba(210,122,141,.16); }
+html #room .focus-doc .fd-arrow { font: 400 17px/1 var(--ui); color: var(--ink-3); }
+html #room .focus-doc .fd-empty { font: italic 400 20px/1.4 var(--display); color: var(--ink-2); }
+html #room .focus-doc .fd-wires { position: relative; }
+html #room .focus-doc .fd-page { height: 100%; min-height: 360px; border: 0; border-radius: 14px; box-shadow: 0 0 0 1px var(--rule-c); background: #fff; }
+/* the research card [data-doc=finding] */
+html #room .focus-doc .fd-work .ff, html #room .focus-doc .fd-finding { position: relative; max-width: 62ch; }
+html #room .focus-doc .fd-work > :is(.jw, .fd-wires, .fd-empty) { position: relative; }
+html #room .focus-doc .ff-prepared { display: inline-block; font: 500 14px/1 var(--ui); color: var(--research-t); margin-bottom: 12px; }
+html #room .focus-doc .ff-claim { position: relative; margin: 0; font: 400 32px/1.25 var(--display); color: var(--ink); letter-spacing: -.01em; border: 0; padding: 0; }
+html #room .focus-doc .ff-about { margin: 14px 0 0; font: italic 400 18px/1.45 var(--display); color: var(--ink-2); }
+html #room .focus-doc .ff-src { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 18px; padding: 9px 14px; text-decoration: none;
+  border-radius: 16px 14px 17px 13px / 14px 17px 13px 16px; background: rgba(192,96,63,.10); }
+html #room .focus-doc .ff-src-title { font: 500 16px/1.3 var(--ui); color: var(--research-t); }
+html #room .focus-doc .ff-src-site { font: 400 15px/1.3 var(--ui); color: var(--ink-2); }
+html #room .focus-doc .fd-finding-title { font: 400 30px/1.25 var(--display); color: var(--ink); }
+html #room .focus-doc .fd-finding-text { font: 400 19px/1.5 var(--ui); color: var(--ink); }
+/* the journey in words [data-doc=journey-words]: a struck step, then its new line in the teammate's ink */
+html #room .focus-doc .jw-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+html #room .focus-doc .jw-step { position: relative; display: grid; grid-template-columns: 92px 1fr; column-gap: 14px; align-items: baseline; padding: 10px 14px;
+  border-radius: 14px 12px 15px 11px / 12px 15px 11px 14px; background: var(--sheet); box-shadow: 0 0 0 1px var(--rule-c); }
+html #room .focus-doc .jw-time { font: 500 15px/1.3 var(--ui); color: var(--ink-3); }
+html #room .focus-doc .jw-text { grid-column: 2; font: 400 21px/1.35 var(--display); color: var(--ink); }
+html #room .focus-doc .jw-text s { color: var(--ink-3); text-decoration-color: var(--fd-t, var(--design-t)); text-decoration-thickness: 2px; }
+html #room .focus-doc .jw-new { grid-column: 2; margin-top: 4px; font: 400 21px/1.35 var(--display); color: var(--fd-t, var(--design-t)); animation: pfd-in .5s var(--ease-land) both; }
+html #room .focus-doc .jw-step[data-state="rewritten"] { box-shadow: 0 0 0 1.2px color-mix(in srgb, var(--fd-ink, var(--design)) 60%, transparent); }
+
+/* ---------- her thoughts, on her pink paper, on the right ---------- */
+/* .pfd-sheet is a decorative layer painted.js adds behind her column (aria-hidden; nothing reads or clicks it) */
+html #room .focus-doc > .pfd-sheet { grid-column: 2; grid-row: 3 / -1; z-index: 0; align-self: stretch; pointer-events: none; padding: 18px 22px;
+  font: 500 15px/1 var(--ui); color: var(--product-t);
+  background-color: #FCEFEE; background-image: var(--tooth); background-size: 260px 260px;
+  border-radius: 22px 18px 24px 17px / 18px 24px 17px 22px; box-shadow: 0 0 0 1.4px rgba(51,38,28,.6), 4px 5px 0 0 rgba(210,122,141,.8); }
+html #room .focus-doc[data-state="takeaways"] > .pfd-sheet { color: transparent; }
+html #room .focus-doc .fd-said, html #room .focus-doc .fd-pieces, html #room .focus-doc .fd-form, html #room .focus-doc .fd-read,
+html #room .focus-doc .fd-chimes, html #room .focus-doc .fd-brief, html #room .focus-doc .fd-team { grid-column: 2; margin-inline: 22px; }
+html #room .focus-doc .fd-said { grid-row: 3; margin-top: 46px; padding: 0; border: 0; max-width: none; font: italic 400 20px/1.42 var(--display); color: var(--product-t); }
+html #room .focus-doc .fd-said.speaking::after { background: var(--product); }
+html #room .focus-doc .fd-words { margin: 0; padding: 0; border: 0; background: none; font: italic 400 20px/1.42 var(--display); color: var(--product-t); }
+html #room .focus-doc .fd-words::before { content: 'You said'; display: block; margin-bottom: 6px; font: normal 500 14px/1 var(--ui); color: var(--ink-2); }
+html #room .focus-doc .fd-pieces { grid-row: 4; margin-top: 46px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0; }
+html #room .focus-doc .fd-said:not(:empty) ~ .fd-pieces { margin-top: 14px; }
+html #room .focus-doc .fd-form { grid-row: 5; margin-top: 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px 12px; align-items: center; }
+html #room .focus-doc .fd-form > .fd-input { grid-column: 1 / -1; }
+html #room .focus-doc .fd-form > .fd-add { grid-column: 2; }
+html #room .focus-doc .fd-form > .fd-send { grid-column: 3; }
+/* her voice, as her pill: a mic in her ink on her paper; listening shows as a soft ring, never a blinking square */
+html #room .focus-doc .voice-mic { grid-column: 1; grid-row: 2; display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 16px 0 6px;
+  font: 400 16px/1 var(--ui); color: var(--ink); background: #FFF5F3; border: 0; transform: none;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 0 0 0 1.3px rgba(51,38,28,.6), 3px 4px 0 -1px rgba(210,122,141,.8); }
+html #room .focus-doc .voice-mic svg { box-sizing: content-box; width: 14px; height: 14px; padding: 8px; border-radius: 50%; background: var(--product-t); color: #FFF6F0; fill: currentColor; }
+html #room .focus-doc .voice-mic[data-state="listening"] { background: #FFF5F3; transform: none; box-shadow: 0 0 0 1.3px rgba(51,38,28,.6), 3px 4px 0 -1px rgba(210,122,141,.8); }
+html #room .focus-doc .voice-mic[data-state="listening"] svg { animation: pfd-listen 1.6s ease-in-out infinite; }
+html #room .focus-doc .voice-mic[data-state="listening"]::after { display: none; }
+html #room .focus-doc .voice-mic[data-state="writing"] { background: #FFF5F3; color: var(--product-t); }
+html #room .focus-doc .voice-mic[data-state="typed"] { box-shadow: none; background: none; padding: 0; color: var(--ink-2); }
+html #room .focus-doc .fd-input { grid-column: 1 / -1; min-height: 96px; font: 400 21px/1.42 var(--display); color: var(--ink); background: rgba(255,253,248,.78); border: 0; padding: 12px 14px;
+  border-radius: 16px 13px 17px 12px / 13px 17px 12px 16px; box-shadow: inset 0 0 0 1.2px rgba(51,38,28,.35); resize: none; }
+html #room .focus-doc .fd-input::placeholder { color: var(--ink-2); font-style: italic; }
+html #room .focus-doc .fd-input:focus { outline: 0; box-shadow: inset 0 0 0 1.6px var(--product-t); }
+html #room .focus-doc .fd-add { justify-self: start; font: 500 16px/1 var(--ui); color: var(--product-t); background: none; border: 0; padding: 6px 2px 5px; cursor: pointer;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1.5px; background-position: 0 100%; background-repeat: no-repeat; }
+html #room .focus-doc .fd-send { font: 500 17px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 12px 22px; cursor: pointer;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 3px 4px 0 -1px rgba(210,122,141,.85); }
+html #room .focus-doc .fd-send:hover { translate: 0 -1px; }
+
+/* each spoken piece: raw first in soft grey, then the tidy dries to her ink */
+html #room .focus-doc .fd-piece { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 10px 0 12px;
+  border-bottom: 1.5px dashed rgba(168,72,98,.28); animation: pfd-in .35s var(--ease-land) both; }
+html #room .focus-doc .fd-piece-words { flex: 1 0 100%; font: italic 400 21px/1.42 var(--display); color: var(--ink-2); }
+html #room .focus-doc .fd-piece[data-state="tidy"] .fd-piece-words, html #room .focus-doc .fd-piece[data-state="mine"] .fd-piece-words { color: var(--product-t); transition: color .9s ease-out; }
+html #room .focus-doc .fd-piece[data-state="raw-shown"] .fd-piece-words { color: var(--ink-2); }
+html #room .focus-doc .fd-piece[data-state="raw-shown"] .fd-piece-words::before { content: 'What you said · '; font: normal 500 14px/1 var(--ui); color: var(--ink-2); }
+html #room .focus-doc .fd-w { display: inline-block; transition: opacity .28s ease, filter .28s ease; }
+html #room .focus-doc .fd-piece[data-view="raw"] .fd-w[data-slot="removed-word"],
+html #room .focus-doc .fd-piece-words[data-view="raw"] .fd-w[data-slot="removed-word"] { color: #6E5A49; }
+html #room .focus-doc .fd-w[data-state="leaving"] { opacity: 0; filter: blur(2px); }
+html #room .focus-doc .fd-w[data-state="arriving"] { animation: pfd-fade .4s .1s ease-out both; }
+html #room .focus-doc .fd-w[data-state="changed"] { animation: pfd-fade .4s ease-out both; }
+html #room .focus-doc .fd-piece[data-state="tidying"]::after { content: 'Tidying…'; flex: 1 0 100%; font: 400 14px/1 var(--ui); color: var(--ink-2); }
+html #room .focus-doc .fd-piece :is(.fd-piece-see-said, .fd-piece-use-mine, .fd-piece-redo, .fd-piece-remove) { font: 500 15px/1 var(--ui); color: var(--ink-2); background: none; border: 0;
+  padding: 4px 0 3px; cursor: pointer; background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1.2px; background-position: 0 100%; background-repeat: no-repeat; }
+html #room .focus-doc .fd-piece :is(.fd-piece-see-said, .fd-piece-use-mine) { color: var(--product-t); }
+/* the controls show under the newest piece only, and on any piece she points at */
+html #room .focus-doc .fd-piece:not(:last-child) :is(button) { opacity: 0; transition: opacity .2s; }
+html #room .focus-doc .fd-piece:not(:last-child):hover :is(button), html #room .focus-doc .fd-piece:focus-within :is(button) { opacity: 1; }
+
+/* ---------- after Send: pins on the work, replies by them, then the takeaways ---------- */
+/* her pin lands on the part her words are about (the question's target, else the work's corner) */
+html #room .focus-doc:is([data-state="answered"], [data-state="chiming"], [data-state="working"], [data-state="takeaways"]) .fd-work .fd-target::after,
+html #room .focus-doc:is([data-state="answered"], [data-state="chiming"], [data-state="working"], [data-state="takeaways"]) .fd-work:not(:has(.fd-target)) > :is(.ff, .fd-finding, .jw, .fd-wires, .fd-empty):first-of-type::after {
+  content: ''; position: absolute; right: -11px; top: -13px; width: 26px; height: 26px; display: grid; place-items: center;
+  border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--product); box-shadow: 0 0 0 2px var(--sheet), 1px 2px 3px rgba(60,35,15,.35);
+  font: 600 13px/1 var(--ui); color: #fff; z-index: 3; animation: pfd-pin .55s var(--ease-land) both; }
+/* a reply pin: a teardrop in the teammate's ink; the count stays hidden (no counts) */
+html #room .focus-doc .fd-pin { position: absolute; right: -14px; top: 50%; width: 26px; height: 26px; margin-top: -13px; z-index: 4; cursor: pointer;
+  --pin: var(--ink-3); --pin-t: var(--ink-2); }
+html #room .focus-doc .fd-work > .fd-pin { right: 60px; top: 26px; margin-top: 0; }
+html #room .focus-doc .fd-work > .fd-pin .fd-pin-replies { left: auto; right: 36px; }
+html #room .focus-doc .fd-work > .fd-pin .pin-reply { border-radius: 18px 6px 18px 18px; transform-origin: 100% 20px; }
+html #room .focus-doc .fd-pin:has(.pin-reply:first-child[data-seat="design"]) { --pin: var(--design); --pin-t: var(--design-t); }
+html #room .focus-doc .fd-pin:has(.pin-reply:first-child[data-seat="research"]) { --pin: var(--research); --pin-t: var(--research-t); }
+html #room .focus-doc .fd-pin:has(.pin-reply:first-child[data-seat="data"]) { --pin: var(--data); --pin-t: var(--data-t); }
+html #room .focus-doc .fd-pin:has(.pin-reply:first-child[data-seat="strategy"]) { --pin: var(--strategy); --pin-t: var(--strategy-t); }
+html #room .focus-doc .fd-pin:has(.pin-reply:first-child[data-seat="engineering"]) { --pin: var(--engineering); --pin-t: var(--engineering-t); }
+html #room .focus-doc .fd-pin-mark { position: absolute; inset: 0; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--pin);
+  box-shadow: 0 0 0 2px var(--sheet), 1px 2px 3px rgba(60,35,15,.35); animation: pfd-pin .5s var(--ease-land) both; }
+html #room .focus-doc .fd-pin-count { display: none; }
+html #room .focus-doc .fd-pin[data-state="folded"] .fd-pin-mark { scale: .62; transition: scale .4s var(--ease-land); }
+html #room .focus-doc .fd-pin:hover .fd-pin-mark { scale: 1; }
+/* the replies: a short inked note beside the pin, readable for a few seconds, then it folds into the pin */
+html #room .focus-doc .fd-pin-replies { position: absolute; left: 36px; top: -14px; width: 300px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+html #room .focus-doc .pin-reply { position: relative; display: block; padding: 11px 15px 13px; pointer-events: auto; transform-origin: 0 20px;
+  background: #FFFDF8; border-radius: 6px 18px 18px 18px; box-shadow: 0 0 0 1.4px rgba(51,38,28,.7), 3px 4px 0 -1px var(--pin, var(--ink-3)), var(--shadow-sm);
+  transition: opacity .6s ease, scale .6s var(--ease-glide), translate .6s var(--ease-glide); }
+html #room .focus-doc .pin-reply-who { display: block; margin-bottom: 3px; font: 500 14px/1.2 var(--ui); color: var(--pin-t, var(--ink-2)); }
+html #room .focus-doc .pin-reply-text { display: block; font: italic 400 19px/1.38 var(--display); color: var(--ink); }
+html #room .focus-doc .pin-reply[data-state="fading"] { opacity: 0; scale: .25; translate: -26px 0; }
+html #room .focus-doc .pin-reply[data-state="folded"] { display: none; }
+/* a pin near the right edge of the work keeps its note inside the document: the note opens to the left */
+html #room .focus-doc .fd-row > :last-child .fd-pin-replies, html #room .focus-doc .fd-row > :nth-last-child(2) .fd-pin-replies { left: auto; right: 36px; }
+html #room .focus-doc .fd-row > :last-child .pin-reply, html #room .focus-doc .fd-row > :nth-last-child(2) .pin-reply { border-radius: 18px 6px 18px 18px; transform-origin: 100% 20px; }
+
+/* "Read the conversation": a quiet inked link, never a button block */
+html #room .focus-doc .fd-read { grid-row: 6; justify-self: start; margin-top: 16px; padding: 4px 0 4px 34px; font: 500 16px/1.2 var(--ui); color: var(--ink-2);
+  background: none; border: 0; cursor: pointer; text-align: left;
+  background-image: radial-gradient(circle at 6px 50%, var(--product) 5px, transparent 5.5px), radial-gradient(circle at 15px 50%, var(--design) 5px, transparent 5.5px),
+    radial-gradient(circle at 24px 50%, var(--engineering) 5px, transparent 5.5px), linear-gradient(currentColor, currentColor);
+  background-size: 30px 100%, 30px 100%, 30px 100%, calc(100% - 34px) 1.2px; background-position: 0 0, 0 0, 0 0, 34px 100%; background-repeat: no-repeat; }
+html #room .focus-doc .fd-read:hover { color: var(--ink); }
+html #room .focus-doc .fd-chimes { grid-row: 7; margin-top: 12px; gap: 12px; max-width: none; }
+/* each line of the conversation is a small note on paper (painted.css draws the paper), its crayon in the teammate's ink */
+html #room .focus-doc .chime { display: block; padding: 10px 14px 12px; border-radius: 6px 16px 16px 16px; --pp: #FFFDF8; --cx: 3px; --cy: 4px; --crot: .4deg; }
+html #room .focus-doc .chime-who { display: block; margin-bottom: 2px; font: 500 14px/1.2 var(--ui); color: var(--chime-t, var(--ink-2)); grid-column: auto; }
+html #room .focus-doc .chime-text { display: block; grid-column: auto; font: 400 18px/1.4 var(--display); color: var(--ink); }
+
+/* the takeaways: her paper card, in her voice, rewordable */
+html #room .focus-doc .fd-brief { grid-row: 8; margin-top: 18px; padding: 20px 22px 18px; gap: 12px; display: flex; flex-direction: column;
+  max-height: 52vh; overflow: auto; scrollbar-width: thin;
+  border-radius: 20px 16px 22px 15px / 16px 22px 15px 20px; --pp: #FFF8F6; --cc: var(--cr-product, var(--product)); --cx: 5px; --cy: 6px; --crot: .6deg;
+  animation: pfd-in .6s var(--ease-land) both; }
+html #room .focus-doc .fd-brief .brief-head { font: 500 15px/1 var(--ui); color: var(--product-t); }
+html #room .focus-doc .brief-part { display: flex; flex-direction: column; gap: 4px; }
+html #room .focus-doc .brief-label { font: 500 14px/1.2 var(--ui); color: var(--ink-2); }
+html #room .focus-doc .brief-text { margin: 0; font: 400 19px/1.38 var(--display); color: var(--ink); outline: 0; border-radius: 6px; }
+html #room .focus-doc .brief-believe .brief-text { font: italic 400 21px/1.34 var(--display); }
+html #room .focus-doc .brief-text[contenteditable="true"]:focus { box-shadow: 0 2px 0 var(--product-t); }
+html #room .focus-doc .fd-keep { align-self: flex-start; font: 500 16px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 10px 20px;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 3px 4px 0 -1px rgba(210,122,141,.85); }
+html #room .focus-doc .fd-team { grid-row: 9; margin-top: 14px; font: 500 15px/1.3 var(--ui); color: var(--ink-2); }
+
+/* ---------- motion: paper landing, no overshoot ---------- */
+@keyframes pfd-in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@keyframes pfd-fade { from { opacity: .2; } to { opacity: 1; } }
+@keyframes pfd-listen { 0%, 100% { box-shadow: 0 0 0 0 rgba(210,122,141,.45); } 50% { box-shadow: 0 0 0 7px rgba(210,122,141,.18); } }
+@keyframes pfd-pin { from { opacity: 0; scale: 1.6; translate: 0 -10px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { html #room .focus-doc * { animation: none !important; transition: none !important; } }
