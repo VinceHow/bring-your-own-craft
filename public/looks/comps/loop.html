@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>The engagement loop · sketches</title>
+<link rel="stylesheet" href="../ink-paper.css">
+<!-- Moment 2, the engagement loop: three sketch concepts for how questions reach her, how she reviews, and what
+     happens after she answers. ?c=table|margin|rail, ?step=0..4 for a still, ?play=1 for the flow.
+     Copy from DEMO.md (focus moments 2 and 3, the chime-ins and takeaways). Noor's question uses her note's wording. -->
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.canvas .abs, .canvas .pill, .canvas .stack .note, .canvas .hang { position: absolute; }   /* above ink-paper's .pane { position: relative } */
+.hide { opacity: 0; pointer-events: none; }
+.veil { position: absolute; inset: 0; background: rgba(43,31,23,.18); backdrop-filter: blur(3px); opacity: 0; transition: opacity .6s ease; z-index: 6; }
+.focus .veil { opacity: 1; }
+.label { font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
+
+/* ---------- shared: the room ---------- */
+.canvas .note { width: 200px; padding: 11px 13px 12px; font-size: 15px; line-height: 1.3; }
+.canvas .note .lab { margin-bottom: 3px; }
+.herpill { left: 590px; top: 682px; }
+.sheet.table { left: 638px; top: 500px; width: 380px; rotate: -1.2deg; padding: 14px 16px; z-index: 2; }
+.sheet.table h3 { font-size: 18px; margin: 3px 0 9px; }
+.sheet.table .steps { margin: 0; }
+.sheet.table .step { font-size: 13px; padding: 6px 9px; }
+.room-bubble { z-index: 3; width: 280px; }
+.tag.replay { right: 20px; top: 18px; z-index: 9; }
+
+/* ---------- shared: the focus document ---------- */
+.doc { left: 120px; top: 34px; width: 1360px; height: 832px; z-index: 7; padding: 40px 48px 34px; }
+.doc .from { display: flex; align-items: center; gap: 8px; font: 500 14px/1 var(--ip-sans); color: var(--t); }
+.doc .from i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.q { margin: 12px 0 0; font: 400 34px/1.18 var(--ip-serif); letter-spacing: -.012em; color: var(--ip-ink); }
+.her { position: relative; margin-top: 16px; padding: 4px 0 4px 18px; font: italic 400 21px/1.42 var(--ip-serif); color: var(--ip-ink); box-shadow: inset 3px 0 0 var(--ip-her); }
+.her .lab { display: block; font-style: normal; color: var(--ip-her-t); margin-bottom: 3px; }
+.say { display: flex; align-items: center; gap: 12px; margin-top: 18px; height: 54px; padding: 0 10px 0 20px; border-radius: 27px; background: rgba(255,255,255,.7);
+  box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.55); font: italic 400 19px/1 var(--ip-serif); color: var(--ip-ink-3); }
+.say .mic { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; background: var(--ip-her-t); display: grid; place-items: center; }
+.say .mic svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.doc .bubble { max-width: none; font-size: 18px; }
+.take { margin-top: 4px; }
+.take p { margin: 6px 0 0; font: 400 18px/1.4 var(--ip-serif); }
+.take p b { font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); display: block; margin-bottom: 3px; }
+.take .reword { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); }
+.take .reword svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.take ins { text-decoration: none; background: rgba(212,114,136,.18); border-radius: 4px; padding: 0 2px; }
+
+/* the wireframes (Mika's), drawn as grey boxes */
+.wire { width: 330px; padding: 16px; border-radius: 26px; background: #F1ECE4; box-shadow: inset 0 0 0 1.5px rgba(84,58,38,.22); font: 400 14px/1.2 var(--ip-sans); color: #5B5048; }
+.wire .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font: 500 14px/1 var(--ip-serif); color: #4A4038; }
+.wire .bar i { width: 26px; height: 8px; border-radius: 4px; background: #D4CCC1; }
+.wire .usual { padding: 12px; border-radius: 16px; background: #E4DDD2; margin-bottom: 12px; }
+.wire .usual small { display: block; font-size: 13px; color: #6B5F55; margin-bottom: 4px; }
+.wire .usual .b { margin-top: 9px; height: 30px; border-radius: 15px; background: #CFC6BA; display: grid; place-items: center; font-size: 13px; color: #4A4038; }
+.wire .f { position: relative; height: 36px; margin-bottom: 8px; padding: 0 12px; display: flex; align-items: center; border-radius: 12px; background: #FBF8F3; box-shadow: inset 0 0 0 1px #D9D1C6; font-size: 13px; color: #6B5F55; }
+.wire .f s { position: absolute; left: 6px; right: 6px; top: 50%; height: 2px; background: var(--ip-mika-t); border-radius: 2px; transform-origin: left; transform: scaleX(0); transition: transform .6s var(--ip-land); }
+.wire .f.cut s { transform: scaleX(1); }
+.wire .f.cut { color: #A79B90; }
+.wire .go { height: 38px; border-radius: 19px; background: #8E8378; color: #fff; display: grid; place-items: center; font: 500 14px/1 var(--ip-sans); margin-top: 4px; }
+
+/* Noor's finding */
+.finding { padding: 20px 22px; border-radius: 24px; background: rgba(255,255,255,.66); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
+.finding .big { font: 400 26px/1.25 var(--ip-serif); }
+.finding .src { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.finding .src a { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(201,94,56,.1); color: var(--ip-noor-t); font: 500 13px/1 var(--ip-sans); text-decoration: none; }
+.finding .src svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.finding .by { margin-top: 12px; font: italic 400 16px/1.4 var(--ip-serif); color: var(--ip-ink-2); }
+
+/* ===================== 1. Across the table ===================== */
+.c-table .held { left: 568px; top: 336px; rotate: -7deg; z-index: 4; }
+.c-table .stack { left: 760px; top: 760px; z-index: 4; }
+.c-table .stack .note { position: absolute; }
+.c-table .doc .grid { display: grid; grid-template-columns: 1fr 400px; gap: 46px; height: 100%; }
+.c-table .doc .main { display: flex; flex-direction: column; }
+.c-table .doc .work { display: flex; gap: 28px; margin-top: 22px; align-items: flex-start; }
+.c-table .doc .side { display: flex; flex-direction: column; gap: 12px; padding-top: 2px; }
+.c-table .doc .actions { margin-top: auto; display: flex; gap: 12px; }
+
+/* ===================== 2. A margin conversation ===================== */
+.c-margin .tabs-in { left: 670px; top: 470px; z-index: 1; display: flex; gap: 6px; rotate: -1.2deg; }
+.c-margin .tab { position: relative; width: 116px; height: 46px; padding: 9px 12px 0; border-radius: 14px 14px 4px 4px; background: var(--ip-paper); font: 500 13px/1 var(--ip-sans); color: var(--t);
+  box-shadow: inset 0 3px 0 var(--c), 0 1px 2px rgba(60,35,15,.25); display: flex; gap: 6px; }
+.c-margin .tab i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-top: 2px; }
+.c-margin .doc .top { max-width: 900px; }
+.c-margin .doc .page { position: absolute; left: 50%; top: 250px; translate: -50% 0; }
+.c-margin .doc .wire { width: 340px; }
+.c-margin .margin { position: absolute; width: 330px; }
+.c-margin .lead { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0; }
+.c-margin .lead path { fill: none; stroke: var(--ip-line); stroke-width: 1.5; stroke-opacity: .7; stroke-dasharray: 4 5; stroke-linecap: round; }
+.c-margin .doc .her { max-width: 880px; }
+.c-margin .take.foot { position: absolute; left: 48px; right: 48px; bottom: 30px; display: flex; gap: 32px; align-items: flex-start; }
+.c-margin .take.foot p { margin: 0; flex: 1; }
+.c-margin .doc .actions { position: absolute; right: 48px; top: 40px; display: flex; gap: 12px; }
+
+/* ===================== 3. Notes on a line ===================== */
+.c-rail .line { position: absolute; left: 820px; top: 742px; width: 380px; height: 40px; overflow: visible; z-index: 3; }
+.c-rail .line path { fill: none; stroke: var(--ip-line); stroke-width: 1.8; stroke-opacity: .85; }
+.c-rail .line circle { fill: var(--ip-line); }
+.c-rail .hang { position: absolute; z-index: 4; transform-origin: 50% 0; }
+.c-rail .hang .note { position: relative; width: 150px; font-size: 14px; padding: 16px 11px 10px; }
+.c-rail .peg { position: absolute; left: 50%; top: -9px; translate: -50% 0; width: 12px; height: 26px; border-radius: 4px; background: #B88A55; box-shadow: inset -2px 0 0 rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.3); z-index: 3; }
+.c-rail .doc { left: 300px; width: 1000px; padding: 40px 52px 34px; }
+.c-rail .letter .q { font-size: 32px; }
+.c-rail .attach { display: flex; gap: 18px; align-items: center; margin-top: 18px; padding: 12px; border-radius: 22px; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(84,58,38,.14); }
+.c-rail .attach .thumb { width: 150px; height: 104px; overflow: hidden; border-radius: 14px; position: relative; flex: none; }
+.c-rail .attach .thumb .wire { transform: scale(.42); transform-origin: 0 0; position: absolute; left: 6px; top: 4px; }
+.c-rail .attach .t { font: 400 18px/1.3 var(--ip-serif); } .c-rail .attach .t small { display: block; font: 500 13px/1.3 var(--ip-sans); color: var(--ip-ink-3); margin-top: 4px; }
+.c-rail .thread { position: relative; margin-top: 18px; padding-left: 26px; display: flex; flex-direction: column; gap: 10px; }
+.c-rail .thread::before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 16px; width: 2px; border-radius: 2px; background: rgba(74,48,32,.3); }
+.c-rail .thread .bubble { margin-left: var(--in, 0px); }
+.c-rail .doc .actions { position: absolute; right: 52px; bottom: 34px; display: flex; gap: 12px; }
+.c-rail .take { width: 560px; }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div>
+
+  <!-- the room, shared -->
+  <button class="pill" data-who="mika" style="left:420px;top:306px" id="pMika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+  <button class="pill" data-who="noor" style="left:612px;top:250px" id="pNoor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+  <button class="pill" data-who="theo" style="left:790px;top:300px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+  <button class="pill" data-who="ines" style="left:1056px;top:226px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+  <button class="pill" data-who="bo" style="left:1150px;top:362px" id="pBo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+  <button class="pill is-her herpill" data-who="her"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+  <div class="abs sheet table" data-who="her" id="tsheet">
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="lab">By Mika · wireframes</span><div class="tabs"><span>Journey</span><span class="on">Screens</span><span>Page</span></div></div>
+    <h3>Ordering, for regulars and newcomers</h3>
+    <div class="steps"><span class="step hers">Their usual loaf</span><span class="step" id="tPhone">Name and phone</span><span class="step">Pick-up time</span></div>
+  </div>
+  <div class="abs bubble room-bubble hide" data-who="mika" id="rbMika" style="left:200px;top:226px"><b>Mika</b>Phone field’s gone. Doing the rest now.</div>
+  <div class="abs tag replay"><span>Replay</span><small>recorded run</small></div>
+
+  <!-- ===== concept-specific room parts ===== -->
+  <!-- 1 table: a teammate holds up the note, then it slides across to her stool -->
+  <div class="abs note held hide c1" data-who="noor" id="held"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+  <div class="abs stack c1" id="stack">
+    <div class="note" data-who="mika" id="sMika" style="left:0;top:0;rotate:2.5deg"><span class="lab"><i></i>Mika</span>If ordering could feel like one thing…</div>
+    <div class="note hide" data-who="noor" id="sNoor" style="left:-16px;top:-14px;rotate:-3deg"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+  </div>
+  <!-- 2 margin: notes tuck into the top edge of her sheet as tabs -->
+  <div class="abs tabs-in c2" id="tabs"><span class="tab" data-who="mika" id="tMika"><i></i>Mika</span><span class="tab hide" data-who="noor" id="tNoor"><i></i>Noor</span></div>
+  <!-- 3 rail: a string with pegs by her seat -->
+  <svg class="line c3" viewBox="0 0 380 40" id="line"><path d="M4 8 C 120 30, 260 30, 376 8"/><circle cx="4" cy="8" r="4"/><circle cx="376" cy="8" r="4"/></svg>
+  <div class="hang c3" id="hMika" style="left:880px;top:762px;rotate:3deg"><span class="peg"></span><div class="note" data-who="mika"><span class="lab"><i></i>Mika</span>If ordering could feel like one thing…</div></div>
+  <div class="hang c3 hide" id="hNoor" style="left:1040px;top:760px;rotate:-2deg"><span class="peg"></span><div class="note" data-who="noor"><span class="lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div></div>
+
+  <div class="veil"></div>
+
+  <!-- ===== focus documents (filled per concept by the script) ===== -->
+  <div class="abs doc hide" id="doc"></div>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+const q = new URLSearchParams(location.search);
+const C = q.get('c') || 'table', STEP = q.has('step') ? +q.get('step') : null, PLAY = q.get('play') === '1';
+const c = document.getElementById('c'); c.classList.add('c-' + C);
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const { animate } = Motion; const spring = (d = .55) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+// only this concept's room parts
+$$('.c1, .c2, .c3').forEach(e => { if (!e.classList.contains({ table: 'c1', margin: 'c2', rail: 'c3' }[C])) e.remove(); });
+
+// ---------- content (DEMO.md) ----------
+const WIRE = `<div class="wire" id="wire"><div class="bar">Morning loaves<i></i></div>
+  <div class="usual" data-a="usual"><small>Your usual</small>Sourdough, sliced<div class="b">Order again</div></div>
+  <div class="f" data-a="name">Name<s></s></div><div class="f" data-a="phone">Phone<s></s></div><div class="f" data-a="login">Sign in or make an account<s></s></div>
+  <div class="f" data-a="time">Pick-up time</div><div class="go">Place order</div></div>`;
+const FIND = `<div class="finding"><span class="label">Noor’s finding</span><div class="big">Sourdough and morning buns go before 9am.</div>
+  <div class="src"><a href="#"><svg viewBox="0 0 12 12"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>Baker interviews</a><a href="#"><svg viewBox="0 0 12 12"><path d="M5 7l2-2M4.5 3.5l1-1a2.1 2.1 0 013 3l-1 1M7.5 8.5l-1 1a2.1 2.1 0 01-3-3l1-1"/></svg>Bakery forum thread</a></div></div>`;
+const Q_MIKA = 'If ordering could feel like one thing, what should it feel like?';
+const Q_NOOR = 'What sells out first, and what should we do about it?';
+const HER = 'Like the baker already knows you. Don’t ask for anything you already know.';
+const CHIME = [['mika', 'Then the phone field goes, and so does every question we can remember.'], ['bo', 'Then no logins. I’ll remember them.'], ['ines', 'Hmm, regulars might want a standing weekly order. Show that first?']];
+const TAKE = `<span class="lab">Your takeaways</span><p><b>What I believe</b>Ordering should feel like being known. Never ask for what we could remember<ins id="rew">.</ins></p>
+  <p><b>Guidance</b>Their usual loaf first, cut every field we already know.</p>`;
+const REWORD = `<span class="reword"><svg viewBox="0 0 14 14"><path d="M2 12l1-3 7-7 2 2-7 7z"/></svg>Reword</span>`;
+const SAY = `<div class="say" id="say">Say your piece, in your own time<span class="mic"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span></div>`;
+const bubble = ([w, t], i) => `<div class="bubble chime" data-who="${w}" style="--in:${i * 22}px"><b>${w[0].toUpperCase() + w.slice(1)}</b>${t}</div>`;
+
+function docHTML(kind) {   // kind: 'mika' (wireframes, the full answer flow) or 'noor' (a finding, before she answers)
+  const who = kind, q1 = kind === 'mika' ? Q_MIKA : Q_NOOR, from = kind === 'mika' ? 'From Mika · grey wireframes of ordering' : 'From Noor · what sells out first';
+  const work = kind === 'mika' ? WIRE : FIND;
+  const answer = kind === 'mika' ? `<div class="her hide" id="her"><span class="lab">You said</span>${HER}</div>` : '';
+  if (C === 'table') return `<div class="grid"><div class="main"><div class="from" data-who="${who}"><i></i>${from}</div><div class="q">${q1}</div>
+      <div class="work">${work}${kind === 'mika' ? '<div style="flex:1">' + answer + SAY + '</div>' : ''}</div>${kind === 'noor' ? SAY : ''}
+      <div class="actions"><button class="btn" id="send">Send to the team</button><button class="btn quiet">Back to the room</button></div></div>
+    <div class="side"><span class="label">The team</span>${kind === 'mika' ? CHIME.map((x) => bubble(x, 0)).join('') + `<div class="take hide" data-who="her" id="take">${TAKE}${REWORD}</div>` : '<div class="label" style="font:italic 400 17px/1.4 var(--ip-serif);color:var(--ip-ink-2)">They’ll chime in once you’ve said your piece.</div>'}</div></div>`;
+  if (C === 'margin') return `<div class="top"><div class="from" data-who="${who}"><i></i>${from}</div><div class="q">${q1}</div>${answer}${SAY}</div>
+      <div class="actions"><button class="btn" id="send">Send to the team</button><button class="btn quiet">Back to the room</button></div>
+      <div class="page" id="page">${work}</div>
+      ${kind === 'mika' ? CHIME.map((x, i) => `<div class="margin m${i}">${bubble(x, 0)}</div>`).join('') + `<svg class="lead" id="leads" width="1360" height="832"></svg><div class="take foot hide" data-who="her" id="take">${TAKE.replace('<span class="lab">Your takeaways</span>', '<span class="lab" style="width:150px;flex:none">Your takeaways<br>' + REWORD + '</span>')}</div>` : ''}`;
+  return `<div class="letter"><div class="from" data-who="${who}"><i></i>${from}</div><div class="q">${q1}</div>
+      <div class="attach">${kind === 'mika' ? '<div class="thumb">' + WIRE + '</div><div class="t">Ordering, five boxes<small>Open the wireframes</small></div>' : '<div class="t" style="flex:1">' + FIND + '</div>'}</div>
+      ${answer}${SAY}<div class="thread" id="thread">${kind === 'mika' ? CHIME.map(bubble).join('') : ''}</div>
+      ${kind === 'mika' ? `<div class="take hide" data-who="her" id="take" style="margin-top:14px">${TAKE}${REWORD}</div>` : ''}</div>
+      <div class="actions"><button class="btn" id="send">Send to the team</button><button class="btn quiet">Back to the room</button></div>`;
+}
+function openDoc(kind) {
+  const d = $('#doc'); d.innerHTML = docHTML(kind); d.classList.remove('hide', 'pane'); c.classList.add('focus');   // re-dress: the old paper went with the old contents
+  if (C === 'rail') d.style.height = kind === 'mika' ? '832px' : '560px', d.style.top = kind === 'mika' ? '34px' : '150px';
+  InkPaper.dress(d);
+  if (C === 'margin' && kind === 'mika') placeMargins();
+  $$('.chime').forEach(b => b.classList.add('hide'));
+  return d;
+}
+// margin notes sit beside the part they're about, with a dotted ink lead to it
+function placeMargins() {
+  const d = $('#doc'), db = d.getBoundingClientRect();
+  const at = a => { const r = d.querySelector(`[data-a="${a}"]`).getBoundingClientRect(); return { x: r.left - db.left, y: r.top - db.top + r.height / 2, r: r.right - db.left }; };
+  const spots = [['phone', 'left', 70, 0], ['login', 'right', 0, 10], ['usual', 'right', 0, -60]];
+  let paths = '';
+  spots.forEach(([a, side, dx, dy], i) => {
+    const m = d.querySelector('.m' + i), p = at(a), page = $('#page').getBoundingClientRect();
+    const x = side === 'left' ? page.left - db.left - 330 - 60 + dx : page.right - db.left + 60 + dx, y = p.y - 34 + dy;
+    m.style.left = x + 'px'; m.style.top = y + 'px';
+    const mx = side === 'left' ? x + 330 : x, my = y + 34, px = side === 'left' ? p.x - 4 : p.r + 4;
+    paths += `<path class="lead${i}" d="M${mx} ${my} C ${(mx + px) / 2} ${my}, ${(mx + px) / 2} ${p.y}, ${px} ${p.y}"/>`;
+  });
+  $('#leads').innerHTML = paths; $$('#leads path').forEach(p => p.style.opacity = 0);
+}
+function closeDoc() { $('#doc').classList.add('hide'); c.classList.remove('focus'); }
+
+// ---------- the steps ----------
+// 0 a note reaches her · 1 several wait, she picks one · 2 review (Mika's wireframes) and she speaks · 3 the team chimes in, takeaways · 4 Noor's finding (another kind of work) · 5 back in the room
+const S = {
+  table: [
+    () => { $('#held').classList.remove('hide'); InkPaper.talk($('#pNoor')); },
+    () => { $('#sNoor').classList.remove('hide'); $('#pNoor').classList.add('has-note'); $('#pMika').classList.add('has-note'); },
+  ],
+  margin: [
+    () => { $('#tNoor').classList.remove('hide'); InkPaper.talk($('#pNoor')); },
+    () => { $('#pNoor').classList.add('has-note'); $('#pMika').classList.add('has-note'); },
+  ],
+  rail: [
+    () => { $('#hNoor').classList.remove('hide'); InkPaper.talk($('#pNoor')); },
+    () => { $('#pNoor').classList.add('has-note'); $('#pMika').classList.add('has-note'); },
+  ],
+}[C];
+function stillAt(n) {
+  InkPaper.dress(c);
+  if (n >= 0 && n <= 1) S[0]();
+  if (n === 1) { InkPaper.talk($('#pNoor'), false); if (C === 'table') $('#held').classList.add('hide'); S[1](); }
+  if (n === 2 || n === 3) {
+    S[0](); S[1](); InkPaper.talk($('#pNoor'), false); if (C === 'table') $('#held').classList.add('hide');
+    openDoc('mika'); $('#her').classList.remove('hide'); $('#say').style.display = 'none';
+    if (n === 3) { $$('.chime').forEach(b => b.classList.remove('hide')); $('#take').classList.remove('hide'); $('#rew').textContent = ' or skip.';
+      $$('#wire [data-a="phone"], #wire [data-a="login"]').forEach(f => f.classList.add('cut')); $$('#leads path').forEach(p => p.style.opacity = 1); }
+    requestAnimationFrame(() => $$('#doc .pane').forEach(InkPaper.redraw));
+  }
+  if (n === 4) { S[0](); S[1](); InkPaper.talk($('#pNoor'), false); if (C === 'table') $('#held').classList.add('hide'); openDoc('noor'); }
+  if (n === 5) { S[0](); S[1](); InkPaper.talk($('#pNoor'), false); if (C === 'table') $('#held').classList.add('hide');
+    ({ table: '#sMika', margin: '#tMika', rail: '#hMika' })[C] && $(({ table: '#sMika', margin: '#tMika', rail: '#hMika' })[C]).remove();
+    $('#pMika').classList.remove('has-note'); $('#tPhone').textContent = 'Name only'; $('#rbMika').classList.remove('hide'); InkPaper.talk($('#pMika')); }
+  requestAnimationFrame(() => $$('.pane').forEach(InkPaper.redraw));
+}
+
+async function play() {
+  InkPaper.dress(c);
+  await wait(900);
+  // (a) a note reaches her, at a natural pause
+  if (C === 'table') {
+    InkPaper.talk($('#pNoor')); const h = $('#held'); h.classList.remove('hide'); InkPaper.lay(h);
+    await wait(1500);
+    const sb = $('#sNoor').getBoundingClientRect(), hb = h.getBoundingClientRect();
+    await animate(h, { x: [0, sb.left - hb.left - 6], y: [0, sb.top - hb.top - 10], rotate: [-7, -3] }, spring(.9)).finished;
+    h.classList.add('hide'); $('#sNoor').classList.remove('hide');
+  } else if (C === 'margin') {
+    InkPaper.talk($('#pNoor')); const t = $('#tNoor'); t.classList.remove('hide');
+    await animate(t, { y: [40, 0], opacity: [0, 1] }, spring(.7)).finished;
+  } else {
+    InkPaper.talk($('#pNoor')); const h = $('#hNoor'); h.classList.remove('hide');
+    animate(h, { y: [-60, 0], opacity: [0, 1] }, spring(.6));
+    await animate(h, { rotate: [-12, 6, -4, 1.5, -2] }, { duration: 1.8, ease: 'easeOut' }).finished;
+  }
+  InkPaper.talk($('#pNoor'), false); $('#pNoor').classList.add('has-note'); $('#pMika').classList.add('has-note');
+  await wait(1200);
+  // she picks Mika's: it grows into her focus
+  const src = $(({ table: '#sMika', margin: '#tMika', rail: '#hMika' })[C]); const sb = src.getBoundingClientRect();
+  animate(src, { y: -6 }, spring(.3)); await wait(300);
+  const d = openDoc('mika'); const db = d.getBoundingClientRect();
+  d.style.transformOrigin = `${sb.left + sb.width / 2 - db.left}px ${sb.top + sb.height / 2 - db.top}px`;
+  animate(d, { scale: [.16, 1], opacity: [0, 1] }, spring(.7)); src.style.opacity = 0;
+  await wait(1700);
+  // (b) she says her piece, in her own time; then submits
+  const say = $('#say'); say.style.display = 'none'; const her = $('#her'); her.classList.remove('hide'); animate(her, { opacity: [0, 1], y: [8, 0] }, spring(.5));
+  await wait(1800);
+  $('#send').classList.add('is-pressed'); await wait(160); $('#send').classList.remove('is-pressed');
+  // (c) the team reacts within a second; each sees the last
+  for (const [i, b] of $$('.chime').entries()) {
+    await wait(i === 0 ? 450 : 1200);
+    b.classList.remove('hide'); InkPaper.lay(b);
+    if (C === 'margin') { const l = $('#leads .lead' + i); animate(l, { opacity: [0, 1] }, { duration: .6, delay: .5 }); }
+    if (i === 0) $$('#wire [data-a="phone"]').forEach(f => setTimeout(() => f.classList.add('cut'), 500));
+    if (i === 1) $$('#wire [data-a="login"]').forEach(f => setTimeout(() => f.classList.add('cut'), 500));
+  }
+  await wait(1300);
+  const t = $('#take'); t.classList.remove('hide'); InkPaper.lay(t);
+  await wait(2000); $('#rew').textContent = ' or skip.';
+  await wait(1600);
+  // back to the room: the work moves on
+  await animate(d, { scale: [1, .16], opacity: [1, 0] }, spring(.5)).finished; closeDoc();
+  $('#pMika').classList.remove('has-note'); $('#tPhone').textContent = 'Name only';
+  const rb = $('#rbMika'); rb.classList.remove('hide'); InkPaper.lay(rb); InkPaper.talk($('#pMika'));
+}
+
+if (STEP !== null) stillAt(STEP); else if (PLAY) play(); else stillAt(0);
+</script>
+</body>
+</html>
