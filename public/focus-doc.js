@@ -425,7 +425,8 @@
   }
 
   // ---- the team gets to work; the document updates ----------------------------------------------
-  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; doc.dataset.state = 'working'; });
+  // The team is on it. Takeaways already showing stay the document's state (with fewer replies they can land first).
+  B.on('answer.mapped', ev => { if (!forCur(ev)) return; $('.fd-team').textContent = 'The team is on it.'; if (doc.dataset.state !== 'takeaways') doc.dataset.state = 'working'; });
   const refreshJourney = () => { if (cur && $('.fd-work').dataset.kind === 'journey') setTimeout(renderWork, 60); };
   B.on('flow.line', refreshJourney);
   B.on('flow.reset', refreshJourney);
