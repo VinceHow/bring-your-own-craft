@@ -8,6 +8,7 @@ import { proposeAndSelect, selectForIdea } from '../lib/select.js';
 import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../lib/taste.js';
 import { tally } from '../lib/tally.js';
 import { parseFlow } from '../lib/flow.js';
+import { currentLines } from '../lib/sketch.js';
 import path from 'node:path';
 
 const running = new Set();
@@ -18,7 +19,7 @@ const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 function state(run) {
   const evs = readEvents(run);
   const start = evs.find(e => e.type === 'run.start');
-  const lines = evs.filter(e => e.type === 'flow.line').map(e => e.text);
+  const lines = currentLines(evs); // journey lines since the last flow.reset (a reshape or box edit replaces them)
   return { evs, idea: start?.idea, seat: start?.seat || 'product', lines, flow: parseFlow(lines) };
 }
 const validRun = id => /^[\w-]{1,80}$/.test(id) && fs.existsSync(path.join(RUNS_DIR, id, 'events.jsonl'));
