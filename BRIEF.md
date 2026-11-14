@@ -33,8 +33,8 @@ she's the expert, they build on what she said, it's all of ours.
 
 | Time | On screen | Live? |
 |---|---|---|
-| **0:00–0:05** Her seat | Six empty seats; she **clicks Product**. | live |
-| **0:05–0:22** Assembling the team | Five team cards, each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
+| **0:00–0:05** Her seat | Six seats plus a dashed seventh, "Your own craft"; she **clicks Product**. | live |
+| **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
 | **0:22–0:30** Her card | She says "I love…" (L1 of her file); Brings pre-filled; Stance empty. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
 | **0:35–0:45** First sketch | **Design** drafts user types + stages (boxes/arrows, no screens) in ~10 s, streamed. Fallback: prepared yoga sketch, labelled PREPARED. | live |
@@ -63,10 +63,15 @@ real run.
 4. **Leaning in:** a teammate card nudges toward her work on a real event (a candidate attached to a node she touched).
 5. **No gem (Vincent):** the gem is a metaphor only. No gem, bars or progress object; the idea is a sheet in the
    middle that the symphony's parts slide into.
-6. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
+6. **Names:** copy only; names on cards, check-ins as "Noor (Research): …", a small "agent" mark, never pronouns.
+7. **"Your own craft" seat (DIY, in scope; Vincent rates it easy):** a seventh dashed seat. She says a few words; one
+   fast call turns them into a fun name tag in her words (craft, good at, loves), each word editable. The tag text goes
+   to every teammate and the selector's "in her seat" test. The page build is limited to the two templates. Cut line:
+   visible label only.
+8. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
-7. Optional, last: one soft chord at the symphony.
+9. Optional, last: one soft chord at the symphony.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in

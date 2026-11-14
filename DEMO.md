@@ -26,8 +26,8 @@ on screen.
 
 | Time | What she sees and does | How it should feel | The presenter says | Live? |
 |---|---|---|---|---|
-| **0:00–0:05** Taking her seat | An empty table seen from above, inked on paper, six empty seats: Product, Design, Data, Research, Strategy, Engineering. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
-| **0:05–0:22** Assembling the team | One by one, each teammate's card lands **big in the middle of the table**, holds ~1.5 s, then slides into its seat. Each shows what it **loves**, what it **brings** (true) and its **stance**. No names, no faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
+| **0:00–0:05** Taking her seat | An empty table seen from above, inked on paper, six empty seats (Product, Design, Data, Research, Strategy, Engineering) and a seventh, dashed: **"Your own craft"**. She **clicks Product**; her card drops into it. | Quiet. The choice is hers. | "You don't open a tool. You take a seat." | live |
+| **0:05–0:22** Assembling the team | One by one, each teammate's card lands **big in the middle of the table**, holds ~1.5 s, then slides into its seat. Each shows its **name and seat** (*Mika · Design*), what it **loves**, what it **brings** (true) and its **stance**, with a small "agent" mark. No faces. Cards below. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:22–0:30** Her card | Her own card lifts to the middle, same layout. **Loves:** she says *"I love… getting the journey right before anyone draws a screen."* **Brings:** pre-filled, true. **Stance:** empty, *"We'll find out today."* It settles into her seat. | Her turn to introduce herself. | (she speaks) | live |
 | **0:30–0:35** The idea | A blank sheet: **"What's the idea?"** She says one rough sentence: "A booking page for a small yoga studio." It lands as a sheet in the middle of the table, rough as she said it. | Every idea starts rough, and that's fine here. | (silence) | live |
 | **0:35–0:45** The first sketch | Within about 10 s, **Design drafts the rough shape**, drawing in as it arrives: **who the users are** (small cards: e.g. first-timers, regulars, the studio owner) and **the stages they go through** (boxes and arrows: find a class → pick one → confirm → booked). **No screens.** | Relief: she never starts from a blank page. | "Nobody's best thinking starts from zero. The team hands her a shape to react to." | live |
@@ -42,13 +42,13 @@ on screen.
 **The team cards** (0:05–0:22). "Brings" must stay true of what each teammate actually runs on; change the line, not
 the claim.
 
-| Seat (ink) | Loves | Brings | Stance |
-|---|---|---|---|
-| Design (blue) | "A rough sketch in seconds. Polish at the very end." | taste-skill's design rules: type, colour, spacing | sketch first, polish last |
-| Research (orange) | "A source for every claim." | a real finding with its link, researched before the demo | what's known, with sources |
-| Data (green) | "One number that says it worked." | what to measure at each step | only what we'll measure |
-| Strategy (gold) | "Knowing who pays before we build." | pricing and payment calls | who pays, and why now |
-| Engineering (yellow) | "Boring, correct, shipped." | the page template and the live build | boring and correct |
+| Seat (ink) | Name | Loves | Brings | Stance |
+|---|---|---|---|---|
+| Design (blue) | Mika | "A rough sketch in seconds. Polish at the very end." | taste-skill's design rules: type, colour, spacing | sketch first, polish last |
+| Research (orange) | Noor | "A source for every claim." | a real finding with its link, researched before the demo | what's known, with sources |
+| Data (green) | Theo | "One number that says it worked." | what to measure at each step | only what we'll measure |
+| Strategy (gold) | Ines | "Knowing who pays before we build." | pricing and payment calls | who pays, and why now |
+| Engineering (yellow) | Bo | "Boring, correct, shipped." | the page template and the live build | boring and correct |
 
 **Focus time rules** (the core of the feel; build these exactly):
 - **Nothing ever breaks her focus.** No exception for "urgent". While a check-in is open: the other seats dim and
@@ -85,6 +85,17 @@ sketch, one guest joins, drawn from the main user type the sketch named (chosen 
 - distinct from Research: Research brings evidence with a link, the guest a felt point of view, labelled as such;
 - in the vision, this chair is where a real customer gets invited.
 
+**The "Your own craft" seat (DIY, in scope; Vincent, 14 Nov).** Bring your own craft means any craft. A seventh,
+dashed seat lets someone make their own. **Her name tag, made with her:** she says a few words about what she does and
+loves, in her own way (*"I'm good at mixing dough, and I love the first batch out at 6am"*), and the team turns them
+into a fun name tag in her words: **craft** (*Baker*), **good at** (*mixing dough*), **loves** (*the first batch out
+at 6am*). She can change any word. One fast call, no form. Her tag is then passed to every teammate and to the
+selector's "in her seat" test, so only questions in her craft reach her (a baker is asked about the bake, the menu,
+the morning rush, never wireframes). The polished stage path stays Priya in Product; if rehearsal says it's solid,
+the café fallback is re-recorded as a baker in the DIY seat. **Known limit:** the build at the end has two prepared
+page templates (yoga booking, café pre-order), so a DIY idea that isn't page-shaped like those gets the sketch and
+questions but no built page. **Cut line:** a visible label, "Your own craft: coming".
+
 **Seats she isn't in** read: *"Seat open: invite a teammate. Your agents hold it until they arrive."* A label, not a
 button. Real multiplayer is the vision we say out loud, not something we build.
 
@@ -111,8 +122,10 @@ in, labelled REPLAY, and the presenter says what was replayed.
 ## 2. How it works, in brief
 - **The room is the frame, a cozy studio.** Her work lies in front of her seat, full size. Each teammate's work sits
   as a sketchpad in front of its seat, to glance at or open, never to approve. Teammates are flat printed cards (role,
-  glyph, the craft's ink): no faces, no names, no chit-chat; their personality is the "loves" line and the one or two
-  lines in their check-ins.
+  glyph, the craft's ink, a name, a small "agent" mark): no faces, no chit-chat; their personality is the name, the
+  "loves" line and the one or two lines in their check-ins. **Names only, never pronouns**, anywhere in the room.
+  Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
+  (Engineering). Check-ins read *"Noor (Research): …"*.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
   the desk), and at least one choice visible on her page comes from it (e.g. class pass shown first). It reaches her three only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
