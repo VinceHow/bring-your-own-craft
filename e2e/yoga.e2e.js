@@ -141,10 +141,19 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   await waitFor(() => document.querySelectorAll('#sketch-sheet .sk-frame').length > 0, 90000, 'grey sketches');
   lap('1:45 sketches on the table (after answers)');
   // She makes a call on the confirm step, on its sketch.
-  const confirmId = await page.evaluate(() => [...BYOC.flow._state.nodes.values()].find(n => n.label === 'confirm')?.id);
+  // Her answers can redraw the journey (and Design re-sketches), so find the confirm step's frame as it stands once the
+  // frames match the boxes; if her redraw renamed the step, the frame of a box whose label mentions confirm or booking.
+  await waitFor(() => {
+    const nodes = [...BYOC.flow._state.nodes.values()];
+    const ids = new Set([...document.querySelectorAll('#sketch-sheet .sk-frame')].map(f => f.dataset.node));
+    return nodes.some(n => /confirm|book/i.test(n.label) && ids.has(n.id));
+  }, 45000, 'a sketch of the confirm step');
+  const confirmId = await page.evaluate(() => {
+    const ids = new Set([...document.querySelectorAll('#sketch-sheet .sk-frame')].map(f => f.dataset.node));
+    const nodes = [...BYOC.flow._state.nodes.values()].filter(n => ids.has(n.id));
+    return (nodes.find(n => n.label === 'confirm') || nodes.find(n => /confirm/i.test(n.label)) || nodes.find(n => /book/i.test(n.label))).id;
+  });
   const frame = page.locator(`#sketch-sheet .sk-frame[data-node="${confirmId}"]`);
-  // Her answers can redraw the journey and re-render the frames, so wait for the confirm frame rather than count once.
-  await waitFor(id => document.querySelectorAll(`#sketch-sheet .sk-frame[data-node="${id}"]`).length === 1, 45000, 'a sketch of the confirm step', confirmId);
   await frame.click({ position: { x: 60, y: 120 } });
   await page.waitForSelector('.fl-draft textarea', { timeout: 3000 });
   await page.keyboard.type('Cut the phone field. Name\'s enough; regulars hate forms.');

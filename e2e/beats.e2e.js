@@ -48,6 +48,8 @@ function countFromLog(evs) {
   return { asked: asked.size, fromFile: [...latest.values()].filter(d => /^L\d+$/.test(String(d.cites))).length };
 }
 // Every box is on screen (inside the viewport), so nothing on a beat is cut off.
+// No pronouns anywhere in the room (the PO's own "until they arrive" / "their own team" aside): he, she, his, him, her, hers.
+const pronouns = pg => pg.evaluate(() => (document.body.innerText.match(/\b(he|she|his|him|her|hers)\b/gi) || []));
 const onScreen = sel => page.evaluate(sel => [...document.querySelectorAll(sel)].every(e => {
   const r = e.getBoundingClientRect();
   return r.width > 0 && r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1;
@@ -70,6 +72,34 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
   // The 1600x900 room fits the 1280x720 screen, centred.
   const r = await page.evaluate(() => { const b = document.getElementById('room').getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom]; });
   assert.ok(r[0] >= -1 && r[1] >= -1 && r[2] <= 1281 && r[3] <= 721, `the room fits the screen: ${r}`);
+});
+
+test('1b. the seventh seat, "Your own craft": her name tag, then she sits there; no separate "I love" card', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
+  await p.goto(BASE + '/?stage=1&hold=300');
+  await p.waitForTimeout(400);
+  assert.match(await p.locator('.seat-diy .seat-empty').innerText(), /Your own craft/i);
+  await p.click('.seat-diy');
+  await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
+  await p.keyboard.type('I bake sourdough for my village and I love the 7am queue');
+  await p.keyboard.press('Enter');
+  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 20000, 'her tag', null, p);
+  await p.click('.name-tag .tag-craft'); await p.keyboard.press('End');
+  await p.keyboard.press('Enter'); // keep it: she takes the seat
+  await waitFor(() => !!document.querySelector('.seat-diy .card'), 5000, 'her card in her own seat', null, p);
+  assert.strictEqual(await p.locator('.seat-product .card').count(), 0, 'not in Product');
+  assert.ok(await p.locator('.seat-diy #her-stance').count(), 'her empty Stance slot');
+  await waitFor(() => document.querySelectorAll('.seat:not(.seat-diy):not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
+  await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
+  assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
+  await p.keyboard.type('A pre-order page for my bakery.'); await p.keyboard.press('Enter');
+  await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run', null, p);
+  assert.strictEqual(runs.at(-1).seat, 'diy', 'the run is in her own craft');
+  assert.match(String(runs.at(-1).intro || ''), /^I love /, 'her loves line goes as her intro');
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
 });
 
 test('2. the live path in stage mode, driven like a clicker, as far as the three asks', async () => {
@@ -120,6 +150,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.ok(!(await page.isVisible('.seat-design .card')), 'the room is gone from view');
   assert.ok(!(await page.isVisible('#tray')), 'and so is the tray');
   assert.ok(await page.isVisible('#focus-doc .fd-work'), 'the work, large');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
   const ask = asks.find(a => a.id === top);
   assert.strictEqual((await page.textContent('#focus-doc .fd-question')).trim(), (ask.question || ask.decision).trim(), 'its one question');
   assert.strictEqual(await page.locator('#focus-doc .fl-opt, #focus-doc .fl-yours, #focus-doc .is-dropped').count(), 0, 'no options, no YOUR CALL, no strike-through');
@@ -141,6 +172,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   await page.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room');
   assert.ok(await page.isVisible('.seat-design .card'), 'the room is back');
+  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in the room');
   if (asks.length > 1) {
     await waitFor(() => !document.getElementById('tray').hidden, 4000, 'the tray again');
     assert.strictEqual(await page.locator('#tray .tray-note').count(), asks.length - 1, 'the rest wait in the tray');
@@ -237,7 +269,7 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   const jAsks = judgeLog.filter(e => e.type === 'ask');
   assert.ok(jAsks.length >= 1 && jAsks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks (the cap in lib/policy.js), got ${jAsks.length}`);
   assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), jAsks[0].id, 'the first check-in is the run’s first ask');
-  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for her/);
+  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for you/);
   assert.ok(cm, 'the caption'); assert.strictEqual(+cm[2], jAsks.length, '"for her" is the run’s asks');
   assert.strictEqual(+cm[1], judgeLog.filter(e => e.type === 'candidate').length - jAsks.length, '"handled" is the rest, from the log');
   // Her line, from her run's log.
@@ -303,7 +335,7 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   await p.waitForTimeout(100);
   await p.keyboard.type('A booking page for a small yoga studio.');
   await p.keyboard.press('Enter');
-  await waitFor(() => /Opening her sheet/.test(document.getElementById('live-step').textContent) && !document.getElementById('live-step').hidden, 3000, 'the step', null, p);
+  await waitFor(() => /Opening the sheet/.test(document.getElementById('live-step').textContent) && !document.getElementById('live-step').hidden, 3000, 'the step', null, p);
   await waitFor(() => /slow · R replays the rehearsal/.test(document.getElementById('live-step').textContent), 3000, 'the slow note', null, p);
   await waitFor(() => /stopped/.test(document.getElementById('live-step').textContent), 4000, 'the failure', null, p);
   assert.match(await p.textContent('#live-step'), /R replays the rehearsal/);

@@ -61,7 +61,7 @@
   function renderJourney(w) {
     const S = B.flow && B.flow._state;
     const nodes = S ? [...S.nodes.values()] : [];
-    if (!nodes.length) { w.appendChild(h('p', 'fd-empty', 'Her journey is still being drawn.')); return; }
+    if (!nodes.length) { w.appendChild(h('p', 'fd-empty', 'The journey is still being drawn.')); return; }
     const rows = new Map();
     for (const n of nodes) { const r = n.row || 0; if (!rows.has(r)) rows.set(r, []); rows.get(r).push(n); }
     const edgeIn = new Map((S.edges || []).map(e => [e.to, e]));
