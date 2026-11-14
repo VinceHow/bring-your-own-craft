@@ -117,7 +117,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   const MOODS = ['idle', 'working', 'thinking', 'talking', 'delighted', 'note', 'signature', 'celebrating'];
   const LOOPING = new Set(['idle', 'working', 'thinking']);
   // clips that failed QC are not shown; the mood falls back to a close neighbour (see design/studio/cast-loops/NOTES-living.md)
-  const STANDIN = { ines: { note: 'talking' } };
+  const STANDIN = {};
 
   // Time of day
   const LABEL = { morning: 'Morning', afternoon: 'Afternoon', building: 'Afternoon, building her page', evening: 'Evening' };

@@ -21,7 +21,8 @@ Shots are in `design/studio/shots/cast-living/`. Tools are in this folder: `qc.p
 ## QC (all 43 clips)
 - **41 pass:** first and last frame match the rest frame; no camera drift; no clipping into the table, chairs, props or neighbours.
 - **Fixed for free:** all 8 Ines clips, plus the record player and coffee machine, came out about 1.5 px off the painting. I re-aligned them to the background in post.
-- **Fail (1):** Ines "note". The note is held in front of Theo. The page stands in "talking" until a redo ($0.25) is approved.
+- **Fail (1), redone:** Ines "note" held the note in front of Theo. One approved redo ($0.25) has the note held at the chest.
+  - The redo leaves the note on the book and drops it on the last 2 frames. I faded the last 0.7 s into the rest frame, so it dissolves instead of popping.
 - **Nit:** Noor "celebrating" hides the face behind the book for about a second. Kept.
 - **Weak:** the record player's tonearm barely moves; the record does turn.
 
