@@ -143,16 +143,6 @@ body.stage .meter-counts { font-size: 15px; }
 #room .mini-sheet .mini-head { padding-top: 10px; border-bottom: 1.5px dashed rgba(20,20,20,.35); }
 #room .mini-sheet > * { overflow: hidden; }
 
-/* ---- studio: her focus time. While a check-in is open (#room.focus, set by the room), the other seats dim and
-   hold still; her sheet, her seat, her file and the open check-in stay lit. No badge, count or timer anywhere. ---- */
-#room.focus .seat:not(.seat-product), #room.focus .mini-sheet, #room.focus .tally {
-  opacity: .42 !important; filter: saturate(.45); transition: opacity 140ms linear, filter 140ms linear; }
-#room.focus .seat:not(.seat-product) *, #room.focus .mini-sheet * {
-  animation-play-state: paused !important; transition: none !important; }
-#room.focus .checkin-open { opacity: 1; filter: none; position: relative; z-index: 20; }
-#room .seat, #room .mini-sheet, #room .tally { transition: opacity 140ms linear, filter 140ms linear; }
-@media (prefers-reduced-motion: reduce) { #room .seat, #room .mini-sheet, #room .tally { transition: none; } }
-
 /* ---- studio: the tray of waiting notes at her seat: a shallow paper tray, the notes resting slightly askew ---- */
 #room .tray { background: var(--pad-back); border: var(--line); border-radius: var(--r);
   box-shadow: inset 0 3px 0 rgba(20,20,20,.12), var(--shadow-sm); padding: var(--s2) var(--s3); }
@@ -252,3 +242,57 @@ body.stage #room .slip-text { font-size: 15px; }
 #room .tray-note { white-space: nowrap; padding: 6px 10px; }
 #room .tray-text { overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 body.stage #room .tray-note { font-size: 14px; }
+
+/* ======== her focus document (focus-doc.js). Two states only: the room, or her document. This is where the craft
+   lives: the work large, one big question, her words landing on it, the team chiming in, then her brief. ======== */
+.focus-doc { --fd-pad: 40px; background-color: var(--sheet); background-image: var(--grain); background-size: 220px 220px;
+  color: var(--ink); font-family: var(--ui); border: var(--line); border-radius: var(--r); box-shadow: 8px 8px 0 var(--ink); }
+.focus-doc .fd-head { display: flex; align-items: baseline; gap: var(--s3); padding-bottom: var(--s3); border-bottom: 2px solid var(--ink); }
+.focus-doc .fd-kicker { font: 400 15px/1 var(--display); text-transform: uppercase; letter-spacing: .04em;
+  text-shadow: 2px 2px 0 rgba(255,72,176,.45); }
+.focus-doc .fd-by { font: italic 400 15px/1.3 var(--ui); color: rgba(20,20,20,.78); }
+/* the work, large, on its own sheet: the thing she knows inside out */
+.focus-doc .fd-work { background: #FFFEFB; border: 2px solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s5); }
+/* one big question, in plain words: set like an editorial headline, sentence case, no box */
+.focus-doc .fd-question { font: 500 34px/1.22 var(--ui); letter-spacing: -.012em; max-width: 26ch; margin: var(--s5) 0 var(--s4); text-wrap: balance; }
+.focus-doc .fd-question::before { content: ''; display: block; width: 48px; height: 6px; margin-bottom: var(--s3); background: var(--product); border: 2px solid var(--ink); }
+/* her words, as she said them, landing on the work: her ink rule, a size up, unhurried */
+.focus-doc .fd-said { font: italic 400 22px/1.45 var(--ui); padding: var(--s2) 0 var(--s2) var(--s4); border-left: 6px solid var(--product); max-width: 60ch; }
+.focus-doc .fd-said.speaking::after { content: ''; display: inline-block; width: 2px; height: 1em; margin-left: 3px; vertical-align: -2px; background: var(--product); }
+.focus-doc .fd-said:empty { display: none; }
+/* the team chimes in, one after another: printed lines, each in its teammate's ink. Never bubbles. */
+.focus-doc .fd-chimes { list-style: none; margin: var(--s4) 0 0; padding: 0; display: grid; gap: var(--s3); max-width: 64ch; }
+.focus-doc .chime { display: grid; grid-template-columns: 12px 1fr; column-gap: var(--s3); align-items: baseline; animation: fd-in 140ms ease-out both; }
+.focus-doc .chime::before { content: ''; width: 12px; height: 12px; background: var(--chime-ink, var(--ink)); border: 2px solid var(--ink); border-radius: 2px; transform: translateY(2px); }
+.focus-doc .chime-who { grid-column: 2; font: 600 12.5px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.focus-doc .chime-text { grid-column: 2; font: 400 19px/1.4 var(--ui); }
+.focus-doc .chime[data-seat="design"] { --chime-ink: var(--design); } .focus-doc .chime[data-seat="data"] { --chime-ink: var(--data); }
+.focus-doc .chime[data-seat="research"] { --chime-ink: var(--research); } .focus-doc .chime[data-seat="strategy"] { --chime-ink: var(--strategy); }
+.focus-doc .chime[data-seat="engineering"] { --chime-ink: var(--engineering); }
+@keyframes fd-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* her brief: the best summary a great colleague would write. A memo on its own sheet, three short parts, every word hers to reword */
+.focus-doc .fd-brief { margin-top: var(--s5); background: #FFFEFB; border: 2px solid var(--ink); border-top: 8px solid var(--product);
+  border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s4) var(--s5) var(--s5); display: grid; gap: var(--s4); animation: fd-in 140ms ease-out both; }
+.focus-doc .fd-brief::before { content: 'Your brief'; font: 400 20px/1 var(--display); text-shadow: 2px 2px 0 rgba(255,72,176,.45); }
+.focus-doc .brief-label { display: block; margin-bottom: 4px; font: 600 12px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(20,20,20,.75); }
+.focus-doc .brief-text { display: block; font: 400 20px/1.45 var(--ui); outline: 0; border-bottom: 1.5px dashed transparent; }
+.focus-doc .brief-believe .brief-text { font: 500 24px/1.35 var(--ui); }
+.focus-doc .brief-text:hover, .focus-doc .brief-text:focus { border-bottom-color: rgba(20,20,20,.45); }
+.focus-doc .brief-text:focus { background: rgba(255,232,0,.35); }
+.focus-doc .fd-close { font: 600 14px var(--ui); color: var(--ink); background: var(--sheet); border: var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow-sm); padding: 8px 14px; cursor: pointer; }
+.focus-doc .fd-close:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+.focus-doc .fd-close:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.focus-doc .fd-close:focus-visible, .focus-doc .brief-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .focus-doc .chime, .focus-doc .fd-brief { animation: none; } }
+
+/* ======== the room's light chatter: teammates talking about their own work, never to her. Quiet printed margin
+   notes in each teammate's ink; never bubbles, never a question, never bold. ======== */
+.chatter-line { display: flex; align-items: baseline; gap: 6px; font: italic 400 13px/1.35 var(--ui); color: rgba(20,20,20,.85);
+  animation: fd-in 140ms ease-out both; }
+.chatter-line::before { content: ''; flex: none; width: 8px; height: 8px; background: var(--chatter-ink, var(--ink)); border: 1.5px solid var(--ink); border-radius: 1px; }
+.chatter-who { font: 600 11px/1 var(--mono); font-style: normal; text-transform: uppercase; letter-spacing: .05em; }
+.chatter-line[data-seat="design"] { --chatter-ink: var(--design); } .chatter-line[data-seat="data"] { --chatter-ink: var(--data); }
+.chatter-line[data-seat="research"] { --chatter-ink: var(--research); } .chatter-line[data-seat="strategy"] { --chatter-ink: var(--strategy); }
+.chatter-line[data-seat="engineering"] { --chatter-ink: var(--engineering); }
+body.stage .chatter-line { font-size: 14px; }
