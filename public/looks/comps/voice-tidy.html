@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voice · rough words, tidied</title>
+<!-- Round 2: she speaks rough; her raw words land in a soft hand; one fast tidy pass turns them into a composed
+     comment in her pink ink, pinned to the part of the work it's about. The room listens (concept 2) and her pen marks
+     the spot (concept 1) while she talks. Layout assumed for the loop's new focus (artifact left, meeting thread right).
+     One scripted run plays every state and marks each (window.__at): ready, anchored, speaking, raw, tidying, tidy,
+     clean, revealed, editing, sent, reaction.
+     ?stream=1  future option: words arrive live while she speaks (needs streaming speech-to-text; labelled on screen)
+     ?fail=1    the tidy call fails or is slow: her raw words are kept, as she said them
+     The voice level is a scripted envelope standing in for the mic; the tidy result is scripted. -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #1A120D; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.canvas > .doc { position: absolute; left: 40px; top: 36px; right: 40px; bottom: 30px; display: grid; grid-template-columns: 1fr 440px; gap: 26px; padding: 24px; }
+.art { position: relative; padding: 24px 32px; border-radius: var(--ip-r-lg); background: rgba(255,252,246,.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,.75); }
+.art > .lab { color: var(--ip-ink-2); }
+.art h1 { margin: 10px 0 30px; font: 400 36px/1.15 var(--ip-serif); letter-spacing: -.012em; max-width: 26ch; }
+.jr { position: relative; display: grid; grid-template-columns: 160px repeat(3, 1fr); gap: 16px 14px; padding: 20px; border-radius: var(--ip-r-md); background: rgba(84,58,38,.05); }
+.jr .h { font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 20px/1.2 var(--ip-serif); align-self: center; color: var(--ip-ink-2); }
+.jr .step { position: relative; padding: 18px 16px; font-size: 17px; min-height: 124px; display: flex; align-items: flex-start; }
+.jr .step.on { background: var(--ip-inset-her); box-shadow: inset 0 0 0 1px rgba(212,114,136,.45); }
+.pin { position: absolute; width: 22px; height: 22px; border-radius: 50% 50% 50% 6px; rotate: -45deg; background: var(--ip-her-t); box-shadow: 0 0 0 3px #FFF8F2, 1px 3px 5px rgba(60,35,15,.35); z-index: 3; }
+.pin[data-who] { background: var(--t); }
+.pin::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: #FFF6F0; }
+.pen { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 2; }
+.pen path { fill: none; stroke: var(--ip-her); stroke-linecap: round; }
+.cursor { position: absolute; width: 22px; height: 22px; z-index: 9; pointer-events: none; opacity: 0; }
+.art .note-noor { position: absolute; }
+
+/* the meeting thread */
+.thread { display: flex; flex-direction: column; min-height: 0; padding-top: 4px; }
+.thread > .lab { color: var(--ip-ink-2); margin-bottom: 4px; }
+.bench { display: flex; align-items: flex-end; gap: 10px; height: 74px; padding-left: 2px; }
+.mate { display: block; position: relative; height: 64px; transform-origin: 50% 100%; }
+.mate img { height: 100%; display: block; } .mate img.r { position: absolute; left: 0; top: 0; opacity: 0; }
+.list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; min-height: 0; }
+.list .bubble { max-width: none; font-size: 18px; }
+.ask { font-size: 21px !important; line-height: 1.3 !important; }
+.gap { flex: 1; }
+
+/* her composer and her comment: one card that changes state */
+.ink-paper .card.mine { padding: 14px 18px 12px; border-radius: 6px var(--ip-r-md) var(--ip-r-md) var(--ip-r-md); --cx: 6px; --cy: 6px; }
+.mine > .gl { --sheet: #FFFBF6; }
+.mine .who { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); min-height: 16px; }
+.mine .who .on { color: var(--ip-ink-3); font-weight: 400; }
+.mine .who .on b { font-weight: 500; color: var(--ip-ink-2); }
+.words { position: relative; margin-top: 7px; min-height: 58px; font: italic 400 20px/1.42 var(--ip-serif); color: var(--ip-ink-3); outline: none; caret-color: var(--ip-her-t); }
+.words .tk { display: inline-block; margin-right: .26em; white-space: nowrap; }
+.words.clean { color: var(--ip-her-t); }
+.words .tk.filler { color: #7A6656; }
+.ph { color: var(--ip-ink-3); font-style: italic; }
+.status { height: 18px; margin-top: 2px; font: 400 14px/18px var(--ip-sans); color: var(--ip-ink-3); }
+.links { display: flex; gap: 16px; margin-top: 6px; font: 500 14px/1 var(--ip-sans); }
+.links a { color: var(--ip-her-t); text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; padding-bottom: 3px; }
+.links a.quiet { color: var(--ip-ink-2); }
+.raw { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(84,58,38,.06); font: italic 400 16px/1.4 var(--ip-serif); color: var(--ip-ink-2); overflow: hidden; }
+.raw small { display: block; font: normal 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); margin-bottom: 4px; }
+.bar { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.bar .sp { flex: 1; }
+.ink-paper .pill.vp { height: 46px; padding: 0 16px 0 7px; gap: 9px; font: 400 16px/1 var(--ip-sans); color: var(--ip-ink-2); cursor: default; }
+.ink-paper .pill.vp > .gl { --sheet: var(--ip-paper-her); }
+.vp .mic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: #FFF6F0; background: var(--ip-her-t); position: relative; }
+.vp .mic svg { width: 15px; height: 15px; } .vp .ring { position: absolute; inset: 0; border-radius: 50%; }
+.vp .word b { font-weight: 500; color: var(--ip-her-t); } .vp .word { color: var(--ip-ink); }
+.kbd { display: inline-grid; place-items: center; min-width: 27px; height: 27px; padding: 0 7px; border-radius: 8px; font: 600 14px/1 var(--ip-sans); color: var(--ip-ink); background: #FFFDF8;
+  box-shadow: inset 0 0 0 1px rgba(84,58,38,.28), 0 2px 0 rgba(84,58,38,.28); transition: transform .12s, box-shadow .12s, background .12s; }
+.kbd.down { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgba(147,55,79,.5); background: var(--ip-paper-her); }
+.ink-paper .btn.sm { height: 42px; padding: 0 18px; font-size: 15px; }
+.hide { opacity: 0; pointer-events: none; }
+.future { position: absolute; right: 22px; top: 12px; z-index: 5; }
+.future .tag { --c: var(--ip-mika); font-size: 14px; color: var(--ip-ink); }
+.title { position: absolute; left: 22px; top: 8px; z-index: 5; } .title .tag { font-size: 14px; padding: 7px 13px; }
+.caret { display: inline-block; width: 2px; height: 1.05em; vertical-align: -3px; background: var(--ip-her-t); border-radius: 2px; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="painting"></div>
+  <div class="title"><span class="tag" id="ttl">Rough words, tidied</span></div>
+  <div class="doc">
+    <div class="art" id="art">
+      <span class="lab">From Noor and Mika · the rough journey</span>
+      <h1>A website for a small bakery, so customers can order bread ahead.</h1>
+      <div class="jr" id="jr">
+        <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+        <span class="who">Morning regulars</span><span class="step" id="anchor">Browse the loaves</span><span class="step">Order ahead</span><span class="step">Collect at the counter</span>
+        <span class="who">Weekend crowd</span><span class="step">Browse pastries</span><span class="step">Order by Friday</span><span class="step">Collect Saturday</span>
+        <span class="who">The bakers</span><span class="step">See tomorrow’s orders</span><span class="step">Bake to the list</span><span class="step">Hand over</span>
+      </div>
+      <svg class="pen" id="pen" width="1000" height="700"><g style="filter:url(#ip-wob4)"><path id="penpath" pathLength="1"/></g></svg>
+      <svg class="cursor" id="cur" viewBox="0 0 22 22"><path d="M3 2l15 9-6.5 1.5L9 19z" fill="#281C14" stroke="#FFF8EE" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="thread">
+      <span class="lab">In the meeting</span>
+      <div class="bench" id="bench">
+        <span class="mate" data-who="mika"><img src="../cast/mika-rest.webp" alt="Mika"><img class="r" src="../cast/mika-react.webp" alt=""></span>
+        <span class="mate" data-who="noor"><img src="../cast/noor-rest.webp" alt="Noor"><img class="r" src="../cast/noor-react.webp" alt=""></span>
+        <span class="mate" data-who="theo"><img src="../cast/theo-rest.webp" alt="Theo"><img class="r" src="../cast/theo-react.webp" alt=""></span>
+        <span class="mate" data-who="ines"><img src="../cast/ines-rest.webp" alt="Ines"><img class="r" src="../cast/ines-react.webp" alt=""></span>
+        <span class="mate" data-who="bo"><img src="../cast/bo-rest.webp" alt="Bo"><img class="r" src="../cast/bo-react.webp" alt=""></span>
+      </div>
+      <div class="list" id="list">
+        <div class="bubble" data-who="noor"><b>Noor</b><span class="t ask">What do people come to a bakery like this for that they can’t get at the supermarket?</span></div>
+        <div class="card mine" data-who="her" id="mine">
+          <div class="who"><span>Priya</span><span class="on" id="on"></span></div>
+          <div class="words" id="words" spellcheck="false"><span class="ph">Click the part it’s about, then say your piece</span></div>
+          <div class="status" id="status"></div>
+          <div class="links" id="links" style="display:none"><a href="#" id="see">See what you said</a><a href="#" class="quiet hide" id="usemine">Use mine</a></div>
+          <div id="rawbox"></div>
+          <div class="bar" id="bar">
+            <span class="pill vp" data-who="her" id="vp"><span class="mic"><span class="ring" id="ring"></span><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1.5" width="6" height="8.5" rx="3" fill="currentColor"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5M5 15h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="word" id="w1">Hold</span><span class="kbd" id="kbd">V</span><span class="word" id="w2">to speak</span></span>
+            <span class="sp"></span>
+            <button class="btn sm" id="send" style="display:none">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), STREAM = Q.has('stream'), FAIL = Q.has('fail');
+const C = document.getElementById('c'), $ = s => C.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const A = (el, k, o) => Motion.animate(el, k, o);
+const SPRING = { type: 'spring', visualDuration: .5, bounce: 0 };
+function mark(n) { window.__at = n; (window.__marks = window.__marks || []).push(n); }
+
+// what she said, and what the tidy pass makes of it: each raw token is kept, dropped, or becomes something else
+const RAW = [['so', 0], ['um', 0], ['the', 0], ['regulars,', 'Regulars'], ['they', 0], ['like,', 0], ['come', 1], ['every', 1], ['morning', 'morning,'], ['and', 1], ['uh', 'they'],
+  ['hate', 1], ['it', 1], ['when', 1], ['the', 1], ['sourdough’s', 1], ['gone', 1], ['by', 1], ['nine', 'nine.']];
+const FILL = new Set(['so', 'um', 'uh', 'like,', 'they', 'the']);
+const RAWTEXT = RAW.map(t => t[0]).join(' ');
+const THREAD = [['mika', 'Mika', 'Then their usual loaf sits right at the top.'], ['bo', 'Bo', 'I’ll hold the sourdough for regulars till ten.'], ['ines', 'Ines', 'Hmm, a standing weekly order might suit them better.']];
+
+// ---- voice level (scripted) and the listening room ----
+let holding = false, holdT = 0, lvl = 0, last = performance.now(), penLen = 0;
+const env = t => Math.min(1, (.18 + .82 * (Math.abs(Math.sin(t * 6.3)) * .55 + Math.abs(Math.sin(t * 2.2 + .7)) * .45) * (.55 + .45 * Math.sin(t * .8))) * (Math.sin(t * 1.6 + 1) > .93 ? .12 : 1));
+const mates = () => [...C.querySelectorAll('.mate')];
+const LEAN = { mika: -9, noor: -7, theo: -8, ines: -6, bo: -7 };
+function lean(k) { mates().forEach((m, i) => A(m, { rotate: (LEAN[m.dataset.who] || -6) * k, x: -4 * k }, { type: 'spring', visualDuration: .7, bounce: 0, delay: i * .07 })); }
+function tick(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; if (holding) holdT += dt;
+  lvl += ((holding ? env(holdT) : 0) - lvl) * Math.min(1, dt * 9);
+  $('#ring').style.boxShadow = `0 0 0 ${(holding ? 3 + lvl * 8 : 0).toFixed(1)}px color-mix(in srgb, var(--ip-her) ${(holding ? 22 + lvl * 18 : 0).toFixed(0)}%, transparent)`;
+  if (holding) { penLen = Math.min(1, penLen + dt * (.05 + .2 * lvl)); const p = $('#penpath'); p.style.strokeDashoffset = 1 - penLen; p.style.strokeWidth = (1.6 + lvl * 2.6).toFixed(2); }
+  requestAnimationFrame(tick);
+}
+function pill(a, key, b) { $('#w1').innerHTML = a; $('#kbd').style.display = key ? '' : 'none'; $('#w2').textContent = b || ''; $('#w2').style.display = b ? '' : 'none'; InkPaper.redraw($('#vp')); }
+function redrawMine() { InkPaper.redraw($('#mine')); }
+
+// the pen: a loose hand-drawn loop round the part she pointed at, drawn as she talks
+function penAround(el) {
+  const a = $('#art').getBoundingClientRect(), r = el.getBoundingClientRect();
+  const cx = r.left - a.left + r.width / 2, cy = r.top - a.top + r.height / 2, rx = r.width / 2 + 14, ry = r.height / 2 + 12;
+  let d = ''; for (let i = 0; i <= 64; i++) { const t = -2.2 + i / 64 * Math.PI * 2.0, w = 1 + .035 * Math.sin(i * .7) + 0; d += (i ? 'L' : 'M') + (cx + Math.cos(t) * rx * w).toFixed(1) + ' ' + (cy + Math.sin(t) * ry * w + i * .05).toFixed(1); }
+  const p = $('#penpath'); p.setAttribute('d', d); p.style.strokeDasharray = 1; p.style.strokeDashoffset = 1;
+}
+
+// ---- the words ----
+const words = $('#words');
+function rawInto(list, { stagger = .045 } = {}) {
+  words.innerHTML = ''; words.classList.remove('clean');
+  return list.map((t, i) => { const s = document.createElement('span'); s.className = 'tk' + (t[1] === 0 ? ' filler' : ''); s.textContent = t[0]; s._t = t; words.appendChild(s);
+    if (stagger) A(s, { opacity: [0, 1], y: [3, 0] }, { duration: .35, delay: i * stagger }); return s; });
+}
+// THE TIDY: fillers fade and fold away, the kept words slide together, changed words cross over, and the ink dries
+// from her soft grey hand into her pink, left to right. About a second, no sparkle.
+async function tidy() {
+  const tks = [...words.querySelectorAll('.tk')];
+  const before = new Map(tks.map(s => [s, s.getBoundingClientRect()]));
+  const drop = tks.filter(s => s._t[1] === 0), change = tks.filter(s => typeof s._t[1] === 'string');
+  drop.forEach(s => A(s, { opacity: 0, filter: ['blur(0px)', 'blur(2px)'] }, { duration: .28 }));
+  await sleep(260);
+  drop.forEach(s => s.style.display = 'none');
+  change.forEach(s => s.textContent = s._t[1]);
+  const keep = tks.filter(s => s._t[1] !== 0);
+  keep.forEach(s => { const b = before.get(s), n = s.getBoundingClientRect(); A(s, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, SPRING); });
+  change.forEach(s => A(s, { opacity: [.2, 1] }, { duration: .4 }));
+  words.classList.add('clean');
+  keep.forEach((s, i) => A(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: .12 + i * .035, ease: 'easeOut' }));
+  redrawMine();
+  await sleep(1000);
+}
+function cleanText() { return [...words.querySelectorAll('.tk')].filter(s => s.style.display !== 'none').map(s => s.textContent).join(' '); }
+
+async function hold(ms) {
+  $('#kbd').classList.add('down'); holding = true; holdT = 0; lean(1);
+  pill('<b>They’re listening</b>', '', 'take your time');
+  if (STREAM) { // future option: words arrive while she speaks
+    words.innerHTML = ''; const per = ms / RAW.length;
+    for (let i = 0; i < RAW.length; i++) { await sleep(per); appendRaw(RAW[i]); if (i === 9) mark('speaking'); }
+  } else { await sleep(ms * .5); mark('speaking'); await sleep(ms * .5); }
+  holding = false; $('#kbd').classList.remove('down'); lean(.25);
+}
+function appendRaw(t) { const s = document.createElement('span'); s.className = 'tk' + (t[1] === 0 ? ' filler' : ''); s.textContent = t[0]; s._t = t; words.appendChild(s); A(s, { opacity: [0, 1] }, { duration: .3 }); redrawMine(); }
+
+async function run() {
+  if (STREAM) { $('#ttl').textContent = 'Rough words, tidied · live words'; $('.title').insertAdjacentHTML('afterend', '<div class="future"><span class="tag">Future option: words arrive live (needs streaming speech-to-text)</span></div>'); }
+  if (FAIL) $('#ttl').textContent = 'Rough words, tidied · if the tidy fails';
+  InkPaper.dress(C);
+  await document.fonts.ready;
+  InkPaper.lay($('.doc'), .1); InkPaper.lay($('.list .bubble'), .7); InkPaper.lay($('#mine'), 1.0);
+  requestAnimationFrame(tick);
+  await sleep(2400); mark('ready'); await sleep(900);
+  // she points at the part it's about
+  const an = $('#anchor'), cur = $('#cur'), a = $('#art').getBoundingClientRect(), r = an.getBoundingClientRect();
+  cur.style.left = (r.left - a.left + r.width * .5) + 'px'; cur.style.top = (r.top - a.top + r.height * .8 + 60) + 'px';
+  A(cur, { opacity: [0, 1], y: [0, -60] }, { duration: .7, ease: [.2, .7, .3, 1] }); await sleep(800);
+  A(cur, { scale: [1, .85, 1] }, { duration: .25 }); an.classList.add('on');
+  const pin = document.createElement('span'); pin.className = 'pin'; pin.style.right = '-8px'; pin.style.top = '-10px'; an.appendChild(pin); A(pin, { scale: [0, 1], y: [-8, 0] }, SPRING);
+  $('#on').innerHTML = 'on <b>Browse the loaves</b>'; penAround(an);
+  await sleep(500); A(cur, { opacity: 0 }, { duration: .4 }); mark('anchored'); await sleep(700);
+  if (!STREAM) words.innerHTML = '';
+  await hold(5200);
+  // the raw words land (batch speech-to-text, ~0.6–1 s), fillers and all
+  if (!STREAM) { pill('<b>Writing it down</b>'); await sleep(800); rawInto(RAW); }
+  redrawMine(); pill('Hold', 'V', 'to add more');
+  await sleep(1400); mark('raw');
+  // the tidy: one fast model call. Under ~0.5 s nothing shows; longer, a quiet "Tidying…"
+  $('#status').textContent = 'Tidying…'; A($('#status'), { opacity: [0, 1] }, { duration: .3 });
+  await sleep(500); mark('tidying');
+  if (FAIL) {
+    await sleep(1000); // gave up at 1.5 s: keep her words, as she said them
+    $('#status').textContent = 'Kept as you said it';
+    [...words.querySelectorAll('.tk')].forEach((s, i) => A(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: i * .03 })); words.classList.add('clean');
+    showSend(); await sleep(1600); mark('clean'); await sleep(800);
+  } else {
+    await sleep(300); A($('#status'), { opacity: 0 }, { duration: .25 });
+    const t = tidy(); await sleep(420); mark('tidy'); await t;
+    $('#status').textContent = '';
+    $('#links').style.display = ''; A($('#links'), { opacity: [0, 1] }, { duration: .4 }); showSend();
+    await sleep(1200); mark('clean'); await sleep(600);
+    // see what you said: the raw words, word for word, and a way to keep them
+    $('#rawbox').innerHTML = `<div class="raw"><small>What you said</small>${RAWTEXT}</div>`; $('#usemine').classList.remove('hide');
+    A($('#rawbox .raw'), { opacity: [0, 1], height: [0, 'auto'] }, { duration: .4 }); $('#see').textContent = 'Hide what you said';
+    await sleep(500); redrawMine(); await sleep(900); mark('revealed'); await sleep(1300);
+    A($('#rawbox .raw'), { opacity: 0 }, { duration: .3 }); await sleep(300); $('#rawbox').innerHTML = ''; $('#usemine').classList.add('hide'); $('#see').textContent = 'See what you said'; redrawMine();
+  }
+  // she edits the clean text before sending
+  await editClean();
+  // send: her comment joins the thread; the room reacts at once
+  const b = $('#send'); b.classList.add('is-pressed'); await sleep(160); b.classList.remove('is-pressed');
+  A($('#bar'), { opacity: 0 }, { duration: .25 }); A($('#links'), { opacity: 0 }, { duration: .25 });
+  await sleep(250); $('#bar').style.display = 'none'; $('#links').style.display = 'none'; $('#status').style.display = 'none';
+  words.contentEditable = 'false'; redrawMine(); lean(0); mark('sent');
+  await sleep(350); react(0); await sleep(1100); mark('reaction');
+  await sleep(300); react(1); await sleep(1300); react(2); await sleep(1800); mark('thread'); mark('done');
+}
+function showSend() { const s = $('#send'); if (s.style.display !== 'none') return; s.style.display = ''; InkPaper.redraw(s); InkPaper.lay(s, 0); redrawMine(); }
+async function editClean() {
+  words.contentEditable = 'true';
+  const tks = [...words.querySelectorAll('.tk')].filter(s => s.style.display !== 'none');
+  const target = tks[tks.length - 1]; // "nine." → "nine, most days."
+  const range = document.createRange(); target.style.background = 'color-mix(in srgb, var(--ip-her) 22%, transparent)'; target.style.borderRadius = '5px';
+  await sleep(600); mark('editing'); await sleep(400);
+  target.style.background = ''; target.textContent = 'nine';
+  const car = document.createElement('span'); car.className = 'caret';
+  for (const ch of ', most days.') { target.textContent += ch; target.after(car); redrawMine(); await sleep(80); }
+  await sleep(500); car.remove(); redrawMine(); await sleep(500);
+}
+function react(i) {
+  const [who, name, text] = THREAD[i];
+  const m = C.querySelector(`.mate[data-who="${who}"]`);
+  A(m.querySelector('img.r'), { opacity: 1 }, { duration: .25 }); A(m.querySelector('img:not(.r)'), { opacity: 0 }, { duration: .25 }); A(m, { y: [0, -8, 0] }, { duration: .6 });
+  const d = document.createElement('div'); d.className = 'bubble'; d.dataset.who = who; d.innerHTML = `<b>${name}</b><span class="t">${text}</span>`;
+  $('#list').appendChild(d); InkPaper.dress(d); InkPaper.lay(d, 0);
+}
+run();
+</script>
+</body>
+</html>
