@@ -116,7 +116,6 @@ html, body { margin: 0; background: #1A120D; }
 <body>
 <div class="canvas ink-paper" id="c">
   <div class="room" id="room"><video id="scene" muted loop playsinline preload="auto" src="first-open/cast/scene-afternoon.webm"></video></div>
-  <div class="warm" id="warm"></div>
   <div class="teampills" id="teampills">
     <button class="pill" data-who="mika" style="left:404px;top:304px"><span class="dot"></span><span class="nm">Mika</span><span class="agent">agent</span></button>
     <button class="pill" data-who="noor" style="left:612px;top:290px"><span class="dot"></span><span class="nm">Noor</span><span class="agent">agent</span></button>
@@ -275,7 +274,6 @@ html, body { margin: 0; background: #1A120D; }
     await wait(1800);
     A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.4, bounce: 0 });
     await wait(700);
-    A('#warm', { opacity: [0, 1] }, { duration: 1.6, ease: 'easeInOut' });
     await wait(500);
     c.querySelectorAll('.teampills .pill').forEach((p, i) => { p.style.opacity = 1; InkPaper.redraw(p); if (!instant) InkPaper.lay(p, i * .12); });
   })();

@@ -131,7 +131,7 @@ html, body { margin: 0; background: #1A120D; }
 </head>
 <body>
 <div class="canvas ink-paper" id="c">
-  <div class="room"></div><div class="warm"></div>
+  <div class="room"></div>
   <button class="abs pill" data-who="mika" style="left:404px;top:304px"><span class="dot"></span><span class="nm">Mika</span><span class="agent">agent</span></button>
   <button class="abs pill" data-who="noor" style="left:612px;top:290px"><span class="dot"></span><span class="nm">Noor</span><span class="agent">agent</span></button>
   <button class="abs pill" data-who="theo" style="left:790px;top:322px"><span class="dot"></span><span class="nm">Theo</span><span class="agent">agent</span></button>
@@ -266,25 +266,16 @@ html, body { margin: 0; background: #1A120D; }
   // the wrap-up page (design/loop her-page.html) fires 'studio:filed' { entry, card } on "Looks right". The inbox
   // opens, flies their card (measured, not moved by them) into the top of Past meetings, and writes the row from entry.
   document.addEventListener('studio:filed', async e => {
+    // one way of filing everywhere: their card folds into a note and drifts to the tray, the row goes into Past meetings
     const { entry, card } = e.detail || {}; if (!entry) return;
-    if (!open) await expand();
-    const row = document.createElement('div'); row.className = 'prow'; row.dataset.who = (entry.artifact && entry.artifact.by && entry.artifact.by[0]) || 'her'; row.style.opacity = 0;
+    if (open) await collapse();
     const esc = t => String(t || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg></span></span>' +
+    const row = document.createElement('div'); row.className = 'prow'; row.dataset.who = (entry.artifact && entry.artifact.by && entry.artifact.by[0]) || 'her';
+    row.innerHTML = '<span class="th"><span class="tk"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg></span></span>' +
       `<span class="tt">${esc(entry.title)}<small>${esc(entry.artifact && entry.artifact.title)}${entry.rounds ? ' · ' + (entry.rounds.length > 1 ? 'two rounds' : 'one round') : ''}</small></span><span class="bel">${esc(entry.belief)}</span>`;
     $('#past').prepend(row);
-    if (card && !instant) {
-      const a = card.getBoundingClientRect(), b = row.getBoundingClientRect(), ghost = card.cloneNode(true);
-      Object.assign(ghost.style, { position: 'fixed', left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', margin: 0, zIndex: 60, pointerEvents: 'none' });
-      document.body.appendChild(ghost); card.style.visibility = 'hidden';
-      await animate(ghost, { x: b.left - a.left, y: b.top - a.top, scale: [1, b.width / a.width], opacity: [1, .3] }, { type: 'spring', visualDuration: .9, bounce: 0 }).finished;
-      ghost.remove();
-    }
-    if (card) card.style.visibility = 'hidden';  // the wrap-up page brings the room back itself
-    animate(row, { opacity: [0, 1] }, { duration: instant ? 0 : .3 });
-    const tk = row.querySelector('path'); tk.style.strokeDasharray = 1; animate(tk, { strokeDashoffset: [1, 0] }, { duration: instant ? 0 : .5, delay: .2 });
+    await foldToTray(card, entry.title);
   });
-  // the write-up card lands in Past meetings: it shrinks, flies down into the open drawer and becomes the top row
   // filing a meeting: the write-up folds down into a small note (two folds), drifts on a paper arc to the tray by her
   // stool, the tray lifts to take it, its line redraws once, and the tray reads "Filed in Past meetings" for 2 s.
   // The row is added to Past meetings (inside the drawer) so it's there when she opens it.
@@ -297,8 +288,11 @@ html, body { margin: 0; background: #1A120D; }
     const w = $('#writeup'); const fresh = w.classList.contains('hide'); show(w); redrawAll(w); if (!instant && fresh) { InkPaper.lay(w); await wait(1800); }
     if (open) await collapse();
     fileRow();
+    await foldToTray(w, 'How ordering should feel');
+  }
+  async function foldToTray(w, title) {
     const tray = $('#tray');
-    if (instant) { hide(w); trayNote('her', 'Filed in Past meetings', 'How ordering should feel'); return; }
+    if (!w || instant) { if (w) w.style.visibility = 'hidden'; trayNote('her', 'Filed in Past meetings', title); return; }
     // two folds: in half, then in half again, as the words fade
     const kids = [...w.children].filter(k => !k.matches('.cr, .gl, .ol'));
     animate(kids, { opacity: 0 }, { duration: .25 });
@@ -311,9 +305,10 @@ html, body { margin: 0; background: #1A120D; }
     animate(tray, { y: [0, -8, 0] }, { duration: 1.1, delay: .5, ease: [.33, 0, .2, 1] });
     await animate(w, { x: [0, dx * .45, dx], y: [0, dy * .25 - 40, dy], rotate: [0, -5, -1], scaleX: [.62, .5, .36], scaleY: [.26, .2, .14], opacity: [1, 1, .2] },
       { duration: 1.2, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished;
-    hide(w); animate(w, { x: 0, y: 0, rotate: 0, scaleX: 1, scaleY: 1, opacity: 1 }, { duration: 0 }); kids.forEach(k => k.style.opacity = '');
+    if (w.id === 'writeup') { hide(w); animate(w, { x: 0, y: 0, rotate: 0, scaleX: 1, scaleY: 1, opacity: 1 }, { duration: 0 }); kids.forEach(k => k.style.opacity = ''); }
+    else w.style.visibility = 'hidden';
     const keep = { who: tray.dataset.who, w: $('#tWho').textContent, q: $('#tQ').textContent, quiet: tray.classList.contains('quiet') };
-    trayNote('her', 'Filed in Past meetings', 'How ordering should feel');
+    trayNote('her', 'Filed in Past meetings', title);
     redrawLine(tray, 'var(--ip-her)');
     await wait(2200);
     tray.dataset.who = keep.who; tray.classList.toggle('quiet', keep.quiet); $('#tWho').textContent = keep.w; $('#tQ').textContent = keep.q; InkPaper.redraw(tray);
