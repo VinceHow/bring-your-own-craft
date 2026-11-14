@@ -28,4 +28,8 @@ The loops designer's own log, at listed rates. These are low-end figures: the ra
 | Studio front door painting, 16:9 | nano-banana-pro/edit | $0.15 |
 | 5 wave-hello clips, 5 s, 720p, no audio | wan-3.0-prime i2v, 5 × $0.25 | $1.25 |
 | Theo running late clip, 5 s, 720p | wan-3.0-prime i2v | $0.25 |
-| **Running total** | | **$2.05 of $5** |
+| Door v2 (fewer, more varied plants) | nano-banana-pro/edit | $0.15 |
+| Portraits v2: each teammate in their own corner (v1 shared a bookshelf; Ines had a white border) | nano-banana-2/edit, 5 × $0.08 | $0.40 |
+| Wave clips v2 + Theo late v2 | wan-3.0-prime i2v, 6 × $0.25 | $1.50 |
+| **Running total** | | **$4.10 of $5** ($1.90 of it went on v1, replaced) |
+Used: public/looks/cast/intro/ (v2 clips re-centred by crop, 540 px, plus door.jpg). v1 is not kept.
