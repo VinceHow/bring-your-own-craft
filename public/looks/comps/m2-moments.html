@@ -32,6 +32,7 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
 .team-space { left: 22px; top: 318px; width: 300px; min-height: 120px; z-index: 7; }
 .canvas .team-space { padding: 14px 14px 12px; }
 .team-space > .gl { --sheet: var(--ip-paper); }
+.team-space[data-state="empty"] { opacity: 0; visibility: hidden; }   /* hidden until the first decision lands */
 .ts-title { display: flex; align-items: baseline; gap: 8px; margin: 0 2px 10px; font: 400 19px/1 var(--ip-serif); color: var(--ip-ink); }
 .ts-title small { font: 500 12px/1 var(--ip-sans); color: var(--ip-ink-2); }
 .ts-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
@@ -129,7 +130,7 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
   <button class="abs pill is-her" data-who="her" style="left:584px;top:616px;z-index:5"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
   <div class="patch" id="patch"><video muted playsinline preload="auto" id="patchV"></video></div>
 
-  <section class="abs card team-space" id="ts" data-who="her" data-component="team-space" data-state="shown" aria-label="Team space">
+  <section class="abs card team-space" id="ts" data-who="her" data-component="team-space" data-state="empty" aria-label="Team space">
     <div class="ts-title" data-slot="title">Team space<small>settled together</small></div>
     <ol class="ts-cards" id="tsCards" data-slot="cards"></ol>
   </section>
@@ -207,7 +208,13 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
   async function settle(d, from) {
     const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[(d.seats || [d.seat])[d.seats ? 1 : 0]] || WHO[d.seat];
     if (d.seats && d.seats.includes('product')) li.dataset.her = '';
-    li.dataset.state = 'settling'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); InkPaper.redraw($('#ts'));
+    li.dataset.state = 'settling'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li);
+    const ts = $('#ts');
+    if (ts.dataset.state === 'empty') {
+      // the sheet pins in with its first card: it unrolls down from its top edge, one 300 ms move
+      ts.dataset.state = 'shown'; InkPaper.redraw(ts);
+      if (!instant) { ts.style.transformOrigin = '50% 0'; animate(ts, { opacity: [0, 1], scaleY: [.55, 1], y: [-10, 0] }, { duration: .3, ease: [.33, 0, .2, 1] }); }
+    } else InkPaper.redraw(ts);
     if (instant) { li.dataset.state = 'closed'; return; }
     const r = li.getBoundingClientRect(), cr = c.getBoundingClientRect();
     const x1 = r.left - cr.left, y1 = r.top - cr.top, [hx, hy] = from || HAND[WHO[d.seat]];
@@ -295,7 +302,7 @@ body.focus-open .room { filter: blur(5px) saturate(.85); }
 
   // ================= A2: a quick unblock =================
   async function unblock(base = 5, fresh = false) {
-    if (instant || fresh) { journey(J1); const was = $('#tsCards').children.length; if (!was) RUN.forEach(d => { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[d.seat]; li.dataset.state = 'closed'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); }); InkPaper.redraw($('#ts')); }
+    if (instant || fresh) { journey(J1); const was = $('#tsCards').children.length; if (!was) $('#ts').dataset.state = 'shown'; RUN.forEach(d => { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[d.seat]; li.dataset.state = 'closed'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); }); InkPaper.redraw($('#ts')); }
     trayTo('bo', ['Bo’s blocked', 'When do orders close?'], { action: 'orders-close', seat: 'engineering' });
     if (!instant) { animate($('#tray'), { y: [0, -8, 0] }, { duration: 1, ease: [.33, 0, .2, 1] }); }
     if (N < base + 1) return;
