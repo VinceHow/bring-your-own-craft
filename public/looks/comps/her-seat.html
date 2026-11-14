@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Her seat · options</title>
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --paper: #FBF5EA; --paper-2: #F3EAD9; --ink: #3A2C22; --ink-2: #6B5848; --ink-3: #9A8674;
+  --her: #D9788F; --her-soft: #F4D3DA; --her-deep: #A84862;
+  --mika: #3F5E93; --noor: #D0673F; --theo: #7FA58A; --ines: #C99A3E; --bo: #E3C24A;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --shadow: 0 1px 1px rgba(70,40,20,.18), 0 6px 14px -6px rgba(70,40,20,.35), 0 18px 34px -18px rgba(60,30,10,.45);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.paper { background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  box-shadow: var(--shadow); border-radius: 4px; }
+.label { font: 500 13px/1.2 var(--sans); color: var(--ink-3); letter-spacing: .01em; }
+.name { font: 500 22px/1.1 var(--serif); }
+.char { font: italic 400 16px/1.25 var(--serif); color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; font: 500 14px/1 var(--sans);
+  border: 1.5px solid rgba(58,44,34,.22); background: #fff8; color: var(--ink); }
+.chip.on { background: var(--her); border-color: var(--her); color: #fff; }
+.chip.dash { border-style: dashed; }
+.hide { display: none !important; }
+
+/* a warm pool of light that says "this seat" without a spotlight */
+.pool { position: absolute; left: 540px; top: 660px; width: 320px; height: 240px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255,225,190,.62), rgba(255,210,170,.22) 60%, rgba(255,190,140,0) 100%); mix-blend-mode: screen; pointer-events: none; }
+.optc .room { background-position: center -150px; } .optc .pool { top: 510px; }
+.ring { position: absolute; left: 585px; top: 672px; width: 220px; height: 196px; border-radius: 48% 52% 46% 54%;
+  border: 2px dashed rgba(217,120,143,.85); pointer-events: none; }
+
+/* ---------- A: a name card standing on her stool ---------- */
+.tent { position: absolute; left: 600px; top: 770px; width: 200px; padding: 14px 16px 14px; rotate: -2deg; border-top: 5px solid var(--her); }
+.tent::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -10px; height: 10px; background: linear-gradient(#e6d9c2, #d5c4a8); border-radius: 0 0 4px 4px; z-index: -1; }
+.tent .yours { font: 500 13px/1 var(--sans); color: var(--her-deep); margin-bottom: 6px; display: block; }
+.tent.setup { width: 300px; left: 545px; top: 718px; }
+.tent.setup h3 { margin: 0 0 4px; font: 500 21px/1.15 var(--serif); }
+.tent.setup p { margin: 0 0 12px; font: 400 15px/1.35 var(--sans); color: var(--ink-2); }
+.tent .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.tucked { position: absolute; width: 120px; height: 64px; padding: 7px 10px; font: 500 13px/1.2 var(--sans); color: var(--ink-2); border-top: 4px solid var(--c); }
+.tucked.n1 { --c: var(--mika); left: 728px; top: 748px; rotate: 10deg; }
+.tucked.n2 { --c: var(--noor); left: 760px; top: 760px; rotate: 18deg; }
+
+/* ---------- B: her notebook at her place on the table ---------- */
+.book { position: absolute; left: 540px; top: 604px; width: 270px; height: 150px; rotate: -7deg; border-radius: 3px 8px 8px 3px;
+  background: var(--her-soft); box-shadow: var(--shadow); padding: 16px 18px 14px 30px; }
+.book::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 16px; background: var(--her); border-radius: 3px 0 0 3px; }
+.book .plate { background: var(--paper); border-radius: 3px; padding: 9px 12px; box-shadow: inset 0 0 0 1px rgba(58,44,34,.08); }
+.book .plate .name { font-size: 20px; }
+.book .plate .char { font-size: 14px; }
+.book .open { position: absolute; right: 14px; bottom: 10px; font: 500 13px/1 var(--sans); color: var(--her-deep); }
+.mark { position: absolute; top: -26px; width: 22px; height: 40px; background: var(--c); border-radius: 2px 2px 0 0; clip-path: polygon(0 0,100% 0,100% 100%,50% 82%,0 100%); box-shadow: 0 2px 3px rgba(0,0,0,.15); }
+.mark.m1 { --c: var(--mika); left: 120px; } .mark.m2 { --c: var(--noor); left: 150px; top: -18px; }
+.book.setup .plate { padding-bottom: 11px; }
+.book.setup .chips { display: flex; gap: 6px; margin-top: 8px; }
+.book.setup .chip { padding: 6px 10px; font-size: 13px; }
+
+/* ---------- C: her desk along the front edge ---------- */
+.desk { position: absolute; left: 0; right: 0; bottom: 0; height: 156px; padding: 18px 28px; display: grid; grid-template-columns: 300px 1fr 360px; gap: 28px; align-items: center;
+  border-radius: 0; box-shadow: 0 -10px 30px -12px rgba(50,25,10,.55); border-top: 4px solid var(--her); }
+.desk .me { display: flex; gap: 14px; align-items: center; }
+.desk .me .seal { width: 52px; height: 52px; border-radius: 50%; background: var(--her); color: #fff; display: grid; place-items: center; font: 500 22px/1 var(--serif); flex: none; }
+.desk .notes { display: flex; gap: 14px; align-items: center; }
+.slip { width: 240px; padding: 10px 14px 10px; background: #fff; border-left: 4px solid var(--c); box-shadow: var(--shadow); border-radius: 3px; font: 400 15px/1.3 var(--serif); }
+.slip .label { display: block; margin-bottom: 3px; }
+.slip:nth-child(1) { rotate: -1.2deg; } .slip:nth-child(2) { rotate: .8deg; }
+.desk .work { display: flex; gap: 14px; align-items: center; justify-content: flex-end; }
+.thumb { width: 150px; height: 96px; padding: 8px 10px; background: #fff; box-shadow: var(--shadow); border-radius: 3px; font: 500 12px/1.2 var(--sans); color: var(--ink-3); }
+.thumb i { display: block; height: 8px; margin-top: 7px; border-radius: 2px; background: rgba(58,44,34,.12); }
+.thumb i:nth-of-type(2) { width: 70%; } .thumb i:nth-of-type(3) { width: 85%; background: rgba(217,120,143,.35); }
+.btn { padding: 12px 18px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 500 15px/1 var(--sans); white-space: nowrap; }
+.btn.soft { background: transparent; color: var(--ink); border: 1.5px solid rgba(58,44,34,.3); }
+.youtag { position: absolute; left: 662px; top: 520px; padding: 5px 10px; border-radius: 999px; background: var(--her); color: #fff; font: 500 13px/1 var(--sans); box-shadow: var(--shadow); }
+
+/* ---------- the workspace she opens (same for every option) ---------- */
+.ws { overflow: visible !important; position: absolute; left: 70px; top: 56px; right: 70px; bottom: 40px; display: grid; grid-template-columns: 300px 1fr 300px; gap: 0; border-radius: 6px; overflow: hidden; }
+.ws > div { padding: 26px 26px; }
+.ws .left { background: var(--paper-2); border-right: 1px solid rgba(58,44,34,.1); display: flex; flex-direction: column; gap: 18px; }
+.ws .right { background: var(--paper-2); border-left: 1px solid rgba(58,44,34,.1); display: flex; flex-direction: column; gap: 12px; }
+.ws h4 { margin: 0; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+.ws .card { background: var(--paper); padding: 14px 16px; border-radius: 4px; box-shadow: var(--shadow); border-top: 4px solid var(--her); }
+.ws .traits { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.ws .traits span { font: 400 13px/1 var(--sans); padding: 5px 8px; border-radius: 999px; background: var(--her-soft); color: var(--her-deep); }
+.ws .slip { width: auto; rotate: 0deg !important; }
+.ws .mid { background: var(--paper); }
+.ws .mid h2 { margin: 6px 0 4px; font: 400 30px/1.15 var(--serif); letter-spacing: -.01em; }
+.tabs { display: flex; gap: 18px; margin: 14px 0 18px; border-bottom: 1px solid rgba(58,44,34,.12); }
+.tabs span { padding: 0 0 9px; font: 500 14px/1 var(--sans); color: var(--ink-3); }
+.tabs span.on { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 10px; font-size: 14px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-bottom: 2px; }
+.jr .who { font: 500 15px/1.2 var(--serif); align-self: center; }
+.jr .st { background: #fff; border: 1px solid rgba(58,44,34,.12); border-radius: 4px; padding: 9px 10px; font: 400 14px/1.25 var(--sans); }
+.jr .st.hers { border-color: var(--her); background: #FFF6F8; }
+.dec { background: var(--paper); padding: 10px 12px; border-radius: 4px; box-shadow: var(--shadow); font: 400 15px/1.3 var(--serif); }
+.dec .label { display: block; margin-top: 5px; }
+.foot { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
+.close { position: absolute; right: 70px; top: 8px; padding: 8px 14px; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow); font: 500 14px/1 var(--sans); color: var(--ink); }
+.ws .close { top: -36px; right: 0; }
+</style>
+</head>
+<body>
+<div class="canvas" id="c">
+  <div class="room"></div>
+  <div class="pool"></div>
+  <div class="ring hide" id="ring"></div>
+
+  <!-- A -->
+  <div class="tucked paper n2 hide" data-opt="a" data-st="work">Noor</div>
+  <div class="tucked paper n1 hide" data-opt="a" data-st="work">Mika</div>
+  <div class="tent paper hide" data-opt="a" data-st="work"><span class="yours">Your seat</span><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div>
+  <div class="tent paper setup hide" data-opt="a" data-st="setup"><span class="yours">This seat is yours</span><h3>What do you bring to the table?</h3><p>Pick a craft. The team fills every other seat.</p>
+    <div class="chips"><span class="chip on">Product</span><span class="chip dash">Your own craft</span></div></div>
+
+  <!-- B -->
+  <div class="book hide" data-opt="b" data-st="work"><span class="mark m1"></span><span class="mark m2"></span>
+    <div class="plate"><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div><span class="open">Open</span></div>
+  <div class="book setup hide" data-opt="b" data-st="setup">
+    <div class="plate"><div class="label" style="color:var(--her-deep)">Your notebook</div><div class="name" style="font-size:18px">What do you bring?</div>
+      <div class="chips"><span class="chip on">Product</span><span class="chip dash">Your own craft</span></div></div></div>
+
+  <!-- C -->
+  <div class="youtag hide" data-opt="c">You</div>
+  <div class="desk paper hide" data-opt="c" data-st="work">
+    <div class="me"><div class="seal">P</div><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
+    <div class="notes">
+      <div class="slip" style="--c:var(--noor)"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" style="--c:var(--mika)"><span class="label">Mika</span>If ordering could feel like one thing…</div>
+    </div>
+    <div class="work"><div class="thumb">Bakery ordering<i></i><i></i><i></i></div><span class="btn">Open your desk</span></div>
+  </div>
+  <div class="desk paper hide" data-opt="c" data-st="setup" style="grid-template-columns: 1fr auto">
+    <div><div class="label" style="color:var(--her-deep)">This seat is yours</div><div class="name" style="font-size:26px;margin-top:4px">What do you bring to the table?</div>
+      <div class="char" style="margin-top:4px">Pick a craft. The team fills every other seat.</div></div>
+    <div style="display:flex;gap:10px"><span class="chip on" style="padding:12px 18px;font-size:15px">Product</span><span class="chip dash" style="padding:12px 18px;font-size:15px">Your own craft</span></div>
+  </div>
+
+  <!-- the workspace -->
+  <div class="ws paper hide" id="ws">
+    <div class="left">
+      <h4>You</h4>
+      <div class="card"><div class="name">Priya</div><div class="char">the Customer Whisperer</div>
+        <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
+      <h4>Waiting for you, when you're ready</h4>
+      <div class="slip" style="--c:var(--noor)"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" style="--c:var(--mika)"><span class="label">Mika</span>If ordering could feel like one thing, what should it feel like?</div>
+    </div>
+    <div class="mid">
+      <div class="label">Your idea</div>
+      <h2>A website for a small bakery, so customers can order bread ahead.</h2>
+      <div class="char">Rough journey by Noor and Mika</div>
+      <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
+      <div class="jr">
+        <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+        <span class="who">Morning regulars</span><span class="st hers">Their usual loaf</span><span class="st hers">One tap</span><span class="st">Held till ten</span>
+        <span class="who">Weekend pastry crowd</span><span class="st">Browse pastries</span><span class="st">Order by Friday</span><span class="st">Collect Saturday</span>
+        <span class="who">The bakers</span><span class="st">Tomorrow's list</span><span class="st">Bake to the list</span><span class="st">Mark collected</span>
+      </div>
+      <div class="foot"><span class="btn">Build it</span><span class="label">When you're happy, the team builds the page.</span></div>
+    </div>
+    <div class="right">
+      <h4>Decided by the team</h4>
+      <div class="dec">Orders close at 8pm for the next morning.<span class="label">Bo, Ines and Mika</span></div>
+      <div class="dec">Regulars cancel in one tap, up to the cut-off.<span class="label">Ines and Bo</span></div>
+      <div class="dec">Sold out shows as sold out, never hidden.<span class="label">Noor and Mika</span></div>
+      <h4 style="margin-top:10px">Your takeaways</h4>
+      <div class="dec" style="font-style:italic">People come for bread that's still warm, and for being known.</div>
+    </div>
+    <span class="close">Back to the room</span>
+  </div>
+</div>
+<script>
+const q = new URLSearchParams(location.search), opt = q.get('opt') || 'a', st = q.get('st') || 'work';
+document.getElementById('c').classList.add('opt' + opt);
+document.querySelectorAll('[data-opt]').forEach(el => {
+  if (el.dataset.opt === opt && (!el.dataset.st || el.dataset.st === st)) el.classList.remove('hide');
+});
+if (q.get('hover')) document.getElementById('ring').classList.remove('hide');
+if (st === 'open') document.getElementById('ws').classList.remove('hide');
+</script>
+</body>
+</html>

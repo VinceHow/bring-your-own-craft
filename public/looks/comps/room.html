@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Room comp · Lamplight</title>
+<link rel="stylesheet" href="lamp.css">
+<link rel="stylesheet" href="journey.css">
+<style>
+/* ---- teammates' stations along the far side of the table ---- */
+.stations { position: absolute; left: 64px; right: 64px; top: 44px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 28px; }
+.pad { position: relative; height: 188px; padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 10px; }
+.pad::before { /* the pad's binding: a darker strip along the top, like a sketchpad's glued edge */
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 3px 3px 0 0; background: var(--c); opacity: .85; }
+.station:nth-child(1) .pad { rotate: -.6deg; } .station:nth-child(2) .pad { rotate: .4deg; } .station:nth-child(3) .pad { rotate: -.3deg; }
+.station:nth-child(4) .pad { rotate: .5deg; } .station:nth-child(5) .pad { rotate: -.4deg; }
+.who-row { display: flex; align-items: center; gap: 8px; }
+.who-row .name { font: 500 18px/1 var(--serif); }
+.who-row .seat { margin-left: auto; }
+.on { font: 400 16px/1.3 var(--serif); color: var(--ink); }
+.on small { display: block; margin-top: 4px; font: 400 13px/1.35 var(--sans); color: var(--ink-3); }
+.pad .doodle { margin-top: auto; height: 46px; }
+.chat { margin: 14px 6px 0; font: italic 400 15px/1.35 var(--serif); color: rgba(245,238,226,.86); display: flex; gap: 8px; align-items: baseline; }
+.chat .mark { translate: 0 3px; }
+.chat.old { color: rgba(245,238,226,.5); }
+
+/* ---- the idea sheet in the middle ---- */
+.idea { position: absolute; left: 260px; top: 318px; width: 790px; height: 432px; padding: 30px 38px 28px; }
+.idea h1 { margin: 0; font: 400 28px/1.18 var(--serif); letter-spacing: -.012em; max-width: 620px; }
+.idea .by { margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+.idea .journey { margin-top: 30px; --lane-w: 168px; }
+.note-hers { position: absolute; left: 470px; top: 196px; width: 220px; padding: 12px 14px 12px; rotate: 1.6deg;
+  background: #F6D9DE; border-radius: 2px; box-shadow: var(--lift-sm); font: italic 400 15px/1.35 var(--serif); color: #4A2230; }
+.note-hers .label { display: flex; gap: 6px; align-items: center; color: #8A4A5E; font-style: normal; margin-bottom: 6px; }
+
+/* ---- team space: what they agreed among themselves ---- */
+.space { position: absolute; left: 1100px; top: 318px; width: 436px; }
+.space-h { display: flex; align-items: baseline; justify-content: space-between; color: rgba(245,238,226,.62); font: 500 13px/1 var(--sans); margin: 0 4px 14px; }
+.decision { padding: 14px 16px 12px; margin-bottom: 12px; }
+.decision:nth-child(2) { rotate: -.4deg; } .decision:nth-child(3) { rotate: .35deg; } .decision:nth-child(4) { rotate: -.2deg; }
+.decision p { margin: 0; font: 400 17px/1.3 var(--serif); }
+.decision .marks { margin-top: 10px; display: flex; gap: 4px; align-items: center; }
+.decision .marks .label { margin-left: 6px; }
+.tally { margin: 18px 4px 0; font: 400 14px/1.4 var(--sans); color: rgba(245,238,226,.62); }
+.tally b { font-weight: 500; color: rgba(245,238,226,.9); }
+
+/* ---- her seat, nearest us ---- */
+.her { position: absolute; left: 560px; top: 792px; width: 400px; height: 78px; padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+  background-color: var(--paper-2); }
+.her .mark { width: 30px; height: 30px; font-size: 14px; }
+.her .name { font: 500 22px/1.1 var(--serif); }
+.her .char { font: italic 400 16px/1.2 var(--serif); color: var(--ink-2); }
+/* her tray: two notes tucked under the right edge of her card, each edged in the ink of who left it. No number. */
+.tray { position: absolute; left: 930px; top: 786px; width: 300px; height: 90px; }
+.tray .n { position: absolute; width: 270px; padding: 11px 14px 10px 16px; font: 400 14px/1.3 var(--serif); color: var(--ink-2);
+  border-left: 4px solid var(--c); }
+.tray .n:nth-child(1) { left: 34px; top: 16px; rotate: 2.4deg; }
+.tray .n:nth-child(2) { left: 22px; top: 2px; rotate: -1.2deg; color: var(--ink); }
+.tray .n .label { display: block; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="table"></div>
+
+  <div class="stations">
+    <div class="station" data-seat="design">
+      <div class="pad paper">
+        <div class="who-row"><span class="mark">M</span><span class="name">Mika</span><span class="label seat">Design</span></div>
+        <div class="on">Grey wireframes for ordering<small>Usual loaf first, then today’s bake</small></div>
+        <svg class="doodle" viewBox="0 0 200 46"><g fill="none" stroke="#2A211B" stroke-opacity=".38" stroke-width="1.2"><rect x="1" y="1" width="54" height="44" rx="3"/><rect x="72" y="1" width="54" height="44" rx="3"/><rect x="143" y="1" width="54" height="44" rx="3"/><path d="M8 12h34M8 20h22M79 12h40M79 20h26M150 12h30"/><rect x="8" y="30" width="40" height="9" rx="2" fill="#3D6C9E" fill-opacity=".25"/></g></svg>
+      </div>
+      <div class="chat old"><span class="mark sm">M</span>Phone field’s gone from the form.</div>
+    </div>
+    <div class="station" data-seat="research">
+      <div class="pad paper">
+        <div class="who-row"><span class="mark">N</span><span class="name">Noor</span><span class="label seat">Research</span></div>
+        <div class="on">What sells out first at small bakeries<small>Sourdough and morning buns, before 9am · 2 sources</small></div>
+      </div>
+      <div class="chat"><span class="mark sm">N</span>Found a source on what sells out first.</div>
+    </div>
+    <div class="station" data-seat="data">
+      <div class="pad paper">
+        <div class="who-row"><span class="mark">T</span><span class="name">Theo</span><span class="label seat">Data</span></div>
+        <div class="on">One number that says it worked<small>Regulars who order again within a week</small></div>
+      </div>
+    </div>
+    <div class="station" data-seat="strategy">
+      <div class="pad paper">
+        <div class="who-row"><span class="mark">I</span><span class="name">Ines</span><span class="label seat">Strategy</span></div>
+        <div class="on">Who pays, and why now<small>Pay at pickup; no card up front for regulars</small></div>
+      </div>
+      <div class="chat"><span class="mark sm">I</span>Then a cut-off, and say it plainly.</div>
+    </div>
+    <div class="station" data-seat="engineering">
+      <div class="pad paper">
+        <div class="who-row"><span class="mark">B</span><span class="name">Bo</span><span class="label seat">Engineering</span></div>
+        <div class="on">The order form and tomorrow’s list<small>Orders after 8pm miss the morning bake</small></div>
+      </div>
+      <div class="chat"><span class="mark sm">B</span>Orders after 8pm miss the morning bake.</div>
+    </div>
+  </div>
+
+  <section class="idea paper">
+    <h1>A website for a small bakery, so customers can order bread ahead.</h1>
+    <div class="by" data-seat="research"><span class="mark sm">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;Rough journey by Noor and Mika</span></div>
+    <div class="journey">
+      <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
+      <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step end new">Held till ten</span>
+      <span class="who">Weekend pastry crowd</span><span class="step">Browse the pastries</span><span class="step">Order by Friday</span><span class="step end">Collect Saturday</span>
+      <span class="who">The bakers</span><span class="step">Tomorrow’s list</span><span class="step">Bake to the list</span><span class="step end">Mark it collected</span>
+    </div>
+    <div class="note-hers"><span class="label"><span class="mark sm" data-seat="product">P</span>Priya</span>Bread that’s still warm, and being known.</div>
+  </section>
+
+  <aside class="space">
+    <div class="space-h"><span>Team space</span><span>Decided together</span></div>
+    <div class="decision paper"><p>Orders close at 8pm for the next morning.</p>
+      <div class="marks"><span class="mark sm" data-seat="engineering">B</span><span class="mark sm" data-seat="strategy">I</span><span class="mark sm" data-seat="design">M</span><span class="label">Bo, Ines and Mika</span></div></div>
+    <div class="decision paper"><p>Regulars cancel in one tap, up to the cut-off.</p>
+      <div class="marks"><span class="mark sm" data-seat="strategy">I</span><span class="mark sm" data-seat="engineering">B</span><span class="label">Ines and Bo</span></div></div>
+    <div class="decision paper"><p>Sold out shows as sold out, never hidden.</p>
+      <div class="marks"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Noor and Mika</span></div></div>
+    <p class="tally"><b>21</b> handled by your team · <b>3</b> for you</p>
+  </aside>
+
+  <div class="her paper" data-seat="product"><span class="mark">P</span><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
+  <div class="tray">
+    <div class="n paper" data-seat="design"><span class="label">Mika</span>If ordering could feel like one thing…</div>
+    <div class="n paper" data-seat="research"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+  </div>
+</div>
+</body>
+</html>

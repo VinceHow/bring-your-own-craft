@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>Playful ink</title>
+<link rel="stylesheet" href="../playful-ink.css">
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+html, body { margin: 0; background: #2B1F17; }
+/* the painting is 1920x1072; shown at 1600 wide it is 893 tall, so the canvas keeps that ratio */
+.room { position: relative; width: 1600px; height: 893px; overflow: hidden; background: url(../cast/living/painting-afternoon.jpg) 0 0 / 100% 100% no-repeat; }
+</style>
+</head>
+<body>
+<div class="room" id="room"></div>
+<script src="../playful-ink.js"></script>
+<script>
+// ?time=night · ?still=1 (cues shown) · ?demo=1 (a short scripted tour, for recording)
+const q = new URLSearchParams(location.search);
+const pi = PlayfulInk.mount(document.getElementById('room'), {
+  night: '../cast/living/painting-night.jpg', music: '../cast/music', time: q.get('time') || 'day', still: q.get('still') === '1' });
+// still: what she sees right after a few clicks (the pill reads as after a click on the record player)
+if (q.get('still') === '1') { pi.hearts(); document.querySelector('.pi-track .nm').textContent = 'Piano';
+  document.querySelector('.pi-track .pi-sub').textContent = 'next: Electronic'; pi.showTrack(); }
+// demo: clicks only, the way she would find them
+if (q.get('demo') === '1') {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const click = sel => document.querySelector(sel).click();
+  (async () => {
+    await wait(1200); click('[data-spot="coffee"]');
+    await wait(2200); click('[data-spot="cat"]');
+    await wait(2400); click('[data-spot="record"]');
+    await wait(4200); click('[data-spot="lights"]');
+    await wait(1800); click('.pi-sky');
+    await wait(2600); click('[data-spot="cat"]');
+  })();
+}
+</script>
+</body>
+</html>

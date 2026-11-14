@@ -1,0 +1,91 @@
+/* Look: Gallery. Quiet and editorial: one bright off-white surface, no table slab, hairlines only, big serif
+   type, and each seat's ink reduced to a single dot. The calmest of the four; the work is the only thing to look at.
+   Layered on top of room.css + polish.css via ?look=gallery. Look only: no behaviour. */
+
+:root {
+  --paper: #F7F5F0;
+  --table: #F7F5F0;
+  --sheet: #FFFFFF;
+  --ink: #1C1C1A;
+  --product: #E0458F;
+  --design: #2F6DB5;
+  --engineering: #D9B300;
+  --data: #2E9862;
+  --research: #E0683A;
+  --strategy: #A78152;
+  --shadow: 0 1px 2px rgba(28,28,26,.06), 0 12px 32px -12px rgba(28,28,26,.16);
+  --shadow-sm: 0 1px 2px rgba(28,28,26,.05), 0 8px 20px -10px rgba(28,28,26,.14);
+  --line: 1px solid rgba(28,28,26,.10);
+  --r: 12px;
+  --display: 'Charter', 'Bitstream Charter', Georgia, 'DejaVu Serif', serif;
+  --pad-back: #F1EEE7;
+}
+
+html body { background-image: none; background-color: var(--paper); }
+html #room .table { border: 0; box-shadow: none; background-image: none; }
+html #room .table::after { content: ''; position: absolute; left: 20px; right: 20px; top: 172px; border-top: 1px solid rgba(28,28,26,.08); }
+
+html #room .seat-empty { border: 1px solid rgba(28,28,26,.08); background: transparent; border-radius: var(--r);
+  font: 400 13px var(--ui); letter-spacing: .16em; color: rgba(28,28,26,.4); }
+
+/* seats: no bands. A dot, the name in small caps, the stance in large serif italic */
+html #room .card { border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+html #room .card-band { background: transparent; color: var(--ink); border: 0; height: 38px; padding-top: 6px; gap: 8px; }
+html #room .card-band svg { display: none; }
+html #room .card-band::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--seat-ink); flex: none; }
+html #room .card-name { font: 600 12px/1 var(--ui); letter-spacing: .16em; text-transform: uppercase; text-shadow: none; color: rgba(28,28,26,.7); }
+html #room .card-stance { font: italic 400 21px/1.2 var(--display); color: var(--ink); }
+html #room .card-note { border-top: 0; color: rgba(28,28,26,.5); font-size: 12px; }
+html #room .seat-product .card-band { border-right: 1px solid rgba(28,28,26,.08); padding: 0 22px; }
+html #room .seat-product .card-name { font-size: 14px; color: var(--ink); }
+
+/* pads: soft white cards, no rings */
+html #room .mini-sheet { border: var(--line); border-radius: 10px; box-shadow: var(--shadow-sm); }
+html #room .mini-sheet::before { display: none; }
+html #room .mini-sheet .mini-head { border-bottom: 0; padding-top: 8px; }
+html #room .mini-head i { border: 0; border-radius: 50%; width: 7px; height: 7px; }
+html #room .mini-title { font: 600 11px var(--ui); letter-spacing: .14em; color: rgba(28,28,26,.6); }
+html #room .mini-step { color: rgba(28,28,26,.45); }
+html #room .mini-lines li { font: 400 12.5px/1.35 var(--ui); color: rgba(28,28,26,.8); }
+html #room .mini-lines li::before { border: 0; border-radius: 50%; width: 5px; height: 5px; top: 6px; }
+html #room .mini-lines li.brought::after { border: 0; border-radius: 10px; padding: 0 7px; background: rgba(224,69,143,.12); color: var(--product); }
+
+/* her sheet: the page, front and centre, large serif */
+html #room .her-sheet { border: var(--line); border-radius: 14px; box-shadow: 0 1px 2px rgba(28,28,26,.05), 0 30px 60px -24px rgba(28,28,26,.25); padding: 28px 38px 22px; }
+html #room .her-sheet::before { display: none; }
+html #room .her-q { font: 400 36px/1.1 var(--display); letter-spacing: -.01em; }
+html #room .her-idea { font-family: var(--display); font-style: italic; color: rgba(28,28,26,.75); }
+html #room .her-form { border-top: 1px solid rgba(28,28,26,.12); }
+html #room .her-input { font-family: var(--display); }
+
+/* her file */
+html #room .file-card { border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); font-family: var(--ui); }
+html #room .file-head { background: transparent; border-bottom: 1px solid rgba(28,28,26,.06); }
+html #room .file-name { font: 600 11px var(--ui); letter-spacing: .16em; color: var(--product); }
+html #room .file-path { color: rgba(28,28,26,.4); }
+html #room .file-lines li { font-family: var(--display); font-size: 14.5px; }
+html #room .file-lines .lid { font: 500 11px var(--mono); color: rgba(28,28,26,.4); }
+html #room .file-lines .prep { border: 0; background: var(--pad-back); border-radius: 10px; padding: 0 8px; }
+html #room .file-lines li.new .ltext, html #room .sounds-like .sl-mark { background: rgba(224,69,143,.12); }
+html #room .sounds-like { border: 0; background: var(--pad-back); border-radius: 8px; font-family: var(--display); }
+
+/* counter and meter: numbers in light serif, no fills */
+html #room .counter, html #room .meter { border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+html #room .counter .roll, html #room .meter-num { font-family: var(--display); font-weight: 400; }
+html #room .meter-num { font-size: 92px; }
+html #room .roll-pink { border: 0; background: transparent; color: var(--product); padding: 0; }
+html #room .meter-bar { border: 0; height: 4px; border-radius: 2px; background: rgba(28,28,26,.08); }
+html #room .meter-label { font: 600 11px var(--ui); letter-spacing: .16em; color: rgba(28,28,26,.55); }
+html #room .counter-label { color: rgba(28,28,26,.7); }
+
+/* the journey: hairline boxes, soft arrows */
+html #room .fl-box { border: 1px solid rgba(28,28,26,.16); border-radius: 10px; box-shadow: var(--shadow-sm); background: #fff; }
+html #room .fl-box:hover { box-shadow: var(--shadow); }
+html #room .fl-edge { stroke: rgba(28,28,26,.35); stroke-width: 1.25; }
+html #room .fl-opt { border-radius: 10px; border-color: rgba(28,28,26,.18); }
+html #room .fl-opt.is-rec, html #room .fl-opt.is-chosen { box-shadow: var(--shadow-sm); }
+html #room .fl-tag { border: 0; border-radius: 10px; }
+html #room .note { border: 0; border-radius: 10px; background: #FCE4EF; box-shadow: var(--shadow-sm); }
+html #room .sketch-sheet { border: var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+
+html body .replay-label { border-radius: 10px; box-shadow: 0 8px 24px rgba(28,28,26,.25); font: 600 18px/1 var(--ui); letter-spacing: .14em; }
