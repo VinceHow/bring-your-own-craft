@@ -116,6 +116,11 @@ test('4. at most three asks arrive, inside her work (fork or pin), never a pop-u
   let overruled = null;
   for (let i = 0; i < asks.length; i++) {
     // The one she's on is open (zoomed next to its box); the rest wait. Follow it by its ask id once answered.
+    // After her first answer nothing opens by itself: she picks the next note from the tray at her seat.
+    if (!(await page.locator('#her-flow .fl-item.is-open').count())) {
+      await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
+      await page.locator('#tray .tray-note').first().click();
+    }
     const id = await page.locator('#her-flow .fl-item.is-open').getAttribute('data-ask');
     const item = page.locator(`#her-flow .fl-item[data-ask="${id}"]`);
     const rec = item.locator('.fl-opt.is-rec'), other = item.locator('.fl-opt:not(.is-rec)');
