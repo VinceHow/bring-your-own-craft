@@ -4,6 +4,7 @@
 //   1. painted-living.js (+ .css): the living painting as the room's backdrop, teammates' moods from run events.
 //   2. playful-ink.js (+ .css): the record player, cat, coffee, lights and the day / night pill.
 //   3. painted.css: the room's own components as ink and paper (already linked by the room's ?look loader).
+//   4. painted-fixes.css: bug fixes from Vincent's testing, loaded last.
 // Shared document events: 'studio:focus' { open } when her focus document opens or closes, 'studio:time' { time }.
 // Z-order inside #room, bottom to top: painting (fallback image), living backdrop (z 0), playful layer (z 2), the room's
 // UI (pills, sheet, notes: z 5-9), panels (55), the focus document (60). The Replay label stays on top of everything.
@@ -44,4 +45,7 @@
     try { window.PlayfulInk.mount(box, { night: base + 'cast/living/painting-night.jpg', music: base + 'cast/music', time: night ? 'night' : 'day' }); }
     catch (err) { console.warn('playful-ink', err); box.remove(); }
   });
+
+  // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
+  css('painted-fixes.css');
 })();
