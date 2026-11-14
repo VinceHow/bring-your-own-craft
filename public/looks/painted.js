@@ -44,4 +44,50 @@
     try { window.PlayfulInk.mount(box, { night: base + 'cast/living/painting-night.jpg', music: base + 'cast/music', time: night ? 'night' : 'day' }); }
     catch (err) { console.warn('playful-ink', err); box.remove(); }
   });
+
+  // ---- the team at work, made visible (from real run events only): one calm status line by the table, and the
+  // room's chatter kept short (15 words) and few (two at once). No counts, no spinners, no progress. ----
+  const WHO = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
+  const doing = new Map();                                     // seat -> what it is on, in a few plain words
+  const line = document.createElement('p');
+  line.className = 'painted-status'; line.dataset.component = 'team-status'; line.setAttribute('aria-live', 'polite'); line.hidden = true;
+  room.appendChild(line);
+  const lower = t => t.charAt(0).toLowerCase() + t.slice(1);
+  const few = (t, n) => { const w = String(t || '').replace(/\s+/g, ' ').trim().split(' '); return w.length > n ? w.slice(0, n).join(' ') + '…' : w.join(' '); };
+  // "Who the first customers are: weekly regulars or …" -> "weighing who the first customers are"
+  const topic = d => few(lower(String(d || '').split(/[:?(]/)[0].replace(/[.]+$/, '')), 7);
+  let turn = 0, timer = null;
+  function show() {
+    const seats = [...doing.keys()].filter(s => WHO[s]);
+    if (!seats.length || focusOpen) { line.hidden = true; return; }
+    const two = [seats[turn % seats.length], seats[(turn + 1) % seats.length]].filter((s, i, a) => a.indexOf(s) === i);
+    const next = two.map(s => `${WHO[s]} is ${doing.get(s)}`).join('\n');
+    if (next !== line.textContent) { line.classList.remove('in'); void line.offsetWidth; line.textContent = next; line.classList.add('in'); }
+    line.hidden = false;
+  }
+  function tick() { turn += 2; show(); }
+  const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); show(); if (!timer) timer = setInterval(tick, 4500); };
+  // before the team starts, Noor and Mika are already sketching her rough journey (sketch.user / flow.line events)
+  B.on('sketch.user', ev => { if (ev && ev.label) set('research', 'picturing ' + few(lower(ev.label), 5)); });
+  B.on('flow.line', ev => { if (ev && ev.text) set('design', 'drawing “' + few(ev.text, 5) + '”'); });
+  B.on('teammate.start', ev => set(ev.seat, 'getting started'));
+  B.on('candidate', ev => { if (!doing.has(ev.seat) || doing.get(ev.seat) === 'getting started') set(ev.seat, 'weighing ' + topic(ev.decision)); });
+  // chatter: a settled call ("Bo: email confirmation …") or the team talking it through with each other
+  B.on('chatter', ev => {
+    if (!ev.seat || !WHO[ev.seat]) return;
+    const t = String(ev.text || '');
+    if (/^[A-Z][a-z]+:/.test(t)) set(ev.seat, 'settling ' + topic(t.replace(/^[A-Z][a-z]+:\s*/, '')));
+    else set(ev.seat, 'talking it through with the team');
+  });
+  // a teammate that's done keeps its last line until the room goes quiet (its chatter can still follow)
+  let quiet = null;
+  const anyEvent = () => { clearTimeout(quiet); quiet = setTimeout(() => { doing.clear(); show(); }, 15000); };
+  ['teammate.start', 'candidate', 'chatter', 'decided', 'flow.line', 'sketch.user', 'joint.start', 'joint.agreed'].forEach(t => B.on(t, anyEvent));
+  B.on('reset', () => { doing.clear(); clearInterval(timer); timer = null; line.hidden = true; });
+  document.addEventListener('studio:focus', show);
+  // the room's chatter: at most 15 words a line
+  const chat = room.querySelector('.chatter');
+  if (chat) new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+    const t = n.querySelector && n.querySelector('.chatter-text'); if (t && !t.dataset.short) { t.dataset.short = '1'; t.textContent = few(t.textContent, 15); }
+  }))).observe(chat, { childList: true });
 })();
