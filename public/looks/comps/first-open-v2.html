@@ -27,7 +27,11 @@ html, body { margin: 0; background: #1A120D; }
 
 /* ---------- the paper: two leaves that part for the reveal ---------- */
 .leaf { position: absolute; top: -20px; bottom: -20px; width: 830px; background: #EFE3CD var(--ip-tooth); z-index: 10; }
-.leaf.l { left: -20px; box-shadow: 14px 0 28px -10px rgba(40,20,5,.45); } .leaf.r { right: -20px; box-shadow: -14px 0 28px -10px rgba(40,20,5,.45); }
+.leaf.l { left: -20px; } .leaf.r { right: -20px; z-index: 9; }
+.parting .leaf.l { box-shadow: 14px 0 28px -10px rgba(40,20,5,.45); } .parting .leaf.r { box-shadow: -14px 0 28px -10px rgba(40,20,5,.45); }
+.leaf::after { opacity: 0; } .parting .leaf::after { opacity: 1; }
+.stepcard .btn, .tag-her .btn { height: 54px; padding: 0 26px; font-size: 18px; }
+.mic { height: 54px !important; font-size: 17px !important; } .see { font-size: 16px !important; }
 .leaf::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22px; background: inherit; filter: url(#ip-tear); }
 .leaf.l::after { right: -10px; } .leaf.r::after { left: -10px; }
 .leaf .edge { position: absolute; top: 0; bottom: 0; width: 8px; background: var(--ip-her); -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; filter: url(#ip-tear); opacity: 0; }
@@ -36,26 +40,27 @@ html, body { margin: 0; background: #1A120D; }
 .ground > * { pointer-events: auto; }
 
 /* ---------- the steps, one sheet at a time, centred ---------- */
-.stepcard { left: 520px; width: 560px; top: 200px; }
-.canvas .stepcard { padding: 26px 30px 26px; }
+.stepcard { left: 450px; width: 700px; top: 200px; }
+.canvas .stepcard { padding: 32px 38px 32px; zoom: 1; }
+.stepcard .lab { font-size: 15px; }
 .kicker { color: var(--ip-her-t) !important; }
-.stepcard h2 { margin: 8px 0 6px; font: 400 30px/1.15 var(--ip-serif); letter-spacing: -.012em; }
-.stepcard .sub { margin: 0 0 20px; font: italic 400 17px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
-.field { display: flex; align-items: center; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5);
-  font: 400 22px/1 var(--ip-serif); color: var(--ip-ink); }
+.stepcard h2 { margin: 10px 0 8px; font: 400 38px/1.15 var(--ip-serif); letter-spacing: -.012em; }
+.stepcard .sub { margin: 0 0 24px; font: italic 400 21px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.field { display: flex; align-items: center; height: 64px; padding: 0 22px; border-radius: 999px; background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5);
+  font: 400 27px/1 var(--ip-serif); color: var(--ip-ink); }
 .caret { display: inline-block; width: 1.5px; height: 22px; background: var(--ip-her-t); margin-left: 1px; }
 .row-end { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 18px; }
-.row-end .lab { margin-right: auto; }
+.row-end .see { margin-right: auto; }
 .choices { display: flex; flex-wrap: wrap; gap: 9px; }
-.choice { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 17px; border-radius: 999px; border: 0; cursor: pointer; background: #FFFDF8;
-  font: 500 16px/1 var(--ip-sans); color: var(--ip-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.2); transition: translate .18s var(--ip-land), box-shadow .18s; }
+.choice { display: inline-flex; align-items: center; gap: 9px; height: 52px; padding: 0 21px; border-radius: 999px; border: 0; cursor: pointer; background: #FFFDF8;
+  font: 500 19px/1 var(--ip-sans); color: var(--ip-ink); box-shadow: inset 0 0 0 1.5px rgba(59,42,32,.2); transition: translate .18s var(--ip-land), box-shadow .18s; }
 .choice i { width: 22px; height: 22px; border-radius: 50%; background: var(--ip-her); margin-left: -8px; }
 .choice.on { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px var(--ip-her); }
-.choice.own { flex-basis: 100%; justify-content: center; font: italic 400 18px/1 var(--ip-serif); color: var(--ip-ink-2); }
+.choice.own { flex-basis: 100%; justify-content: center; font: italic 400 22px/1 var(--ip-serif); color: var(--ip-ink-2); }
 .choice.is-hover { translate: 0 -2px; box-shadow: inset 0 0 0 1.5px var(--ip-her), var(--ip-lift); }
 /* speaking: her rough words in soft grey, then tidied into her pink */
-.speak { min-height: 150px; padding: 18px 20px; border-radius: var(--ip-r-md); background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.4);
-  font: italic 400 22px/1.5 var(--ip-serif); color: #64503F; }
+.speak { min-height: 180px; padding: 22px 24px; border-radius: var(--ip-r-md); background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.4);
+  font: italic 400 27px/1.5 var(--ip-serif); color: #64503F; }
 .speak .tk { display: inline-block; margin-right: .26em; }
 .speak .tk.filler { color: #7A6656; }
 .speak.clean { color: var(--ip-her-t); font-style: italic; }
@@ -65,13 +70,13 @@ html, body { margin: 0; background: #1A120D; }
 .mic svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; }
 .see { font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); text-decoration: underline; text-underline-offset: 3px; }
 /* her name tag: the name the team will know her by */
-.tag-her { left: 560px; width: 480px; top: 300px; }
+.tag-her { left: 500px; width: 600px; top: 210px; }
 .canvas .tag-her { padding: 22px 26px 22px; }
 .tag-her > .gl { --sheet: var(--ip-paper-her); }
 .tag-her .who { display: flex; align-items: center; gap: 16px; margin: 10px 0 14px; }
-.tag-her .seal { width: 60px; height: 60px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 27px/1 var(--ip-serif); flex: none; }
-.tag-her .name { font: 400 36px/1 var(--ip-serif); letter-spacing: -.01em; }
-.tag-her .title { font: italic 400 24px/1.2 var(--ip-serif); color: var(--ip-her-t); margin-top: 5px; }
+.tag-her .seal { width: 74px; height: 74px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 27px/1 var(--ip-serif); flex: none; }
+.tag-her .name { font: 400 46px/1 var(--ip-serif); letter-spacing: -.01em; }
+.tag-her .title { font: italic 400 30px/1.2 var(--ip-serif); color: var(--ip-her-t); margin-top: 5px; }
 .tag-her .traits { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag-her .traits span { height: 32px; padding: 0 13px; display: inline-flex; align-items: center; border-radius: 999px; background: rgba(255,253,248,.88); font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); }
 .tag-her .kn { margin: 16px 0 0; font: italic 400 16px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
@@ -79,7 +84,9 @@ html, body { margin: 0; background: #1A120D; }
 /* meeting the team: a close-up in an inked oval, and their card */
 .meet { left: 0; right: 0; top: 0; bottom: 0; }
 .oval { position: absolute; left: 330px; top: 170px; width: 400px; height: 440px; border-radius: 50%; overflow: hidden; background: #EADBC0; }
-.oval video { position: absolute; width: 900px; height: 900px; }
+.oval::after { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(239,227,205,0) 62%, rgba(239,227,205,.55) 84%, rgba(239,227,205,.92) 100%); }
+.oval video { position: absolute; width: 1060px; height: 1060px; }
 .oval-ink { position: absolute; left: 324px; top: 164px; width: 412px; height: 452px; overflow: visible; pointer-events: none; }
 .oval-ink ellipse { fill: none; stroke: #4A3020; stroke-width: 2; stroke-opacity: .85; }
 .oval-cr { position: absolute; left: 342px; top: 186px; width: 400px; height: 440px; border-radius: 50%; background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 240px 240px; mask: var(--ip-wax) 0 0 / 240px 240px; filter: url(#ip-tear); }
@@ -92,8 +99,8 @@ html, body { margin: 0; background: #1A120D; }
 .mcard .brings { font: 400 16px/1.4 var(--ip-sans); color: var(--ip-ink-2); }
 .mcard .brings b { font-weight: 500; color: var(--ip-ink); }
 .count-dots { position: absolute; left: 0; right: 0; top: 700px; display: flex; justify-content: center; gap: 10px; }
-.count-dots i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); opacity: .25; transition: opacity .4s; }
-.count-dots i.on { opacity: 1; }
+.count-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); opacity: .3; transition: opacity .4s; }
+.count-dots i.on { opacity: .55; }
 .late-note { left: 800px; top: 270px; width: 440px; rotate: -2deg; }
 .canvas .late-note { padding: 22px 26px; }
 .late-note .hand { font: 500 14px/1 var(--ip-sans); color: var(--t); }
@@ -101,7 +108,7 @@ html, body { margin: 0; background: #1A120D; }
 .empty-oval { position: absolute; left: 330px; top: 170px; width: 400px; height: 440px; border-radius: 50%; background: #E6D6BA var(--ip-tooth); display: grid; place-items: center; }
 .empty-oval span { font: italic 400 20px/1.3 var(--ip-serif); color: var(--ip-ink-2); text-align: center; }
 
-#replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
+#replay { position: absolute; right: 22px; top: 18px; z-index: 30; opacity: 0; }
 #pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
 #pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
 </style>
@@ -169,20 +176,20 @@ html, body { margin: 0; background: #1A120D; }
     animate(ptr, { x: 1200, y: 820 }, { duration: 0 });
     // ---- 0 her name ----
     let s = await sheet(`<span class="lab kicker">Welcome to the studio</span><h2>What should the team call you?</h2><p class="sub">Your first name is plenty.</p>
-      <div class="field"><span id="nm"></span><span class="caret"></span></div><div class="row-end"><span class="lab">Step 1 of 3</span><button class="btn" id="go1">That’s me</button></div>`);
+      <div class="field"><span id="nm"></span><span class="caret"></span></div><div class="row-end"><button class="btn" id="go1">That’s me</button></div>`);
     await wait(900); await typeIn(s.querySelector('#nm'), 'Priya', 120); if (N < 1) return;
     await wait(500); await tap(s.querySelector('#go1'));
     // ---- 1 her craft ----
     s = await sheet(`<span class="lab kicker">Hello, Priya</span><h2>What do you bring to the table?</h2><p class="sub">Pick your craft. The team fills every other seat.</p>
       <div class="choices"><button class="choice on" id="pr"><i></i>Product</button><button class="choice">Design</button><button class="choice">Research</button><button class="choice">Engineering</button>
       <button class="choice">Data</button><button class="choice">Strategy</button><button class="choice own">Your own craft</button></div>
-      <div class="row-end"><span class="lab">Step 2 of 3</span><button class="btn" id="go2">Product it is</button></div>`);
+      <div class="row-end"><button class="btn" id="go2">Product it is</button></div>`);
     if (N < 2) return;
     await wait(1600); await tap(s.querySelector('#go2'));
     // ---- 2 she says what she loves, rough ----
     s = await sheet(`<span class="lab kicker">Product, in your own words</span><h2>What do you love about it, and what do you bring?</h2><p class="sub">Just talk. Ums and all.</p>
       <div class="speak" id="speak"></div>
-      <div class="row-end"><span class="lab">Step 3 of 3</span><span class="mic" id="mic"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span>Hold to talk</span></div>`, 'stepcard', 'her');
+      <div class="row-end"><span class="mic" id="mic"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span>Hold to talk</span></div>`, 'stepcard', 'her');
     const sp = s.querySelector('#speak'), ring = s.querySelector('.ring');
     if (!instant) { await wait(700); hidePtr(); s.querySelector('#mic').lastChild.textContent = 'Listening… take your time'; }
     const pulse = !instant && setInterval(() => ring.style.boxShadow = `0 0 0 ${(3 + Math.random() * 7).toFixed(1)}px rgba(212,114,136,.3)`, 120);
@@ -200,7 +207,7 @@ html, body { margin: 0; background: #1A120D; }
     if (!instant) keep.forEach(e => { const b = before.get(e), n = e.getBoundingClientRect(); animate(e, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, spring(.5)); });
     sp.classList.add('clean');
     keep.forEach((e, i) => A(e, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: .12 + i * .03, ease: 'easeOut' }));
-    s.querySelector('.row-end').insertAdjacentHTML('afterbegin', '<a class="see" href="#">See what you said</a>'); s.querySelector('.row-end .lab').remove();
+    s.querySelector('.row-end').insertAdjacentHTML('afterbegin', '<a class="see" href="#">See what you said</a>');
     InkPaper.redraw(s); if (N < 4) return;
     // ---- 4 her name tag: the team's spin on what she said ----
     await wait(2200);
@@ -223,7 +230,7 @@ html, body { margin: 0; background: #1A120D; }
       if (cur) { const old = cur; cur = null; if (!instant) await animate(old, { opacity: 0, x: -40 }, { duration: .4, ease: [.4, 0, .6, 1] }).finished; old.remove(); }
       const m = document.createElement('div'); m.className = 'abs meet'; m.dataset.who = t.who; ground.appendChild(m); cur = m;
       const late = t.flex && LATE && !lateDone;
-      const vx = 200 - t.head[0] * 900, vy = 230 - t.head[1] * 900;
+      const vx = 200 - t.head[0] * 1060, vy = 236 - t.head[1] * 1060;
       m.innerHTML = `<div class="oval-cr"></div>` + (late ? `<div class="empty-oval"><span>An empty chair,<br>for now</span></div>` :
         `<div class="oval"><video muted loop playsinline autoplay preload="auto" src="first-open/cast/${t.who}-idle.webm" style="left:${vx}px;top:${vy}px"></video></div>`) +
         `<svg class="oval-ink" viewBox="0 0 412 452"><g style="filter:url(#ip-wob${k + 2})"><ellipse cx="206" cy="226" rx="200" ry="220" pathLength="1"/></g></svg>` +
@@ -257,14 +264,15 @@ html, body { margin: 0; background: #1A120D; }
       // her tag lifts to the centre while the leaves begin to part
       await animate(tag, { left: (800 - tag.offsetWidth / 2) + 'px', top: '430px', scale: 1.25 }, spring(1)).finished;
       await wait(500);
-      L.querySelector('.edge').style.opacity = 1; R.querySelector('.edge').style.opacity = 1;
+      c.classList.add('parting'); L.querySelector('.edge').style.opacity = 1; R.querySelector('.edge').style.opacity = 1;
       animate(room, { scale: [1.07, 1], filter: ['brightness(.82)', 'brightness(1)'] }, { duration: 3.6, ease: [.33, 0, .2, 1] });
       animate(L, { x: [0, -870] }, { duration: 3.0, ease: [.7, 0, .2, 1] });
       await animate(R, { x: [0, 870] }, { duration: 3.0, ease: [.7, 0, .2, 1] }).finished;
     } else { L.style.display = R.style.display = 'none'; }
+    $('#replay').style.opacity = 1;
     if (N < 11) return;
-    // she sits: the tag settles onto her stool and the warm light comes up
-    await wait(300);
+    // hold the whole room for a beat, so everyone at the table is seen first; then she sits
+    await wait(1800);
     A(tag, { left: '584px', top: '616px', scale: 1 }, { type: 'spring', visualDuration: 1.4, bounce: 0 });
     await wait(700);
     A('#warm', { opacity: [0, 1] }, { duration: 1.6, ease: 'easeInOut' });
