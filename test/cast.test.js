@@ -109,3 +109,20 @@ test('prompts speak in the role each seat wears; her seat speaks her craft; Prod
     callModel: async a => { seen.push(a.system.match(/You are the (\w+) teammate/)[1]); return { note: '', candidates: [] }; } });
   assert.deepEqual(seen.sort(), ['Design', 'Engineering', 'Operations', 'Product', 'Research']);
 });
+
+test('a question from the engine at her own seat is her craft\'s teammate (Design\'s), on the Product path still Product\'s', async () => {
+  const { select } = await import('../lib/select.js');
+  const cand = { id: 'c1', seat: 'product', decision: 'What leads the page for a regular', options: ['Their usual first', 'Today\'s bread first'],
+    recommendation: 'Their usual first', reason: 'r', cost: 'high', undoable: true, attachTo: null };
+  const fake = async a => (a.schema?.required?.includes('scores')
+    ? { scores: [{ id: 'c1', big: 3, hers: 3, silent: 3, changes: 3, granular: false, showable: true, dupOf: null, kind: 'fork',
+      question: 'What should ordering feel like for someone who comes every morning?', artifact: 'journey', settles: [] }] }
+    : { decisions: [{ id: 'c1', choice: 'Their usual first', cites: 'team default' }] });
+  const by = async craft => {
+    const r = await call(runRoutes, '/api/run', { idea: IDEA, ...(craft ? { craft } : {}) });
+    const out = await select({ run: r.body.run, idea: IDEA, flow: { nodes: [], edges: [] }, taste: [], candidates: [cand], callModel: fake });
+    return out.asks[0]?.by;
+  };
+  assert.equal(await by('design'), "Design's teammate");
+  assert.equal(await by(null), "Product's teammate");
+});
