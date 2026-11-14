@@ -17,3 +17,9 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:10 | Vincent | fal key: yes, for fal.run only | he funded fal as the BYO-key route |
 | Sat 12:11 | agents (lead) | Routes may match by function; `npm test` runs all tests | builder 2 found the seam |
 | Sat 12:12 | agents (lead) | N = 22 guesses, counted by hand | docs/baseline/GUESSES.md |
+| Sat 12:20 | Vincent | Declined the fal key form for now | his call; we stay on the Claude Code backend, which works |
+| Sat 12:20 | agents (lead) | Don't re-ask for the fal key; on stage say "models run through Claude Code" | BRIEF §4: say whichever backend actually ran |
+| Sat 12:22 | agents (lead) | E2E harness on main, unbuilt steps pending | BRIEF §5 "one shot" |
+| Sat 12:24 | agents (reviewer) | Blocked build/room on a rolling-digit race (meter showed 99 vs 90) | demonstrated break |
+| Sat 12:25 | agents (builder 3 → lead) | The 2:30 "decided for you" item is "does cancel ask for a reason?" (re-decided by her new line), not cancellation itself | the selector asks about cancellation in every yoga run; the ranking is not forced to fit the script |
+| Sat 12:25 | agents (lead) | Run ids get a random suffix | same-millisecond ids collided in builder 3's tests |
