@@ -262,30 +262,55 @@
     }
   }
 
-  // ---- her own craft: the dashed seventh seat (name tag: public/name-tag.js) ----------------------------
-  // At the start she can take "Your own craft" instead of Product: her name tag (craft · good at · loves) is made with
-  // her, then she sits here, with the same empty Stance slot as the Product card.
-  const diySeat = $('.seat-diy');
+  // ---- her seat's pick card: "What do you bring to the table?" Product, or her own craft ----------------
+  // A click on her empty seat (or the clicker's forward) opens it; Product (or forward again) seats her as Product.
+  // "Your own craft" makes her name tag with her (public/name-tag.js), then she sits in her seat with that craft.
+  const pickCard = $('#pick-card');
+  const pickOpen = () => !!pickCard && !pickCard.hidden;
+  function openPick() {
+    if (!pickCard || BYOC.beat !== 0 || BYOC.replay || pickOpen()) return;
+    pickCard.hidden = false; pickCard.dataset.state = 'open';
+    place(pickCard, { y: [30, 0], opacity: [0, 1] }, !instantMode);
+    emit('pick.open', {});
+    pickCard.querySelector('.pick-option')?.focus();
+  }
+  function closePick() { if (!pickCard) return; pickCard.hidden = true; pickCard.dataset.state = 'hidden'; }
+  async function pick(what) {
+    if (!pickOpen() || BYOC.beat !== 0) return;
+    pickCard.dataset.state = 'picked'; pickCard.dataset.pick = what;
+    emit('pick.done', { pick: what });
+    if (what === 'craft') {
+      closePick();
+      const tag = await takeDiySeat();
+      if (!tag && BYOC.beat === 0) openPick(); // she closed her tag without keeping it: back to the choice
+      return;
+    }
+    closePick(); stage(1);
+  }
+  if (pickCard) pickCard.addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
+  BYOC.pick = { open: openPick, close: closePick, choose: pick, isOpen: pickOpen };
+  // Her card in her own craft: in her seat, with the craft her name tag says.
   function seatDiy(animate) {
-    if (!diySeat || diySeat.querySelector('.card')) return;
+    const s = el.seat.product;
+    if (s.querySelector('.card')) return;
     const t = BYOC.herTag || {};
     const c = h('div', 'card card-diy');
-    c.innerHTML = `<div class="card-band">${GLYPH.product}<span class="card-name">${esc(t.craft || 'Your craft')}</span></div>
+    c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH.product}<span class="card-name" data-slot="name">${esc(t.craft || 'Your craft')}</span></div>
       <span class="card-character" data-slot="character"></span>
       <div class="card-her"><span class="card-who" data-slot="who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
     c.dataset.component = 'her-place-card'; c.dataset.state = 'empty'; c.dataset.seat = 'diy';
-    diySeat.appendChild(c); diySeat.classList.add('filled'); diySeat.dataset.state = 'her';
+    s.appendChild(c); s.classList.add('filled'); s.dataset.state = 'her';
     drawHerCharacter(c);
     el.room.dataset.herSeat = 'diy';
-    place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, -1] : -1 }, animate);
+    place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, TILT.product] : TILT.product }, animate);
   }
   async function takeDiySeat() {
-    if (BYOC.beat !== 0 || BYOC.replay || !BYOC.nameTag || !BYOC.nameTag.open) return;
+    if (BYOC.beat !== 0 || BYOC.replay || !BYOC.nameTag || !BYOC.nameTag.open) return null;
     const tag = await BYOC.nameTag.open();
-    if (!tag || BYOC.beat !== 0) return;
+    if (!tag || BYOC.beat !== 0) return null;
     stage(1);
+    return tag;
   }
-  if (diySeat) diySeat.addEventListener('click', takeDiySeat);
   BYOC.takeDiySeat = takeDiySeat;
 
   const thinking = new Set(); // teammates started but with no proposal yet (teammate.thinking)
@@ -898,7 +923,7 @@
     switch (ev.type) {
       case 'run.start':
         if (ev.intro) BYOC.intro = ev.intro;
-        if (ev.seat === 'diy' && !diySeat?.querySelector('.card')) { // a replay of a run in her own craft
+        if (ev.seat === 'diy' && !el.seat.product.querySelector('.card')) { // a replay of a run in her own craft
           BYOC.herSeat = 'diy'; if (ev.tag) BYOC.herTag = ev.tag;
           el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
           seatDiy(false);
@@ -1135,8 +1160,8 @@
     target.dispatchEvent(new Event('input', { bubbles: true }));
     return true;
   };
-  // She takes her seat herself: a click on the empty Product seat.
-  el.seat.product.addEventListener('click', () => { if (BYOC.beat === 0 && !BYOC.replay) stage(1); });
+  // She takes her seat herself: a click on her empty seat opens its pick card.
+  el.seat.product.addEventListener('click', () => { if (BYOC.beat === 0 && !BYOC.replay) openPick(); });
 
   async function enter(b, animate) {
     const tok = walkToken;
@@ -1184,6 +1209,7 @@
   }
   function stage(n, opts = {}) {
     setSheetOpen(false);
+    if (n !== 0) closePick();
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
     if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
@@ -1212,7 +1238,7 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
-    if (diySeat) { diySeat.querySelector('.card')?.remove(); diySeat.classList.remove('filled'); diySeat.dataset.state = 'empty'; } delete el.room.dataset.herSeat;
+    closePick(); if (pickCard) delete pickCard.dataset.pick; delete el.room.dataset.herSeat; BYOC.herSeat = null;
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();

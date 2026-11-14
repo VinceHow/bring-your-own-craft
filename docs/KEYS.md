@@ -4,7 +4,7 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 
 | Key | What it does |
 |---|---|
-| `→` · `PageDown` · `Space` | Next beat (a clicker's forward button). |
+| `→` · `PageDown` · `Space` | Next beat (a clicker's forward button). In the empty room: her seat's pick card, then Product. |
 | `←` · `PageUp` | Previous beat (a clicker's back button). |
 | `Home` · `0` | Reset to the empty room. |
 | `S` | Stage mode: body text 20px and up, no chrome, no help card. |
