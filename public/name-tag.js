@@ -46,7 +46,7 @@
     if (open) return open.promise;
     const room = B.el && B.el.room; if (!room) return Promise.resolve(null);
     const el = h('section', 'name-tag'); el.setAttribute('aria-label', 'Your character card'); el.tabIndex = -1;
-    el.dataset.component = 'name-tag'; el.dataset.state = 'asking';
+    el.dataset.component = 'character-card'; el.dataset.state = 'asking';
     const say = h('div', 'tag-say');
     const input = slot(h('input', 'tag-input'), 'input'); input.type = 'text'; input.spellcheck = false; input.dataset.voice = 'tag';
     input.placeholder = "I'm good at mixing dough, and I love the first batch out at 6am";
@@ -57,7 +57,7 @@
     const craft = slot(field('tag-craft', '', 'your craft'), 'craft');
     const craftLine = h('div', 'tag-craftline'); craftLine.append(craft);
     const traits = slot(h('div', 'tag-traits'), 'traits');
-    const power = slot(h('div', 'tag-power'), 'power'); power.title = 'Swap the superpower';
+    const power = slot(h('div', 'tag-power'), 'superpower'); power.title = 'Swap the superpower';
     const hint = slot(h('div', 'tag-hint'), 'hint'); hint.textContent = ('The team’s read of you · click any piece to swap it · Enter: take the seat');
     card.append(craftLine, title, traits, power, hint);
     let cur = null; // the card as it stands, with its pools of swaps
@@ -104,7 +104,7 @@
         alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
       craft.textContent = cur.craft; title.textContent = cur.title; power.textContent = cur.superpower; drawTraits();
       if (!r || r.rough) hint.textContent = 'The team couldn’t make your card just now: write your craft · Enter: take the seat';
-      say.hidden = true; card.hidden = false; el.dataset.state = 'ready';
+      say.hidden = true; card.hidden = false; el.dataset.state = 'shown';
       (craft.textContent ? card : craft).focus();
       if (!craft.textContent) craft.focus();
       el.dataset.ms = r?.ms ?? '';
