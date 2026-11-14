@@ -52,20 +52,22 @@ test('1. the room loads with no console errors', async () => {
   assert.deepStrictEqual(consoleErrors, []);
 });
 
-test('2. five seats, her card in Product, BYOC seams present', async t => {
+test('2. six seats; she clicks Product, the team assembles, her card takes her line', async t => {
   if (!(await has('!!(window.BYOC && BYOC.el && BYOC.el.herSheet)'))) return t.todo('room not merged');
-  for (const s of ['product', 'design', 'data', 'research', 'engineering'])
+  for (const s of ['product', 'design', 'data', 'research', 'strategy', 'engineering'])
     assert.ok(await page.locator(`[data-seat="${s}"]`).count(), `seat ${s} on the table`);
   tBeat = Date.now();
-  await page.keyboard.press('ArrowRight'); // her card
-  await page.keyboard.press('ArrowRight'); // the team, one by one
-  await waitFor(() => document.querySelectorAll('.seat .card').length === 5, 8000, 'five cards');
-  await page.waitForTimeout(1200); // the last card settles
-  lap('0:00 walk-in');
+  assert.strictEqual(await page.locator('.seat .card').count(), 0, 'six empty seats at the start');
+  await page.click('.seat-product'); // she takes the Product seat herself
+  // The team assembles: each card big mid-table, then into its seat. Then her card lifts for her "I love..." line.
+  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 40000, 'the team seated and her card open');
+  lap('0:00 walk-in + assembling');
   assert.ok(await page.locator('.seat-product .card').count(), 'her card in Product');
-  for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'boring and correct'])
-    assert.ok(await page.getByText(stance).count(), `stance "${stance}" on a place card`);
-  assert.strictEqual(await page.getByText('Own mode for this seat: coming.').count(), 4);
+  for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'who pays, and why now', 'boring and correct'])
+    assert.ok(await page.locator('.seat .card-stance', { hasText: stance }).count(), `stance "${stance}" on a place card`);
+  assert.strictEqual(await page.getByText('Own mode for this seat: coming.').count(), 5);
+  await page.keyboard.type('getting the journey right before anyone draws a screen.');
+  await page.keyboard.press('Enter');
   for (const k of ['api', 'on', 'stage', 'el']) assert.ok(await has(`!!BYOC.${k}`), `BYOC.${k}`);
   await shot('live-walk-in.png');
 });
@@ -73,13 +75,15 @@ test('2. five seats, her card in Product, BYOC seams present', async t => {
 test('3. she writes the idea and her journey; lines become boxes', async t => {
   if (!(await has('!!(window.BYOC && BYOC.flow && BYOC.flow.addLine)'))) return t.todo('flow not merged');
   if (!(await has('fetch("/api/run",{method:"POST",body:"{}"}).then(r=>r.status!==404)'))) return t.todo('run routes not merged');
-  await page.keyboard.press('ArrowRight'); // her sheet
+  // Her card settles and her sheet opens on its own.
   await waitFor(() => document.activeElement && document.activeElement.id === 'her-input', 3000, 'her input focused');
   assert.ok(await page.getByText('What are we building today?').count());
   await page.keyboard.type('A booking page for a small yoga studio.');
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run id');
   RUN = await page.evaluate(() => BYOC.run);
+  // Her "I love..." line is L1 of her file, in her own words.
+  await waitFor(() => /I love getting the journey right/.test(document.querySelector('#file-lines li[data-id="L1"]')?.textContent || ''), 5000, 'L1 on her file card');
   for (const l of ['classes', 'a class', 'confirm', 'booked', 'regulars → "Book your usual"']) {
     await page.keyboard.type(l); await page.keyboard.press('Enter');
     await page.waitForTimeout(150);
@@ -162,6 +166,7 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   const written = (await events()).find(e => e.type === 'taste.written');
   assert.strictEqual(written.text, mine);
   assert.strictEqual(written.reworded, true);
+  await waitFor(t => document.getElementById('her-stance')?.textContent === t, 3000, 'her stance filled on her card', mine);
   const md = fs.readFileSync(path.join(RUNS, RUN, 'taste.md'), 'utf8');
   assert.ok(md.includes(`- [${written.id}] ${mine}`), 'the new line is in runs/<id>/taste.md');
   await waitFor(id => !!document.querySelector(`#file-lines li[data-id="${id}"]`), 3000, 'the new line on her file card', written.id);
@@ -170,7 +175,42 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
 });
 
 test('6. Build -> page reflects her choices; a decision cites her new line', async t => {
-  t.todo('press build; wait build.done; page has no phone field; "decided for you" cites the new line id');
+  if (!RUN) return t.todo('needs step 3');
+  const written = (await events()).find(e => e.type === 'taste.written');
+  if (!written) return t.todo('needs step 5');
+  // Her one press. The room's own build key/button is piece 1's; until it exists, the same POST the button makes.
+  const pressed = await page.evaluate(() => typeof BYOC.build === 'function' ? (BYOC.build(), 'room') : null);
+  if (!pressed) await page.evaluate(run => BYOC.api(`/api/run/${run}/build`, {}), RUN);
+  await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 120000, 'build.done');
+  lap('2:05 build done');
+  const evs = await events();
+  const steps = evs.filter(e => e.type === 'build.step').map(e => e.step);
+  assert.ok(!steps.some(s => /^Build failed/.test(s)), 'build ran: ' + steps.join(' / '));
+  assert.ok(steps.length >= 3, 'the build shows its steps');
+  const done = evs.find(e => e.type === 'build.done');
+  assert.strictEqual(done.url, `/runs/${RUN}/page/`);
+  // The build re-decided the rest against her updated file, and at least one decision cites her new line.
+  const redecided = evs.filter(e => e.type === 'decided' && e.round === 'build');
+  assert.ok(redecided.some(d => d.cites === written.id), `a re-decision cites ${written.id}: ${redecided.map(d => d.id + ':' + d.cites).join(' ')}`);
+  // Her page.
+  const pg = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: SCREENS ? 2 : 1 });
+  await pg.goto(BASE + done.url, { waitUntil: 'networkidle' });
+  assert.strictEqual(await pg.locator('input[type=tel]').count(), 0, 'no phone field (her pin)');
+  const cited = pg.locator(`#decided [data-decided][data-cites="${written.id}"]`);
+  assert.ok((await cited.count()) >= 1, `"decided for you" shows a decision citing ${written.id}`);
+  assert.match(await cited.first().innerText(), /remember or skip/i, 'with her line quoted');
+  assert.match(await pg.locator('h1').innerText(), /\S/, 'her page has a headline');
+  // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
+  const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
+  const answered = evs.filter(e => e.type === 'answer');
+  assert.strictEqual(slots.inputs.answers.filter(a => a.decision !== 'her pinned note').length, answered.length, 'every answer reached the fill');
+  assert.ok(slots.inputs.answers.some(a => a.overruled), 'her overruled call reached the fill as overruled');
+  if (SCREENS) {
+    await pg.screenshot({ path: path.join(SCREENS, 'live-page.png') });
+    await cited.first().scrollIntoViewIfNeeded();
+    await pg.screenshot({ path: path.join(SCREENS, 'live-page-decided.png') });
+  }
+  await pg.close();
 });
 
 test('7. counter and meter match the log', async t => {

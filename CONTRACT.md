@@ -37,7 +37,7 @@ put a stub in your own file and tell the lead.
 - Seats (six, since Sat 13:00): `product`, `design`, `data`, `research`, `strategy`, `engineering`. Strategy's ink is gold `#BB8B41`; stance *who pays, and why now*.
 
 ## The API (piece 3 owns `routes/run.js` unless noted)
-- `POST /api/run` `{ idea }` → `{ run }`. Logs `run.start`.
+- `POST /api/run` `{ idea, intro? }` → `{ run }`. Logs `run.start` (with `intro` when given). `intro` is her "I love…" line from her card; it becomes L1 of her file ("her own words, today"), replacing the first prepared line, so her first new principle is still L3.
 - `POST /api/run/:id/line` `{ text }` → `{ nodes, edges }` (piece 2's `lib/flow.js` does the parsing; piece 3's route
   calls `parseFlow(lines)`). Logs `flow.line`.
 - `POST /api/run/:id/propose` → starts the six teammates and the selector; progress comes as events.
