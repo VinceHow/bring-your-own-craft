@@ -45,3 +45,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 13:57 | Vincent | Question rationing to be redesigned with the PO; existing cap code stays for now, nothing new depends on exactly 3 | "a more tasteful way rather than hard fixing that in code" |
 | Sat 14:00 | Vincent + PO, lead OK'd | Sixth seat Strategy (gold #BB8B41), she clicks her seat, 'assembling the team' walk-in; CONTRACT.md seats updated | worth ~1 h; we're ahead |
 | Sat 14:05 | agents (lead) | Her card's 'I love…' line: optional `intro` on POST /api/run becomes L1 (her words), one prepared seed line stays as L2 | smallest seam; keeps her new line at L3 |
+| Sat 14:10 | agents (lead) | demo-2: whole yoga script end to end on main, e2e 10/10, build beat 24.7 s; beats merge held back (5 e2e failures with polish.css on main), sent back to fix | main stays demoable |
