@@ -1,9 +1,11 @@
 {
   "prepared": true,
   "label": "researched before the demo",
-  "placeholder": true,
-  "TODO": "Lead: replace title, claim and url with one real, sourced finding (about waitlists for full classes) and set placeholder to false.",
-  "title": "PLACEHOLDER finding: waitlists on full fitness classes",
-  "claim": "PLACEHOLDER, not yet sourced: studios that let customers join a waitlist on a full class refill most late cancellations.",
-  "url": "TODO"
+  "placeholder": false,
+  "title": "A public leisure centre runs a waitlist on full group-fitness classes",
+  "claim": "Active Monash (a council-run leisure provider in Victoria, Australia) runs a waitlist on full group fitness classes and stops accepting cancellations within 1 hour of the class start, so people on the waitlist have time to get there.",
+  "url": "https://www.activemonash.vic.gov.au/News/Update-to-Group-Fitness-Waitlist",
+  "source": "Active Monash, \"Update to Group Fitness Waitlist\"",
+  "how_verified": "Seen in a web search result summary on 14 Nov 2026; the page itself could not be opened from the build session (host not reachable). Open the link to check before relying on it.",
+  "not_claimed": "No numbers on how often waitlisted people get a spot: the only figures found were from software vendors' blogs and were unsourced."
 }
