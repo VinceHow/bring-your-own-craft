@@ -183,11 +183,56 @@
   function pieceState(p) {
     const s = !p.tidy ? 'raw' : p.use === 'mine' ? 'mine' : p.showRaw ? 'raw-shown' : 'tidy';
     p.li.dataset.state = s;
-    p.words.textContent = s === 'tidy' ? p.tidy : p.raw;
+    if (!p.animating) wordsInto(p, s === 'tidy' ? 'tidy' : 'raw');
     p.see.hidden = !p.tidy || p.use === 'mine';
     p.see.textContent = p.showRaw ? 'See the tidy' : 'See what you said';
     p.mine.hidden = !p.tidy;
     p.mine.textContent = p.use === 'mine' ? 'Use the tidy' : 'Use mine';
+  }
+  // Her words as word spans, from the raw → tidy diff (public/word-diff.js). Slots: kept-word, removed-word (the
+  // tidy took it out), changed-word (same word, new case or punctuation, or a new word in a dropped one's place),
+  // added-word. view 'raw' shows what she said; 'tidy' the clean words.
+  const SLOT = { keep: 'kept-word', drop: 'removed-word', becomes: 'changed-word', added: 'added-word' };
+  function wordsInto(p, view) {
+    p.words.dataset.view = view;
+    if (!p.diff) { p.words.textContent = p.raw; return []; }
+    p.words.innerHTML = '';
+    const spans = [];
+    for (const t of p.diff.tokens) {
+      const text = view === 'raw' ? t.word : t.as;
+      const sp = h('span', 'fd-w', text); sp.dataset.slot = SLOT[t.kind]; sp._t = t;
+      if (!text) sp.hidden = true; // an added word in the raw view, a removed one in the tidy view
+      p.words.append(sp, ' '); spans.push(sp);
+    }
+    return spans;
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  // The swap: removed words leave (data-state leaving, then gone), changed words take their new spelling, added
+  // words arrive, and the kept ones slide together. Identical raw and tidy: no animation, just the tidy state.
+  async function landPieceTidy(p, tidy) {
+    p.tidy = tidy;
+    p.diff = B.wordDiff ? B.wordDiff(p.raw, tidy) : null;
+    if (!p.diff || p.diff.same || p.showRaw || p.use === 'mine') { p.li.dataset.anim = 'none'; return pieceState(p); }
+    p.animating = true; p.li.dataset.state = 'tidying'; p.li.dataset.anim = 'swapping';
+    const spans = wordsInto(p, 'raw');
+    for (const sp of spans) if (sp._t.kind === 'drop') sp.dataset.state = 'leaving';
+    await wait(280);
+    if (!p.li.isConnected || p.showRaw || p.use === 'mine') { p.animating = false; return pieceState(p); }
+    const before = new Map(spans.map(sp => [sp, sp.getBoundingClientRect()]));
+    for (const sp of spans) {
+      const k = sp._t.kind;
+      if (k === 'drop') { sp.dataset.state = 'gone'; sp.hidden = true; }
+      if (k === 'becomes') { sp.textContent = sp._t.as; sp.dataset.state = 'changed'; }
+      if (k === 'added') { sp.textContent = sp._t.as; sp.hidden = false; sp.dataset.state = 'arriving'; }
+    }
+    if (M) for (const sp of spans) {
+      if (sp.hidden || sp._t.kind === 'added') continue;
+      const b = before.get(sp), n = sp.getBoundingClientRect();
+      if (b.width || b.height) M.animate(sp, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, SPRING);
+    }
+    await wait(500);
+    p.animating = false; p.li.dataset.anim = 'done';
+    pieceState(p);
   }
   function dropPiece(p) {
     pieces = pieces.filter(x => x !== p); p.li.remove();
@@ -220,8 +265,7 @@
   B.on('answer.piece.tidy', ev => {
     const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
     if (!p || sent || ev.raw !== p.raw || !ev.text) return;
-    p.tidy = ev.text; pieceState(p);
-    if (M) M.animate(p.words, { opacity: [0.4, 1] }, SPRING);
+    landPieceTidy(p, ev.text);
   });
   $('.fd-add').addEventListener('click', () => {
     const f = $('.fd-input'); addPiece(f.value); f.value = ''; f.focus();
