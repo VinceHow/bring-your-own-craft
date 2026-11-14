@@ -21,4 +21,7 @@ finish it." Each ask is logged with its screen (`asks.log`).
   tools; a laptop install would differ. The published page is private to Vincent's account.
 
 ## What this means for the close
-The "14" doesn't hold: the default agent on this prompt asks ~0 and guesses everything. See the lead's note to Vincent.
+On stage: **"A default coding agent asked 0 questions and guessed 22 things about your studio."** The 22 guesses are
+listed one by one, with evidence, in [`GUESSES.md`](GUESSES.md) (counted by hand from run 2).
+Caveat, said plainly if asked: both runs were in a claude.ai cloud container, so the agent had that environment's
+page-publishing tools; a laptop install could behave differently.
