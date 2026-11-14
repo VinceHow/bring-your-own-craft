@@ -13,7 +13,7 @@
        made to the work stays. Her capture space is ready again at once. The full thread and the growing takeaways are a
        view she opens ("Read the conversation", or a pin), never a column always on screen.
      ?w=mika|noor  &s=0..5  (0 capture · 1 sent, Mika's note · 2 Bo's note · 3 settled, ready again · 4 round 2, Mika alone · 5 conversation open)
-     &play=1 for the flow; &play=voice for the same flow with the voice designer's capture (design/voice) merged in. Guardrails: no reply ends in a question to her; no "your turn" prompt; folds summarise only
+     &play=1 for the flow; &play=voice for the same flow with the voice designer's capture (design/voice) merged in (&fail=1: the tidy never answers, her words are kept). Guardrails: no reply ends in a question to her; no "your turn" prompt; folds summarise only
      what was said; silent teammates stay quiet (no "seen" marks).
      Round 1 copy for the wireframes is from DEMO.md; round 2, and her note for Noor's finding, are sketch copy. -->
 <style>
@@ -145,7 +145,7 @@ html, body { margin: 0; background: #2B1F17; }
 .sheet.table { left: 638px; top: 500px; width: 380px; rotate: -1.2deg; padding: 14px 16px; z-index: 2; }
 .sheet.table h3 { font-size: 18px; margin: 3px 0 9px; } .sheet.table .steps { margin: 0; } .sheet.table .step { font-size: 13px; padding: 6px 9px; }
 .reviewed { position: absolute; right: -18px; top: -16px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 7px; rotate: 6deg; border-radius: 16px;
-  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.55), 1px 2px 3px rgba(60,35,15,.25); font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); }
+  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.55), 1px 2px 3px rgba(60,35,15,.25); font: 500 13px/1 var(--ip-sans); color: #7E2C43; }   /* 5.5:1 on the tag, matched with the ink-paper copy */
 .reviewed svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .notes { left: 24px; top: 70px; width: 380px; padding: 18px 20px; z-index: 6; }
 .notes .nh { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
@@ -193,7 +193,7 @@ html, body { margin: 0; background: #2B1F17; }
 <script src="../ink-paper.js"></script>
 <script>
 const q = new URLSearchParams(location.search);
-const W = q.get('w') || 'mika', S = q.has('s') ? +q.get('s') : 0, PLAY = q.get('play') === '1';
+const FAIL = q.has('fail'), W = q.get('w') || 'mika', S = q.has('s') ? +q.get('s') : 0, PLAY = q.get('play') === '1';
 const c = document.getElementById('c');
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -449,14 +449,14 @@ document.addEventListener('studio:said', async e => {
 // Her side becomes the voice designer's sheet: hold V, a piece lands raw, it tidies as it lands, her pen loops the part
 // she's on and an empty pink ring waits there. Send gathers the pieces and fires 'studio:said'; the listener above
 // takes over (her pin fills, the team replies by its pins). Voice level and tidy results are scripted.
-// [raw word, 1 keep | 0 drop | 'becomes']
+// Each piece: raw (speech-to-text, as returned) and clean (what the tidy returns: only cleaned, nothing added).
 const VOICE = {
   mika: [
-    [ { a: 'usual', on: 'Your usual', w: [['um',0],['so',0],['like',0],['it','It'],['should',1],['feel',1],['like',1],['the',1],['baker',1],['already',1],['knows',1],['you,',0],['you',0],['know','you.']] },
-      { a: 'phone', on: 'Name, Phone and the sign-in', w: [['and',0],['don’t','Don’t'],['ask',1],['for',1],['anything',1],['we',1],['already',1],['know,','know.'],['like,',0],['um',0]] } ],
-    [ { a: 'usual', on: 'Your usual', w: [['so',0],['regulars','Regulars'],['come',1],['every',1],['week',1],['anyway,','anyway.'],['so',0],['maybe',0],['offer','Offer'],['a',1],['weekly',1],['order,',1],['but',1],['like,',0],['quietly,',1],['under',1],['their',1],['usual','usual.']] } ] ],
+    [ { a: 'usual', on: 'Your usual', raw: 'um so like it should feel like the baker already knows you, you know', clean: 'It should feel like the baker already knows you.' },
+      { a: 'phone', on: 'Name, Phone and the sign-in', raw: 'and don’t ask for anything we already know, like, um', clean: 'Don’t ask for anything we already know.' } ],
+    [ { a: 'usual', on: 'Your usual', raw: 'so regulars come every week anyway, so maybe offer a weekly order, but like, quietly, under their usual', clean: 'Regulars come every week anyway. Offer a weekly order, but quietly, under their usual.' } ] ],
   noor: [
-    [ { a: 'f1', on: 'Noor’s finding', w: [['oh',0],['that’s','That’s'],['the',1],['heartbreak,','heartbreak.'],['like',0],['hold','Hold'],['one',1],['back',1],['for',1],['the',1],['regulars','regulars,'],['and',1],['just',0],['say',1],['plainly',1],['what’s',1],['left,','left.'],['you',0],['know',0]] } ] ],
+    [ { a: 'f1', on: 'Noor’s finding', raw: 'oh that’s the heartbreak, like hold one back for the regulars and just say plainly what’s left, you know', clean: 'That’s the heartbreak. Hold one back for the regulars and say plainly what’s left.' } ] ],
 };
 const MIC2 = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1.5" width="6" height="8.5" rx="3" fill="currentColor"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5M5 15h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 let vHold = false, vT = 0, vLvl = 0, vLast = performance.now(), vPen = 0;
@@ -487,6 +487,44 @@ function vLoop(el) {   // her pen loops the part she's talking about
   let d = ''; for (let i = 0; i <= 64; i++) { const t = -2.2 + i / 64 * Math.PI * 2, w = 1 + .035 * Math.sin(i * .7); d += (i ? 'L' : 'M') + (cx + Math.cos(t) * rx * w).toFixed(1) + ' ' + (cy + Math.sin(t) * ry * w + i * .05).toFixed(1); }
   const p = $('#vpenpath'); p.setAttribute('d', d); p.style.strokeDasharray = 1; p.style.strokeDashoffset = 1; p.style.opacity = 1; vPen = 0;
 }
+// diffWords and vTidy are lifted from design/voice (voice-capture.html): word-level LCS, then keep / drop / add.
+const TIDY_MS = 900, TIDY_SHOW_AT = 500, TIDY_GIVE_UP = 3000;
+function diffWords(raw, clean) {
+  const norm = w => w.toLowerCase().replace(/’/g, "'").replace(/[^\p{L}\p{N}']/gu, '');
+  const R = raw.split(/\s+/).filter(Boolean), K = clean.split(/\s+/).filter(Boolean), a = R.map(norm), b = K.map(norm);
+  const L = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let x = a.length - 1; x >= 0; x--) for (let y = b.length - 1; y >= 0; y--) L[x][y] = a[x] === b[y] ? L[x + 1][y + 1] + 1 : Math.max(L[x + 1][y], L[x][y + 1]);
+  const ops = []; let x = 0, y = 0;
+  while (x < a.length && y < b.length) { if (a[x] === b[y]) ops.push({ t: 'keep', i: x++, j: y++ }); else if (L[x + 1][y] >= L[x][y + 1]) ops.push({ t: 'drop', i: x++ }); else ops.push({ t: 'add', j: y++ }); }
+  while (x < a.length) ops.push({ t: 'drop', i: x++ }); while (y < b.length) ops.push({ t: 'add', j: y++ });
+  return { ops, R, K };
+}
+function dry(spans, delay = 0) { spans.forEach((s, i) => animate(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: delay + i * .035, ease: 'easeOut' })); }
+// request() resolves to the clean text (the model call in the build; scripted here). Outcomes: 'tidied', 'same', 'kept'.
+async function vTidy(piece, request) {
+  const w = piece.querySelector('.words'), st = piece.querySelector('.status');
+  const show = setTimeout(() => { st.textContent = 'Tidying…'; animate(st, { opacity: [0, 1] }, { duration: .3 }); }, TIDY_SHOW_AT);
+  const result = await Promise.race([request().catch(() => null), wait(TIDY_GIVE_UP).then(() => null)]);
+  clearTimeout(show); animate(st, { opacity: 0 }, { duration: .2 });
+  const spans = [...w.querySelectorAll('.tk')]; w.classList.add('clean');
+  if (!result) { piece._clean = piece._raw; dry(spans); piece.dataset.tidy = 'kept'; return 'kept'; }
+  const { ops, R, K } = diffWords(piece._raw, result);
+  if (R.join(' ') === K.join(' ')) { piece._clean = result; dry(spans); piece.dataset.tidy = 'same'; return 'same'; }
+  const before = new Map(spans.map(s => [s, s.getBoundingClientRect()]));
+  const drops = ops.filter(o => o.t === 'drop').map(o => spans[o.i]);
+  drops.forEach(s => animate(s, { opacity: 0, filter: ['blur(0px)', 'blur(2px)'] }, { duration: .28 }));
+  await wait(260); drops.forEach(s => s.style.display = 'none');
+  const final = []; let anchor = null;
+  for (let k = ops.length - 1; k >= 0; k--) {
+    const o = ops[k];
+    if (o.t === 'keep') { const s = spans[o.i]; if (s.textContent !== K[o.j]) { s.textContent = K[o.j]; animate(s, { opacity: [.2, 1] }, { duration: .4 }); } anchor = s; final.unshift(s); }
+    else if (o.t === 'add') { const s = document.createElement('span'); s.className = 'tk'; s.textContent = K[o.j]; w.insertBefore(s, anchor ? anchor : null); s.style.opacity = 0; anchor = s; final.unshift(s); s._new = true; }
+  }
+  final.forEach(s => { if (s._new) { animate(s, { opacity: [0, 1] }, { duration: .4, delay: .25 }); return; } const b = before.get(s), n = s.getBoundingClientRect(); animate(s, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, spring(.5)); });
+  dry(final, .1); piece._clean = result; piece.dataset.tidy = 'tidied';
+  await wait(900); return 'tidied';
+}
+const vClean = p => p._clean || p._raw;
 async function vSpeak(P) {
   const el = $(`#art [data-a="${P.a}"]`); vLoop(el);
   if (!$(`.pin.pending[data-a="${P.a}"]`)) animate(pin('her', P.a, 'p', 'pending'), { scale: [0, 1] }, spring(.4));
@@ -494,31 +532,23 @@ async function vSpeak(P) {
   const d = document.createElement('div'); d.className = 'vpiece'; d.dataset.anchor = P.on;
   d.innerHTML = `<div class="on"><i></i>on ${P.on}</div><div class="words"></div><div class="status"></div>`; $('#vlines').appendChild(d); animate(d, { opacity: [0, 1], y: [6, 0] }, spring(.4));
   $('#kbd').classList.add('down'); vHold = true; vT = 0; vPill('<b>Listening</b>', '', 'take your time');
-  await wait(600 + P.w.length * 230);
+  const n = P.raw.split(/\s+/).length; await wait(600 + n * 230);
   vHold = false; $('#kbd').classList.remove('down'); vPill('<b>Writing it down</b>'); await wait(700);
-  const w = $('.words', d); d._raw = P.w.map(x => x[0]).join(' ');
-  P.w.forEach((t, i) => { const s = document.createElement('span'); s.className = 'tk' + (t[1] === 0 ? ' filler' : ''); s.textContent = t[0]; s._t = t; w.appendChild(s); animate(s, { opacity: [0, 1], y: [3, 0] }, { duration: .35, delay: i * .04 }); });
+  const w = $('.words', d); d._raw = P.raw; d._clean = null;
+  P.raw.split(/\s+/).forEach((t, i) => { const s = document.createElement('span'); s.className = 'tk'; s.textContent = t; w.appendChild(s); animate(s, { opacity: [0, 1], y: [3, 0] }, { duration: .35, delay: i * .04 }); });
   animate($('#vpenpath'), { opacity: [1, .35] }, { duration: .8 }); vPill('Hold', 'V', 'to add more');
-  await wait(500 + P.w.length * 40);
-  // the tidy, as it lands: fillers fold away, the words slide together, the ink dries to her pink
-  const st = $('.status', d); st.textContent = 'Tidying…'; await wait(650); st.textContent = '';
-  const tks = [...w.children], before = new Map(tks.map(s => [s, s.getBoundingClientRect()]));
-  const drop = tks.filter(s => s._t[1] === 0), change = tks.filter(s => typeof s._t[1] === 'string');
-  drop.forEach(s => animate(s, { opacity: 0 }, { duration: .28 })); await wait(260);
-  drop.forEach(s => s.style.display = 'none'); change.forEach(s => s.textContent = s._t[1]);
-  tks.filter(s => s._t[1] !== 0).forEach((s, i) => { const b = before.get(s), n = s.getBoundingClientRect(); animate(s, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, spring(.5)); animate(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: .1 + i * .035 }); });
-  w.classList.add('clean'); await wait(900);
+  await wait(400 + n * 40);
+  await vTidy(d, () => (FAIL ? new Promise(() => {}) : wait(TIDY_MS).then(() => P.clean)));   // scripted stand-in for the model call
   const sb = $('#send'); if (sb.classList.contains('hide')) { sb.classList.remove('hide'); $('#wrap').classList.add('hide');   // while she has unsent pieces, Send is the one action
     InkPaper.dress($('#side')); InkPaper.redraw(sb); InkPaper.lay(sb, 0); }
-  d._clean = () => [...w.children].filter(s => s.style.display !== 'none').map(s => s.textContent).join(' ');
   return d;
 }
 async function vSend(pieces, anchor) {
   const b = $('#send'); b.classList.add('is-pressed'); await wait(150);
-  const text = pieces.map(p => p._clean()).join(' ');
+  const text = pieces.map(vClean).join(' ');
   pieces.forEach((p, i) => animate(p, { opacity: 0, y: [0, -10 - i * 20] }, { duration: .35 }));
   animate($('#vpenpath'), { opacity: 0 }, { duration: .4 });
-  document.dispatchEvent(new CustomEvent('studio:said', { detail: { text, anchor, pieces: pieces.map(p => ({ text: p._clean(), raw: p._raw, anchor: p.dataset.anchor })) } }));
+  document.dispatchEvent(new CustomEvent('studio:said', { detail: { text, anchor, pieces: pieces.map(p => ({ text: vClean(p), raw: p._raw, anchor: p.dataset.anchor })) } }));
   await wait(400); voiceCapture([...Array(Math.max(0, liveRound - 1)).keys()], true);   // her sheet is clear at once, same pill
 }
 async function playVoice() {
