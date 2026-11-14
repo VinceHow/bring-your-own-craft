@@ -43,17 +43,17 @@ function runSuite(base, { token = TOKEN, log } = {}) {
   });
 }
 
-test('the acceptance suite passes against a stub that keeps the contract (all 11, logs included)', async () => {
+test('the acceptance suite passes against a stub that keeps the contract (all 12, logs included)', async () => {
   await withStub('', async (base, log) => {
     const r = await runSuite(base, { log });
     assert.equal(r.code, 0, r.out.slice(-4000));
-    assert.match(r.out, /# pass 11/);
+    assert.match(r.out, /# pass 12/);
     assert.match(r.out, /# skipped 0/);
   });
 });
 
 for (const [flaw, test_] of [['field', '2'], ['twice', '3'], ['soldout', '4'], ['race', '5'], ['nosse', '6'], ['restock', '7'],
-  ['reset', '9'], ['ratelimit', '+'], ['logname', '10']]) {
+  ['hold', '9'], ['clock', '9'], ['reset', '10'], ['ratelimit', '+'], ['logname', '11']]) {
   test(`the suite catches a broken bakery: "${flaw}" fails test ${test_}`, async () => {
     await withStub(flaw, async (base, log) => {
       const r = await runSuite(base, { log });
@@ -68,7 +68,7 @@ test('with no ADMIN_TOKEN anywhere, only "admin locked" runs, and passes; the re
     const r = await runSuite(base, { token: '' });
     assert.equal(r.code, 0, r.out.slice(-3000));
     assert.match(r.out, /# pass 1\b/);
-    assert.match(r.out, /# skipped 10/);
+    assert.match(r.out, /# skipped 11/);
   }, { token: '' });
 });
 

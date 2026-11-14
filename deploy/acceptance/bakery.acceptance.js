@@ -1,4 +1,4 @@
-// Acceptance suite for the team-built bakery (docs/BAKERY-BRIEF.md, its 10 tests): the gate before it ships. HTTP only,
+// Acceptance suite for the team-built bakery (docs/BAKERY-BRIEF.md, its 11 tests): the gate before it ships. HTTP only,
 // against BASE_URL; never imports the app. Contract: deploy/ACCEPTANCE.md. Every test starts with Reset demo.
 // Run: BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test deploy/acceptance/bakery.acceptance.js
 import { test, beforeEach } from 'node:test';
@@ -16,8 +16,9 @@ const device = () => 'dev-' + crypto.randomUUID();
 const names = new Set(); // every first name used, for the log check
 const NAME = s => { names.add(s); return s; };
 
-async function req(method, path, { body, dev, token, raw } = {}) {
+async function req(method, path, { body, dev, token, raw, now } = {}) {
   const headers = { 'content-type': 'application/json' };
+  if (now) headers['x-test-now'] = now;
   if (dev) headers['x-device-id'] = dev;
   if (token != null) headers.authorization = `Bearer ${token}`;
   const res = await fetch(BASE + path, { method, headers, body: raw ?? (body === undefined ? undefined : JSON.stringify(body)) });
@@ -25,7 +26,7 @@ async function req(method, path, { body, dev, token, raw } = {}) {
   let json = null; try { json = text ? JSON.parse(text) : null; } catch { /* not JSON */ }
   return { status: res.status, json, text };
 }
-const admin = (method, path, body) => req(method, path, { body, token: TOKEN });
+const admin = (method, path, body, now) => req(method, path, { body, token: TOKEN, now });
 const reserve = (loaf_id, first_name, dev = device(), extra = {}) => req('POST', '/api/reservations', { body: { loaf_id, first_name: first_name && NAME(first_name), ...extra }, dev });
 const loaves = async () => (await req('GET', '/api/loaves')).json.loaves;
 const loaf = async id => (await loaves()).find(l => l.id === id);
@@ -163,7 +164,32 @@ test('8. the admin is locked without the token, and when no token is set: 401, n
   }
 });
 
-test('9. Reset demo: no orders, starting stock (sourdough 4)', { skip: NO_TOKEN }, async () => {
+test('9. the hold: a reservation older than the hold is released, its stock returns, and Deliver skips it', { skip: NO_TOKEN }, async () => {
+  const set = await admin('POST', '/api/admin/settings', { hold_minutes: 5 });
+  assert.equal(set.status, 200, `settings: ${set.text}`);
+  try {
+    assert.equal((await admin('GET', '/api/admin/settings')).json.hold_minutes, 5);
+    const r = await reserve('sourdough', 'Hana');
+    assert.equal(r.status, 201, r.text);
+    const at = Date.now();
+    const plus = min => new Date(at + min * 60000).toISOString();
+    const stockAt = async now => (await admin('GET', '/api/admin/stock', undefined, now)).json.loaves.find(l => l.id === 'sourdough').left;
+    // A customer can't move the clock: the header is ignored without the admin token.
+    const cheat = await req('GET', `/api/reservations/${r.json.id}`, { now: plus(60) });
+    assert.equal(cheat.json.status, 'reserved', 'X-Test-Now without the admin token is ignored');
+    assert.equal(await stockAt(plus(4)), 3, 'within the hold: still reserved at +4 min');
+    assert.equal(await stockAt(plus(6)), 4, 'past the hold: the loaf is back on the shelf at +6 min');
+    const orders = (await admin('GET', '/api/admin/orders', undefined, plus(6))).json.orders;
+    assert.equal(orders.find(o => o.id === r.json.id)?.status, 'released');
+    const d = await admin('POST', '/api/admin/deliver', undefined, plus(6));
+    assert.equal(d.status, 200, d.text);
+    assert.equal(d.json.delivered, 0, 'Deliver skips a released reservation');
+    assert.equal((await admin('GET', '/api/admin/orders', undefined, plus(6))).json.orders.find(o => o.id === r.json.id)?.status, 'released');
+    assert.equal((await admin('POST', '/api/admin/settings', { hold_minutes: 0 })).status, 400, 'a hold under a minute is refused');
+  } finally { await admin('POST', '/api/admin/settings', { hold_minutes: 15 }); }
+});
+
+test('10. Reset demo: no orders, starting stock (sourdough 4)', { skip: NO_TOKEN }, async () => {
   await reserve('sourdough', 'Ana'); await reserve('baguette', 'Ben');
   assert.equal((await admin('POST', '/api/admin/reset')).status, 200);
   assert.deepEqual((await admin('GET', '/api/admin/orders')).json.orders, []);
@@ -182,7 +208,7 @@ test('+ rate limit: one device cannot empty the shop by accident (the brief\'s r
   assert.equal((await reserve('baguette', 'Other', device())).status, 201, 'another device is unaffected');
 });
 
-test('10. no API key and no first name appears in any log line', { skip: !APP_LOG ? 'APP_LOG is not set: capture the app\'s output to a file and point APP_LOG at it' : NO_TOKEN }, async () => {
+test('11. no API key and no first name appears in any log line', { skip: !APP_LOG ? 'APP_LOG is not set: capture the app\'s output to a file and point APP_LOG at it' : NO_TOKEN }, async () => {
   await reserve('sourdough', 'Zephyrine'); await admin('POST', '/api/admin/deliver');
   await new Promise(r => setTimeout(r, 200)); // let the app flush
   const log = fs.readFileSync(APP_LOG, 'utf8');

@@ -1,7 +1,7 @@
 # Bakery app: acceptance contract
 
 The gate the team-built bakery must pass before it ships. Source: Vincent's brief, `docs/BAKERY-BRIEF.md`, with its
-10 acceptance tests. Bo builds to this contract. The suite in `deploy/acceptance/bakery.acceptance.js` checks it over
+11 acceptance tests. Bo builds to this contract. The suite in `deploy/acceptance/bakery.acceptance.js` checks it over
 HTTP only, against `BASE_URL`. The app is plain Node 22 with `node:sqlite`, on Railway. The suite never imports the
 app's code.
 
@@ -12,6 +12,17 @@ app's code.
   person: per device, and per first name".
 - **Rate limit:** at most 10 reservation attempts per device per minute. The 11th within the minute gets `429`. Reset
   demo clears the counters.
+
+## Holds and the test clock
+- **Holds:** a reservation is held for `hold_minutes` (default **15**, set on the admin page).
+  - After the hold it is **released**: its status becomes `released`, its loaf goes back on the shelf (`left` +1),
+    and Deliver skips it.
+  - Customers never see the exact hold or a countdown.
+- **The test clock:** a request carrying a valid admin token (`Authorization: Bearer <ADMIN_TOKEN>`) may also carry
+  `X-Test-Now: <ISO 8601>`. The app then uses that time as "now" for everything that request does, releases included.
+  - Without a valid admin token, the header is ignored. So no customer can move the clock.
+  - The app may apply a release when a later "now" is seen (lazily), or on a timer. Either way, every admin read and
+    action at that "now" reflects it.
 
 ## Customer side
 ### `GET /api/loaves`
@@ -36,7 +47,7 @@ Body `{ loaf_id, first_name }`. Those are the only fields. `first_name` is 1–3
 - **429 `{ error: "rate_limited" }`:** over the rate limit.
 
 ### `GET /api/reservations/:id`
-Returns `200 { id, loaf_id, first_name, status, message }`, or `404`. `status` is `reserved` or `delivered`.
+Returns `200 { id, loaf_id, first_name, status, message }`, or `404`. `status` is `reserved`, `delivered` or `released`.
 
 ### `GET /api/reservations/:id/events`: server-sent events
 `text/event-stream`. On connect, the stream sends one `data:` line with the current
@@ -52,10 +63,13 @@ Every admin route needs `Authorization: Bearer <ADMIN_TOKEN>`. That includes the
 
 The routes:
 - `GET /admin` is the admin page (HTML).
-- `GET /api/admin/orders` returns `200 { orders: [{ id, first_name, loaf_id, at, status }] }`, newest first.
+- `GET /api/admin/orders` returns `200 { orders: [{ id, first_name, loaf_id, at, status }] }`, newest first. `status` is `reserved`,
+  `delivered` or `released`.
 - `GET /api/admin/stock` returns `200 { loaves: [{ id, name, start, left, sold_out }] }`.
-- `POST /api/admin/deliver` delivers every reserved order. Returns `200 { delivered: <count> }`.
+- `POST /api/admin/deliver` delivers every reserved order that is still within its hold; released ones are skipped. Returns `200 { delivered: <count> }`.
 - `POST /api/admin/restock` puts every loaf back to `start`. Returns `200 { loaves }`.
+- `GET /api/admin/settings` returns `200 { hold_minutes }`. `POST /api/admin/settings` with body `{ hold_minutes }`
+  (a whole number, 1–240) sets it, and returns the same shape. Anything else is a `400`.
 - `POST /api/admin/reset` clears every order, puts every loaf back to `start`, and clears the rate-limit counters.
   Returns `200 { ok: true }`.
 
@@ -73,8 +87,9 @@ Nothing the app logs may contain a first name, the `ADMIN_TOKEN`, or any API key
 | 6 | Deliver | every reserved order's event stream says "Delivered: your … is here" within 1 s; the admin shows them delivered |
 | 7 | Restock | stock back to `start`; the storefront shows it within 1 s |
 | 8 | Admin locked | `401` without the token or with a wrong one; when no token is set, `401` whatever is sent |
-| 9 | Reset demo | no orders, starting stock (sourdough 4) |
-| 10 | No secrets or first names in logs | the app's log (`APP_LOG`) has no first name, no `ADMIN_TOKEN`, no API key |
+| 9 | The hold | with the hold at 5 minutes: still reserved at +4 min; released at +6 min, stock back, Deliver skips it (test clock) |
+| 10 | Reset demo | no orders, starting stock (sourdough 4) |
+| 11 | No secrets or first names in logs | the app's log (`APP_LOG`) has no first name, no `ADMIN_TOKEN`, no API key |
 | + | Rate limit (the brief's rules) | the 11th attempt in a minute from one device is a `429` |
 
 ## Running it
@@ -84,7 +99,7 @@ BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test d
 ```
 - **Without `ADMIN_TOKEN`,** the suite assumes the app has none set either. It runs only test 8, checking the admin
   stays locked, and skips the rest, saying why.
-- **Without `APP_LOG`,** test 10 is skipped, saying why.
+- **Without `APP_LOG`,** test 11 is skipped, saying why.
 - **Every test starts with Reset demo,** so it's safe to run again.
 - **Don't point it at the live site during a demo:** it resets the shop.
 

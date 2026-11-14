@@ -1,7 +1,7 @@
 // A throwaway stand-in for the team-built bakery, only to prove deploy/acceptance/bakery.acceptance.js runs and has
 // teeth. In-memory node:http keeping deploy/ACCEPTANCE.md. STUB_FLAW=<flaw> breaks one rule on purpose so
 // test/acceptance.test.js can check the suite catches it:
-//   field · twice · soldout · race · nosse · restock · reset · adminopen · logname · ratelimit
+//   field · twice · soldout · race · nosse · restock · reset · adminopen · logname · ratelimit · hold · clock
 // Never deployed.
 import http from 'node:http';
 
@@ -16,15 +16,23 @@ const START = [
   { id: 'baguette', name: 'Baguette', description: 'Crackly, made this morning.', start: 6 },
   { id: 'rye', name: 'Seeded rye', description: 'Your usual?', start: 6 },
 ];
-let stock, orders, seq, rate;
+let stock, orders, seq, rate, holdMin = 15;
 const watchers = new Map(); // reservation id -> Set of open SSE responses
 function reset() { stock = Object.fromEntries(START.map(l => [l.id, l.start])); orders = []; seq = 0; rate = new Map(); }
 reset();
 
 const log = (...a) => console.log(new Date().toISOString(), ...a);
 const send = (res, status, body) => { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); };
+// The test clock: X-Test-Now only with a valid admin token (the 'clock' flaw honours it for anyone).
+const authed = req => !!TOKEN && req.headers.authorization === `Bearer ${TOKEN}`;
+const nowOf = req => { const h = req.headers['x-test-now']; const d = h && (authed(req) || FLAW === 'clock') ? Date.parse(h) : NaN; return isNaN(d) ? Date.now() : d; };
+// Lazily release reservations older than the hold (the 'hold' flaw never does).
+function sweep(now) {
+  if (FLAW === 'hold') return;
+  for (const o of orders) if (o.status === 'reserved' && now - Date.parse(o.at) > holdMin * 60000) { o.status = 'released'; stock[o.loaf_id] += 1; push(o); }
+}
 const loafView = l => { const left = stock[l.id]; return { id: l.id, name: l.name, description: l.description, start: l.start, left, sold_out: left <= 0, label: left <= 0 && FLAW !== 'soldout' ? 'Sold out for today' : `${left} left` }; };
-const statusMsg = o => o.status === 'delivered' ? `Delivered: your ${START.find(l => l.id === o.loaf_id).name.toLowerCase()} is here` : `Your ${START.find(l => l.id === o.loaf_id).name.toLowerCase()} is reserved, ${o.first_name}.`;
+const statusMsg = o => o.status === 'released' ? 'Your reservation was released.' : o.status === 'delivered' ? `Delivered: your ${START.find(l => l.id === o.loaf_id).name.toLowerCase()} is here` : `Your ${START.find(l => l.id === o.loaf_id).name.toLowerCase()} is reserved, ${o.first_name}.`;
 const view = o => ({ id: o.id, loaf_id: o.loaf_id, first_name: o.first_name, status: o.status, message: statusMsg(o) });
 const push = o => { if (FLAW === 'nosse') return; for (const r of watchers.get(o.id) || []) r.write(`data: ${JSON.stringify({ status: o.status, message: statusMsg(o) })}\n\n`); };
 
@@ -51,6 +59,7 @@ const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x');
   let raw = ''; for await (const c of req) raw += c;
   let body = null; try { body = raw ? JSON.parse(raw) : null; } catch { return send(res, 400, { error: 'bad_reservation', message: 'not JSON' }); }
+  sweep(nowOf(req));
   if (u.pathname === '/admin' || u.pathname.startsWith('/api/admin/')) {
     const ok = TOKEN ? req.headers.authorization === `Bearer ${TOKEN}` : FLAW === 'adminopen'; // fail closed
     if (!ok) return send(res, 401, { error: 'locked' });
@@ -59,6 +68,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && u.pathname === '/api/admin/stock') return send(res, 200, { loaves: START.map(l => { const v = loafView(l); return { id: v.id, name: v.name, start: v.start, left: v.left, sold_out: v.sold_out }; }) });
     if (req.method === 'POST' && u.pathname === '/api/admin/deliver') { const r = orders.filter(o => o.status === 'reserved'); r.forEach(o => { o.status = 'delivered'; push(o); }); log('delivered', r.length); return send(res, 200, { delivered: r.length }); }
     if (req.method === 'POST' && u.pathname === '/api/admin/restock') { if (FLAW !== 'restock') START.forEach(l => { stock[l.id] = l.start; }); return send(res, 200, { loaves: START.map(loafView) }); }
+    if (u.pathname === '/api/admin/settings') {
+      if (req.method === 'POST') { const m = body?.hold_minutes; if (!(Number.isInteger(m) && m >= 1 && m <= 240)) return send(res, 400, { error: 'bad_settings' }); holdMin = m; }
+      return send(res, 200, { hold_minutes: holdMin });
+    }
     if (req.method === 'POST' && u.pathname === '/api/admin/reset') { if (FLAW === 'reset') stock = Object.fromEntries(START.map(l => [l.id, l.start])); else reset(); log('reset'); return send(res, 200, { ok: true }); }
     return send(res, 404, { error: 'not_found' });
   }
