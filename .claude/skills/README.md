@@ -16,5 +16,5 @@ for a global `agent-browser` install and `playwright install`, which breaks the 
 
 Installed in full at Vincent's request (14 Nov), on `design/studio`: github.com/Leonxlnx/taste-skill at f6b7657
 (tasteskill 2.5.1), folder `skills/taste-skill` copied unmodified as `design-taste-frontend` (MIT, its `LICENSE`).
-Used by the design studio for the room's looks. Its Stop hook only runs its finish gate when a `.taste-skill/build.json`
-exists, so it is quiet in every other session. `vendor/taste-skill/` (the earlier partial copy) stays as it was.
+Used by the design studio for the room's looks. One change from upstream: the `hooks:` block (a Stop hook that runs
+the finish gate for up to 10 minutes) is removed from SKILL.md's frontmatter, so it never blocks a session from ending. `vendor/taste-skill/` (the earlier partial copy) stays as it was.
