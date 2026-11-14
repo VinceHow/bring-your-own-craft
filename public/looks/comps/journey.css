@@ -1,0 +1,12 @@
+/* The rough journey: who (rows) through stages (columns), drawn in ink on paper. No screens. */
+.journey { display: grid; grid-template-columns: var(--lane-w, 150px) repeat(3, 1fr); column-gap: 0; row-gap: var(--row-gap, 14px); align-items: center; }
+.journey .stage { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 4px 14px; border-bottom: 1px solid var(--rule); align-self: end; }
+.journey .stage:first-child { border: 0; }
+.journey .who { font: italic 400 var(--who-size, 16px)/1.2 var(--serif); color: var(--ink); padding-right: 12px; }
+.journey .step { position: relative; margin: 0 22px 0 14px; padding: var(--step-pad, 8px 12px); border: 1px solid rgba(42,33,27,.32); border-radius: 3px;
+  font: 400 var(--step-size, 15px)/1.25 var(--serif); color: var(--ink); background: rgba(255,252,246,.55); }
+.journey .step::after { content: ''; position: absolute; right: -19px; top: 50%; width: 14px; height: 1px; background: rgba(42,33,27,.45); }
+.journey .step::before { content: ''; position: absolute; right: -20px; top: calc(50% - 3px); border: 3.5px solid transparent; border-left: 5px solid rgba(42,33,27,.55); border-right: 0; }
+.journey .step.end::after, .journey .step.end::before { display: none; }
+.journey .step.hers { border-color: var(--product); box-shadow: inset 3px 0 0 var(--product); }
+.journey .step.new { border-style: dashed; }

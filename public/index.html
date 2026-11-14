@@ -96,6 +96,6 @@
 <script src="name-tag.js"></script>
 <script>/* polish.css loads last, after any stylesheet the scripts inject */(function(){var l=document.createElement("link");l.rel="stylesheet";l.href="/polish.css";document.head.appendChild(l);
 /* ?look=<name> layers public/looks/<name>.css on top (design studio); no ?look, no change */
-var k=(new URLSearchParams(location.search).get("look")||"").toLowerCase();if(/^[a-z0-9-]{1,40}$/.test(k)){var m=document.createElement("link");m.rel="stylesheet";m.href="/looks/"+k+".css";document.head.appendChild(m);document.documentElement.setAttribute("data-look",k);}})();</script>
+var k=(new URLSearchParams(location.search).get("look")||"").toLowerCase();if(/^[a-z0-9-]{1,40}$/.test(k)){var m=document.createElement("link");m.rel="stylesheet";m.href="/looks/"+k+".css";document.head.appendChild(m);document.documentElement.setAttribute("data-look",k);/* and looks/<name>.js when the look has one; none is fine */var j=document.createElement("script");j.src="/looks/"+k+".js";j.onerror=function(){j.remove();};document.body.appendChild(j);}})();</script>
 </body>
 </html>

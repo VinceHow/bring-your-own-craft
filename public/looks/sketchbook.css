@@ -1,0 +1,96 @@
+/* Look: Sketchbook. A maker's desk: kraft-paper table, sheets pinned down with washi tape in each seat's ink,
+   everything a hair askew, pencil-grey lines, typewriter labels. Handmade and warm, still tidy.
+   Layered on top of room.css + polish.css via ?look=sketchbook. Look only: no behaviour. */
+
+:root {
+  --paper: #E9E1D0;
+  --table: #C9AE85;          /* kraft */
+  --sheet: #FDFBF5;
+  --ink: #2E2B27;            /* soft graphite */
+  --product: #EE6FA7;
+  --design: #4F86C0;
+  --engineering: #F2D04B;
+  --data: #4FA877;
+  --research: #EE8452;
+  --strategy: #B8955C;
+  --shadow: 1px 2px 0 rgba(0,0,0,.08), 0 8px 14px -6px rgba(60,40,10,.35);
+  --shadow-sm: 1px 1px 0 rgba(0,0,0,.06), 0 6px 10px -5px rgba(60,40,10,.3);
+  --line: 1px solid rgba(46,43,39,.35);
+  --r: 2px;
+  --display: 'IBM Plex Mono', ui-monospace, monospace;
+  --pad-back: #EDE3CF;
+}
+
+html body { background-color: #DCD1BB; }
+
+/* kraft table, fibres printed in, no black edge */
+html #room .table { border: 0; border-radius: 6px; box-shadow: 0 18px 40px -16px rgba(60,40,10,.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .1 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px; }
+html #room .seat-empty { background: rgba(253,251,245,.25); border: 1.5px dashed rgba(46,43,39,.35); font-family: var(--mono); font-weight: 500; text-transform: lowercase; letter-spacing: .04em; }
+
+/* every sheet a touch askew, held down by tape in its seat's ink */
+html #room .seat-design .card { rotate: -1.2deg; }
+html #room .seat-data .card { rotate: .8deg; }
+html #room .seat-research .card { rotate: -.5deg; }
+html #room .seat-strategy .card { rotate: 1.1deg; }
+html #room .seat-engineering .card { rotate: -.9deg; }
+html #room .mini-sheet[data-sheet="design"] { rotate: .6deg; }
+html #room .mini-sheet[data-sheet="data"] { rotate: -.8deg; }
+html #room .mini-sheet[data-sheet="research"] { rotate: .9deg; }
+html #room .mini-sheet[data-sheet="strategy"] { rotate: -.4deg; }
+html #room .mini-sheet[data-sheet="engineering"] { rotate: .7deg; }
+html #room .file-card { rotate: -.8deg; }
+
+html #room .card { border: var(--line); box-shadow: var(--shadow); overflow: visible; }
+html #room .seat:not(.seat-product) .card::after {
+  content: ''; position: absolute; top: -10px; left: 50%; width: 86px; height: 22px; margin-left: -43px; rotate: -3deg;
+  background: var(--seat-ink); opacity: .55; mix-blend-mode: multiply; pointer-events: none; }
+html #room .card-band { background: transparent; color: var(--ink); border-bottom: 1px dashed rgba(46,43,39,.3); height: 44px; }
+html #room .card-band svg { filter: none; width: 20px; height: 20px; }
+html #room .card-name { font: 600 17px/1 var(--mono); text-transform: lowercase; letter-spacing: .02em; text-shadow: none;
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--seat-ink) 40%, transparent) 55%); padding: 0 2px; }
+html #room .card-stance { font-style: italic; }
+html #room .card-note { border-top: 1px dashed rgba(46,43,39,.25); }
+html #room .seat-product .card-band { border-bottom: 0; border-right: 1px dashed rgba(46,43,39,.3); }
+html #room .seat-product .card-name { font-size: 24px; }
+
+/* pads */
+html #room .mini-sheet { border: var(--line); box-shadow: var(--shadow-sm); }
+html #room .mini-sheet::before { opacity: .65; }
+html #room .mini-sheet .mini-head { border-bottom: 1px dashed rgba(46,43,39,.3); }
+html #room .mini-head i { border: 0; border-radius: 50%; }
+html #room .mini-title { font: 600 12px var(--mono); text-transform: lowercase; }
+html #room .mini-lines li::before { border: 0; border-radius: 50%; }
+html #room .mini-lines li.brought::after { border: 0; border-radius: 2px; }
+
+/* her sheet: a big sheet of cartridge paper, taped at two corners */
+html #room .her-sheet { border: var(--line); box-shadow: var(--shadow); overflow: visible; }
+html #room .her-sheet::before { width: 90px; height: 24px; left: -22px; top: -8px; bottom: auto; rotate: -32deg; border: 0; opacity: .55; mix-blend-mode: multiply; }
+html #room .her-sheet::after { content: ''; position: absolute; width: 90px; height: 24px; right: -22px; top: -8px; rotate: 32deg; background: var(--product); opacity: .55; mix-blend-mode: multiply; pointer-events: none; }
+html #room .her-q { font: 600 30px/1.1 var(--mono); letter-spacing: -.02em; }
+html #room .her-form { border-top: 1px dashed rgba(46,43,39,.45); }
+
+/* her file: an index card */
+html #room .file-card { border: var(--line); box-shadow: var(--shadow); background-image: repeating-linear-gradient(transparent 0 21px, rgba(79,134,192,.16) 21px 22px); }
+html #room .file-head { background: transparent; border-bottom: 1.5px solid rgba(238,111,167,.55); }
+html #room .file-name { font: 600 15px var(--mono); text-transform: lowercase; }
+html #room .sounds-like { border: 1px dashed rgba(46,43,39,.4); background: #FFF8DA; }
+
+/* counter and meter: tickets */
+html #room .counter, html #room .meter { border: var(--line); box-shadow: var(--shadow); }
+html #room .counter { rotate: 1deg; }
+html #room .meter { rotate: -.6deg; }
+html #room .counter .roll, html #room .meter-num { font-family: var(--mono); font-weight: 600; }
+html #room .meter-num { font-size: 88px; letter-spacing: -.06em; }
+html #room .roll-pink { border: 0; }
+html #room .meter-bar { border: 1px solid rgba(46,43,39,.4); height: 10px; }
+
+/* the journey: pencil boxes, pencil lines */
+html #room .fl-box { border: 1.25px solid rgba(46,43,39,.6); border-radius: 3px; box-shadow: 2px 2px 0 rgba(46,43,39,.12); }
+html #room .fl-edge { stroke: rgba(46,43,39,.7); stroke-width: 1.5; stroke-dasharray: 6 3; }
+html #room .fl-opt.is-rec, html #room .fl-opt.is-chosen { box-shadow: var(--shadow-sm); }
+html #room .note { border: 0; box-shadow: var(--shadow); background: #FFC5DE; rotate: -1.5deg; font-family: var(--mono); }
+html #room .sketch-sheet { border: var(--line); box-shadow: var(--shadow); }
+
+html body .replay-label { font-family: var(--mono); font-weight: 600; box-shadow: 3px 3px 0 var(--engineering); }
