@@ -36,3 +36,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:37 | agents (lead) | fal MCP is for sponsor item 1 only (00:00 block): retry server-side fal from a fresh session; else pre-generate one hero image per demo idea via the MCP, labelled "made with fal before the demo" | core stays on Claude Code; nothing generated before core is green |
 | Sat 12:37 | agents (reviewer) | Blocked build/docs on two not-yet-true claims (taste-skill vendored, recorded runs) | honesty rule |
 | Sat 12:38 | agents (polish builder → lead) | Fixed flow boxes landing at scale(0) | found in Playwright with motion loaded |
+| Sat 12:39 | Vincent | MongoDB dropped; Linkup stays (key if he adds it); ElevenLabs optional | plain-text secret not worth a voucher |
