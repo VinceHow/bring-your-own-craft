@@ -5,7 +5,7 @@ Vincent confirmed), `docs/BAKERY-BRIEF.md` (his bakery walkthrough). Status: **a
 
 **The answer: feasible. Usage is at 28% after this afternoon's reset (the lead watches the burn and alerts if the
 overnight pace would pass ~70% before the demo), and the hard freeze is 10:00, so the full ~18.5 builder-hours fit.
-The four cuts below are now the pre-agreed cut order, applied only if the 70% alarm or the 02:00 check says so.**
+The four cuts below are now the pre-agreed cut order, applied only if the 60% usage alarm, the 00:00 check or the 02:00 check says so.**
 
 ## Scope, in priority order (builder-hours, estimated from 21:10)
 | # | Piece | Owner | Est. | Done by |
@@ -28,9 +28,9 @@ stage pace (≤30 s) is in hand.
 
 Already done: the focus moment, voice, the inbox, the setup reveal; Railway (live, volume attached).
 
-## Cut order (only on the 70% usage alarm or a red 02:00 check)
-1. **The bread collection page.** One of each item per drop stays; the stamp card across demos goes to later.
-2. **Any seat is hers.** Parked on its branch; the role choice stays Product · Your own craft.
+## Cut order (on the 60% usage alarm, usage over ~45% at 00:00, or a red 02:00 check)
+1. **Any seat is hers.** Parked on its branch; the role choice stays Product · Your own craft.
+2. **The bread collection page.** One of each item per drop stays; the stamp card across demos goes to later.
 3. **The full build drops to one Bo attempt and the slim suite.** If that attempt fails the suite, builders fix only
    what fails and list every edit, and the card says *"built by the team's engineer agent, finished by our builders."*
 4. **The live logo.** Made ahead and labelled.
@@ -40,7 +40,10 @@ If we fall further behind at 02:00, design's cuts are next: the painted multipla
 real numbers.
 
 ## Checkpoints
+- **Usage:** the lead checks every 30 minutes; the alarm is at **60%** (the reset was ~16:40 UTC; 28% took ~4.5 h at peak load). The cut order starts the moment it trips.
+- **00:00 check:** if usage is over ~45%, the first cut (any-seat) applies at once.
 - **02:00 check:** each builder reports green or behind; the lead reports usage.
+- **Design:** at most 2 helper sessions overnight after its 23:00 handover.
 - **07:00 `demo-final` (aim):** the default path is frozen as a branch, with M1 kept as the fallback.
 - **Three fallbacks, rehearsed once overnight by a builder (~15 min):** (a) model calls → MODEL_BACKEND=fal (the
   must-have full rehearsal by 07:00), with the labelled REPLAY as the last resort; (b) judges' phones or venue wifi →
@@ -51,9 +54,9 @@ real numbers.
 
 ## Budget
 - **Builder-hours:** ~18.5 h; ~12 h if the cut order is applied. Builders use fakes first, one real e2e per push, and idle when done. If usage
-  heads past ~70%, the cut order applies and everything but must-haves pauses.
+  heads past ~60%, the cut order applies and everything but must-haves pauses.
 - **Usage (the one real risk):** the overnight work and the live demo share one account, now at 28% after this
-  afternoon's reset; the lead alerts before ~70%. The net: the fal backend runs the whole room (tested 9/9, ~1.5x
+  afternoon's reset; the lead alerts at 60%. The net: the fal backend runs the whole room (tested 9/9, ~1.5x
   slower) plus the labelled REPLAY, so the demo can't be blocked outright.
 - **Money:** bakery images ~1¢; design's fal ~$0.50 (from the $5 Vincent gave design); Railway cents a day inside
   his $20 credit; fal text calls only if we fall back, ~$0.20–0.50 a run (estimated). Nothing else.
