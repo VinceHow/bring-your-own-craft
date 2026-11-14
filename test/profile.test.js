@@ -18,7 +18,10 @@ const newRun = (extra = {}) => { const run = newRunId(`p-${Math.random().toStrin
 test('built once from her intro and idea; kept in profile.json; the log never carries what it says', async () => {
   const run = newRun({ intro: 'I love working on the customer journey' });
   let seen;
-  const p = await buildProfile(run, { callModel: async a => { seen = a; return P({ strengths: { text: 'customer journeys', confidence: 'high' } }); } });
+  const p = await buildProfile(run, { callModel: async a => { seen = a; return { ...P({ strengths: { text: 'customer journeys', confidence: 'high' } }),
+    domains: ['Target customer', 'customer problem', 'User journey.', 'target customer'] }; } });
+  assert.deepEqual(p.domains, ['target customer', 'customer problem', 'user journey'], 'her domains, clean, for the selector');
+  assert.match(seen.system, /domains: 2 to 4 areas that are hers/);
   assert.equal(task(seen.system), 'profile');
   assert.match(seen.system, /I love working on the customer journey/);
   assert.match(seen.system, /small yoga studio/);
@@ -41,6 +44,7 @@ test('updated after an answer: the previous profile and her words go in; fields 
   assert.equal(p.customers.text, 'regulars on a weekly class');
   assert.equal(p.brandFeel.text, 'brandFeel of hers', 'an empty field keeps what the team believed');
   assert.equal(p.version, 2);
+  assert.deepEqual(p.domains, [], 'no domains from either call: empty, so the selector falls back to her seat');
   assert.ok(readEvents(run).some(e => e.type === 'profile.updated'));
 });
 
@@ -72,4 +76,13 @@ test('her name tag from her intro knows her seat: in Product, her craft is Produ
   const diy = await nameTag("I'm good at mixing dough", { seat: 'diy', callModel: async a => { seen = a; return { craft: 'Baker', goodAt: 'mixing dough', loves: '' }; } });
   assert.ok(!/Her seat/.test(seen.user), 'her own craft: no seat hint');
   assert.equal(diy.body.craft, 'Baker');
+});
+
+test('her domains survive an update that leaves them out; the selector reads them from profile.json', async () => {
+  const { domainsFor } = await import('../lib/teammates.js');
+  const run = newRun({ intro: 'I love mixing dough and the first batch out at 6am' });
+  await buildProfile(run, { callModel: async () => ({ ...P(), domains: ['the bake', 'the morning rush'] }) });
+  await updateProfile(run, { question: 'q', answer: 'a' }, { callModel: async () => P() });
+  assert.deepEqual(readProfile(run).domains, ['the bake', 'the morning rush']);
+  assert.deepEqual(domainsFor(run, 'diy'), ['the bake', 'the morning rush']);
 });
