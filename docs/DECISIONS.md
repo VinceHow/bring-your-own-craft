@@ -40,3 +40,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 13:00 | agents (lead) | Checkpoints are branches `demo/<name>` (also tagged locally): the git proxy drops tag pushes | demo-1 = beats 0:00–2:05 live, e2e 9/10 |
 | Sat 13:46 | Vincent (via lead) | Near weekly usage limit: ≤3 builders at once, cheaper model for reviews, minimal real-model e2e runs | if the limit hits, every session stops overnight |
 | Sat 13:47 | Vincent | Usage limits lifted: "all fine, I'm on ultra"; run builders and models as needed | |
+| Sat 13:50 | Vincent | Merged .claude/settings.json: Figma and fal connector tools allowed without prompts; fal spend stays limited to the sponsor hero image | builders shouldn't stall overnight |
