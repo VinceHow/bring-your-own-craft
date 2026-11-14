@@ -525,7 +525,8 @@
   const teamStatusEl = h('div', 'team-status');
   teamStatusEl.id = 'team-status'; teamStatusEl.dataset.component = 'team-status'; teamStatusEl.dataset.state = 'idle';
   teamStatusEl.setAttribute('role', 'status'); teamStatusEl.setAttribute('aria-live', 'polite'); teamStatusEl.hidden = true;
-  el.herForm.after(teamStatusEl);
+  // On the main sheet, right under her idea: where she is looking while the team works (not a corner).
+  el.herIdea.after(teamStatusEl);
   let teamSlowTimer = null;
   const teamNames = () => SEATS.filter(x => x !== 'product' && INFO[x]).map(x => INFO[x].agent || INFO[x].name);
   const listNames = n => n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n.at(-1)}` : (n[0] || 'The team');
@@ -562,6 +563,17 @@
     }
   }
   BYOC.teamGo = teamGo;
+  // A note just landed in her inbox: the sheet says who, with a way straight to it ("Noor has a question for you →").
+  // data-state 'question'; the inbox itself pulses (public/inbox.js).
+  BYOC.on('inbox.new', n => {
+    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) return;
+    clearTimeout(teamSlowTimer);
+    teamStatus('question', n.unblock ? `${n.by} is blocked: one quick answer →` : `${n.by} has a question for you →`);
+    const go = h('button', 'team-open', 'Open it'); go.type = 'button'; go.dataset.slot = 'open';
+    go.addEventListener('click', () => { const b = document.querySelector('#inbox .inbox-now'); if (b) b.click(); });
+    teamStatusEl.appendChild(go);
+  });
+  BYOC.on('focus.open', () => { if (teamStatusEl.dataset.state === 'question') teamStatus('idle', ''); }); // she's on it
   function teamProgress() {
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
     const all = SEATS.length - 1;
@@ -989,7 +1001,7 @@
         break;
       case 'select.done':
         if (teamStep) { stepEnd(teamStep); teamStep = null; }
-        clearTimeout(teamSlowTimer); if (teamStatusEl.dataset.state !== 'idle') teamStatus('done', 'The team has done its first pass.');
+        clearTimeout(teamSlowTimer); if (!['idle', 'question'].includes(teamStatusEl.dataset.state)) teamStatus('done', 'The team has done its first pass.');
         refreshTally();
         break;
       case 'ask': {
