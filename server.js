@@ -88,6 +88,12 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/runs/')) { res.writeHead(405, { Allow: 'GET' }); return res.end(); }
     const f = path.normalize(path.join(ROOT, 'public', p === '/' ? 'index.html' : p === '/gallery' ? 'gallery.html' : p));
     if (!f.startsWith(path.join(ROOT, 'public'))) { res.writeHead(403); return res.end(); }
+    // A folder in public/ (e.g. /slides/, the close deck) serves its index.html; without the slash it redirects first,
+    // so the deck's relative links (img/...) resolve.
+    if (fs.statSync(f, { throwIfNoEntry: false })?.isDirectory()) {
+      if (!p.endsWith('/')) { res.writeHead(301, { Location: p + '/' + (url.search || '') }); return res.end(); }
+      return serveFile(req, res, path.join(f, 'index.html'));
+    }
     return serveFile(req, res, f);
   } catch (e) {
     console.error(scrub(e.stack || e.message));
