@@ -77,7 +77,8 @@
 .ink-paper .pane > .cr.c2 { --cc: var(--c2); translate: var(--c2x, 7px) var(--c2y, 9px); rotate: 1.4deg; }
 .ink-paper .pane > .cr.c3 { --cc: var(--c3); translate: 11px 12px; rotate: 2.4deg; }
 .ink-paper .pane > .gl { background: var(--sheet, var(--ip-paper)) var(--ip-tooth); box-shadow: var(--ip-lift); transition: box-shadow var(--ip-t-mid) var(--ip-land); }
-.ink-paper[data-time="night"] .pane > .gl { background: radial-gradient(140% 120% at 50% 0%, rgba(255,236,200,.35), rgba(255,236,200,0) 70%), var(--sheet, var(--ip-paper)) var(--ip-tooth); }
+/* night: warm light falls on each sheet from the lamp (InkPaper.lamp sets where it is and how strong) */
+.ink-paper[data-time="night"] .pane > .gl { background: radial-gradient(150% 130% at var(--ip-lx, 50%) var(--ip-ly, -20%), rgba(255,228,180,var(--ip-lamp, .35)), rgba(255,228,180,0) 75%), var(--sheet, var(--ip-paper)) var(--ip-tooth); }
 .ink-paper .pane > svg.ol { position: absolute; left: -3px; top: -3px; overflow: visible; pointer-events: none; z-index: 0; }
 .ink-paper .ol .ln { fill: none; stroke: var(--ip-line); stroke-width: var(--ip-line-w); stroke-opacity: var(--ip-line-o); stroke-linecap: round; stroke-linejoin: round; }
 .ink-paper .pill > svg.ol .ln, .ink-paper .tag > svg.ol .ln, .ink-paper .btn > svg.ol .ln { stroke-width: var(--ip-line-w-sm); stroke-opacity: var(--ip-line-o-sm); }

@@ -92,5 +92,16 @@
     if (on && !matchMedia('(prefers-reduced-motion: reduce)').matches)
       pill._talk = Motion.animate(dot, { scale: [1, 1.08, 1] }, { duration: 2.4, repeat: Infinity, ease: 'easeInOut' });
   }
-  window.InkPaper = { dress, lay, hide, show, redraw: ink, talk, SURF };
+  // night: each sheet is lit from the table lamp, brighter nearer it. x, y are the lamp in root's coordinates.
+  function lamp(root, x, y) {
+    const rb = root.getBoundingClientRect();
+    root.querySelectorAll('.pane').forEach(el => {
+      const b = el.getBoundingClientRect(); if (!b.width) return;
+      const lx = ((rb.left + x - b.left) / b.width) * 100, ly = ((rb.top + y - b.top) / b.height) * 100;
+      const dx = Math.max(b.left - rb.left - x, 0, rb.left + x - b.right), dy = Math.max(b.top - rb.top - y, 0, rb.top + y - b.bottom);
+      const k = Math.max(.12, .62 - Math.hypot(dx, dy) / 1400);
+      el.style.setProperty('--ip-lx', lx.toFixed(1) + '%'); el.style.setProperty('--ip-ly', ly.toFixed(1) + '%'); el.style.setProperty('--ip-lamp', k.toFixed(2));
+    });
+  }
+  window.InkPaper = { dress, lay, hide, show, redraw: ink, talk, lamp, SURF };
 })();
