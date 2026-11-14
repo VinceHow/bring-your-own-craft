@@ -9,7 +9,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-stage-'));
 const { proposeAndSelect, askOne } = await import('../lib/select.js');
-const { firstAsk, firstAnswer, selectorMax, cleanFirst, FIRST_SCHEMA } = await import('../lib/first.js');
+const { firstAsk, firstAnswer, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA } = await import('../lib/first.js');
 const { answerUnblock } = await import('../lib/unblock.js');
 const { firstSketch } = await import('../lib/sketch.js');
 const { MAX_ASKS, askCount } = await import('../lib/policy.js');
@@ -109,4 +109,20 @@ test('the first decision waits for the sketch; her answer needs words; the model
   await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
   const a = firstAsk({ run }).body;
   assert.equal((await firstAnswer({ run, askId: a.id, text: '  ', callModel: fake })).code, 400);
+});
+
+test('her first decision never brings back a field she didn\'t ask for: "name and phone" is dropped, "No phone field" stays', () => {
+  const raw = { decisions: [
+    { seat: 'engineering', decision: 'Accounts', choice: 'No login; order with name and phone only' },
+    { seat: 'design', decision: 'The order form', choice: 'Ask for their email for receipts' },
+    { seat: 'design', decision: 'The order form', choice: 'Add a delivery address field' },
+    { seat: 'design', decision: 'The order form', choice: 'No phone field' },
+    { seat: 'engineering', decision: 'Accounts', choice: 'No login' },
+    { seat: 'design', decision: 'The home screen', choice: 'Their usual loaf one tap away' },
+  ] };
+  const said = "An ordering website for my friend's bakery. It's really for the regulars.";
+  assert.deepEqual(cleanFirst(raw, said).map(d => d.choice), ['No phone field', 'No login', 'Their usual loaf one tap away']);
+  // She mentioned it herself: kept.
+  assert.equal(addsContact({ decision: 'Confirmations', choice: 'Text them on their phone when it is ready' }, 'text me on my phone when it is ready'), false);
+  assert.equal(addsContact({ decision: 'Confirmations', choice: 'Text them on their phone when it is ready' }, said), true);
 });

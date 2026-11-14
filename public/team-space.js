@@ -76,7 +76,8 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     }
     li.append(marks, slot(h('span', 'ts-headline', a.headline), 'headline'));
     if (a.withTakeaways === true) li.appendChild(slot(h('span', 'ts-takeaways', 'with your takeaways in mind'), 'takeaways-note'));
-    if (a.unblock) { li.dataset.kind = 'unblock'; if (a.yours) li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); }
+    if (a.first) { li.dataset.kind = 'first'; li.dataset.seat = (a.seats || [])[0] || ''; }
+    else if (a.unblock) { li.dataset.kind = 'unblock'; if (a.yours) li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); }
     else li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
     const ex = slot(h('ol', 'ts-exchange'), 'exchange');
     for (const t of a.turns || []) {
@@ -96,6 +97,9 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     let agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()]
       .map(a => (revised.has(a.id) ? { ...a, headline: revised.get(a.id).headline || a.headline, withTakeaways: true, revised: true } : a));
     // A quick unblock she answered (or the team decided, once her three were spent) lands here too, owned by its seat.
+    // Her first decision's run of decisions (lib/first.js, DEMO 0:38): each its own card, owned by its teammate.
+    for (const d of new Map(evs.filter(e => e.type === 'decided' && e.round === 'first' && e.choice).map(e => [e.id, e])).values())
+      agreed.push({ id: 'fd-' + d.id, seats: [d.seat], headline: d.choice, first: true });
     for (const d of new Map(evs.filter(e => e.type === 'decided' && e.unblock && e.choice).map(e => [e.id, e])).values())
       agreed.push({ id: 'ub-' + d.id, seats: [d.seat], headline: `${String(d.decision || '').replace(/[.?]+$/, '')}: ${d.choice}`, unblock: true, yours: /^her /.test(d.cites || '') });
     for (const c of [...list.children]) {
@@ -103,22 +107,45 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
       if (!a || (a.revised && c.dataset.revised !== '1')) c.remove();
     }
     const have = new Set([...list.children].map(c => c.dataset.joint));
+    let flying = 0;
+    const wasEmpty = !list.children.length;
     for (const a of agreed) {
       if (have.has(a.id)) continue;
       const li = card(a);
       if (a.revised) li.dataset.revised = '1';
       const next = [...list.children].find(c => agreed.findIndex(x => x.id === c.dataset.joint) > agreed.indexOf(a));
       list.insertBefore(li, next || null);
+      if (a.first) { settle(li, a, flying++); continue; }
       if (typeof li.animate === 'function' && !B.replay) li.animate([{ transform: 'translateY(14px) rotate(-1.5deg)', opacity: 0 },
         { transform: 'translateY(0) rotate(0deg)', opacity: 1 }], { duration: 140, easing: 'ease-out' });
     }
     box.hidden = agreed.length === 0; box.dataset.state = agreed.length ? 'shown' : 'empty';
+    if (wasEmpty && agreed.length && flying && typeof box.animate === 'function' && !B.replay) // the sheet unrolls from its top edge
+      box.animate([{ opacity: 0, transform: 'translateY(-10px) scaleY(.55)', transformOrigin: '50% 0' }, { opacity: 1, transform: 'none', transformOrigin: '50% 0' }], { duration: 300, easing: 'ease-out' });
     B.teamSpace.count = agreed.length;
+  }
+  // A first-decision card settles: data-state settling while it flies from its owner's seat to the team space on a ~1 s
+  // arc (150 ms apart), then closed; emits studio:settled { id } as it lands. Replays and no-motion land at once.
+  function settle(li, a, i) {
+    const land = () => { li.dataset.state = 'closed'; if (typeof B.emit === 'function') B.emit('studio:settled', { id: a.id }); };
+    li.dataset.state = 'settling';
+    const seat = document.querySelector(`#room .seat-${CSS.escape((a.seats || [])[0] || '')}`);
+    const room = document.getElementById('room');
+    if (B.replay || !seat || !room || typeof li.animate !== 'function') return land();
+    const k = room.getBoundingClientRect().width / (room.offsetWidth || 1600) || 1; // the room is scaled to fit
+    const s = seat.getBoundingClientRect(), c = li.getBoundingClientRect();
+    const dx = (s.left + s.width / 2 - (c.left + c.width / 2)) / k, dy = (s.top + s.height / 2 - (c.top + c.height / 2)) / k;
+    const anim = li.animate([
+      { transform: `translate(${dx}px, ${dy}px) scale(.6)`, opacity: 0 },
+      { transform: `translate(${dx / 2}px, ${dy / 2 - 80}px) scale(.85)`, opacity: 1, offset: 0.5 },
+      { transform: 'none', opacity: 1 },
+    ], { duration: 1000, delay: i * 150, easing: 'ease-in-out', fill: 'backwards' });
+    anim.finished.then(land, land);
   }
   B.teamSpace = { render, count: 0 };
   if (typeof B.on === 'function') {
     B.on('joint.agreed', () => requestAnimationFrame(render));
-    B.on('decided', ev => { if (ev && ev.unblock) requestAnimationFrame(render); });
+    B.on('decided', ev => { if (ev && (ev.unblock || ev.round === 'first')) requestAnimationFrame(render); });
     B.on('joint.revised', () => requestAnimationFrame(render));
     B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; } B.teamSpace.count = 0; });
     B.on('run.start', () => requestAnimationFrame(render));

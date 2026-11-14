@@ -228,6 +228,8 @@ test('1e. the first decision in the room (stubbed): asked after Design\'s sketch
     BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
     const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
     d({ type: 'run.start', idea: "An ordering website for my friend's small bakery", stagePath: true });
+    d({ type: 'sketch.user', id: 'u1', label: 'Morning regulars' });
+    d({ type: 'sketch.user', id: 'u2', label: 'Weekend pastry crowd' });
     d({ type: 'sketch.done', seat: 'design', ms: 10 });
   });
   await waitFor(() => true, 500, '', null, p);
@@ -246,14 +248,27 @@ test('1e. the first decision in the room (stubbed): asked after Design\'s sketch
   await p.evaluate(() => {
     const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
     d({ type: 'answer', askId: 'first', text: "It's really for the regulars." });
+    d({ type: 'reshape', askId: 'first', text: "It's really for the regulars." });
+    d({ type: 'flow.reset', by: 'design', reason: 'reshape' });
+    d({ type: 'sketch.user', id: 'u1', label: 'Morning regulars' });
+    d({ type: 'sketch.user', id: 'u2', label: 'The bakers' });
+    d({ type: 'sketch.done', seat: 'design', ms: 10, reshape: true });
     d({ type: 'decided', id: 'first-d1', seat: 'design', by: 'Mika', decision: 'Home', choice: 'Their usual loaf one tap away', cites: 'her answer', follows: 'first', round: 'first' });
     d({ type: 'decided', id: 'first-d2', seat: 'engineering', by: 'Bo', decision: 'Holds', choice: 'Held until 10am', cites: 'her answer', follows: 'first', round: 'first' });
     d({ type: 'first.done', askId: 'first', decided: 2, reshaped: true });
   });
   await waitFor(() => !BYOC.focusDoc.isOpen(), 4000, 'her document closes itself', null, p);
+  // Design's redrawn sketch: the user type her answer picked, and the one set aside, struck; her words quoted.
+  assert.strictEqual(await p.textContent('.fs-bar .fs-user.main'), 'Morning regulars');
+  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user.later').allTextContents(), ['Weekend pastry crowd']);
+  assert.match(await p.textContent('.fs-bar .fs-said'), /really for the regulars/);
   await waitFor(() => document.querySelectorAll('.mini-sheet li[data-state="decided"]').length === 2, 4000, 'settled on their sketchpads', null, p);
   assert.match(await p.textContent('.mini-sheet[data-sheet="engineering"]'), /Held until 10am/);
-  assert.ok(await p.locator('.chatter-line[data-seat="engineering"]', { hasText: 'Held until 10am' }).count(), 'a word under its card');
+  // Each also flies into the team space as its own card, owned by its teammate, and settles (studio:settled).
+  await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 4000, 'settled in the team space', null, p);
+  assert.strictEqual(await p.getAttribute('.team-space', 'data-state'), 'shown');
+  assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
+  assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });

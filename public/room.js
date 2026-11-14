@@ -947,8 +947,7 @@
       case 'decided': {
         if (ev.round === 'first' && el.seat[ev.seat]) { // settled by her first answer: lands with its teammate, staggered
           const i = firstSettled++;
-          const land = () => { sheetAdd(ev.seat, ev.id, ev.choice); const it = findItem(ev.id); if (it) it.dataset.state = 'decided';
-            chat({ seat: ev.seat, by: ev.by, text: ev.choice }); };
+          const land = () => { sheetAdd(ev.seat, ev.id, ev.choice); const it = findItem(ev.id); if (it) it.dataset.state = 'decided'; }; // and a card in the team space (team-space.js)
           if (instantMode || source !== 'live') land(); else setTimeout(land, i * 450);
         }
         const it = findItem(ev.id);
@@ -988,9 +987,23 @@
           BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
         }
         break;
-      case 'first.done':
+      case 'first.done': {
+        // On Design's redrawn sketch: the user type her answer picked (.fs-user.main, the first Design drew) and the
+        // ones set aside (.fs-user.later, struck through); her words show as .fs-said (public/first-sketch.js).
+        const list = document.querySelector('.fs-bar .fs-users');
+        const at = seen.findIndex(x => x.type === 'reshape' && x.askId === ev.askId);
+        if (ev.reshaped && list && at > 0) {
+          const now = [...list.querySelectorAll('.fs-user:not(.later)')];
+          now.forEach((u, i) => u.classList.toggle('main', i === 0));
+          const norm = t => String(t || '').trim().toLowerCase();
+          const kept = new Set(now.map(u => norm(u.textContent)));
+          for (const e of seen.slice(0, at)) if (e.type === 'sketch.user' && !kept.has(norm(e.label)) && !list.querySelector(`.fs-user.later[data-user="${CSS.escape(e.id || '')}"]`)) {
+            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
+          }
+        }
         emit('first.settled', { askId: ev.askId, decided: ev.decided });
         break;
+      }
       case 'teammate.error':
         sheetStep(ev.seat, '', 'error');
         if (source === 'live') teamProgress();
