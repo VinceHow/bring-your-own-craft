@@ -192,7 +192,11 @@ The five teammates are people, not titles: they keep their names, faces and pers
 needs. **Core crafts are always at the table** (Product, Design, Research, Engineering); the flex seat fits the idea
 (Data or Strategy by default; e.g. Operations for a bakery). **The rule:** the teammate whose craft she takes moves to
 Product; if she takes a flex seat or her own craft, Ines moves to Product. Fixed teammates are introduced first while
-one fast call writes the flex teammate's card; it's introduced last, falling back to the default if slow. "Brings"
+one fast call writes the flex teammate's card; it's introduced last. **No fallback role** (Vincent, 14 Nov): if the
+card isn't ready when the intro reaches it, the room is honest, with humour: a small inked note on the empty chair
+(*"Theo's running a little late: we're finding you someone who knows morning bake lists."*). The flow never waits,
+with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
+fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
 stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and the
 hidden ceiling of 3 stands. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
 **Cut line:** if it isn't ready, the pick card stays Product · Your own craft.

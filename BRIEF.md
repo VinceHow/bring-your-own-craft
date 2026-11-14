@@ -101,8 +101,9 @@ real run.
 13. Optional, last: one soft chord at the symphony.
 14. **Any seat is hers (Vincent, 14 Nov evening; off the stage path):** the pick card offers every craft; a seat-to-role
    table (`design/studio/SEATS.md`) reassigns teammates (whose craft she takes → Product; flex seat or own craft → Ines
-   to Product); one fast call writes the flex role from her sentence and idea during the intro, default on slow or
-   failure. Teammate prompts take the role per run, and her domains route the questions. Cut line: Product · Your own
+   to Product); one fast call writes the flex role from her sentence and idea during the intro; no default role: if
+   it's late, an inked note on the empty chair ("running a little late…"), and the teammate pops in when ready, even
+   mid-flow; on failure the note reads "Still on the way" and the run continues without them. Teammate prompts take the role per run, and her domains route the questions. Cut line: Product · Your own
    craft only.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
