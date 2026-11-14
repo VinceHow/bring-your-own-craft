@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · glass over crayon</title>
+<!-- Round 2, "glass over crayon" (crayon-glass). Every card is a pane of frosted glass laid over a torn, crayon-grained
+     underlayer in the ink of whoever it's from; the colour peeks a few px past the glass at the torn edge. The glass is
+     clear at the rim and denser at the centre, so words stay readable on a projector while the painting glows through.
+     Signature motion: the crayon is swiped on first, then the glass slides over it and settles.
+     Content from ui-wide/content.js (shared). Views: ?view=parts|room|focus · ?still=1 end state. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --ink: #281C14; --ink-2: #4E3A2B; --ink-3: #64503F;
+  /* crayon inks, a touch richer than the paint so they read in a thin sliver */
+  --mika: #3D5A92; --noor: #C95E38; --theo: #6E9877; --ines: #C08A32; --bo: #E2B83A; --her: #D47288; --kraft: #C49A62;
+  /* text versions of each ink, dark enough for 4.5:1 on the frost */
+  --mika-t: #2D4775; --noor-t: #8E3F22; --theo-t: #3E5E3F; --ines-t: #6F4A12; --bo-t: #634A08; --her-t: #93374F;
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --r-sm: 16px; --r-md: 24px; --r-lg: 32px;
+  /* the glass: clear and bright at the rim, a denser frost where the words are */
+  --pane: radial-gradient(125% 150% at 50% 50%, rgba(255,251,244,.8) 0 40%, rgba(255,249,240,.5) 72%, rgba(255,248,238,.18) 100%);
+  --light: linear-gradient(128deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,.16) 22%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 70%, rgba(255,236,205,.32) 100%);
+  --blur: blur(12px) saturate(1.6) brightness(1.1);
+  --rim: inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), inset 0 -1px 0 rgba(150,100,55,.16);
+  --lift: 0 2px 5px rgba(70,40,15,.12), 0 16px 34px -16px rgba(70,40,15,.42);
+  --lift-hi: 0 4px 9px rgba(70,40,15,.14), 0 24px 44px -16px rgba(70,40,15,.5);
+  --land: cubic-bezier(.16,1,.3,1);
+  /* crayon grain: waxy streaks with paper showing through, as an alpha mask */
+  --wax: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .07' numOctaves='3' seed='6'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.6 0 0 0 2.05'/%3E%3C/filter%3E%3Cg transform='rotate(-24 120 120)'%3E%3Crect x='-80' y='-80' width='400' height='400' filter='url(%23w)'/%3E%3C/g%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-who="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-who="ines"] { --c: var(--ines); --t: var(--ines-t); }
+[data-who="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-who="her"] { --c: var(--her); --t: var(--her-t); }
+.lab { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+
+/* ---------- the one surface: glass (.gl) over crayon (.cr), both drawn behind the words ---------- */
+.pane { position: relative; isolation: isolate; background: none; }
+.pane > .cr, .pane > .gl { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; }
+.pane > .cr { background: var(--cc, var(--c, var(--kraft))); inset: -2px;
+  -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px;
+  filter: url(#tear); translate: var(--cx, -6px) var(--cy, 6px); rotate: var(--crot, -1.2deg); }
+.pane > .cr.c2 { --cc: var(--c2); translate: var(--c2x, 6px) var(--c2y, 8px); rotate: 1.4deg; }
+.pane > .cr.c3 { --cc: var(--c3); translate: 11px 11px; rotate: 2.4deg; }
+.pane > .gl { background: var(--light), var(--pane); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); box-shadow: var(--rim), var(--lift);
+  transition: box-shadow 300ms var(--land); }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 15px 0 9px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 500 18px/1 var(--serif); color: var(--ink); white-space: nowrap; --cx: -3px; --cy: 4px; --crot: -1deg;
+  transition: transform 300ms var(--land); }
+.pill .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); flex: none; display: grid; place-items: center; font: 600 13px/1 var(--sans); color: #fff;
+  -webkit-mask: var(--wax) 0 0 / 120px 120px, radial-gradient(circle, #000 55%, transparent 56%); -webkit-mask-composite: source-over; }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 9px; border-left: 1px solid rgba(80,55,35,.2); }
+.pill:hover, .pill.is-hover { transform: translateY(-2px); }
+.pill:hover > .gl, .pill.is-hover > .gl, .pill.is-open > .gl { box-shadow: var(--rim), var(--lift-hi); }
+.pill:active { transform: scale(.98); }
+.pill:focus-visible { outline: 2px solid var(--c); outline-offset: 4px; }
+.pill.is-talking .dot { -webkit-mask: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent); }
+.pill.is-open { --cx: -4px; --cy: 6px; }
+.pill.is-open > .gl { box-shadow: var(--rim), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 60%, transparent), var(--lift-hi); }
+.pill.is-her .nm, .pill.is-invite { color: var(--her-t); }
+.pill.is-her .dot { -webkit-mask: none; background: var(--her-t); }
+.pill.is-her > .gl, .pill.is-invite > .gl { background: var(--light), radial-gradient(130% 150% at 50% 50%, rgba(255,243,246,.86) 0 46%, rgba(255,238,242,.62) 80%, rgba(255,236,240,.4) 100%); }
+.pill.is-her .agent { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; -webkit-mask: none; }
+
+/* chatter */
+.bubble { display: block; max-width: 300px; padding: 12px 16px 13px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); font: italic 400 18px/1.35 var(--serif); --cx: -6px; --cy: -5px; --crot: -1.6deg; }
+.bubble b { display: flex; align-items: center; gap: 7px; font: 500 13px/1 var(--sans); font-style: normal; color: var(--t); margin-bottom: 5px; }
+/* note for her */
+.note { display: block; width: 236px; padding: 14px 16px 15px; border-radius: var(--r-md); font: 400 17px/1.35 var(--serif); --cx: 5px; --cy: -7px; --crot: 1.8deg; }
+.note .lab { display: flex; align-items: center; gap: 7px; color: var(--t); margin-bottom: 5px; }
+.note .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+/* decision: three crayons under it, one for each who agreed */
+.decision { display: block; width: 250px; padding: 15px 17px 14px; border-radius: var(--r-md); font: 400 18px/1.32 var(--serif);
+  --c: var(--bo); --c2: var(--ines); --c3: var(--mika); --cx: 3px; --cy: 5px; --crot: .8deg; }
+.decision .by { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.marks { display: inline-flex; } .marks i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(255,250,242,.95); }
+.marks i + i { margin-left: -5px; }
+/* her sheet: her own pink crayon */
+.sheet { width: 380px; padding: 16px 20px 16px; border-radius: var(--r-lg); --c: var(--her); --cx: -7px; --cy: 7px; --crot: -.8deg; }
+.sheet h3 { margin: 5px 0 10px; font: 400 21px/1.2 var(--serif); letter-spacing: -.01em; }
+.steps { display: flex; gap: 6px; margin-bottom: 12px; }
+.step { padding: 7px 11px; border-radius: var(--r-sm); background: rgba(255,255,255,.62); font: 400 14px/1.2 var(--sans); box-shadow: inset 0 0 0 1px rgba(84,58,38,.12); }
+.step.hers { background: rgba(253,230,236,.9); box-shadow: inset 0 0 0 1px rgba(212,114,136,.5); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(84,58,38,.08); }
+.tabs span { padding: 7px 14px; border-radius: 999px; font: 500 14px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { background: rgba(255,255,255,.9); color: var(--ink); box-shadow: 0 1px 3px rgba(80,45,15,.2); }
+/* a teammate's work */
+.pop { width: 320px; padding: 16px 20px 18px; border-radius: var(--r-lg); --cx: -8px; --cy: 8px; --crot: -1.2deg; }
+.pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding-bottom: 11px; border-bottom: 1px solid rgba(84,58,38,.14); }
+.pop .pop-head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); -webkit-mask: var(--wax) 0 0 / 120px 120px; }
+.pop .pop-head .nm { font: 500 20px/1 var(--serif); color: var(--t); }
+.pop .t { margin: 3px 0 12px; font: 400 18px/1.35 var(--serif); }
+.pop ul { margin: 5px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pop li { display: flex; gap: 9px; font: 400 15px/1.35 var(--sans); }
+.pop li::before { content: ''; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: var(--c); flex: none; }
+/* buttons: smoked glass for the main action, clear glass for the quiet one */
+.btns { display: flex; gap: 12px; }
+.btn { height: 46px; padding: 0 22px; border: 0; border-radius: 999px; font: 500 16px/1 var(--sans); cursor: pointer; color: #FFF8EE; --c: var(--kraft); --cx: -3px; --cy: 4px;
+  transition: transform 240ms var(--land); }
+.btn > .gl { background: linear-gradient(128deg, rgba(255,255,255,.22), rgba(255,255,255,0) 40%), rgba(44,30,22,.86); }
+.btn.quiet { color: var(--ink); }
+.btn.quiet > .gl { background: var(--light), var(--pane); }
+.btn:hover { transform: translateY(-2px); } .btn:hover > .gl { box-shadow: var(--rim), var(--lift-hi); }
+.btn:active { transform: scale(.98); }
+/* quiet labels */
+.tag { display: inline-flex; align-items: baseline; gap: 5px; padding: 9px 15px; border-radius: 999px; font: 400 14px/1 var(--sans); color: var(--ink-2); --c: var(--kraft); --cx: -3px; --cy: 3px; }
+.tag b { font: 500 16px/1 var(--serif); color: var(--ink); }
+.tag.replay { flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 16px 10px; border-radius: var(--r-sm); color: #FFF6EA; font: 500 16px/1 var(--serif); --c: var(--ines); }
+.tag.replay > .gl { background: linear-gradient(128deg, rgba(255,255,255,.2), rgba(255,255,255,0) 40%), rgba(44,30,22,.8); }
+.tag.replay small { font: 400 13px/1 var(--sans); }
+
+/* ---------- the room ---------- */
+/* two nudges from the shared positions: Mika's pill sits by Mika's head (Noor's popover covered it), and her sheet
+   moves right off Mika's pencil arm */
+.at:has(> .pill[data-who="mika"]) { left: 404px !important; top: 304px !important; }
+.at.a-sheet { left: 622px !important; }
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,240,215,.55), rgba(255,226,190,.22) 60%, rgba(255,210,170,0)); }
+.a-bubble .bubble { border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; }
+.a-note .note { rotate: -2deg; } .a-dec .decision { rotate: 1.5deg; }
+.a-sheet .sheet { width: 420px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; padding: 12px 16px 14px 20px; }
+.a-sheet .sheet .tabs { grid-column: 2; grid-row: 1; } .a-sheet .sheet .tabs span { padding: 6px 11px; font-size: 13px; }
+.a-sheet .sheet h3, .a-sheet .sheet .steps { grid-column: 1 / -1; } .a-sheet .sheet h3 { font-size: 19px; margin: 6px 0 9px; } .a-sheet .steps { margin: 0; }
+
+/* ---------- the parts board: a quiet frost behind, the parts themselves carry the crayon ---------- */
+.v-parts .painting { filter: blur(2px) saturate(.9); }
+.board { position: absolute; inset: 34px 40px; display: grid; grid-template-columns: 1fr 1fr 1fr 1.05fr; gap: 18px; align-content: start; }
+.b-head, .board .cell { background: rgba(255,248,238,.52); -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: var(--rim), 0 10px 30px -18px rgba(70,40,15,.4); border-radius: var(--r-lg); }
+.b-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 22px; padding: 18px 26px; }
+.b-title { margin: 0; font: 400 32px/1 var(--serif); letter-spacing: -.015em; }
+.b-lede { margin: 0; font: 400 16px/1.4 var(--sans); color: var(--ink-2); max-width: 78ch; }
+.board .cell { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.board .cell h2 { margin: 0; font: 500 14px/1 var(--sans); color: var(--ink); }
+.board .cap { color: var(--ink-2) !important; }
+.board .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.board .cap { margin: 0; font: 400 13px/1.3 var(--sans); color: var(--ink-3); }
+.c-pills { grid-column: 1 / 4; grid-row: 2; } .c-chat { grid-column: 1; grid-row: 3; } .c-note { grid-column: 2; grid-row: 3; } .c-dec { grid-column: 3; grid-row: 3; }
+.c-sheet { grid-column: 4; grid-row: 2 / 4; } .c-pop { grid-column: 4; grid-row: 4; } .c-act { grid-column: 1 / 4; grid-row: 4; }
+.c-sheet .sheet, .c-pop .pop { width: 100%; }
+.c-act { flex-direction: row !important; align-items: center !important; gap: 22px !important; align-self: start; }
+
+/* ---------- focus: one big pane over a wide crayon wash ---------- */
+.doc { position: absolute; left: 70px; top: 52px; right: 70px; bottom: 44px; display: grid; grid-template-columns: 1fr 390px; gap: 26px; padding: 26px;
+  border-radius: 40px; --c: var(--kraft); --cx: -10px; --cy: 10px; --crot: -.5deg; }
+.doc > .gl { background: var(--light), rgba(255,248,238,.42); }
+.doc .main { padding: 20px 28px; border-radius: var(--r-lg); background: rgba(255,252,246,.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,.75); display: flex; flex-direction: column; }
+.doc h1 { margin: 8px 0 18px; font: 400 34px/1.15 var(--serif); letter-spacing: -.015em; max-width: 26ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 9px 10px; padding: 14px; border-radius: var(--r-md); background: rgba(84,58,38,.05); }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--serif); align-self: center; }
+.jr .step { padding: 11px 12px; }
+.doc .q { margin: auto 0 14px; font: 400 30px/1.2 var(--serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { position: relative; margin: 0 0 6px; padding-left: 20px; font: italic 400 22px/1.45 var(--serif); max-width: 52ch; }
+.doc .said::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 6px; border-radius: 4px; background: var(--her);
+  -webkit-mask: var(--wax) 0 0 / 120px 120px; filter: url(#tear); }
+.side { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; }
+.side > .lab { color: var(--ink-2); }
+.side .bubble { max-width: none; }
+.take { position: relative; isolation: isolate; margin-top: 6px; padding: 16px 18px; border-radius: var(--r-md); --c: var(--her); --cx: 6px; --cy: -6px; --crot: 1deg; }
+.take > .gl { background: var(--light), rgba(255,240,244,.88); }
+.take .lab { color: var(--her-t); }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--serif); } .take .b { font-style: italic; font-size: 21px; }
+.take em { display: block; font: normal 500 13px/1.2 var(--sans); color: var(--ink-3); margin: 10px 0 3px; }
+.side .btns { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .pill, .btn { transition: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- the torn edge: a slow wobble and a fine fray, like crayon on rough paper -->
+  <filter id="tear" x="-6%" y="-14%" width="112%" height="128%">
+    <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="11" result="w"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="f"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="6" xChannelSelector="R" yChannelSelector="G" result="a"/>
+    <feDisplacementMap in="a" in2="f" scale="3" xChannelSelector="G" yChannelSelector="R"/>
+  </filter>
+</svg>
+<div class="canvas" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+(function () {
+  const { view, still, c } = window.UIW;
+  const head = c.querySelector('.b-head');
+  if (head) { head.querySelector('.b-title').textContent = 'Glass over crayon'; head.querySelector('.b-lede').textContent = 'Frosted glass laid over a torn crayon underlayer in each teammate’s ink. The glass is clear at the rim and dense where the words are; the colour peeking out says who it’s from.'; }
+
+  // Build each surface: crayon layer(s) first, then the glass pane, both behind the words.
+  const SURF = '.pill, .bubble, .note, .decision, .sheet, .pop, .btn, .tag, .doc, .take';
+  const parts = [...c.querySelectorAll(SURF)];
+  parts.forEach(el => {
+    el.classList.add('pane');
+    const first = el.firstChild, mk = cls => { const s = document.createElement('span'); s.className = cls; el.insertBefore(s, first); return s; };
+    if (el.matches('.decision')) { mk('cr c3'); mk('cr c2'); }
+    mk('cr'); mk('gl');
+  });
+  if (still || !window.Motion || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Signature motion: the crayon is swiped on (a clip reveals it left to right), then the glass slides over it and
+  // settles, and the words come up last. Pills arrive in a quick stagger; cards one after another.
+  const { animate } = Motion, spring = { type: 'spring', visualDuration: .6, bounce: 0 };
+  const words = el => [...el.children].filter(k => !k.matches('.cr, .gl'));
+  // the Replay label never animates: it is there from the first frame
+  const moving = parts.filter(el => !el.closest('.a-replay'));
+  moving.forEach(el => { el.querySelectorAll(':scope > .cr, :scope > .gl').forEach(s => s.style.opacity = 0); words(el).forEach(k => k.style.opacity = 0); });
+  const lay = (el, d) => {
+    el.querySelectorAll(':scope > .cr').forEach((cr, i) => animate(cr, { opacity: [0, 1], clipPath: ['inset(-20% 100% -20% -20%)', 'inset(-20% -20% -20% -20%)'] },
+      { duration: .55 + el.offsetWidth / 1400, delay: d + i * .12, ease: [.5, 0, .2, 1] }));
+    const gd = d + .32 + el.querySelectorAll(':scope > .cr').length * .08;
+    animate(el.querySelector(':scope > .gl'), { opacity: [0, 1], x: [-14, 0], y: [10, 0] }, { ...spring, delay: gd });
+    words(el).forEach(k => animate(k, { opacity: [0, 1] }, { duration: .45, delay: gd + .25 }));
+  };
+  const order = view === 'room'
+    ? ['.at[data-in] > .pill', '.a-sheet .sheet', '.a-bubble .bubble', '.a-dec .decision', '.a-her .pill', '.a-note .note', '.a-pop .pop', '.a-tally .tag']
+    : view === 'focus' ? ['.doc', '.side .bubble', '.take', '.side .btn'] : [SURF];
+  let t = .3;
+  const seen = new Set();
+  order.forEach(sel => c.querySelectorAll(sel).forEach(el => {
+    if (seen.has(el) || el.closest('.a-replay')) return; seen.add(el);
+    lay(el, t); t += el.matches('.pill, .btn, .tag') ? (view === 'parts' ? .05 : .12) : (view === 'parts' ? .1 : .5);
+  }));
+  moving.forEach(el => { if (!seen.has(el)) lay(el, 0); });
+})();
+</script>
+</body>
+</html>

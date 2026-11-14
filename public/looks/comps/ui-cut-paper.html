@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI direction · Cut paper collage</title>
+<!-- Wide UI exploration (cut-paper). Same content as painted-system.html so directions compare fairly.
+     ?view=parts|room|focus, &still=1 for the settled state. Generated from one shared body; edit the direction's CSS here. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #33251C; --ink-2: #5F4A3B; --ink-3: #7F6A58;
+  --cream: #FBF4E6; --paper2: #F1E6D0; --kraft: #C9A77E; --kraft-2: #D9BE98; --bark: #3E2C21;
+  --mika: #44629A; --noor: #CF6A42; --theo: #7EA88C; --ines: #C69238; --bo: #E3BE45; --her: #C2627A; --her-deep: #9C4259;
+  --mika-soft: #D8E0EF; --noor-soft: #F5D8CA; --theo-soft: #DAEADF; --ines-soft: #F1E1C0; --bo-soft: #F7EABD; --her-soft: #F4D5DD;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.view { display: none; position: absolute; inset: 0; }
+[data-view="parts"] .v-parts, [data-view="room"] .v-room, [data-view="focus"] .v-focus { display: block; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+.abs { position: absolute; }
+button { font: inherit; color: inherit; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.board { position: absolute; inset: 40px 52px; display: grid; grid-template-columns: 400px 1fr; gap: 52px; }
+.board h1 { margin: 0 0 6px; font: 400 38px/1.1 var(--serif); letter-spacing: -.015em; }
+.board .lede { margin: 0 0 26px; font: italic 400 18px/1.4 var(--serif); color: var(--ink-2); }
+.board h2 { margin: 0 0 12px; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+.intro h2 { margin-top: 4px; }
+.inks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 26px; }
+.ink { display: flex; flex-direction: column; gap: 6px; font: 500 13px/1 var(--sans); color: var(--ink-2); }
+.typeset { display: grid; gap: 10px; margin-bottom: 28px; }
+.typeset div { display: flex; align-items: baseline; gap: 14px; }
+.typeset small { width: 80px; flex: none; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+.t-title { font: 400 27px/1.15 var(--serif); letter-spacing: -.01em; }
+.t-her { font: italic 400 19px/1.45 var(--serif); }
+.t-body { font: 400 16px/1.45 var(--serif); }
+.t-label { font: 500 13px/1.2 var(--sans); color: var(--ink-3); letter-spacing: .01em; }
+.parts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; align-content: start; }
+.part { display: flex; flex-direction: column; }
+.part.wide { grid-column: span 2; gap: 0; }
+.part.wide .row + .row { margin-top: 12px; }
+[data-who="mika"] { --c: var(--mika); --soft: var(--mika-soft); } [data-who="noor"] { --c: var(--noor); --soft: var(--noor-soft); }
+[data-who="theo"] { --c: var(--theo); --soft: var(--theo-soft); } [data-who="ines"] { --c: var(--ines); --soft: var(--ines-soft); }
+[data-who="bo"] { --c: var(--bo); --soft: var(--bo-soft); } [data-who="her"] { --c: var(--her); --soft: var(--her-soft); }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 15px 0 7px; border: 0; cursor: pointer; white-space: nowrap; font: 500 15px/1 var(--sans); position: relative; }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 8px; }
+.pill.invite { padding: 0 18px; }
+.btn { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border: 0; cursor: pointer; font: 500 15px/1 var(--sans); position: relative; }
+.tag { display: inline-flex; align-items: center; height: 34px; padding: 0 15px; font: 500 13px/1 var(--sans); color: var(--ink-2); position: relative; z-index: 9; }
+.tag b { font-weight: 500; color: var(--ink); }
+.bubble { position: relative; max-width: 300px; padding: 11px 15px 12px; font: italic 400 16px/1.35 var(--serif); }
+.bubble b { display: block; font: 500 13px/1.2 var(--sans); font-style: normal; margin-bottom: 3px; color: var(--c); filter: brightness(.78); }
+.note { position: relative; width: 240px; padding: 15px 17px 16px; font: 400 16px/1.35 var(--serif); }
+.note .lab { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: var(--ink-2); }
+.note .lab i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.decision { position: relative; padding: 14px 17px 14px; font: 400 16px/1.32 var(--serif); }
+.decision .who { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.decision .marks { display: flex; } .decision .marks i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); margin-right: -5px; }
+.pop { position: relative; padding: 16px 18px 18px; }
+.pop .head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.pop .head .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--c); }
+.pop .head b { font: 500 16px/1 var(--sans); } .pop .head .craft { font: italic 400 15px/1 var(--serif); color: var(--ink-2); }
+.pop .t-label { display: block; margin: 10px 0 4px; }
+.pop .on { font: 400 16px/1.32 var(--serif); } .pop .on.small { font-size: 15px; }
+.pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; font: 400 15px/1.32 var(--serif); }
+.pop li { display: grid; grid-template-columns: 12px 1fr; } .pop li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); margin-top: 8px; }
+.sheet { position: relative; display: flex; gap: 22px; align-items: center; padding: 18px 22px; }
+.sheet .sh-text { flex: 1; } .sh-title { font: 400 20px/1.2 var(--serif); margin-top: 4px; }
+.sheet.small { display: block; padding: 15px 17px 16px; } .sheet.small .sh-title { font-size: 17px; margin: 4px 0 12px; }
+.tabs { display: inline-flex; gap: 4px; padding: 4px; position: relative; }
+.tabs span { padding: 8px 14px; font: 500 13px/1 var(--sans); color: var(--ink-2); position: relative; }
+.v-focus .veil { position: absolute; inset: 0; background: rgba(43,31,23,.28); }
+.v-focus .doc { left: 170px; top: 36px; width: 1260px; height: 828px; padding: 46px 56px; display: grid; grid-template-columns: 1fr 370px; gap: 46px; }
+.doc h1 { margin: 6px 0 4px; font: 400 34px/1.15 var(--serif); letter-spacing: -.012em; }
+.doc .q { margin: 26px 0 20px; padding: 20px 24px; font: 400 24px/1.3 var(--serif); position: relative; }
+.doc .main { display: flex; flex-direction: column; }
+.doc .q { margin-top: auto !important; }
+.doc .said { padding: 2px 0 2px 18px; position: relative; font-size: 21px; margin-bottom: 4px; }
+.doc .side { display: flex; flex-direction: column; gap: 12px; }
+.doc .side .bubble { max-width: none; }
+.doc .ta { padding: 16px 18px 17px; position: relative; } .doc .ta p { margin: 4px 0 0; font: 400 17px/1.4 var(--serif); }
+.doc .ta em { display: block; margin-top: 10px; font: 500 13px/1 var(--sans); font-style: normal; color: var(--her-deep); }
+.doc .acts { margin-top: auto; display: flex; gap: 10px; }
+.jr { display: grid; grid-template-columns: 160px repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 2px 2px; } .jr .who { font: 400 15px/1.2 var(--serif); align-self: center; }
+.step { padding: 14px 14px; font: 400 15px/1.25 var(--sans); position: relative; }
+.room-sheet, .room-dec { z-index: 2; }
+.glow { position: absolute; left: 540px; top: 620px; width: 300px; height: 230px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,226,196,.6), rgba(255,214,180,.2) 62%, rgba(255,200,160,0)); mix-blend-mode: screen; }
+
+.v-parts { background: #E9DCC4 var(--grain); }
+/* each piece is two papers: a coloured one behind, a cream one on top. The edges are torn soft by an SVG filter;
+   the words sit on the cream, never on a torn edge. */
+.mat { position: relative; isolation: isolate; background: none; transition: translate .18s cubic-bezier(.16,1,.3,1), scale .18s cubic-bezier(.16,1,.3,1); }
+.abs.mat { position: absolute; }
+.lay { position: absolute; inset: 0; z-index: -1; border-radius: var(--r, 18px); pointer-events: none; }
+.lay.front { background: var(--front, var(--cream)) var(--grain); filter: url(#deckle) drop-shadow(1px 1.5px 0 rgba(50,30,15,.22)) drop-shadow(3px 6px 8px rgba(50,30,15,.16)); }
+.lay.back { background: var(--back, var(--kraft)) var(--grain); filter: url(#deckle2) drop-shadow(1px 1.5px 0 rgba(50,30,15,.2)); translate: var(--bx, -5px) var(--by, 5px); rotate: var(--br, -1.2deg); }
+.lay.back2 { background: var(--back2) var(--grain); filter: url(#deckle2); translate: var(--b2x, 5px) var(--b2y, 7px); rotate: 1.4deg; }
+.lay.back3 { background: var(--back3) var(--grain); filter: url(#deckle2); translate: 10px 10px; rotate: 2.4deg; }
+button.mat:hover, .note:hover, .decision:hover { translate: 0 -2px; }
+button.mat:active { scale: .97; translate: 0 0; }
+.ink i { display: block; height: 54px; width: 54px; border-radius: 50%; background: var(--c) var(--grain); filter: url(#deckle2) drop-shadow(1px 2px 0 rgba(50,30,15,.22)); }
+.pill { --r: 999px; --back: var(--c); --bx: -3px; --by: 3px; --br: -1deg; }
+.pill .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--c) var(--grain); filter: url(#deckle2); flex: none; }
+.pill .agent { border-left: 1px solid rgba(51,37,28,.18); }
+.pill.her { --front: var(--her); --back: var(--her-deep); color: #fff; }
+.pill.her .dot { background-color: var(--cream); color: var(--her-deep); display: grid; place-items: center; font: 500 14px/1 var(--serif); filter: none; }
+.pill.her .agent { color: rgba(255,255,255,.95); border-color: rgba(255,255,255,.45); font: italic 400 14px/1 var(--serif); }
+.pill.invite { --back: var(--her); color: var(--her-deep); }
+.pill.is-open { --bx: -4px; --by: 5px; }
+.pill.is-open .lay.back { box-shadow: 0 0 0 3px var(--c); }
+.bubble { --r: 20px 22px 22px 8px; --back: var(--c); --bx: -6px; --by: -5px; --br: -1.5deg; }
+.note { --r: 20px; --back: var(--c); --bx: 4px; --by: -7px; --br: 1.8deg; }
+.decision { --r: 22px; --back: var(--bo); --back2: var(--ines); --back3: var(--mika); --bx: 3px; --by: 4px; --br: .8deg; }
+.decision .marks i { box-shadow: 0 0 0 2px var(--cream); filter: url(#deckle2); }
+.pop { --r: 26px; --back: var(--c); --bx: -7px; --by: 7px; --br: -1.2deg; }
+.pop .head .dot { filter: url(#deckle2); }
+.sheet { --r: 28px; --back: var(--her); --bx: -6px; --by: 6px; --br: -.8deg; }
+.tabs { border-radius: 999px; background: var(--kraft-2) var(--grain); }
+.tabs span { border-radius: 999px; }
+.tabs span.on { background: var(--cream) var(--grain); color: var(--ink); box-shadow: 1px 1.5px 0 rgba(50,30,15,.22); }
+.btn { --r: 999px; --front: var(--bark); --back: var(--kraft); color: var(--cream); --bx: -3px; --by: 4px; }
+.btn.quiet { --front: var(--cream); --back: var(--kraft); color: var(--ink); }
+.tag { --r: 999px; --bx: -2px; --by: 3px; --back: var(--kraft-2); }
+.tag.replay { --front: #EBCB72; --back: var(--ines); color: #45320E; }
+.doc { --r: 40px; --back: var(--kraft); --bx: -10px; --by: 10px; --br: -.6deg; }
+.doc .q { isolation: isolate; }
+.doc .q::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 22px; background: var(--paper2) var(--grain); filter: url(#deckle2); }
+.doc .said::before { content: ''; position: absolute; left: 0; top: 2px; bottom: 2px; width: 6px; border-radius: 4px; background: var(--her) var(--grain); filter: url(#deckle2); }
+.doc .ta { --r: 22px; --front: var(--her-soft); --back: var(--her); --bx: 5px; --by: -5px; --br: 1deg; }
+.step { border-radius: 12px; background: var(--cream) var(--grain); box-shadow: 1px 1.5px 0 rgba(50,30,15,.2); }
+.step.hers { background-color: var(--her-soft); box-shadow: 1px 1.5px 0 rgba(50,30,15,.2), inset 0 -3px 0 rgba(194,98,122,.35); }
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- torn-soft edges: low-frequency wobble plus a fine fibrous fray -->
+  <filter id="deckle" x="-4%" y="-8%" width="108%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="5" result="w"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="8" result="f"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="5" xChannelSelector="R" yChannelSelector="G" result="a"/>
+    <feDisplacementMap in="a" in2="f" scale="2.2" xChannelSelector="G" yChannelSelector="R"/>
+  </filter>
+  <filter id="deckle2" x="-8%" y="-12%" width="116%" height="124%">
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="12" result="w"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="3" result="f"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="6" xChannelSelector="R" yChannelSelector="G" result="a"/>
+    <feDisplacementMap in="a" in2="f" scale="2.4" xChannelSelector="G" yChannelSelector="R"/>
+  </filter>
+</svg>
+
+
+<div class="canvas" id="c">
+  <!-- ===================== PARTS ===================== -->
+  <section class="view v-parts">
+    <div class="board">
+      <div class="intro">
+        <h1>Cut paper collage</h1>
+        <p class="lede">Coloured papers torn soft and laid one over another, each teammate in their own ink, cream paper for every word.</p>
+        <h2>Inks</h2>
+        <div class="inks">
+          <span class="ink" data-who="mika"><i></i>Mika</span><span class="ink" data-who="noor"><i></i>Noor</span><span class="ink" data-who="theo"><i></i>Theo</span>
+          <span class="ink" data-who="ines"><i></i>Ines</span><span class="ink" data-who="bo"><i></i>Bo</span><span class="ink" data-who="her"><i></i>Her</span>
+        </div>
+        <h2>Type</h2>
+        <div class="typeset">
+          <div><small>Title</small><span class="t-title">A website for a small bakery</span></div>
+          <div><small>Her words</small><span class="t-her">Bread that’s still warm, and being known.</span></div>
+          <div><small>Body</small><span class="t-body">Orders close at 8pm for the next morning.</span></div>
+          <div><small>Label</small><span class="t-label">Decided by Bo, Ines and Mika</span></div>
+        </div>
+        <h2>Actions and quiet labels</h2>
+        <div class="row"><button class="btn mat">Build it</button><button class="btn quiet mat">Back to the room</button></div>
+        <div class="row" style="margin-top:14px"><span class="tag mat"><b>24</b>&nbsp;handled by your team&nbsp;·&nbsp;<b>3</b>&nbsp;for you</span><span class="tag replay mat">Replay</span></div>
+      </div>
+      <div class="parts">
+        <div class="part wide"><h2>Who’s who: a pill by every head</h2>
+          <div class="row">
+            <button class="pill mat" data-who="mika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="noor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="theo"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="ines"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="bo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+          </div>
+          <div class="row"><button class="pill invite mat" data-who="her">Take your seat</button>
+            <button class="pill her mat" data-who="her"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button></div>
+        </div>
+        <div class="part"><h2>Chatter</h2><div class="bubble mat" data-who="bo"><b>Bo</b>Orders after 8pm miss the morning bake.</div></div>
+        <div class="part"><h2>A note for her</h2><div class="note mat" data-who="noor"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div></div>
+        <div class="part"><h2>Decided together</h2><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
+        <div class="part"><h2>A teammate’s work</h2><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+  <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
+  <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
+        <div class="part wide"><h2>Her sheet</h2><div class="sheet mat"><div class="sh-text"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+  <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div></div>
+  <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROOM ===================== -->
+  <section class="view v-room">
+    <div class="room"></div>
+    <div class="glow"></div>
+    <button class="abs pill mat" data-who="mika" style="left:420px;top:306px"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+    <button class="abs pill mat is-open" data-who="noor" style="left:612px;top:290px"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="theo" style="left:790px;top:322px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+    <button class="abs pill mat" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+    <div class="abs bubble mat" data-who="bo" style="left:1296px;top:430px;width:262px"><b>Bo</b>Orders after 8pm miss the morning bake.</div>
+    <div class="abs room-sheet" style="left:22px;top:560px;width:340px"><div class="sheet mat small"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+  <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div>
+  <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
+    <div class="abs room-dec" style="left:850px;top:528px;width:240px;rotate:1.5deg"><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
+    <button class="abs pill her mat" data-who="her" style="left:584px;top:616px"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button>
+    <div class="abs note mat" data-who="noor" style="left:806px;top:766px;width:250px;rotate:-2.5deg"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+    <div class="abs" style="left:226px;top:20px;width:372px"><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+  <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
+  <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
+    <span class="abs tag mat" style="right:22px;bottom:18px"><b>24</b>&nbsp;handled by your team&nbsp;·&nbsp;<b>3</b>&nbsp;for you</span>
+    <span class="abs tag replay mat" style="right:22px;top:18px">Replay</span>
+  </section>
+
+  <!-- ===================== FOCUS ===================== -->
+  <section class="view v-focus">
+    <div class="room"></div>
+    <div class="veil"></div>
+    <div class="abs doc mat">
+      <div class="main">
+        <span class="t-label">From Noor and Mika · the rough journey</span>
+        <h1>A website for a small bakery, so customers can order bread ahead.</h1>
+        <div class="jr">
+          <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+          <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span>
+          <span class="who">Weekend crowd</span><span class="step">Browse pastries</span><span class="step">Order by Friday</span><span class="step">Collect Saturday</span>
+        </div>
+        <div class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</div>
+        <div class="said t-her">Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.</div>
+      </div>
+      <div class="side">
+        <span class="t-label">The team</span>
+        <div class="bubble mat" data-who="mika"><b>Mika</b>Love that. Regulars first, their usual loaf one tap away.</div>
+        <div class="bubble mat" data-who="bo"><b>Bo</b>Then we hold it for them till ten.</div>
+        <div class="bubble mat" data-who="ines"><b>Ines</b>Hmm, regulars might want a standing weekly order. Show that first?</div>
+        <div class="ta mat"><span class="t-label">Your takeaways</span>
+          <p>People come for bread that’s still warm, and for being known.</p>
+          <p><em>Guidance</em>Their usual loaf first, one tap away.</p></div>
+        <div class="acts"><button class="btn mat">Send to the team</button><button class="btn quiet mat">Back to the room</button></div>
+      </div>
+    </div>
+    <span class="abs tag replay mat" style="right:22px;top:18px">Replay</span>
+  </section>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+
+const q = new URLSearchParams(location.search);
+const c = document.getElementById('c'); c.dataset.view = q.get('view') || 'parts';
+const still = q.get('still') === '1';
+
+// Each piece is laid as paper: the coloured sheet goes down first, the cream sheet slides over it a beat later and
+// settles a few pixels off, so the colour peeks out. That small overlap is the signature.
+const view = c.querySelector('.v-' + c.dataset.view);
+const layers = new Map();
+view.querySelectorAll('.mat').forEach(el => {
+  // paint order: the deepest coloured sheet first, the cream sheet last, the words above them all
+  const ls = [], first = el.firstChild;
+  ['back3', 'back2', 'back', 'front'].forEach(k => {
+    if ((k === 'back2' || k === 'back3') && !el.matches('.decision')) return;
+    const s = document.createElement('span'); s.className = 'lay ' + k; el.insertBefore(s, first); ls.push(s);
+  });
+  layers.set(el, ls);
+});
+const lay = (el, delay = 0) => {
+  const ls = layers.get(el); if (!ls) return;
+  const backs = ls.filter(s => !s.classList.contains('front')), front = ls.find(s => s.classList.contains('front'));
+  const kids = [...el.children].filter(k => !k.classList.contains('lay'));
+  const from = el.matches('.note, .pop') ? [-60, -24] : [-40, 18];
+  backs.forEach((b, i) => Motion.animate(b, { opacity: [0, 1], x: [from[0], 0], y: [from[1], 0] }, { type: 'spring', visualDuration: .55, bounce: 0, delay: delay + i * .1 }));
+  Motion.animate(front, { opacity: [0, 1], x: [from[0] * .7, 0], y: [from[1] * .7, 0] }, { type: 'spring', visualDuration: .55, bounce: 0, delay: delay + .18 + backs.length * .08 });
+  kids.forEach(k => Motion.animate(k, { opacity: [0, 1] }, { duration: .4, delay: delay + .45 + backs.length * .08 }));
+  el.style.opacity = 1;
+};
+if (!still) {
+  const all = [...view.querySelectorAll('.mat')].filter(el => !el.parentElement.closest('.mat'));
+  all.forEach(el => { el.style.opacity = 0; });
+  view.querySelectorAll('.mat').forEach(el => [...el.children].forEach(k => { if (!k.classList.contains('lay')) k.style.opacity = 0; }));
+  view.querySelectorAll('.lay').forEach(s => s.style.opacity = 0);
+  const pick = s => [...view.querySelectorAll(s)];
+  const seq = (els, gap) => els.forEach((el, i) => { lay(el, i * gap); el.querySelectorAll('.mat').forEach(m => lay(m, i * gap + .5)); });
+  if (c.dataset.view === 'room') {
+    (async () => {
+      const w = ms => new Promise(r => setTimeout(r, ms));
+      await w(400); seq(pick(':scope > .pill:not(.her)'), .12);
+      await w(1000); seq(pick('.room-sheet .mat, .room-dec .mat'), .45);
+      await w(1200); seq(pick(':scope > .bubble'), 0);
+      await w(1100); seq(pick(':scope > .pill.her, :scope > .note'), .45);
+      await w(1300); seq(pick('.abs > .pop'), 0);
+      seq(pick(':scope > .tag'), .1);
+    })();
+  } else seq(all, .07);
+}
+
+</script>
+</body>
+</html>

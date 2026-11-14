@@ -65,9 +65,11 @@ test('2. six seats; she clicks Product, the team assembles, her card takes her l
   assert.ok(await page.locator('.seat-product .card').count(), 'her card in Product');
   for (const stance of ['sketch first, polish last', 'only what we’ll measure', 'what’s known, with sources', 'who pays, and why now', 'boring and correct'])
     assert.ok(await page.locator('.seat .card-stance', { hasText: stance }).count(), `stance "${stance}" on a place card`);
-  assert.strictEqual(await page.getByText('Seat open: invite a teammate. Your agents hold it until they arrive.').count(), 5);
+  assert.strictEqual(await page.getByText(/Seat open: invite a teammate/).count(), 0, 'the teammates are real members of her team: no "seat open" line');
+  assert.strictEqual(await page.locator('.seat .card [data-slot="character"]').count(), 6, 'a character slot on every seat card');
   await page.keyboard.type('getting the journey right before anyone draws a screen.');
   await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.big-card[data-seat="product"]')?.dataset.state === 'shown', null, { timeout: 30000 }); await page.keyboard.press('Enter'); // her character card, then she takes the seat
   for (const k of ['api', 'on', 'stage', 'el']) assert.ok(await has(`!!BYOC.${k}`), `BYOC.${k}`);
   await shot('live-walk-in.png');
 });
@@ -125,8 +127,16 @@ test('4. at most three questions wait in her tray; she opens each as a document 
     const id = await page.evaluate(() => BYOC.focusDoc.openId());
     if (i === 0) await shot('live-focus.png');
     await page.locator('#focus-doc .fd-input').fill(SAYS[i % SAYS.length]);
-    await page.keyboard.press('Enter');
+    await page.click('#focus-doc .fd-send'); // she sends when she's ready
     await waitFor(id => BYOC.events().some(e => e.type === 'answer' && e.askId === id), 8000, 'her answer logged', id);
+    // The team chimes in; her takeaways appear; she keeps them (her hidden file grows: taste.written).
+    await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 40000, 'her takeaways');
+    if (i === asks.length - 1) { // the last one she rewords, as on stage
+      await page.locator('#focus-doc .brief-believe .brief-text').click();
+      await page.keyboard.press('Control+A'); await page.keyboard.type('Never ask for anything you could remember or skip.');
+      await page.keyboard.press('Enter');
+    } else await page.click('#focus-doc .fd-keep');
+    await waitFor(n => BYOC.events().filter(e => e.type === 'taste.written').length >= n, 10000, 'her takeaways kept', i + 1);
     await page.keyboard.press('Escape'); // back to the room
     await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room');
   }
@@ -134,53 +144,17 @@ test('4. at most three questions wait in her tray; she opens each as a document 
   lap('1:10 her answers said');
 });
 
-test('5. her pin -> "Sounds like" -> written to her file', async t => {
+test('5. Design\'s wireframes come onto the table (the "Sounds like" step and the file card are gone)', async t => {
   if (!RUN) return t.todo('needs step 3');
   await page.keyboard.press('Escape');
   await page.keyboard.press('ArrowRight'); // Design's sketches slide over
   await waitFor(() => document.querySelectorAll('#sketch-sheet .sk-frame').length > 0, 90000, 'grey sketches');
   lap('1:45 sketches on the table (after answers)');
-  // She makes a call on the confirm step, on its sketch.
-  // Her answers can redraw the journey (and Design re-sketches), so find the confirm step's frame as it stands once the
-  // frames match the boxes; if her redraw renamed the step, the frame of a box whose label mentions confirm or booking.
-  await waitFor(() => {
-    const nodes = [...BYOC.flow._state.nodes.values()];
-    const ids = new Set([...document.querySelectorAll('#sketch-sheet .sk-frame')].map(f => f.dataset.node));
-    return nodes.some(n => /confirm|book/i.test(n.label) && ids.has(n.id));
-  }, 45000, 'a sketch of the confirm step');
-  const confirmId = await page.evaluate(() => {
-    const ids = new Set([...document.querySelectorAll('#sketch-sheet .sk-frame')].map(f => f.dataset.node));
-    const nodes = [...BYOC.flow._state.nodes.values()].filter(n => ids.has(n.id));
-    return (nodes.find(n => n.label === 'confirm') || nodes.find(n => /confirm/i.test(n.label)) || nodes.find(n => /book/i.test(n.label))).id;
-  });
-  const frame = page.locator(`#sketch-sheet .sk-frame[data-node="${confirmId}"]`);
-  await frame.click({ position: { x: 60, y: 120 } });
-  await page.waitForSelector('.fl-draft textarea', { timeout: 3000 });
-  await page.keyboard.type('Cut the phone field. Name\'s enough; regulars hate forms.');
-  await page.keyboard.press('Enter');
-  await waitFor(() => document.querySelector('#sounds-like .sl-words')?.isContentEditable, 60000, '"Sounds like" on her file card');
-  lap('1:50 pin -> "Sounds like" typed');
-  const pinEv = (await events()).find(e => e.type === 'pin');
-  assert.strictEqual(pinEv.nodeId, confirmId, 'pinned on the confirm node');
-  const suggested = (await events()).filter(e => e.type === 'taste.suggested').at(-1);
-  assert.ok(suggested && /^Sounds like:/i.test(suggested.text), 'a "Sounds like" line was suggested');
-  await shot('live-sounds-like.png');
-  // She rewords it inline and keeps it.
-  const mine = 'Never ask for anything you could remember or skip.';
-  await page.keyboard.press('Control+A');
-  await page.keyboard.type(mine);
-  await page.keyboard.press('Enter');
-  // Her briefs from the documents may already have written lines; this one is the line written after her pin.
-  await waitFor(() => { const ev = BYOC.events(); const pin = ev.findLastIndex(e => e.type === 'pin'); return ev.slice(pin).some(e => e.type === 'taste.written'); }, 8000, 'her line written');
-  lap('2:00 reworded line written');
+  assert.ok(await page.locator('#file-card').isHidden(), 'her file stays off screen');
   const written = (await events()).filter(e => e.type === 'taste.written').at(-1);
-  assert.strictEqual(written.text, mine);
-  assert.strictEqual(written.reworded, true);
+  assert.strictEqual(written.text, 'Never ask for anything you could remember or skip.', 'her reworded belief is the newest line');
   const md = fs.readFileSync(path.join(RUNS, RUN, 'taste.md'), 'utf8');
-  assert.ok(md.includes(`- [${written.id}] ${mine}`), 'the new line is in runs/<id>/taste.md');
-  await waitFor(id => !!document.querySelector(`#file-lines li[data-id="${id}"]`), 3000, 'the new line on her file card', written.id);
-  await page.waitForTimeout(500);
-  await shot('live-file-card.png');
+  assert.ok(md.includes(written.text), 'in runs/<id>/taste.md');
 });
 
 test('6. Build -> page reflects her choices; a decision cites her new line', async t => {

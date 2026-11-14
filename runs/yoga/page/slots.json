@@ -1,0 +1,233 @@
+{
+  "inputs": {
+    "answers": [
+      {
+        "decision": "What makes someone come back to a studio week after week, and who is that person for you?",
+        "choice": "Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "herWords": true
+      },
+      {
+        "decision": "When a student books, what would make them feel sure their spot is truly theirs?",
+        "choice": "Small and warm. If a class is full, point them to the next one; nobody should feel turned away.",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n5",
+        "herWords": true
+      },
+      {
+        "decision": "How should it feel for a student who finds their favourite class already full?",
+        "choice": "Fast. Don't ask for anything you already know.",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n4",
+        "herWords": true
+      },
+      {
+        "decision": "Who the page serves first: regulars or newcomers",
+        "choice": "Regulars rebooking their usual",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "mapped": true
+      },
+      {
+        "decision": "Who the page serves first: regulars or newcomers",
+        "choice": "Regulars rebooking their usual",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "mapped": true
+      },
+      {
+        "decision": "What happens when a class is full",
+        "choice": "Offer a waitlist with automatic spot offer",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n4",
+        "mapped": true
+      }
+    ],
+    "newestLine": "L5"
+  },
+  "model": {
+    "words": {
+      "title": "Pellow Yoga: a yoga studio in Leith, Edinburgh",
+      "brand": "Pellow Yoga",
+      "heroTitle": "Your spot, every week",
+      "heroLead": "Drop-in and weekly yoga classes in Leith, Monday to Saturday, from £11.50 a class.",
+      "heroFact": "Mats, blocks and blankets",
+      "regularsTitle": "Book your usual class",
+      "regularsLead": "This device remembers the class you come to each week, so booking it again is one button.",
+      "regularsWhen": "Tuesday 07:30",
+      "regularsUsual": "Slow flow with Mira",
+      "regularsAction": "Book Slow flow again",
+      "classesTitle": "This week's classes",
+      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
+      "waitlistAction": "Join the waitlist",
+      "classTitle": "Slow flow class, 60 minutes",
+      "classBody": "Long holds, simple standing poses and the breath counted out loud. If this class is full, join the waitlist or try the next one along.",
+      "confirmTitle": "Book your place",
+      "confirmLead": "Just your name and email. Pay online and your place is held.",
+      "confirmAction": "Book and pay",
+      "confirmSent": "Your class is booked. The confirmation email is on its way.",
+      "rememberLabel": "Remember me on this device",
+      "phoneLabel": "Phone (optional)",
+      "bookedTitle": "After you book",
+      "bookedBody": "Your place is yours. The confirmation email names the class, the time and the teacher, and a reminder follows before class.",
+      "cancelLine": "Cancel in one tap from your confirmation email",
+      "cancelWindow": "Free up to 2 hours before",
+      "cancelReasonLine": "Tell us why (optional)",
+      "decidedTitle": "Decided for you",
+      "decidedLead": "Choices made for this booking page, and where each one came from.",
+      "heroAction": "Book your usual"
+    },
+    "steps": [
+      "regulars",
+      "classes",
+      "class",
+      "confirm",
+      "booked"
+    ],
+    "switches": {
+      "regulars": true,
+      "regularsFirst": true,
+      "waitlist": true,
+      "phone": false,
+      "remember": true,
+      "oneTapCancel": true,
+      "cancelReason": false
+    },
+    "decidedShown": [
+      {
+        "id": "c14",
+        "label": "A full class offers a waitlist, with an automatic offer when a spot opens"
+      },
+      {
+        "id": "c15",
+        "label": "Name and email only, and this device remembers you"
+      },
+      {
+        "id": "c21",
+        "label": "You pay online when you book"
+      },
+      {
+        "id": "c22",
+        "label": "Drop-in classes plus class packs"
+      },
+      {
+        "id": "c20",
+        "label": "Free cancel until a set cutoff, then your pass is used"
+      }
+    ]
+  },
+  "used": {
+    "words": {
+      "title": "Pellow Yoga: a yoga studio in Leith, Edinburgh",
+      "brand": "Pellow Yoga",
+      "heroTitle": "Your spot, every week",
+      "heroLead": "Drop-in and weekly yoga classes in Leith, Monday to Saturday, from £11.50 a class.",
+      "heroFact": "Mats, blocks and blankets",
+      "regularsTitle": "Book your usual class",
+      "regularsLead": "This device remembers the class you come to each week, so booking it again is one button.",
+      "regularsWhen": "Tuesday 07:30",
+      "regularsUsual": "Slow flow with Mira",
+      "regularsAction": "Book Slow flow again",
+      "classesTitle": "This week's classes",
+      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
+      "waitlistAction": "Join the waitlist",
+      "classTitle": "Slow flow class, 60 minutes",
+      "classBody": "Long holds, simple standing poses and the breath counted out loud. If this class is full, join the waitlist or try the next one along.",
+      "confirmTitle": "Book your place",
+      "confirmLead": "Just your name and email. Pay online and your place is held.",
+      "confirmAction": "Book and pay",
+      "confirmSent": "Your class is booked. The confirmation email is on its way.",
+      "rememberLabel": "Remember me on this device",
+      "phoneLabel": "Phone (optional)",
+      "bookedTitle": "After you book",
+      "bookedBody": "Your place is yours. The confirmation email names the class, the time and the teacher, and a reminder follows before class.",
+      "cancelLine": "Cancel in one tap from your confirmation email",
+      "cancelWindow": "Free up to 2 hours before",
+      "cancelReasonLine": "Tell us why (optional)",
+      "decidedTitle": "Decided for you",
+      "decidedLead": "Six choices the team made for this page.",
+      "heroAction": "Book your usual"
+    },
+    "switches": {
+      "regulars": true,
+      "regularsFirst": true,
+      "waitlist": true,
+      "phone": false,
+      "remember": true,
+      "oneTapCancel": true,
+      "cancelReason": false
+    },
+    "steps": [
+      "regulars",
+      "classes",
+      "class",
+      "confirm",
+      "booked"
+    ],
+    "tokens": {
+      "p-bg": "#ddd6c6",
+      "p-surface": "#d2cab8",
+      "p-ink": "#2a2a26",
+      "p-accent": "#4f6238",
+      "p-action": "#4f6238"
+    },
+    "decided": [
+      {
+        "id": "c15",
+        "seat": "engineering",
+        "label": "Name and email only, and this device remembers you",
+        "cites": "L5",
+        "lineText": "Never ask for anything you could remember or skip.",
+        "newest": true
+      },
+      {
+        "id": "c5",
+        "seat": "design",
+        "label": "What booking should feel like for a student: Quick and remembered: regulars see their usual class first",
+        "cites": "L5",
+        "lineText": "Never ask for anything you could remember or skip.",
+        "newest": true
+      },
+      {
+        "id": "c14",
+        "seat": "engineering",
+        "label": "A full class offers a waitlist, with an automatic offer when a spot opens",
+        "cites": "L4",
+        "lineText": "A student feels sure of their spot when the confirmation is small and warm, and when a full class never leaves anyone feeling turned away.",
+        "newest": false
+      },
+      {
+        "id": "c21",
+        "seat": "strategy",
+        "label": "You pay online when you book",
+        "cites": "L4",
+        "lineText": "A student feels sure of their spot when the confirmation is small and warm, and when a full class never leaves anyone feeling turned away.",
+        "newest": false
+      },
+      {
+        "id": "c22",
+        "seat": "strategy",
+        "label": "Drop-in classes plus class packs",
+        "cites": "L2",
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence.",
+        "newest": false
+      },
+      {
+        "id": "c20",
+        "seat": "product",
+        "label": "Free cancel until a set cutoff, then your pass is used",
+        "cites": "team default",
+        "lineText": null,
+        "newest": false
+      }
+    ],
+    "fonts": []
+  }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ink and paper · the room, day and night</title>
+<!-- The room in ink and paper, by day (afternoon painting) and by night (rainy evening, a lamp on the table).
+     ?time=day|night · ?view=room|focus · &still=1. Uses ../ink-paper.css, ../ink-paper.js and the shared content
+     (ui-wide/content.js), so the parts and their positions match every other comp. At night her sheet moves off the
+     lamp, to the left over the kitchen, and every sheet is lit from the lamp. -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #1A120D; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
+[data-time="night"] .painting { background-image: url(ink-paper/painting-night.jpg); background-color: #1C140F; }
+.view { position: absolute; inset: 0; }
+.at { position: absolute; }
+/* the room: shared positions, with the two nudges that keep Mika's pill and arm clear */
+.at:has(> .pill[data-who="mika"]) { left: 404px !important; top: 304px !important; }
+.at.a-sheet { left: 622px !important; }
+.a-bubble .bubble { border-radius: var(--ip-r-md) var(--ip-r-md) var(--ip-r-md) 6px; }
+.a-note .note { rotate: -2deg; } .a-dec .decision { rotate: 1.5deg; }
+.a-sheet .sheet { width: 420px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; padding: 12px 16px 14px 20px; }
+.a-sheet .sheet .tabs { grid-column: 2; grid-row: 1; } .a-sheet .sheet .tabs span { padding: 6px 11px; font-size: 13px; }
+.a-sheet .sheet h3, .a-sheet .sheet .steps { grid-column: 1 / -1; } .a-sheet .sheet h3 { font-size: 19px; margin: 6px 0 9px; } .a-sheet .steps { margin: 0; }
+.glow { position: absolute; left: 556px; top: 650px; width: 290px; height: 210px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,240,215,.55), rgba(255,226,190,.22) 60%, rgba(255,210,170,0)); }
+/* night: the lamp sits at the table's centre, so her sheet moves off the table to the left, over the dark kitchen,
+   clear of the lamp and every character; the seat glow is the lamp's spill, warmer and softer */
+[data-time="night"] .at.a-sheet { left: 24px !important; top: 526px !important; }
+[data-time="night"] .a-sheet .sheet { width: 348px; grid-template-columns: 1fr; }
+[data-time="night"] .a-sheet .sheet .tabs { grid-row: auto; grid-column: 1; justify-self: start; margin-top: 10px; }
+[data-time="night"] .glow { background: radial-gradient(closest-side, rgba(255,196,120,.32), rgba(255,180,100,.12) 60%, rgba(255,170,90,0)); }
+/* focus */
+.canvas .doc { position: absolute; left: 70px; top: 52px; right: 70px; bottom: 44px; display: grid; grid-template-columns: 1fr 390px; gap: 26px; padding: 26px; }
+.doc .main { padding: 20px 28px; border-radius: var(--ip-r-lg); background: rgba(255,252,246,.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,.75); display: flex; flex-direction: column; }
+[data-time="night"] .doc .main { background: rgba(255,246,230,.72); }
+.doc h1 { margin: 8px 0 18px; font: 400 34px/1.15 var(--ip-serif); letter-spacing: -.015em; max-width: 26ch; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 9px 10px; padding: 14px; border-radius: var(--ip-r-md); background: rgba(84,58,38,.05); }
+.jr .h { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); padding: 0 0 2px 4px; } .jr .who { font: italic 400 16px/1.2 var(--ip-serif); align-self: center; }
+.jr .step { padding: 11px 12px; }
+.doc .q { margin: auto 0 14px; font: 400 30px/1.2 var(--ip-serif); letter-spacing: -.012em; max-width: 30ch; }
+.doc .said { position: relative; margin: 0 0 6px; padding-left: 20px; font: italic 400 22px/1.45 var(--ip-serif); max-width: 52ch; }
+.doc .said::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 6px; border-radius: 4px; background: var(--ip-her);
+  -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; filter: url(#ip-tear); }
+.side { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; }
+.side > .lab { color: var(--ip-ink-2); }
+.side .bubble { max-width: none; }
+.take { margin-top: 6px; }
+.take p { margin: 6px 0 0; font: 400 19px/1.35 var(--ip-serif); } .take .b { font-style: italic; font-size: 21px; }
+.take em { display: block; font: normal 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); margin: 10px 0 3px; }
+.side .btns { margin-top: auto; }
+.a-time { left: 22px; top: 18px; }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c"></div>
+<script src="ui-wide/content.js"></script>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(function () {
+  const { view, still, c } = window.UIW;
+  const q = new URLSearchParams(location.search), night = q.get('time') === 'night';
+  if (night) c.dataset.time = 'night';
+  // the time-of-day label, top left, quiet
+  c.querySelector('.view').insertAdjacentHTML('beforeend', `<div class="at a-time"><span class="tag time"><i></i><span>${night ? 'Evening, raining' : 'Afternoon'}</span></span></div>`);
+  const els = InkPaper.dress(c);
+  const LAMP = [818, 452];  // the table lamp in the night painting
+  document.fonts.ready.then(() => requestAnimationFrame(() => {
+    if (night) InkPaper.lamp(c, LAMP[0], LAMP[1]);
+    if (still) return;
+    const order = view === 'room'
+      ? ['.at[data-in] > .pill', '.a-sheet .sheet', '.a-bubble .bubble', '.a-dec .decision', '.a-her .pill', '.a-note .note', '.a-pop .pop', '.a-tally .tag', '.a-time .tag']
+      : ['.doc', '.side .bubble', '.take', '.side .btn'];
+    let t = .25; const seen = new Set();
+    order.forEach(sel => c.querySelectorAll(sel).forEach(el => {
+      if (seen.has(el)) return; seen.add(el);
+      InkPaper.lay(el, t); t += el.matches('.pill, .btn, .tag') ? .1 : .45;
+    }));
+    const talking = c.querySelector('.pill.is-talking'); if (talking) setTimeout(() => InkPaper.talk(talking, true), 2500);
+  }));
+})();
+</script>
+</body>
+</html>

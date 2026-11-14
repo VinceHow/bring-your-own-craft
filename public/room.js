@@ -127,7 +127,7 @@
   const steps = new Map(); // id -> { label, t0 }
   let stepSeq = 0, stepFail = null, stepTick = null;
   const stepEl = document.createElement('div');
-  stepEl.id = 'live-step'; stepEl.className = 'live-step'; stepEl.hidden = true;
+  stepEl.id = 'live-step'; stepEl.className = 'live-step'; stepEl.hidden = true; stepEl.dataset.component = 'live-step'; stepEl.dataset.state = 'done';
   stepEl.setAttribute('aria-live', 'polite');
   function stepBegin(label) {
     const id = ++stepSeq; steps.set(id, { label, t0: Date.now() }); stepFail = null;
@@ -147,17 +147,18 @@
     if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) { stepEl.hidden = true; return; } // her document fills the view
     const now = Date.now();
     // The newest step she is waiting on; quick ones (under 0.8 s) never flash up.
-    const cur = [...steps.values()].filter(s => now - s.t0 > 800).at(-1);
+    // No paperwork in the room: a step shows only when it's slow (over SLOW_MS), as a quiet note offering R; or when it fails.
+    const cur = [...steps.values()].filter(s => now - s.t0 > SLOW_MS).at(-1);
     stepEl.classList.toggle('failed', !!stepFail && !cur);
     if (cur) {
       const ms = now - cur.t0, slow = ms > SLOW_MS;
       stepEl.classList.toggle('slow', slow);
-      stepEl.innerHTML = `<b>${esc(cur.label)}</b> <span>${Math.floor(ms / 1000)} s</span>${slow ? '<em>slow · R replays the rehearsal</em>' : ''}`;
-      stepEl.hidden = false; return;
+      stepEl.innerHTML = `<b data-slot="label">${esc(cur.label)}</b> <em>taking a while · R replays the rehearsal</em>`;
+      stepEl.dataset.state = 'slow'; stepEl.hidden = false; return;
     }
     stepEl.classList.remove('slow');
-    if (stepFail) { stepEl.innerHTML = `<b>${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.hidden = false; return; }
-    stepEl.hidden = true;
+    if (stepFail) { stepEl.innerHTML = `<b data-slot="label">${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.dataset.state = 'failed'; stepEl.hidden = false; return; }
+    stepEl.dataset.state = 'done'; stepEl.hidden = true;
   }
   BYOC.step = { begin: stepBegin, set: stepSet, end: stepEnd, clear: stepClear, get state() {
     return { steps: [...steps.values()].map(s => ({ ...s })), failed: stepFail }; } };
@@ -213,14 +214,25 @@
     if (seat === 'product') {
       // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
       // No stance slot on her card (DEMO: her philosophy is the team's to keep, never shown unless she asks).
-      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span></div>
-        <div class="card-her"><span class="card-who">Priya · your seat</span></div>`;
+      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span></div>
+        <span class="card-character" data-slot="character"></span>
+        <div class="card-her"><span class="card-who" data-slot="who">Priya · your seat</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
+      c.dataset.component = 'her-place-card'; c.dataset.state = 'empty';
+      drawHerCharacter(c);
     } else {
-      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who"><span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span></span></div>
-        <div class="card-stance">${esc(i.stance)}</div>
-        <div class="card-note">Seat open: invite a teammate. Your agents hold it until they arrive.</div>`;
+      c.dataset.component = 'place-card'; c.dataset.state = 'idle'; c.dataset.seat = seat;
+      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span><span class="card-who"><span class="card-agent-name" data-slot="agent">${i.agent}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></span></div>
+        <span class="card-character" data-slot="character"></span>
+        <div class="card-stance" data-slot="stance">${esc(i.stance)}</div>`;
     }
     return c;
+  }
+  // Her character on her seat card: the title and traits she kept (no stance: her philosophy is the team's to keep).
+  function drawHerCharacter(c) {
+    const t = BYOC.herTag; if (!c || !t) return;
+    const ti = c.querySelector('.card-title'), tr = c.querySelector('.card-traits');
+    if (ti) ti.textContent = t.title || ''; if (tr) tr.textContent = (t.traits || []).join(' · ');
+    c.dataset.state = t.title || (t.traits || []).length ? 'named' : 'empty';
   }
   // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
   const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, strategy: 1.8, engineering: 2.6 };
@@ -236,6 +248,7 @@
   function seatCard(seat, animate) {
     const s = el.seat[seat];
     if (s.querySelector('.card')) return;
+    s.dataset.state = seat === 'product' ? 'her' : 'filled';
     const c = makeCard(seat);
     s.appendChild(c); s.classList.add('filled');
     if (seat === 'product') {
@@ -255,8 +268,11 @@
     const t = BYOC.herTag || {};
     const c = h('div', 'card card-diy');
     c.innerHTML = `<div class="card-band">${GLYPH.product}<span class="card-name">${esc(t.craft || 'Your craft')}</span></div>
-      <div class="card-her"><span class="card-who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span></div>`;
-    diySeat.appendChild(c); diySeat.classList.add('filled');
+      <span class="card-character" data-slot="character"></span>
+      <div class="card-her"><span class="card-who" data-slot="who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
+    c.dataset.component = 'her-place-card'; c.dataset.state = 'empty'; c.dataset.seat = 'diy';
+    diySeat.appendChild(c); diySeat.classList.add('filled'); diySeat.dataset.state = 'her';
+    drawHerCharacter(c);
     el.room.dataset.herSeat = 'diy';
     place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, -1] : -1 }, animate);
   }
@@ -269,11 +285,99 @@
   if (diySeat) diySeat.addEventListener('click', takeDiySeat);
   BYOC.takeDiySeat = takeDiySeat;
 
+  const thinking = new Set(); // teammates started but with no proposal yet (teammate.thinking)
+
+  // ---- a teammate's sketchpad, open (seat.open), and her workspace (BYOC.openWorkspace) ----------------
+  // A click on a teammate's card or name opens its sketchpad in full: every call it made, with the choice and what it
+  // followed. A click on her own place card opens her workspace: her character, her idea and journey, what the team
+  // agreed (team space) and her takeaways so far. Structure only; the tray stays the way into each question.
+  const panel = h('section', 'room-panel'); panel.id = 'room-panel'; panel.hidden = true;
+  el.room.appendChild(panel);
+  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
+  function openPanel(component, seat, head, body) {
+    panel.innerHTML = '';
+    panel.dataset.component = component; panel.dataset.state = 'open';
+    if (seat) panel.dataset.seat = seat; else delete panel.dataset.seat;
+    const top = h('header', 'rp-head'); top.dataset.slot = 'head';
+    const t = h('span', 'rp-title'); t.textContent = head; t.dataset.slot = 'title';
+    const x = h('button', 'rp-close', 'Back to the room'); x.type = 'button'; x.dataset.slot = 'close'; x.addEventListener('click', closePanel);
+    top.append(t, x);
+    panel.append(top, body);
+    panel.hidden = false;
+  }
+  function openSketchpad(seat) {
+    if (!INFO[seat] || seat === 'product' || BYOC.beat < 2) return;
+    const i = INFO[seat];
+    const ev = seen;
+    const decided = new Map(); for (const e of ev) if (e.type === 'decided') decided.set(e.id, e);
+    const asked = new Set(ev.filter(e => e.type === 'ask').map(e => e.id));
+    const items = ev.filter(e => e.type === 'candidate' && e.seat === seat);
+    const list = h('ol', 'sp-items'); list.dataset.slot = 'items';
+    for (const c of items) {
+      const d = decided.get(c.id);
+      const li = h('li', 'sp-item'); li.dataset.slot = 'item'; li.dataset.state = asked.has(c.id) ? 'brought' : d ? 'decided' : 'open';
+      const q = h('span', 'sp-decision'); q.textContent = c.decision || ''; q.dataset.slot = 'decision';
+      li.appendChild(q);
+      if (d) { const ch = h('span', 'sp-choice'); ch.textContent = d.choice || ''; ch.dataset.slot = 'choice'; li.appendChild(ch); }
+      else if (asked.has(c.id)) { const ch = h('span', 'sp-choice'); ch.textContent = 'brought to you'; ch.dataset.slot = 'choice'; li.appendChild(ch); }
+      if (c.reason) { const r = h('span', 'sp-reason'); r.textContent = c.reason; r.dataset.slot = 'reason'; li.appendChild(r); }
+      list.appendChild(li);
+    }
+    if (!items.length) { const e = h('p', 'sp-empty'); e.textContent = thinking.has(seat) ? 'Thinking it through.' : 'Nothing on the pad yet.'; e.dataset.slot = 'empty'; list.appendChild(e); }
+    openPanel('sketchpad-open', seat, `${i.agent} · ${i.name}`, list);
+    emit('seat.open', { seat });
+  }
+  BYOC.openSketchpad = openSketchpad;
+  function openWorkspace() {
+    if (BYOC.beat < 1) return;
+    const body = h('div', 'ws-body');
+    const part = (slot, label) => { const p = h('section', 'ws-part'); p.dataset.slot = slot; const l = h('h3', 'ws-label'); l.textContent = label; p.appendChild(l); body.appendChild(p); return p; };
+    // her character card
+    const t = BYOC.herTag || {};
+    const ch = part('character', 'Your character');
+    const ct = h('p', 'ws-title'); ct.textContent = t.title ? `Priya, ${t.title}` : 'Priya'; ch.appendChild(ct);
+    if ((t.traits || []).length) { const tr = h('p', 'ws-traits'); tr.textContent = t.traits.join(' · '); ch.appendChild(tr); }
+    if (t.superpower) { const sp = h('p', 'ws-power'); sp.textContent = t.superpower; ch.appendChild(sp); }
+    // her idea and its journey
+    const id = part('idea', 'Your idea');
+    const it = h('p', 'ws-idea'); it.textContent = el.herIdea.textContent || 'Not said yet.'; id.appendChild(it);
+    const S = BYOC.flow && BYOC.flow._state;
+    if (S && S.nodes.size) { const j = h('p', 'ws-journey'); j.textContent = [...S.nodes.values()].map(n => n.label).join(' → '); j.dataset.slot = 'journey'; id.appendChild(j); }
+    // what the team agreed
+    const ts = part('team-space', 'What the team agreed');
+    const agreed = [...new Map(seen.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()];
+    const tl = h('ul', 'ws-list');
+    for (const a of agreed) { const li = h('li', 'ws-agreed'); li.textContent = a.headline; tl.appendChild(li); }
+    if (!agreed.length) { const li = h('li', 'ws-none'); li.textContent = 'Nothing agreed yet.'; tl.appendChild(li); }
+    ts.appendChild(tl);
+    // her takeaways so far (the latest per question; what she kept wins)
+    const tk = part('takeaways', 'Your takeaways so far');
+    const byAsk = new Map();
+    for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
+    const kl = h('ul', 'ws-list');
+    for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
+    if (!byAsk.size) { const li = h('li', 'ws-none'); li.textContent = 'None yet: they come from your answers.'; kl.appendChild(li); }
+    tk.appendChild(kl);
+    openPanel('workspace', null, 'Your workspace', body);
+    emit('workspace.open', {});
+  }
+  BYOC.openWorkspace = openWorkspace;
+  BYOC.closePanel = closePanel;
+  // Clicks: a teammate's card (or its name) opens its sketchpad; her own place card opens her workspace.
+  el.room.addEventListener('click', e => {
+    const card = e.target.closest('.seat .card'); if (!card) return;
+    const seat = card.closest('.seat').dataset.seat;
+    if (seat === 'product' || seat === 'diy') { if (BYOC.beat >= 3) openWorkspace(); }
+    else openSketchpad(seat);
+  });
+  BYOC.on('reset', closePanel);
+
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
     const sh = el.seatSheet[seat];
-    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec' : INFO[seat].name}</span>
-      <span class="mini-step">waiting</span></div><ul class="mini-lines"></ul><div class="mini-more"></div>`;
+    sh.innerHTML = `<div class="mini-head" data-slot="head"><i></i><span class="mini-title" data-slot="title">${seat === 'product' ? 'Product · spec' : INFO[seat].name}</span>
+      <span class="mini-step" data-slot="step"></span></div><ul class="mini-lines" data-slot="lines"></ul><div class="mini-more" data-slot="more"></div>`;
+    sh.dataset.component = 'sketchpad'; sh.dataset.state = 'waiting';
     sh._items = new Map(); sh._count = 0;
   }
   function sheetShow(seat, animate) {
@@ -283,10 +387,14 @@
     const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, strategy: -0.6, engineering: -1.1 }[seat];
     place(sh, { y: animate ? [-40, 0] : 0, rotate: tilt, opacity: animate ? [0, 1] : 1 }, animate);
   }
-  function sheetStep(seat, text) {
+  // A sketchpad's state (waiting · working · done · error) is on data-state; its head shows no counts or timings.
+  function sheetStep(seat, text, state) {
     const sh = el.seatSheet[seat]; if (!sh) return;
     if (sh.hidden) sheetShow(seat, !instantMode);
-    $('.mini-step', sh).textContent = text;
+    $('.mini-step', sh).textContent = text || '';
+    if (state) sh.dataset.state = state;
+    const card = el.seat[seat] && el.seat[seat].querySelector('.card');
+    if (card && seat !== 'product' && state) card.dataset.state = state; // thinking · working · done · error
   }
   const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, strategy: 6, engineering: 6 };
   function sheetAdd(seat, id, text) {
@@ -334,17 +442,6 @@
     el.herFlow.appendChild(d);
     if (!instantMode) place(d, { x: [-18, 0], opacity: [0, 1] }, true);
   }
-  // An ask lands in her work: piece 2 draws it on the flow; until then, a sticky note on her sheet.
-  function drawAsk(ask) {
-    if (BYOC.flow && typeof BYOC.flow.showAsk === 'function') return; // piece 2 shows asks from its own 'ask' listener
-    const n = h('div', 'note');
-    n.innerHTML = `<b>${ask.kind === 'fork' ? 'fork' : 'pin'}${ask.attachTo ? ' on ' + esc(ask.attachTo) : ''} · ${esc(ask.seat)}</b>
-      ${esc(ask.decision)}<span class="rec">recommend: ${esc(ask.recommendation)}</span>`;
-    el.herNotes.appendChild(n);
-    const tilt = [-1.5, 1.2, -0.8][el.herNotes.children.length % 3];
-    place(n, { y: instantMode ? 0 : [-30, 0], x: instantMode ? 0 : [24, 0], rotate: tilt }, !instantMode);
-  }
-
   async function startRun(idea) {
     setIdea(idea);
     setInputMode('line');
@@ -539,7 +636,7 @@
   function tallySource(s) { el.tally.dataset.source = s; }
   function showTally(animate) {
     if (!el.tally.hidden) return;
-    el.tally.hidden = false;
+    el.tally.hidden = false; el.tally.dataset.state = 'counting';
     renderTally(tallyFromEvents(seen));
     place(el.tally, { x: animate ? [60, 0] : 0, rotate: 0.8, opacity: animate ? [0, 1] : 1 }, animate);
   }
@@ -641,7 +738,7 @@
   // The tray: a small stack of notes at the edge of her seat, each in its teammate's ink: "Noor · Research" and a few
   // words of the question. The top note is the team's suggestion; she picks which to open. Notes slide in only at a
   // natural pause, about 1 s after it, never while she's typing or speaking. No number, no red, no pulse.
-  const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true;
+  const tray = h('aside', 'tray'); tray.id = 'tray'; tray.hidden = true; tray.dataset.component = 'tray'; tray.dataset.state = 'empty';
   tray.setAttribute('aria-label', 'Notes from your team');
   el.room.appendChild(tray);
   let trayTimer = null;
@@ -651,15 +748,16 @@
     const w = BYOC.focus.waiting;
     const show = !BYOC.focus.open && w.length > 0 && BYOC.beat >= 5 && BYOC.beat < 8;
     clearTimeout(trayTimer);
-    if (!show) { tray.hidden = true; return; }
+    if (!show) { tray.hidden = true; tray.dataset.state = 'empty'; return; }
     const ids = w.map(n => n.id).join(',');
     if (!tray.hidden && tray.dataset.ids === ids) return;
     trayTimer = setTimeout(function slideIn() {
       if (isTypingNow()) { trayTimer = setTimeout(slideIn, 500); return; }
       if (BYOC.focus.open) return;
       tray.dataset.ids = ids;
-      tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
-        <span class="tray-seat">${esc(who(n))}</span><span class="tray-text">${esc(fewWords(n.question))}</span></button>`).join('');
+      tray.innerHTML = w.map((n, i) => `<button type="button" class="tray-note${i ? '' : ' tray-top'}" data-component="tray-note" data-state="${i ? 'waiting' : 'top'}" data-ask="${esc(n.id)}" data-seat="${esc(n.seat)}">
+        <span class="tray-seat" data-slot="seat">${esc(who(n))}</span><span class="tray-text" data-slot="text">${esc(fewWords(n.question))}</span></button>`).join('');
+      tray.dataset.state = 'waiting';
       const was = tray.hidden; tray.hidden = false;
       if (was && !instantMode) place(tray, { y: [24, 0], opacity: [0, 1] }, true);
     }, instantMode || BYOC.replay ? 0 : 1000);
@@ -671,19 +769,21 @@
   // ---- the room's chatter (DEMO focus rules): the team talking about its own work, never to her ----------
   // chatter { by, seat, text } events (written by the server from real run events). Each line shows a few seconds
   // under its speaker's card; at most three at once. Her document covers the room, so she never sees it while focused.
-  const chatter = h('div', 'chatter'); chatter.setAttribute('aria-hidden', 'true');
+  const chatter = h('div', 'chatter'); chatter.setAttribute('aria-hidden', 'true'); chatter.dataset.component = 'chatter';
   el.room.appendChild(chatter);
   function chat(ev) {
     const s = el.seat[ev.seat]; if (!s || !ev.text) return;
-    const line = h('div', 'chatter-line'); line.dataset.seat = ev.seat;
-    line.appendChild(h('span', 'chatter-who', `${ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name}: `));
-    line.appendChild(h('span', 'chatter-text', ev.text));
+    const line = h('div', 'chatter-line'); line.dataset.seat = ev.seat; line.dataset.component = 'chatter-line'; line.dataset.state = 'in';
+    const cw = h('span', 'chatter-who'); cw.textContent = `${ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name}: `; cw.dataset.slot = 'who';
+    const ct = h('span', 'chatter-text'); ct.textContent = ev.text; ct.dataset.slot = 'text';
+    line.append(cw, ct);
     line.style.left = (s.offsetLeft + 12) + 'px';
     line.style.top = (s.offsetTop + s.offsetHeight - 6) + 'px';
     chatter.querySelectorAll(`.chatter-line[data-seat="${ev.seat}"]`).forEach(o => o.remove());
     chatter.appendChild(line);
     while (chatter.children.length > 3) chatter.firstChild.remove();
     if (!instantMode) place(line, { y: [-8, 0], opacity: [0, 1] }, true);
+    setTimeout(() => { line.dataset.state = 'leaving'; }, 4200);
     setTimeout(() => { if (line.isConnected) line.remove(); }, 4500);
   }
   BYOC.chat = chat;
@@ -736,7 +836,8 @@
     finally { buildReq = null; }
   };
   const pageSheet = h('section', 'page-sheet'); pageSheet.id = 'page-sheet'; pageSheet.hidden = true;
-  pageSheet.innerHTML = '<div class="page-head"><span class="page-title">Your page</span><span class="page-url" id="page-url"></span></div><div class="page-frame"><iframe id="page-iframe" title="Your page" loading="eager"></iframe></div>';
+  pageSheet.innerHTML = '<div class="page-head" data-slot="head"><span class="page-title" data-slot="title">Your page</span><span class="page-url" id="page-url" data-slot="url"></span></div><div class="page-frame" data-component="page-frame" data-state="building"><iframe id="page-iframe" data-slot="frame" title="Your page" loading="eager"></iframe></div>';
+  const setPageState = st => { const f = pageSheet.querySelector('.page-frame'); if (f) f.dataset.state = st; };
   el.room.appendChild(pageSheet);
   BYOC.el.pageSheet = pageSheet;
   function pageUrl() {
@@ -770,6 +871,7 @@
     }
     seen.push(ev);
     try { react(ev, source); } catch (e) { console.error('room', ev.type, e); }
+    if (ev.mode === 'craft' || ev.mode === 'stamp') refreshTally(); // the meter counts every craft or stamp event, whatever its type
     emit(ev.type, ev);
   }
   function flushPending() { const p = pending; pending = []; for (const ev of p) if (ev.run === BYOC.run) dispatch(ev, 'live'); }
@@ -800,15 +902,18 @@
         break;
       case 'teammate.start':
         if (BYOC.beat < 5) stage(5);
-        sheetStep(ev.seat, 'working: proposing');
+        sheetStep(ev.seat, '', 'thinking');
+        thinking.add(ev.seat);
+        emit('teammate.thinking', { seat: ev.seat }); // a room event (BYOC.on): from its start until its first proposal
         break;
       case 'candidate':
         if (BYOC.beat < 5) stage(5);
+        if (thinking.delete(ev.seat)) sheetStep(ev.seat, '', 'working');
         sheetAdd(ev.seat, ev.id, ev.decision);
         refreshTally();
         break;
       case 'teammate.done':
-        sheetStep(ev.seat, `${ev.count ?? ''} proposed${ev.ms ? ' · ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        sheetStep(ev.seat, '', 'done'); // no paperwork in the room: no counts or seconds on the sheet heads
         if (source === 'live') teamProgress();
         break;
       case 'select.done':
@@ -852,7 +957,7 @@
         chat(ev);
         break;
       case 'teammate.error':
-        sheetStep(ev.seat, 'stopped: model error');
+        sheetStep(ev.seat, '', 'error');
         if (source === 'live') teamProgress();
         break;
       case 'propose.error':
@@ -861,12 +966,12 @@
         break;
       case 'build.step':
         if (BYOC.beat < 8) stage(8);
-        if (/^Build failed/.test(ev.step || '')) { sheetStep('engineering', 'stopped'); if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; } break; }
-        sheetStep('engineering', `building: ${ev.step}`);
+        if (/^Build failed/.test(ev.step || '')) { sheetStep('engineering', '', 'error'); if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; } setPageState('error'); break; }
+        sheetStep('engineering', '', 'working'); setPageState('building');
         if (source === 'live') { if (!buildStep) buildStep = stepBegin('Engineering is building'); stepSet(buildStep, `Engineering is building: ${ev.step}`); }
         break;
       case 'build.done':
-        sheetStep('engineering', `built${ev.ms ? ' in ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        sheetStep('engineering', '', 'done'); setPageState('built');
         if (buildStep) { stepEnd(buildStep); buildStep = null; }
         setTimeout(() => { if (BYOC.beat < 9) stage(9, { instant: instantMode }); else showPage(!instantMode); }, instantMode ? 0 : 600);
         break;
@@ -893,6 +998,7 @@
   function bigCard(seat) {
     const i = INFO[seat];
     const c = h('div', 'big-card'); c.dataset.seat = seat;
+    if (seat !== 'product') { c.dataset.component = 'teammate-card'; c.dataset.state = 'arriving'; }
     const loves = seat === 'product'
       ? `<span class="bc-love-start">I love</span><textarea class="bc-love-input" id="intro-input" rows="2" spellcheck="false" maxlength="160" placeholder="…" aria-label="I love…"></textarea>`
       : `“${esc(i.loves)}”`;
@@ -923,7 +1029,9 @@
         if (assembleSkip) { seatCard(s, false); continue; }
         const c = bigCard(s);
         await Promise.resolve(place(c, { y: [260, 0], scale: [0.6, 1], rotate: [4, TILT[s] * 0.5] }, true)).catch(() => {});
+        c.dataset.state = 'holding';
         await holdFor(HOLD_MS);
+        c.dataset.state = 'seating';
         if (tok !== walkToken) { c.remove(); return; }
         await flyToSeat(c, s, !assembleSkip);
       }
@@ -940,16 +1048,51 @@
     place(introCard, { y: [300, 0], scale: [0.6, 1], rotate: [-3, -0.6] }, true);
     const inp = $('#intro-input', introCard);
     inp.value = BYOC.intro ? String(BYOC.intro).replace(/^i love\s*/i, '') : '';
+    introCard.dataset.component = 'character-card'; introCard.dataset.state = 'asking';
+    inp.dataset.slot = 'input';
     inp.addEventListener('keydown', ev => {
       if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); introDone(); }
     });
     setTimeout(() => inp.focus(), 30);
   }
+  // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
+  // traits, maybe a superpower, each swappable with a click (builder 6's POST /api/name-tag, as on the craft seat).
+  async function makeCharacter(c, said) {
+    c.dataset.state = 'thinking';
+    let r = null;
+    try { r = await BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }); } catch { r = null; }
+    if (introCard !== c) return;
+    const cur = { craft: 'Product', title: r?.title || '', traits: Array.isArray(r?.traits) ? r.traits.slice(0, 3) : [], superpower: r?.superpower || '',
+      loves: said, alternates: { titles: [], traits: [], superpowers: [], ...(r?.alternates || {}) } };
+    c._char = cur;
+    const body = h('div', 'char-body'); body.dataset.slot = 'character';
+    const swap = (pool, value) => { const next = cur.alternates[pool] && cur.alternates[pool].shift(); if (next) cur.alternates[pool].push(value); return next || value; };
+    const title = h('div', 'char-who', `<span class="char-name">Priya</span>${cur.title ? `, <button type="button" class="char-title" data-slot="title">${esc(cur.title)}</button>` : ''}`);
+    const traits = h('ul', 'char-traits'); traits.dataset.slot = 'traits';
+    const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
+    drawTraits();
+    const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
+    const hint = h('div', 'char-hint', 'The team’s read of you · click any piece to swap it · Enter: take the seat'); hint.dataset.slot = 'hint';
+    title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
+    traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
+    if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
+    body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
+    c.appendChild(body);
+    c.dataset.state = 'shown';
+    c.tabIndex = -1; c.focus(); // Enter or the clicker takes the seat
+    c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
+  }
   // Her line is kept (sent as intro with the run; it becomes L1 of her file), and her card settles into her seat.
   async function introDone() {
     if (!introCard) return;
+    const c0 = introCard;
+    const said0 = $('#intro-input', c0).value.trim();
+    // First Enter with her sentence: the team writes her character card. The next Enter takes the seat.
+    if (said0 && c0.dataset.state === 'asking') { $('#intro-input', c0).readOnly = true; return makeCharacter(c0, said0); }
+    if (c0.dataset.state === 'thinking') return;
     const c = introCard; introCard = null;
     const said = $('#intro-input', c).value.trim();
+    if (c._char) BYOC.herTag = { ...c._char, alternates: undefined };
     BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
     $('#intro-input', c).blur();
     const tok = walkToken;
@@ -958,11 +1101,12 @@
     const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
     await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT.product }, !instantMode)).catch(() => {});
     c.remove();
-    const prod = s.querySelector('.card'); if (prod) prod.style.visibility = '';
+    const prod = s.querySelector('.card'); if (prod) { prod.style.visibility = ''; drawHerCharacter(prod); }
     emit('intro', { intro: BYOC.intro });
     if (tok === walkToken && BYOC.beat === 2) stage(3);
   }
   BYOC.introOpen = () => !!introCard;
+  BYOC.introShown = () => !!introCard && introCard.dataset.state === 'shown';
   BYOC.introDone = introDone;
   // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
   BYOC.typeInto = function (text) {
@@ -989,7 +1133,7 @@
         await assemble(animate, tok);
         break;
       case 3:
-        el.herSheet.hidden = false; el.fileCard.hidden = false;
+        el.herSheet.hidden = false; // her file (taste.md) stays off screen: her philosophy is the team's to keep
         place(el.herSheet, { y: animate ? [80, 0] : 0, rotate: animate ? [1.5, 0] : 0 }, animate);
         place(el.fileCard, { x: animate ? [-80, 0] : 0, rotate: -1, opacity: animate ? [0, 1] : 1 }, animate);
         if (!el.herIdea.textContent) setInputMode('idea');
@@ -1049,16 +1193,16 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
-    if (diySeat) { diySeat.querySelector('.card')?.remove(); diySeat.classList.remove('filled'); } delete el.room.dataset.herSeat;
-    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
+    if (diySeat) { diySeat.querySelector('.card')?.remove(); diySeat.classList.remove('filled'); diySeat.dataset.state = 'empty'; } delete el.room.dataset.herSeat;
+    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {
-      el.seat[s].classList.remove('filled');
+      el.seat[s].classList.remove('filled'); el.seat[s].dataset.state = 'empty';
       el.seat[s].querySelector('.card')?.remove();
       el.seatSheet[s].hidden = true; el.seatSheet[s].innerHTML = '';
     }
-    el.herSheet.hidden = true; el.fileCard.hidden = true; el.tally.hidden = true;
+    el.herSheet.hidden = true; el.fileCard.hidden = true; el.tally.hidden = true; el.tally.dataset.state = 'hidden';
     el.herSheet.classList.remove('big');
     setIdea(''); el.herNotes.innerHTML = ''; el.herInput.value = ''; inputMode = 'off'; el.herForm.hidden = true;
     el.herFlow.innerHTML = ''; flowMounted = false; mountFlow();

@@ -184,3 +184,77 @@ test('a decision her file already decides is hers: never talked out by the team'
   assert.ok(!out.some(a => a.candidateId === 'c2'));
   assert.deepEqual(out.map(a => a.candidateId).sort(), ['c1', 'c5']);
 });
+
+// ---- at Build: her takeaways revisit what the team agreed before she spoke ----
+const FORM = { id: 'c24', seat: 'engineering', decision: 'What the order form asks for', options: ['Name, email and optional phone', 'Name and email only'],
+  recommendation: 'Name, email and optional phone', reason: 'r', cost: 'high', undoable: true, attachTo: null, seats: ['engineering', 'design'] };
+function agreedRun({ takeaway = true, mapped = null } = {}) {
+  const run = newRunId(`jr-${Math.random().toString(36).slice(2, 8)}`);
+  initTaste(run);
+  logEvent(run, 'run.start', { idea: 'A website for a small bakery, so customers can order bread ahead.', seat: 'product' });
+  logEvent(run, 'candidate', FORM);
+  logEvent(run, 'joint.agreed', { id: 'j-c24', candidateId: 'c24', headline: 'Name, email and an optional phone.', seats: ['engineering', 'design'], withTakeaways: false, turns: [], choice: FORM.options[0] });
+  logEvent(run, 'decided', { id: 'c24', seat: 'engineering', decision: FORM.decision, choice: FORM.options[0], cites: 'team', round: 'joint', jointId: 'j-c24' });
+  if (takeaway) logEvent(run, 'taste.written', { mode: 'craft', id: 'L5', text: 'Never ask for anything you could remember or skip.', askId: 'a3' });
+  if (mapped) logEvent(run, 'answer.mapped', { askId: 'a1', decisions: [{ id: 'c24', seat: 'engineering', decision: FORM.decision, choice: mapped }] });
+  return run;
+}
+
+test('a takeaway that touches a joint agreement changes it at Build, and its card says so', async () => {
+  const run = agreedRun();
+  let asked = null;
+  const out = await J.revisitJoint(run, { decide: async cands => { asked = cands.map(c => c.id); return { decided: [{ id: 'c24', choice: 'Name and email only', cites: 'L5' }] }; } });
+  assert.deepEqual(asked, ['c24']);
+  assert.deepEqual(out.map(d => [d.id, d.choice, d.cites]), [['c24', 'Name and email only', 'L5']]);
+  const evs = readEvents(run);
+  const rev = evs.find(e => e.type === 'joint.revised');
+  assert.deepEqual([rev.id, rev.withTakeaways, rev.headline, rev.was], ['j-c24', true, 'Name and email only.', FORM.options[0]]);
+  const d = evs.findLast(e => e.type === 'decided' && e.id === 'c24');
+  assert.deepEqual([d.choice, d.cites, d.round], ['Name and email only', 'L5', 'build']);
+});
+
+test('joint agreements she didn\'t touch stay as agreed', async () => {
+  // no takeaways yet: nothing is re-decided at all
+  let called = false;
+  const out = await J.revisitJoint(agreedRun({ takeaway: false }), { decide: async () => { called = true; return { decided: [] }; } });
+  assert.equal(called, false);
+  assert.equal(out[0].choice, FORM.options[0]);
+  // a re-decision that doesn't rest on her takeaways (team default, or the same choice) leaves the agreement alone
+  for (const x of [{ id: 'c24', choice: 'Name and email only', cites: 'team default' }, { id: 'c24', choice: FORM.options[0], cites: 'L5' }]) {
+    const run = agreedRun();
+    const r = await J.revisitJoint(run, { decide: async () => ({ decided: [x] }) });
+    assert.equal(r[0].choice, FORM.options[0]);
+    assert.ok(!readEvents(run).some(e => e.type === 'joint.revised'));
+  }
+  // a failing call keeps the agreements
+  const r = await J.revisitJoint(agreedRun(), { decide: async () => { throw new Error('model down'); } });
+  assert.equal(r[0].choice, FORM.options[0]);
+});
+
+test('a joint decision she settled herself in a focus moment is hers', async () => {
+  const run = agreedRun({ mapped: 'Name and email only' });
+  let called = false;
+  const out = await J.revisitJoint(run, { decide: async () => { called = true; return { decided: [] }; } });
+  assert.equal(called, false);
+  assert.deepEqual([out[0].choice, out[0].cites], ['Name and email only', 'her answer']);
+  assert.ok(readEvents(run).some(e => e.type === 'joint.revised' && e.withTakeaways));
+});
+
+test('the build: her takeaway "never ask for anything you could remember or skip" turns the phone field off', async () => {
+  const { buildRun, _setDecideRest, _setDecideCore, _setDeal } = await import('../routes/build.js');
+  const { loadTemplate } = await import('../lib/fill.js');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const run = agreedRun();
+  const tpl = loadTemplate('bakery');
+  _setDecideRest(async () => []);
+  _setDeal(async () => ({ skipped: 'test' }));
+  _setDecideCore(async () => ({ decided: [{ id: 'c24', choice: 'Name and email only', cites: 'L5' }] }));
+  try {
+    // the fill's model keeps the phone on; the team's revised agreement must win
+    await buildRun(run, { call: async () => ({ words: tpl.defaults.words, steps: tpl.defaults.steps, switches: { ...tpl.defaults.switches, phone: true }, decidedShown: [] }) });
+  } finally { _setDecideRest(null); _setDecideCore(null); _setDeal(null); }
+  const html = fs.readFileSync(path.join(process.env.RUNS_DIR, run, 'page', 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /type="tel"/);
+  assert.ok(readEvents(run).some(e => e.type === 'joint.revised'));
+});
