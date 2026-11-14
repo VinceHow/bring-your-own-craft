@@ -1,7 +1,11 @@
 # Decisions log (feeds BUILT-THIS-WAY.md)
 
 Who decided what, as it happened. "Vincent" = his own words or his lead session relaying them; "agents" = the build
-lead or a builder deciding for him. Only what actually happened.
+lead or a builder deciding for him. Only what actually happened. Times are UTC.
+
+**Timestamps corrected (Sat ~20:30):** from about 12:35 to 16:00 the rows were written about 1 h ahead of the real
+clock. Each was checked against the git commit that logged it: a row stamped later than that commit now carries the
+real time (its stamp minus 1 h, or the commit's time if earlier), and the rows are back in order. 20 rows changed.
 
 | When | Who | Decision | Why |
 |---|---|---|---|
@@ -23,7 +27,7 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:24 | agents (reviewer) | Blocked build/room on a rolling-digit race (meter showed 99 vs 90) | demonstrated break |
 | Sat 12:25 | agents (builder 3 → lead) | The 2:30 "decided for you" item is "does cancel ask for a reason?" (re-decided by her new line), not cancellation itself | the selector asks about cancellation in every yoga run; the ranking is not forced to fit the script |
 | Sat 12:25 | agents (lead) | Run ids get a random suffix | same-millisecond ids collided in builder 3's tests |
-| Sat 12:35 | Vincent → agents (lead) | Use ECC only by cherry-pick: 4 skills taken, 2 agents skipped, no hooks | wholesale install changes every session mid-build |
+| Sat 12:25 | Vincent → agents (lead) | Use ECC only by cherry-pick: 4 skills taken, 2 agents skipped, no hooks | wholesale install changes every session mid-build |
 | Sat 12:28 | Vincent | Saved the fal key himself in the environment settings | the secure form kept rejecting it |
 | Sat 12:29 | agents (lead) | fal still 401 in the lead session; test from a new session | docs: a new session picks up a saved secret |
 | Sat 12:30 | Vincent → agents (lead) | Builders as visible sessions: in-flight subagents finish their task first, then all new work as sessions | handover >15 min would risk 20:00 |
@@ -37,25 +41,25 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:37 | agents (reviewer) | Blocked build/docs on two not-yet-true claims (taste-skill vendored, recorded runs) | honesty rule |
 | Sat 12:38 | agents (polish builder → lead) | Fixed flow boxes landing at scale(0) | found in Playwright with motion loaded |
 | Sat 12:39 | Vincent | MongoDB dropped; Linkup stays (key if he adds it); ElevenLabs optional | plain-text secret not worth a voucher |
-| Sat 13:00 | agents (lead) | Checkpoints are branches `demo/<name>` (also tagged locally): the git proxy drops tag pushes | demo-1 = beats 0:00–2:05 live, e2e 9/10 |
-| Sat 13:46 | Vincent (via lead) | Near weekly usage limit: ≤3 builders at once, cheaper model for reviews, minimal real-model e2e runs | if the limit hits, every session stops overnight |
-| Sat 13:47 | Vincent | Usage limits lifted: "all fine, I'm on ultra"; run builders and models as needed | |
-| Sat 13:50 | Vincent | Merged .claude/settings.json: all Figma tools and read-only fal tools allowed without prompts; fal generation (run_model, submit_job) still prompts | builders shouldn't stall overnight |
-| Sat 13:55 | agents (lead) | One e2e failure after the polish merge diagnosed as the test server being killed mid-run (run stopped 1 s after teammate.start, no error logged); 2 reruns on the same commit green 9/10; builders told to kill only their own PIDs | diagnosis before patch |
-| Sat 13:57 | Vincent | Question rationing to be redesigned with the PO; existing cap code stays for now, nothing new depends on exactly 3 | "a more tasteful way rather than hard fixing that in code" |
-| Sat 14:00 | Vincent + PO, lead OK'd | Sixth seat Strategy (gold #BB8B41), she clicks her seat, 'assembling the team' walk-in; CONTRACT.md seats updated | worth ~1 h; we're ahead |
-| Sat 14:05 | agents (lead) | Her card's 'I love…' line: optional `intro` on POST /api/run becomes L1 (her words), one prepared seed line stays as L2 | smallest seam; keeps her new line at L3 |
-| Sat 14:10 | agents (lead) | demo-2: whole yoga script end to end on main, e2e 10/10, build beat 24.7 s; beats merge held back (5 e2e failures with polish.css on main), sent back to fix | main stays demoable |
-| Sat 14:18 | agents (lead) | Browser-closed e2e failures traced to builder 4's headless café session running `pkill -f chrome` before each gate run; stopped. Beats + strategy merges pushed only after a clean 15/15 e2e | diagnosis before patch |
-| Sat 14:25 | Vincent (via PO) | Voice (ElevenLabs STT, push-to-talk) is core for her intro and idea; typed fallback always | |
-| Sat 14:25 | agents (lead) | Her open ask zooms to readable size (≥18 px at 1280) rather than trimming the selector's words | 13 px was too small on stage |
-| Sat 14:32 | agents (lead) | demo-3: both templates gate-passing (yoga 2 waivers, café 1), café build 12 s, all core pieces on main; npm test 61, e2e 15/15 | |
-| Sat 14:58 | agents (lead) | Studio version accepted and priced (~6–7 builder-hours, 3 in parallel, ~3 h wall clock); gem starts as ink bars, upgraded if time; CONTRACT.md seams for sketch/reshape/flow/lean/gem | fits 20:00 rough demo and 00:00 core |
-| Sat 15:02 | agents (lead) | Guest chair accepted (~1 h, builder 6); citable as G-points like L-lines | fits 0:45–1:05 beat |
-| Sat 15:28 | agents (lead) | The bar (po/tray): new selector score 'expertise'; a question reaches her only if it changes the build AND needs her expertise; ceiling of 3 and its test unchanged. Real yoga run: 3 brought (full class/waitlist, account, Book your usual), 21 decided | docs/dry-runs/bar-yoga-1.md |
-| Sat 15:45 | agents (lead) | Close fast path: 2 candidates per seat (10.8 s) instead of 3 (18.9 s) | 'within seconds' |
-| Sat 15:55 | agents (lead) | po/questions accepted: ~9–10 builder-hours over 4 builders (~3–3.5 h); new path lands ~19:30; 20:00 rough demo may mix old and new; core 00:00 safe. New builder 7 for the question bar + Ask shape | |
-| Sat 15:57 | agents (lead) | po/questions split: builder 7 (new) question bar + Ask shape; builder 6 tag/profile/interpret/chatter (DIY 'inCraft' replaced by the question bar); beats two states + document + e2e; polish the document | |
+| Sat 12:44 | agents (lead) | Checkpoints are branches `demo/<name>` (also tagged locally): the git proxy drops tag pushes | demo-1 = beats 0:00–2:05 live, e2e 9/10 |
+| Sat 12:46 | Vincent (via lead) | Near weekly usage limit: ≤3 builders at once, cheaper model for reviews, minimal real-model e2e runs | if the limit hits, every session stops overnight |
+| Sat 12:46 | Vincent | Usage limits lifted: "all fine, I'm on ultra"; run builders and models as needed | |
+| Sat 12:50 | Vincent | Merged .claude/settings.json: all Figma tools and read-only fal tools allowed without prompts; fal generation (run_model, submit_job) still prompts | builders shouldn't stall overnight |
+| Sat 12:54 | agents (lead) | One e2e failure after the polish merge diagnosed as the test server being killed mid-run (run stopped 1 s after teammate.start, no error logged); 2 reruns on the same commit green 9/10; builders told to kill only their own PIDs | diagnosis before patch |
+| Sat 12:57 | Vincent | Question rationing to be redesigned with the PO; existing cap code stays for now, nothing new depends on exactly 3 | "a more tasteful way rather than hard fixing that in code" |
+| Sat 13:00 | Vincent + PO, lead OK'd | Sixth seat Strategy (gold #BB8B41), she clicks her seat, 'assembling the team' walk-in; CONTRACT.md seats updated | worth ~1 h; we're ahead |
+| Sat 13:03 | agents (lead) | Her card's 'I love…' line: optional `intro` on POST /api/run becomes L1 (her words), one prepared seed line stays as L2 | smallest seam; keeps her new line at L3 |
+| Sat 13:10 | agents (lead) | demo-2: whole yoga script end to end on main, e2e 10/10, build beat 24.7 s; beats merge held back (5 e2e failures with polish.css on main), sent back to fix | main stays demoable |
+| Sat 13:18 | agents (lead) | Browser-closed e2e failures traced to builder 4's headless café session running `pkill -f chrome` before each gate run; stopped. Beats + strategy merges pushed only after a clean 15/15 e2e | diagnosis before patch |
+| Sat 13:25 | Vincent (via PO) | Voice (ElevenLabs STT, push-to-talk) is core for her intro and idea; typed fallback always | |
+| Sat 13:25 | agents (lead) | Her open ask zooms to readable size (≥18 px at 1280) rather than trimming the selector's words | 13 px was too small on stage |
+| Sat 13:31 | agents (lead) | demo-3: both templates gate-passing (yoga 2 waivers, café 1), café build 12 s, all core pieces on main; npm test 61, e2e 15/15 | |
+| Sat 13:56 | agents (lead) | Studio version accepted and priced (~6–7 builder-hours, 3 in parallel, ~3 h wall clock); gem starts as ink bars, upgraded if time; CONTRACT.md seams for sketch/reshape/flow/lean/gem | fits 20:00 rough demo and 00:00 core |
+| Sat 14:01 | agents (lead) | Guest chair accepted (~1 h, builder 6); citable as G-points like L-lines | fits 0:45–1:05 beat |
+| Sat 14:28 | agents (lead) | The bar (po/tray): new selector score 'expertise'; a question reaches her only if it changes the build AND needs her expertise; ceiling of 3 and its test unchanged. Real yoga run: 3 brought (full class/waitlist, account, Book your usual), 21 decided | docs/dry-runs/bar-yoga-1.md |
+| Sat 14:45 | agents (lead) | Close fast path: 2 candidates per seat (10.8 s) instead of 3 (18.9 s) | 'within seconds' |
+| Sat 14:51 | agents (lead) | po/questions accepted: ~9–10 builder-hours over 4 builders (~3–3.5 h); new path lands ~19:30; 20:00 rough demo may mix old and new; core 00:00 safe. New builder 7 for the question bar + Ask shape | |
+| Sat 14:51 | agents (lead) | po/questions split: builder 7 (new) question bar + Ask shape; builder 6 tag/profile/interpret/chatter (DIY 'inCraft' replaced by the question bar); beats two states + document + e2e; polish the document | |
 | Sat 15:15 | agents (lead) | Status strip shows only when slow (pencil note); per-sheet '4 proposed · 7.1s' removed (no paperwork). Builder 6 may read answer.mapped in lib/fill.js gatherRun | |
 | Sat 15:40 | agents (lead) | po/team-space accepted (~3 builder-h; new builder 8 after builder 6's thread engine lands); per-teammate headless calls, not session-to-session messaging | real and fast on a laptop |
 | Sat 15:50 | agents (lead) | One e2e close timeout (90 s, a stalled model call) after a CSS-only merge; reruns green (first check-in 17.8 s). Stage risk noted; builder 7 is cutting close latency | |
@@ -64,3 +68,6 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 16:30 | Vincent (via lead) | Builders build a skeleton only; visuals only through the design studio's CSS looks. Polish writes docs/COMPONENTS.md + /gallery (ETA ~18:30); look loader on main | design and build in parallel |
 | Sat 16:45 | agents (lead) | A build failed with 'You've hit your weekly limit · resets Nov 15, 9pm (UTC)' from the Claude Code backend; all three models answered normally minutes later; studio e2e rerun green. Raised to Vincent as the top demo risk; fal (second backend) needs a working key | real blocker risk |
 | Sat 17:55 | agents (lead) | ElevenLabs key saved by Vincent (secure form) and verified: speech-to-text 200 in ~0.3 s direct, ~0.6 s through our route. Fixes: Node fetch ignored the proxy (server re-runs itself with NODE_USE_ENV_PROXY=1 when behind one); the probe treated a speech-only key as no voice; the no-key e2e now makes its own no-key server | voice is live |
+| Sat 19:21 | agents (lead) | fal key fixed; the fal/OpenRouter backend works and is tested: 9/9 schema-valid against Claude Code (3 real calls per step) | the key had been refused all day; now it isn't |
+| Sat 19:21 | agents (lead) | Demo teammates stay on Claude Code; fal is the fallback (`MODEL_BACKEND=fal`) | fal is slower: the team works in about 33 s on fal against about 20 s on Claude Code |
+| Sat 19:21 | agents (lead) | fal flux/schnell planned for the bakery site's brand images | timed at a median 2.2 s and about 0.3¢ an image |

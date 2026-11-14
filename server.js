@@ -31,13 +31,34 @@ for (const f of fs.readdirSync(path.join(ROOT, 'routes')).filter(f => f.endsWith
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf',
-  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.md': 'text/plain; charset=utf-8' };
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.md': 'text/plain; charset=utf-8',
+  '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav',
+  '.gif': 'image/gif', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8' };
 
-function serveFile(res, file) {
-  fs.readFile(file, (err, buf) => {
-    if (err) { res.writeHead(404); return res.end('not found'); }
-    res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' });
-    res.end(buf);
+// Static files answer HTTP Range requests (bytes=a-b, a-, -n), so <video> can seek and Safari plays mp4: 206 with
+// Content-Range, 416 for a range past the end, a plain 200 otherwise (multi-range too). Accept-Ranges on every one.
+export function parseRange(header, size) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(String(header || '').trim());
+  if (!m || (m[1] === '' && m[2] === '')) return null; // none, malformed or multi-range: the whole file
+  let start, end;
+  if (m[1] === '') { const n = Number(m[2]); if (n === 0) return 'unsatisfiable'; start = Math.max(0, size - n); end = size - 1; }
+  else { start = Number(m[1]); end = m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1); }
+  if (start >= size || start > end) return 'unsatisfiable';
+  return { start, end };
+}
+function serveFile(req, res, file) {
+  fs.stat(file, (err, st) => {
+    if (err || !st.isFile()) { res.writeHead(404); return res.end('not found'); }
+    const head = { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Accept-Ranges': 'bytes' };
+    const r = req.headers.range ? parseRange(req.headers.range, st.size) : null;
+    if (r === 'unsatisfiable') { res.writeHead(416, { ...head, 'Content-Range': `bytes */${st.size}` }); return res.end(); }
+    const { start, end } = r || { start: 0, end: st.size - 1 };
+    res.writeHead(r ? 206 : 200, { ...head, 'Content-Length': st.size ? end - start + 1 : 0,
+      ...(r ? { 'Content-Range': `bytes ${start}-${end}/${st.size}` } : {}) });
+    if (req.method === 'HEAD' || !st.size) return res.end();
+    const s = fs.createReadStream(file, { start, end });
+    s.on('error', () => res.destroy());
+    s.pipe(res);
   });
 }
 async function readBody(req) {
@@ -64,11 +85,11 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/runs/')) {
       const f = path.normalize(path.join(ROOT, p));
       if (!f.startsWith(path.join(ROOT, 'runs'))) { res.writeHead(403); return res.end(); }
-      return serveFile(res, fs.statSync(f, { throwIfNoEntry: false })?.isDirectory() ? path.join(f, 'index.html') : f);
+      return serveFile(req, res, fs.statSync(f, { throwIfNoEntry: false })?.isDirectory() ? path.join(f, 'index.html') : f);
     }
     const f = path.normalize(path.join(ROOT, 'public', p === '/' ? 'index.html' : p === '/gallery' ? 'gallery.html' : p));
     if (!f.startsWith(path.join(ROOT, 'public'))) { res.writeHead(403); return res.end(); }
-    return serveFile(res, f);
+    return serveFile(req, res, f);
   } catch (e) {
     console.error(scrub(e.stack || e.message));
     if (!res.headersSent) sendJson(res, 500, { error: scrub(e.message) });
