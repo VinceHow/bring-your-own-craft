@@ -186,3 +186,26 @@ body.stage .meter-counts { font-size: 15px; }
 #room .tray > *:nth-child(2n) { transform: rotate(.9deg); }
 #room .tray > *:nth-child(3n) { transform: rotate(-.3deg); }
 #room .tray .badge, #room .tray .count { display: none; } /* nothing shows how many are waiting */
+
+/* ---- studio: Design's first-sketch user cards (first-sketch.js) as small index cards, slightly askew ---- */
+#room .fs-users { gap: var(--s3); }
+#room .fs-user { padding: 7px 10px 6px; font-weight: 600; box-shadow: 3px 3px 0 var(--ink); transform: rotate(-1deg); }
+#room .fs-user:nth-child(2n) { transform: rotate(1.2deg); }
+#room .fs-user:nth-child(3n) { transform: rotate(-.4deg); }
+#room .fs-who { color: var(--ink); font-weight: 600; }
+#room .fs-who::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: 0; background: var(--design); border: 1.5px solid var(--ink); border-radius: 2px; }
+#room .fs-tag { color: rgba(20,20,20,.78); }   /* 4.5:1 on the sheet */
+#room .fs-said { color: rgba(20,20,20,.82); }
+
+/* ---- studio: the guest chair. A stand-in for her customer, drawn as a dashed card so it never passes for a real
+   person: paper, a dashed ink border, a GUEST tag, and one reaction printed as a quote (never a chat bubble). ---- */
+#room .guest-card { background: var(--sheet); border: 2px dashed var(--ink); border-radius: var(--r); box-shadow: var(--shadow-sm);
+  padding: var(--s3) var(--s4) var(--s4); transform: rotate(1.4deg); font-family: var(--ui); color: var(--ink); max-width: 320px; }
+#room .guest-tag { display: inline-block; padding: 2px 7px 1px; font: 600 11px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  border: 1.5px dashed var(--ink); border-radius: 3px; background: var(--paper); }
+#room .guest-who { margin-top: var(--s2); font: 600 16px/1.25 var(--ui); }
+#room .guest-note { margin-top: 2px; font: 400 12.5px/1.3 var(--mono); color: rgba(20,20,20,.78); }
+#room .guest-says { margin-top: var(--s3); padding-left: var(--s3); border-left: 3px solid var(--ink); font: italic 400 18px/1.35 var(--ui); }
+#room .guest-says::before { content: '\201C'; } #room .guest-says::after { content: '\201D'; }
+body.stage #room .guest-says { font-size: 20px; }
+#room .fs-user.fs-in { animation-fill-mode: backwards; } /* the landing animation lets go, so the resting tilt shows */
