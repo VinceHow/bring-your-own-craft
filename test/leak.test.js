@@ -28,9 +28,9 @@ globalThis.fetch = async (url, init = {}) => {
   const t = (system.match(/^# Task: ([\w-]+)/m) || [])[1];
   let out;
   if (t === 'teammate') out = { note: `Worked with ${auth} and ${SENTINEL}.`, candidates: [1, 2, 3].map(i => ({
-    decision: ['Waitlist', 'Payment', 'Cancelling'][i - 1], options: ['A', 'B'], recommendation: 'A',
+    decision: ['Who it is for', 'Payment', 'Cancelling'][i - 1], options: ['A', 'B'], recommendation: 'A',
     reason: `because ${SENTINEL} and ${auth}`, cost: 'high', undoable: true, attachTo: `n${i}`, usesFinding: false })) };
-  else if (t === 'select') out = { scores: JSON.parse(user).map(c => ({ id: c.id, inSeat: true, changes: 3, silent: 3, dupOf: null, kind: 'fork' })) };
+  else if (t === 'select') out = { scores: JSON.parse(user).map(c => ({ id: c.id, inSeat: true, changes: 3, silent: 3, big: 3, hers: 3, dupOf: null, kind: 'fork', question: `What does ${c.decision.toLowerCase()} mean to ${c.id}?` })) };
   else if (t === 'decide') out = { decisions: JSON.parse(user).map(c => ({ id: c.id, choice: 'A', cites: SENTINEL })) };
   else if (t === 'sounds-like') out = { text: `Sounds like: never ask for ${SENTINEL}.` };
   else out = { error: `unknown task, key ${auth}` };

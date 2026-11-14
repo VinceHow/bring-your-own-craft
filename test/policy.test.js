@@ -32,9 +32,9 @@ test('an ask without the selector\'s grant is refused, decided and logged', () =
 
 test('the selector\'s picks go through the door as craft, never phrased as a question', async () => {
   const run = newRunId(uid());
-  const c = { ...cand('c1'), seat: 'product', reason: 'Worth it?' };
+  const c = { ...cand('c1'), seat: 'product', decision: 'Who the page is for first', reason: 'Worth it?' };
   const callModel = async ({ system, user }) => /Task: select/.test(system)
-    ? { scores: JSON.parse(user).map(x => ({ id: x.id, changes: 3, silent: 3, dupOf: null, kind: 'pin' })) }
+    ? { scores: JSON.parse(user).map(x => ({ id: x.id, changes: 3, silent: 3, big: 3, hers: 3, dupOf: null, kind: 'pin', question: 'What does this change for the people who book?' })) }
     : { decisions: [] };
   const r = await select({ run, idea: 'x', flow: { nodes: [], edges: [] }, taste: [], candidates: [c], callModel });
   assert.equal(r.asks.length, 1);
