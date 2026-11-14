@@ -1,0 +1,570 @@
+// The room: seats, cards, her sheet, teammates' sheets, her file card, the counter and the meter.
+// Hosts window.BYOC (see CONTRACT.md). Pieces 2 and 3 plug in through it.
+(function () {
+  'use strict';
+  const M = window.Motion || null;
+  const SPRING = { type: 'spring', stiffness: 500, damping: 30 };
+  const QUICK = { duration: 0.12, ease: 'linear' }; // nothing fades for longer than 150ms
+
+  const SEATS = ['product', 'design', 'data', 'research', 'engineering'];
+  const TEAM = ['design', 'data', 'research', 'engineering'];
+  const INFO = {
+    product: { name: 'Product' },
+    design: { name: 'Design', stance: 'sketch first, polish last' },
+    data: { name: 'Data', stance: 'only what we’ll measure' },
+    research: { name: 'Research', stance: 'what’s known, with sources' },
+    engineering: { name: 'Engineering', stance: 'boring and correct' },
+  };
+  // One simple geometric glyph per seat. No faces, no emoji.
+  const GLYPH = {
+    product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
+    design: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="11" y="11" width="10" height="10" fill="currentColor"/></svg>',
+    data: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="4.5" height="8" fill="currentColor"/><rect x="9.75" y="8" width="4.5" height="13" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" fill="currentColor"/></svg>',
+    research: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>',
+    engineering: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
+  };
+  const BEATS = ['empty room', 'her seat', 'team arrives', 'first move', 'her journey', 'team works', 'her three',
+    'her taste', 'build', 'her page', 'not scripted', 'close'];
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---- motion helpers -------------------------------------------------------------------------
+  // place(el, {x,y,rotate,scale,opacity}, animate): spring to a pose, or jump there.
+  function place(el, to, animate = true, extra = {}) {
+    if (!M || !M.animate) { // no motion library: plain placement
+      const t = `translate(${last(to.x) || 0}px, ${last(to.y) || 0}px) rotate(${last(to.rotate) || 0}deg) scale(${last(to.scale) ?? 1})`;
+      el.style.transform = t; if (to.opacity != null) el.style.opacity = last(to.opacity); return Promise.resolve();
+    }
+    const opts = animate ? { ...SPRING, opacity: QUICK, ...extra } : { duration: 0 };
+    return M.animate(el, to, opts);
+  }
+  const last = v => Array.isArray(v) ? v[v.length - 1] : v;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  // Rolling digits: each digit is a 0-9 column that springs to its place.
+  function roller(el) {
+    let cols = [], value = undefined;
+    function build(len) {
+      el.innerHTML = ''; cols = [];
+      for (let i = 0; i < len; i++) {
+        const c = h('span', 'col', Array.from({ length: 10 }, (_, d) => `<span>${d}</span>`).join(''));
+        c._v = 0; c._cur = 0; c._anim = null; el.appendChild(c); cols.push(c);
+      }
+    }
+    return {
+      set(n, animate = true) {
+        if (n == null || Number.isNaN(n)) { value = null; cols = []; el.innerHTML = '<span class="dash">&ndash;</span>'; return; }
+        n = Math.max(0, Math.round(n));
+        if (n === value) return;
+        const s = String(n);
+        if (cols.length !== s.length) build(s.length);
+        value = n;
+        [...s].forEach((ch, i) => {
+          const col = cols[i], to = Number(ch);
+          col._v = to;
+          // Stop the spring already running on this column, so an older one can never finish last.
+          if (col._anim) { col._anim.stop(); col._anim = null; }
+          const draw = v => { col._cur = v; col.style.transform = `translateY(${-v}em)`; };
+          if (!animate || !M) { draw(to); return; }
+          const a = M.animate(col._cur, to, { ...SPRING, onUpdate: draw });
+          col._anim = a;
+          Promise.resolve(a.finished || a).then(() => { if (col._anim === a) { col._anim = null; draw(to); } }, () => {});
+        });
+      },
+      get value() { return value; },
+    };
+  }
+
+  // ---- BYOC: the seam --------------------------------------------------------------------------
+  const BYOC = window.BYOC = window.BYOC || {};
+  const handlers = new Map(); // type -> Set(fn); '*' gets every event
+  BYOC.on = function (type, fn) {
+    if (!handlers.has(type)) handlers.set(type, new Set());
+    handlers.get(type).add(fn);
+    return () => handlers.get(type).delete(fn);
+  };
+  function emit(type, payload) {
+    for (const key of [type, '*']) for (const fn of handlers.get(key) || []) {
+      try { fn(payload); } catch (e) { console.error('BYOC handler', type, e); }
+    }
+  }
+  BYOC.api = async function (path, body) {
+    const res = await fetch(path, body === undefined ? {} : {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = { text }; }
+    if (!res.ok) { const e = new Error((data && data.error) || `HTTP ${res.status}`); e.status = res.status; e.data = data; throw e; }
+    return data;
+  };
+  BYOC.run = null;
+  BYOC.replay = false;      // true while a recorded (or fake) run is on screen
+  BYOC.replayKind = null;   // 'recorded' | 'fixture'
+  BYOC.beat = 0;
+  BYOC.BEATS = BEATS;
+  BYOC.SEATS = SEATS;
+
+  // ---- elements -------------------------------------------------------------------------------
+  const el = {
+    room: $('#room'),
+    herSheet: $('#her-sheet'),
+    herFlow: $('#her-flow'),
+    herIdea: $('#her-idea'),
+    herNotes: $('#her-notes'),
+    herForm: $('#her-form'),
+    herInput: $('#her-input'),
+    herHint: $('#her-hint'),
+    fileCard: $('#file-card'),
+    fileLines: $('#file-lines'),
+    fileNote: $('#file-note'),
+    soundsLike: $('#sounds-like'),
+    tally: $('#tally'),
+    counter: $('#counter'),
+    meter: $('#meter'),
+    status: $('#status'),
+    seatSheet: {},
+    seat: {},
+  };
+  for (const s of SEATS) el.seat[s] = $(`.seat[data-seat="${s}"]`);
+  // Product's own teammate (the spec drafter) gets a small sheet too, tucked beside her file.
+  const productSheet = h('section', 'mini-sheet'); productSheet.dataset.sheet = 'product'; productSheet.hidden = true;
+  el.room.appendChild(productSheet);
+  for (const s of SEATS) el.seatSheet[s] = $(`.mini-sheet[data-sheet="${s}"]`);
+  BYOC.el = { herSheet: el.herSheet, herFlow: el.herFlow, seatSheet: el.seatSheet, fileCard: el.fileCard,
+    counter: el.counter, meter: el.meter, room: el.room };
+
+  const rollers = { came: roller($('#came')), brought: roller($('#brought')), pct: roller($('#pct')) };
+  BYOC._rollers = rollers; // test hook (e2e/room.e2e.js)
+
+  function status(msg) { el.status.textContent = msg || ''; }
+  BYOC.status = status;
+
+  // ---- cards ----------------------------------------------------------------------------------
+  function makeCard(seat) {
+    const i = INFO[seat];
+    const c = h('div', 'card');
+    if (seat === 'product') {
+      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span>
+        <span class="card-who">Priya<br>your seat</span></div>`;
+    } else {
+      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
+        <div class="card-stance">${esc(i.stance)}</div>
+        <div class="card-note">Your team sits here today. Own mode for this seat: coming.</div>`;
+    }
+    return c;
+  }
+  // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
+  const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, engineering: 2.6 };
+
+  function seatCard(seat, animate) {
+    const s = el.seat[seat];
+    if (s.querySelector('.card')) return;
+    const c = makeCard(seat);
+    s.appendChild(c); s.classList.add('filled');
+    if (seat === 'product') {
+      place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, TILT[seat]] : TILT[seat] }, animate);
+    } else {
+      const fromX = (TEAM.indexOf(seat) - 1.5) * 60;
+      place(c, { x: animate ? [fromX, 0] : 0, y: animate ? [-240, 0] : 0, rotate: animate ? [TILT[seat] * -3, TILT[seat]] : TILT[seat] }, animate);
+    }
+  }
+
+  // ---- teammates' small sheets ----------------------------------------------------------------
+  function sheetInit(seat) {
+    const sh = el.seatSheet[seat];
+    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec draft' : INFO[seat].name + '’s sheet'}</span>
+      <span class="mini-step">waiting</span></div><ul class="mini-lines"></ul><div class="mini-more"></div>`;
+    sh._items = new Map(); sh._count = 0;
+  }
+  function sheetShow(seat, animate) {
+    const sh = el.seatSheet[seat];
+    if (!sh.hidden) return;
+    sheetInit(seat); sh.hidden = false;
+    const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, engineering: -1.1 }[seat];
+    place(sh, { y: animate ? [-40, 0] : 0, rotate: tilt, opacity: animate ? [0, 1] : 1 }, animate);
+  }
+  function sheetStep(seat, text) {
+    const sh = el.seatSheet[seat]; if (!sh) return;
+    if (sh.hidden) sheetShow(seat, !instantMode);
+    $('.mini-step', sh).textContent = text;
+  }
+  const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, engineering: 6 };
+  function sheetAdd(seat, id, text) {
+    const sh = el.seatSheet[seat]; if (!sh) return;
+    if (sh.hidden) sheetShow(seat, !instantMode);
+    sh._count++;
+    const ul = $('.mini-lines', sh);
+    const li = h('li', null, esc(text)); li.title = text;
+    if (id) sh._items.set(id, li);
+    if (ul.children.length < MAX_LINES[seat]) {
+      ul.appendChild(li);
+      if (!instantMode) place(li, { y: [-10, 0], opacity: [0, 1] }, true);
+    }
+    const hiddenCount = sh._count - ul.children.length;
+    $('.mini-more', sh).textContent = hiddenCount > 0 ? `+${hiddenCount} more` : '';
+  }
+  function findItem(id) {
+    for (const s of SEATS) { const it = el.seatSheet[s]._items?.get(id); if (it) return it; }
+    return null;
+  }
+
+  // ---- her sheet ------------------------------------------------------------------------------
+  let inputMode = 'off'; // 'idea' | 'line' | 'off'
+  function setInputMode(mode) {
+    inputMode = mode;
+    const inp = el.herInput;
+    if (mode === 'idea') { inp.placeholder = 'Write the idea'; el.herHint.textContent = 'Enter to write it down'; }
+    if (mode === 'line') { inp.placeholder = 'One step of the journey'; el.herHint.textContent = 'Enter for each step · empty Enter: team, go'; }
+    el.herForm.hidden = mode === 'off' || BYOC.replay;
+    if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
+  }
+  function setIdea(text) { el.herIdea.textContent = text || ''; }
+  let flowMounted = false;
+  function mountFlow() {
+    if (flowMounted) return;
+    if (BYOC.flow && typeof BYOC.flow.mount === 'function') {
+      try { BYOC.flow.mount(el.herFlow); flowMounted = true; } catch (e) { console.error('flow.mount', e); }
+    }
+  }
+  // Hand each journey line to piece 2's flow if it is loaded; otherwise show it as plain text.
+  const hasFlow = () => !!(BYOC.flow && typeof BYOC.flow.addLine === 'function');
+  function plainLine(text) {
+    const d = h('div', 'plain-line'); d.textContent = text;
+    el.herFlow.appendChild(d);
+    if (!instantMode) place(d, { x: [-18, 0], opacity: [0, 1] }, true);
+  }
+  // An ask lands in her work: piece 2 draws it on the flow; until then, a sticky note on her sheet.
+  function drawAsk(ask) {
+    if (BYOC.flow && typeof BYOC.flow.showAsk === 'function') return; // piece 2 shows asks from its own 'ask' listener
+    const n = h('div', 'note');
+    n.innerHTML = `<b>${ask.kind === 'fork' ? 'fork' : 'pin'}${ask.attachTo ? ' on ' + esc(ask.attachTo) : ''} · ${esc(ask.seat)}</b>
+      ${esc(ask.decision)}<span class="rec">recommend: ${esc(ask.recommendation)}</span>`;
+    el.herNotes.appendChild(n);
+    const tilt = [-1.5, 1.2, -0.8][el.herNotes.children.length % 3];
+    place(n, { y: instantMode ? 0 : [-30, 0], x: instantMode ? 0 : [24, 0], rotate: tilt }, !instantMode);
+  }
+
+  async function startRun(idea) {
+    setIdea(idea);
+    setInputMode('line');
+    stage(4);
+    try {
+      const r = await BYOC.api('/api/run', { idea });
+      BYOC.run = r.run;
+      status(`run ${r.run}`);
+      flushPending();
+    } catch (e) {
+      BYOC.run = 'local-' + Date.now();
+      status(`no run API yet (${e.status || e.message}): drawing here only`);
+    }
+    loadFileForRun(BYOC.run);
+  }
+  // Her line, live. Piece 2's addLine posts it to /api/run/:id/line and draws what comes back;
+  // without piece 2 the room posts it and shows it as plain text.
+  async function addHerLine(text) {
+    const local = !BYOC.run || BYOC.run.startsWith('local-');
+    if (hasFlow() && !local) {
+      mountFlow();
+      try { await BYOC.flow.addLine(text); }
+      catch (e) { status(`line not logged (${e.status || e.message})`); plainLine(text); }
+      return;
+    }
+    plainLine(text);
+    if (local) return;
+    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/line`, { text }); }
+    catch (e) { status(`line not logged (${e.status || e.message})`); }
+  }
+  async function teamGo() {
+    if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); return; }
+    try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}); }
+    catch (e) { status(`propose failed (${e.status || e.message})`); }
+  }
+  el.herForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = el.herInput.value.trim();
+    if (inputMode === 'idea') { if (!text) return; el.herInput.value = ''; startRun(text); }
+    else if (inputMode === 'line') {
+      el.herInput.value = '';
+      if (!text) { setInputMode('off'); stage(5); } else addHerLine(text);
+    }
+  });
+
+  // ---- her file card --------------------------------------------------------------------------
+  // taste.md: one principle per line, "- [L1] text", seed lines tagged "(prepared for the demo)".
+  function parseTaste(md) {
+    const out = [];
+    for (const line of String(md || '').split('\n')) {
+      const m = line.match(/^\s*-\s*\[(L\d+)\]\s*(.*)$/);
+      if (!m) continue;
+      const prepMatch = m[2].match(/\s*\((prepared for the demo|fixture[^)]*)\)\s*$/i);
+      out.push({ id: m[1], text: prepMatch ? m[2].slice(0, prepMatch.index) : m[2], tag: prepMatch ? prepMatch[1] : null });
+    }
+    return out;
+  }
+  function fileAddLine({ id, text, tag }, isNew) {
+    const li = h('li', isNew ? 'new' : '');
+    li.dataset.id = id;
+    li.innerHTML = `<span class="lid">${esc(id)}</span><span><span class="ltext">${esc(text)}</span>${tag ? `<br><span class="prep">${esc(tag)}</span>` : ''}</span>`;
+    const existing = el.fileLines.querySelector(`li[data-id="${CSS.escape(id)}"]`);
+    if (existing) existing.replaceWith(li); else el.fileLines.appendChild(li);
+    if (isNew && !instantMode) place(li, { y: [-14, 0], opacity: [0, 1] }, true);
+  }
+  function fileLoad(md, note) {
+    el.fileLines.innerHTML = '';
+    for (const l of parseTaste(md)) fileAddLine(l, false);
+    el.fileNote.textContent = note || '';
+  }
+  async function loadFileForRun(run, tries = 3) {
+    if (!run || run.startsWith('local-')) { el.fileNote.textContent = 'Her file opens when a run starts.'; return; }
+    for (let i = 0; i < tries; i++) {
+      try {
+        const r = await fetch(`/runs/${encodeURIComponent(run)}/taste.md`);
+        if (r.ok) { fileLoad(await r.text()); return; }
+      } catch {}
+      await wait(800);
+    }
+    el.fileNote.textContent = 'Her file isn’t written for this run yet.';
+  }
+  BYOC.file = { load: fileLoad, parse: parseTaste };
+
+  // "Sounds like": types in with a yellow highlighter sweep; she can keep it (Enter) or reword it.
+  let typing = null;
+  function soundsLike(text) {
+    const box = el.soundsLike;
+    box.hidden = false;
+    box.innerHTML = `<span class="sl-label">Sounds like:</span><span class="sl-text"><span class="sl-mark"></span><span class="sl-words"></span></span>`;
+    const mark = $('.sl-mark', box), words = $('.sl-words', box);
+    if (typing) clearInterval(typing);
+    if (instantMode) { words.textContent = text; afterTyped(); return; }
+    place(mark, { scaleX: [0, 1] }, true);
+    let i = 0;
+    typing = setInterval(() => { words.textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(typing); typing = null; afterTyped(); } }, 28);
+    function afterTyped() {
+      if (BYOC.replay) return;
+      words.contentEditable = 'true';
+      words.addEventListener('keydown', async ev => {
+        if (ev.key !== 'Enter') return;
+        ev.preventDefault(); words.contentEditable = 'false';
+        try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: words.textContent.trim() }); }
+        catch (e) { status(`file not written (${e.status || e.message})`); words.contentEditable = 'true'; }
+      });
+    }
+  }
+
+  // ---- counter and meter ----------------------------------------------------------------------
+  // Client-side tally, a pure function of the events seen so far. Used during replay (to roll with the
+  // events) and live until GET /api/run/:id/tally exists. came = candidates, brought = asks,
+  // meter = craft / (craft + stamp) over events that carry a mode.
+  function tallyFromEvents(events) {
+    let came = 0, brought = 0, decided = 0, craft = 0, stamp = 0;
+    for (const e of events) {
+      if (e.type === 'candidate') came++;
+      else if (e.type === 'ask') brought++;
+      else if (e.type === 'decided') decided++;
+      if (e.mode === 'craft') craft++;
+      else if (e.mode === 'stamp') stamp++;
+    }
+    const pct = craft + stamp ? Math.round((100 * craft) / (craft + stamp)) : null;
+    return { came, brought, decided, meter: { craft, stamp, pct }, source: 'client' };
+  }
+  BYOC.tallyFromEvents = tallyFromEvents;
+
+  function renderTally(t) {
+    const animate = !instantMode;
+    rollers.came.set(t.came, animate);
+    rollers.brought.set(t.brought, animate);
+    rollers.pct.set(t.meter.pct, animate);
+    const { craft, stamp } = t.meter, tot = craft + stamp;
+    const cw = tot ? (100 * craft) / tot : 0, sw = tot ? (100 * stamp) / tot : 0;
+    for (const [node, w] of [[$('#meter-craft'), cw], [$('#meter-stamp'), sw]]) {
+      if (M && animate) M.animate(node, { width: `${w}%` }, SPRING); else node.style.width = `${w}%`;
+    }
+    $('#meter-counts').textContent = `craft ${craft} · stamping ${stamp}`;
+  }
+  let serverTally = null; // null: unknown, false: endpoint missing, true: in use
+  let tallyTimer = null;
+  function refreshTally() {
+    clearTimeout(tallyTimer);
+    tallyTimer = setTimeout(async () => {
+      const live = !BYOC.replay && BYOC.run && !BYOC.run.startsWith('local-');
+      if (live && serverTally !== false) {
+        try {
+          const t = await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/tally`);
+          serverTally = true; renderTally({ ...t, meter: t.meter || tallyFromEvents(seen).meter }); tallySource('server'); return;
+        } catch (e) { if (e.status === 404) serverTally = false; }
+      }
+      renderTally(tallyFromEvents(seen)); tallySource('client');
+    }, instantMode ? 0 : 120);
+  }
+  function tallySource(s) { el.tally.dataset.source = s; }
+  function showTally(animate) {
+    if (!el.tally.hidden) return;
+    el.tally.hidden = false;
+    renderTally(tallyFromEvents(seen));
+    place(el.tally, { x: animate ? [60, 0] : 0, rotate: 0.8, opacity: animate ? [0, 1] : 1 }, animate);
+  }
+  el.counter.addEventListener('click', () => emit('counter.tap', { run: BYOC.run }));
+
+  // ---- events ---------------------------------------------------------------------------------
+  let seen = [];      // events of the run on screen, in order
+  let pending = [];   // live events that arrived before we knew our run id
+  let instantMode = false;
+  BYOC.events = () => seen.slice();
+
+  // dispatch(ev, source): source 'live' (SSE) or 'replay'. Room reacts first, then BYOC.on handlers.
+  function dispatch(ev, source = 'live') {
+    if (!ev || !ev.type) return;
+    if (source === 'live') {
+      if (BYOC.replay) return;
+      if (!BYOC.run) { pending.push(ev); if (pending.length > 200) pending.shift(); return; }
+      if (ev.run !== BYOC.run) return;
+    }
+    seen.push(ev);
+    try { react(ev, source); } catch (e) { console.error('room', ev.type, e); }
+    emit(ev.type, ev);
+  }
+  function flushPending() { const p = pending; pending = []; for (const ev of p) if (ev.run === BYOC.run) dispatch(ev, 'live'); }
+  BYOC.dispatch = dispatch;
+
+  function react(ev, source) {
+    switch (ev.type) {
+      case 'run.start':
+        setIdea(ev.idea);
+        if (BYOC.beat < 3) stage(3);
+        if (BYOC.beat < 4) stage(4);
+        break;
+      case 'flow.line':
+        if (BYOC.beat < 4) stage(4);
+        // Piece 2 draws flow.line events itself (BYOC.on). Without it, replayed lines show as plain text;
+        // live lines were already drawn as she typed them.
+        if (source !== 'live' && !hasFlow()) plainLine(ev.text);
+        break;
+      case 'teammate.start':
+        if (BYOC.beat < 5) stage(5);
+        sheetStep(ev.seat, 'working: proposing');
+        break;
+      case 'candidate':
+        if (BYOC.beat < 5) stage(5);
+        sheetAdd(ev.seat, ev.id, ev.decision);
+        refreshTally();
+        break;
+      case 'teammate.done':
+        sheetStep(ev.seat, `${ev.count ?? ''} proposed${ev.ms ? ' · ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        break;
+      case 'select.done':
+        refreshTally();
+        break;
+      case 'ask': {
+        if (BYOC.beat < 6) stage(6);
+        const it = findItem(ev.id); if (it) it.classList.add('brought');
+        drawAsk(ev);
+        refreshTally();
+        break;
+      }
+      case 'decided': {
+        const it = findItem(ev.id);
+        if (it && !it.querySelector('.cite')) it.insertAdjacentHTML('beforeend', ` <span class="cite">· ${esc(ev.cites)}</span>`);
+        refreshTally();
+        break;
+      }
+      case 'ask.refused': case 'stamp': case 'answer': case 'pin': case 'taste.written':
+        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); }
+        refreshTally();
+        break;
+      case 'taste.suggested':
+        soundsLike(ev.text);
+        break;
+      case 'build.step':
+        sheetStep('engineering', `building: ${ev.step}`);
+        break;
+      case 'build.done':
+        sheetStep('engineering', `built${ev.ms ? ' in ' + (ev.ms / 1000).toFixed(1) + 's' : ''}`);
+        break;
+    }
+  }
+
+  function connectSSE() {
+    if (!window.EventSource) return;
+    const es = new EventSource('/events');
+    es.onmessage = m => { try { dispatch(JSON.parse(m.data), 'live'); } catch {} };
+  }
+
+  // ---- beats ----------------------------------------------------------------------------------
+  // stage(n): move the room forward to beat n, playing each beat's entrance in order.
+  // stage(n, {instant:true}) jumps there with no motion. Going back to 0-3 rebuilds instantly.
+  let walkToken = 0;
+  async function enter(b, animate) {
+    const tok = walkToken;
+    switch (b) {
+      case 1: seatCard('product', animate); break;
+      case 2:
+        for (const s of TEAM) {
+          if (tok !== walkToken) return;
+          seatCard(s, animate);
+          if (animate) await wait(650);
+        }
+        break;
+      case 3:
+        el.herSheet.hidden = false; el.fileCard.hidden = false;
+        place(el.herSheet, { y: animate ? [80, 0] : 0, rotate: animate ? [1.5, 0] : 0 }, animate);
+        place(el.fileCard, { x: animate ? [-80, 0] : 0, rotate: -1, opacity: animate ? [0, 1] : 1 }, animate);
+        if (!el.herIdea.textContent) setInputMode('idea');
+        if (!el.fileLines.children.length && !el.fileNote.textContent) el.fileNote.textContent = 'Her file opens when a run starts.';
+        break;
+      case 4:
+        if (inputMode === 'idea' && el.herIdea.textContent) setInputMode('line');
+        break;
+      case 5:
+        setInputMode('off');
+        showTally(animate);
+        for (const s of SEATS) sheetShow(s, animate);
+        if (!BYOC.replay && !instantMode) teamGo();
+        break;
+    }
+  }
+  function stage(n, opts = {}) {
+    n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
+    const animate = !opts.instant && !instantMode;
+    if (n < BYOC.beat) {
+      if (n <= 3 && !BYOC.replay && !el.herIdea.textContent) { reset(); const prev = instantMode; instantMode = true; for (let b = 1; b <= n; b++) enter(b, false); instantMode = prev; }
+      BYOC.beat = n;
+    } else {
+      const from = BYOC.beat;
+      BYOC.beat = n;
+      const prev = instantMode; if (!animate) instantMode = true;
+      (async () => { for (let b = from + 1; b <= n; b++) { const p = enter(b, animate); if (animate && b === 2) await p; } })();
+      instantMode = prev;
+    }
+    document.body.dataset.beat = String(n);
+    emit('stage', { beat: n, name: BEATS[n] });
+    return n;
+  }
+  BYOC.stage = stage;
+
+  // reset(): back to the empty room, live, no run.
+  function reset() {
+    walkToken++;
+    if (typing) { clearInterval(typing); typing = null; }
+    BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
+    seen = []; pending = []; serverTally = null;
+    for (const s of SEATS) {
+      el.seat[s].classList.remove('filled');
+      el.seat[s].querySelector('.card')?.remove();
+      el.seatSheet[s].hidden = true; el.seatSheet[s].innerHTML = '';
+    }
+    el.herSheet.hidden = true; el.fileCard.hidden = true; el.tally.hidden = true;
+    setIdea(''); el.herNotes.innerHTML = ''; el.herInput.value = ''; inputMode = 'off'; el.herForm.hidden = true;
+    el.herFlow.innerHTML = ''; flowMounted = false; mountFlow();
+    el.fileLines.innerHTML = ''; el.fileNote.textContent = ''; el.soundsLike.hidden = true;
+    for (const r of Object.values(rollers)) r.set(null, false);
+    document.body.dataset.beat = '0';
+    status('');
+    emit('reset', {});
+  }
+  BYOC.reset = reset;
+  BYOC.setInstant = v => { instantMode = !!v; };
+
+  document.addEventListener('DOMContentLoaded', () => { reset(); connectSSE(); });
+})();

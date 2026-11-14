@@ -2,10 +2,13 @@
   "name": "bring-your-own-craft",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "e2e": "node --test --test-concurrency=1 e2e/*.e2e.js"
   },
   "license": "SEE LICENSE IN LICENSE"
 }

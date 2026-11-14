@@ -1,0 +1,91 @@
+/* Her flow, risograph style: paper, ink, 2px borders, hard offset shadows, small corners. */
+.fl-host {
+  --paper: #F2EEE6; --ink: #141414; --pink: #FF48B0; --note: #FBF8F1;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  position: relative; overflow: hidden; color: var(--ink); font-family: var(--sans);
+}
+.fl-wrap { position: relative; width: 100%; }
+.fl-canvas { position: relative; transform-origin: 0 0; }
+.fl-svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 1; }
+
+.fl-box {
+  position: absolute; z-index: 2; box-sizing: border-box; min-height: 64px; padding: 12px 14px;
+  display: flex; align-items: center; text-align: left;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-left: 8px solid var(--pink);
+  border-radius: 4px; box-shadow: 4px 4px 0 var(--ink);
+  font: 600 17px/1.25 var(--sans); cursor: pointer;
+}
+.fl-box:hover { box-shadow: 6px 6px 0 var(--ink); }
+.fl-box:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+
+.fl-edge { fill: none; stroke: var(--ink); stroke-width: 2; }
+.fl-elabel { font: 500 13px var(--mono); fill: var(--ink); }
+
+/* Asks: sticky notes that slide in. No card chrome around a fork: just its paths and notes. */
+.fl-item { position: absolute; z-index: 3; box-sizing: border-box; }
+.fl-tag {
+  display: inline-block; padding: 2px 6px; margin-right: 8px; border: 2px solid var(--ink); border-radius: 3px;
+  background: var(--seat, var(--ink)); color: #fff; font: 700 11px/1.2 var(--mono); letter-spacing: .06em; vertical-align: 2px;
+}
+.fl-item[data-seat="engineering"] .fl-tag { color: var(--ink); }
+.fl-q { font: 700 16px/1.3 var(--sans); }
+
+.fl-fork { width: 470px; }
+.fl-fork > .fl-q {
+  display: inline-block; max-width: 440px; padding: 8px 12px; background: var(--note);
+  border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink);
+}
+.fl-fork > .fl-opts { display: flex; gap: 22px; margin-top: 44px; }
+.fl-fork .fl-opt { flex: 1 1 0; }
+
+.fl-opt {
+  position: relative; display: block; box-sizing: border-box; min-height: 54px; padding: 10px 12px; text-align: left;
+  background: var(--note); color: var(--ink); border: 2px dashed var(--ink); border-radius: 4px;
+  font: 600 15px/1.3 var(--sans); cursor: pointer; transform: rotate(var(--tilt, 0deg));
+}
+.fl-opt.is-rec { border-style: solid; box-shadow: 4px 4px 0 var(--ink); }
+.fl-opt:hover { background: #fff; }
+.fl-opt:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+.fl-rec, .fl-yours {
+  display: block; margin-bottom: 4px; font: 700 10px/1.2 var(--mono); letter-spacing: .08em;
+}
+.fl-yours { color: var(--ink); background: var(--pink); display: inline-block; padding: 1px 5px; margin-right: 6px; }
+.fl-opt.is-chosen { border: 2px solid var(--ink); border-left: 8px solid var(--pink); box-shadow: 4px 4px 0 var(--ink); }
+.fl-opt.is-dropped { opacity: .45; box-shadow: none; border-style: dotted; }
+.is-answered .fl-opt { cursor: default; }
+
+.fl-why {
+  margin-top: 12px; max-width: 460px; padding-left: 10px; border-left: 3px solid var(--seat, var(--ink));
+  font: 400 13px/1.45 var(--mono);
+}
+.fl-src { margin-top: 6px; font: 400 12px/1.4 var(--mono); }
+.fl-src-k { font-weight: 700; }
+.fl-status:empty { display: none; }
+.fl-status { margin-top: 6px; font: 700 12px var(--mono); color: #E5322D; }
+
+.fl-fpath { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 5; }
+.fl-fpath.fl-stem { stroke-width: 2.5; stroke-dasharray: none; }
+.fl-fpath.is-rec { stroke-dasharray: none; stroke-width: 2.5; }
+.fl-fpath.is-chosen { stroke: var(--pink); stroke-width: 4; stroke-dasharray: none; }
+.fl-fpath.is-dropped { stroke: #9A958C; stroke-dasharray: 2 5; }
+
+.fl-pin, .fl-mine {
+  width: 270px; padding: 22px 14px 14px; border: 2px solid var(--ink); border-radius: 3px; box-shadow: 4px 4px 0 var(--ink);
+}
+.fl-pin { background: var(--note); border-top: 8px solid var(--seat, var(--ink)); }
+.fl-pin .fl-q { margin-bottom: 10px; }
+.fl-pin .fl-opts { display: grid; gap: 8px; }
+.fl-pin .fl-opt { min-height: 0; }
+.fl-pinhead {
+  position: absolute; top: -14px; left: 50%; width: 16px; height: 16px; margin-left: -8px;
+  border: 2px solid var(--ink); border-radius: 50%; background: var(--seat, var(--pink)); box-shadow: 2px 2px 0 var(--ink);
+}
+.fl-mine { background: var(--pink); width: 250px; transform: rotate(-2deg); }
+.fl-mine .fl-tag { background: var(--paper); color: var(--ink); margin-bottom: 6px; }
+.fl-mine .fl-pinhead { background: var(--paper); }
+.fl-mtext { font: 600 16px/1.35 var(--sans); }
+.fl-input {
+  display: block; width: 100%; box-sizing: border-box; resize: none; border: 2px solid var(--ink); border-radius: 3px;
+  background: #fff; color: var(--ink); font: 500 15px/1.35 var(--sans); padding: 6px 8px;
+}
+.fl-draft { position: absolute; z-index: 5; }

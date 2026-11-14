@@ -1,0 +1,35 @@
+/* Grey wireframe blocks. Greys only, so a sketch never reads as the finished page. */
+.bk { --g1: #D8D3C9; --g2: #B9B3A8; --g3: #6E695F; --gl: #FAF8F4;
+  box-sizing: border-box; margin: 0 0 10px; color: var(--g3); font: 500 13px/1.3 'IBM Plex Sans', system-ui, sans-serif; }
+.bk-line { display: block; height: 7px; margin: 6px 0; border-radius: 2px; background: var(--g1); }
+.bk-line:nth-child(2n) { width: 72%; }
+.bk-line:last-child { width: 55%; }
+
+.bk-header { display: flex; align-items: center; gap: 8px; margin: -12px -12px 12px; padding: 10px 12px; border-bottom: 1.5px solid var(--g2); }
+.bk-logo { width: 18px; height: 18px; border-radius: 50%; background: var(--g2); flex: none; }
+.bk-title { flex: 1; font-weight: 700; color: var(--g3); }
+.bk-menu { display: grid; gap: 3px; width: 16px; }
+.bk-bar { display: block; height: 2px; background: var(--g2); }
+
+.bk-cap { margin-bottom: 6px; font-weight: 700; }
+.bk-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1.5px dashed var(--g1); }
+.bk-time { width: 30px; height: 22px; border-radius: 3px; background: var(--g1); flex: none; }
+.bk-rowtext { flex: 1; }
+.bk-rowtext .bk-line { margin: 4px 0; }
+.bk-pill { width: 34px; height: 16px; border: 1.5px solid var(--g2); border-radius: 3px; flex: none; }
+
+.bk-img { display: block; width: 100%; height: 70px; margin-bottom: 8px; }
+.bk-img rect, .bk-img line { fill: none; stroke: var(--g2); stroke-width: 1.5; }
+.bk-img line { stroke: var(--g1); }
+.bk-head { font-weight: 700; margin-bottom: 4px; }
+
+.bk-flabel { margin-bottom: 4px; }
+.bk-input { height: 28px; border: 1.5px solid var(--g2); border-radius: 3px; background: var(--gl); }
+
+.bk-button { padding: 9px 10px; border-radius: 3px; background: var(--g2); color: var(--gl); font-weight: 700; text-align: center; }
+
+.bk-confirm { text-align: center; padding: 8px 0; }
+.bk-tick { position: relative; display: inline-block; width: 40px; height: 40px; margin-bottom: 6px; border: 2px solid var(--g2); border-radius: 50%; }
+.bk-tick::after { content: ''; position: absolute; left: 13px; top: 7px; width: 9px; height: 17px; border: solid var(--g2); border-width: 0 3px 3px 0; transform: rotate(45deg); }
+
+.bk-text { font-weight: 500; }
