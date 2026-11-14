@@ -34,20 +34,27 @@ before(async () => {
 });
 after(async () => { await browser?.close(); srv?.kill(); });
 
-test('1. her name tag: her words in, craft · good at · loves out, every word editable', async () => {
+test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
   await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(800);
   await page.evaluate(() => { window.__tag = BYOC.nameTag.open(); });
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
-  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 15000, 'her tag');
+  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 15000, 'her card');
   assert.match(await page.locator('.tag-craft').innerText(), /tattoo/i);
-  assert.match(await page.locator('.tag-loves').innerText(), /stencil/);
-  await page.click('.tag-good'); await page.keyboard.press('End'); await page.keyboard.type(' and lettering');
+  assert.match(await page.locator('.tag-title').innerText(), /^the /);
+  assert.ok((await page.locator('.tag-trait').count()) >= 2, 'two or three traits');
+  const before = await page.locator('.tag-trait').first().innerText();
+  await page.locator('.tag-trait').first().click();
+  const after = await page.locator('.tag-trait').first().innerText();
+  assert.notStrictEqual(after, before, 'a click swaps a trait');
   await page.keyboard.press('Enter');
+  await waitFor(() => !document.querySelector('.name-tag'), 3000, 'her card kept');
   const tag = await page.evaluate(() => window.__tag);
-  assert.match(tag.goodAt, /and lettering$/, 'her edit kept');
+  assert.strictEqual(tag.traits[0], after, 'her swap kept');
+  assert.ok(!('alternates' in tag), 'the pools stay behind');
+  console.log('card:', JSON.stringify(tag));
   assert.deepStrictEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft]), ['diy', tag.craft]);
 });
 

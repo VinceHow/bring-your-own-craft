@@ -39,6 +39,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
   const style = document.createElement('style'); style.dataset.byoc = 'team-space'; style.textContent = css;
   document.head.appendChild(style);
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const slot = (e, name) => { e.dataset.slot = name; return e; }; // docs/COMPONENTS.md hooks for looks
 
   let box = null, list = null;
   function mount() {
@@ -46,8 +47,9 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     const room = document.getElementById('room');
     if (!room) return null;
     box = h('section', 'team-space'); box.setAttribute('aria-label', 'Team space'); box.hidden = true;
-    box.append(h('div', 'ts-title', 'Team space'));
-    list = h('ol', 'ts-cards');
+    box.dataset.component = 'team-space'; box.dataset.state = 'empty';
+    box.append(slot(h('div', 'ts-title', 'Team space'), 'title'));
+    list = slot(h('ol', 'ts-cards'), 'cards');
     box.appendChild(list);
     list.addEventListener('click', e => { const c = e.target.closest('.ts-card'); if (c) toggle(c); });
     list.addEventListener('keydown', e => {
@@ -61,23 +63,24 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     const open = card.getAttribute('aria-expanded') !== 'true';
     for (const c of list.querySelectorAll('.ts-card[aria-expanded="true"]')) c.setAttribute('aria-expanded', 'false');
     card.setAttribute('aria-expanded', String(open));
+    for (const c of list.querySelectorAll('.ts-card')) c.dataset.state = c.getAttribute('aria-expanded') === 'true' ? 'open' : 'closed';
   }
   function card(a) {
     const li = h('li', 'ts-card'); li.dataset.joint = a.id; li.tabIndex = 0; li.setAttribute('role', 'button');
-    li.setAttribute('aria-expanded', 'false');
-    const marks = h('span', 'ts-marks');
+    li.setAttribute('aria-expanded', 'false'); li.dataset.component = 'decision-card'; li.dataset.state = 'closed';
+    const marks = slot(h('span', 'ts-marks'), 'marks');
     for (const s of a.seats || []) {
-      const m = h('span', 'ts-mark', NAME[s] || s); m.dataset.seat = s; m.title = `${NAME[s] || s} · ${SEAT[s] || s}`;
+      const m = slot(h('span', 'ts-mark', NAME[s] || s), 'mark'); m.dataset.seat = s; m.title = `${NAME[s] || s} · ${SEAT[s] || s}`;
       m.style.setProperty('--mark-ink', `var(--${s}, ${INK[s] || '#141414'})`);
       marks.appendChild(m);
     }
-    li.append(marks, h('span', 'ts-headline', a.headline));
-    if (a.withTakeaways === true) li.appendChild(h('span', 'ts-takeaways', 'with your takeaways in mind'));
-    li.appendChild(h('span', 'ts-label', 'Talk this through: coming'));
-    const ex = h('ol', 'ts-exchange');
+    li.append(marks, slot(h('span', 'ts-headline', a.headline), 'headline'));
+    if (a.withTakeaways === true) li.appendChild(slot(h('span', 'ts-takeaways', 'with your takeaways in mind'), 'takeaways-note'));
+    li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
+    const ex = slot(h('ol', 'ts-exchange'), 'exchange');
     for (const t of a.turns || []) {
-      const row = h('li', 'ts-turn'); row.dataset.seat = t.seat || '';
-      row.append(h('span', 'ts-by', `${t.by}: `), h('span', 'ts-text', t.text));
+      const row = slot(h('li', 'ts-turn'), 'turn'); row.dataset.seat = t.seat || '';
+      row.append(slot(h('span', 'ts-by', `${t.by}: `), 'by'), slot(h('span', 'ts-text', t.text), 'text'));
       ex.appendChild(row);
     }
     li.appendChild(ex);
@@ -97,13 +100,13 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
       if (typeof li.animate === 'function' && !B.replay) li.animate([{ transform: 'translateY(14px) rotate(-1.5deg)', opacity: 0 },
         { transform: 'translateY(0) rotate(0deg)', opacity: 1 }], { duration: 140, easing: 'ease-out' });
     }
-    box.hidden = agreed.length === 0;
+    box.hidden = agreed.length === 0; box.dataset.state = agreed.length ? 'shown' : 'empty';
     B.teamSpace.count = agreed.length;
   }
   B.teamSpace = { render, count: 0 };
   if (typeof B.on === 'function') {
     B.on('joint.agreed', () => requestAnimationFrame(render));
-    B.on('reset', () => { if (list) list.innerHTML = ''; if (box) box.hidden = true; B.teamSpace.count = 0; });
+    B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; } B.teamSpace.count = 0; });
     B.on('run.start', () => requestAnimationFrame(render));
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
