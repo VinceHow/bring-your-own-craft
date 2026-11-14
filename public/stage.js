@@ -41,7 +41,7 @@
     const stage = document.body.classList.contains('stage');
     const top = stage ? 0 : 30;
     const s = Math.min(window.innerWidth / 1600, (window.innerHeight - top) / 900);
-    room.style.transform = `translate(-50%, -50%) scale(${s})`;
+    room.style.transform = `scale(${s})`; // centred by its negative margins (room.css)
   }
   window.addEventListener('resize', fit);
 
@@ -84,6 +84,7 @@
 
   function focusInput() {
     if (inClose()) { document.getElementById('close-input')?.focus(); return; }
+    if (BYOC.introOpen && BYOC.introOpen()) { document.getElementById('intro-input')?.focus(); return; }
     const inp = document.getElementById('her-input');
     if (inp && !document.getElementById('her-form').hidden) inp.focus();
   }
@@ -92,6 +93,8 @@
   function next() {
     const b = BYOC.beat;
     const idea = document.getElementById('her-idea').textContent;
+    if (b === 0) return BYOC.stage(1); // same as her click on the Product seat
+    if (b === 2 && BYOC.introOpen && BYOC.introOpen()) return BYOC.introDone(); // keeps whatever she typed
     if (b === 3 && !idea) return focusInput();
     if (b >= 11 || inClose()) return;
     BYOC.stage(b + 1);

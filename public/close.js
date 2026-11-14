@@ -3,7 +3,7 @@
 //   1. the idea is typed;
 //   2. while the team works, the contrast: the baseline coding agent asked 0 and guessed N (counted from
 //      docs/baseline/GUESSES.md via GET /api/baseline);
-//   3. the judge's three questions land, with the counter and each one's "why";
+//   3. the judge's questions land (as many as the run's log has; sized for 1-5), with the counter and each "why";
 //   4. her "A asked, M decided from her file", counted from the log of the run on screen (decided events citing
 //      a line of her file). No run, or M = 0: nothing is shown rather than a 0;
 //   5. the built-this-way line (DEMO.md).
@@ -116,7 +116,7 @@
     BYOC.timings.asksAt = Date.now();
     sheet.dataset.phase = 'landed';
     $('close-count').innerHTML = `<b>${r.came}</b> decisions came up · <b class="pink">${r.brought}</b> brought to her`;
-    (r.asks || []).slice(0, 3).forEach((a, i) => {
+    (r.asks || []).forEach((a, i) => {
       const li = document.createElement('li');
       li.style.setProperty('--seat', SEAT_INK[a.seat] || '#141414');
       li.innerHTML = `<span class="close-seat">${esc(a.seat)}</span><span class="close-q">${esc(a.decision)}</span>
@@ -127,7 +127,7 @@
     fitAsks(); setTimeout(fitAsks, 120);
     // Then her line, then the last line.
     (async () => {
-      await wait(900 + 250 * Math.min(3, (r.asks || []).length));
+      await wait(900 + 250 * (r.asks || []).length);
       if (my !== token) return;
       const h = her || await herNumbers();
       if (my !== token) return;

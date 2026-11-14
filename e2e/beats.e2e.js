@@ -12,6 +12,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
+import { MAX_ASKS } from '../lib/policy.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const PORT = 4000 + Math.floor(Math.random() * 90);
@@ -53,7 +54,7 @@ const onScreen = sel => page.evaluate(sel => [...document.querySelectorAll(sel)]
 }), sel);
 
 test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
-  await page.goto(BASE + '/');
+  await page.goto(BASE + '/?hold=300');
   await page.waitForTimeout(400);
   await page.keyboard.press('?');
   assert.ok(await page.isVisible('#help-card'), 'the help card toggles with ?');
@@ -72,12 +73,12 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
 });
 
 test('2. the live path in stage mode, driven like a clicker, as far as the three asks', async () => {
-  await page.keyboard.press('PageDown'); // her card
-  await page.keyboard.press('PageDown'); // the team, one by one
-  await waitFor(() => document.querySelectorAll('.seat .card').length === 5, 8000, 'five cards');
-  await page.waitForTimeout(1000);
-  await page.keyboard.press('PageDown'); // her sheet
-  await waitFor(() => document.activeElement && document.activeElement.id === 'her-input', 3000, 'her input focused');
+  await page.keyboard.press('PageDown'); // the clicker takes the Product seat (same as her click)
+  await waitFor(() => document.querySelectorAll('.seat .card').length === 6 && document.activeElement?.id === 'intro-input', 20000, 'the team assembled and her card open');
+  // From her empty card, the clicker moves on without a line (her file keeps both prepared lines).
+  await page.keyboard.press('PageDown');
+  await waitFor(() => document.activeElement && document.activeElement.id === 'her-input', 5000, 'her input focused');
+  assert.strictEqual(await page.evaluate(() => BYOC.intro), null);
   await page.keyboard.type('A booking page for a small yoga studio.');
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run id');
@@ -96,7 +97,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   const evs = await page.evaluate(() => BYOC.events());
   assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
   const asks = evs.filter(e => e.type === 'ask');
-  assert.ok(asks.length >= 1 && asks.length <= 3, `1 to 3 asks, got ${asks.length}`);
+  assert.ok(asks.length >= 1 && asks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks, got ${asks.length}`);
   await waitFor(n => document.querySelectorAll('#her-flow .fl-fork, #her-flow .fl-pin').length >= n, 5000, 'asks in her flow', asks.length);
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
@@ -108,7 +109,7 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.deepStrictEqual(errors, []);
 });
 
-test('3. the close: a real judge idea; contrast first, then <= 3 questions, then her M from the log, then the last line', async () => {
+test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async () => {
   assert.ok(RUN, 'needs step 2');
   await page.keyboard.press('Escape');
   await page.keyboard.press('j');
@@ -123,7 +124,7 @@ test('3. the close: a real judge idea; contrast first, then <= 3 questions, then
   assert.match(await page.textContent('#close-step'), /The team is on it/);
   await waitFor(() => document.querySelectorAll('#close-asks li').length > 0 || /stopped/.test(document.getElementById('close-step').textContent), 90000, 'the judge’s questions');
   const n = await page.locator('#close-asks li').count();
-  assert.ok(n >= 1 && n <= 3, `1 to 3 questions, got ${n}`);
+  assert.ok(n >= 1 && n <= MAX_ASKS, `1 to ${MAX_ASKS} questions (the cap in lib/policy.js), got ${n}`);
   const tm = await page.evaluate(() => BYOC.timings);
   assert.ok(tm.contrastAt < tm.asksAt, 'contrast before the questions');
   // The judge's run was logged, and its questions are its asks.

@@ -6,15 +6,19 @@
   const SPRING = { type: 'spring', stiffness: 500, damping: 30 };
   const QUICK = { duration: 0.12, ease: 'linear' }; // nothing fades for longer than 150ms
 
-  const SEATS = ['product', 'design', 'data', 'research', 'engineering'];
-  const TEAM = ['design', 'data', 'research', 'engineering'];
+  const SEATS = ['product', 'design', 'data', 'research', 'strategy', 'engineering'];
+  const TEAM = ['design', 'data', 'research', 'strategy', 'engineering'];
+  // Loves / Brings / Stance: copied exactly from DEMO.md, "The team cards". Brings stays true of what each runs on.
   const INFO = {
-    product: { name: 'Product' },
-    design: { name: 'Design', stance: 'sketch first, polish last' },
-    data: { name: 'Data', stance: 'only what we’ll measure' },
-    research: { name: 'Research', stance: 'what’s known, with sources' },
-    engineering: { name: 'Engineering', stance: 'boring and correct' },
+    product: { name: 'Product', brings: 'product: user journeys and the calls that shape them' },
+    design: { name: 'Design', stance: 'sketch first, polish last', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing' },
+    data: { name: 'Data', stance: 'only what we’ll measure', loves: 'One number that says it worked.', brings: 'what to measure at each step' },
+    research: { name: 'Research', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
+    strategy: { name: 'Strategy', stance: 'who pays, and why now', loves: 'Knowing who pays before we build.', brings: 'pricing and payment calls' },
+    engineering: { name: 'Engineering', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
+  // How long each teammate's big card holds mid-table (DEMO 0:06-0:26: about 2 s). ?hold=<ms> for tests.
+  const HOLD_MS = Number(new URLSearchParams(location.search).get('hold')) || 2000;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -22,8 +26,9 @@
     data: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="4.5" height="8" fill="currentColor"/><rect x="9.75" y="8" width="4.5" height="13" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" fill="currentColor"/></svg>',
     research: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>',
     engineering: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
+    strategy: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 12V3.3A8.7 8.7 0 0 1 20.7 12z" fill="currentColor"/></svg>',
   };
-  const BEATS = ['empty room', 'her seat', 'team arrives', 'first move', 'her journey', 'team works', 'her three',
+  const BEATS = ['empty room', 'her seat', 'team assembles, her card', 'first move', 'her journey', 'team works', 'her three',
     'her taste', 'build', 'her page', 'not scripted', 'close'];
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -38,7 +43,8 @@
       el.style.transform = t; if (to.opacity != null) el.style.opacity = last(to.opacity); return Promise.resolve();
     }
     const opts = animate ? { ...SPRING, opacity: QUICK, ...extra } : { duration: 0 };
-    return M.animate(el, to, opts);
+    const a = M.animate(el, to, opts);
+    return a && a.finished ? a.finished : Promise.resolve(a);
   }
   const last = v => Array.isArray(v) ? v[v.length - 1] : v;
   const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -203,8 +209,10 @@
     const i = INFO[seat];
     const c = h('div', 'card');
     if (seat === 'product') {
-      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span>
-        <span class="card-who">Priya<br>your seat</span></div>`;
+      // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
+      c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span></div>
+        <div class="card-her"><span class="card-who">Priya · your seat</span>
+        <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
     } else {
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">teammate</span></div>
         <div class="card-stance">${esc(i.stance)}</div>
@@ -213,7 +221,15 @@
     return c;
   }
   // A card lands tilted 1-3 degrees, the same tilt every time for the same seat.
-  const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, engineering: 2.6 };
+  const TILT = { product: -1, design: -2.2, data: 1.4, research: -1.2, strategy: 1.8, engineering: 2.6 };
+  let herStance = '';
+  function setHerStance(text, animate) {
+    herStance = text || '';
+    const st = document.getElementById('her-stance'); if (!st) return;
+    st.textContent = herStance || 'We’ll find out today.';
+    st.classList.toggle('empty', !herStance);
+    if (herStance && animate) place(st, { y: [-8, 0], opacity: [0, 1] }, true);
+  }
 
   function seatCard(seat, animate) {
     const s = el.seat[seat];
@@ -231,7 +247,7 @@
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
     const sh = el.seatSheet[seat];
-    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec draft' : INFO[seat].name + '’s sheet'}</span>
+    sh.innerHTML = `<div class="mini-head"><i></i><span class="mini-title">${seat === 'product' ? 'Product · spec' : INFO[seat].name}</span>
       <span class="mini-step">waiting</span></div><ul class="mini-lines"></ul><div class="mini-more"></div>`;
     sh._items = new Map(); sh._count = 0;
   }
@@ -239,7 +255,7 @@
     const sh = el.seatSheet[seat];
     if (!sh.hidden) return;
     sheetInit(seat); sh.hidden = false;
-    const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, engineering: -1.1 }[seat];
+    const tilt = { product: 0.6, design: 1, data: -0.8, research: 0.7, strategy: -0.6, engineering: -1.1 }[seat];
     place(sh, { y: animate ? [-40, 0] : 0, rotate: tilt, opacity: animate ? [0, 1] : 1 }, animate);
   }
   function sheetStep(seat, text) {
@@ -247,7 +263,7 @@
     if (sh.hidden) sheetShow(seat, !instantMode);
     $('.mini-step', sh).textContent = text;
   }
-  const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, engineering: 6 };
+  const MAX_LINES = { product: 4, design: 6, data: 6, research: 6, strategy: 6, engineering: 6 };
   function sheetAdd(seat, id, text) {
     const sh = el.seatSheet[seat]; if (!sh) return;
     if (sh.hidden) sheetShow(seat, !instantMode);
@@ -309,7 +325,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', { idea });
+      const r = await BYOC.api('/api/run', BYOC.intro ? { idea, intro: BYOC.intro } : { idea });
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -564,6 +580,7 @@
   function react(ev, source) {
     switch (ev.type) {
       case 'run.start':
+        if (ev.intro) BYOC.intro = ev.intro;
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
@@ -605,7 +622,7 @@
         break;
       }
       case 'ask.refused': case 'stamp': case 'pin': case 'taste.written':
-        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); }
+        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fileAddLine({ id: ev.id, text: ev.text }, true); setHerStance(ev.text, !instantMode); }
         refreshTally();
         break;
       case 'taste.suggested':
@@ -652,16 +669,106 @@
   // stage(n): move the room forward to beat n, playing each beat's entrance in order.
   // stage(n, {instant:true}) jumps there with no motion. Going back to 0-3 rebuilds instantly.
   let walkToken = 0;
+
+  // ---- assembling the team (DEMO 0:06-0:26) and her card (0:26-0:34) ------------------------------
+  // Each teammate's card lands big mid-table (Loves / Brings / Stance), holds, then shrinks into its seat.
+  let assembling = false, assembleSkip = false, introCard = null;
+  function bigCard(seat) {
+    const i = INFO[seat];
+    const c = h('div', 'big-card'); c.dataset.seat = seat;
+    const loves = seat === 'product'
+      ? `<span class="bc-love-start">I love</span><textarea class="bc-love-input" id="intro-input" rows="2" spellcheck="false" maxlength="160" placeholder="…" aria-label="I love…"></textarea>`
+      : `“${esc(i.loves)}”`;
+    c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">${seat === 'product' ? 'your seat' : 'teammate'}</span></div>
+      <dl class="bc-body"><dt>Loves</dt><dd class="bc-loves">${loves}</dd>
+      <dt>Brings</dt><dd class="bc-brings">${esc(i.brings)}</dd>
+      <dt>Stance</dt><dd class="bc-stance${i.stance ? '' : ' empty'}">${i.stance ? esc(i.stance) : 'We’ll find out today.'}</dd></dl>`;
+    el.room.appendChild(c);
+    return c;
+  }
+  // Shrink a big card into its seat, then the seat's own card takes over.
+  async function flyToSeat(c, seat, animate) {
+    const s = el.seat[seat];
+    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
+    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
+    if (animate) await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT[seat] }, true)).catch(() => {});
+    c.remove();
+    seatCard(seat, false);
+  }
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !assembleSkip) await wait(50); }
+  async function assemble(animate, tok) {
+    if (!animate) { for (const s of TEAM) seatCard(s, false); return; }
+    assembling = true; assembleSkip = false;
+    try {
+      for (const s of TEAM) {
+        if (tok !== walkToken) return;
+        if (el.seat[s].querySelector('.card')) continue;
+        if (assembleSkip) { seatCard(s, false); continue; }
+        const c = bigCard(s);
+        await Promise.resolve(place(c, { y: [260, 0], scale: [0.6, 1], rotate: [4, TILT[s] * 0.5] }, true)).catch(() => {});
+        await holdFor(HOLD_MS);
+        if (tok !== walkToken) { c.remove(); return; }
+        await flyToSeat(c, s, !assembleSkip);
+      }
+    } finally { assembling = false; }
+    if (tok !== walkToken || assembleSkip || BYOC.beat !== 2 || BYOC.replay) return;
+    openIntro();
+  }
+  // Her card lifts mid-table, same layout: she finishes "I love…" (typed; voice can fill the same input).
+  function openIntro() {
+    const prod = el.seat.product.querySelector('.card');
+    if (prod) prod.style.visibility = 'hidden';
+    introCard = bigCard('product');
+    place(introCard, { y: [300, 0], scale: [0.6, 1], rotate: [-3, -0.6] }, true);
+    const inp = $('#intro-input', introCard);
+    inp.value = BYOC.intro ? String(BYOC.intro).replace(/^i love\s*/i, '') : '';
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+    });
+    setTimeout(() => inp.focus(), 30);
+  }
+  // Her line is kept (sent as intro with the run; it becomes L1 of her file), and her card settles into her seat.
+  async function introDone() {
+    if (!introCard) return;
+    const c = introCard; introCard = null;
+    const said = $('#intro-input', c).value.trim();
+    BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
+    $('#intro-input', c).blur();
+    const tok = walkToken;
+    const s = el.seat.product;
+    const dx = (s.offsetLeft + s.offsetWidth / 2) - (c.offsetLeft + c.offsetWidth / 2);
+    const dy = (s.offsetTop + s.offsetHeight / 2) - (c.offsetTop + c.offsetHeight / 2);
+    await Promise.resolve(place(c, { x: dx, y: dy, scale: s.offsetWidth / c.offsetWidth, rotate: TILT.product }, !instantMode)).catch(() => {});
+    c.remove();
+    const prod = s.querySelector('.card'); if (prod) prod.style.visibility = '';
+    emit('intro', { intro: BYOC.intro });
+    if (tok === walkToken && BYOC.beat === 2) stage(3);
+  }
+  BYOC.introOpen = () => !!introCard;
+  BYOC.introDone = introDone;
+  // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
+  BYOC.typeInto = function (text) {
+    const t = document.activeElement;
+    const target = (t && (t.id === 'intro-input' || t.id === 'her-input' || t.id === 'close-input')) ? t
+      : introCard ? $('#intro-input', introCard) : (!el.herForm.hidden ? el.herInput : null);
+    if (!target) return false;
+    target.value = String(text || ''); target.focus();
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  };
+  // She takes her seat herself: a click on the empty Product seat.
+  el.seat.product.addEventListener('click', () => { if (BYOC.beat === 0 && !BYOC.replay) stage(1); });
+
   async function enter(b, animate) {
     const tok = walkToken;
     switch (b) {
-      case 1: seatCard('product', animate); break;
+      case 1:
+        seatCard('product', animate);
+        // She took her seat; the team assembles on its own (DEMO 0:06).
+        if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 1) stage(2); }
+        break;
       case 2:
-        for (const s of TEAM) {
-          if (tok !== walkToken) return;
-          seatCard(s, animate);
-          if (animate) await wait(650);
-        }
+        await assemble(animate, tok);
         break;
       case 3:
         el.herSheet.hidden = false; el.fileCard.hidden = false;
@@ -695,6 +802,7 @@
   function stage(n, opts = {}) {
     n = Math.max(0, Math.min(BEATS.length - 1, Number(n) || 0));
     const animate = !opts.instant && !instantMode;
+    if (n > 2 && assembling) assembleSkip = true; // moving on mid-assembly seats the rest at once
     if (n < BYOC.beat) {
       if (n <= 3 && !BYOC.replay && !el.herIdea.textContent) { reset(); const prev = instantMode; instantMode = true; for (let b = 1; b <= n; b++) enter(b, false); instantMode = prev; }
       BYOC.beat = n;
@@ -716,6 +824,8 @@
     walkToken++;
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
+    BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null;
+    el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     for (const s of SEATS) {
       el.seat[s].classList.remove('filled');
