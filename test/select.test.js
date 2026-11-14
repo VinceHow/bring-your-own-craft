@@ -8,7 +8,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-select-'));
 const { pickAsks, select, decideRest, checkCitation, proposeAndSelect, selectForIdea, loadRest } = await import('../lib/select.js');
-const { MAX_ASKS, selectorGrant, ask } = await import('../lib/policy.js');
+const { MAX_ASKS, claimGrantor } = await import('../lib/policy.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, writeLine, readTaste } = await import('../lib/taste.js');
 
@@ -66,8 +66,7 @@ test('a fourth never gets through: the door re-counts the log, across selector r
   const evs = readEvents(run);
   assert.equal(evs.filter(e => e.type === 'ask').length, 3);
   assert.equal(evs.filter(e => e.type === 'ask.refused' && /cap of 3/.test(e.reason)).length, 3);
-  assert.throws(() => selectorGrant(run, ['c1', 'c2', 'c3', 'c4']), /at most 3/);
-  assert.equal(ask(run, cs[9], { grant: selectorGrant(run, ['c10']) }), null); // a valid grant still can't make a 4th
+  assert.throws(() => claimGrantor(), /belongs to the selector/); // nobody else can mint a grant
 });
 
 test('a cheap out-of-seat pick is refused, decided and logged; a costly one may go through', async () => {
@@ -87,6 +86,23 @@ test('a cheap out-of-seat pick is refused, decided and logged; a costly one may 
   // Out of seat but costly, or not undoable: allowed to compete (ranked by score; here in-seat ones win ties).
   const { picks } = pickAsks([cs[1], cs[2]], new Map(score([cs[1], cs[2]]).scores.map(s => [s.id, s])), { flow });
   assert.deepEqual(picks.map(p => p.candidate.id), ['c2', 'c3']);
+});
+
+test('seat is code\'s call: an engineering candidate the model scores as in-seat, cheap and undoable, is refused', async () => {
+  const run = newRun();
+  const cs = [cand(1, { seat: 'engineering', decision: 'Which hosting provider', cost: 'low', undoable: true }), cand(2), cand(3)];
+  const score = items => ({ scores: items.map(c => ({ id: c.id, inSeat: true, changes: 3, silent: 3, dupOf: null, kind: 'fork' })) });
+  const r = await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs, callModel: fakeModel({ score }) });
+  assert.ok(!r.asks.some(a => a.id === 'c1'));
+  assert.deepEqual(r.asks.map(a => a.id), ['c2', 'c3']);
+  const evs = readEvents(run);
+  assert.ok(evs.some(e => e.type === 'ask.refused' && e.id === 'c1' && /out of her seat/.test(e.reason)));
+  assert.ok(evs.some(e => e.type === 'decided' && e.id === 'c1'));
+  // The same candidate, costly or not undoable, may compete.
+  for (const extra of [{ cost: 'high' }, { undoable: false }]) {
+    const c = cand(1, { seat: 'engineering', cost: 'low', undoable: true, ...extra });
+    assert.equal(pickAsks([c], new Map([['c1', { id: 'c1', inSeat: false, changes: 3, silent: 3, dupOf: null, kind: 'fork' }]]), { flow }).picks.length, 1);
+  }
 });
 
 test('a citation to a missing line is rejected, falls back to team default, and is logged', async () => {
@@ -152,7 +168,7 @@ test('proposeAndSelect: Research cites only its prepared finding; a teammate fai
   assert.equal(r.candidates.length, 4);
   const research = r.candidates.find(c => c.seat === 'research');
   const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));
-  assert.deepEqual(research.source, { title: finding.title, url: finding.url, prepared: true });
+  assert.deepEqual(research.source, { title: finding.title, url: finding.url, label: finding.label, how_verified: finding.how_verified, prepared: true });
   assert.ok(r.candidates.filter(c => c.seat !== 'research').every(c => !c.source));
   assert.ok(r.candidates.every(c => c.attachTo === null)); // n9 isn't a box of hers
   assert.ok(readEvents(run).some(e => e.type === 'teammate.error' && e.seat === 'data'));

@@ -10,7 +10,7 @@ import { TEAM_MODEL, TEAM_EFFORT, PER_SEAT } from '../lib/teammates.js';
 import { initTaste } from '../lib/taste.js';
 import { tally } from '../lib/tally.js';
 import { backend } from '../lib/model.js';
-import { fallbackParseFlow } from '../routes/run.js';
+import { parseFlow } from '../lib/flow.js';
 
 const IDEAS = {
   yoga: {
@@ -29,8 +29,6 @@ const { idea, lines } = opt('idea')
   ? { idea: opt('idea'), lines: (opt('lines') || '').split('|').map(s => s.trim()).filter(Boolean) }
   : IDEAS[which];
 
-let parseFlow = fallbackParseFlow;
-try { ({ parseFlow } = await import('../lib/flow.js')); } catch {}
 
 const run = newRunId(`dry-${which}`);
 const taste = initTaste(run);
@@ -87,7 +85,7 @@ p('## All candidates');
 for (const c of r.candidates) {
   const s = r.scores.get(c.id);
   p(`- ${c.id} ${c.seat} [${c.cost}${c.undoable ? '' : ', not undoable'}] ${c.decision}` +
-    (s ? ` (inSeat ${s.inSeat}, changes ${s.changes}, silent ${s.silent}${s.dupOf ? `, dup of ${s.dupOf}` : ''})` : ' (not scored)'));
+    (s ? ` (in her seat ${c.seat === 'product'}, changes ${s.changes}, silent ${s.silent}${s.dupOf ? `, dup of ${s.dupOf}` : ''})` : ' (not scored)'));
 }
 p('');
 p(`Meter so far: ${t.meter.pct}% (${t.meter.craft} craft, ${t.meter.stamp} stamp)`);

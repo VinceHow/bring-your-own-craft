@@ -7,27 +7,8 @@ import { scrub } from '../lib/model.js';
 import { proposeAndSelect, selectForIdea } from '../lib/select.js';
 import { initTaste, readTaste, writeLine, inferSoundsLike, cleanRule } from '../lib/taste.js';
 import { tally } from '../lib/tally.js';
+import { parseFlow } from '../lib/flow.js';
 import path from 'node:path';
-
-// Piece 2 owns lib/flow.js; until it lands, a small local parser with the same shape.
-let parseFlow = fallbackParseFlow;
-try { ({ parseFlow } = await import('../lib/flow.js')); } catch {}
-
-export function fallbackParseFlow(lines) {
-  const nodes = [], edges = [];
-  const find = label => nodes.find(n => n.label.toLowerCase() === label.toLowerCase());
-  const node = label => find(label) || (nodes.push({ id: `n${nodes.length + 1}`, label }), nodes.at(-1));
-  const clean = s => s.trim().replace(/^["'“”]+|["'“”]+$/g, '').trim();
-  let prev = null;
-  for (const line of lines) {
-    const parts = String(line).split(/\s*(?:→|->)\s*/).map(clean).filter(Boolean);
-    if (!parts.length) continue;
-    const ns = parts.map(node);
-    if (parts.length === 1) { if (prev && prev !== ns[0]) edges.push({ from: prev.id, to: ns[0].id }); prev = ns[0]; }
-    else for (let i = 1; i < ns.length; i++) edges.push({ from: ns[i - 1].id, to: ns[i].id });
-  }
-  return { nodes, edges };
-}
 
 const running = new Set();
 // Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
@@ -133,7 +114,7 @@ export default [
       if (!idea) return sendJson(res, 400, { error: 'idea required' });
       const lines = Array.isArray(body?.lines) ? body.lines.map(String).filter(Boolean) : [];
       try {
-        return sendJson(res, 200, await selectForIdea(idea, lines, { parseFlow }));
+        return sendJson(res, 200, await selectForIdea(idea, lines));
       } catch (e) {
         console.error(scrub(e.message));
         return sendJson(res, 500, { error: scrub(e.message) });
