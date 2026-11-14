@@ -56,6 +56,7 @@
   BYOC.on('joint.agreed', ev => call(l => l.run({ type: 'agree', seats: (ev.seats || []).map(s => WHO[s]).filter(Boolean) })));
   BYOC.on('build.done', () => call(l => l.run({ type: 'milestone' })));
   BYOC.on('teammate.done', ev => run('idle', ev.seat));
+  BYOC.on('action.yes', ev => run('delighted', ev && ev.seat));          // she said Yes to its ask: that teammate is delighted
 
   // focus wins: while a focus document is open the room holds still
   BYOC.on('focus.open', () => call(l => l.focus(true)));
