@@ -1,7 +1,10 @@
 # Bring your own craft: the product demo
 
 Product owner, 14 Nov (studio version, after Vincent's user feedback: "it felt like walking into a work meeting").
-One polished journey: **Priya, a product lead, takes the Product seat.** Everything built serves this script.
+One polished journey: **Priya, a product manager, takes the Product seat**, building a booking page for a friend's
+small yoga studio (a side project). Everything built serves this script. Why a PM (Vincent, 14 Nov): the panel is
+researchers, PMs, directors and investors, and all of them work with or as a PM. Off the script, Vincent can try
+other personas live through "Your own craft" (e.g. a baker); the one-pager and the pitch use Priya throughout.
 
 **The promise:** take the seat of the craft you love, and a team you'd love to work with fills the rest. They're good
 enough to handle their own work, they check in with you because you're the expert, and you build the idea up
