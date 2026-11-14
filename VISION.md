@@ -8,6 +8,12 @@ You spend 90% of your time on the craft you love, in flow, with a team you'd lov
 
 ## Who it's for, and their pain
 
+**The job: help people with a craft actually get their idea built.** Most projects don't die from bad ideas; they die
+in the questions nobody signed up for ("which language?", "which database?"). Here you only do what you love, so you
+stay motivated, and the team does the rest, so you reach the end. *(Pitch framing from early user feedback, 14 Nov:
+nothing to build. "You reach the end" is the belief behind the product; the demo shows one person finishing, and we
+don't claim more than that.)*
+
 **Our ICP: people with a deep craft who want to turn an idea into a working product, without a full team.** We start with product managers like Priya: they know customers, problems and journeys inside out, and they have more ideas than engineers, designers and researchers to build them. The same shape fits other crafts later: a designer, a researcher, a baker with a business idea.
 
 **Their pain today:**
