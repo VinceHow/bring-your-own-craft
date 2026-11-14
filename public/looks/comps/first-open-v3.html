@@ -352,7 +352,7 @@ html, body { margin: 0; background: #1A120D; }
       if (!instant && SLOW) { InkPaper.lay(fr); if (card) InkPaper.lay(card, .45); }
       if (!instant && !SLOW) {
         // stage pace: the next teammate's wave starts unseen, so their hand is up when they appear; then a crossfade
-        if (card) { card.querySelector('.line').textContent = t.line; InkPaper.redraw(card); }
+        if (card && STAGE) { card.querySelector('.line').textContent = t.line; InkPaper.redraw(card); }
         await wait(v ? 800 : 0);
         if (prev) animate(prev, { opacity: 0 }, { duration: P(.3, .35) }).finished.then(() => prev.remove());
         await animate(m, { opacity: [0, 1] }, { duration: P(.3, .35) }).finished;
@@ -364,12 +364,13 @@ html, body { margin: 0; background: #1A120D; }
       const rr = card.querySelector('.rr'), ln = card.querySelector('.line');
       if (t.flex) { await wait(SLOW ? 800 : P(80, 150)); await typeIn(rr, t.role === 'Data' ? 'Morning bake list' : t.role, SLOW ? 55 : P(20, 32)); }
       if (SLOW || instant) { await wait(500); await typeIn(ln, t.line, 20); InkPaper.redraw(card); }
+      else if (!STAGE) { await typeIn(ln, t.line, 900 / t.line.length); InkPaper.redraw(card); } // natural: typed in about 0.9 s, about 2.4 s a teammate
       if (instant && TAPSTILL === t.who && N === 5 + k) { fr._react(2.6); return; }
       if (TAPDEMO && !instant && (t.who === 'mika' || t.who === 'theo')) {
         while (fr._busy) await wait(200);
         await wait(900); await tap(fr); fr._react(); hidePtr(); await wait(5800);
       }
-      if (k < TEAM.length - 1) await wait(SLOW ? 1900 : P(700, t.flex ? 1300 : 1050));
+      if (k < TEAM.length - 1) await wait(SLOW ? 1900 : P(700, t.flex ? 700 : 350));
     }
     if (N < 10) return;
     // ---- 10 THE REVEAL: the paper parts, the room is there, she sits down ----
