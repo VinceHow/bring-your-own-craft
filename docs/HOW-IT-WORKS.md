@@ -52,8 +52,8 @@ on `main`.)
 - The file only grows from her decisions. There is no questionnaire.
 
 ## The key
-The fal key is only needed for `MODEL_BACKEND=fal`; the demo runs on the default Claude Code backend, which needs no
-key.
+The fal key is only needed for `MODEL_BACKEND=fal`, which is switched off: the demo runs on the default Claude Code
+backend, which needs no key. The key handling is still built and tested, in case that backend is turned on.
 - It is read from `FAL_KEY` and held in server memory (`lib/model.js`). It is never written to disk, logs, `runs/`,
   the browser or the repo.
 - `scrub()` in `lib/model.js` strips the key, and anything key-shaped, from error messages; `sendJson` in

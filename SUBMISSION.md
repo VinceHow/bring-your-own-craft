@@ -3,11 +3,15 @@
 Paste each section into the matching Devpost field. Numbers in [brackets] are not measured yet; fill them from the
 rehearsal runs or delete them before submitting.
 
-**Tagline:** Take the seat of the craft you love, and a team fills the rest.
+**Track:** Autonomous Agents.
+
+**Tagline:** Take the seat of the craft you love, and a team of agents fills the rest. They decide almost everything
+your way, and ask you only what's worth your time.
 
 ## Inspiration
 Building with AI today, you either get a tool that guesses everything or an agent that asks about everything. Both
-take you out of your own craft. A product person ends up approving pop-ups, not deciding the journey.
+take you out of your own craft. A product person ends up approving pop-ups, not deciding the journey. We wanted
+agents autonomous enough to decide nearly everything, with a hard, coded limit on how often they interrupt you.
 
 We checked the first half before writing any code. We gave a default coding agent one prompt: "Build me a booking
 page for a small yoga studio." It asked 0 questions. It made 22 guesses about the studio: its name, four teachers,
@@ -15,29 +19,29 @@ the prices, a two-hour cancel rule, that you must sign in to book, that a full c
 guess with its evidence (`docs/baseline/GUESSES.md`). Every one of them was the owner's call.
 
 ## What it does
-You take one of five seats at a table: Product, Design, Data, Research or Engineering. The other four are teammates.
+You take one of five seats at a table: Product, Design, Data, Research or Engineering. The other four are agents.
 
 In the demo, Priya takes the Product seat. She writes the idea and her customer journey, one line a step, and each
-line becomes a box on her flow. The teammates work in parallel and raise every decision the build needs. A counter
-shows how many came up and how many reach her.
+line becomes a box on her flow. The four agents work in parallel, on their own, and raise every decision the build
+needs. A counter shows how many came up and how many reach her.
 
 At most three reach her. They arrive inside her own work, as a fork on her flow or a note pinned to a box, each with
-a recommendation and a reason. Never a pop-up. Everything else is decided for her, and each decision cites the line of
-her own file that decided it.
+a recommendation and a reason. Never a pop-up. She can take the recommendation or overrule it. The agents decide
+everything else themselves, and each decision cites the line of her own file that decided it.
 
-Her file is her product philosophy, a few lines long. She never writes it from scratch. When she pins a comment, like
-"Never ask for a phone number. Regulars hate it.", the team names the principle behind it ("Sounds like: never ask
-for what you could remember"). She rewords it, and it is written into her file. Then she presses Build and gets her
-booking page, with a step she never touched following the rule she just wrote.
+Her file is her product philosophy, a few lines long. She never writes it. She makes a call on her work and pins it
+("Cut the phone field. Name's enough; regulars hate forms."), and the team names the principle behind it ("Sounds
+like: never ask for what you could remember"). She rewords it, and it is written into her file. Then she presses
+Build and gets her booking page, with a step she never touched following the rule she just wrote.
 
-A different idea gets different questions. A judge can give us one live and see the three it would bring.
+A different idea gets different questions. At the close, a judge gives us an idea live, and the agents bring the
+three questions they would ask a product person, in about 15 seconds.
 
 ## How we built it
 - One Node 22 server, one HTML page, vanilla JavaScript, no build step and no dependencies.
-- Every model call goes through one function, `callModel`, which returns JSON validated against a schema. The default
-  backend is Claude Code run headless, with our own system prompts and no tools. A fal backend, on the user's own key,
-  is one environment variable away.
-- Five teammates, each a model call with its own stance. The Product teammate uses Anthropic's `write-spec` skill
+- Every model call goes through one function, `callModel`, which returns JSON validated against a schema. The
+  backend is Claude Code run headless, with our own system prompts and no tools.
+- Five teammate agents, each a model call with its own stance, run in parallel. The Product teammate uses Anthropic's `write-spec` skill
   from the product-management plugin. Research cites only a finding gathered before the demo from a real source, with
   its URL.
 - The selector: one model call scores each decision (in her seat? changes the build? does her file already say?).
@@ -61,7 +65,8 @@ A different idea gets different questions. A judge can give us one live and see 
   (`docs/dry-runs/timings.md`).
 - A fair baseline. Headless mode can't show questions, so we ran the default agent a second time, interactively, with
   a script answering every dialog. It still asked 0.
-- The fal key never reached our build sessions (401 every time), so the demo runs on Claude Code. We say so on stage.
+- We planned a second backend through fal on the user's own key. The key never reached our build sessions (401
+  every time), so we switched it off and run on Claude Code.
 
 ## Accomplishments that we're proud of
 - The cap of three is enforced in code and tested: a fourth never gets through.
@@ -70,7 +75,6 @@ A different idea gets different questions. A judge can give us one live and see 
 - Across eight real dry runs on six different ideas, each brought exactly three questions out of 15 or 25 that came up
   (`docs/dry-runs/`).
 - Asked 0, guessed 22 (the default agent) beside 3 asked, [M, TBD from rehearsal] decided from her file.
-- The fal key leak test passes against a fake fal that tries to echo the key back.
 
 ## What we learned
 - The useful line is between craft and stamping, not between asking and not asking. A choice inside your own work
@@ -87,7 +91,7 @@ A different idea gets different questions. A judge can give us one live and see 
 
 ## Built with
 Node.js, JavaScript, HTML, CSS, Claude (via Claude Code, headless), Anthropic product-management plugin (`write-spec`),
-taste-skill, motion, Archivo Black, IBM Plex, Playwright. fal [only if `MODEL_BACKEND=fal` runs on the day].
+taste-skill, motion, Archivo Black, IBM Plex, Playwright.
 
 ## Try it
 Repo: [public repo URL]. Run `npm start`, open http://localhost:3000. Tests: `npm test`, `npm run e2e`.

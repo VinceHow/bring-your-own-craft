@@ -2,7 +2,9 @@
 
 **Take the seat of the craft you love, and a team fills the rest.**
 
-A hackathon build, 14–15 Nov 2026. Licence: [PolyForm Noncommercial 1.0.0](LICENSE).
+A team of autonomous agents that builds with you: it decides almost everything your way, and asks you only the few
+questions worth your time. Hackathon build, 14–15 Nov 2026, Autonomous Agents track. Licence:
+[PolyForm Noncommercial 1.0.0](LICENSE).
 
 ## The problem
 Prompt-to-app tools guess everything. Coding agents ask about everything, or approve-and-continue you to death. Either
@@ -16,11 +18,13 @@ transcripts are kept in [`docs/baseline/`](docs/baseline/).
 ## What we built
 A room with five seats: Product, Design, Data, Research, Engineering. You take one (in the demo, Priya takes
 Product) and do your own work: you write the idea and the customer journey, one line a step. The four other seats are
-teammates. They raise every decision the build needs.
+agents, working in parallel without waiting on you. Each one raises the decisions its craft needs.
 
-Then a selector, enforced in code, brings you **at most three** of those decisions. They arrive inside your own work,
-as a fork on your flow or a pin on a box, each with a recommendation and a reason. Never as a pop-up. Everything else
-is decided for you, and each decision cites the line of your file that decided it, or says "team default".
+The point is the autonomy, with a hard limit on interruptions. A selector, enforced in code, brings you **at most
+three** of those decisions. They arrive inside your own work, as a fork on your flow or a pin on a box, each with a
+recommendation and a reason. Never as a pop-up. You can take the recommendation or overrule it (it's then marked YOUR
+CALL). The agents decide everything else themselves, and each decision cites the line of your file that decided it,
+or says "team default".
 
 Your file is a short list of your own principles. It grows from your decisions: when you pin a comment, the team
 suggests a "Sounds like" line; you keep it or reword it, and it is written to the file. You never fill in a
@@ -74,9 +78,9 @@ npm run e2e      # walks the yoga script through the real UI in Chromium (Playwr
 `MODEL_BACKEND` picks where model calls go. Every call goes through one function, `callModel` in `lib/model.js`.
 - `claude-code` (default): Claude Code run headless (`claude -p`), with our own system prompt, no tools and no
   project files loaded. It uses the machine's own Claude Code login, so no key is needed.
-- `fal`: Claude through fal's OpenRouter router, on your own fal key, read from `FAL_KEY`. Written and covered by the
-  leak test against a fake fal, but **not yet run against the real fal service** (our key returned 401 in every
-  session so far). The demo runs on `claude-code`.
+- `fal`: code for Claude through fal's OpenRouter router on your own key (`FAL_KEY`) exists and is covered by the
+  leak test against a fake fal, but it is **not used**: it never ran against the real fal service, and we switched
+  it off. The demo runs on `claude-code`.
 
 ## What's real and what's prepared
 **Real, and tested:**
@@ -94,18 +98,17 @@ npm run e2e      # walks the yoga script through the real UI in Chromium (Playwr
 - The page templates and their booking logic. The build fills them; it doesn't write new code.
 - The first two lines of her file ("prepared for the demo").
 - Research's finding, gathered before the demo from a real source, with its URL (`data/research-finding.json`).
-- The café idea, shown as a REPLAY of a real run, and the rehearsal run, used only as a fallback (REPLAY).
+- The café idea, a recorded real run, shown only if a judge's live idea fails (REPLAY), and the rehearsal run, used
+  only as a fallback (REPLAY).
 
 **In progress at the time of writing** (not yet merged to `main`): the page templates and the live fill
 (`lib/fill.js`, `routes/build.js`, `routes/book.js`), and the e2e steps from "asks arrive" to "counter matches the
-log", which are marked pending in `e2e/yoga.e2e.js`. Pasting a fal key into the room is not built; the key comes
-only from `FAL_KEY`.
+log", which are marked pending in `e2e/yoga.e2e.js`.
 
 ## Built with: APIs, models and open-source
 | What | Used for | Licence |
 |---|---|---|
 | Claude Code, headless (`claude -p`) | the model backend that runs in the demo; teammates, selector and "Sounds like" use Claude Sonnet (Claude Code's `sonnet` alias) at low effort | Anthropic commercial terms; not redistributed |
-| fal, OpenRouter router | optional backend, Claude via `anthropic/claude-sonnet-4.5` on your own key; not used in the demo unless it works on the day | fal and OpenRouter terms; not redistributed |
 | [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | builds the page templates in a separate folder; its design rules guide the room's look. Kit files vendored in `vendor/taste-skill/` (upstream `f6b7657`) with its licence. Never installed in this repo. | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
 | [`motion`](https://motion.dev) 14.14.0 | springs for the room's animation; copied to `public/vendor/motion/` for offline use | MIT |
@@ -114,6 +117,9 @@ only from `FAL_KEY`.
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
+
+Not used: fal and OpenRouter (an optional backend is in `lib/model.js`, switched off). No paid APIs beyond the
+Claude Code login.
 
 Datasets: none. Research's one finding is a public web page, cited with its URL in `data/research-finding.json`.
 
