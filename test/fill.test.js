@@ -317,3 +317,9 @@ test('the phone FIELD turns on only for the customer\'s phone; the business\'s o
   // Removing the field: off.
   assert.equal(phone('The order form', 'No phone field', true), false);
 });
+
+test('the phone FIELD: a confirmation by text with a phone fallback is not the customer\'s phone', () => {
+  const phone = (decision, choice, start = false) => { const sw = { phone: start }; applyChoices(sw, [{ decision, choice }]); return sw.phone; };
+  assert.equal(phone('How the customer is told the order went through, and what shows if it fails', 'On-screen confirmation plus text message, with a clear retry and phone fallback on failure'), false);
+  assert.equal(phone('What we keep about customers', 'Name and order history; no phone', true), false);
+});
