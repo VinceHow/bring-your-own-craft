@@ -305,6 +305,12 @@ test('a new choice must cite her line and drop what every option had; else the a
   }
   assert.equal(J.dropsRuledOut(KEEP.options, 'Name and order history; no phone'), true);
   assert.equal(J.dropsRuledOut(KEEP.options, 'Name, phone and order notes'), false);
+  // dropping only a verb, negating the verb, or a synonym of the thing ruled out: not a new option
+  const ASK = ['Ask for the phone at sign-up', 'Ask for the phone at checkout', 'Ask for the phone after the first order'];
+  assert.equal(J.dropsRuledOut(ASK, 'Phone number at checkout'), false);
+  assert.equal(J.dropsRuledOut(ASK, 'Never ask for the phone at sign-up'), false);
+  assert.equal(J.dropsRuledOut(ASK, 'Ask for their mobile number once'), false);
+  assert.equal(J.dropsRuledOut(ASK, 'No phone; the name on the order is enough'), true);
 });
 
 test('the build: three options all with the phone + her L5 -> no phone field on her page', async () => {
