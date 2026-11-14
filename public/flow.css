@@ -128,3 +128,17 @@
 .fl-item.is-answered:not(.is-open) .fl-qtext { display: none; }
 .fl-item.is-answered:not(.is-open) > .fl-q { padding: 3px 6px; }
 .fl-fork.is-answered:not(.is-open) > .fl-opts { margin-top: 22px; }
+
+/* The lens: the open ask at its own size over her flow, next to its box. Not a modal: the flow stays visible around it. */
+.fl-host > .fl-lens { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+.fl-lens > .fl-item { pointer-events: auto; transform-origin: 0 0; }
+.fl-lens > .fl-fork { width: 760px; padding: 12px 14px 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 6px 6px 0 var(--ink); }
+.fl-lens > .fl-pin { width: 760px; }
+.fl-lens > .fl-fork > .fl-q { display: block; max-width: none; padding: 0; background: none; border: 0; box-shadow: none; }
+.fl-lens > .fl-fork > .fl-opts { margin-top: 14px; gap: 14px; }
+.fl-lens .fl-q { font-size: 24px; line-height: 1.2; }
+.fl-lens .fl-opt { font-size: 21px; line-height: 1.25; padding: 10px 12px; }
+.fl-lens .fl-rec, .fl-lens .fl-yours { font-size: 12px; }
+.fl-lens .fl-why { max-width: none; font-size: 15px; }
+.fl-lens .fl-src { font-size: 14px; }
+.fl-lens .fl-tag { font-size: 13px; }

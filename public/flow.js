@@ -54,6 +54,9 @@
     S.canvas.appendChild(S.svg);
     S.wrap.appendChild(S.canvas);
     el.appendChild(S.wrap);
+    // The lens: the one open ask, zoomed to a readable size over her flow, anchored next to its box (never a modal).
+    S.lens = h('div', 'fl-lens');
+    el.appendChild(S.lens);
     S.nodes = new Map(); S.edges = []; S.drawn = new Set(); S.items = []; S.lines = []; S.focus = null;
     if (!S.subscribed && typeof B.on === 'function') {
       S.subscribed = true;
@@ -147,7 +150,7 @@
       // The open ask is placed first (it's the biggest); the short notes fit around it.
       const isOpen = i => i.el.classList.contains('is-open');
       const waiting = i => i.ask && !i.answered && !isOpen(i);
-      for (const it of [...mine.filter(isOpen), ...mine.filter(waiting), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind !== 'fork'), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind === 'fork')]) {
+      for (const it of [...mine.filter(waiting), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind !== 'fork'), ...mine.filter(i => !isOpen(i) && !waiting(i) && i.kind === 'fork')]) {
         const b = S.nodes.get(it.nodeId);
         const w = it.el.offsetWidth, ih = it.el.offsetHeight;
         // An ask still waiting is a small badge on its box's top edge: no room taken; a click opens it.
@@ -195,9 +198,38 @@
     const availW = S.host.clientWidth || W, availH = S.host.clientHeight || H;
     const k = Math.min(1, availW / W, availH / H);
     S.k = k;
+    placeLens(k, availW, availH);
     S.canvas.style.transform = k < 1 ? `scale(${k})` : '';
     S.wrap.style.height = H * k + 'px';
     drawEdges();
+  }
+
+  // The open ask sits in the lens at its own size (not scaled with the flow): below its box if it fits, else above,
+  // else beside; kept inside her sheet.
+  function placeLens(k, availW, availH) {
+    const it = S.items.find(i => i.el.parentNode === S.lens);
+    if (!it) return;
+    const b = S.nodes.get(it.nodeId); if (!b || b.x == null) return;
+    const w = it.el.offsetWidth, ih = it.el.offsetHeight, gap = 14;
+    const bx = b.x * k, by = b.y * k, bw = b.w * k, bh = b.h * k;
+    const cx = x => Math.max(4, Math.min(x, availW - w - 4)), cy = y => Math.max(0, Math.min(y, availH - ih));
+    // Spots next to its box: below, above, right, left. It may cover some of her flow; pick the spot that covers
+    // least of the boxes and her answered notes (never her own box), then the nearest.
+    const spots = [[cx(bx + bw / 2 - 60), cy(by + bh + gap)], [cx(bx + bw / 2 - 60), cy(by - ih - gap)],
+      [cx(bx + bw + gap), cy(by)], [cx(bx - gap - w), cy(by)],
+      [cx(0), cy(by + bh + gap)], [cx(availW), cy(by + bh + gap)], [cx(0), cy(availH)], [cx(availW), cy(availH)]];
+    const rects = [...[...S.nodes.values()].map(n => ({ x: n.x * k, y: n.y * k, w: n.w * k, h: n.h * k, mine: n === b })),
+      ...S.items.filter(i => i !== it && i.left != null && i.el.parentNode === S.canvas)
+        .map(i => ({ x: i.left * k, y: i.top * k, w: i.w * k, h: i.h * k, weight: i.answered ? 4 : i.badge ? 0.5 : 2 }))];
+    const cover = ([x, y]) => rects.reduce((sum, r) => {
+      const ox = Math.max(0, Math.min(x + w, r.x + r.w) - Math.max(x, r.x)), oy = Math.max(0, Math.min(y + ih, r.y + r.h) - Math.max(y, r.y));
+      return sum + ox * oy * (r.mine ? 50 : r.weight || 1);
+    }, 0);
+    const dist = ([x, y]) => Math.hypot(x - bx, y - (by + bh));
+    const [left, top] = spots.map(p => [p, cover(p), dist(p)]).sort((a, c) => (a[1] - c[1]) || (a[2] - c[2]))[0][0];
+    Object.assign(it.el.style, { left: left + 'px', top: top + 'px' });
+    // In canvas units, for the stem drawn in the flow's own svg.
+    it.left = left / k; it.top = top / k; it.w = w / k; it.h = ih / k;
   }
 
   function edgePath(a, b) {
@@ -244,6 +276,7 @@
   function drawFork(it) {
     const b = S.nodes.get(it.nodeId);
     if (!b || it.left == null || it.badge) return;
+    if (it.el.parentNode === S.lens) { drawLensStem(it, b); return; }
     const q = off(it.el.querySelector('.fl-q'));
     const ink = seatInk(it.ask.seat);
     const stem = it.side
@@ -266,6 +299,17 @@
       if (!it.drawn) drawIn(p);
     }
     it.drawn = true;
+  }
+
+  // A line from the box to the zoomed ask, so it reads as part of her flow.
+  function drawLensStem(it, b) {
+    const ink = seatInk(it.ask.seat);
+    const above = it.top + it.h <= b.y, beside = !above && it.top < b.y + b.h;
+    const from = above ? [b.x + b.w / 2, b.y] : beside ? [it.left > b.x ? b.x + b.w : b.x, b.y + b.h / 2] : [b.x + b.w / 2, b.y + b.h];
+    const to = above ? [it.left + 40, it.top + it.h] : beside ? [it.left > b.x ? it.left : it.left + it.w, it.top + 30] : [it.left + 40, it.top];
+    const stem = sv('path', { d: `M${from[0]},${from[1]} L${to[0]},${to[1]}`, class: 'fl-fpath fl-stem fl-lens-stem' });
+    stem.style.stroke = ink === '#FFE800' ? '#141414' : ink;
+    S.svg.appendChild(stem);
   }
 
   function targetNode(id) {
@@ -330,11 +374,21 @@
   function refocus(doLayout = true) {
     const open = S.items.filter(i => i.ask && !i.answered);
     const cur = open.find(i => i.ask.id === S.focus) || open[0] || null;
+    const moves = [];
     for (const i of S.items) if (i.ask) {
       i.el.classList.toggle('is-open', i === cur);
       i.el.classList.toggle('is-waiting', !i.answered && i !== cur);
+      const want = i === cur ? S.lens : S.canvas;
+      if (want && i.el.parentNode !== want) { moves.push([i.el, i.el.isConnected ? i.el.getBoundingClientRect() : null]); want.appendChild(i.el); }
     }
     layout();
+    // Zoom in and spring back: each moved ask springs from where it was to where it now sits.
+    for (const [el, r0] of moves) {
+      if (!r0 || !r0.width) continue;
+      const r1 = el.getBoundingClientRect(); if (!r1.width) continue;
+      const sc = r0.width / r1.width;
+      settle(el, `translate(${(r0.left - r1.left) / (el.parentNode === S.lens ? 1 : (S.k || 1))}px, ${(r0.top - r1.top) / (el.parentNode === S.lens ? 1 : (S.k || 1))}px) scale(${sc.toFixed(3)})`, 'none');
+    }
   }
 
   async function answer(askId, choice) {

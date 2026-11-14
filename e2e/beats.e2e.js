@@ -104,24 +104,28 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), 'her flow and its asks are all on screen at 1280x720');
   // What the audience sees: the question she's on, at its rendered size (the room and the flow both scale).
   // Only that ask is open; one still waiting is a badge on its box, an answered one keeps her call.
-  // Stage mode: >= 14 px at 1280x720, >= 18 px at 1600x900.
+  // The open one zooms next to its box. Stage mode: question >= 18 px and options >= 16 px at 1280x720;
+  // >= 22 px and >= 19 px at 1600x900.
   const questions = () => page.evaluate(() => {
     const rp = q => +(parseFloat(getComputedStyle(q).fontSize) * q.getBoundingClientRect().height / q.offsetHeight).toFixed(1);
     const open = document.querySelector('#her-flow .fl-item.is-open .fl-qtext');
-    return { min: open ? rp(open) : 0, n: document.querySelectorAll('#her-flow .fl-item.is-open').length,
+    const opts = [...document.querySelectorAll('#her-flow .fl-item.is-open .fl-otext')].map(rp);
+    return { min: open ? rp(open) : 0, opt: opts.length ? Math.min(...opts) : 0, n: document.querySelectorAll('#her-flow .fl-item.is-open').length,
       waiting: document.querySelectorAll('#her-flow .fl-item.is-waiting').length,
       box: rp(document.querySelector('#her-flow .fl-box')), k: +BYOC.flow._state.k.toFixed(2) };
   });
   let answered = 0;
   const checkSizes = async when => {
-    for (const [w, h, floor] of [[1280, 720, 14], [1600, 900, 18]]) {
+    for (const [w, h, floor, optFloor] of [[1280, 720, 18, 16], [1600, 900, 22, 19]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.waitForTimeout(500);
       const q = await questions();
-      console.log(`asks beat, ${when}, ${w}x${h}: open question ${q.min} px, box ${q.box} px, flow scale ${q.k}, ${q.waiting} waiting`);
+      console.log(`asks beat, ${when}, ${w}x${h}: open question ${q.min} px, options ${q.opt} px, box ${q.box} px, flow scale ${q.k}, ${q.waiting} waiting`);
       assert.strictEqual(q.n, 1, 'one ask open at a time');
       assert.strictEqual(q.waiting, asks.length - 1 - answered, 'the others wait as badges on their boxes');
-      assert.ok(q.min >= floor, `${when}: questions >= ${floor} px at ${w}x${h}, got ${q.min}`);
+      assert.ok(q.min >= floor, `${when}: question >= ${floor} px at ${w}x${h}, got ${q.min}`);
+      assert.ok(q.opt >= optFloor, `${when}: options >= ${optFloor} px at ${w}x${h}, got ${q.opt}`);
+      assert.strictEqual(await page.locator('[role=dialog], dialog, .modal').count(), 0, 'never a modal');
       assert.ok(await onScreen('#her-flow .fl-fork, #her-flow .fl-pin, #her-flow .fl-box'), `${when}: all on screen at ${w}x${h}`);
     }
     await page.setViewportSize({ width: 1280, height: 720 });
