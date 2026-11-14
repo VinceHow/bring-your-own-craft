@@ -180,6 +180,14 @@
     landSaid(text);
     $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
     $('.fd-said').classList.remove('speaking');
+    // The first decision ("Who is this really for?", lib/first.js) has its own door: her answer redraws the journey and
+    // settles a run of decisions; there is no meeting or takeaways, so her document closes once they've landed.
+    if (ask.first) {
+      doc.dataset.state = 'answered';
+      try { await B.api(`/api/run/${encodeURIComponent(B.run)}/first`, { askId: ask.id, text }, { step: false }); if (cur === ask) setTimeout(() => { if (cur === ask) close(); }, 1200); }
+      catch (e) { if (cur !== ask) return; sent = false; $('.fd-form').hidden = false; $('.fd-input').value = text; $('.fd-team').textContent = `Not sent (${e.status || e.message}). Enter to try again.`; }
+      return;
+    }
     try { await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, { askId: ask.id, text }, { step: false }); }
     catch (e) {
       if (cur !== ask) return;

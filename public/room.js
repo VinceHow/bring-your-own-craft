@@ -306,6 +306,10 @@
   BYOC.takeDiySeat = takeDiySeat;
 
   const thinking = new Set(); // teammates started but with no proposal yet (teammate.thinking)
+  // The stage path (DEMO stage flow): the first decision, one quick unblock and one focus moment reach her; ?path=full
+  // keeps the three focus moments (the run's stagePath setting; lib/first.js).
+  BYOC.stagePath = new URLSearchParams(location.search).get('path') !== 'full';
+  let firstAskedFor = null, firstSettled = 0;
 
   // ---- a teammate's sketchpad, open (seat.open), and her workspace (BYOC.openWorkspace) ----------------
   // A click on a teammate's card or name opens its sketchpad in full: every call it made, with the choice and what it
@@ -481,7 +485,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : {}), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -930,13 +934,21 @@
         refreshTally();
         break;
       case 'ask': {
-        if (BYOC.beat < 6) stage(6);
+        if (BYOC.beat < 6 && !ev.first) stage(6); // the first decision (0:38) waits in her inbox before the team goes
+        // An empty input she isn't using shouldn't hold it back (the inbox waits while she types).
+        if (ev.first && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
         const it = findItem(ev.id); if (it) it.classList.add('brought');
         asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
         break;
       }
       case 'decided': {
+        if (ev.round === 'first' && el.seat[ev.seat]) { // settled by her first answer: lands with its teammate, staggered
+          const i = firstSettled++;
+          const land = () => { sheetAdd(ev.seat, ev.id, ev.choice); const it = findItem(ev.id); if (it) it.dataset.state = 'decided';
+            chat({ seat: ev.seat, by: ev.by, text: ev.choice }); };
+          if (instantMode || source !== 'live') land(); else setTimeout(land, i * 450);
+        }
         const it = findItem(ev.id);
         if (it) { let c = it.querySelector('.cite'); if (!c) { c = h('span', 'cite'); it.append(' ', c); } c.textContent = `\u00b7 ${ev.cites}`; }
         refreshTally();
@@ -964,6 +976,18 @@
         break;
       case 'chatter':
         chat(ev);
+        break;
+      // The first decision (lib/first.js): once Design's first sketch is down, "Who is this really for?" is asked from
+      // its shape and lands in her inbox like any ask. Her answer redraws the journey and settles a run of decisions,
+      // each with its teammate: a line on its sketchpad and a word under its card, one after another.
+      case 'sketch.done':
+        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) {
+          firstAskedFor = BYOC.run;
+          BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
+        }
+        break;
+      case 'first.done':
+        emit('first.settled', { askId: ev.askId, decided: ev.decided });
         break;
       case 'teammate.error':
         sheetStep(ev.seat, '', 'error');
@@ -1220,6 +1244,7 @@
     setSheetOpen(false);
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
+    firstAskedFor = null; firstSettled = 0;
     BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
     delete el.room.dataset.herSeat; BYOC.herSeat = null;
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };

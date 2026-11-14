@@ -216,6 +216,48 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
   await p.close();
 });
 
+test('1e. the first decision in the room (stubbed): asked after Design\'s sketch, answered from her inbox, settled with each teammate', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const posts = [];
+  await p.route('**/api/run/stub-run/first', r => { posts.push(JSON.parse(r.request().postData() || '{}')); return r.fulfill({ json: { ok: true } }); });
+  await p.goto(BASE + '/?stage=1');
+  await p.waitForTimeout(300);
+  assert.ok(await p.evaluate(() => BYOC.stagePath), 'the stage path is the default');
+  await p.evaluate(() => {
+    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
+    d({ type: 'run.start', idea: "An ordering website for my friend's small bakery", stagePath: true });
+    d({ type: 'sketch.done', seat: 'design', ms: 10 });
+  });
+  await waitFor(() => true, 500, '', null, p);
+  await p.waitForTimeout(300);
+  assert.deepStrictEqual(posts, [{}], 'the room asks for the first decision once the sketch is down');
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'design', by: 'Mika',
+    question: 'Who is this really for?', artifact: { kind: 'journey', ref: 'sketch' }, decisionIds: [] }, 'live'));
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 4000, 'in her inbox', null, p);
+  await p.keyboard.press('PageDown');
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'open', null, p);
+  await p.locator('#focus-doc .fd-input').fill("It's really for the regulars.");
+  await p.keyboard.press('Enter');
+  await waitFor(() => true, 300, '', null, p);
+  await p.waitForTimeout(300);
+  assert.deepStrictEqual(posts[1], { askId: 'first', text: "It's really for the regulars." }, 'her answer goes to the first decision');
+  await p.evaluate(() => {
+    const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
+    d({ type: 'answer', askId: 'first', text: "It's really for the regulars." });
+    d({ type: 'decided', id: 'first-d1', seat: 'design', by: 'Mika', decision: 'Home', choice: 'Their usual loaf one tap away', cites: 'her answer', follows: 'first', round: 'first' });
+    d({ type: 'decided', id: 'first-d2', seat: 'engineering', by: 'Bo', decision: 'Holds', choice: 'Held until 10am', cites: 'her answer', follows: 'first', round: 'first' });
+    d({ type: 'first.done', askId: 'first', decided: 2, reshaped: true });
+  });
+  await waitFor(() => !BYOC.focusDoc.isOpen(), 4000, 'her document closes itself', null, p);
+  await waitFor(() => document.querySelectorAll('.mini-sheet li[data-state="decided"]').length === 2, 4000, 'settled on their sketchpads', null, p);
+  assert.match(await p.textContent('.mini-sheet[data-sheet="engineering"]'), /Held until 10am/);
+  assert.ok(await p.locator('.chatter-line[data-seat="engineering"]', { hasText: 'Held until 10am' }).count(), 'a word under its card');
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
 test('2. the live path in stage mode (the bakery), driven like a clicker, as far as her document', async () => {
   // From her empty paper name tag, the clicker moves on without a line (her file keeps both prepared lines).
   await page.keyboard.press('PageDown');
@@ -230,6 +272,23 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   RUN = await page.evaluate(() => BYOC.run);
   await waitFor(() => BYOC.events().some(e => e.type === 'sketch.done'), 30000, 'the first sketch');
   await waitFor(() => document.querySelectorAll('#her-flow .fl-box').length >= 2, 5000, 'the journey on her sheet');
+  // 1. The first decision (DEMO 0:38): from Design's sketch, "Who is this really for?" lands in her inbox.
+  await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'the first decision asked');
+  await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'the first decision in her inbox');
+  assert.match(await page.textContent('#inbox .inbox-now'), /Mika · Design[\s\S]*Who is this really for\?/);
+  await page.keyboard.press('PageDown'); // the clicker opens it
+  await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'the first decision open');
+  await page.locator('#focus-doc .fd-input').fill("It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.");
+  await page.keyboard.press('Enter');
+  // The journey redraws and a run of decisions settles at once, each with its teammate.
+  await waitFor(() => BYOC.events().some(e => e.type === 'first.done'), 30000, 'the first decision settled');
+  const first = await page.evaluate(() => BYOC.events().filter(e => e.type === 'decided' && e.round === 'first'));
+  console.log('first decision:', first.map(d => `${d.by}: ${d.choice}`).join(' | '));
+  assert.ok(first.length >= 3, `a run of decisions, got ${first.length}`);
+  assert.ok(first.every(d => d.cites === 'her answer' && d.follows === 'first' && d.by), 'each cites her answer, with its teammate');
+  assert.ok(await page.evaluate(() => BYOC.events().some(e => e.type === 'reshape' && e.askId === 'first')), 'Design redrew the journey from her answer');
+  await waitFor(() => !BYOC.focusDoc.isOpen(), 5000, 'back in the room');
+  await waitFor(n => document.querySelectorAll('.mini-sheet li[data-state="decided"]').length >= n, 6000, 'the decisions on their sketchpads', first.length);
   await page.waitForTimeout(800);
   await page.locator('#her-input').focus();
   // The clicker's forward button from her empty input: the team goes.
@@ -241,8 +300,11 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');
   const evs = await page.evaluate(() => BYOC.events());
   assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
-  const asks = evs.filter(e => e.type === 'ask');
-  assert.ok(asks.length >= 1 && asks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks, got ${asks.length}`);
+  // The stage path: the selector brings one focus moment (the first decision was the other ask so far; the quick
+  // unblock keeps the third).
+  const asks = evs.filter(e => e.type === 'ask' && !e.first);
+  assert.strictEqual(asks.length, 1, `one focus moment on the stage path, got ${asks.length}`);
+  assert.ok(evs.filter(e => e.type === 'ask').length <= MAX_ASKS);
   await page.waitForTimeout(1200);
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'the step clears when the selector is done');
   assert.ok(await onScreen('#her-flow .fl-box'), 'her flow is on screen at 1280x720');
