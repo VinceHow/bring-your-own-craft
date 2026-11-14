@@ -85,7 +85,8 @@ test('1b. "Your own craft" from her seat\'s pick card: her name tag, then she si
   await p.click('.seat-product'); // her seat opens its pick card
   await waitFor(() => !document.getElementById('pick-card').hidden, 3000, 'the pick card', null, p);
   assert.strictEqual(await p.textContent('#pick-card .pick-q'), 'What do you bring to the table?');
-  assert.deepStrictEqual(await p.locator('#pick-card .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
+  // any seat is hers (lib/cast.js): every craft, Product first, and her own craft last
+  assert.deepStrictEqual(await p.locator('#pick-card .pick-option').allInnerTexts(), ['Product', 'Design', 'Research', 'Engineering', 'Data', 'Strategy', 'Your own craft']);
   await p.click('#pick-card [data-pick="craft"]');
   assert.ok(await p.locator('#pick-card').isHidden(), 'the pick card goes once she picks');
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
@@ -98,7 +99,8 @@ test('1b. "Your own craft" from her seat\'s pick card: her name tag, then she si
   assert.strictEqual(await p.getAttribute('.seat-product .card', 'data-seat'), 'diy', 'her own craft, not Product');
   assert.match(await p.textContent('.seat-product .card-name'), /\S/, 'her craft names her card');
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');
-  await waitFor(() => document.querySelectorAll('.seat:not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
+  // the flex teammate may still be on the way (an inked note in its chair, SEATS.md): the room never waits on it
+  await waitFor(() => document.querySelectorAll('.seat:not(.seat-product) .card').length + document.querySelectorAll('.seat .late-note').length === 5, 30000, 'the team assembled', null, p);
   await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
   assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
   await p.keyboard.type('A pre-order page for my bakery.'); await p.keyboard.press('Enter');

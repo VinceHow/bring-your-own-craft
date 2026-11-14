@@ -42,7 +42,7 @@ after(async () => {
 });
 
 // A fake-model Product-path run in one tree: every system prompt the team, the selector and the decider see (hashed),
-// and every logged event (minus run ids and timings), in order.
+// and every logged event (minus run ids and timings: t, ms, *Ms), in order.
 const PROBE = `
 import crypto from 'node:crypto'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
 const root = process.argv[2];
@@ -66,7 +66,7 @@ const callModel = async a => {
   return {};
 };
 await proposeAndSelect({ run, idea: 'A website for a small bakery, so customers can order bread ahead.', flow: { nodes: [], edges: [] }, taste: readTaste(run), herSeat: 'product', callModel });
-const events = readEvents(run).map(({ t, run: _r, ms, ...e }) => e);
+const events = readEvents(run).map(({ t, run: _r, ...e }) => Object.fromEntries(Object.entries(e).filter(([k]) => !/(^|[a-z])Ms$|^ms$/.test(k)))); // timings vary run to run
 console.log(JSON.stringify({ prompts: prompts.sort(), events }));
 `;
 
@@ -128,4 +128,31 @@ test('a real run in the Design seat: Mika wears Product, her seat speaks Design,
   assert.deepStrictEqual(errors, []);
   console.log(`design seat: ${r.came} came, ${r.brought} brought; questions: ${JSON.stringify(asks.map(a => `${a.by}: ${a.question}`))}`);
   await p.close();
+});
+
+// No fallback for the flex seat (SEATS.md): a late card leaves an inked note in the chair and the room goes on; the
+// teammate pops in when the card lands; a failed call says "Still on the way". The flex call is held in the browser.
+test('the flex seat: a late card is a note in the chair, then the teammate pops in; a failed one stays "on the way"', async () => {
+  const s = serve(ROOT, 4380 + Math.floor(Math.random() * 9));
+  await s.ready();
+  for (const mode of ['late', 'fail']) {
+    const p = await browser.newPage({ viewport: { width: 1600, height: 930 } });
+    const errors = []; p.on('pageerror', e => errors.push(String(e)));
+    let release; const gate = new Promise(r => (release = r));
+    await p.route('**/api/cast/flex', async route => {
+      await gate;
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mode === 'fail' ? { role: null, failed: 'boom' }
+        : { role: 'flex', flex: { name: 'Operations', focus: 'the morning bake list', stance: 'nothing wasted', loves: 'Every loaf has a home.', brings: 'the morning bake list calls for this page' } }) });
+    });
+    await p.goto(s.base + '/?hold=200'); await p.waitForTimeout(600);
+    await p.click('.seat-product'); await p.click('#pick-card [data-pick="data"]');
+    await p.waitForSelector('.seat[data-seat="data"] .late-note', { timeout: 30000 });
+    assert.match(await p.textContent('.seat[data-seat="data"] .late-note'), /Theo.s running a little late/);
+    assert.equal(await p.evaluate(() => document.querySelectorAll('.seat .card[data-component="place-card"]').length), 4, 'four teammates seated; the room did not wait');
+    release(); await p.waitForTimeout(1200);
+    if (mode === 'late') assert.match(await p.evaluate(() => document.querySelector('.seat[data-seat="data"] .card')?.innerText || ''), /Operations/i);
+    else assert.equal(await p.textContent('.seat[data-seat="data"] .late-note'), 'Still on the way.');
+    assert.deepStrictEqual(errors, []);
+    await p.close();
+  }
 });

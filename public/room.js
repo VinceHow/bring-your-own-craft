@@ -112,7 +112,9 @@
   }
   BYOC.applyCast = applyCast;
   // She took a craft other than Product: the table at once (no model), and, for a flex seat, the flex teammate's card
-  // written while the others walk in (BYOC.flexP; the room waits for it, bounded, before introducing that teammate).
+  // written while the others walk in (BYOC.flexP). No fallback (SEATS.md): if the card isn't back when the intro reaches
+  // that teammate, the chair gets an inked note and the flow goes on; the teammate pops in the moment the card lands,
+  // even mid-flow. If the call fails, the note says "Still on the way" and the run goes on with four. No spinner, no timer.
   async function castFor(craft) {
     let r = null;
     try { r = await BYOC.api('/api/cast', { craft }, { step: false }); } catch { r = null; }
@@ -120,19 +122,63 @@
     if (!roles) { applyCast(null); return; }
     applyCast({ craft, roles });
     BYOC.flexSeat = r.flexSeat || null;
-    BYOC.flexP = r.flexSeat ? BYOC.api('/api/cast/flex', { craft, ...(BYOC.herTag ? { tag: BYOC.herTag } : {}) }, { step: false })
-      .catch(() => null) : null;
+    BYOC.flexState = r.flexSeat ? 'writing' : null; // writing -> here | lost
+    if (!r.flexSeat) return;
+    const asked = BYOC.cast;
+    BYOC.flexP = BYOC.api('/api/cast/flex', { craft, ...(BYOC.herTag ? { tag: BYOC.herTag } : {}) }, { step: false }).catch(() => null);
+    BYOC.flexP.then(f => {
+      if (BYOC.cast !== asked && !(BYOC.cast && BYOC.cast.craft === craft && !BYOC.cast.flex)) return; // she started over
+      if (f && f.role === 'flex' && f.flex) flexArrive(f.flex, 'here');
+      else flexLost();
+    });
   }
   BYOC.castFor = castFor;
-  // The flex teammate's card, once written (at most ~5 s): it replaces the default role on the table.
-  async function flexReady() {
-    if (!BYOC.flexP || !BYOC.cast) return;
-    const r = await Promise.race([BYOC.flexP, wait(5000).then(() => null)]);
-    BYOC.flexP = null;
-    if (r && r.role === 'flex' && r.flex && BYOC.cast) {
-      const seat = BYOC.flexSeat || 'data';
-      applyCast({ ...BYOC.cast, roles: { ...BYOC.cast.roles, [seat]: 'flex' }, flex: r.flex });
+  const flexAway = s => !!(BYOC.cast && s === BYOC.flexSeat && !BYOC.cast.flex);
+  // The domain the note names: from her idea (or her craft, before the idea is said), by keyword; a plain line otherwise.
+  const DOMAINS = [
+    [/bak|bread|pastr|loaf|croissant/i, 'morning bake lists'], [/yoga|pilates|studio|class/i, 'class timetables'],
+    [/caf[eé]|coffee|espresso/i, 'the morning rush'], [/restaurant|kitchen|chef|menu|food/i, 'a busy kitchen'],
+    [/flor|flower|garden|plant/i, 'what’s in bloom'], [/book|librar/i, 'a full shelf'], [/gym|fitness|coach|train/i, 'a full timetable'],
+    [/shop|store|boutique|retail|market/i, 'stock on the shelves'], [/clinic|dent|vet|salon|barber/i, 'a booked-up day'],
+  ];
+  function lateNote() {
+    const name = INFO[BYOC.flexSeat]?.agent || 'Theo';
+    const said = `${el.herIdea?.textContent || ''} ${BYOC.herTag?.craft || ''} ${BYOC.herTag?.goodAt || ''}`;
+    const d = DOMAINS.find(([re]) => re.test(said));
+    return `${name}’s running a little late: we’re finding you someone who knows ${d ? d[1] : 'your kind of work'}.`;
+  }
+  function showLate(seat, text) {
+    const s = el.seat[seat]; if (!s || s.querySelector('.card')) return;
+    let n = s.querySelector('.late-note');
+    if (!n) { n = h('p', 'late-note'); n.dataset.component = 'late-note'; s.appendChild(n); }
+    n.textContent = text; s.dataset.state = 'late';
+  }
+  // The card landed: the teammate comes in with it. Before the run starts, run.start carries it; after, the server logs
+  // seat.arrived and the teammate joins from the next round on.
+  function flexArrive(flex, how) {
+    if (!BYOC.cast || BYOC.cast.flex) return;
+    const seat = BYOC.flexSeat || 'data';
+    applyCast({ ...BYOC.cast, roles: { ...BYOC.cast.roles, [seat]: 'flex' }, flex });
+    BYOC.flexState = how;
+    const s = el.seat[seat];
+    const due = s && (s.querySelector('.late-note') || (BYOC.beat >= 2 && !assembling));
+    if (due) {
+      s.querySelector('.late-note')?.remove();
+      s.querySelector('.card')?.remove(); s.classList.remove('filled');
+      seatCard(seat, !instantMode && !BYOC.replay);
     }
+    if (BYOC.run && !String(BYOC.run).startsWith('local-') && !BYOC.replay && how === 'here') postArrive();
+    emit('seat.came', { seat, name: flex.name });
+  }
+  function postArrive() {
+    if (!BYOC.cast || !BYOC.cast.flex || BYOC.arrivePosted === BYOC.run) return;
+    BYOC.arrivePosted = BYOC.run;
+    BYOC.api(`/api/run/${BYOC.run}/arrive`, { flex: BYOC.cast.flex }, { step: false }).catch(() => {});
+  }
+  function flexLost() {
+    if (!BYOC.cast || BYOC.cast.flex) return;
+    BYOC.flexState = 'lost';
+    if (el.seat[BYOC.flexSeat]?.querySelector('.late-note')) showLate(BYOC.flexSeat, 'Still on the way.');
   }
   const handlers = new Map(); // type -> Set(fn); '*' gets every event
   BYOC.on = function (type, fn) {
@@ -263,14 +309,14 @@
     if (seat === 'product') {
       // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
       // No stance slot on her card (DEMO: her philosophy is the team's to keep, never shown unless she asks).
-      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span></div>
+      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${esc(i.name)}</span></div>
         <span class="card-character" data-slot="character"></span>
         <div class="card-her"><span class="card-who" data-slot="who">Priya · your seat</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
       c.dataset.component = 'her-place-card'; c.dataset.state = 'empty';
       drawHerCharacter(c);
     } else {
       c.dataset.component = 'place-card'; c.dataset.state = 'idle'; c.dataset.seat = seat;
-      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${i.name}</span><span class="card-who"><span class="card-agent-name" data-slot="agent">${i.agent}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></span></div>
+      c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH[seat]}<span class="card-name" data-slot="name">${esc(i.name)}</span><span class="card-who"><span class="card-agent-name" data-slot="agent">${esc(i.agent)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></span></div>
         <span class="card-character" data-slot="character"></span>
         <div class="card-stance" data-slot="stance">${esc(i.stance)}</div>`;
     }
@@ -469,7 +515,7 @@
   // ---- teammates' small sheets ----------------------------------------------------------------
   function sheetInit(seat) {
     const sh = el.seatSheet[seat];
-    sh.innerHTML = `<div class="mini-head" data-slot="head"><i></i><span class="mini-title" data-slot="title">${seat === 'product' ? 'Product · spec' : INFO[seat].name}</span>
+    sh.innerHTML = `<div class="mini-head" data-slot="head"><i></i><span class="mini-title" data-slot="title">${seat === 'product' ? 'Product · spec' : esc(INFO[seat].name)}</span>
       <span class="mini-step" data-slot="step"></span></div><ul class="mini-lines" data-slot="lines"></ul><div class="mini-more" data-slot="more"></div>`;
     sh.dataset.component = 'sketchpad'; sh.dataset.state = 'waiting';
     sh._items = new Map(); sh._count = 0;
@@ -521,7 +567,11 @@
     el.herForm.hidden = mode === 'off' || BYOC.replay;
     if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
   }
-  function setIdea(text) { el.herIdea.textContent = text || ''; }
+  function setIdea(text) {
+    el.herIdea.textContent = text || '';
+    // the flex teammate is still late: the note now names what her idea needs (e.g. "morning bake lists")
+    if (BYOC.flexSeat && BYOC.flexState === 'writing' && el.seat[BYOC.flexSeat]?.querySelector('.late-note')) showLate(BYOC.flexSeat, lateNote());
+  }
   let flowMounted = false;
   function mountFlow() {
     if (flowMounted) return;
@@ -545,6 +595,7 @@
       const castBody = BYOC.cast ? { ...(BYOC.cast.craft !== 'diy' ? { craft: BYOC.cast.craft } : {}), ...(BYOC.cast.flex ? { flex: BYOC.cast.flex } : {}) } : {};
       const r = await BYOC.api('/api/run', { idea, ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
+      if (BYOC.cast && BYOC.cast.flex && !castBody.flex) postArrive(); // the flex card landed while the run was starting
       status(`run ${r.run}`);
       flushPending();
       if (BYOC.firstSketch) BYOC.firstSketch.start(r.run, idea); // Design's first sketch (public/first-sketch.js)
@@ -979,9 +1030,15 @@
         if (ev.intro) BYOC.intro = ev.intro;
         if (ev.cast && source !== 'live' && !BYOC.cast) { // a replay of a run in another seat: its teammates wear its roles
           applyCast(ev.cast);
-          for (const t of TEAM) { const c = el.seat[t].querySelector('.card'); if (c) { c.remove(); el.seat[t].classList.remove('filled'); seatCard(t, false); } }
+          BYOC.flexSeat = Object.keys(ev.cast.roles || {}).find(t => ev.cast.roles[t] === 'flex') || null;
+          for (const t of [...TEAM, ...(ev.seat === 'diy' ? [] : ['product'])]) {
+            const c = el.seat[t].querySelector('.card');
+            if (!c) continue;
+            c.remove(); el.seat[t].classList.remove('filled');
+            if (flexAway(t)) showLate(t, lateNote()); else seatCard(t, false);
+          }
         }
-        if (ev.seat === 'diy' && !el.seat.product.querySelector('.card')) { // a replay of a run in her own craft
+        if (ev.seat === 'diy' && BYOC.herSeat !== 'diy') { // a replay of a run in her own craft
           BYOC.herSeat = 'diy'; if (ev.tag) BYOC.herTag = ev.tag;
           el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
           seatDiy(false);
@@ -989,6 +1046,9 @@
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
+        break;
+      case 'seat.arrived': // the flex teammate's card landed mid-run (live: already in, unless another tab; replay: comes in now)
+        if (ev.flex && BYOC.cast && !BYOC.cast.flex) { BYOC.flexSeat = ev.seat || BYOC.flexSeat; flexArrive(ev.flex, 'logged'); }
         break;
       case 'flow.line':
         if (BYOC.beat < 4) stage(4);
@@ -1120,14 +1180,14 @@
   }
   async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !assembleSkip) await wait(50); }
   async function assemble(animate, tok) {
-    if (!animate) { if (BYOC.flexP) await flexReady(); for (const s of TEAM) seatCard(s, false); return; }
+    if (!animate) { for (const s of TEAM) if (flexAway(s)) showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); else seatCard(s, false); return; }
     assembling = true; assembleSkip = false;
     // Any seat is hers: the flex teammate walks in last, its card written while the fixed teammates were introduced.
     const order = BYOC.flexSeat && BYOC.cast ? [...TEAM.filter(x => x !== BYOC.flexSeat), BYOC.flexSeat] : TEAM;
     try {
       for (const s of order) {
         if (tok !== walkToken) return;
-        if (s === BYOC.flexSeat && BYOC.flexP) await flexReady();
+        if (flexAway(s)) { showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); continue; } // never waits
         if (el.seat[s].querySelector('.card')) continue;
         if (assembleSkip) { seatCard(s, false); continue; }
         const c = bigCard(s);
@@ -1299,7 +1359,8 @@
     if (typing) { clearInterval(typing); typing = null; }
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     BYOC.intro = null; herStance = ''; assembleSkip = true; introCard = null; leanQueue = [];
-    closePick(); if (pickCard) delete pickCard.dataset.pick; delete el.room.dataset.herSeat; BYOC.herSeat = null; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null;
+    closePick(); if (pickCard) delete pickCard.dataset.pick; delete el.room.dataset.herSeat; BYOC.herSeat = null; applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null;
+    el.room.querySelectorAll('.late-note').forEach(n => n.remove());
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();

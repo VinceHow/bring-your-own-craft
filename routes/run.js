@@ -13,13 +13,13 @@ import { cleanTag, templateFor, nameTag } from '../lib/tag.js';
 import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
-import { makeCast } from '../lib/cast.js';
+import { makeCast, castOf, arrival } from '../lib/cast.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
 const running = new Set();
 // Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
-const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|takeaways|intro|tag)$/;
+const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|takeaways|intro|tag|arrive)$/;
 const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 
 function state(run) {
@@ -100,6 +100,13 @@ const handlers = {
     return [200, { tag }];
   },
 
+  // Any seat is hers: the flex teammate's card landed after the run started. It joins from the next round on (no backfill).
+  async arrive(run, body) {
+    const a = arrival(castOf(run), body?.flex);
+    if (!a) return [409, { error: 'no one to arrive' }];
+    logEvent(run, 'seat.arrived', { pane: 'sheet', mode: 'craft', seat: a.seat, flex: a.flex });
+    return [200, a];
+  },
   async taste(run, body) {
     const text = String(body?.text || '').trim();
     if (!cleanRule(text)) return [400, { error: 'text required' }];
