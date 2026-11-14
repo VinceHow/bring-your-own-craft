@@ -90,7 +90,7 @@ test('1b. the seventh seat, "Your own craft": her name tag, then she sits there;
   await p.keyboard.press('Enter'); // keep it: she takes the seat
   await waitFor(() => !!document.querySelector('.seat-diy .card'), 5000, 'her card in her own seat', null, p);
   assert.strictEqual(await p.locator('.seat-product .card').count(), 0, 'not in Product');
-  assert.ok(await p.locator('.seat-diy #her-stance').count(), 'her empty Stance slot');
+  assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');
   await waitFor(() => document.querySelectorAll('.seat:not(.seat-diy):not(.seat-product) .card').length === 5, 30000, 'the team assembled', null, p);
   await waitFor(() => document.activeElement?.id === 'her-input', 8000, 'straight to the idea', null, p);
   assert.strictEqual(await p.locator('#intro-input').count(), 0, 'no separate "I love" card');
@@ -180,13 +180,13 @@ test('2. the live path in stage mode, driven like a clicker, as far as the three
   assert.deepStrictEqual(errors, []);
 });
 
-test('2b. her document: words land, the team chimes in one after another, her brief, kept into her file', async () => {
+test('2b. her document: words land, the team chimes in one after another, the takeaways, kept', async () => {
   // The server's answer and brief routes (builder 6) are stubbed here; the events are the contract's shapes.
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posted = [];
   await p.route('**/api/run/*/answer', async r => { posted.push(['answer', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"ok":true}' }); });
-  await p.route('**/api/run/*/brief', async r => { posted.push(['brief', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
+  await p.route('**/api/run/*/takeaways', async r => { posted.push(['takeaways', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
   await p.goto(BASE + '/?stage=1');
   await p.waitForTimeout(300);
   await p.evaluate(() => {
@@ -214,29 +214,32 @@ test('2b. her document: words land, the team chimes in one after another, her br
   await p.evaluate(() => {
     BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Noor', seat: 'research', text: 'That matches what small studios report.' }, 'replay');
     BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Mika', seat: 'design', text: 'Then their usual class goes first, one tap.' }, 'replay');
-    BYOC.dispatch({ run: 'stub-run', type: 'brief', askId: 'q1', believe: 'Regulars should never have to hunt for their class.', why: 'They come back for the same slot.', guidance: 'Put their usual class first, one tap to book.' }, 'replay');
+    BYOC.dispatch({ run: 'stub-run', type: 'takeaways', askId: 'q1', believe: 'Regulars should never have to hunt for their class.', guidance: 'Put their usual class first, one tap to book.' }, 'replay');
   });
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length === 1, 1000, 'the first chime', null, p);
   assert.strictEqual(await p.locator('#focus-doc .chime').count(), 1, 'one at a time');
-  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'the brief waits for the chimes');
+  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'the takeaways wait for the chimes');
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length === 2, 2500, 'the second chime', null, p);
   assert.ok(Date.now() - t0 >= 800, 'about a second apart');
   assert.match(await p.locator('#focus-doc .chime').first().innerText(), /Noor · Research[\s\S]*small studios report/i);
-  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 2500, 'her brief', null, p);
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 2500, 'the takeaways', null, p);
   assert.match(await p.textContent('#focus-doc .brief-believe .brief-text'), /never have to hunt/);
+  assert.ok(await p.locator('#focus-doc .brief-why').isHidden(), 'two parts: what I believe, guidance to the team');
   // She rewords "what I believe" and keeps it; Enter sends the brief.
   await p.locator('#focus-doc .brief-believe .brief-text').click();
   await p.keyboard.press('End'); await p.keyboard.type(' Ever.'); await p.keyboard.press('Enter');
   await waitFor(() => true, 300, '', null, p);
-  const brief = posted.find(x => x[0] === 'brief');
-  assert.ok(brief, 'the brief was kept');
+  const brief = posted.find(x => x[0] === 'takeaways');
+  assert.ok(brief, 'the takeaways were kept');
+  assert.deepStrictEqual(Object.keys(brief[1]).sort(), ['askId', 'believe', 'guidance']);
   assert.strictEqual(brief[1].askId, 'q1');
   assert.match(brief[1].believe, /never have to hunt for their class\. Ever\.$/);
-  // Her Stance fills from "what I believe" when the file write lands (taste.written).
-  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'taste.written', id: 'L3', text: 'Regulars should never have to hunt for their class. Ever.' }, 'replay'));
+  // Her philosophy is the team's to keep (hidden): no stance slot on her card, nothing added to the file card.
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'taste.written', id: 'L3', text: 'Regulars should never have to hunt for their class. Ever.', hidden: true }, 'replay'));
   await p.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 2000, 'back in the room', null, p);
-  assert.match(await p.textContent('#her-stance'), /never have to hunt/);
+  assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot');
+  assert.strictEqual(await p.locator('#file-lines li[data-id="L3"]').count(), 0, 'the hidden line stays off the card');
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });

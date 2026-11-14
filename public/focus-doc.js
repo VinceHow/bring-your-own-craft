@@ -1,9 +1,9 @@
 // Her focus (DEMO focus rules, 14 Nov): she opens a note from her tray and the view becomes just her and one document.
 // The work is shown large (her journey, a finding, Design's wireframes or the page), with one big question under it.
 // She says or types her piece; her words land on the document. On send: POST /api/run/:id/answer { askId, text }.
-// The team chimes in (chime events, one after another about a second apart), then her brief appears (brief event:
-// what I believe / why / guidance to the team), each part rewordable; keeping it (Enter, the button, or closing)
-// POSTs /api/run/:id/brief, which writes "what I believe" into her file. Then the team gets to work and the work updates.
+// The team chimes in (chime events, one after another about a second apart), then the meeting's takeaways appear
+// (takeaways event: what I believe / guidance to the team), each part rewordable; keeping them (Enter, the button, or
+// closing) POSTs /api/run/:id/takeaways (her hidden file and profile grow). Then the team gets to work.
 // Closing it brings the room back. Class names are polish's (polish.css owns the look); room.css only lays it out.
 // Provides BYOC.focusDoc.{ open(ask), close(), isOpen(), openId() }.
 (function () {
@@ -195,12 +195,15 @@
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
   }
   B.on('chime', ev => { if (!forCur(ev)) return; chimeQ.push(ev); pumpChimes(); });
+  // The meeting's takeaways (what I believe / guidance to the team); older runs logged a 'brief' with a "why" too.
+  B.on('takeaways', ev => { if (!forCur(ev)) return; briefPending = ev; pumpChimes(); });
   B.on('brief', ev => { if (!forCur(ev)) return; briefPending = ev; pumpChimes(); });
   function showBrief(ev) {
     const box = $('.fd-brief');
     for (const k of ['believe', 'why', 'guidance']) {
       const p = box.querySelector(`.brief-text[data-k="${k}"]`);
       p.textContent = ev[k] || '';
+      p.closest('.brief-part').hidden = !ev[k];
       p.contentEditable = B.replay ? 'false' : 'true';
       p.spellcheck = false;
     }
@@ -219,9 +222,9 @@
     if (!cur || kept || B.replay) return;
     kept = true;
     const body = { askId: cur.id };
-    doc.querySelectorAll('.brief-text').forEach(p => { body[p.dataset.k] = p.textContent.trim(); p.contentEditable = 'false'; });
+    doc.querySelectorAll('.brief-text').forEach(p => { if (!p.closest('.brief-part').hidden) body[p.dataset.k] = p.textContent.trim(); p.contentEditable = 'false'; });
     $('.fd-keep').hidden = true;
-    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/brief`, body, { step: false }); }
+    try { await B.api(`/api/run/${encodeURIComponent(B.run)}/takeaways`, body, { step: false }); }
     catch (e) { kept = false; $('.fd-keep').hidden = false; doc.querySelectorAll('.brief-text').forEach(p => { p.contentEditable = 'true'; }); $('.fd-team').textContent = `Not kept (${e.status || e.message}).`; }
   }
 

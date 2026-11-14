@@ -176,7 +176,6 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   const written = (await events()).filter(e => e.type === 'taste.written').at(-1);
   assert.strictEqual(written.text, mine);
   assert.strictEqual(written.reworded, true);
-  await waitFor(t => document.getElementById('her-stance')?.textContent === t, 3000, 'her stance filled on her card', mine);
   const md = fs.readFileSync(path.join(RUNS, RUN, 'taste.md'), 'utf8');
   assert.ok(md.includes(`- [${written.id}] ${mine}`), 'the new line is in runs/<id>/taste.md');
   await waitFor(id => !!document.querySelector(`#file-lines li[data-id="${id}"]`), 3000, 'the new line on her file card', written.id);

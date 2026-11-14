@@ -212,9 +212,9 @@
     const c = h('div', 'card');
     if (seat === 'product') {
       // Her stance stays empty until her first "Sounds like" line fills it (DEMO 1:35).
+      // No stance slot on her card (DEMO: her philosophy is the team's to keep, never shown unless she asks).
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span></div>
-        <div class="card-her"><span class="card-who">Priya · your seat</span>
-        <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
+        <div class="card-her"><span class="card-who">Priya · your seat</span></div>`;
     } else {
       c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who"><span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span></span></div>
         <div class="card-stance">${esc(i.stance)}</div>
@@ -255,8 +255,7 @@
     const t = BYOC.herTag || {};
     const c = h('div', 'card card-diy');
     c.innerHTML = `<div class="card-band">${GLYPH.product}<span class="card-name">${esc(t.craft || 'Your craft')}</span></div>
-      <div class="card-her"><span class="card-who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span>
-      <span class="card-her-stance${herStance ? '' : ' empty'}" id="her-stance">${herStance ? esc(herStance) : 'We’ll find out today.'}</span></div>`;
+      <div class="card-her"><span class="card-who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span></div>`;
     diySeat.appendChild(c); diySeat.classList.add('filled');
     el.room.dataset.herSeat = 'diy';
     place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, -1] : -1 }, animate);
@@ -830,7 +829,7 @@
         break;
       }
       case 'ask.refused': case 'stamp': case 'pin': case 'taste.written':
-        if (ev.type === 'taste.written') { el.soundsLike.hidden = true; fitFile(); fileAddLine({ id: ev.id, text: ev.text }, true); setHerStance(ev.text, !instantMode); }
+        if (ev.type === 'taste.written' && !ev.hidden) { el.soundsLike.hidden = true; fitFile(); fileAddLine({ id: ev.id, text: ev.text }, true); }
         refreshTally();
         break;
       case 'taste.suggested':
@@ -900,7 +899,7 @@
     c.innerHTML = `<div class="card-band">${GLYPH[seat]}<span class="card-name">${i.name}</span><span class="card-who">${seat === 'product' ? 'your seat' : `<span class="card-agent-name">${i.agent}</span> <span class="agent-mark">agent</span>`}</span></div>
       <dl class="bc-body"><dt>Loves</dt><dd class="bc-loves">${loves}</dd>
       <dt>Brings</dt><dd class="bc-brings">${esc(i.brings)}</dd>
-      <dt>Stance</dt><dd class="bc-stance${i.stance ? '' : ' empty'}">${i.stance ? esc(i.stance) : 'We’ll find out today.'}</dd></dl>`;
+      ${i.stance ? `<dt>Stance</dt><dd class="bc-stance">${esc(i.stance)}</dd>` : ''}</dl>`;
     el.room.appendChild(c);
     return c;
   }
