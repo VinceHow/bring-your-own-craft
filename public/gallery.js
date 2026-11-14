@@ -90,6 +90,7 @@
       { state: 'her', src: F, sel: '.seat-product', run: async h => { h.play('fixture'); } },
     ] },
     { name: 'place-card', sel: '.seat-design .card', states: [
+      { state: 'thinking', src: F, run: async h => { h.play('fixture', { until: ev => ev.type === 'candidate' }); } },
       { state: 'working', src: F, run: async h => { h.play('fixture', { count: { 'teammate.done': 0 } }); } },
       { state: 'done', src: F, run: async h => { h.play('fixture'); } },
     ] },
@@ -126,6 +127,12 @@
     ] },
     { name: 'tally', sel: '#tally', states: [
       { state: 'counting', src: R, run: async h => { h.play('rehearsal', { until: ev => ev.type === 'build.done' }); await wait(1500); } },
+    ] },
+    { name: 'sketchpad-open', sel: '#room-panel', note: 'One panel over the room: a teammate’s sketchpad, opened from their seat.', states: [
+      { state: 'open', src: F, run: async h => { h.play('fixture'); if (!h.B.openSketchpad) throw new Error('missing: the room panel is not on this branch yet'); h.B.openSketchpad('design'); await wait(300); } },
+    ] },
+    { name: 'workspace', sel: '#room-panel', note: 'The same panel holding her workspace: her character, the idea, the team space, her takeaways.', states: [
+      { state: 'open', src: R, run: async h => { h.play('rehearsal'); if (!h.B.openWorkspace) throw new Error('missing: the room panel is not on this branch yet'); h.B.openWorkspace(); await wait(300); } },
     ] },
     { name: 'tray', sel: '#tray', states: [
       { state: 'waiting', src: F, run: async h => { h.play('fixture'); } },
