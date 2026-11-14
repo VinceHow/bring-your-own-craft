@@ -73,6 +73,8 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   assert.ok(asks.length <= 3, `at most 3 check-ins, got ${asks.length}`);
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
+    // After her first answer nothing opens by itself (DEMO focus rules): she picks the next note from her tray.
+    if (i > 0) { await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 }); await page.locator('#tray .tray-note').first().click(); }
     await waitFor(() => !!document.querySelector('#her-flow .fl-item.is-open'), 8000, 'an open check-in');
     await page.locator('#her-flow .fl-item.is-open .fl-opt').first().click();
     await waitFor(n => BYOC.events().filter(e => e.type === 'answer').length >= n, 5000, 'answer', i + 1);
