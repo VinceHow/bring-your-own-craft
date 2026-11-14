@@ -225,7 +225,10 @@ body.stage #room .guest-says { font-size: 20px; }
   text-shadow: 1.5px 1.5px 0 rgba(20,20,20,.18); margin-bottom: 4px; }
 #room .slip-text { display: block; font: 500 14px/1.3 var(--ui); }
 body.stage #room .slip-text { font-size: 15px; }
-#room .idea-sheet .idea-layer { background-color: transparent; }
+/* the layers are the same sheet, not new ones: their own paper (so nothing shows through), in the step's grain */
+#room .idea-sheet .idea-layer { background-color: var(--sheet); }
+#room .idea-sheet #sketch-sheet.idea-layer { background-image: var(--finegrid); background-size: 16px 16px; }
+#room .idea-sheet #page-sheet.idea-layer { background-color: #FFFEFB; background-image: none; }
 @media (prefers-reduced-motion: reduce) { #room .idea-sheet { transition: none; } }
 
 /* ---- studio warmth: the pads are ruled paper, the status a pencil note, and the table shows people work here ---- */
