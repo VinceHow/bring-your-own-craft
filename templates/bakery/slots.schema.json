@@ -1,0 +1,250 @@
+{
+  "type": "object",
+  "required": [
+    "words",
+    "steps",
+    "switches",
+    "decidedShown"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "words": {
+      "type": "object",
+      "description": "Every visible line of the page, in her words. Same keys as the template's defaults; each about as long as its default.",
+      "required": [
+        "title",
+        "brand",
+        "heroTitle",
+        "heroLead",
+        "cutoffLine",
+        "regularsTitle",
+        "regularsLead",
+        "regularsUsual",
+        "regularsWhen",
+        "regularsAction",
+        "regularsSent",
+        "regularsNote",
+        "standingLine",
+        "standingLabel",
+        "breadTitle",
+        "breadLead",
+        "loafBody",
+        "confirmTitle",
+        "confirmLead",
+        "confirmSent",
+        "phoneLabel",
+        "rememberLabel",
+        "orderedTitle",
+        "orderedBody",
+        "cancelLine",
+        "cancelReasonLine",
+        "decidedTitle",
+        "decidedLead",
+        "heroAction"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "the browser tab title"
+        },
+        "brand": {
+          "type": "string",
+          "description": "the bakery's name"
+        },
+        "heroTitle": {
+          "type": "string"
+        },
+        "heroLead": {
+          "type": "string"
+        },
+        "cutoffLine": {
+          "type": "string",
+          "description": "when orders close for the next morning, said plainly, e.g. Order by 20:00 for the next morning's bake"
+        },
+        "regularsTitle": {
+          "type": "string"
+        },
+        "regularsLead": {
+          "type": "string"
+        },
+        "regularsUsual": {
+          "type": "string",
+          "description": "the regular's usual order, e.g. One country sourdough"
+        },
+        "regularsWhen": {
+          "type": "string"
+        },
+        "regularsAction": {
+          "type": "string"
+        },
+        "regularsSent": {
+          "type": "string"
+        },
+        "regularsNote": {
+          "type": "string"
+        },
+        "standingLine": {
+          "type": "string",
+          "description": "when the standing weekly order repeats"
+        },
+        "standingLabel": {
+          "type": "string",
+          "description": "the checkbox that makes an order repeat every week"
+        },
+        "breadTitle": {
+          "type": "string"
+        },
+        "breadLead": {
+          "type": "string"
+        },
+        "loafBody": {
+          "type": "string",
+          "description": "a few sentences about the bakery's signature loaf"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmLead": {
+          "type": "string"
+        },
+        "confirmSent": {
+          "type": "string",
+          "description": "shown only after the order really went through"
+        },
+        "phoneLabel": {
+          "type": "string"
+        },
+        "rememberLabel": {
+          "type": "string"
+        },
+        "orderedTitle": {
+          "type": "string"
+        },
+        "orderedBody": {
+          "type": "string"
+        },
+        "cancelLine": {
+          "type": "string"
+        },
+        "cancelReasonLine": {
+          "type": "string"
+        },
+        "decidedTitle": {
+          "type": "string"
+        },
+        "decidedLead": {
+          "type": "string"
+        },
+        "heroAction": {
+          "type": "string",
+          "description": "the main button: a verb and an object"
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Order of the movable sections, following her flow. Allowed: regulars, bread, loaf, confirm, ordered.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "regulars",
+          "bread",
+          "loaf",
+          "confirm",
+          "ordered"
+        ]
+      }
+    },
+    "switches": {
+      "type": "object",
+      "required": [
+        "regulars",
+        "regularsFirst",
+        "standingOrder",
+        "cutoff",
+        "phone",
+        "remember",
+        "oneTapCancel",
+        "cancelReason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "regulars": {
+          "type": "boolean",
+          "description": "show the 'order your usual' section: their usual order in one tap"
+        },
+        "regularsFirst": {
+          "type": "boolean",
+          "description": "the regulars' section comes straight after the top of the page"
+        },
+        "standingOrder": {
+          "type": "boolean",
+          "description": "regulars can make an order a standing weekly order"
+        },
+        "cutoff": {
+          "type": "boolean",
+          "description": "the page states the order cut-off time for the next morning's bake"
+        },
+        "phone": {
+          "type": "boolean",
+          "description": "the order form has a phone field"
+        },
+        "remember": {
+          "type": "boolean",
+          "description": "'remember me on this device' checkbox"
+        },
+        "oneTapCancel": {
+          "type": "boolean",
+          "description": "cancel is one tap from the confirmation email"
+        },
+        "cancelReason": {
+          "type": "boolean",
+          "description": "cancelling asks for a reason"
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Optional colour overrides (#rrggbb). Leave out unless her answers or file speak to the look.",
+      "additionalProperties": false,
+      "properties": {
+        "p-accent": {
+          "type": "string"
+        },
+        "p-action": {
+          "type": "string"
+        },
+        "p-bg": {
+          "type": "string"
+        },
+        "p-surface": {
+          "type": "string"
+        },
+        "p-ink": {
+          "type": "string"
+        }
+      }
+    },
+    "decidedShown": {
+      "type": "array",
+      "description": "Up to 5 decided items that touch this page, by id, each with the label she reads on the page.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
