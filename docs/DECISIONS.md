@@ -32,3 +32,7 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:31 | Vincent | Main track: Autonomous Agents; Figma via its connector for Best-Designed | |
 | Sat 12:32 | agents (lead) | fal stays off; the demo runs on the Claude Code backend | fal key 401 from a brand-new session too; Claude Code works; not worth more time |
 | Sat 12:33 | Vincent + PO | Close reordered (judge's idea first), she overrules once, new pin text | po/close-and-taste |
+| Sat 12:36 | Vincent | Connected the fal MCP to the lead session (account ready, no billing block) | |
+| Sat 12:37 | agents (lead) | fal MCP is for sponsor item 1 only (00:00 block): retry server-side fal from a fresh session; else pre-generate one hero image per demo idea via the MCP, labelled "made with fal before the demo" | core stays on Claude Code; nothing generated before core is green |
+| Sat 12:37 | agents (reviewer) | Blocked build/docs on two not-yet-true claims (taste-skill vendored, recorded runs) | honesty rule |
+| Sat 12:38 | agents (polish builder → lead) | Fixed flow boxes landing at scale(0) | found in Playwright with motion loaded |
