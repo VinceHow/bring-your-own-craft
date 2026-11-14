@@ -28,11 +28,16 @@
   <div class="seat seat-strategy" data-seat="strategy" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Strategy</div></div>
   <div class="seat seat-engineering" data-seat="engineering" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Engineering</div></div>
   <div class="seat seat-product" data-seat="product" data-component="seat" data-state="empty"><div class="seat-empty" data-slot="empty-label">Your seat</div></div>
-  <!-- Her seat's pick card: "What do you bring to the table?" Product, or her own craft (name tag: name-tag.js) -->
+  <!-- Her seat's pick card: "What do you bring to the table?" Any craft (Product first), or her own craft (name tag: name-tag.js); any seat is hers (lib/cast.js) -->
   <aside class="pick-card" id="pick-card" data-component="pick-card" data-state="hidden" hidden>
     <p class="pick-q" data-slot="question">What do you bring to the table?</p>
     <div class="pick-options" data-slot="options">
       <button type="button" class="pick-option" data-pick="product" data-slot="option">Product</button>
+      <button type="button" class="pick-option" data-pick="design" data-slot="option">Design</button>
+      <button type="button" class="pick-option" data-pick="research" data-slot="option">Research</button>
+      <button type="button" class="pick-option" data-pick="engineering" data-slot="option">Engineering</button>
+      <button type="button" class="pick-option" data-pick="data" data-slot="option">Data</button>
+      <button type="button" class="pick-option" data-pick="strategy" data-slot="option">Strategy</button>
       <button type="button" class="pick-option" data-pick="craft" data-slot="option">Your own craft</button>
     </div>
   </aside>
