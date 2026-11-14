@@ -1,7 +1,7 @@
 # Milestone 2 plan: overnight to submission
 
 Product owner, with the lead, the build lead and the design lead. 14 Nov, ~21:15 UTC. Sources: `DEMO.md` (stage flow
-Vincent confirmed), `docs/BAKERY-BRIEF.md` (his bakery walkthrough). Status: **waiting on Vincent's yes.**
+Vincent confirmed), `docs/BAKERY-BRIEF.md` (his bakery walkthrough). Status: **agreed** (Vincent delegated the call to the lead, the build lead, design and the PO; all four agree).
 
 **The answer: feasible. Usage is at 28% after this afternoon's reset (the lead watches the burn and alerts if the
 overnight pace would pass ~70% before the demo), and the hard freeze is 10:00, so the full ~18.5 builder-hours fit.
