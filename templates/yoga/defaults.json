@@ -1,0 +1,56 @@
+{
+  "words": {
+    "title": "Pellow Yoga: a yoga studio in Leith, Edinburgh",
+    "brand": "Pellow Yoga",
+    "heroTitle": "Yoga studio in Leith, Edinburgh",
+    "heroLead": "Drop-in and weekly yoga classes, Monday to Saturday, from £11.50 a class.",
+    "heroFact": "Mats, blocks and blankets",
+    "regularsTitle": "Book your usual class",
+    "regularsLead": "This device remembers the class you come to each week, so booking it again is one button.",
+    "regularsWhen": "Tuesday 07:30",
+    "regularsUsual": "Slow flow with Mira",
+    "regularsAction": "Book Slow flow again",
+    "classesTitle": "This week's classes",
+    "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
+    "waitlistAction": "Join the waitlist",
+    "classTitle": "Slow flow class, 60 minutes",
+    "classBody": "Long holds, simple standing poses and the breath counted out loud. The pace stays even for the whole hour, and every pose has an easier version you can take at any point.",
+    "confirmTitle": "Book a place in a class",
+    "confirmLead": "No account needed. Your place is held as soon as you send the form.",
+    "confirmAction": "Book this class",
+    "confirmSent": "Your class is booked. The confirmation email is on its way.",
+    "rememberLabel": "Remember me on this device",
+    "phoneLabel": "Phone (optional)",
+    "bookedTitle": "After you book",
+    "bookedBody": "Your place is held the moment you book. The confirmation email names the class, the time and the teacher, and there is nothing to print or bring but yourself.",
+    "cancelLine": "Cancel in one tap from your confirmation email",
+    "cancelWindow": "Up to 2 hours before",
+    "cancelReasonLine": "Tell us why (optional)",
+    "decidedTitle": "Decided for you",
+    "decidedLead": "Four choices made for this booking page, and where each one came from.",
+    "heroAction": "Book a class"
+  },
+  "switches": {
+    "regulars": true,
+    "regularsFirst": true,
+    "waitlist": true,
+    "phone": true,
+    "remember": true,
+    "oneTapCancel": true,
+    "cancelReason": true
+  },
+  "steps": [
+    "regulars",
+    "classes",
+    "class",
+    "confirm",
+    "booked"
+  ],
+  "tokens": {
+    "p-bg": "#ddd6c6",
+    "p-surface": "#d2cab8",
+    "p-ink": "#2a2a26",
+    "p-accent": "#4f6238",
+    "p-action": "#4f6238"
+  }
+}

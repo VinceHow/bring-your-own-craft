@@ -128,6 +128,25 @@ test('after her file grows, decideRest can cite her new line (the build beat)', 
   assert.ok(fs.readFileSync(path.join(process.env.RUNS_DIR, run, 'taste.md'), 'utf8').includes('- [L3] never ask'));
 });
 
+test('when an older and her newest line both settle a decision, it cites the newest; her file reaches the model newest first', async () => {
+  const run = newRun();
+  writeLine(run, 'Never ask for anything you could remember or skip.'); // L3
+  let seen = '';
+  // The model names the older line first and lists the newer one as also settling it (and one bogus id).
+  const decide = items => ({ decisions: items.map(c => ({ id: c.id, choice: 'A', cites: 'L2', alsoCites: ['L3', 'L9'] })) });
+  const callModel = async args => { seen = args.system; return fakeModel({ decide })(args); };
+  const out = await decideRest([cand(4, { decision: 'Does cancel ask for a reason?', options: ['No, one tap', 'Yes'], recommendation: 'Yes' })],
+    readTaste(run), { run, callModel, round: 'build' });
+  assert.equal(out[0].cites, 'L3');
+  assert.ok(seen.indexOf('[L3]') < seen.indexOf('[L2]') && seen.indexOf('[L2]') < seen.indexOf('[L1]'), 'newest line first');
+  // Only one line holds: it stays (no stretching to the newest).
+  const one = await decideRest([cand(5)], readTaste(run), { callModel: fakeModel({ decide: items => ({ decisions: items.map(c => ({ id: c.id, choice: 'A', cites: 'L1', alsoCites: [] })) }) }) });
+  assert.equal(one[0].cites, 'L1');
+  // A missing alsoCites is fine, and a bogus cites with a valid alsoCites takes the valid one.
+  const bog = await decideRest([cand(6)], readTaste(run), { callModel: fakeModel({ decide: items => ({ decisions: items.map(c => ({ id: c.id, choice: 'A', cites: 'L7', alsoCites: ['L2'] })) }) }) });
+  assert.equal(bog[0].cites, 'L2');
+});
+
 test('a different idea changes the picks (offline: picks come from what the team raised, not a script)', async () => {
   const team = system => {
     const cafe = /pastr/i.test(system);
