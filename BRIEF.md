@@ -55,6 +55,11 @@ real run.
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
    if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
+   **Her inbox (Vincent, 14 Nov evening):** the tray becomes one component by her seat: collapsed = the one item
+   that needs her now or "Nothing needs you right now"; expanded = a drawer with Needs you (one at a time, next ones
+   folded), Things only you can do, and Past meetings (editable "Meeting notes"). It replaces the reviewed cards on the
+   wall. Things only you can do: a short plain task with steps, shown only if the run really hit one; **no secret entry
+   in the hackathon build** (a key field is Milestone 2, server-side only, masked, with a leak test).
 2. **Words:** "What's the idea?"; check-ins in the teammate's voice; no "Seat open" label on the seats (Vincent, 14 Nov); the "decided for you" list and any credits are cut: one margin note on the page where a
    decision cites her line.
 3. **First sketch + reshape:** Design returns user types and stage lines (reuse `parseFlow` for the stages) from her

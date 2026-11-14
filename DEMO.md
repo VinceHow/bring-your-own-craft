@@ -77,7 +77,16 @@ the claim.
   No dimming, no spotlight, nobody visibly waiting: simply a quiet, focused view where the team is there to listen
   and respond on this one document. Closing it brings the room back.
 - **Nothing ever breaks her focus.** No exception for "urgent"; nothing counts up; no timers anywhere.
-- **The tray.** Questions that clear the bar wait as a small stack of notes at the edge of her seat, each in the ink
+- **Her inbox** (Vincent, 14 Nov evening; replaces the loose tray and the reviewed cards on the wall). One component
+  by her seat. **Collapsed**, it shows only the one item that needs her now, or *"Nothing needs you right now"*.
+  **Expanded**, it's a drawer with three parts: **Needs you** (one at a time; the next ones folded), **Things only
+  you can do**, and **Past meetings** (her editable write-ups, the "Meeting notes"). *Things only you can do:* when the
+  agents hit something only a human can do (sign up for an account, provide a key), they write a short, plain task
+  with steps, she does it, and they carry on. **For the hackathon this part is "said, not built" for secrets:** the
+  section exists, but nothing in it asks her to paste a key. A key would have to stay server-side only, never in
+  `runs/`, logs, the browser or the repo, and always masked; that's a Milestone 2 piece with its own security test. A
+  task appears there only if the run truly hit one; otherwise it reads *"Nothing only you can do."*
+- **The tray (inside her inbox).** Questions that clear the bar wait in Needs you, each in the ink
   of the teammate who left it. Calm: no number, no red, no pulsing, no "waiting for you" state. New notes slide in
   only at natural pauses (right after she answers, after the shape redraws), never while she's typing or speaking,
   about 1 s after the pause. The team suggests the order (top note); **she picks which to open**.
