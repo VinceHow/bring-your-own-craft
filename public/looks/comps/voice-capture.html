@@ -10,7 +10,8 @@
      work, and fade into them. Her sheet resets at once, ready for her next thought.
      Layout follows the loop designer's focus (design/loop, minutes.html): the work on the left, her sheet on the right.
      Marks (window.__at): blank, speaking1, raw1, tidy1, pause, speaking2, piece2, redo, seewhat, send, team, ready.
-     ?fail=1: the tidy fails and her words are kept as she said them. Voice level and tidy results are scripted. -->
+     ?fail=1: the tidy never answers, so at 3 s her raw words are kept, silently. ?same=1: speech-to-text was already clean, so the ink just dries.
+     Build notes for tidy(): design/studio/shots/voice/README.md. Voice level and tidy results are scripted. -->
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 * { box-sizing: border-box; }
@@ -39,7 +40,7 @@ html, body { margin: 0; background: #1A120D; }
 .cursor { position: absolute; width: 22px; height: 22px; z-index: 9; pointer-events: none; opacity: 0; left: 0; top: 0; }
 .pin { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--c); z-index: 4; box-shadow: 0 0 0 2px #FFF8F2, 1px 3px 6px rgba(60,35,15,.3); display: grid; place-items: center; }
 .pin span { rotate: 45deg; font: 600 13px/1 var(--ip-sans); color: #fff; }
-.reply { position: absolute; z-index: 5; width: 300px; }
+.reply { position: absolute; z-index: 5; width: 236px; }
 .reply .bubble { max-width: none; font-size: 18px; }
 .pin.pending { background: transparent; box-shadow: inset 0 0 0 3px var(--ip-her), 0 0 0 2px #FFF8F2; } .pin.pending span { opacity: 0; }
 
@@ -76,7 +77,7 @@ html, body { margin: 0; background: #1A120D; }
 .kbd { display: inline-grid; place-items: center; min-width: 27px; height: 27px; padding: 0 7px; border-radius: 8px; font: 600 14px/1 var(--ip-sans); color: var(--ip-ink); background: #FFFDF8;
   box-shadow: inset 0 0 0 1px rgba(84,58,38,.28), 0 2px 0 rgba(84,58,38,.28); transition: transform .12s, box-shadow .12s, background .12s; }
 .kbd.down { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgba(147,55,79,.5); background: var(--ip-paper-her); }
-.gathered { position: absolute; z-index: 6; width: 380px; padding: 14px 18px; border-radius: 6px 24px 24px 24px; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5), var(--ip-lift); font: italic 400 19px/1.4 var(--ip-serif); color: var(--ip-her-t); }
+.gathered { position: absolute; z-index: 6; width: 232px; font-size: 17px !important; padding: 14px 18px; border-radius: 6px 24px 24px 24px; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.5), var(--ip-lift); font: italic 400 19px/1.4 var(--ip-serif); color: var(--ip-her-t); }
 .gathered b { display: block; font: normal 500 13px/1 var(--ip-sans); color: var(--ip-her-t); margin-bottom: 5px; }
 .title { position: absolute; left: 22px; top: 6px; z-index: 8; } .title .tag { font-size: 14px; padding: 7px 13px; }
 </style>
@@ -98,16 +99,16 @@ html, body { margin: 0; background: #1A120D; }
         <div class="f">Pick-up time<s></s></div>
         <div class="go">Place order</div>
       </div>
-      <svg class="pen" id="pen" width="940" height="760"><g style="filter:url(#ip-wob4)"><path id="penpath" pathLength="1"/></g></svg>
+      <svg class="pen" id="pen" data-slot="pen" width="940" height="760"><g style="filter:url(#ip-wob4)"><path id="penpath" pathLength="1"/></g></svg>
       <svg class="cursor" id="cur" viewBox="0 0 22 22"><path d="M3 2l15 9-6.5 1.5L9 19z" fill="#281C14" stroke="#FFF8EE" stroke-width="1.6" stroke-linejoin="round"/></svg>
     </div>
-    <div class="sheet notes" data-who="her" id="sheet">
+    <div class="sheet notes" data-who="her" id="sheet" data-slot="capture-sheet">
       <div class="top"><span class="lab">Your thoughts</span></div>
-      <div class="lines" id="lines"><div class="blank" id="blank">Say a piece, pause as long as you like, then say another. Nothing goes to the team until you send.</div></div>
+      <div class="lines" id="lines" data-slot="pieces"><div class="blank" id="blank">Say a piece, pause as long as you like, then say another. Nothing goes to the team until you send.</div></div>
       <div class="bar">
-        <span class="pill vp" data-who="her" id="vp"><span class="mic"><span class="ring" id="ring"></span><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1.5" width="6" height="8.5" rx="3" fill="currentColor"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5M5 15h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="word" id="w1">Hold</span><span class="kbd" id="kbd">V</span><span class="word" id="w2">to speak</span></span>
+        <span class="pill vp" data-who="her" id="vp" data-slot="voice-pill"><span class="mic"><span class="ring" id="ring"></span><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1.5" width="6" height="8.5" rx="3" fill="currentColor"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5M5 15h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="word" id="w1">Hold</span><span class="kbd" id="kbd">V</span><span class="word" id="w2">to speak</span></span>
         <span class="sp"></span>
-        <button class="btn" id="send" style="display:none">Send</button>
+        <button class="btn" id="send" data-slot="send" style="display:none">Send</button>
       </div>
     </div>
   </div>
@@ -121,12 +122,26 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const A = (el, k, o) => Motion.animate(el, k, o);
 const SPRING = { type: 'spring', visualDuration: .5, bounce: 0 };
 function mark(n) { window.__at = n; (window.__marks = window.__marks || []).push(n); }
-// [raw word, 1 keep | 0 drop | 'becomes']
-const P1 = [['um', 0], ['so', 0], ['like', 0], ['it', 'It'], ['should', 1], ['feel', 1], ['like', 1], ['the', 1], ['baker', 1], ['already', 1], ['knows', 1], ['you,', 0], ['you', 0], ['know', 'you.']];
-// "knows you, you know" → "knows you." : keep "knows", drop "you," and "you", "know" becomes "you."
-const P2 = [['and', 0], ['uh', 0], ['don’t', 0], ['don’t', 'Don’t'], ['ask', 1], ['them', 0], ['for', 1], ['anything', 1], ['you,', 'you'], ['like,', 0], ['already', 1], ['know', 'know.']];
-const P2b = [['and', 0], ['don’t', 'Don’t'], ['ask', 1], ['for', 1], ['anything', 1], ['we', 1], ['already', 1], ['know', 'know,'], ['or', 1], ['um', 0], ['could', 1], ['just', 0], ['skip', 'skip.']];
-const raw = t => t.map(x => x[0]).join(' ');
+// What she said (speech-to-text) and what the tidy call returns. The comp scripts both; the build gets them live.
+const SAME = Q.has('same');
+const P1 = SAME ? { raw: 'It should feel like the baker already knows you.', clean: 'It should feel like the baker already knows you.' }
+  : { raw: 'um so like it should feel like the baker already knows you, you know', clean: 'It should feel like the baker already knows you.' };
+const P2 = { raw: 'and uh don’t don’t ask them for anything you, like, already know', clean: 'Don’t ask for anything you already know.' };
+const P2b = { raw: 'and don’t ask for anything we already know, or um could just skip', clean: 'Don’t ask for anything we already know, or could skip.' };
+const TIDY_MS = 900, TIDY_SHOW_AT = 500, TIDY_GIVE_UP = 3000; // tech lead: ~1 s; "Tidying…" at 0.5 s; raw kept past 3 s
+
+// diffWords(raw, clean): word-level LCS on normalised words (case and punctuation ignored).
+// Returns ops in reading order: { t: 'keep', i, j } | { t: 'drop', i } | { t: 'add', j }  (i: raw index, j: clean index)
+function diffWords(raw, clean) {
+  const norm = w => w.toLowerCase().replace(/’/g, "'").replace(/[^\p{L}\p{N}']/gu, '');
+  const R = raw.split(/\s+/).filter(Boolean), K = clean.split(/\s+/).filter(Boolean), a = R.map(norm), b = K.map(norm);
+  const L = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let x = a.length - 1; x >= 0; x--) for (let y = b.length - 1; y >= 0; y--) L[x][y] = a[x] === b[y] ? L[x + 1][y + 1] + 1 : Math.max(L[x + 1][y], L[x][y + 1]);
+  const ops = []; let x = 0, y = 0;
+  while (x < a.length && y < b.length) { if (a[x] === b[y]) ops.push({ t: 'keep', i: x++, j: y++ }); else if (L[x + 1][y] >= L[x][y + 1]) ops.push({ t: 'drop', i: x++ }); else ops.push({ t: 'add', j: y++ }); }
+  while (x < a.length) ops.push({ t: 'drop', i: x++ }); while (y < b.length) ops.push({ t: 'add', j: y++ });
+  return { ops, R, K };
+}
 
 // ---- the scripted voice level; the page is the only thing that responds while she talks ----
 let holding = false, holdT = 0, lvl = 0, last = performance.now(), penLen = 0;
@@ -149,44 +164,58 @@ async function point(el) {
   const cur = $('#cur'), r = rel(el);
   A(cur, { opacity: [0, 1], x: [r.x + r.w * .55, r.x + r.w * .55], y: [r.y + r.h + 70, r.y + r.h * .55] }, { duration: .7, ease: [.2, .7, .3, 1] }); await sleep(750);
   A(cur, { scale: [1, .85, 1] }, { duration: .25 }); penAround(el);
-  if (!el._pin) { const pn = document.createElement('div'); pn.className = 'pin pending'; pn.dataset.who = 'her'; pn.innerHTML = '<span>P</span>'; pn.style.left = (r.x + r.w - 6) + 'px'; pn.style.top = (r.y + 6) + 'px'; $('#art').appendChild(pn); el._pin = pn; A(pn, { scale: [0, 1] }, SPRING); } await sleep(300); A(cur, { opacity: 0 }, { duration: .4 });
+  if (!el._pin) { const pn = document.createElement('div'); pn.className = 'pin pending'; pn.dataset.who = 'her'; pn.innerHTML = '<span>P</span>'; pn.style.left = (r.x + r.w + 8) + 'px'; pn.style.top = (r.y + 10) + 'px'; pn.dataset.slot = 'her-pin'; $('#art').appendChild(pn); el._pin = pn; A(pn, { scale: [0, 1] }, SPRING); } await sleep(300); A(cur, { opacity: 0 }, { duration: .4 });
 }
 
 // ---- pieces ----
 function newPiece(on) {
   $('#blank') && A($('#blank'), { opacity: 0 }, { duration: .3 });
   const d = document.createElement('div'); d.className = 'piece'; d.dataset.anchor = on;
-  d.innerHTML = `<div class="on"><i></i>on ${on}</div><div class="words"></div><div class="status"></div><div class="ctl"><a href="#" class="see">See what you said</a><a href="#" class="q">Say it again</a><a href="#" class="q">Remove</a></div>`;
+  d.dataset.slot = 'piece'; d.innerHTML = `<div class="on" data-slot="piece-anchor"><i></i>on ${on}</div><div class="words" data-slot="piece-words"></div><div class="status" data-slot="piece-status"></div><div class="ctl" data-slot="piece-controls"><a href="#" class="see">See what you said</a><a href="#" class="q">Say it again</a><a href="#" class="q">Remove</a></div>`;
   $('#lines').appendChild(d); A(d, { opacity: [0, 1], y: [6, 0] }, SPRING); return d;
 }
-function rawInto(piece, list) {
-  const w = piece.querySelector('.words'); w.innerHTML = ''; w.classList.remove('clean'); piece._raw = raw(list);
-  list.forEach((t, i) => { const s = document.createElement('span'); s.className = 'tk' + (t[1] === 0 ? ' filler' : ''); s.textContent = t[0]; s._t = t; w.appendChild(s); A(s, { opacity: [0, 1], y: [3, 0] }, { duration: .35, delay: i * .04 }); });
+function rawInto(piece, text) {
+  const w = piece.querySelector('.words'); w.innerHTML = ''; w.classList.remove('clean'); piece._raw = text; piece._clean = null;
+  text.split(/\s+/).forEach((t, i) => { const s = document.createElement('span'); s.className = 'tk'; s.dataset.i = i; s.textContent = t; w.appendChild(s); A(s, { opacity: [0, 1], y: [3, 0] }, { duration: .35, delay: i * .04 }); });
 }
-// THE TIDY, per piece as it lands: fillers fold away, the words slide together, the ink dries grey → her pink
-async function tidy(piece) {
+function dry(spans, delay = 0) { spans.forEach((s, i) => A(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: delay + i * .035, ease: 'easeOut' })); }
+// THE TIDY, per piece as it lands. tidy(piece, request) where request() resolves to the clean text (or null on failure).
+// Outcomes: 'tidied' (fillers fold away, words slide together, changed words cross over, new words fade in, ink dries
+// grey → her pink); 'same' (nothing to tidy: the ink just dries); 'kept' (failed or past 3 s: her raw words, ink dries,
+// silently). Her raw words are always kept on piece._raw.
+async function tidy(piece, request) {
   const w = piece.querySelector('.words'), st = piece.querySelector('.status');
-  st.textContent = 'Tidying…'; A(st, { opacity: [0, 1] }, { duration: .3 });
-  await sleep(650);
-  if (FAIL) { await sleep(900); st.textContent = 'Kept as you said it'; w.classList.add('clean'); [...w.children].forEach((s, i) => A(s, { color: ['#64503F', '#93374F'] }, { duration: .8, delay: i * .03 })); return; }
-  A(st, { opacity: 0 }, { duration: .2 });
-  const tks = [...w.children], before = new Map(tks.map(s => [s, s.getBoundingClientRect()]));
-  const drop = tks.filter(s => s._t[1] === 0), change = tks.filter(s => typeof s._t[1] === 'string');
-  drop.forEach(s => A(s, { opacity: 0, filter: ['blur(0px)', 'blur(2px)'] }, { duration: .28 }));
-  await sleep(260); drop.forEach(s => s.style.display = 'none'); change.forEach(s => s.textContent = s._t[1]);
-  const keep = tks.filter(s => s._t[1] !== 0);
-  keep.forEach(s => { const b = before.get(s), n = s.getBoundingClientRect(); A(s, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, SPRING); });
-  change.forEach(s => A(s, { opacity: [.2, 1] }, { duration: .4 }));
-  w.classList.add('clean'); keep.forEach((s, i) => A(s, { color: ['#64503F', '#93374F'] }, { duration: .9, delay: .1 + i * .035, ease: 'easeOut' }));
-  await sleep(900); st.textContent = '';
+  const show = setTimeout(() => { st.textContent = 'Tidying…'; A(st, { opacity: [0, 1] }, { duration: .3 }); }, TIDY_SHOW_AT);
+  const result = await Promise.race([request().catch(() => null), sleep(TIDY_GIVE_UP).then(() => null)]);
+  clearTimeout(show); A(st, { opacity: 0 }, { duration: .2 });
+  const spans = [...w.querySelectorAll('.tk')];
+  w.classList.add('clean');
+  if (!result) { piece._clean = piece._raw; dry(spans); piece.dataset.tidy = 'kept'; return 'kept'; }
+  const { ops, R, K } = diffWords(piece._raw, result);
+  if (R.join(' ') === K.join(' ')) { piece._clean = result; dry(spans); piece.dataset.tidy = 'same'; return 'same'; }
+  const before = new Map(spans.map(s => [s, s.getBoundingClientRect()]));
+  const drops = ops.filter(o => o.t === 'drop').map(o => spans[o.i]);
+  drops.forEach(s => A(s, { opacity: 0, filter: ['blur(0px)', 'blur(2px)'] }, { duration: .28 }));
+  await sleep(260);
+  drops.forEach(s => s.style.display = 'none');
+  const final = []; let anchor = null;
+  for (let k = ops.length - 1; k >= 0; k--) { // walk backwards so added words go before the next kept word
+    const o = ops[k];
+    if (o.t === 'keep') { const s = spans[o.i]; if (s.textContent !== K[o.j]) { s.textContent = K[o.j]; A(s, { opacity: [.2, 1] }, { duration: .4 }); } anchor = s; final.unshift(s); }
+    else if (o.t === 'add') { const s = document.createElement('span'); s.className = 'tk'; s.textContent = K[o.j]; w.insertBefore(s, anchor ? anchor : null); s.style.opacity = 0; anchor = s; final.unshift(s); s._new = true; }
+  }
+  final.forEach(s => { if (s._new) { A(s, { opacity: [0, 1] }, { duration: .4, delay: .25 }); return; } const b = before.get(s), n = s.getBoundingClientRect(); A(s, { x: [b.left - n.left, 0], y: [b.top - n.top, 0] }, SPRING); });
+  dry(final, .1); piece._clean = result; piece.dataset.tidy = 'tidied';
+  await sleep(900); return 'tidied';
 }
-const clean = p => [...p.querySelectorAll('.tk')].filter(s => s.style.display !== 'none').map(s => s.textContent).join(' ');
+const clean = p => p._clean || p._raw;
+const tidyCall = text => () => FAIL ? new Promise(() => {}) : sleep(TIDY_MS).then(() => text); // scripted stand-in for the model call
 function ctl(piece, on) { C.querySelectorAll('.piece .ctl').forEach(c => A(c, { opacity: c.parentElement === piece && on ? 1 : 0 }, { duration: .3 })); }
-async function speak(piece, list, ms, markAt) {
+async function speak(piece, said, ms, markAt) {
   $('#kbd').classList.add('down'); holding = true; holdT = 0; pill('<b>Listening</b>', '', 'take your time');
   await sleep(ms * .55); if (markAt) mark(markAt); await sleep(ms * .45);
   holding = false; $('#kbd').classList.remove('down');
-  pill('<b>Writing it down</b>'); await sleep(800); rawInto(piece, list); A($('#penpath'), { opacity: [1, .35] }, { duration: .8 });
+  pill('<b>Writing it down</b>'); await sleep(800); rawInto(piece, said.raw); A($('#penpath'), { opacity: [1, .35] }, { duration: .8 });
   pill('Hold', 'V', 'to add more');
 }
 
@@ -201,19 +230,19 @@ async function run() {
   const p1 = newPiece('Your usual');
   await speak(p1, P1, 4200, 'speaking1');
   await sleep(500); mark('raw1'); await sleep(300);
-  await tidy(p1); ctl(p1, true); showSend(); mark('tidy1');
+  await tidy(p1, tidyCall(P1.clean)); ctl(p1, true); showSend(); await sleep(300); mark('tidy1');
   // a pause to gather her thoughts: nothing moves, nothing ends, nobody waits
   await sleep(1800); mark('pause'); await sleep(1600);
   // piece 2, about the form fields
   await point($('#fphone')); ctl(p1, false);
   const p2 = newPiece('Name, Phone and the sign-in');
-  await speak(p2, P2, 3800, 'speaking2');
-  await sleep(300); await tidy(p2); ctl(p2, true); await sleep(600); mark('piece2'); await sleep(900);
+  p2._which = P2; await speak(p2, P2, 3800, 'speaking2');
+  await sleep(300); await tidy(p2, tidyCall(p2._which.clean)); ctl(p2, true); await sleep(600); mark('piece2'); await sleep(900);
   // she redoes piece 2: say it again
   const again = p2.querySelectorAll('.ctl a')[1]; again.classList.add('press'); await sleep(450); again.classList.remove('press');
   p2.classList.add('redoing'); ctl(p2, false); A(p2.querySelector('.words'), { opacity: [1, .35] }, { duration: .3 });
-  await speak(p2, P2b, 3600, null); p2.classList.remove('redoing'); A(p2.querySelector('.words'), { opacity: 1 }, { duration: .2 });
-  await sleep(200); await tidy(p2); ctl(p2, true); await sleep(500); mark('redo'); await sleep(700);
+  p2._which = P2b; await speak(p2, P2b, 3600, null); p2.classList.remove('redoing'); A(p2.querySelector('.words'), { opacity: 1 }, { duration: .2 });
+  await sleep(200); await tidy(p2, tidyCall(p2._which.clean)); ctl(p2, true); await sleep(500); mark('redo'); await sleep(700);
   // see what you said, on piece 1
   ctl(p1, true); const see = p1.querySelector('.see'); see.textContent = 'Hide what you said';
   const rb = document.createElement('div'); rb.className = 'raw'; rb.innerHTML = `<small>What you said</small>${p1._raw}<br><a href="#" style="font:500 14px/2 var(--ip-sans);color:var(--ip-ink-2)">Use mine</a>`;
@@ -223,7 +252,7 @@ async function run() {
   await sleep(500);
   await send([p1, p2]);
 }
-function showSend() { const s = $('#send'); if (s.style.display !== 'none') return; s.style.display = ''; InkPaper.dress($('#sheet')); InkPaper.redraw(s); InkPaper.lay(s, 0); }
+function showSend() { const s = $('#send'); if (s.style.display !== 'none') return; s.style.display = ''; InkPaper.dress($('#sheet')); InkPaper.redraw(s); A(s, { opacity: [0, 1], y: [4, 0] }, { duration: .35 }); }
 
 // ONE Send: the pieces gather into one note that settles onto her pin on the work; the team arrives beside its pins
 // (first reply ~0.45 s, while her note is still settling), the work changes, the replies fade into their pins.
@@ -234,7 +263,7 @@ async function send(pieces) {
   const sr = $('#lines').getBoundingClientRect(), ar = $('#art').getBoundingClientRect();
   const g = document.createElement('div'); g.className = 'gathered'; g.innerHTML = `<b>You</b>${text}`;
   $('#art').appendChild(g);
-  const u = rel($('#usual')), ux = u.x + u.w + 24, uy = u.y - 6;
+  const u = rel($('#usual')), ux = u.x + u.w + 30, uy = u.y - 4; g.dataset.slot = 'gathered-note';
   g.style.left = ux + 'px'; g.style.top = uy + 'px';
   // pieces fold together on the sheet and leave it, as the note lands beside the work
   pieces.forEach((p, i) => A(p, { opacity: 0, y: [0, -10 - i * 30] }, { duration: .35 }));
@@ -250,17 +279,17 @@ async function send(pieces) {
   // the first reply, beside Mika's pin on the work
   await sleep(450);
   const f = rel($('#fphone'));
-  const pinM = document.createElement('div'); pinM.className = 'pin'; pinM.dataset.who = 'mika'; pinM.innerHTML = '<span>M</span>'; pinM.style.left = (f.x - 6) + 'px'; pinM.style.top = (f.y + 4) + 'px'; $('#art').appendChild(pinM);
+  const pinM = document.createElement('div'); pinM.className = 'pin'; pinM.dataset.who = 'mika'; pinM.innerHTML = '<span>M</span>'; pinM.style.left = (f.x - 8) + 'px'; pinM.style.top = (f.y + 10) + 'px'; $('#art').appendChild(pinM);
   A(pinM, { scale: [0, 1] }, SPRING);
-  const rp = document.createElement('div'); rp.className = 'reply'; rp.style.left = (f.x - 316) + 'px'; rp.style.top = (f.y - 10) + 'px';
+  const rp = document.createElement('div'); rp.className = 'reply'; rp.style.left = Math.max(16, f.x - 30 - 236) + 'px'; rp.style.top = (f.y - 8) + 'px'; rp.dataset.slot = 'reply-standin';
   rp.innerHTML = '<div class="bubble" data-who="mika"><b>Mika</b><span class="t">Then the phone field goes, and so does every question we can remember.</span></div>';
-  $('#art').appendChild(rp); InkPaper.dress(rp); InkPaper.lay(rp.firstChild, 0);
+  $('#art').appendChild(rp); InkPaper.dress(rp); A(rp, { opacity: [0, 1], x: [-8, 0] }, { type: 'spring', visualDuration: .4, bounce: 0 });
   await sleep(1000); mark('team');
   $('#fphone').classList.add('cut'); await sleep(450); $('#facct').classList.add('cut'); await sleep(400); $('#fname').classList.add('cut');
   await sleep(1500);
   // the replies fade into their pins; her note into hers
-  A(rp, { opacity: 0, scale: .6, x: 150, y: -10 }, { duration: .6, ease: [.4, 0, .2, 1] });
-  A(g, { opacity: 0, scale: .6, x: -180, y: 0 }, { duration: .6, ease: [.4, 0, .2, 1] });
+  A(rp, { opacity: 0, scale: .6, x: 120, y: 0 }, { duration: .6, ease: [.4, 0, .2, 1] });
+  A(g, { opacity: 0, scale: .6, x: -110, y: 0 }, { duration: .6, ease: [.4, 0, .2, 1] });
   await sleep(900); mark('ready'); mark('done');
 }
 run();
