@@ -1,0 +1,457 @@
+<title>Juniper Street Yoga</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one schedule column (day strip + class rows with mat meters) beside a sticky "your mats" panel; stacks on phones. */
+:root {
+  --bg: #eef1ef;
+  --surface: #ffffff;
+  --ink: #16302a;
+  --muted: #5b6e68;
+  --line: #d3dcd8;
+  --accent: #e3a43a;      /* marigold: booked mats, primary action */
+  --accent-ink: #2a1c04;
+  --spruce: #1f4a40;      /* selected day, links */
+  --spruce-ink: #f2f6f4;
+  --mat-free: #c9d5d0;
+  --warn: #a8461f;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a17; --surface: #16241f; --ink: #e4ece8; --muted: #93a69f; --line: #2a3b35;
+    --accent: #f0b44e; --accent-ink: #241703; --spruce: #8fcdb9; --spruce-ink: #0c1714;
+    --mat-free: #2f433c; --warn: #f08a5d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a17; --surface: #16241f; --ink: #e4ece8; --muted: #93a69f; --line: #2a3b35;
+  --accent: #f0b44e; --accent-ink: #241703; --spruce: #8fcdb9; --spruce-ink: #0c1714;
+  --mat-free: #2f433c; --warn: #f08a5d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 28px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--spruce); outline-offset: 2px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.brand h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.02; letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+}
+.brand p { margin: 6px 0 0; color: var(--muted); }
+.status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mat-free); }
+.status.live .dot { background: var(--spruce); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Day strip */
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.day {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+  padding: 8px 4px; cursor: pointer; display: grid; justify-items: center; gap: 0;
+}
+.day .dow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.day .num { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.day .pip { width: 6px; height: 6px; border-radius: 50%; margin-top: 3px; background: transparent; }
+.day .pip.on { background: var(--accent); }
+.day[aria-pressed="true"] { background: var(--spruce); border-color: var(--spruce); color: var(--spruce-ink); }
+.day[aria-pressed="true"] .dow { color: var(--spruce-ink); opacity: .8; }
+
+.dayhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 22px 0 10px; }
+.dayhead h2 { font-family: var(--font-display); font-weight: 500; font-size: 22px; margin: 0; }
+.dayhead span { font-size: 13px; color: var(--muted); }
+
+/* Class rows */
+.classes { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.cls {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 6px 18px;
+  padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start;
+}
+.cls.past { opacity: .5; }
+.time { font-variant-numeric: tabular-nums; }
+.time b { display: block; font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.1; }
+.time small { color: var(--muted); font-size: 12px; }
+.info { min-width: 0; display: grid; gap: 4px; }
+.info h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); }
+.tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink); }
+.desc { font-size: 14px; color: var(--muted); margin: 2px 0 0; max-width: 62ch; }
+.mats { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; align-items: center; }
+.mat { width: 9px; height: 16px; border-radius: 2px; background: var(--mat-free); }
+.mat.taken { background: var(--muted); }
+.mat.yours { background: var(--accent); }
+.mats .lbl { margin-left: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.who { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--muted); min-height: 0; }
+.who img { width: 20px; height: 20px; border-radius: 50%; margin-right: -10px; border: 2px solid var(--bg); }
+.who .names { margin-left: 14px; }
+.act { display: grid; justify-items: end; gap: 4px; }
+.btn {
+  border: 1px solid var(--ink); background: transparent; border-radius: 999px;
+  padding: 8px 16px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:disabled { cursor: not-allowed; opacity: .55; }
+.act .note { font-size: 12px; color: var(--muted); text-align: right; max-width: 16ch; }
+.act .note.full { color: var(--warn); font-weight: 600; }
+@media (max-width: 520px) {
+  .cls { grid-template-columns: 62px minmax(0, 1fr); }
+  .act { grid-column: 2; justify-items: start; }
+  .act .note { text-align: left; max-width: none; }
+}
+
+/* Side panel */
+aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; }
+@media (max-width: 860px) { aside { position: static; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; }
+.panel h2 { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 0; }
+.mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.mine li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; }
+.mine .t { font-weight: 600; }
+.mine .s { grid-column: 1; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mine .x { grid-row: 1 / span 2; grid-column: 2; background: none; border: 0; color: var(--spruce); font-weight: 600; font-size: 13px; cursor: pointer; padding: 4px; }
+.mine .x:disabled { color: var(--muted); cursor: not-allowed; font-weight: 400; }
+.empty { color: var(--muted); font-size: 14px; margin: 0; }
+.notice { font-size: 13px; color: var(--muted); margin: 0; }
+.notice.warn { color: var(--warn); }
+dl.facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; }
+dl.facts dt { color: var(--muted); }
+dl.facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px;
+  font-size: 14px; font-weight: 500; max-width: calc(100% - 32px); text-align: center;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18); transition: opacity .2s;
+}
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Juniper Street Yoga</h1>
+      <p>Book a mat for the week ahead. Twelve mats in the main room, eight in the loft.</p>
+    </div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">Connecting to the schedule…</span></div>
+  </header>
+
+  <div class="grid">
+    <main>
+      <div class="days" id="days" role="group" aria-label="Choose a day"></div>
+      <div class="dayhead"><h2 id="dayTitle"></h2><span id="daySub"></span></div>
+      <div class="classes" id="classes"></div>
+    </main>
+
+    <aside>
+      <section class="panel" aria-labelledby="mineTitle">
+        <h2 id="mineTitle">Your mats</h2>
+        <ul class="mine" id="mine"></ul>
+        <p class="notice" id="access"></p>
+      </section>
+      <section class="panel" aria-labelledby="infoTitle">
+        <h2 id="infoTitle">Before you come</h2>
+        <dl class="facts">
+          <dt>Drop-in</dt><dd>$22, paid at the front desk</dd>
+          <dt>10-class pass</dt><dd>$190, good for 6 months</dd>
+          <dt>Arrive</dt><dd>10 minutes early to settle in</dd>
+          <dt>Mats</dt><dd>Loaner mats and blocks are free</dd>
+          <dt>Cancel</dt><dd>Up to 2 hours before class</dd>
+          <dt>Find us</dt><dd>412 Juniper Street, 2nd floor</dd>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  // Weekly timetable, keyed by weekday (0 = Sunday).
+  const ROOMS = { main: { name: "Main room", cap: 12 }, loft: { name: "Loft", cap: 8 } };
+  const C = {
+    flow:    { name: "Morning Vinyasa", level: "All levels", dur: 60, room: "main", desc: "Breath-linked flow to wake the body. Expect sun salutations and a long cool-down." },
+    hatha:   { name: "Slow Hatha", level: "Beginner", dur: 60, room: "main", desc: "Held poses with clear alignment cues. A good first class." },
+    heated:  { name: "Warm Power Flow", level: "Intermediate", dur: 75, room: "main", heat: "90°F", desc: "Strong standing sequences and arm balances in a heated room. Bring water and a towel." },
+    yin:     { name: "Yin & Breathwork", level: "All levels", dur: 75, room: "loft", desc: "Long floor holds of 3 to 5 minutes, finishing with guided pranayama." },
+    restore: { name: "Restorative", level: "All levels", dur: 60, room: "loft", desc: "Fully supported poses with bolsters and blankets. Very little effort, lots of rest." },
+    lunch:   { name: "Lunch Express Flow", level: "All levels", dur: 45, room: "main", desc: "A quick, steady flow that fits a lunch break. No shower needed." },
+    prenatal:{ name: "Prenatal", level: "Prenatal", dur: 60, room: "loft", desc: "Gentle strength and hip work for every trimester. Let the teacher know how far along you are." },
+  };
+  const T = { priya: "Priya Raman", dev: "Devon Ashby", mae: "Mae Okafor", luis: "Luis Ortega" };
+  const WEEK = {
+    1: [["06:30","flow","priya"],["12:15","lunch","dev"],["18:00","heated","dev"],["19:45","yin","mae"]],
+    2: [["07:00","hatha","luis"],["17:30","prenatal","mae"],["19:00","flow","priya"]],
+    3: [["06:30","flow","priya"],["12:15","lunch","luis"],["18:00","heated","dev"],["19:45","restore","mae"]],
+    4: [["07:00","hatha","luis"],["17:30","heated","dev"],["19:15","yin","mae"]],
+    5: [["06:30","flow","priya"],["12:15","lunch","dev"],["17:30","restore","mae"]],
+    6: [["08:30","flow","priya"],["10:00","heated","dev"],["11:30","prenatal","mae"],["16:00","yin","luis"]],
+    0: [["09:00","hatha","luis"],["10:30","flow","priya"],["17:00","restore","mae"]],
+  };
+  const CANCEL_CUTOFF_MS = 2 * 60 * 60 * 1000;
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fmtTime = (d) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const fmtDay = (d) => d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+  const fmtShort = (d) => d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+
+  // Build the next 7 days of sessions.
+  function buildDays() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const out = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today); d.setDate(today.getDate() + i);
+      const sessions = (WEEK[d.getDay()] || []).map(([hm, key, t]) => {
+        const [h, m] = hm.split(":").map(Number);
+        const start = new Date(d); start.setHours(h, m, 0, 0);
+        const c = C[key];
+        const end = new Date(start.getTime() + c.dur * 60000);
+        return { id: `${ymd(d)}T${hm.replace(":", "")}-${key}`, key, ...c, teacher: T[t], start, end, cap: ROOMS[c.room].cap, roomName: ROOMS[c.room].name };
+      });
+      out.push({ date: d, sessions });
+    }
+    return out;
+  }
+  const DAYS = buildDays();
+  const SESSIONS = new Map(DAYS.flatMap((d) => d.sessions).map((s) => [s.id, s]));
+
+  const state = {
+    db: null, user: null, uid: null,
+    docs: new Map(),          // uid -> {classes: {sessionId: isoBookedAt}}
+    live: false, stale: false, offline: false,
+    canWrite: null, readOnly: false, writing: false,
+    sel: 0,
+  };
+  // Open on the first day that still has a class to come.
+  { const now = Date.now(); const i = DAYS.findIndex((d) => d.sessions.some((s) => s.start > now)); state.sel = i < 0 ? 0 : i; }
+  try { const saved = sessionStorage.getItem("jsy-day"); if (saved !== null && +saved >= state.sel && +saved < 7) state.sel = +saved; } catch (e) {}
+
+  const mine = () => (state.uid && state.docs.get(state.uid)?.classes) || {};
+  function roster(id) {
+    const ids = [];
+    for (const [uid, d] of state.docs) if (d.classes && d.classes[id]) ids.push(uid);
+    return ids;
+  }
+  const canBook = () => !!(state.db && state.uid && !state.readOnly && state.canWrite !== false);
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3600);
+  }
+
+  function renderStatus() {
+    const st = $("status"), tx = $("statusText");
+    st.classList.toggle("live", state.live);
+    if (state.live) tx.textContent = "Spots update live";
+    else if (state.offline) tx.textContent = "Showing the timetable. Live spots aren't available here.";
+    else if (state.stale) tx.textContent = "Can't reach the booking sheet yet. Spots may be out of date.";
+    else tx.textContent = "Connecting to the schedule…";
+  }
+
+  function renderDays() {
+    const box = $("days"); box.textContent = "";
+    const m = mine();
+    DAYS.forEach((d, i) => {
+      const b = document.createElement("button");
+      b.className = "day"; b.type = "button"; b.id = "day-" + i;
+      b.setAttribute("aria-pressed", String(i === state.sel));
+      b.setAttribute("aria-label", fmtDay(d.date));
+      const has = d.sessions.some((s) => m[s.id]);
+      b.innerHTML = `<span class="dow">${i === 0 ? "Today" : d.date.toLocaleDateString([], { weekday: "short" })}</span><span class="num">${d.date.getDate()}</span><span class="pip${has ? " on" : ""}"></span>`;
+      b.onclick = () => { state.sel = i; try { sessionStorage.setItem("jsy-day", String(i)); } catch (e) {} render(); };
+      box.appendChild(b);
+    });
+  }
+
+  function renderClasses() {
+    const d = DAYS[state.sel];
+    $("dayTitle").textContent = fmtDay(d.date);
+    $("daySub").textContent = `${d.sessions.length} classes`;
+    const box = $("classes"); box.textContent = "";
+    const now = Date.now(), m = mine();
+    for (const s of d.sessions) {
+      const ids = roster(s.id);
+      const taken = ids.length, yours = !!m[s.id];
+      const left = Math.max(0, s.cap - taken);
+      const past = s.start <= now;
+      const row = document.createElement("article");
+      row.className = "cls" + (past ? " past" : "");
+
+      const time = document.createElement("div"); time.className = "time";
+      time.innerHTML = `<b></b><small></small>`;
+      time.querySelector("b").textContent = fmtTime(s.start);
+      time.querySelector("small").textContent = `${s.dur} min`;
+
+      const info = document.createElement("div"); info.className = "info";
+      const h = document.createElement("h3"); h.textContent = s.name;
+      const meta = document.createElement("div"); meta.className = "meta";
+      const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = s.level;
+      meta.append(tag, txt(`with ${s.teacher}`), txt(s.roomName));
+      if (s.heat) meta.append(txt(`Heated to ${s.heat}`));
+      const desc = document.createElement("p"); desc.className = "desc"; desc.textContent = s.desc;
+      const mats = document.createElement("div"); mats.className = "mats";
+      mats.setAttribute("aria-label", `${taken} of ${s.cap} mats booked`);
+      // Your mat first, then everyone else's, then the open ones.
+      for (let i = 0; i < s.cap; i++) {
+        const el = document.createElement("span");
+        el.className = "mat" + (yours && i === 0 ? " yours" : i < taken ? " taken" : "");
+        mats.appendChild(el);
+      }
+      const lbl = document.createElement("span"); lbl.className = "lbl";
+      lbl.textContent = state.live ? (left ? `${left} of ${s.cap} mats open` : "Full") : `${s.cap} mats`;
+      mats.appendChild(lbl);
+      info.append(h, meta, desc, mats);
+      if (ids.length) {
+        const who = document.createElement("div"); who.className = "who"; who.dataset.ids = JSON.stringify(ids.slice(0, 6));
+        who.dataset.total = String(ids.length);
+        info.appendChild(who);
+      }
+
+      const act = document.createElement("div"); act.className = "act";
+      const btn = document.createElement("button"); btn.type = "button"; btn.id = "btn-" + s.id;
+      const note = document.createElement("div"); note.className = "note";
+      if (past) {
+        btn.className = "btn"; btn.textContent = s.end <= now ? "Finished" : "In session"; btn.disabled = true;
+      } else if (yours) {
+        btn.className = "btn"; btn.textContent = "Cancel";
+        const locked = s.start - now < CANCEL_CUTOFF_MS;
+        btn.disabled = locked || state.writing || !canBook();
+        note.textContent = locked ? "You're booked. Cancellations closed." : "You're booked.";
+      } else if (state.live && left === 0) {
+        btn.className = "btn"; btn.textContent = "Full"; btn.disabled = true;
+        note.className = "note full"; note.textContent = "No mats left";
+      } else {
+        btn.className = "btn primary"; btn.textContent = "Book a mat";
+        btn.disabled = state.writing || !canBook();
+        if (state.live && left <= 3) { note.className = "note full"; note.textContent = left === 1 ? "Last mat" : `${left} mats left`; }
+      }
+      btn.onclick = () => toggle(s.id);
+      act.append(btn); if (note.textContent) act.append(note);
+
+      row.append(time, info, act);
+      box.appendChild(row);
+    }
+    fillRosters();
+  }
+  function txt(t) { const s = document.createElement("span"); s.textContent = t; return s; }
+
+  async function fillRosters() {
+    if (!state.user) return;
+    const els = [...document.querySelectorAll(".who")];
+    const all = [...new Set(els.flatMap((e) => JSON.parse(e.dataset.ids)))];
+    if (!all.length) return;
+    const ps = await state.user.profiles(all);
+    for (const el of els) {
+      if (!el.isConnected) continue;
+      const ids = JSON.parse(el.dataset.ids), total = +el.dataset.total;
+      el.textContent = "";
+      for (const id of ids.slice(0, 5)) {
+        const img = document.createElement("img"); img.alt = ""; img.src = ps[id].avatarUrl; el.appendChild(img);
+      }
+      const names = ids.map((id) => ps[id].isMe ? "you" : (ps[id].name || "").split(" ")[0]).filter(Boolean);
+      const shown = names.slice(0, 3);
+      const rest = total - shown.length;
+      const span = document.createElement("span"); span.className = "names";
+      span.textContent = shown.length ? `${shown.join(", ")}${rest > 0 ? ` and ${rest} more` : ""} coming` : `${total} coming`;
+      el.appendChild(span);
+    }
+  }
+
+  function renderMine() {
+    const ul = $("mine"); ul.textContent = "";
+    const now = Date.now();
+    const list = Object.keys(mine()).map((id) => SESSIONS.get(id)).filter((s) => s && s.end > now).sort((a, b) => a.start - b.start);
+    if (!list.length) {
+      const li = document.createElement("li");
+      li.innerHTML = `<p class="empty"></p>`;
+      li.firstChild.textContent = canBook() ? "No classes booked yet. Pick a day and tap Book a mat." : "Bookings you make will show up here.";
+      ul.appendChild(li);
+    }
+    for (const s of list) {
+      const li = document.createElement("li");
+      const t = document.createElement("span"); t.className = "t"; t.textContent = s.name;
+      const sub = document.createElement("span"); sub.className = "s"; sub.textContent = `${fmtShort(s.start)} · ${fmtTime(s.start)} · ${s.roomName}`;
+      const x = document.createElement("button"); x.className = "x"; x.type = "button"; x.id = "x-" + s.id;
+      const locked = s.start - now < CANCEL_CUTOFF_MS;
+      x.textContent = locked ? "Locked" : "Cancel";
+      x.title = locked ? "Cancellations close 2 hours before class" : "Cancel this booking";
+      x.disabled = locked || state.writing || !canBook();
+      x.onclick = () => toggle(s.id);
+      li.append(t, x, sub);
+      ul.appendChild(li);
+    }
+    const a = $("access"); a.className = "notice";
+    if (state.offline) a.textContent = "Open this page signed in to claude.ai to book a mat.";
+    else if (state.live && !state.uid) a.textContent = "Sign in to book a mat.";
+    else if (state.readOnly || state.canWrite === false) { a.className = "notice warn"; a.textContent = "You have view-only access, so you can see the schedule but not book. Ask the studio to share this page with you as a Contributor."; }
+    else a.textContent = "";
+    a.hidden = !a.textContent;
+  }
+
+  function render() { renderStatus(); renderDays(); renderClasses(); renderMine(); }
+
+  async function toggle(id) {
+    if (state.writing || !canBook()) return;
+    const s = SESSIONS.get(id); if (!s) return;
+    const now = Date.now();
+    const next = { ...mine() };
+    // Drop bookings for classes that have already ended so the record stays small.
+    for (const k of Object.keys(next)) { const ss = SESSIONS.get(k); if (!ss || ss.end < now - 864e5) delete next[k]; }
+    let msg;
+    if (next[id]) {
+      if (s.start - now < CANCEL_CUTOFF_MS) return toast("Cancellations close 2 hours before class.");
+      delete next[id]; msg = `Cancelled ${s.name} on ${fmtShort(s.start)}.`;
+    } else {
+      if (roster(id).length >= s.cap) return toast("That class just filled up. Try another time.");
+      next[id] = new Date().toISOString();
+      msg = `Booked: ${s.name}, ${fmtShort(s.start)} at ${fmtTime(s.start)}.`;
+    }
+    state.writing = true; render();
+    try {
+      await state.db.collection("bookings").doc(state.uid).set({ classes: next });
+      toast(msg);
+    } catch (e) {
+      if (e && e.code === "invalid_argument") { state.readOnly = true; toast("You have view-only access, so this booking wasn't saved."); }
+      else if (e && e.code === "quota_exceeded") toast("The booking sheet is full. Let the studio know at the front desk.");
+      else toast("The booking wasn't saved. Check your connection and try again.");
+    } finally { state.writing = false; render(); }
+  }
+
+  async function start() {
+    render();
+    if (!window.claude || typeof window.claude.use !== "function") { state.offline = true; render(); return; }
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db) { state.offline = true; render(); return; }
+    state.db = db; state.user = user;
+    if (user) {
+      state.uid = await user.id();
+      state.canWrite = await user.can("data.write");
+    }
+    const timer = setTimeout(() => { if (!state.live) { state.stale = true; render(); } }, 10000);
+    db.collection("bookings").onSnapshot((snap) => {
+      const docs = new Map();
+      for (const d of snap.docs) docs.set(d.id, d.data() || {});
+      state.docs = docs;
+      if (!snap.metadata.fromCache) { state.live = true; state.stale = false; clearTimeout(timer); }
+      render();
+    }, () => { clearTimeout(timer); state.live = false; state.stale = true; render(); });
+  }
+  start();
+})();
+</script>

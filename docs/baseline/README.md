@@ -12,4 +12,13 @@ Prompt: "Build me a booking page for a small yoga studio." Empty folder, default
 
 ## Run 2: interactive, answered by a script
 Every dialog gets its default answer; every question in text gets "Your call. Go with your best judgement and
-finish it." Each ask is logged with its screen. Results below when it finishes.
+finish it." Each ask is logged with its screen (`asks.log`).
+- **Questions asked: 0** (no AskUserQuestion calls, no question in its text). **Approvals: 1** (publish the page).
+  ASK 2 in `asks.log` is a false positive (the "?" in the shortcuts footer); the script was stopped there.
+- It invented "Juniper Street Yoga", four teachers, two rooms (12 and 8 mats), a timetable, a 2-hour cancel
+  cut-off, "pay at the front desk", sign-in to book, and published it, then said "replace these with your real…".
+- ~2.5 min. Caveat: this ran in a claude.ai cloud container, so the agent had that environment's page-publishing
+  tools; a laptop install would differ. The published page is private to Vincent's account.
+
+## What this means for the close
+The "14" doesn't hold: the default agent on this prompt asks ~0 and guesses everything. See the lead's note to Vincent.
