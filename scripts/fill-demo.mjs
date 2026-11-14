@@ -105,9 +105,10 @@ if (process.argv.includes('--shots')) {
     if (tag === 'desktop') {
       await page.screenshot({ path: path.join(out, `page-${t}-${tag}-full.png`), fullPage: true });
       await page.fill('#f-name', 'Priya'); await page.fill('#f-email', 'priya@studio.example');
-      const [resp] = await Promise.all([page.waitForResponse(r => r.url().endsWith('/api/book')), page.click('form.form [type=submit]')]);
+      if (await page.locator('#f-pastry').count()) { await page.selectOption('#f-pastry', { index: 4 }); await page.fill('#f-qty', '2'); }
+      const [resp] = await Promise.all([page.waitForResponse(r => r.url().endsWith('/api/book')), page.click('#confirm form.form [type=submit]')]);
       await page.waitForTimeout(600);
-      console.log(`booked through the page: ${resp.status()} ${JSON.stringify(await resp.json())}; status line: "${await page.locator('[data-form-status]').textContent()}"`);
+      console.log(`booked through the page: ${resp.status()} ${JSON.stringify(await resp.json())}; status line: "${await page.locator('#confirm [data-form-status]').textContent()}"`);
       await page.locator('#confirm').scrollIntoViewIfNeeded();
       await page.screenshot({ path: path.join(out, `page-${t}-${tag}-booked.png`) });
     }
