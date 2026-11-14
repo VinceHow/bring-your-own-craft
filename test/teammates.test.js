@@ -7,7 +7,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-team-'));
-const { SEATS, STANCES, INKS, PER_SEAT, propose, systemFor, normalise } = await import('../lib/teammates.js');
+const { SEATS, STANCES, INKS, PER_SEAT, propose, systemFor, normalise, findingFits } = await import('../lib/teammates.js');
+const { selectForIdea } = await import('../lib/select.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, readTaste } = await import('../lib/taste.js');
 
@@ -99,8 +100,8 @@ test('Brings: Research cites only data/research-finding.json', () => {
   assert.ok(sys.includes(finding.url) && sys.includes(finding.title));
   assert.match(sys, /Cite only this finding/);
   let n = 0;
-  const [c] = normalise('research', { candidates: [{ decision: 'd', options: ['a', 'b'], recommendation: 'a', reason: 'r', cost: 'low',
-    undoable: true, attachTo: null, usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] }, { flow, nextId: () => `c${++n}` });
+  const [c] = normalise('research', { candidates: [{ decision: 'Whether full classes get a waitlist', options: ['a', 'b'], recommendation: 'a', reason: 'r', cost: 'low',
+    undoable: true, attachTo: null, usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] }, { flow, nextId: () => `c${++n}`, idea: ctx(run).idea });
   assert.equal(c.source.url, finding.url); // code, not the model, sets the source
   for (const s of SEATS.filter(x => x !== 'research')) assert.ok(!systemFor(s, ctx(run)).includes(finding.url), s);
 });
@@ -114,4 +115,44 @@ test('Brings: Data proposes what to measure at each step; Engineering speaks for
   const st = systemFor('strategy', ctx(run));
   assert.match(st, /Strategy teammate on a small product team\. Your stance, printed on your place card: "who pays, and why now"/);
   for (const w of ['price', 'pass or drop-in', 'at the desk', 'deposit', 'refunds']) assert.match(st, new RegExp(w, 'i'));
+});
+
+// The finding is about waitlists on full group classes. A wrong source on stage is worse than none.
+const researchSays = decision => async ({ system }) => seatOf(system) === 'research'
+  ? { note: 'n', candidates: [{ decision, options: ['Yes', 'No'], recommendation: 'Yes', reason: 'r', cost: 'high', undoable: true,
+      attachTo: null, usesFinding: true }] }
+  : { note: 'n', candidates: [] };
+
+test('the finding attaches only on its topic: a café idea gets no yoga source, even when the model claims it', async () => {
+  const run = newRun();
+  const cafe = await propose({ run, idea: "A pre-order page for a café's morning pastries.", flow, taste: readTaste(run),
+    callModel: researchSays('Whether sold-out pastries get a waitlist') });
+  assert.equal(cafe.candidates.length, 1);
+  assert.equal(cafe.candidates[0].source, undefined);
+  const yoga = await propose({ run, ...ctx(run), callModel: researchSays('Whether full classes get a waitlist') });
+  assert.ok(yoga.candidates[0].source?.prepared, 'on topic, it still cites the finding');
+  const off = await propose({ run, ...ctx(run), callModel: researchSays('How late a customer can cancel') });
+  assert.equal(off.candidates[0].source, undefined, 'yoga idea, but not a waitlist decision');
+  for (const [idea, d, want] of [["A pre-order page for a café's morning pastries.", 'What happens when the pastry tray is full', false],
+    ['A booking page for a pilates studio.', 'What a full class shows', true], ['A shop for second-hand bikes.', 'Whether to keep a waitlist', false],
+    ['Sign-ups for a running club’s weekly sessions.', 'Whether sessions that are full take a wait list', true]])
+    assert.equal(findingFits(idea, { decision: d, options: [] }), want, `${idea} / ${d}`);
+});
+
+test('the finding attaches only on its topic: end to end, a café run asks nothing backed by the yoga source', async () => {
+  const task = system => (system.match(/^# Task: ([\w-]+)/m) || [])[1];
+  const callModel = async args => {
+    const t = task(args.system);
+    const items = t === 'select' || t === 'decide' ? JSON.parse(args.user) : null;
+    if (t === 'select') return { scores: items.map((c, i) => ({ id: c.id, changes: 3, silent: 3, dupOf: i ? items[0].id : null, kind: 'fork' })) };
+    if (t === 'decide') return { decisions: items.map(c => ({ id: c.id, choice: c.recommendation, cites: 'team default' })) };
+    const seat = seatOf(args.system);
+    return { note: 'n', candidates: [{ decision: seat === 'research' ? 'Whether sold-out pastries get a waitlist' : `Whether ${seat} pastries sell out`,
+      options: ['Yes', 'No'], recommendation: 'Yes', reason: 'r', cost: 'high', undoable: false, attachTo: null, usesFinding: true }] };
+  };
+  const r = await selectForIdea("A pre-order page for a café's morning pastries.", ["today's pastries", 'pick a pastry'], { callModel });
+  assert.ok(r.brought >= 1);
+  assert.ok(r.asks.every(a => !a.source && !/backed by/.test(a.why)), JSON.stringify(r.asks.map(a => a.why)));
+  const cands = readEvents(r.run).filter(e => e.type === 'candidate');
+  assert.ok(cands.every(c => !c.source));
 });

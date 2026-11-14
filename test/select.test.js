@@ -183,7 +183,7 @@ test('proposeAndSelect: Research cites only its prepared finding; a teammate fai
     return { note: 'ok', candidates: [{ decision: 'Whether full classes get a waitlist', options: ['Yes', 'No'], recommendation: 'Yes',
       reason: 'r', cost: 'high', undoable: true, attachTo: 'n9', usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] };
   };
-  const r = await proposeAndSelect({ run, idea: 'x', flow, taste: readTaste(run), callModel: fakeModel({ team }) });
+  const r = await proposeAndSelect({ run, idea: 'A booking page for a small yoga studio.', flow, taste: readTaste(run), callModel: fakeModel({ team }) });
   assert.equal(r.candidates.length, 5); // six seats, Data failed
   const research = r.candidates.find(c => c.seat === 'research');
   const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));

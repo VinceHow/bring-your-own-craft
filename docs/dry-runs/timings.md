@@ -32,3 +32,5 @@ Teammates now run 4 each (6 x 4 = 24 candidates, against 25 before), so select c
 | `six-seats-fast-yoga.md` (3 per seat, the close's count) | 6.4 s | 8.4 s | 14.8 s |
 
 Strategy was never the slowest seat by much (6.9–7.5 s). Select varies more than the team does.
+| `six-seats-yoga-4.md` (finding gated to its topic) | 9.6 s | 11.0 s | 20.5 s |
+| `six-seats-cafe.md` (finding gated; no source attached) | 8.7 s | 12.4 s | 21.1 s |
