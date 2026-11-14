@@ -116,9 +116,7 @@ body.stage .meter-counts { font-size: 15px; }
 .mini-title { font-size: 12px; letter-spacing: .02em; }
 .mini-step { font-size: 11px; }
 /* when her three arrive her sheet grows over the middle teammates' sheets: hide them under it, no torn edges */
-#room:has(.her-sheet.big) .mini-sheet[data-sheet="data"],
-#room:has(.her-sheet.big) .mini-sheet[data-sheet="research"],
-#room:has(.her-sheet.big) .mini-sheet[data-sheet="strategy"] { visibility: hidden; }
+#room:has(.her-sheet.big) .mini-sheet:not([data-sheet="design"]):not([data-sheet="product"]) { visibility: hidden; }
 /* her seat card: the empty stance reads (4.5:1), still quieter than her words will be */
 .card-her-stance.empty, .big-card .bc-stance.empty { color: rgba(20,20,20,.68); }
 /* the big card: printed name, second ink out of register like the seat cards */
@@ -170,3 +168,21 @@ body.stage .meter-counts { font-size: 15px; }
   background-image: var(--rings); background-repeat: space no-repeat; background-size: 18px 14px; pointer-events: none; }
 #room .mini-sheet .mini-head { padding-top: 10px; border-bottom: 1.5px dashed rgba(20,20,20,.35); }
 #room .mini-sheet > * { overflow: hidden; }
+
+/* ---- studio: her focus time. While a check-in is open (#room.focus, set by the room), the other seats dim and
+   hold still; her sheet, her seat, her file and the open check-in stay lit. No badge, count or timer anywhere. ---- */
+#room.focus .seat:not(.seat-product), #room.focus .mini-sheet, #room.focus .gem, #room.focus .tally {
+  opacity: .42 !important; filter: saturate(.45); transition: opacity 140ms linear, filter 140ms linear; }
+#room.focus .seat:not(.seat-product) *, #room.focus .mini-sheet *, #room.focus .gem * {
+  animation-play-state: paused !important; transition: none !important; }
+#room.focus .checkin-open { opacity: 1; filter: none; position: relative; z-index: 20; }
+#room .seat, #room .mini-sheet, #room .gem, #room .tally { transition: opacity 140ms linear, filter 140ms linear; }
+@media (prefers-reduced-motion: reduce) { #room .seat, #room .mini-sheet, #room .gem, #room .tally { transition: none; } }
+
+/* ---- studio: the tray of waiting notes at her seat: a shallow paper tray, the notes resting slightly askew ---- */
+#room .tray { background: var(--pad-back); border: var(--line); border-radius: var(--r);
+  box-shadow: inset 0 3px 0 rgba(20,20,20,.12), var(--shadow-sm); padding: var(--s2) var(--s3); }
+#room .tray > * { transform: rotate(-.8deg); }
+#room .tray > *:nth-child(2n) { transform: rotate(.9deg); }
+#room .tray > *:nth-child(3n) { transform: rotate(-.3deg); }
+#room .tray .badge, #room .tray .count { display: none; } /* nothing shows how many are waiting */
