@@ -2,203 +2,258 @@
   "inputs": {
     "answers": [
       {
-        "decision": "Who 'Book your usual' serves and how it recognises a returning customer",
-        "choice": "Remember the customer by email and offer their last class",
-        "recommendation": "Defer it until there is booking history to learn from",
-        "overruled": true,
-        "attachTo": "n5"
-      },
-      {
-        "decision": "How customers cancel or change a booking, and what the booked screen promises",
-        "choice": "Booked screen says to email or contact the studio to cancel",
-        "recommendation": "Booked screen says to email or contact the studio to cancel",
+        "decision": "How should it feel for a customer who arrives to find their favourite loaf is gone?",
+        "choice": "Bread that's still warm, and being known. The regulars come every morning, and they hate it when the sourdough's gone by nine.",
+        "recommendation": null,
         "overruled": false,
-        "attachTo": "n4"
+        "attachTo": "n2",
+        "herWords": true
       },
       {
-        "decision": "What happens when a class is full",
-        "choice": "Show it as full with no booking",
-        "recommendation": "Show it as full with no booking",
+        "decision": "Who is the person who most wishes they could be sure of their loaf, and what does their week look like?",
+        "choice": "What sells out first is what people plan their morning around. Tell them early, and hold their usual for them.",
+        "recommendation": null,
         "overruled": false,
-        "attachTo": "n2"
+        "attachTo": "n1",
+        "herWords": true
       },
       {
-        "decision": "her pinned note",
-        "choice": "Cut the phone field. Name's enough; regulars hate forms.",
-        "attachTo": "n3"
+        "decision": "What does a regular want to feel the moment they open the site on a busy morning?",
+        "choice": "Like the baker already knows you. Don't ask for anything you already know.",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "herWords": true
+      },
+      {
+        "decision": "What happens when a loaf is sold out or a day is full",
+        "choice": "Show it as sold out and offer the next available day",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n2",
+        "mapped": true
+      },
+      {
+        "decision": "What happens when a loaf sells out or two people take the last one",
+        "choice": "Daily per-loaf limit; the first confirmed order wins and the other sees 'sold out, try another day'",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n2",
+        "mapped": true
+      },
+      {
+        "decision": "What the sold-out, closed-day and confirmation states show",
+        "choice": "Sold-out loaves greyed with a Pick another day button",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n2",
+        "mapped": true
+      },
+      {
+        "decision": "Who the first customers are and what they are trying to get done",
+        "choice": "Local regulars wanting a set loaf at a set time",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "mapped": true
+      },
+      {
+        "decision": "What ordering should feel like: quick and remembered, or guided and reassuring",
+        "choice": "Quick and remembered: few taps, usual loaf up front",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "mapped": true
+      },
+      {
+        "decision": "How prominent Book your usual is for returning customers",
+        "choice": "Main filled button at the top of the home screen",
+        "recommendation": null,
+        "overruled": false,
+        "attachTo": "n1",
+        "mapped": true
       }
     ],
-    "newestLine": "L3"
+    "newestLine": "L5"
   },
   "model": {
     "words": {
-      "title": "Pellow Yoga: book a yoga class in Leith, Edinburgh",
-      "brand": "Pellow Yoga",
-      "heroTitle": "Yoga studio in Leith, Edinburgh",
-      "heroLead": "Drop-in and weekly yoga classes, Monday to Saturday, £11.50 a class.",
-      "heroFact": "Mats, blocks and blankets",
-      "regularsTitle": "Book your usual class",
-      "regularsLead": "This device remembers your email and your last class, so booking it again is one button.",
-      "regularsWhen": "Tuesday 07:30",
-      "regularsUsual": "Slow flow with Mira",
-      "regularsAction": "Book Slow flow again",
-      "classesTitle": "This week's classes",
-      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
-      "waitlistAction": "Full",
-      "classTitle": "Slow flow class, 60 minutes",
-      "classBody": "Long holds, simple standing poses and the breath counted out loud. The pace stays even for the whole hour, and every pose has an easier version you can take at any point.",
-      "confirmTitle": "Book a place in a class",
-      "confirmLead": "No account needed. Just your name and email. You pay at the studio.",
-      "confirmAction": "Book this class",
-      "confirmSent": "Your class is booked. The confirmation email is on its way.",
-      "rememberLabel": "Remember me on this device",
+      "title": "Hearth: bread to order ahead in Walkley, Sheffield",
+      "brand": "Hearth",
+      "heroTitle": "Your usual loaf, held for you in Walkley",
+      "heroLead": "Order tonight, collect it warm on your way to work, Tuesday to Sunday.",
+      "cutoffLine": "Order by 20:00 for the next morning’s bake.",
+      "regularsTitle": "Your usual loaf",
+      "regularsLead": "We know your last order on this device. One tap sends it again for tomorrow morning.",
+      "regularsUsual": "One country sourdough",
+      "regularsWhen": "Tomorrow at 07:30",
+      "regularsAction": "Book your usual",
+      "regularsSent": "Your usual is booked. The confirmation email is on its way.",
+      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here next time.",
+      "standingLine": "Every Tuesday and Saturday, until you stop it",
+      "standingLabel": "Make this a standing weekly order",
+      "breadTitle": "Tomorrow’s bread",
+      "breadLead": "Baked overnight, out by 06:30. Sold-out loaves are greyed, with the next day offered.",
+      "loafBody": "Flour, water, salt and a starter older than the bakery, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out. It sells out first, so we hold it for our regulars.",
+      "confirmTitle": "Order for tomorrow",
+      "confirmLead": "No account needed. Your loaf is held at the counter under your name. Pay when you collect.",
+      "confirmSent": "Your bread is ordered. The confirmation email is on its way.",
       "phoneLabel": "Phone (optional)",
-      "bookedTitle": "After you book",
-      "bookedBody": "Your place is held the moment you book. The confirmation email names the class, the time and the teacher, and there is nothing to bring but yourself.",
-      "cancelLine": "To cancel, email or contact the studio",
-      "cancelWindow": "Up to 2 hours before",
+      "rememberLabel": "Remember me on this device",
+      "orderedTitle": "After you order",
+      "orderedBody": "The confirmation email arrives once the order is in.",
+      "cancelLine": "Cancel in one tap from your confirmation email.",
       "cancelReasonLine": "Tell us why (optional)",
       "decidedTitle": "Decided for you",
-      "decidedLead": "Five choices made for this booking page, and where each one came from.",
-      "heroAction": "Book a class"
+      "decidedLead": "Choices behind this order page, each with where it came from.",
+      "heroAction": "Book your usual"
     },
     "steps": [
-      "classes",
       "regulars",
-      "class",
+      "bread",
+      "loaf",
       "confirm",
-      "booked"
+      "ordered"
     ],
     "switches": {
       "regulars": true,
-      "regularsFirst": false,
-      "waitlist": false,
+      "regularsFirst": true,
+      "standingOrder": false,
+      "cutoff": true,
       "phone": false,
       "remember": true,
-      "oneTapCancel": false,
+      "oneTapCancel": true,
       "cancelReason": false
     },
     "decidedShown": [
       {
-        "id": "c5",
-        "label": "You pay at the desk; the page only reserves a place"
+        "id": "c20",
+        "label": "Pay at pickup; the order is confirmed when you submit"
       },
       {
         "id": "c8",
-        "label": "One flat price for every class"
+        "label": "One-tap reorder, paying each time, no standing order"
       },
       {
-        "id": "c1",
-        "label": "Booking asks for name and email only"
+        "id": "c13",
+        "label": "Orders close at a cutoff, with a daily limit per bread"
       },
       {
-        "id": "c18",
-        "label": "A full class shows as full, with no booking"
+        "id": "c6",
+        "label": "Full refund if you cancel before the cutoff, none after"
       },
       {
-        "id": "c22",
-        "label": "This device remembers you, so Book your usual only appears once you have booked"
+        "id": "c24",
+        "label": "Your name and last order are remembered on this device only"
       }
     ]
   },
   "used": {
     "words": {
-      "title": "Pellow Yoga: book a yoga class in Leith, Edinburgh",
-      "brand": "Pellow Yoga",
-      "heroTitle": "Yoga studio in Leith, Edinburgh",
-      "heroLead": "Drop-in and weekly yoga classes, Monday to Saturday, £11.50 a class.",
-      "heroFact": "Mats, blocks and blankets",
-      "regularsTitle": "Book your usual class",
-      "regularsLead": "This device remembers your email and your last class, so booking it again is one button.",
-      "regularsWhen": "Tuesday 07:30",
-      "regularsUsual": "Slow flow with Mira",
-      "regularsAction": "Book Slow flow again",
-      "classesTitle": "This week's classes",
-      "classesLead": "Monday 16 to Saturday 21 November, up to 14 mats in each class.",
-      "waitlistAction": "Full",
-      "classTitle": "Slow flow class, 60 minutes",
-      "classBody": "Long holds, simple standing poses and the breath counted out loud. The pace stays even for the whole hour, and every pose has an easier version you can take at any point.",
-      "confirmTitle": "Book a place in a class",
-      "confirmLead": "No account needed. Just your name and email. You pay at the studio.",
-      "confirmAction": "Book this class",
-      "confirmSent": "Your class is booked. The confirmation email is on its way.",
-      "rememberLabel": "Remember me on this device",
+      "title": "Hearth: bread to order ahead in Walkley, Sheffield",
+      "brand": "Hearth",
+      "heroTitle": "Your usual loaf, held for you in Walkley",
+      "heroLead": "Order tonight, collect it warm on your way to work, Tuesday to Sunday.",
+      "cutoffLine": "Order by 20:00 for the next morning’s bake.",
+      "regularsTitle": "Your usual loaf",
+      "regularsLead": "We know your last order on this device. One tap sends it again for tomorrow morning.",
+      "regularsUsual": "One country sourdough",
+      "regularsWhen": "Tomorrow at 07:30",
+      "regularsAction": "Book your usual",
+      "regularsSent": "Your usual is booked. The confirmation email is on its way.",
+      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here next time.",
+      "standingLine": "Every Tuesday and Saturday, until you stop it",
+      "standingLabel": "Make this a standing weekly order",
+      "breadTitle": "Tomorrow’s bread",
+      "breadLead": "Baked overnight, out by 06:30. Sold-out loaves are greyed, with the next day offered.",
+      "loafBody": "Flour, water, salt and a starter older than the bakery, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out. It sells out first, so we hold it for our regulars.",
+      "confirmTitle": "Order for tomorrow",
+      "confirmLead": "No account needed. Your loaf is held at the counter under your name. Pay when you collect.",
+      "confirmSent": "Your bread is ordered. The confirmation email is on its way.",
       "phoneLabel": "Phone (optional)",
-      "bookedTitle": "After you book",
-      "bookedBody": "Your place is held the moment you book. The confirmation email names the class, the time and the teacher, and there is nothing to bring but yourself.",
-      "cancelLine": "To cancel, email or contact the studio",
-      "cancelWindow": "Up to 2 hours before",
+      "rememberLabel": "Remember me on this device",
+      "orderedTitle": "After you order",
+      "orderedBody": "The confirmation email arrives once the order is in.",
+      "cancelLine": "Cancel in one tap from your confirmation email.",
       "cancelReasonLine": "Tell us why (optional)",
       "decidedTitle": "Decided for you",
-      "decidedLead": "Six choices the team made for this page, and what each one follows.",
-      "heroAction": "Book a class"
+      "decidedLead": "Six choices the team made for this page.",
+      "heroAction": "Book your usual"
     },
     "switches": {
       "regulars": true,
-      "regularsFirst": false,
-      "waitlist": false,
+      "regularsFirst": true,
+      "standingOrder": false,
+      "cutoff": true,
       "phone": false,
       "remember": true,
-      "oneTapCancel": false,
-      "cancelReason": true
+      "oneTapCancel": true,
+      "cancelReason": false
     },
     "steps": [
-      "classes",
       "regulars",
-      "class",
+      "bread",
+      "loaf",
       "confirm",
-      "booked"
+      "ordered"
     ],
     "tokens": {
-      "p-bg": "#ddd6c6",
-      "p-surface": "#d2cab8",
-      "p-ink": "#2a2a26",
-      "p-accent": "#4f6238",
-      "p-action": "#4f6238"
+      "p-bg": "#efe9e0",
+      "p-surface": "#e2d9cb",
+      "p-ink": "#22261f",
+      "p-accent": "#2e5b44",
+      "p-action": "#2e5b44"
     },
     "decided": [
       {
-        "id": "c22",
-        "seat": "engineering",
-        "label": "This device remembers you, so Book your usual only appears once you have booked",
-        "cites": "L3",
-        "lineText": "Never ask for anything you could remember or skip."
-      },
-      {
-        "id": "c11",
-        "seat": "research",
-        "label": "Whether people book as guests or must create an account: Guest booking with name and email",
-        "cites": "L3",
-        "lineText": "Never ask for anything you could remember or skip."
-      },
-      {
-        "id": "c5",
-        "seat": "strategy",
-        "label": "You pay at the desk; the page only reserves a place",
-        "cites": "L2",
-        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
-      },
-      {
         "id": "c8",
         "seat": "strategy",
-        "label": "One flat price for every class",
-        "cites": "L2",
-        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+        "label": "One-tap reorder, paying each time, no standing order",
+        "cites": "L5",
+        "lineText": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
+        "newest": true
       },
       {
-        "id": "c1",
+        "id": "c24",
+        "seat": "engineering",
+        "label": "Your name and last order are remembered on this device only",
+        "cites": "L5",
+        "lineText": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
+        "newest": true
+      },
+      {
+        "id": "c16",
+        "seat": "research",
+        "label": "Whether regulars can rebook their usual order with one tap: Simple repeat-last-order button",
+        "cites": "L5",
+        "lineText": "Ordering should feel like being known. Never ask for anything we could remember or skip.",
+        "newest": true
+      },
+      {
+        "id": "c20",
         "seat": "product",
-        "label": "Booking asks for name and email only",
+        "label": "Pay at pickup; the order is confirmed when you submit",
         "cites": "L2",
-        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+        "lineText": "Ship the smallest version that works end to end; extras wait for evidence.",
+        "newest": false
       },
       {
-        "id": "c18",
-        "seat": "design",
-        "label": "A full class shows as full, with no booking",
-        "cites": "L2",
-        "lineText": "Ship the smallest version that works end to end; extras wait for evidence."
+        "id": "c13",
+        "seat": "research",
+        "label": "Orders close at a cutoff, with a daily limit per bread",
+        "cites": "team default",
+        "lineText": null,
+        "newest": false
+      },
+      {
+        "id": "c6",
+        "seat": "strategy",
+        "label": "Full refund if you cancel before the cutoff, none after",
+        "cites": "team default",
+        "lineText": null,
+        "newest": false
       }
-    ]
+    ],
+    "fonts": []
   }
 }

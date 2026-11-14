@@ -1,12 +1,12 @@
 // GET /api/replay/:name -> { name, events, taste } from runs/<name>/events.jsonl (and taste.md if present).
 // GET /api/taste/:run  -> { md } her file for a run (runs/<run>/taste.md), for the room's file card.
-// GET /api/baseline    -> { asked, guessed, source } counted from docs/baseline/GUESSES.md (one table row per guess).
+// GET /api/baseline    -> { asked, guessed, source } counted from docs/baseline/run-3-bakery/GUESSES.md (one table row per guess).
 import fs from 'node:fs';
 import path from 'node:path';
 import { RUNS_DIR, readEvents } from '../lib/events.js';
 import { sendJson } from '../lib/http.js';
 
-const GUESSES = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', 'docs', 'baseline', 'GUESSES.md');
+const GUESSES = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', 'docs', 'baseline', 'run-3-bakery', 'GUESSES.md'); // the bakery baseline (VISION, Sat)
 // One row per guess: "| <n> | guess | evidence |". The plain agent asked nothing (docs/baseline/README.md).
 export function countGuesses(md) { return String(md).split('\n').filter(l => /^\|\s*\d+\s*\|/.test(l)).length; }
 
@@ -16,7 +16,7 @@ export default [{
   handler(req, res) {
     if (!fs.existsSync(GUESSES)) return sendJson(res, 404, { error: 'no baseline counted yet' });
     const guessed = countGuesses(fs.readFileSync(GUESSES, 'utf8'));
-    sendJson(res, 200, { asked: 0, guessed, source: 'plain coding agent, same prompt, 14 Nov · docs/baseline/GUESSES.md' });
+    sendJson(res, 200, { asked: 0, guessed, source: 'plain coding agent, the bakery prompt, 14 Nov · docs/baseline/run-3-bakery' });
   },
 }, {
   method: 'GET',

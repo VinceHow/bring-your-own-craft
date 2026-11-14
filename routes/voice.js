@@ -25,7 +25,9 @@ async function probe() {
   try {
     const r = await fetch(`${API}/models`, { headers: { 'xi-api-key': key() }, signal: AbortSignal.timeout(5000) });
     ok = r.ok;
-    await r.body?.cancel?.();
+    // A key scoped to speech-to-text only answers 401 "missing_permissions" here: the key itself works, so voice does.
+    if (!ok && r.status === 401) { const t = await r.text().catch(() => ''); ok = /missing_permissions/.test(t); }
+    else await r.body?.cancel?.();
   } catch { ok = false; } // proxy refusal (host not allowed yet), DNS, timeout: all mean "typed"
   cache = { available: ok, at: now };
   return ok;

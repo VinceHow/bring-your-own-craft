@@ -1,3 +1,5 @@
-- [L1] I love getting the journey right before anyone draws a screen. (her own words, today)
+- [L1] I love working on the customer journey, understanding the problems customers face, and building products that solve them. (her own words, today)
 - [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
-- [L3] Never ask for anything you could remember or skip.
+- [L3] Regulars want warm bread and to be known, and they hate finding their sourdough gone by nine, so a sold-out loaf should feel like the bakery looking after them, not a dead end.
+- [L4] I believe our first customers are the regulars who plan their morning around a particular loaf, and the bakery should look after them when it sells out.
+- [L5] Ordering should feel like being known. Never ask for anything we could remember or skip.

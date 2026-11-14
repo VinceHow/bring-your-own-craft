@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fillPage, loadTemplate, parseTaste, gatherRun, pickTemplate } from '../lib/fill.js';
+import { fillPage, loadTemplate, parseTaste, gatherRun, pickTemplate, applyChoices } from '../lib/fill.js';
 import { readForm, storeBooking } from '../routes/book.js';
 
 const TASTE = parseTaste([
@@ -295,4 +295,12 @@ test('bakery: a decision about regulars landing first stays a regulars-first dec
     decided: [{ id: 'x', seat: 'design', decision: 'Should regulars see a repeat of their usual order first', choice: 'Yes, their usual first', cites: 'team default' }] });
   assert.equal(r.slots.switches.regularsFirst, true);
   assert.equal(r.slots.switches.standingOrder, false);
+});
+
+test('the phone switch reads a "what the form asks for" field list, and nothing else that mentions name and email', () => {
+  const phone = (decision, choice) => { const sw = { phone: true, remember: true }; applyChoices(sw, [{ decision, choice }]); return sw; };
+  assert.equal(phone('What the order form asks for', 'Name and email only').phone, false);
+  assert.equal(phone('What does the booking form ask for?', 'Name, email and optional phone').phone, true);
+  assert.deepEqual(phone('Should the form remember your name and email?', 'No, never'), { phone: true, remember: false });
+  assert.equal(phone('What details do we show on the confirmation page?', 'Name and email').phone, true);
 });
