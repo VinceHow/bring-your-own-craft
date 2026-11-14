@@ -43,7 +43,7 @@ real numbers.
 - **Usage:** the lead checks every 30 minutes; the alarm is at **60%** (the reset was ~16:40 UTC; 28% took ~4.5 h at peak load). The cut order starts the moment it trips.
 - **00:00 check:** if usage is over ~45%, the first cut (any-seat) applies at once.
 - **02:00 check:** each builder reports green or behind; the lead reports usage.
-- **Design:** at most 2 helper sessions overnight after its 23:00 handover.
+- **Design:** up to 5 helper sessions at the design lead's discretion, winding down when there's little work (Vincent); the 60% alarm applies to everyone.
 - **07:00 `demo-final` (aim):** the default path is frozen as a branch, with M1 kept as the fallback.
 - **Three fallbacks, rehearsed once overnight by a builder (~15 min):** (a) model calls → MODEL_BACKEND=fal (the
   must-have full rehearsal by 07:00), with the labelled REPLAY as the last resort; (b) judges' phones or venue wifi →
