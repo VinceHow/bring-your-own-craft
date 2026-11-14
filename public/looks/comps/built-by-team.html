@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Built by the team · strip</title>
+<!-- The "Built by the team" strip for the bakery proof beat (DEMO.md 2:10–2:30): screen-shared beside the baker's admin
+     page. A standalone snippet: copy everything between BEGIN and END into any page. No scripts, no other files
+     (fonts come from /looks/fonts/ when served by our app, and fall back to Georgia and the system sans otherwise).
+     Everything is scoped under .bbt. Hooks: .bbt[data-component="built-by-team"], .bbt-chip[data-part] (database ·
+     rules · tests), .bbt-team > .bbt-mark[data-seat], .bbt-note. Text only, nothing is a button. -->
+<style>
+html, body { margin: 0; min-height: 100vh; background: #E9DCC4; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<!-- ================= BEGIN built-by-team ================= -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(/looks/fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: 'Newsreader'; src: url(/looks/fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(/looks/fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: swap; }
+.bbt { --ink: #3A2616; --ink2: #5E4632; --paper: #FCF6EA; --inset: #F4EADA; --kraft: #C49A62;
+  display: inline-flex; align-items: center; gap: 16px; padding: 12px 18px 12px 16px; border-radius: 20px;
+  background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(58,38,22,.75), 5px 6px 0 -1px var(--kraft);
+  font: 400 16px/1.2 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink); rotate: -.4deg; }
+.bbt-title { font: 400 21px/1 'Newsreader', Georgia, serif; white-space: nowrap; }
+.bbt-chips { display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.bbt-chip { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px 0 10px; border-radius: 999px;
+  background: var(--inset); box-shadow: inset 0 0 0 1.3px rgba(58,38,22,.45); font: 500 15px/1 'Hanken Grotesk', system-ui, sans-serif; }
+.bbt-chip svg { width: 15px; height: 15px; fill: none; stroke: var(--ink2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bbt-side { display: flex; flex-direction: column; gap: 5px; padding-left: 14px; border-left: 1px solid rgba(58,38,22,.22); }
+.bbt-team { display: flex; }
+.bbt-mark { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--paper); }
+.bbt-mark + .bbt-mark { margin-left: -3px; }
+.bbt-mark[data-seat="design"] { background: #3D5A92; } .bbt-mark[data-seat="research"] { background: #C95E38; }
+.bbt-mark[data-seat="data"] { background: #6E9877; } .bbt-mark[data-seat="strategy"] { background: #C08A32; }
+.bbt-mark[data-seat="engineering"] { background: #E2B83A; }
+.bbt-note { font: italic 400 15px/1.15 'Newsreader', Georgia, serif; color: var(--ink2); white-space: nowrap; }
+</style>
+<div class="bbt" data-component="built-by-team" aria-label="Built by the team: database, rules, tests. Built earlier by this team.">
+  <span class="bbt-title">Built by the team</span>
+  <ul class="bbt-chips">
+    <li class="bbt-chip" data-part="database"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="3.6" rx="5.5" ry="2.1"/><path d="M2.5 3.6v8.8c0 1.2 2.5 2.1 5.5 2.1s5.5-.9 5.5-2.1V3.6M2.5 8c0 1.2 2.5 2.1 5.5 2.1s5.5-.9 5.5-2.1"/></svg>database</li>
+    <li class="bbt-chip" data-part="rules"><svg viewBox="0 0 16 16"><path d="M3 2.5h10M3 6.5h10M3 10.5h6M11 11.5l1.3 1.3L15 10"/></svg>rules</li>
+    <li class="bbt-chip" data-part="tests"><svg viewBox="0 0 16 16"><path d="M2.5 8.5l3.3 3.3L13.5 4"/></svg>tests</li>
+  </ul>
+  <div class="bbt-side">
+    <span class="bbt-team" aria-hidden="true"><i class="bbt-mark" data-seat="design"></i><i class="bbt-mark" data-seat="research"></i><i class="bbt-mark" data-seat="engineering"></i><i class="bbt-mark" data-seat="strategy"></i><i class="bbt-mark" data-seat="data"></i></span>
+    <span class="bbt-note">built earlier by this team</span>
+  </div>
+</div>
+<!-- ================= END built-by-team ================= -->
+</body>
+</html>

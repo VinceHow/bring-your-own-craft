@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Milestone 2 · the first decision and a quick unblock</title>
+<!-- Two stage moments in the room, ink-paper look (DEMO.md stage flow 0:38–1:05; docs/M2-PLAN.md).
+     A1 THE FIRST DECISION: Noor's question waits in her inbox; she opens it into her document (the room steps back),
+     says who it's really for, sends; the rough journey redraws, and a run of decisions lifts off each owner's spot,
+     arcs to the team space and settles there with that teammate's mark, 150 ms apart. No counts, no confetti.
+     A2 A QUICK UNBLOCK: an action card, "Bo's blocked: when do orders close?", with the team's suggestion. One big Yes,
+     a quiet "Say something else". Yes: the card folds into the team space as a decision with her mark and Bo's, Bo's
+     delighted clip plays, the inbox goes back to "Nothing needs you right now". Say something else: her voice
+     opens on the card and her words replace the suggestion.
+     ?flow=decide | unblock (&say=1 for "Say something else"); no flow plays both. &step=0..8 &still=1 for a moment.
+     Hooks (names from docs/COMPONENTS.md, new ones marked NEW) are listed at the bottom of this file. -->
+<link rel="stylesheet" href="../ink-paper.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #1A120D; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+.room { position: absolute; inset: 0; background: url(first-open/cast/painting-afternoon.jpg) center top / 1600px 893px no-repeat; transition: filter .5s; }
+.abs { position: absolute; }
+.hide { display: none !important; }
+.canvas .abs.pane { position: absolute; }
+.canvas > .pill { z-index: 3; }
+.veil { position: absolute; inset: 0; background: rgba(30,20,12,.42); opacity: 0; pointer-events: none; z-index: 8; }
+body.focus-open .room { filter: blur(5px) saturate(.85); }
+.patch { position: absolute; z-index: 2; pointer-events: none; opacity: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+.patch video { width: 100%; height: 100%; display: block; }
+
+/* ---------- the team space: a sheet pinned by the kitchen, decisions settle on it ---------- */
+.team-space { left: 22px; top: 318px; width: 300px; min-height: 120px; z-index: 7; }
+.canvas .team-space { padding: 14px 14px 12px; }
+.team-space > .gl { --sheet: var(--ip-paper); }
+.ts-title { display: flex; align-items: baseline; gap: 8px; margin: 0 2px 10px; font: 400 19px/1 var(--ip-serif); color: var(--ip-ink); }
+.ts-title small { font: 500 12px/1 var(--ip-sans); color: var(--ip-ink-2); }
+.ts-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.ts-card { position: relative; display: flex; align-items: center; gap: 9px; padding: 8px 11px 8px 9px; border-radius: 12px;
+  background: #FFFBF3 var(--ip-tooth); box-shadow: 3px 3px 0 0 var(--c), inset 0 0 0 1.3px rgba(74,48,32,.62); }
+.ts-card:nth-child(odd) { rotate: -.5deg; } .ts-card:nth-child(even) { rotate: .4deg; }
+.ts-card[data-state="settling"] { z-index: 3; }
+.ts-marks { display: flex; flex: none; }
+.ts-mark { width: 20px; height: 20px; border-radius: 50%; background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 60px 60px; mask: var(--ip-wax) 0 0 / 60px 60px; }
+.ts-mark + .ts-mark { margin-left: -5px; }
+.ts-mark[data-seat="product"] { -webkit-mask: none; mask: none; background: var(--ip-her-t); display: grid; place-items: center; font: 500 11px/1 var(--ip-serif); color: #fff; box-shadow: 0 0 0 1.5px #FFFBF3; position: relative; z-index: 1; }
+.ts-headline { font: 400 16px/1.25 var(--ip-serif); color: var(--ip-ink); }
+.ts-card[data-her] .ts-headline { color: var(--ip-her-t); }
+
+/* ---------- the rough journey on the table ---------- */
+.idea-sheet { left: 640px; top: 452px; width: 300px; z-index: 4; }
+.canvas .idea-sheet { padding: 12px 14px 13px; }
+.idea-sheet .k { display: block; margin-bottom: 8px; color: var(--ip-ink-2); }
+.fs-users { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-bottom: 9px; }
+.fs-user { padding: 4px 9px; border-radius: 999px; background: var(--ip-inset); box-shadow: inset 0 0 0 1.2px rgba(74,48,32,.4); font: 400 14px/1.15 var(--ip-serif); }
+.fs-user.main { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.4px rgba(147,55,79,.6); color: var(--ip-her-t); font-size: 16px; }
+.fs-user.later { text-decoration: line-through; text-decoration-color: rgba(74,48,32,.6); color: #6E5A49; }
+.fs-said { margin: -2px 0 9px; font: italic 400 13px/1.3 var(--ip-serif); color: var(--ip-her-t); }
+.fs-stages { display: flex; align-items: center; gap: 5px; font: 500 13px/1 var(--ip-sans); color: var(--ip-ink); }
+.fs-stages b { font-weight: 500; padding: 5px 8px; border-radius: 8px; box-shadow: inset 0 0 0 1.2px rgba(74,48,32,.5); background: #FFFBF3; }
+.fs-stages i { font-style: normal; color: var(--ip-ink-2); }
+
+/* ---------- her inbox, collapsed by her stool ---------- */
+.inbox { position: absolute; left: 800px; top: 700px; width: 330px; z-index: 6; }
+.tray { position: relative; width: 330px; cursor: pointer; transition: translate .3s var(--ip-land); }
+.canvas .tray { padding: 12px 14px 13px 16px; }
+.tray:hover, .tray.is-hover { translate: 0 -2px; }
+.tray .lab { display: flex; align-items: center; gap: 7px; color: var(--t); }
+.tray .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.tray .lab .open { margin-left: auto; color: var(--ip-ink-2); }
+.tray .q { margin-top: 4px; font: 400 17px/1.3 var(--ip-serif); color: var(--ip-ink); }
+.tray.quiet .q { font: italic 400 16px/1.3 var(--ip-serif); color: var(--ip-ink-2); }
+.tray .under { position: absolute; left: 10px; right: 10px; bottom: -7px; height: 12px; border-radius: 0 0 14px 14px; background: #F3E8D4; box-shadow: 2px 3px 6px -3px rgba(60,35,15,.4); z-index: -2; }
+
+/* ---------- A1: her document, one question, her voice ---------- */
+.focus-doc { left: 450px; top: 150px; width: 700px; z-index: 9; }
+.canvas .focus-doc { padding: 30px 36px 30px; }
+.fd-kicker { display: flex; align-items: center; gap: 8px; color: var(--t); font-size: 15px; }
+.fd-kicker i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.fd-question { margin: 10px 0 6px; font: 400 40px/1.15 var(--ip-serif); letter-spacing: -.012em; }
+.fd-sub { margin: 0 0 20px; font: italic 400 20px/1.35 var(--ip-serif); color: var(--ip-ink-2); }
+.fd-said { min-height: 150px; padding: 20px 22px; border-radius: var(--ip-r-md); background: var(--ip-inset); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.4);
+  font: 400 24px/1.45 var(--ip-serif); color: var(--ip-ink); }
+.fd-said .w, .ia-sug .w { display: inline-block; margin-right: .26em; }
+.fd-said[data-state="landed"] { color: var(--ip-her-t); font-style: italic; }
+.fd-input { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 18px; }
+.mic { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 20px 0 9px; border-radius: 999px; background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(212,114,136,.55);
+  font: 500 17px/1 var(--ip-sans); color: var(--ip-her-t); border: 0; cursor: pointer; }
+.mic .ring { width: 34px; height: 34px; border-radius: 50%; background: var(--ip-her-t); display: grid; place-items: center; transition: scale .12s; }
+.mic svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; }
+.fd-send { height: 52px; padding: 0 26px; font-size: 18px; }
+
+/* ---------- A2: the action card, grown from the inbox ---------- */
+.inbox-action { left: 800px; top: 452px; width: 330px; z-index: 7; }
+.canvas .inbox-action { padding: 16px 18px 18px; }
+.ia-who { display: flex; align-items: center; gap: 10px; }
+.ia-face { position: relative; width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 2px var(--c), 0 0 0 3.5px rgba(74,48,32,.55); }
+.ia-face video { position: absolute; width: 180px; height: 180px; left: -52px; top: -62px; }
+.ia-who b { display: block; font: 500 15px/1.15 var(--ip-sans); color: var(--t); }
+.ia-who small { display: block; margin-top: 3px; font: 400 13px/1.2 var(--ip-sans); color: var(--ip-ink-2); }
+.ia-q { margin: 12px 0 10px; font: 400 25px/1.2 var(--ip-serif); letter-spacing: -.01em; }
+.ia-sug { position: relative; padding: 10px 12px 11px; border-radius: 12px; background: var(--ip-inset); box-shadow: inset 0 0 0 1.2px rgba(74,48,32,.3); }
+.ia-sug .k { display: block; font: 500 12px/1 var(--ip-sans); color: var(--ip-ink-2); margin-bottom: 5px; }
+.ia-sug p { margin: 0; font: 400 18px/1.3 var(--ip-serif); }
+.ia-sug.hers { background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.3px rgba(147,55,79,.5); }
+.ia-sug.hers .k { color: var(--ip-her-t); } .ia-sug.hers p { color: var(--ip-her-t); font-style: italic; }
+.ia-sug .was { display: block; margin-top: 5px; font: 400 13px/1.2 var(--ip-sans); color: #8A7462; text-decoration: line-through; }
+.ia-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.ia-yes { height: 58px; flex: 1; font-size: 21px; }
+.ia-else { height: 46px; padding: 0 14px 0 7px; font-size: 15px; gap: 8px; }
+.ia-else .ring { width: 30px; height: 30px; }
+.thanks { left: 1214px; top: 280px; width: 250px; z-index: 6; border-radius: 22px 22px 22px 6px; font: italic 400 17px/1.35 var(--ip-serif); }
+.canvas .thanks { padding: 11px 15px 12px; }
+.thanks b { display: block; font: 500 13px/1 var(--ip-sans); font-style: normal; color: var(--t); margin-bottom: 4px; }
+/* a slip of paper in flight */
+.slip { position: absolute; left: 0; top: 0; z-index: 12; pointer-events: none; }
+#replay { position: absolute; right: 22px; top: 18px; z-index: 30; }
+#pointer { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 50; pointer-events: none; opacity: 0; }
+#pointer::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(255,250,240,.85); box-shadow: 0 0 0 1.5px rgba(70,45,25,.55), 0 4px 10px rgba(30,15,5,.4); }
+</style>
+</head>
+<body>
+<div class="canvas ink-paper" id="c">
+  <div class="room"></div>
+  <button class="abs pill" data-who="mika" style="left:404px;top:304px"><span class="dot"></span><span class="nm">Mika</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="noor" style="left:612px;top:290px"><span class="dot"></span><span class="nm">Noor</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="theo" style="left:790px;top:322px"><span class="dot"></span><span class="nm">Theo</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span><span class="nm">Ines</span><span class="agent">agent</span></button>
+  <button class="abs pill" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span><span class="nm">Bo</span><span class="agent">agent</span></button>
+  <button class="abs pill is-her" data-who="her" style="left:584px;top:616px;z-index:5"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>
+  <div class="patch" id="patch"><video muted playsinline preload="auto" id="patchV"></video></div>
+
+  <section class="abs card team-space" id="ts" data-who="her" data-component="team-space" data-state="shown" aria-label="Team space">
+    <div class="ts-title" data-slot="title">Team space<small>settled together</small></div>
+    <ol class="ts-cards" id="tsCards" data-slot="cards"></ol>
+  </section>
+
+  <div class="abs card idea-sheet" id="idea" data-who="noor" data-component="idea-sheet" data-state="sketched">
+    <span class="lab k">The rough journey · Noor and Mika</span>
+    <div class="fs-bar" id="fs" data-component="first-sketch" data-state="drawn">
+      <div class="fs-users" id="fsUsers" data-slot="users"></div>
+      <div class="fs-said hide" id="fsSaid"></div>
+      <div class="fs-stages" id="fsStages"></div>
+    </div>
+  </div>
+
+  <div class="veil" id="veil"></div>
+
+  <aside class="inbox" id="inbox" data-component="inbox" data-state="collapsed" data-needs="yes">
+    <div class="card tray" id="tray" data-who="noor" role="button" aria-label="Your inbox">
+      <span class="under"></span>
+      <div class="inbox-item" id="item" data-ask="who-for" data-seat="research" data-state="top">
+        <span class="lab"><i></i><span id="tWho" data-slot="who">Noor</span><span class="open">Open it</span></span>
+        <div class="q" id="tQ" data-slot="text">Who is this really for?</div>
+      </div>
+    </div>
+  </aside>
+
+  <span class="tag replay" id="replay">Replay<small>recorded run</small></span>
+  <div id="pointer"></div>
+</div>
+<script src="../../vendor/motion/motion.js"></script>
+<script src="../ink-paper.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search), FLOW = q.get('flow'), STEP = q.get('step'), still = q.get('still') === '1', SAY = q.get('say') === '1';
+  const instant = still || STEP != null, N = STEP == null ? 99 : +STEP;
+  const c = document.getElementById('c'), $ = s => c.querySelector(s), { animate } = Motion;
+  const spring = (d = .5) => ({ type: 'spring', visualDuration: d, bounce: 0 });
+  const wait = ms => new Promise(r => setTimeout(r, instant ? 0 : ms));
+  const A = (el, k, o) => animate(el, k, instant ? { duration: 0 } : o);
+  const emit = (name, detail) => document.dispatchEvent(new CustomEvent(name, { detail }));
+  const redrawAll = el => { if (el.classList.contains('pane')) InkPaper.redraw(el); el.querySelectorAll('.pane').forEach(InkPaper.redraw); };
+  InkPaper.dress(c);
+
+  const WHO = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo', product: 'her' };
+  const NAME = { mika: 'Mika', noor: 'Noor', theo: 'Theo', ines: 'Ines', bo: 'Bo', her: 'Priya' };
+  // where each teammate's decision lifts off: their hands on the table, below every face
+  const HAND = { mika: [468, 520], noor: [690, 470], theo: [850, 500], ines: [1010, 470], bo: [1117, 520], her: [700, 640] };
+  const K = 1600 / 1588, P2 = (x, y) => [(x - 6) * K, y * K];
+  const PATCH = { bo: [975, 270, 480], noor: [500, 170, 400], mika: [280, 190, 540] };
+
+  // the rough journey (DEMO.md 0:31–0:38), then its reshape after her answer
+  const J0 = { users: [['morning regulars'], ['the weekend pastry crowd'], ['the bakers']], stages: ['choose', 'order', 'pick up'] };
+  const J1 = { users: [['the regulars', 'main'], ['the weekend pastry crowd', 'later'], ['the bakers', 'later']], said: '“They come every morning.”', stages: ['their usual', 'held till 10', 'pick up'] };
+  function journey(j) {
+    $('#fsUsers').innerHTML = j.users.map(([t, k]) => `<span class="fs-user ${k || ''}" data-slot="user">${t}</span>`).join('');
+    $('#fsStages').innerHTML = j.stages.map(s => `<b>${s}</b>`).join('<i>→</i>');
+    const sd = $('#fsSaid'); if (j.said) { sd.textContent = j.said; sd.classList.remove('hide'); } else sd.classList.add('hide');
+    InkPaper.redraw($('#idea'));
+  }
+  journey(J0);
+
+  // the run of decisions her one answer settles (answer.mapped), each with the teammate who took it
+  const RUN = [
+    { id: 'usual', seat: 'design', headline: 'Their usual loaf, one tap away' },
+    { id: 'hold', seat: 'engineering', headline: 'Held till 10, every morning' },
+    { id: 'login', seat: 'engineering', headline: 'No login' },
+    { id: 'phone', seat: 'research', headline: 'No phone field' },
+    { id: 'count', seat: 'data', headline: 'Tomorrow’s bake, counted from the holds' },
+  ];
+  function slipHTML(d) {
+    const seats = d.seats || [d.seat];
+    return `<span class="ts-marks" data-slot="marks">${seats.map(s => `<span class="ts-mark" data-seat="${s}" data-who="${WHO[s]}" title="${NAME[WHO[s]]}">${s === 'product' ? 'P' : ''}</span>`).join('')}</span>` +
+      `<span class="ts-headline" data-slot="headline">${d.headline}</span>`;
+  }
+  // one decision: it lifts off its owner's spot, arcs to the team space and settles there
+  async function settle(d, from) {
+    const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[(d.seats || [d.seat])[d.seats ? 1 : 0]] || WHO[d.seat];
+    if (d.seats && d.seats.includes('product')) li.dataset.her = '';
+    li.dataset.state = 'settling'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); InkPaper.redraw($('#ts'));
+    if (instant) { li.dataset.state = 'closed'; return; }
+    const r = li.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    const x1 = r.left - cr.left, y1 = r.top - cr.top, [hx, hy] = from || HAND[WHO[d.seat]];
+    const dx = hx - r.width / 2 - x1, dy = hy - r.height / 2 - y1;
+    const mx = dx * .45, my = Math.max(dy, 0) * .45 + 70;   // a soft arc that dips across the tabletop, below every face
+    li.style.opacity = 0;
+    animate(li, { opacity: [0, 1, 1] }, { duration: .25, times: [0, .6, 1] });
+    await animate(li, { x: [dx, mx, 0], y: [dy, my, 0], rotate: [-6, 3, 0], scale: [.86, .95, 1] }, { duration: 1.05, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished;
+    li.dataset.state = 'closed'; emit('studio:settled', { id: d.id });
+  }
+  async function cascade(list) {
+    emit('answer.mapped', { askId: 'who-for', decisions: list.map(d => ({ id: d.id, choice: d.headline })) });
+    const ps = list.map((d, i) => wait(i * 150).then(() => settle(d)));
+    await Promise.all(ps);
+  }
+
+  const ptr = $('#pointer');
+  const at = el => { const r = el.getBoundingClientRect(), cr = c.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 }; };
+  const tap = async el => { if (instant) return; animate(ptr, { opacity: 1 }, { duration: .2 }); await animate(ptr, { x: at(el).x - 12, y: at(el).y - 12 }, spring(.55)).finished;
+    el.classList.add('is-hover'); await wait(120); await animate(ptr, { scale: [1, .8, 1] }, { duration: .26 }).finished; el.classList.remove('is-hover'); };
+  const hidePtr = () => { if (!instant) animate(ptr, { opacity: 0 }, { duration: .3 }); };
+  const veil = (v, d = .5) => { const vl = $('#veil'); if (instant) vl.style.opacity = v; else animate(vl, { opacity: v }, { duration: d }); document.body.classList.toggle('focus-open', !!v); };
+  const pills = () => [...c.querySelectorAll('.canvas > .pill')];
+  function trayTo(who, text, opts = {}) {
+    const tray = $('#tray'), it = $('#item');
+    tray.dataset.who = who; tray.classList.toggle('quiet', !!opts.quiet);
+    $('#inbox').dataset.needs = opts.quiet ? 'no' : 'yes';
+    if (opts.quiet) { it.removeAttribute('data-ask'); it.removeAttribute('data-seat'); it.removeAttribute('data-action'); }
+    else { if (opts.action) { it.removeAttribute('data-ask'); it.dataset.action = opts.action; } else { it.removeAttribute('data-action'); it.dataset.ask = opts.ask; } it.dataset.seat = opts.seat; }
+    $('#tWho').textContent = opts.quiet ? 'Your inbox' : text[0]; $('#tQ').textContent = opts.quiet ? 'Nothing needs you right now' : text[1];
+    tray.querySelector('.open').textContent = opts.quiet ? '' : 'Open it';
+    InkPaper.redraw(tray);
+  }
+  function playPatch(who, clip, at0) {
+    const p = PATCH[who], pt = $('#patch'), v = $('#patchV'), [l, t] = P2(p[0], p[1]), sz = p[2] * K;
+    Object.assign(pt.style, { left: l + 'px', top: t + 'px', width: sz + 'px', height: sz + 'px', webkitMaskImage: `url(first-open/cast/mask-${who}.png)`, maskImage: `url(first-open/cast/mask-${who}.png)` });
+    v.src = `first-open/cast/${who}-${clip}.webm`; v.play().catch(() => {}); if (instant && at0) setTimeout(() => v.pause(), at0 * 1000);
+    A(pt, { opacity: [0, 1] }, { duration: .4 });
+  }
+  const typeWords = async (box, text, ms = 150) => { box.innerHTML = ''; for (const w of text.split(' ')) { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; box.appendChild(s); if (!instant) { animate(s, { opacity: [0, 1] }, { duration: .22 }); await wait(ms); } } };
+
+  // ================= A1: the first decision =================
+  async function decide(base = 0) {
+    trayTo('noor', ['Noor', 'Who is this really for?'], { ask: 'who-for', seat: 'research' });
+    if (N < base + 1) return;
+    await wait(1200); await tap($('#tray')); hidePtr();
+    // her document: one question, the room steps back
+    $('#inbox').dataset.state = 'expanded'; emit('focus.open', { askId: 'who-for' });
+    veil(1, .5); A([$('#inbox'), $('#ts'), $('#idea'), ...pills()], { opacity: 0 }, { duration: .35 });   // only the question while she answers
+    const fd = document.createElement('section'); fd.className = 'abs card focus-doc'; fd.id = 'focus-doc'; fd.dataset.who = 'noor'; fd.dataset.seat = 'research'; fd.dataset.component = 'focus-doc'; fd.dataset.state = 'asking';
+    fd.innerHTML = `<span class="lab fd-kicker" data-slot="kicker"><i></i><span class="fd-by" data-slot="by">Noor asks</span> · only you know this</span>
+      <h2 class="fd-question" data-slot="question">Who is this really for?</h2><p class="fd-sub">Say it the way you’d tell a friend.</p>
+      <div class="fd-said" data-state="speaking"><span class="fd-words" data-slot="words"></span></div>
+      <div class="fd-input" data-slot="input"><button class="mic" id="mic"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span><span id="micT">Hold to talk</span></button>
+      <button class="btn fd-send" data-slot="send" id="send">Send to the team</button></div>`;
+    c.appendChild(fd); InkPaper.dress(fd); redrawAll(fd); if (!instant) animate(fd, { opacity: [0, 1], y: [14, 0], scale: [.98, 1] }, spring(.4));   // never an empty sheet
+    $('#send').style.opacity = N >= base + 3 ? 1 : 0;
+    if (N < base + 2) return;
+    await wait(900);
+    fd.dataset.state = 'speaking'; $('#micT').textContent = 'Listening… take your time';
+    const ring = fd.querySelector('.ring'), pulse = !instant && setInterval(() => ring.style.scale = (1 + Math.random() * .12).toFixed(3), 120);
+    await typeWords(fd.querySelector('.fd-words'), 'It’s really for the regulars. They come every morning and hate it when the sourdough’s gone by nine.', 165);
+    if (pulse) clearInterval(pulse); ring.style.scale = ''; $('#micT').textContent = 'Hold to talk';
+    fd.querySelector('.fd-said').dataset.state = 'landed'; InkPaper.redraw(fd);
+    A($('#send'), { opacity: [0, 1] }, { duration: .3 });
+    if (N < base + 3) return;
+    await wait(700); await tap($('#send')); hidePtr();
+    emit('answer', { askId: 'who-for', text: fd.querySelector('.fd-words').textContent });
+    // the document folds away; the room comes back
+    fd.dataset.state = 'answered';
+    if (!instant) { fd.style.transformOrigin = '50% 100%'; await animate(fd, { scaleY: [1, .3], scaleX: [1, .6], y: [0, 260], opacity: [1, 0] }, { duration: .5, ease: [.5, 0, .5, 1] }).finished; }
+    fd.remove(); veil(0, .5); emit('focus.close', { askId: 'who-for' });
+    $('#inbox').dataset.state = 'collapsed'; trayTo('her', [], { quiet: true }); A([$('#inbox'), $('#ts'), $('#idea'), ...pills()], { opacity: 1 }, { duration: .4 });
+    // the journey redraws around her answer
+    await wait(300);
+    const idea = $('#idea'); idea.dataset.state = 'reshaped'; $('#fs').dataset.state = 'reshaping';
+    if (!instant) await animate(idea.querySelector('.fs-bar'), { opacity: [1, 0] }, { duration: .2 }).finished;
+    journey(J1); if (!instant) { InkPaper.lay(idea); animate(idea.querySelector('.fs-bar'), { opacity: [0, 1] }, { duration: .35 }); }
+    $('#fs').dataset.state = 'drawn';
+    if (N < base + 4) return;
+    await wait(650);
+    // a run of decisions settles, each with the teammate who took it
+    await cascade(RUN);
+  }
+
+  // ================= A2: a quick unblock =================
+  async function unblock(base = 5, fresh = false) {
+    if (instant || fresh) { journey(J1); const was = $('#tsCards').children.length; if (!was) RUN.forEach(d => { const li = document.createElement('li'); li.className = 'ts-card'; li.dataset.joint = d.id; li.dataset.seat = d.seat; li.dataset.who = WHO[d.seat]; li.dataset.state = 'closed'; li.innerHTML = slipHTML(d); $('#tsCards').appendChild(li); }); InkPaper.redraw($('#ts')); }
+    trayTo('bo', ['Bo’s blocked', 'When do orders close?'], { action: 'orders-close', seat: 'engineering' });
+    if (!instant) { animate($('#tray'), { y: [0, -8, 0] }, { duration: 1, ease: [.33, 0, .2, 1] }); }
+    if (N < base + 1) return;
+    await wait(1100); await tap($('#tray')); hidePtr();
+    // the action card grows up out of the inbox
+    $('#inbox').dataset.state = 'expanded';
+    const ac = document.createElement('article'); ac.className = 'abs card inbox-action'; ac.id = 'action'; ac.dataset.who = 'bo';
+    Object.assign(ac.dataset, { component: 'inbox-action', action: 'orders-close', seat: 'engineering', state: 'asking' });
+    ac.innerHTML = `<div class="ia-who" data-slot="who"><span class="ia-face"><video muted playsinline autoplay loop src="first-open/cast/bo-idle.webm"></video></span>
+        <span><b>Bo’s blocked</b><small>He’s building the order form</small></span></div>
+      <div class="ia-q" data-slot="question">When do orders close?</div>
+      <div class="ia-sug" id="sug" data-slot="suggestion"><span class="k">We suggest</span><p id="sugP">8pm the night before</p></div>
+      <div class="ia-row"><button class="btn ia-yes" data-slot="yes" id="yes">Yes</button>
+        <button class="mic ia-else" data-slot="say" id="else"><span class="ring"><svg viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg></span><span id="elseT">Say something else</span></button></div>`;
+    c.appendChild(ac); InkPaper.dress(ac); redrawAll(ac);
+    animate($('#tray'), { opacity: instant ? .0 : [1, 0] }, { duration: instant ? 0 : .25 });
+    if (!instant) { ac.style.transformOrigin = '50% 100%'; animate(ac, { scaleY: [.35, 1], opacity: [0, 1] }, spring(.45)); }
+    emit('owner.action', { id: 'orders-close', seat: 'engineering', by: 'Bo', question: 'When do orders close?', suggestion: '8pm the night before' });
+    if (N < base + 2) return;
+    let choice = '8pm the night before', headline = 'Orders close 8pm the night before';
+    if (SAY) {
+      // her own words instead: the voice opens on the card and replaces the suggestion
+      await wait(1100); await tap($('#else')); hidePtr();
+      ac.dataset.state = 'speaking'; $('#elseT').textContent = 'Listening…';
+      const sug = $('#sug'); sug.classList.add('hers'); sug.innerHTML = '<span class="k">You said</span><p id="sugP"></p><span class="was">8pm the night before</span>';
+      const ring = $('#else .ring'), pulse = !instant && setInterval(() => ring.style.scale = (1 + Math.random() * .12).toFixed(3), 120);
+      await typeWords($('#sugP'), 'Seven the night before. We start baking at four.', 170);
+      if (pulse) clearInterval(pulse); ring.style.scale = ''; $('#elseT').textContent = 'Say it again';
+      choice = 'Seven the night before. We start baking at four.'; headline = 'Orders close 7pm the night before';
+      emit('action.say', { id: 'orders-close', text: choice }); InkPaper.redraw(ac);
+      if (N < base + 3) return;
+      await wait(900);
+    } else { if (N < base + 3) { $('#yes').classList.add('is-hover'); return; } await wait(1300); }
+    await tap($('#yes')); hidePtr();
+    ac.dataset.state = 'yes'; emit('action.yes', { id: 'orders-close', choice });
+    // the card folds into the team space as a decision with her mark and Bo's
+    const d = { id: 'orders-close', seat: 'engineering', seats: ['product', 'engineering'], headline };
+    const r = ac.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    if (!instant) { ac.style.transformOrigin = '50% 50%'; await animate(ac, { scaleY: [1, .14], scaleX: [1, .7], opacity: [1, .0] }, { duration: .4, ease: [.5, 0, .5, 1] }).finished; }
+    ac.remove(); $('#inbox').dataset.state = 'collapsed';
+    trayTo('her', [], { quiet: true }); A($('#tray'), { opacity: [0, 1] }, { duration: .4 });
+    const fly = settle(d, [r.left - cr.left + r.width / 2, r.top - cr.top + r.height / 2 + 60]);
+    // Bo carries on: his delighted moment, one short line, then back to work
+    playPatch('bo', 'delighted', 2.5);
+    const th = document.createElement('div'); th.className = 'abs card thanks'; th.dataset.who = 'bo';
+    th.innerHTML = '<b>Bo</b>Got it. Carrying on.'; c.appendChild(th); InkPaper.dress(th); InkPaper.redraw(th); if (!instant) InkPaper.lay(th, .4);
+    await fly;
+    if (instant) return;
+    await wait(3600); animate(th, { opacity: 0 }, { duration: .8 }); animate('#patch', { opacity: 0 }, { duration: 1.2 });
+  }
+
+  (async () => {
+    await document.fonts.ready; InkPaper.redraw($('#ts')); InkPaper.redraw($('#idea'));
+    if (FLOW === 'unblock') { await unblock(0, true); return; }
+    if (FLOW === 'decide') { await decide(0); return; }
+    // both, as on stage: steps 0..4 the first decision, 5..8 the unblock
+    if (N <= 4) { await decide(0); return; }
+    if (!instant) { await decide(0); await wait(1600); }
+    await unblock(5);
+  })();
+})();
+</script>
+<!-- HOOKS for the build (docs/COMPONENTS.md names; NEW = proposed here)
+  inbox            aside#inbox.inbox[data-component=inbox] data-state collapsed·expanded, data-needs yes·no
+  inbox-item       .inbox-item[data-ask][data-seat] (a question) — NEW: .inbox-item[data-action][data-seat] (an action card waiting)
+  focus-doc        section#focus-doc.focus-doc[data-seat] data-state asking·speaking·answered; slots kicker, by, question, words (.fd-words in .fd-said[data-state speaking·landed]), input, send
+                   body.focus-open while it's open (the room blurs and steps back)
+  idea-sheet       .idea-sheet data-state sketched → reshaped; first-sketch .fs-bar data-state drawn·reshaping·drawn; .fs-user (NEW modifiers .main · .later), NEW .fs-said (her words, short)
+  team-space       section.team-space[data-state=shown] > ol.ts-cards > li.ts-card[data-joint][data-seat]
+                   NEW data-state settling (in flight) → closed; NEW data-her on a card that carries her mark; .ts-mark[data-seat] (product = her pink "P")
+  NEW inbox-action article.inbox-action[data-action][data-seat] data-state asking·speaking·yes; slots who, question, suggestion, yes, say
+  Events, on:   answer.mapped {askId, decisions:[{id, choice}]} → one ts-card per decision, settling 150 ms apart from the owner's seat
+                NEW owner.action {id, seat, by, question, suggestion} → the inbox shows the action; opening it grows the card
+  Events, emit: focus.open / focus.close {askId}; answer {askId, text};
+                NEW action.yes {id, choice}; NEW action.say {id, text} (her words replace the suggestion); NEW studio:settled {id} when a card lands
+  The living layer: Bo's "delighted" clip on action.yes (first-open/cast/bo-delighted.webm, mask-bo.png). -->
+</body>
+</html>
