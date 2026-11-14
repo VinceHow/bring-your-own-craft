@@ -50,7 +50,7 @@
       el.innerHTML = ''; cols = [];
       for (let i = 0; i < len; i++) {
         const c = h('span', 'col', Array.from({ length: 10 }, (_, d) => `<span>${d}</span>`).join(''));
-        c._v = 0; el.appendChild(c); cols.push(c);
+        c._v = 0; c._cur = 0; c._anim = null; el.appendChild(c); cols.push(c);
       }
     }
     return {
@@ -62,10 +62,15 @@
         if (cols.length !== s.length) build(s.length);
         value = n;
         [...s].forEach((ch, i) => {
-          const col = cols[i], to = Number(ch), from = col._v;
+          const col = cols[i], to = Number(ch);
           col._v = to;
-          if (!animate || !M) { col.style.transform = `translateY(${-to}em)`; return; }
-          M.animate(from, to, { ...SPRING, onUpdate: v => { col.style.transform = `translateY(${-v}em)`; } });
+          // Stop the spring already running on this column, so an older one can never finish last.
+          if (col._anim) { col._anim.stop(); col._anim = null; }
+          const draw = v => { col._cur = v; col.style.transform = `translateY(${-v}em)`; };
+          if (!animate || !M) { draw(to); return; }
+          const a = M.animate(col._cur, to, { ...SPRING, onUpdate: draw });
+          col._anim = a;
+          Promise.resolve(a.finished || a).then(() => { if (col._anim === a) { col._anim = null; draw(to); } }, () => {});
         });
       },
       get value() { return value; },
@@ -131,6 +136,7 @@
     counter: el.counter, meter: el.meter, room: el.room };
 
   const rollers = { came: roller($('#came')), brought: roller($('#brought')), pct: roller($('#pct')) };
+  BYOC._rollers = rollers; // test hook (e2e/room.e2e.js)
 
   function status(msg) { el.status.textContent = msg || ''; }
   BYOC.status = status;
@@ -223,20 +229,15 @@
     }
   }
   // Hand each journey line to piece 2's flow if it is loaded; otherwise show it as plain text.
-  function drawLine(text) {
-    mountFlow();
-    if (BYOC.flow && typeof BYOC.flow.addLine === 'function') {
-      try { BYOC.flow.addLine(text); return; } catch (e) { console.error('flow.addLine', e); }
-    }
+  const hasFlow = () => !!(BYOC.flow && typeof BYOC.flow.addLine === 'function');
+  function plainLine(text) {
     const d = h('div', 'plain-line'); d.textContent = text;
     el.herFlow.appendChild(d);
     if (!instantMode) place(d, { x: [-18, 0], opacity: [0, 1] }, true);
   }
   // An ask lands in her work: piece 2 draws it on the flow; until then, a sticky note on her sheet.
   function drawAsk(ask) {
-    if (BYOC.flow && typeof BYOC.flow.showAsk === 'function') {
-      try { BYOC.flow.showAsk(ask); return; } catch (e) { console.error('flow.showAsk', e); }
-    }
+    if (BYOC.flow && typeof BYOC.flow.showAsk === 'function') return; // piece 2 shows asks from its own 'ask' listener
     const n = h('div', 'note');
     n.innerHTML = `<b>${ask.kind === 'fork' ? 'fork' : 'pin'}${ask.attachTo ? ' on ' + esc(ask.attachTo) : ''} · ${esc(ask.seat)}</b>
       ${esc(ask.decision)}<span class="rec">recommend: ${esc(ask.recommendation)}</span>`;
@@ -260,9 +261,18 @@
     }
     loadFileForRun(BYOC.run);
   }
+  // Her line, live. Piece 2's addLine posts it to /api/run/:id/line and draws what comes back;
+  // without piece 2 the room posts it and shows it as plain text.
   async function addHerLine(text) {
-    drawLine(text);
-    if (!BYOC.run || BYOC.run.startsWith('local-')) return;
+    const local = !BYOC.run || BYOC.run.startsWith('local-');
+    if (hasFlow() && !local) {
+      mountFlow();
+      try { await BYOC.flow.addLine(text); }
+      catch (e) { status(`line not logged (${e.status || e.message})`); plainLine(text); }
+      return;
+    }
+    plainLine(text);
+    if (local) return;
     try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/line`, { text }); }
     catch (e) { status(`line not logged (${e.status || e.message})`); }
   }
@@ -427,7 +437,9 @@
         break;
       case 'flow.line':
         if (BYOC.beat < 4) stage(4);
-        if (source !== 'live') drawLine(ev.text); // live lines are drawn as she types them
+        // Piece 2 draws flow.line events itself (BYOC.on). Without it, replayed lines show as plain text;
+        // live lines were already drawn as she typed them.
+        if (source !== 'live' && !hasFlow()) plainLine(ev.text);
         break;
       case 'teammate.start':
         if (BYOC.beat < 5) stage(5);
