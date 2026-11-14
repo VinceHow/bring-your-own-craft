@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bring your own craft · close</title>
+<link rel="stylesheet" href="../looks/ink-paper.css">
+<!-- The close deck (2:30–3:00) and the QR slide that's up before 0:00. 1920×1080, scaled to the window.
+     Keys: → ↓ space PageDown next · ← ↑ PageUp back · Home/End. ?s=N opens slide N, ?still=1 no fade, ?print=1 every
+     slide stacked for the PDF. Every number comes from data.js, written by build.mjs from the real files. -->
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #2B1F17; overflow: hidden; }
+body.print { overflow: visible; height: auto; background: none; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.print .stage { position: static; transform: none !important; }
+.slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity .2s linear, visibility 0s linear .2s; }
+.slide.on { opacity: 1; visibility: visible; transition: opacity .2s linear; }
+.still .slide { transition: none; }
+.print .slide { position: relative; width: 1920px; height: 1080px; opacity: 1; visibility: visible; break-after: page; }
+@page { size: 1920px 1080px; margin: 0; }
+
+/* the painted room, soft, behind every slide */
+.room { position: absolute; inset: 0; background: #F2E7D3 url(img/backdrop.jpg) center / cover; }   /* the room painting, blurred and washed once (baked, so the PDF stays small) */
+
+.slide .abs, .ink-paper .slide .abs.pane { position: absolute; }   /* beats ink-paper's .pane { position: relative } */
+.ink-paper .card.big { padding: 64px 76px; border-radius: 48px; --cx: 12px; --cy: 12px; --crot: .6deg; }
+.label { font: 500 30px/1 var(--ip-sans); color: color-mix(in srgb, var(--t, var(--ip-ink-2)) 70%, #1A100A); letter-spacing: .01em; margin: 0 0 26px; }
+h1 { margin: 0; font: 400 112px/1.04 var(--ip-serif); letter-spacing: -.018em; color: var(--ip-ink); text-wrap: balance; }
+h1.xl { font-size: 168px; }
+.cap { margin: 34px 0 0; font: 500 34px/1.35 var(--ip-sans); color: var(--ip-ink-2); max-width: 30ch; }
+.src { font: 500 24px/1.4 var(--ip-sans); color: var(--ip-ink); }
+
+/* 0 · QR */
+.s0 .lead { left: 110px; top: 50%; translate: 0 -50%; width: 900px; }
+.s0 .url { margin-top: 30px; font: 500 28px/1.3 var(--ip-sans); color: var(--ip-ink); }
+.s0 .qr { right: 110px; top: 50%; translate: 0 -50%; width: 720px; height: 720px; padding: 36px; border-radius: 44px; }
+.s0 .qr > .gl { --sheet: #FFFDF8; }
+.s0 .qr svg { display: block; width: 100%; height: 100%; position: relative; }
+
+/* 1, 2, 5 · one line */
+/* centred both ways, headline ~20% bigger than the other slides */
+.one { left: 0; right: 0; margin-inline: auto; top: 50%; translate: 0 -50%; width: fit-content; max-width: 1840px; text-align: center; }
+.one h1 { font-size: 134px; }
+.one .cap { margin-inline: auto; }
+.one h1.xl { font-size: 184px; }
+.one.mid { white-space: nowrap; }
+.s1 .one { width: 1420px; }
+
+/* 3 · the numbers */
+.s3 .head { left: 120px; top: 80px; width: fit-content; padding: 48px 64px; }
+.s3 .head h1 { font-size: 96px; white-space: nowrap; }
+.s3 .row { left: 120px; right: 120px; bottom: 80px; display: flex; gap: 40px; align-items: stretch; }
+.s3 .ours { width: 520px; padding: 40px 48px; border-radius: 40px; }
+.s3 .ours > .gl { --sheet: var(--ip-paper-her); }
+.s3 .them { --c: rgba(120, 98, 76, .35); }
+.s3 .them .fig b { color: var(--ip-ink-2); }
+.s3 .ours .fig b { color: color-mix(in srgb, var(--ip-her-t) 75%, #1A100A); }
+.s3 .them { flex: 1; padding: 40px 52px; border-radius: 40px; }
+.fig { display: flex; gap: 64px; margin-top: 8px; }
+.fig div { display: flex; flex-direction: column; }
+.fig b { font: 400 132px/1 var(--ip-serif); color: var(--ip-ink); letter-spacing: -.02em; }
+.fig span { font: 500 32px/1.2 var(--ip-sans); color: var(--ip-ink-2); margin-top: 6px; }
+.s3 .src { margin-top: 22px; }
+
+/* 4 · next */
+.s4 .lead { left: 90px; top: 50%; translate: 0 -50%; width: 640px; }
+.s4 .art { right: 90px; top: 50%; translate: 0 -50%; width: 1080px; padding: 18px; border-radius: 40px; }
+.s4 .art img { display: block; width: 100%; border-radius: 26px; position: relative; }
+</style>
+</head>
+<body class="ink-paper">
+<div class="stage" id="stage">
+
+  <section class="slide s0" data-n="0">
+    <div class="room"></div>
+    <div class="abs lead card big" data-who="her">
+      <h1>Be our regulars: order a loaf</h1>
+      <p class="cap">Demo bakery for a hackathon: no real bread, nothing to pay.</p>
+      <p class="url" id="url"></p>
+    </div>
+    <div class="abs qr card" id="qr"></div>
+  </section>
+
+  <section class="slide s1" data-n="1">
+    <div class="room"></div>
+    <div class="abs one card big" data-who="noor"><p class="label">Why</p><h1>People with a craft get their idea built.</h1></div>
+  </section>
+
+  <section class="slide s2" data-n="2">
+    <div class="room"></div>
+    <div class="abs one card big" data-who="her"><p class="label">Who it’s for</p><h1>PMs like Priya, first.</h1><p class="cap">Then any craft, any seat.</p></div>
+  </section>
+
+  <section class="slide s3" data-n="3">
+    <div class="room"></div>
+    <div class="abs head card big" data-who="her"><h1 id="line"></h1></div>
+    <div class="abs row">
+      <div class="ours card" data-who="her"><p class="label">Our team, bakery run</p>
+        <div class="fig"><div><b id="n-her"></b><span>reached her</span></div></div>
+        <p class="src" id="src-her"></p></div>
+      <div class="them card"><p class="label">A default coding agent, same bakery prompt</p>
+        <div class="fig"><div><b id="n-asked"></b><span>asked</span></div><div><b id="n-guessed"></b><span>guessed</span></div><div><b id="n-appr"></b><span>approvals</span></div></div>
+        <p class="src" id="src-base"></p></div>
+    </div>
+  </section>
+
+  <section class="slide s4" data-n="4">
+    <div class="room"></div>
+    <div class="abs lead card big" data-who="mika"><p class="label">Next</p><h1>More people at the table.</h1></div>
+    <div class="abs art card" data-who="mika"><img src="img/multiplayer.jpg" alt="The painted studio: the team round the table, with two empty stools for more people"></div>
+  </section>
+
+  <section class="slide s5" data-n="5">
+    <div class="room"></div>
+    <div class="abs one mid card big" data-who="her" style="text-align:center"><h1 class="xl">Bring your own craft.</h1></div>
+  </section>
+
+</div>
+<script src="data.js"></script>
+<script src="../looks/ink-paper.js"></script>
+<script>
+const q = new URLSearchParams(location.search), D = window.SLIDES_DATA, N = D.numbers;
+const $ = s => document.querySelector(s);
+const WORD = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
+// fill the numbers and the QR from data.js
+$('#qr').innerHTML = D.qr;
+$('#url').textContent = N.url.replace(/^https:\/\//, '');
+$('#line').innerHTML = `${WORD[N.reachedHer.value] || N.reachedHer.value} things reached her.<br>The team decided everything else.`;
+$('#n-her').textContent = N.reachedHer.value;
+$('#n-asked').textContent = N.baseline.asked.value;
+$('#n-guessed').textContent = N.baseline.guessed.value;
+$('#n-appr').textContent = N.baseline.approvals.value;
+// short sources on screen (the full ones are in numbers.json): the file each number was read from
+const file = x => x.source.split(' (')[0].split('/').slice(-2).join('/');
+$('#src-her').textContent = 'Source: ' + file(N.reachedHer);
+$('#src-base').textContent = 'Sources: ' + [...new Set([N.baseline.asked, N.baseline.guessed, N.baseline.approvals].map(file))].join(', ');
+
+const slides = [...document.querySelectorAll('.slide')];
+let cur = Math.max(0, Math.min(slides.length - 1, +(q.get('s') || 0)));
+if (q.has('still')) document.body.classList.add('still');
+const PRINT = q.has('print'); if (PRINT) document.body.classList.add('print');
+function fit() { if (PRINT) return; const s = Math.min(innerWidth / 1920, innerHeight / 1080); $('#stage').style.transform = `scale(${s}) translate(-50%, -50%)`; }
+function show(i) { cur = Math.max(0, Math.min(slides.length - 1, i)); slides.forEach((s, k) => s.classList.toggle('on', k === cur)); history.replaceState(null, '', `?s=${cur}${q.has('still') ? '&still=1' : ''}`); }
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === 'Home') show(0); else if (e.key === 'End') show(slides.length - 1);
+});
+addEventListener('resize', fit); fit();
+// the ink is drawn once, with every slide laid out (hidden slides keep their size, so the outlines fit)
+slides.forEach(s => { s.style.visibility = 'visible'; });
+document.fonts.ready.then(() => { InkPaper.dress(document.body); slides.forEach(s => { s.style.visibility = ''; }); if (!PRINT) show(cur); document.body.dataset.ready = '1'; });
+</script>
+</body>
+</html>
