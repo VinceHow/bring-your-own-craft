@@ -1,4 +1,4 @@
-From d5b47f18a5ddf617fafb10c9979f8e96982da032 Mon Sep 17 00:00:00 2001
+From a7cb2109efe655d90fbe54504d6e8e3d0b786977 Mon Sep 17 00:00:00 2001
 From: Vincent Hao <49104178+VinceHow@users.noreply.github.com>
 Date: Sat, 14 Nov 2026 23:21:54 +0000
 Subject: [PATCH] Painted look: the inbox arrival lift and "Noor asks"
@@ -11,9 +11,6 @@ teammate's crayon, then fades; no outline, glow or ring (the default 3px outline
 transform, never translate, so the inbox can still nudge itself on screen. The item: who asks as a small ink label in
 their colour, the question on its own line, a short fade-up when new. Hooks only: inbox[data-pulse],
 inbox-item[data-state][data-seat], data-slot now · who · text · empty.
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_013ka3w4mYCjZQ4UZXpyjYjQ
 ---
  public/looks/painted.css | 30 ++++++++++++++++++++++++++++++
  1 file changed, 30 insertions(+)
