@@ -14,6 +14,7 @@
      is there with everyone seated, and her tag flies to her pink stool and she sits down.
      ?step=0..12 &still=1 for a moment; no step autoplays the whole flow (about 50 s). &late=1: the flex teammate is
      running late. Ink-paper (../ink-paper.css, ../ink-paper.js); clips from the living painting (first-open/cast/). -->
+<link rel="preload" as="image" href="../cast/intro/door.jpg">
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 * { box-sizing: border-box; }
@@ -122,7 +123,9 @@ html, body { margin: 0; background: #1A120D; }
 .door .leaf2.rgt { clip-path: path('M805 150A269 232 0 0 1 1074 382V762H805Z'); transform-origin: 1074px 450px; }
 .door .gap { position: absolute; left: 536px; top: 150px; width: 538px; height: 612px; border-radius: 269px 269px 0 0 / 232px 232px 0 0; overflow: hidden; background: #F3D9A8; }
 .door .gap .inroom { position: absolute; left: -531px; top: -150px; width: 1600px; height: 893px; background: url(first-open/cast/painting-afternoon.jpg) center top / 1600px 893px; transform-origin: 805px 480px; transform: scale(.62); filter: brightness(1.05); }
-.blurwrap { position: absolute; inset: 0; z-index: 9; }
+/* cold load: until door.jpg arrives, the ground is already the blurred door's warm cream, never a dark arch */
+.blurwrap { position: absolute; inset: 0; z-index: 9; background: #E8D8BC; }
+.door:not(.code) .gap, .door:not(.code) .leaf2 { display: none; }
 .blurwrap.soft { filter: blur(8px); }
 .warmth { position: absolute; inset: 0; z-index: 10; pointer-events: none; background: radial-gradient(80% 80% at 50% 45%, rgba(255,238,210,.08), rgba(239,220,190,.2)); }
 .sign { position: absolute; left: 645px; top: 64px; width: 320px; height: 98px; display: grid; place-items: center; z-index: 2; pointer-events: none; }
@@ -174,7 +177,7 @@ html, body { margin: 0; background: #1A120D; }
     <button class="pill" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span><span class="nm">Bo</span><span class="agent">agent</span></button>
   </div>
   <div class="blurwrap soft" id="blurwrap">
-    <div class="door" id="door">
+    <div class="door" id="door"><script>if (new URLSearchParams(location.search).get('door') === 'code') document.currentScript.parentNode.classList.add('code');</script>
       <div class="gap"><div class="inroom" id="inroom"></div></div>
       <div class="wall"></div>
       <div class="leaf2 lft" id="dl"></div><div class="leaf2 rgt" id="dr"></div>
