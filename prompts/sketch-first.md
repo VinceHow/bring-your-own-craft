@@ -10,3 +10,4 @@ who the users are, and the stages those users go through. No screens, no feature
 - Keep it rough and small. A first sketch, not a spec.
 
 Reply with JSON only.
+{{FINDING}}
