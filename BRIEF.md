@@ -35,22 +35,23 @@ she's the expert, they build on what she said, it's all of ours.
 |---|---|---|
 | **0:00–0:05** Her seat | Six seats plus a dashed seventh, "Your own craft"; she **clicks Product**. | live |
 | **0:05–0:22** Assembling the team | Five named team cards (Mika · Design, Noor · Research, Theo · Data, Ines · Strategy, Bo · Engineering; small "agent" mark; no pronouns), each big mid-table ~1.5 s (loves, brings, stance), then into its seat. | live |
-| **0:22–0:30** Her card | She says "I love…" (L1 of her file); Brings pre-filled; Stance empty. | live |
+| **0:22–0:30** Her card | One natural sentence about what she loves → a fun name tag in her words (editable); L1 of her file; Stance empty. Unseen: the private profile. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
-| **0:35–0:45** First sketch | **Design** drafts user types + stages (boxes/arrows, no screens) in ~10 s, streamed. Fallback: prepared yoga sketch, labelled PREPARED. | live |
-| **0:45–1:05** Her reaction | *(Optional, if time:)* a **guest chair** joins: a labelled stand-in for the main user the sketch named, one reaction in its voice (citable by teammates, never asks her). She reframes out loud or edits boxes; the shape redraws (one call); touched teammates lean in (real events only). | live |
-| **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions with reasons; caption "N handled by your team · 3 for you" (from the log). | live |
-| **1:15–1:50** Her focus time | Room dims and freezes around her. One check-in at a time from a named teammate, saying why it's hers, on her shape; the rest wait in a calm tray she picks from; no timers. She overrules once (YOUR CALL). | live |
-| **1:50–2:08** Design's workspace | Grey wireframes on her shape; her note on confirm → "Sounds like" → reworded → her file and her Stance slot. | live |
-| **2:08–2:26** Symphony | One press; every seat slides its part into the idea sheet; the page is built. | **live**, from her answers |
-| **2:26–2:38** Her page | The page they built together, full size. **No credits** (Vincent). One margin note on cancel: "follows your line", citing her new line, only if a logged decision cites it. | live |
-| **2:38–3:00** Close | Judge's idea live: Design's first sketch + first check-in draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
+| **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared yoga sketch, PREPARED. | live |
+| **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
+| **1:05–1:15** Team focus time | Sketchpads show each seat's own decisions (all the granular ones) with reasons; caption "N handled by your team · 3 for you" (from the log). | live |
+| **1:15–1:35** Focus moment 2 | From her tray at a pause: one piece of work + one big question; she talks; reactions; the work updates. | live |
+| **1:35–2:00** Focus moment 3 | Mika's grey wireframes + a big question about the feel; her answer → "Sounds like" → reworded → her file and Stance. | live |
+| **2:00–2:20** Symphony | One press; every seat slides its part into the idea sheet; the page is built. | **live**, from her answers |
+| **2:20–2:34** Her page | The page they built together. No credits. One margin note on cancel citing her new line. | live |
+| **2:34–3:00** Close | Judge's idea live: their rough journey + the first big question for them draw in; meanwhile the baseline contrast (0 asked, 22 guessed). Last line includes "tomorrow the engineer at this table is a person". | live / real counts |
 
 The café run ("a pre-order page for a café's morning pastries") is the **fallback** for the judge's idea, REPLAY of a
 real run.
 
 **New build pieces, cheapest first** (lead to price and split):
-1. **Focus time and the tray:** while a check-in is open, other seats dim and freeze; no counters moving, no timers,
+1. **Two states and the tray:** the room has light, real chatter between teammates (never addressed to her); when
+   she opens a tray note, the view becomes just her and that one document (no dimming, no spotlight); no timers,
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
    if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
@@ -68,10 +69,24 @@ real run.
    fast call turns them into a fun name tag in her words (craft, good at, loves), each word editable. The tag text goes
    to every teammate and the selector's "in her seat" test. The page build is limited to the two templates. Cut line:
    visible label only.
-8. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
+8. **Focus moments (replaces forks and pins; Vincent, 14 Nov):** an Ask becomes `{ question, artifact, by? }`: one
+   open, natural question attached to one piece of work (journey, finding, wireframes), no options or recommendation.
+   Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
+   teammate reactions that promise only what the build will show, streamed one after another as she finishes, and (c)
+   writes her brief (what I believe / why / guidance to the team), rewordable; briefs build up into her file and
+   replace the separate "Sounds like" step. The work updates. Polish goes into her engagement with the document, not
+   literal staging. On stage: moment 1 in full, moments 2–3 short. Overrule, YOUR CALL and
+   strike-through are cut. Unanswered at Build → decided by the team.
+9. **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
+   sentence + profile), natural, page can show it. Granular candidates are always decided. Ceiling of 3 and its test
+   unchanged.
+10. **Private profile:** one call after her sentence + idea deduces business, positioning, customers, what sells, brand
+   feel, strengths, ways of working, each with confidence; updated after each answer; read by every teammate and the
+   selector; never shown unless she asks. The team assumes and moves on; it never waits on her.
+11. **Guest chair (optional, only if time at the end; Vincent):** one more teammate-style call after the first sketch, persona = the main user type; returns one
    reaction plus citable points, each with a confidence (unsure → "check with a real <user>"); dashed GUEST card and
    chair in the room.
-9. Optional, last: one soft chord at the symphony.
+12. Optional, last: one soft chord at the symphony.
 
 **Slow build:** the symphony holds until ~2:30, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
@@ -122,12 +137,12 @@ code validates against a schema, retrying once.
    node, arrows by order ("→" branches, `parseFlow`). Her reaction is one call that redraws; direct edits need no model.
 2. **Propose:** six parallel calls (Product with write-spec's SKILL.md; the others with their stance; Strategy covers price, payment and who pays) return
    `{seat, decision, options, recommendation, reason, cost, undoable, attachTo}`. Research cites only its finding.
-3. **Select:** one call scores each (in her seat? changes the build? her file silent on it?). **Code** lets **at most
+3. **Select:** one call scores each against the question bar (big? draws on what she's good at or loves? page can show it?). **Code** lets **at most
    3** through, out-of-seat only if costly or not undoable. The rest are decided, citing a line id of her file or "team
    default"; code rejects a citation to a missing line.
-4. **Ask policy:** only the selector's output reaches her, as a fork or pin. Any other ask is refused, decided and
+4. **Ask policy:** only the selector's output reaches her, as a focus moment (one question, one piece of work). Any other ask is refused, decided and
    logged; a question in plain model text counts as a stamp.
-5. **Infer:** after her pin, one call writes the "Sounds like" line; keeping or rewording it writes `taste.md`.
+5. **Infer:** after her answer, one call writes the "Sounds like" line; keeping or rewording it writes `taste.md`.
 6. **Build:** re-decide the rest against her updated file (so cancel cites her new line), then one call turns flow +
    answers + file into the template's slot JSON; our code writes the page.
 7. **Counter, reasons, meter:** pure functions of the log; each UI pane tags its events `craft` or `stamp`.

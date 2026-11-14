@@ -132,3 +132,29 @@ inside `/sketch`) runs one teammate-style call whose persona is the sketch's mai
 "check with a real <persona>". Logs `guest { persona, reaction, points }`. It never creates an `ask` and never
 overrides her. `decideRest` may cite `G<n>` like a file line (validated against the logged points, as L-lines are).
 The room shows it as a dashed-border GUEST card: "a stand-in for your customer, not a real one". Budget ~3 s.
+
+## Focus moments seams (Sat 15:55, po/questions)
+**Ownership:**
+| Piece | Owner | Files |
+|---|---|---|
+| Question bar, Ask shape, open questions from teammates, Research's finding into Design's sketch | BYOC builder 7 (questions) | `lib/select.js`, `lib/teammates.js`, `prompts/select.md`, `prompts/teammate.md` + seat prompts, `prompts/sketch-first.md` (finding only), `test/select.test.js`, `test/bar.test.js`, `test/teammates.test.js` |
+| Interpret call (answer → decisions + chime-ins + brief), private profile, name tag | BYOC builder 6 (first sketch) | `lib/interpret.js`, `lib/profile.js`, `lib/tag.js`, `prompts/interpret.md`, `prompts/profile.md`, `prompts/tag.md`, `routes/run.js` (new routes only), `test/interpret.test.js`, `test/profile.test.js` |
+| The two states (room with chatter / her document), the tray opening a document, removing the dimming | BYOC builder 3 (beats) | `public/room.js`, `public/room.css`, `public/close.js`, `public/flow.js`, `public/focus-doc.js` (new), e2e |
+| The document's look (words landing, chime-ins, her brief), room chatter's look | BYOC builder 1 (polish) | `public/polish.css`, `design/` |
+
+**Ask (replaces fork/pin):** `{ id, seat, by?: 'Noor', question, artifact: { kind: 'journey'|'finding'|'wires'|'page', ref? },
+decisionIds: [candidate ids this question settles] }`. No options, recommendation or "why". The ceiling of 3 and its
+test are unchanged; `lib/policy.js` still guards every `ask` event.
+
+**API:**
+- `POST /api/run/:id/answer` `{ askId, text }` → streams (SSE events) `chime { by, seat, text }` ×1–2, then
+  `brief { askId, believe, why, guidance }`, then `answer.mapped { askId, decisions: [{ id, choice }] }`. One model call
+  (interpret). Logs `answer { askId, text }` (craft) first. Unanswered asks at Build are decided by the team.
+- `POST /api/run/:id/brief` `{ askId, believe, why, guidance }` → her reworded brief; writes "what I believe" to her
+  file as the next L-line (this replaces "Sounds like"); logs `taste.written`. Her Stance slot fills from it.
+- `POST /api/run/:id/intro` `{ text }` → `{ tag: { craft, goodAt, loves } }` (name tag, editable) and starts the
+  profile. `POST /api/run/:id/tag` `{ craft, goodAt, loves }` saves her edits.
+- Profile: `lib/profile.js` `buildProfile(run)` after intro + idea, `updateProfile(run, answer)` after each answer; stored
+  in `runs/<id>/profile.json` (never shown); `readProfile(run)` is passed to every teammate and the selector prompt.
+- Room chatter: `chatter { by, seat, text }` events, written by the server from real run events (a candidate, a
+  decision, a finding attached), never addressed to her, never a question.
