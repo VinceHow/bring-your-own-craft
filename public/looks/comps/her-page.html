@@ -291,6 +291,22 @@ c.addEventListener('mouseover', ev => {
   const k = ev.target.closest('.pin, #conv .e')?.dataset.k; $$('.pin.lit, #conv .e.lit').forEach(x => x.classList.remove('lit'));
   if (k) $$(`.pin[data-k="${k}"], #conv .e[data-k="${k}"]`).forEach(x => x.classList.add('lit'));
 });
+// From the voice capture (design/voice): on Send it fires 'studio:said' { text, anchor, pieces }. Her pin drops on the
+// anchor, the team's replies for this round start right away (the first within 0.45 s), each by its pin, then fold in.
+let liveRound = 0;
+document.addEventListener('studio:said', async e => {
+  const d = e.detail || {}, r = Math.min(liveRound++, M.rounds.length - 1), R = M.rounds[r];
+  const a = d.anchor && $(`#art [data-a="${d.anchor}"]`) ? d.anchor : R.her.a;
+  $$('.pin.pending').forEach(p => p.remove()); if (r > 0) $$('.pin').forEach(p => p.classList.add('quiet'));
+  const hp = pin('her', a, `${r}-h`); animate(hp, { scale: [.4, 1] }, spring(.4));
+  if (d.text) R.her.t = d.text;
+  for (const [j, x] of R.replies.entries()) {
+    await wait(j === 0 ? 450 : 1500);
+    x.fx && x.fx(); if (x.a === 'weekly') await wait(650);
+    const p = pin(x.who, x.a, `${r}-${j}`); animate(p, { scale: [.4, 1], opacity: [0, 1] }, spring(.4));
+    const n = reply(x, `${r}-${j}`); InkPaper.lay($('.bubble', n)); linger(n, 5000);
+  }
+});
 PLAY ? play() : still(S);
 if (q.get('open')) setTimeout(() => openConv(q.get('open')), 900);
 </script>
