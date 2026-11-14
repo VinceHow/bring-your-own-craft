@@ -34,13 +34,13 @@ put a stub in your own file and tell the lead.
   (true while showing a replayed run), and `BYOC.stage(n)` to move the beat.
 - Piece 2 provides `BYOC.flow.mount(el)`, `BYOC.flow.addLine(text)`, `BYOC.flow.showAsk(ask)` (draws a fork or pin
   on the node `ask.attachTo`), `BYOC.sketches.show(el, frames)`.
-- Seats: `product`, `design`, `data`, `research`, `engineering`.
+- Seats (six, since Sat 13:00): `product`, `design`, `data`, `research`, `strategy`, `engineering`. Strategy's ink is gold `#BB8B41`; stance *who pays, and why now*.
 
 ## The API (piece 3 owns `routes/run.js` unless noted)
 - `POST /api/run` `{ idea }` → `{ run }`. Logs `run.start`.
 - `POST /api/run/:id/line` `{ text }` → `{ nodes, edges }` (piece 2's `lib/flow.js` does the parsing; piece 3's route
   calls `parseFlow(lines)`). Logs `flow.line`.
-- `POST /api/run/:id/propose` → starts the five teammates and the selector; progress comes as events.
+- `POST /api/run/:id/propose` → starts the six teammates and the selector; progress comes as events.
 - `POST /api/run/:id/answer` `{ askId, choice }`. Logs `answer`.
 - `POST /api/run/:id/pin` `{ nodeId, text }` → `{ soundsLike }`. Logs `pin`, then `taste.suggested`.
 - `POST /api/run/:id/taste` `{ text }` (kept or reworded) → `{ id, text }`. Writes `runs/<id>/taste.md`. Logs `taste.written`.
