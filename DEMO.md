@@ -1,5 +1,8 @@
 # Bring your own craft: the product demo
 
+**Start with `VISION.md`**: Vincent's one-pager (who it's for, the vision, the two moments, the hackathon build, the
+studio). This file is the beat-by-beat detail under it.
+
 Product owner, 14 Nov (studio version, after Vincent's user feedback: "it felt like walking into a work meeting").
 One polished journey: **Priya, a product manager, takes the Product seat**, building a booking page for a friend's
 small yoga studio (a side project). Everything built serves this script. Why a PM (Vincent, 14 Nov): the panel is
