@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-team-'));
-const { SEATS, STANCES, INKS, PER_SEAT, propose, systemFor, normalise, findingFits } = await import('../lib/teammates.js');
+const { SEATS, STANCES, INKS, PER_SEAT, propose, systemFor, normalise, findingFits, isVerified, findingFor, FINDINGS } = await import('../lib/teammates.js');
 const { selectForIdea } = await import('../lib/select.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, readTaste } = await import('../lib/taste.js');
@@ -93,17 +93,24 @@ test('Brings: Design runs on taste-skill\'s design rules', () => {
   assert.ok(fs.existsSync(new URL('../vendor/taste-skill/LICENSE', import.meta.url)), 'taste-skill licence kept');
 });
 
-test('Brings: Research cites only data/research-finding.json', () => {
+test('Brings: Research cites only a verified finding (URL, quoted line, read date); an unread one never reaches a prompt', () => {
   const run = newRun();
-  const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));
-  const sys = systemFor('research', ctx(run));
-  assert.ok(sys.includes(finding.url) && sys.includes(finding.title));
+  const yoga = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));
+  assert.equal(isVerified(yoga), false, 'the yoga finding was never opened');
+  const ysys = systemFor('research', ctx(run));
+  assert.ok(!ysys.includes(yoga.url) && /no prepared finding/.test(ysys), 'an unverified finding never reaches the prompt');
+  const bakery = 'A website for a small bakery, so customers can order bread ahead.';
+  const reg = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).regulars;
+  const sys = systemFor('research', { ...ctx(run), idea: bakery });
+  assert.ok(sys.includes(reg.url) && sys.includes(reg.title) && sys.includes(reg.quote));
   assert.match(sys, /Cite only this finding/);
   let n = 0;
-  const [c] = normalise('research', { candidates: [{ decision: 'Whether full classes get a waitlist', options: ['a', 'b'], recommendation: 'a', reason: 'r', cost: 'low',
-    undoable: true, attachTo: null, usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] }, { flow, nextId: () => `c${++n}`, idea: ctx(run).idea });
-  assert.equal(c.source.url, finding.url); // code, not the model, sets the source
-  for (const s of SEATS.filter(x => x !== 'research')) assert.ok(!systemFor(s, ctx(run)).includes(finding.url), s);
+  const [c] = normalise('research', { candidates: [{ decision: 'Who we build this for first: weekly regulars', options: ['a', 'b'], recommendation: 'a', reason: 'r', cost: 'low',
+    undoable: true, attachTo: null, usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] }, { flow, nextId: () => `c${++n}`, idea: bakery });
+  assert.equal(c.source.url, reg.url); // code, not the model, sets the source
+  assert.equal(c.source.quote, reg.quote);
+  assert.equal(c.source.read, reg.fetched);
+  for (const s of SEATS.filter(x => x !== 'research')) assert.ok(!systemFor(s, { ...ctx(run), idea: bakery }).includes(reg.url), s);
 });
 
 test('Brings: Data proposes what to measure at each step; Engineering speaks for the template and the live build; Strategy for pricing and payment', () => {
@@ -117,46 +124,66 @@ test('Brings: Data proposes what to measure at each step; Engineering speaks for
   for (const w of ['price', 'pass or drop-in', 'at the desk', 'deposit', 'refunds']) assert.match(st, new RegExp(w, 'i'));
 });
 
-// The finding is about waitlists on full group classes. A wrong source on stage is worse than none.
+// Only verified findings are cited: the bakery's "regulars" (quoted, with its URL and read date). The yoga waitlist
+// finding and the bakery waste finding were never opened, so they are never cited. A wrong source on stage is worse
+// than none, and so is an unread one.
 const researchSays = decision => async ({ system }) => seatOf(system) === 'research'
   ? { note: 'n', candidates: [{ decision, options: ['Yes', 'No'], recommendation: 'Yes', reason: 'r', cost: 'high', undoable: true,
       attachTo: null, usesFinding: true }] }
   : { note: 'n', candidates: [] };
 
 const YOGA_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url))).url;
-const BAKERY_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).url;
+const WASTE_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).url;
+const REGULARS_URL = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).regulars.url;
 
-test('the finding fits the idea: bakery ideas get the bakery finding, class ideas the yoga one, others none', async () => {
+test('the finding fits the idea: bakery ideas get the verified regulars finding, never the unread waste one; others none', async () => {
   const run = newRun();
   const bakery = 'A website for a small bakery, so customers can order bread ahead.';
-  const b = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('How many loaves to bake from orders placed ahead') });
-  assert.equal(b.candidates[0].source?.url, BAKERY_URL);
-  assert.match(systemFor('research', { ...ctx(run), idea: bakery }), /guess how many loaves/);
-  assert.doesNotMatch(systemFor('research', { ...ctx(run), idea: bakery }), /Active Monash/);
+  const b = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('Who we build this for first: the weekly regulars') });
+  assert.equal(b.candidates[0].source?.url, REGULARS_URL);
+  const sys = systemFor('research', { ...ctx(run), idea: bakery });
+  assert.match(sys, /artisan bakeries/);
+  assert.ok(!sys.includes(WASTE_URL) && !/guess how many loaves/.test(sys), 'the unread waste finding is never in the prompt');
+  assert.doesNotMatch(sys, /Active Monash/);
+  const waste = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('How many loaves to bake from orders placed ahead') });
+  assert.equal(waste.candidates[0].source, undefined, 'the waste topic has no verified finding behind it');
   const off = await propose({ run, idea: bakery, flow, taste: readTaste(run), callModel: researchSays('Which colour the logo is') });
   assert.equal(off.candidates[0].source, undefined, 'bakery idea, off-topic decision');
   const bikes = await propose({ run, idea: 'A shop for second-hand bikes.', flow, taste: readTaste(run), callModel: researchSays('Whether bikes sell out') });
   assert.equal(bikes.candidates[0].source, undefined);
   assert.match(systemFor('research', { ...ctx(run), idea: 'A shop for second-hand bikes.' }), /no prepared finding/);
-  // every word the bakery file says it fits is recognised
-  const fits = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).fits;
-  for (const w of fits) assert.ok(findingFits(`An idea about ${w}`, { decision: 'How many to bake', options: [] }), w);
 });
 
-test('the finding attaches only on its topic: a café idea never gets the yoga source, even when the model claims it', async () => {
+test('an unverified finding is never cited, even on its topic and even when the model claims it', async () => {
   const run = newRun();
+  const yoga = await propose({ run, ...ctx(run), callModel: researchSays('Whether full classes get a waitlist') });
+  assert.equal(yoga.candidates[0].source, undefined, 'the yoga finding was never opened: no source, even on topic');
   const cafe = await propose({ run, idea: "A pre-order page for a café's morning pastries.", flow, taste: readTaste(run),
     callModel: researchSays('Whether sold-out pastries get a waitlist') });
-  assert.equal(cafe.candidates.length, 1);
   assert.notEqual(cafe.candidates[0].source?.url, YOGA_URL);
-  const yoga = await propose({ run, ...ctx(run), callModel: researchSays('Whether full classes get a waitlist') });
-  assert.ok(yoga.candidates[0].source?.prepared, 'on topic, it still cites the finding');
-  const off = await propose({ run, ...ctx(run), callModel: researchSays('How late a customer can cancel') });
-  assert.equal(off.candidates[0].source, undefined, 'yoga idea, but not a waitlist decision');
   for (const [idea, d, want] of [["A pre-order page for a café's morning pastries.", 'What happens when the pastry tray is full', false],
-    ['A booking page for a pilates studio.', 'What a full class shows', true], ['A shop for second-hand bikes.', 'Whether to keep a waitlist', false],
-    ['Sign-ups for a running club’s weekly sessions.', 'Whether sessions that are full take a wait list', true]])
+    ['A booking page for a pilates studio.', 'What a full class shows', false], ['A shop for second-hand bikes.', 'Whether to keep a waitlist', false],
+    ['An ordering site for a bakery.', 'Who it is for first: weekly regulars', true], ['An ordering site for a bakery.', 'How many loaves to bake', false]])
     assert.equal(findingFits(idea, { decision: d, options: [] }), want, `${idea} / ${d}`);
+});
+
+test('no finding without a URL, a quoted line and a read date can ever be cited', () => {
+  const ok = { url: 'https://example.org/a', quote: 'A line copied from the page.', fetched: '2026-11-14', title: 't', claim: 'c' };
+  assert.equal(isVerified(ok), true);
+  assert.equal(isVerified({ ...ok, fetched: undefined, readAt: '2026-11-14' }), true, 'readAt counts as the read date');
+  for (const [what, f] of [['no url', { ...ok, url: '' }], ['not a URL', { ...ok, url: 'hippocampus.si/paper.pdf' }], ['no quote', { ...ok, quote: '' }],
+    ['blank quote', { ...ok, quote: '   ' }], ['no read date', { ...ok, fetched: '' }], ['marked unverified', { ...ok, verified: false }], ['nothing', null]])
+    assert.equal(isVerified(f), false, what);
+  // Every prepared finding the code can reach is either verified or never surfaces.
+  for (const e of FINDINGS) {
+    const file = JSON.parse(fs.readFileSync(new URL(`../data/${e.file}`, import.meta.url)));
+    const f = e.key ? file[e.key] : file;
+    const sample = e.file.includes('bakery') ? 'A bakery ordering site' : 'A yoga studio booking page';
+    assert.deepEqual(findingFor(sample)?.finding ?? null, isVerified(f) ? f : null, e.file);
+  }
+  // The two unread ones in the repo are marked, and stay out.
+  assert.equal(JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url))).verified, false);
+  assert.equal(JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).verified, false);
 });
 
 test('the finding attaches only on its topic: end to end, a café run asks nothing backed by the yoga source (the bakery one may)', async () => {
