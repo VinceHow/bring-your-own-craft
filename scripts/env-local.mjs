@@ -42,3 +42,26 @@ export function describe(r) {
   if (r.kept.length) parts.push(`already set, kept: ${r.kept.join(', ')}`);
   return parts.join('; ');
 }
+
+// ---- the port: 3000, or the first free one up to 3010 (another app may hold 3000; we never touch it) ----------
+import net from 'node:net';
+export const PORT_FROM = 3000, PORT_TO = 3010;
+export const PID_FILE = path.join(ROOT, '.byoc-server.pid');
+export const PORT_FILE = path.join(ROOT, '.byoc-server.port');
+function canListen(port, host) {
+  return new Promise(res => {
+    const s = net.createServer();
+    s.once('error', e => res(e.code === 'EAFNOSUPPORT' || e.code === 'EADDRNOTAVAIL' ? true : false)); // no IPv6 here: fine
+    s.once('listening', () => s.close(() => res(true)));
+    s.listen(port, host);
+  });
+}
+// Free on every address the server listens on (all of them), and on localhost's two forms, which an app may hold alone.
+export async function portFree(port) {
+  for (const host of [undefined, '127.0.0.1', '::1']) if (!(await canListen(port, host))) return false;
+  return true;
+}
+export async function pickPort(from = PORT_FROM, to = PORT_TO) {
+  for (let p = from; p <= to; p++) if (await portFree(p)) return p;
+  return null;
+}
