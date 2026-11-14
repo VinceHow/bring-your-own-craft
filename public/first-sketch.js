@@ -90,7 +90,7 @@
     const secs = ev.ms != null ? ` · ${(ev.ms / 1000).toFixed(1)} s` : '';
     if (ev.prepared) setTag('PREPARED · sketched before the demo', true);
     else setTag((ev.reshape ? 'Design redrew it from what you said' : "Design's first sketch") + secs);
-    if (canReact()) hint('Say what you think of it, or click a box to change it', 'Enter to redraw · empty Enter: team, go');
+    if (canReact()) hint('React to it, or click a box', 'Enter: redraw · empty Enter: team, go');
   }
   function onError(ev) {
     if (ev.reshape) { S.state = 'landed'; setTag('Design could not redraw it: try saying it another way'); return; }
@@ -119,7 +119,7 @@
     if (!run || String(run).startsWith('local-') || B.replay) return null;
     S.run = run; S.state = 'pending'; S.freshUsers = true;
     setTag('Design is sketching');
-    hint('Design is sketching… or write your own journey, one step at a time', 'Enter for each step');
+    hint('Design is sketching… or type your own steps', 'Enter for each step');
     try { return await B.api(`/api/run/${encodeURIComponent(run)}/sketch`, { idea }, { step: false }); }
     catch (e) { if (S.state === 'pending') onError({}); return null; }
   }
@@ -199,7 +199,7 @@
     });
     strike.addEventListener('click', () => go('strike'));
     add.addEventListener('click', () => { adding = true; inp.value = ''; inp.placeholder = 'New box'; inp.setAttribute('aria-label', 'New box'); add.hidden = true; strike.hidden = true; inp.focus(); });
-    setTimeout(() => { inp.focus(); inp.select(); }, 0);
+    inp.focus(); inp.select(); // now, so her first keystroke never lands on the box button behind
   }
   document.addEventListener('mousedown', e => { if (S.pop && !S.pop.contains(e.target) && !(e.target.closest && e.target.closest('.fl-box'))) closePop(); });
 
