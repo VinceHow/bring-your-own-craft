@@ -771,3 +771,8 @@ html #room .close-pile i:nth-child(odd) { rotate: -3deg; } html #room .close-pil
 /* decisions on the table: two at a time, clear of the Replay label */
 html #room .team-space .ts-card:nth-child(n+3) { display: none !important; }
 html #room:has(.close-sheet:not([hidden])) :is(.seat, .tray, .her-sheet:not([data-open="true"]), .team-space, .chatter) { visibility: hidden; }
+/* the close: sized to what it holds and centred in the room, not a fixed tall sheet (follow-up a) */
+html #room .close-sheet:not([hidden]) { top: 50%; height: auto; max-height: 820px; translate: 0 -50%; grid-template-rows: auto; align-items: start; }
+html #room .close-sheet .close-left, html #room .close-sheet .close-right { min-height: 0; }
+/* its small labels at 16px, weight 500, one step darker so they clear 4.5 on a projector (follow-up b) */
+html #room .close-sheet :is(.close-label, .close-src, .close-step) { font-size: 16px !important; font-weight: 500 !important; color: var(--ink-2) !important; }
