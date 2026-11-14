@@ -270,8 +270,8 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   assert.strictEqual(await p.locator('.team-space .ts-card[data-kind="first"][data-state="closed"]').count(), 0, 'no cascade behind her document');
   await p.keyboard.press('Escape');
   await waitFor(() => !BYOC.focusDoc.isOpen(), 3000, 'back in the room', null, p);
-  assert.strictEqual(await p.textContent('.fs-bar .fs-user.main'), 'Morning regulars');
-  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user.later').allTextContents(), ['Weekend pastry crowd']);
+  assert.strictEqual(await p.textContent('.fs-bar .fs-user[data-state="main"]'), 'Morning regulars');
+  assert.deepStrictEqual(await p.locator('.fs-bar .fs-user[data-state="later"]').allTextContents(), ['Weekend pastry crowd']);
   await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 5000, 'settled in the team space', null, p);
   assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
   assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');

@@ -270,7 +270,7 @@
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
-    pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === what)));
+    pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
     if (what === 'craft') {
       BYOC.herName = herNameField();
@@ -318,7 +318,7 @@
   // agreed (team space) and her takeaways so far. Structure only; the tray stays the way into each question.
   const panel = h('section', 'room-panel'); panel.id = 'room-panel'; panel.hidden = true;
   el.room.appendChild(panel);
-  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
+  function closePanel() { if (panel.hidden) return; panel.hidden = true; panel.dataset.state = 'closed'; panel.innerHTML = ''; delete panel.dataset.component; emit('panel.close', {}); }
   function openPanel(component, seat, head, body) {
     panel.innerHTML = '';
     panel.dataset.component = component; panel.dataset.state = 'open';
@@ -487,7 +487,7 @@
     setInputMode('line');
     stage(4);
     try {
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : {}), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       status(`run ${r.run}`);
       flushPending();
@@ -1054,7 +1054,7 @@
       // its shape and lands in her inbox like any ask. Her answer redraws the journey and settles a run of decisions,
       // each with its teammate: a line on its sketchpad and a word under its card, one after another.
       case 'sketch.done':
-        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) {
+        if (BYOC.stagePath && source === 'live' && !ev.reshape && !ev.skipped && !BYOC.replay && BYOC.run && firstAskedFor !== BYOC.run) { // the server raises it too (lib/first.js)
           firstAskedFor = BYOC.run;
           BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/first`, {}, { step: false }).catch(() => {});
         }
@@ -1066,11 +1066,11 @@
         const at = seen.findIndex(x => x.type === 'reshape' && x.askId === ev.askId);
         if (ev.reshaped && list && at > 0) {
           const now = [...list.querySelectorAll('.fs-user:not(.later)')];
-          now.forEach((u, i) => u.classList.toggle('main', i === 0));
+          now.forEach((u, i) => { u.classList.toggle('main', i === 0); u.dataset.state = i === 0 ? 'main' : 'kept'; });
           const norm = t => String(t || '').trim().toLowerCase();
           const kept = new Set(now.map(u => norm(u.textContent)));
           for (const e of seen.slice(0, at)) if (e.type === 'sketch.user' && !kept.has(norm(e.label)) && !list.querySelector(`.fs-user.later[data-user="${CSS.escape(e.id || '')}"]`)) {
-            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
+            const u = h('span', 'fs-user later', esc(e.label)); u.dataset.slot = 'user'; u.dataset.state = 'later'; u.dataset.user = e.id || ''; list.appendChild(u); kept.add(norm(e.label));
           }
         }
         emit('first.settled', { askId: ev.askId, decided: ev.decided });
@@ -1121,7 +1121,7 @@
   let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
-  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
+  function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
   // Her paper name tag. One component with the DIY name tag (character-card), so voice, swaps and the gallery carry on.
   function openPaper() {
     if (!setup) return;
@@ -1135,8 +1135,8 @@
       <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
         <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
         <div class="pick-options" data-slot="options">
-          <button type="button" class="pick-option" data-pick="product" data-slot="option" aria-pressed="true">Product</button>
-          <button type="button" class="pick-option" data-pick="craft" data-slot="option" aria-pressed="false">Your own craft</button>
+          <button type="button" class="pick-option" data-pick="product" data-slot="option" data-state="picked" aria-pressed="true">Product</button>
+          <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>

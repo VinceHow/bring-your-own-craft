@@ -1,5 +1,4 @@
-- [L1] I love working on the customer journey, understanding the problems customers face, and building products that solve them. (her own words, today)
+- [L1] I love i'm working on the customer journey, understanding the problems customers face, and building products that solve them. (her own words, today)
 - [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
-- [L3] I believe the customer who'd be most upset is the morning regular who wants their usual sourdough and hates finding it gone by nine, because they want to be known and have their bread set aside.
-- [L4] The loaf that sells out first is the one people plan their morning around, so a regular should hear early that it's going and have their usual held for them.
-- [L5] Ordering should feel like being known: never ask for anything you could remember or skip.
+- [L3] I believe we build first for the morning regulars, the people who come every day and hate it when the sourdough is gone by nine.
+- [L4] Ordering should feel like being known: never ask for anything you could remember or skip.
