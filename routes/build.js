@@ -8,7 +8,7 @@ import { scrub } from '../lib/model.js';
 import { fillPage, gatherRun, pickTemplate } from '../lib/fill.js';
 import { dealDesign } from '../lib/design.js';
 import { decideRest, loadRest } from '../lib/select.js';
-import { revisitJoint } from '../lib/joint.js';
+import { revisitJoint, jointSettled } from '../lib/joint.js';
 import { SEED } from '../lib/taste.js';
 
 const RUN_ID = /^[\w.-]{1,120}$/;
@@ -43,6 +43,8 @@ export async function buildRun(run, { call } = {}) {
   const dir = path.join(RUNS_DIR, run);
   const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering' });
   step('Reading her flow, her three answers and her file');
+  // A joint talk still going when she pressed Build finishes first, so its agreement is revisited against her file.
+  await jointSettled(run);
   const events = readEvents(run);
   const tasteFile = path.join(dir, 'taste.md');
   const tasteMd = fs.readFileSync(fs.existsSync(tasteFile) ? tasteFile : SEED, 'utf8');
