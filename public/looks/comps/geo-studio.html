@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geo studio</title>
+<style>
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; }
+:root {
+  --ink: #1F2A44; --cream: #F8EFE2; --wall: #F4E5D0; --wood: #C98B55; --top: #DDA56B;
+  --blue: #2F5DA8; --orange: #E2683C; --green: #3E8F6B; --ochre: #D29B3A; --yellow: #F2C230; --pink: #EE8FA6;
+}
+html, body { margin: 0; height: 100%; background: #E9D8C1; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; margin: -450px 0 0 -800px; transform-origin: center; }
+svg { position: absolute; inset: 0; width: 1600px; height: 900px; }
+svg * { transform-box: fill-box; }
+.char .body { transform-origin: 50% 100%; }
+.eye { transform-origin: 50% 50%; }
+.tag { position: absolute; transform: translate(-50%, -100%); padding: 8px 14px 9px; background: var(--cream); border: 2px solid var(--ink);
+  border-radius: 14px; box-shadow: 3px 3px 0 rgba(31,42,68,.18); font: 500 17px/1.25 'Hanken Grotesk', sans-serif; color: var(--ink);
+  white-space: nowrap; opacity: 0; pointer-events: none; }
+.tag b { display: block; font: 600 12px/1 'Hanken Grotesk', sans-serif; color: var(--c); margin-bottom: 3px; }
+.tag::after { content: ''; position: absolute; left: 50%; bottom: -9px; width: 14px; height: 14px; margin-left: -7px; background: var(--cream);
+  border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
+.hint { position: fixed; left: 16px; bottom: 12px; font: 500 13px 'Hanken Grotesk', sans-serif; color: rgba(31,42,68,.6); }
+.clickable { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="stage">
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .12 0 0 0 0 .1 0 0 0 0 .08 0 0 0 .55 0"/></filter>
+    <filter id="print" x="-10%" y="-10%" width="130%" height="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#1F2A44" flood-opacity=".16"/></filter>
+    <radialGradient id="glow" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#FFE2A8" stop-opacity=".75"/><stop offset="1" stop-color="#FFE2A8" stop-opacity="0"/></radialGradient>
+    <pattern id="rug" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#C9563C"/><path d="M0 60 L30 30 L60 60Z" fill="#E08A5F"/><circle cx="30" cy="14" r="7" fill="#F2C230"/></pattern>
+    <pattern id="books" width="1" height="1"></pattern>
+  </defs>
+
+  <!-- wall and floor -->
+  <rect width="1600" height="900" fill="var(--wall)"/>
+  <rect y="650" width="1600" height="250" fill="#D9B48A"/>
+  <path d="M0 650 H1600" stroke="var(--ink)" stroke-width="3"/>
+  <!-- window -->
+  <g id="window">
+    <rect x="300" y="60" width="520" height="330" rx="6" fill="#F9C79A" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="700" cy="300" r="70" fill="#F5A06B"/>
+    <path d="M300 300 Q420 250 520 290 T820 270 V390 H300Z" fill="#E59874" opacity=".7"/>
+    <path d="M300 340 Q470 300 600 335 T820 320 V390 H300Z" fill="#D37F62" opacity=".8"/>
+    <path d="M473 60 V390 M647 60 V390 M300 225 H820" stroke="var(--ink)" stroke-width="4"/>
+  </g>
+  <!-- poster -->
+  <g transform="translate(900 110)"><rect width="150" height="190" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+    <circle cx="55" cy="70" r="34" fill="var(--orange)"/><rect x="62" y="96" width="62" height="62" fill="var(--blue)"/><path d="M22 160 L52 112 L82 160Z" fill="var(--yellow)"/></g>
+  <!-- shelf -->
+  <g id="shelf" transform="translate(1180 120)">
+    <rect width="330" height="520" fill="#B9794A" stroke="var(--ink)" stroke-width="4"/>
+    <path d="M0 130 H330 M0 260 H330 M0 390 H330" stroke="var(--ink)" stroke-width="4"/>
+    <g id="bookrows" stroke="var(--ink)" stroke-width="3"></g>
+  </g>
+  <!-- pendant lamp -->
+  <path d="M800 0 V150" stroke="var(--ink)" stroke-width="3"/>
+  <path id="lampglow" d="M720 190 L520 640 H1080 L880 190Z" fill="url(#glow)" opacity=".75"/>
+  <path d="M735 195 Q800 120 865 195Z" fill="var(--ink)"/>
+  <ellipse cx="800" cy="196" rx="20" ry="7" fill="#FFE7B0"/>
+  <!-- trolley with coffee -->
+  <g id="trolley" transform="translate(110 470)">
+    <rect x="0" y="40" width="150" height="10" fill="var(--ink)"/><rect x="0" y="150" width="150" height="10" fill="var(--ink)"/>
+    <path d="M8 40 V220 M142 40 V220" stroke="var(--ink)" stroke-width="5"/>
+    <circle cx="14" cy="226" r="8" fill="var(--ink)"/><circle cx="136" cy="226" r="8" fill="var(--ink)"/>
+    <path d="M40 40 V-8 Q40 -22 56 -22 H78 Q94 -22 94 -8 V40Z" fill="var(--ink)"/>
+    <path d="M94 -2 Q118 4 108 26" fill="none" stroke="var(--ink)" stroke-width="5"/>
+    <rect x="34" y="118" width="26" height="30" rx="4" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+    <rect x="74" y="118" width="26" height="30" rx="4" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+    <g class="steam" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"><path d="M58 -32 q-8 -14 0 -28 q8 -14 0 -28"/><path d="M76 -36 q-8 -12 0 -24 q8 -12 0 -24"/></g>
+  </g>
+  <!-- plants -->
+  <g id="plantL" transform="translate(40 700)">
+    <path d="M30 0 L50 110 H110 L130 0Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4"/>
+    <g class="sway" style="transform-origin: 80px 0px">
+      <path d="M80 0 C40 -80 -10 -120 -10 -170 C40 -150 80 -100 80 0Z" fill="var(--green)" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M80 0 C110 -90 170 -120 200 -180 C200 -110 140 -60 80 0Z" fill="#5BAA84" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M80 0 C80 -100 60 -170 90 -240 C120 -170 100 -90 80 0Z" fill="var(--green)" stroke="var(--ink)" stroke-width="3"/>
+    </g>
+  </g>
+  <g id="plantR" transform="translate(1420 650)">
+    <rect x="20" y="0" width="110" height="100" rx="8" fill="var(--orange)" stroke="var(--ink)" stroke-width="4"/>
+    <g class="sway2" style="transform-origin: 75px 0px">
+      <path d="M75 0 C60 -60 20 -90 0 -150 C50 -130 80 -80 75 0Z" fill="#5BAA84" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M75 0 C90 -70 130 -110 150 -170 C160 -100 110 -50 75 0Z" fill="var(--green)" stroke="var(--ink)" stroke-width="3"/>
+    </g>
+  </g>
+  <!-- hanging plant -->
+  <g transform="translate(1000 0)"><path d="M60 0 V60" stroke="var(--ink)" stroke-width="3"/>
+    <path d="M25 60 H95 L85 110 H35Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+    <g class="sway3" style="transform-origin: 60px 100px" fill="var(--green)" stroke="var(--ink)" stroke-width="2.5">
+      <path d="M40 105 q-10 60 0 120" fill="none" stroke="var(--green)" stroke-width="5"/><ellipse cx="38" cy="160" rx="12" ry="8"/><ellipse cx="42" cy="210" rx="12" ry="8"/>
+      <path d="M80 105 q12 50 2 95" fill="none" stroke="var(--green)" stroke-width="5"/><ellipse cx="86" cy="150" rx="12" ry="8"/><ellipse cx="82" cy="190" rx="12" ry="8"/></g></g>
+
+  <!-- rug -->
+  <ellipse cx="800" cy="760" rx="600" ry="110" fill="url(#rug)" stroke="var(--ink)" stroke-width="4"/>
+
+  <g id="bodies"></g>
+
+  <!-- table -->
+  <g id="table">
+    <path d="M560 640 L540 800 M1040 640 L1060 800 M700 660 V820 M900 660 V820" stroke="var(--ink)" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="800" cy="618" rx="440" ry="128" fill="#B9794A" stroke="var(--ink)" stroke-width="4"/>
+    <ellipse cx="800" cy="604" rx="440" ry="124" fill="var(--top)" stroke="var(--ink)" stroke-width="4"/>
+    <ellipse cx="800" cy="604" rx="300" ry="78" fill="none" stroke="#C98B55" stroke-width="3" stroke-dasharray="40 18" opacity=".6"/>
+  </g>
+
+  <g id="props"></g>
+
+  <!-- centre of the table: the shared sheet they are all working on -->
+  <g id="sheet" transform="translate(720 590) rotate(-4)">
+    <rect width="170" height="90" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+    <g fill="none" stroke="var(--ink)" stroke-width="2.5"><rect x="14" y="16" width="34" height="20" rx="3"/><rect x="68" y="16" width="34" height="20" rx="3"/><rect x="122" y="16" width="34" height="20" rx="3"/>
+      <path d="M48 26 H68 M102 26 H122"/><path d="M14 58 H90 M14 72 H70" stroke-width="2" opacity=".6"/></g>
+    <rect x="14" y="16" width="34" height="20" rx="3" fill="var(--pink)" opacity=".55"/>
+  </g>
+
+  <!-- her chair, empty, nearest us -->
+  <g id="chair" transform="translate(720 740)">
+    <path d="M20 160 L10 200 M140 160 L150 200" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/>
+    <rect x="0" y="0" width="160" height="150" rx="40" fill="var(--pink)" stroke="var(--ink)" stroke-width="4"/>
+    <rect x="22" y="22" width="116" height="96" rx="28" fill="#F5AFC0"/>
+  </g>
+
+  <!-- the cat on a pouf -->
+  <g id="cat" class="clickable" transform="translate(1180 700)">
+    <ellipse cx="80" cy="110" rx="95" ry="40" fill="var(--blue)" stroke="var(--ink)" stroke-width="4"/>
+    <rect x="-15" y="70" width="190" height="40" fill="var(--blue)"/><path d="M-15 70 V110 M175 70 V110" stroke="var(--ink)" stroke-width="4"/>
+    <ellipse cx="80" cy="70" rx="95" ry="38" fill="#5B80C2" stroke="var(--ink)" stroke-width="4"/>
+    <g id="catbody" style="transform-origin: 80px 70px">
+      <path d="M20 66 Q20 22 80 20 Q150 20 150 62 Q120 78 70 76 Q30 76 20 66Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="4"/>
+      <path d="M58 22 Q80 12 106 22 Q96 44 80 42 Q64 44 58 22Z" fill="var(--orange)"/>
+      <path d="M120 58 Q160 70 140 40" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+      <g transform="translate(26 40)"><path d="M0 18 L4 -2 L16 10 M24 10 L36 -2 L40 18" fill="var(--cream)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="20" cy="24" r="20" fill="var(--cream)" stroke="var(--ink)" stroke-width="3.5"/>
+        <path d="M10 24 q4 4 8 0 M22 24 q4 4 8 0" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/></g>
+    </g>
+    <g id="zz" font-family="Hanken Grotesk" font-weight="600" fill="var(--ink)" opacity=".5"><text x="40" y="0" font-size="18">z</text></g>
+  </g>
+
+  <!-- riso grain over everything -->
+  <rect width="1600" height="900" filter="url(#grain)" opacity=".22" style="mix-blend-mode: multiply; pointer-events: none"/>
+</svg>
+<div id="tags"></div>
+</div>
+<div class="hint">They work on their own. Press space for a chat, 1–5 to make one think, click someone or the cat.</div>
+
+<script>
+(function () {
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = s => document.querySelector(s);
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const ink = '#1F2A44';
+  // fit the 1600x900 stage to the window
+  const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); $('#stage').style.transform = `scale(${s})`; };
+  addEventListener('resize', fit); fit();
+
+  // back edge of the table ellipse at x, so each character sits just behind it
+  const backY = x => 604 - 124 * Math.sqrt(Math.max(0, 1 - ((x - 800) / 440) ** 2));
+
+  // ---- the cast: each a shape with its own temperament ----
+  const cast = [
+    { id: 'mika', name: 'Mika', seat: 'Design', color: '#2F5DA8', x: 455, shape: 'triangle', rate: 3.2 },
+    { id: 'noor', name: 'Noor', seat: 'Research', color: '#E2683C', x: 630, shape: 'circle', rate: 4.1 },
+    { id: 'bo', name: 'Bo', seat: 'Engineering', color: '#F2C230', x: 800, shape: 'square', rate: 4.8 },
+    { id: 'theo', name: 'Theo', seat: 'Data', color: '#3E8F6B', x: 970, shape: 'arch', rate: 3.7 },
+    { id: 'ines', name: 'Ines', seat: 'Strategy', color: '#D29B3A', x: 1140, shape: 'bell', rate: 4.4 },
+  ];
+  const shapes = {
+    triangle: { d: 'M-78 0 L78 0 L0 -230 Z', eyes: [-17, -96], mouth: -74, top: -230 },
+    circle: { d: 'M0 0 m-84 -80 a84 84 0 1 0 168 0 a84 84 0 1 0 -168 0', eyes: [-24, -96], mouth: -66, top: -164, glasses: true },
+    square: { d: 'M-74 0 V-150 Q-74 -168 -56 -168 H56 Q74 -168 74 -150 V0 Z', eyes: [-26, -112], mouth: -86, top: -168, sleepy: true },
+    arch: { d: 'M-58 0 V-150 A58 58 0 0 1 58 -150 V0 Z', eyes: [-18, -150], mouth: -128, top: -208 },
+    bell: { d: 'M-92 0 C-92 -110 -60 -170 0 -170 C60 -170 92 -110 92 0 Z', eyes: [-24, -104], mouth: -80, top: -170 },
+  };
+
+  // books on the shelf, a different spine every time
+  (function(){ const cols=['#2F5DA8','#E2683C','#3E8F6B','#D29B3A','#F2C230','#F8EFE2','#EE8FA6','#1F2A44']; const g=$('#bookrows');
+    [0,1,2,3].forEach(r=>{ let x=14; while(x<300){ const w=14+Math.floor(Math.random()*16), h=70+Math.floor(Math.random()*44), lean=false;
+      if(Math.random()<.12 && r!==1){ x+=26; continue; }
+      const y=r*130+126-h; el('rect',{x, y, width:w, height:h, rx:2, fill:cols[Math.floor(Math.random()*cols.length)], transform: lean?`rotate(-8 ${x} ${y+h})`:''},g); x+=w+2; }
+      if(r===1){ el('path',{d:'M250 256 L262 200 H306 L318 256Z',fill:'#E2683C'},g); el('path',{d:'M284 200 C270 160 250 150 240 120 C270 130 286 160 284 200Z',fill:'#3E8F6B'},g); } }); })();
+  const bodies = $('#bodies'), props = $('#props'), tags = $('#tags');
+  cast.forEach(c => {
+    const sh = shapes[c.shape];
+    const base = backY(c.x) + 8;
+    c.base = base;
+    const g = el('g', { class: 'char clickable', transform: `translate(${c.x} ${base})` }, bodies);
+    c.g = g;
+    const body = el('g', { class: 'body', filter: 'url(#print)' }, g);
+    c.body = body;
+    el('path', { d: sh.d, fill: c.color, stroke: ink, 'stroke-width': 4, 'stroke-linejoin': 'round' }, body);
+    // face
+    const face = el('g', { class: 'face' }, body); c.face = face;
+    const eyes = el('g', { class: 'eyes' }, face); c.eyes = eyes;
+    [sh.eyes[0], -sh.eyes[0]].forEach(ex => {
+      const eg = el('g', { class: 'eye', transform: `translate(${ex} ${sh.eyes[1]})` }, eyes);
+      if (sh.sleepy) el('path', { d: 'M-9 0 Q0 7 9 0', fill: 'none', stroke: ink, 'stroke-width': 5, 'stroke-linecap': 'round', class: 'lid' }, eg);
+      else el('ellipse', { cx: 0, cy: 0, rx: 7, ry: 9, fill: ink }, eg);
+      if (sh.glasses) el('circle', { cx: 0, cy: 0, r: 17, fill: 'none', stroke: ink, 'stroke-width': 3.5 }, eg);
+    });
+    if (sh.glasses) el('path', { d: `M-7 ${sh.eyes[1]} H7`, stroke: ink, 'stroke-width': 3.5 }, face);
+    el('ellipse', { cx: sh.eyes[0] - 10, cy: sh.eyes[1] + 22, rx: 10, ry: 6, fill: '#fff', opacity: .28 }, face);
+    el('ellipse', { cx: -sh.eyes[0] + 10, cy: sh.eyes[1] + 22, rx: 10, ry: 6, fill: '#fff', opacity: .28 }, face);
+    c.mouth = el('path', { d: `M-10 ${sh.mouth} Q0 ${sh.mouth + 9} 10 ${sh.mouth}`, fill: 'none', stroke: ink, 'stroke-width': 4, 'stroke-linecap': 'round' }, face);
+    c.top = base + sh.top;
+    // props and hands on the table, in front
+    const p = el('g', { transform: `translate(${c.x} ${backY(c.x) + 26})` }, props); c.p = p;
+    buildProp(c, p);
+    // speech tag
+    const t = document.createElement('div'); t.className = 'tag'; t.style.setProperty('--c', c.color);
+    t.style.left = c.x + 'px'; t.style.top = (c.top - 18) + 'px'; tags.appendChild(t); c.tag = t;
+    g.addEventListener('click', () => wave(c));
+  });
+
+  function hand(parent, x, y, color) { return el('ellipse', { cx: x, cy: y, rx: 15, ry: 12, fill: color, stroke: ink, 'stroke-width': 3.5 }, parent); }
+
+  function buildProp(c, p) {
+    const C = c.color;
+    if (c.id === 'mika') { // sketchbook and pencil
+      el('rect', { x: -70, y: 0, width: 120, height: 70, rx: 4, fill: '#FBF7EF', stroke: ink, 'stroke-width': 3, transform: 'skewX(-12)' }, p);
+      c.scribble = el('path', { d: 'M-56 18 l14 10 l12 -12 l12 14 l14 -10 l12 12 M-58 44 h40 m8 0 h30', fill: 'none', stroke: '#2F5DA8', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-dasharray': 300, 'stroke-dashoffset': 300 }, p);
+      const h = el('g', {}, p); c.hand = h;
+      el('path', { d: 'M8 30 L46 -14', stroke: ink, 'stroke-width': 7, 'stroke-linecap': 'round' }, h);
+      el('path', { d: 'M8 30 L46 -14', stroke: '#F2C230', 'stroke-width': 4, 'stroke-linecap': 'round' }, h);
+      hand(h, 26, 12, C);
+    } else if (c.id === 'noor') { // book with tabs
+      const b = el('g', {}, p);
+      el('path', { d: 'M-70 8 Q-35 -4 0 10 Q35 -4 70 8 V66 Q35 54 0 68 Q-35 54 -70 66 Z', fill: '#FBF7EF', stroke: ink, 'stroke-width': 3 }, b);
+      el('path', { d: 'M0 10 V68', stroke: ink, 'stroke-width': 3 }, b);
+      ['#F2C230', '#EE8FA6', '#2F5DA8'].forEach((col, i) => el('rect', { x: 64, y: 14 + i * 14, width: 14, height: 9, fill: col, stroke: ink, 'stroke-width': 2 }, b));
+      el('path', { d: 'M-58 24 H-12 M-58 36 H-16 M-58 48 H-20 M12 24 H58 M12 36 H54', stroke: ink, 'stroke-width': 2, opacity: .45 }, b);
+      c.page = el('path', { d: 'M0 10 Q35 -4 70 8 V66 Q35 54 0 68 Z', fill: '#FFFDF8', stroke: ink, 'stroke-width': 3, style: 'transform-origin: 0px 40px', opacity: 0 }, b);
+      c.hands = [hand(p, -78, 46, C), hand(p, 78, 46, C)];
+    } else if (c.id === 'bo') { // laptop and mug
+      el('path', { d: 'M-66 64 L-56 6 H56 L66 64 Z', fill: '#C9CFD8', stroke: ink, 'stroke-width': 3 }, p);
+      el('path', { d: 'M-50 14 H50 M-52 26 H52 M-54 38 H54', stroke: ink, 'stroke-width': 1.5, opacity: .4 }, p);
+      c.screen = el('rect', { x: -60, y: -60, width: 120, height: 68, rx: 4, fill: '#24324F', stroke: ink, 'stroke-width': 3 }, p);
+      c.code = el('path', { d: 'M-48 -46 h40 M-48 -34 h60 M-40 -22 h36 M-48 -10 h50', stroke: '#F2C230', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-dasharray': 200, 'stroke-dashoffset': 200 }, p);
+      c.hands = [hand(p, -26, 40, C), hand(p, 26, 40, C)];
+      el('rect', { x: 84, y: 14, width: 30, height: 34, rx: 5, fill: '#F2C230', stroke: ink, 'stroke-width': 3 }, p);
+      c.steam = el('path', { d: 'M99 6 q-7 -10 0 -20 q7 -10 0 -20', fill: 'none', stroke: '#fff', 'stroke-width': 4, 'stroke-linecap': 'round' }, p);
+    } else if (c.id === 'theo') { // a card with one chart
+      el('rect', { x: -56, y: 2, width: 112, height: 66, rx: 4, fill: '#FBF7EF', stroke: ink, 'stroke-width': 3 }, p);
+      c.bars = [0, 1, 2, 3].map(i => el('rect', { x: -40 + i * 22, y: 58, width: 14, height: 0, fill: i === 3 ? '#3E8F6B' : '#9FC7B2', stroke: ink, 'stroke-width': 2 }, p));
+      c.hands = [hand(p, -66, 40, C), hand(p, 66, 40, C)];
+    } else if (c.id === 'ines') { // ledger and tea
+      el('rect', { x: -70, y: 6, width: 96, height: 62, rx: 3, fill: '#FBF7EF', stroke: ink, 'stroke-width': 3, transform: 'skewX(10)' }, p);
+      el('path', { d: 'M-56 20 H8 M-58 34 H6 M-60 48 H4 M-30 12 V66', stroke: ink, 'stroke-width': 1.8, opacity: .45 }, p);
+      const cup = el('g', {}, p); c.cup = cup;
+      el('path', { d: 'M42 18 H82 L76 52 H48 Z', fill: '#fff', stroke: ink, 'stroke-width': 3 }, cup);
+      el('path', { d: 'M82 26 q14 2 4 18', fill: 'none', stroke: ink, 'stroke-width': 3 }, cup);
+      c.cupHand = hand(cup, 36, 38, C);
+      c.steam = el('path', { d: 'M62 10 q-7 -10 0 -20 q7 -10 0 -20', fill: 'none', stroke: '#fff', 'stroke-width': 4, 'stroke-linecap': 'round' }, cup);
+      c.hands = [hand(p, -40, 50, C)];
+    }
+  }
+
+  // ---- life: everything idles in its own rhythm ----
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const loop = (node, kf, opt) => node.animate(kf, Object.assign({ iterations: Infinity, easing: 'ease-in-out' }, opt));
+
+  cast.forEach(c => {
+    // breathing: each at its own rate
+    loop(c.body, [{ transform: 'scale(1,1)' }, { transform: 'scale(1.015,1.03)' }, { transform: 'scale(1,1)' }], { duration: c.rate * 1000, delay: -rnd(0, 3000) });
+    blinkLater(c);
+    setState(c, 'work');
+  });
+  loop($('#trolley .steam'), [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: .9, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-14px)' }], { duration: 2600, easing: 'linear' });
+  loop($('#plantL .sway'), [{ transform: 'rotate(-1.2deg)' }, { transform: 'rotate(1.2deg)' }], { duration: 5200, direction: 'alternate' });
+  loop($('#plantR .sway2'), [{ transform: 'rotate(1.5deg)' }, { transform: 'rotate(-1deg)' }], { duration: 6100, direction: 'alternate' });
+  loop(document.querySelector('.sway3'), [{ transform: 'rotate(-2deg)' }, { transform: 'rotate(2deg)' }], { duration: 7000, direction: 'alternate' });
+  loop($('#lampglow'), [{ opacity: .7 }, { opacity: .8 }], { duration: 4000, direction: 'alternate' });
+  loop($('#catbody'), [{ transform: 'scale(1,1)' }, { transform: 'scale(1.02,1.06)' }], { duration: 2400, direction: 'alternate' });
+  loop($('#zz'), [{ transform: 'translate(0,0)', opacity: 0 }, { opacity: .5, offset: .3 }, { transform: 'translate(14px,-26px)', opacity: 0 }], { duration: 3000, easing: 'ease-out' });
+
+  function blinkLater(c) {
+    setTimeout(() => {
+      c.eyes.querySelectorAll('.eye').forEach(e => e.animate([{ transform: e.getAttribute('transform') + ' scale(1,1)' }, { transform: e.getAttribute('transform') + ' scale(1,.1)' }, { transform: e.getAttribute('transform') + ' scale(1,1)' }], { duration: 180 }));
+      blinkLater(c);
+    }, rnd(2200, 6000));
+  }
+
+  // where each character's eyes are looking: a small offset of the whole eye group
+  function look(c, dx, dy, ms = 380) {
+    c.eyes.animate([{ transform: c.eyesAt || 'translate(0,0)' }, { transform: `translate(${dx}px,${dy}px)` }], { duration: ms, fill: 'forwards', easing: 'cubic-bezier(.16,1,.3,1)' });
+    c.eyesAt = `translate(${dx}px,${dy}px)`;
+  }
+
+  // ---- states: work, think, talk ----
+  function stopWork(c) { (c.anims || []).forEach(a => a.cancel()); c.anims = []; }
+  function setState(c, s) {
+    stopWork(c); c.state = s;
+    const A = (n, kf, o) => c.anims.push(loop(n, kf, o));
+    if (s === 'work') {
+      look(c, 0, 9);
+      if (c.id === 'mika') {
+        A(c.hand, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(-14px,4px) rotate(-6deg)' }, { transform: 'translate(-4px,10px) rotate(3deg)' }, { transform: 'translate(-22px,12px) rotate(-4deg)' }, { transform: 'translate(0,0) rotate(0)' }], { duration: 1500 });
+        A(c.scribble, [{ strokeDashoffset: 300 }, { strokeDashoffset: 0, offset: .8 }, { strokeDashoffset: 0 }], { duration: 5200, easing: 'linear' });
+        A(c.body, [{ rotate: '0deg' }, { rotate: '-2deg' }, { rotate: '0deg' }], { duration: 3000, composite: 'add' });
+      } else if (c.id === 'noor') {
+        A(c.eyes, [{ transform: 'translate(-10px,9px)' }, { transform: 'translate(10px,9px)', offset: .45 }, { transform: 'translate(-10px,12px)', offset: .5 }, { transform: 'translate(10px,12px)', offset: .95 }, { transform: 'translate(-10px,9px)' }], { duration: 4200, easing: 'linear' });
+        A(c.page, [{ opacity: 0, transform: 'scaleX(1)' }, { opacity: 0, offset: .82 }, { opacity: 1, transform: 'scaleX(1)', offset: .84 }, { opacity: 1, transform: 'scaleX(-1)', offset: .97 }, { opacity: 0, transform: 'scaleX(-1)' }], { duration: 8400 });
+      } else if (c.id === 'bo') {
+        c.hands.forEach((h, i) => A(h, [{ transform: 'translateY(0)' }, { transform: 'translateY(-7px)' }, { transform: 'translateY(0)' }], { duration: 260 + i * 70, delay: i * 120 }));
+        A(c.code, [{ strokeDashoffset: 200 }, { strokeDashoffset: 0, offset: .85 }, { strokeDashoffset: 0 }], { duration: 3600, easing: 'linear' });
+        A(c.screen, [{ fill: '#24324F' }, { fill: '#2B3B5E' }, { fill: '#24324F' }], { duration: 1800 });
+        A(c.steam, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: .9, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-10px)' }], { duration: 2400 });
+      } else if (c.id === 'theo') {
+        c.bars.forEach((b, i) => { const hgt = [22, 30, 26, 44][i];
+          A(b, [{ height: 0, y: 58 }, { height: hgt, y: 58 - hgt, offset: .2 + i * .12 }, { height: hgt, y: 58 - hgt, offset: .92 }, { height: 0, y: 58 }], { duration: 6000, easing: 'cubic-bezier(.16,1,.3,1)' }); });
+        A(c.body, [{ rotate: '0deg' }, { rotate: '0deg', offset: .7 }, { rotate: '3deg', offset: .78 }, { rotate: '0deg', offset: .86 }], { duration: 6000, composite: 'add' });
+      } else if (c.id === 'ines') {
+        A(c.cup, [{ transform: 'translate(0,0)' }, { transform: 'translate(0,0)', offset: .55 }, { transform: 'translate(-30px,-46px) rotate(-14deg)', offset: .68 }, { transform: 'translate(-30px,-46px) rotate(-14deg)', offset: .8 }, { transform: 'translate(0,0)', offset: .92 }], { duration: 7000 });
+        A(c.hands[0], [{ transform: 'translate(0,0)' }, { transform: 'translate(22px,-4px)' }, { transform: 'translate(8px,2px)' }, { transform: 'translate(0,0)' }], { duration: 2400 });
+        A(c.steam, [{ opacity: 0 }, { opacity: .9 }, { opacity: 0 }], { duration: 2600 });
+      }
+    } else if (s === 'think') {
+      look(c, 9, -10, 600);
+      A(c.body, [{ rotate: '0deg' }, { rotate: '4deg' }, { rotate: '4deg' }, { rotate: '0deg' }], { duration: 2600, composite: 'add' });
+      dots(c);
+    }
+  }
+
+  function dots(c) {
+    const g = el('g', { transform: `translate(${c.x + 60} ${c.top - 10})` }, bodies.parentNode);
+    [0, 1, 2].forEach(i => { const d = el('circle', { cx: i * 16, cy: -i * 8, r: 6 + i, fill: c.color, stroke: ink, 'stroke-width': 2.5, opacity: 0 }, g);
+      d.animate([{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)', offset: .25 }, { opacity: 1, offset: .8 }, { opacity: 0 }], { duration: 2600, delay: i * 200, fill: 'forwards', easing: 'cubic-bezier(.16,1,.3,1)' }); });
+    setTimeout(() => g.remove(), 3400);
+  }
+
+  function talk(c, line, ms = 3000) {
+    const prev = c.state; stopWork(c); c.state = 'talk';
+    const sh = shapes[c.shape];
+    look(c, 0, 0);
+    const bob = loop(c.body, [{ translate: '0 0' }, { translate: '0 -6px' }, { translate: '0 0' }], { duration: 520 });
+    const m = c.mouth; const o = `M-10 ${sh.mouth} Q0 ${sh.mouth + 9} 10 ${sh.mouth}`, open = `M-11 ${sh.mouth} Q0 ${sh.mouth + 18} 11 ${sh.mouth}`;
+    const mouth = loop(m, [{ d: `path("${o}")` }, { d: `path("${open}")` }, { d: `path("${o}")` }], { duration: 300 });
+    c.tag.innerHTML = `<b>${c.name}</b>${line}`;
+    c.tag.animate([{ opacity: 0, transform: 'translate(-50%,-90%) scale(.96)' }, { opacity: 1, transform: 'translate(-50%,-100%) scale(1)' }], { duration: 380, fill: 'forwards', easing: 'cubic-bezier(.16,1,.3,1)' });
+    cast.filter(o2 => o2 !== c).forEach(o2 => { if (Math.random() < .8) look(o2, Math.sign(c.x - o2.x) * 9, -2); });
+    setTimeout(() => { bob.cancel(); mouth.cancel();
+      c.tag.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
+      setState(c, prev === 'talk' ? 'work' : prev);
+    }, ms);
+  }
+
+  function wave(c) { c.body.animate([{ translate: '0 0' }, { translate: '0 -18px' }, { translate: '0 0' }, { translate: '0 -8px' }, { translate: '0 0' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)', composite: 'add' }); look(c, 0, -2); setTimeout(() => look(c, 0, 9), 1200); }
+
+  // ---- the room's own life: a little exchange every so often, someone stops to think ----
+  const chat = [
+    ['bo', 'Orders after 8pm miss the morning bake.'],
+    ['ines', 'Then a cut-off, and say it plainly.'],
+    ['mika', 'I’ll put it right under the button.'],
+    ['noor', 'Found a source on what sells out first.'],
+    ['theo', 'Regulars reordering: that’s my one number.'],
+    ['bo', 'I can hold their loaf till ten.'],
+    ['mika', 'Ooh. Then “your usual” goes first.'],
+  ];
+  let k = 0, busy = false;
+  const byId = id => cast.find(c => c.id === id);
+  function exchange(n = 3) {
+    if (busy) return; busy = true; let t = 0;
+    for (let i = 0; i < n; i++) { const [id, line] = chat[k++ % chat.length]; setTimeout(() => talk(byId(id), line, 2800), t); t += 3300; }
+    setTimeout(() => { cast.forEach(c => c.state === 'work' && look(c, 0, 9)); busy = false; }, t + 200);
+  }
+  setTimeout(() => exchange(3), 2500);
+  setInterval(() => exchange(Math.random() < .5 ? 2 : 3), 16000);
+  setInterval(() => { const c = cast[Math.floor(Math.random() * 5)]; if (c.state === 'work' && !busy) { setState(c, 'think'); setTimeout(() => c.state === 'think' && setState(c, 'work'), 2800); } }, 5200);
+
+  // keys and clicks
+  addEventListener('keydown', e => {
+    if (e.key === ' ') { e.preventDefault(); exchange(3); }
+    const n = Number(e.key); if (n >= 1 && n <= 5) { const c = cast[n - 1]; setState(c, 'think'); setTimeout(() => setState(c, 'work'), 2800); }
+  });
+  $('#cat').addEventListener('click', () => {
+    const cat = $('#catbody'); cat.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.06,.94)' }, { transform: 'scale(1,1)' }], { duration: 600, easing: 'cubic-bezier(.16,1,.3,1)' });
+    for (let i = 0; i < 4; i++) { const h = el('path', { d: 'M0 4 C-8 -4 -10 -12 -4 -14 C0 -15 0 -12 0 -10 C0 -12 0 -15 4 -14 C10 -12 8 -4 0 4Z', fill: '#EE8FA6', stroke: ink, 'stroke-width': 2, transform: `translate(${1250 + i * 18} 700)` }, $('svg'));
+      h.animate([{ opacity: 0, translate: '0 0' }, { opacity: 1, offset: .2 }, { opacity: 0, translate: `${rnd(-20, 20)}px -70px` }], { duration: 1600, delay: i * 140, fill: 'forwards', easing: 'ease-out' });
+      setTimeout(() => h.remove(), 2200); }
+  });
+})();
+</script>
+</body>
+</html>
