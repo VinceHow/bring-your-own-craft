@@ -143,7 +143,8 @@ test('5. her pin -> "Sounds like" -> written to her file', async t => {
   // She makes a call on the confirm step, on its sketch.
   const confirmId = await page.evaluate(() => [...BYOC.flow._state.nodes.values()].find(n => n.label === 'confirm')?.id);
   const frame = page.locator(`#sketch-sheet .sk-frame[data-node="${confirmId}"]`);
-  assert.strictEqual(await frame.count(), 1, 'a sketch of the confirm step');
+  // Her answers can redraw the journey and re-render the frames, so wait for the confirm frame rather than count once.
+  await waitFor(id => document.querySelectorAll(`#sketch-sheet .sk-frame[data-node="${id}"]`).length === 1, 45000, 'a sketch of the confirm step', confirmId);
   await frame.click({ position: { x: 60, y: 120 } });
   await page.waitForSelector('.fl-draft textarea', { timeout: 3000 });
   await page.keyboard.type('Cut the phone field. Name\'s enough; regulars hate forms.');
@@ -216,7 +217,8 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   // Her answers reach the fill as hers, the overruled one marked so (the page follows her branch, not the team's).
   const slots = JSON.parse(fs.readFileSync(path.join(RUNS, RUN, 'page', 'slots.json'), 'utf8'));
   const answered = evs.filter(e => e.type === 'answer');
-  assert.strictEqual(slots.inputs.answers.filter(a => a.decision !== 'her pinned note').length, answered.length, 'every answer reached the fill');
+  // An answer in her words reaches the fill as the decisions it settled (answer.mapped), so one answer can be several.
+  assert.ok(slots.inputs.answers.filter(a => a.decision !== 'her pinned note').length >= answered.length, 'every answer reached the fill');
   if (SCREENS) {
     await pg.screenshot({ path: path.join(SCREENS, 'live-page.png') });
     await cited.first().scrollIntoViewIfNeeded();

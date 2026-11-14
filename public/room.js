@@ -530,6 +530,21 @@
   function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
   // One request for Design's frames, shared by the sketch sheet and her focus document.
   BYOC.getSketches = () => sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false }).catch(e => { sk.req = null; throw e; }));
+  // Her journey changed (a line, a reshape, her answer redrawing it): frames fetched for the old boxes are stale.
+  // Drop them unless they're already on the table; ask again once the redraw settles.
+  let staleTimer = null;
+  // If the frames are already on the table, Design re-sketches on the new shape and the frames swap in.
+  function staleSketches() {
+    if (!sk.req || BYOC.replay) return;
+    sk.req = null;
+    clearTimeout(staleTimer);
+    staleTimer = setTimeout(async () => {
+      if (sk.sheet.hidden) return maybePrefetchSketches();
+      const sid = stepBegin('Design is re-sketching on the new shape');
+      try { const data = await BYOC.getSketches(); stepEnd(sid); await showSketches(data); }
+      catch (e) { stepEnd(sid, e); }
+    }, 800);
+  }
   function maybePrefetchSketches() {
     if (BYOC.replay || sk.req || !BYOC.run || BYOC.run.startsWith('local-')) return;
     const asks = seen.filter(e => e.type === 'ask').length;
@@ -750,6 +765,10 @@
         // Piece 2 draws flow.line events itself (BYOC.on). Without it, replayed lines show as plain text;
         // live lines were already drawn as she typed them.
         if (source !== 'live' && !hasFlow()) plainLine(ev.text);
+        staleSketches();
+        break;
+      case 'flow.reset':
+        staleSketches();
         break;
       case 'teammate.start':
         if (BYOC.beat < 5) stage(5);
