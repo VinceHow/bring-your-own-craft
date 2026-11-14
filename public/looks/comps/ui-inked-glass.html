@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>Inked glass</title>
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #3B2A20; --ink-2: #6E5646; --ink-3: #7E6755;
+}
+[data-who="mika"] { --c: #3E5C92; --soft: #DCE4F1; --deep: #34507F; }
+[data-who="noor"] { --c: #D2673F; --soft: #F7DDD0; --deep: #A54A26; }
+[data-who="theo"] { --c: #7FA88B; --soft: #E0ECE2; --deep: #4B7256; }
+[data-who="ines"] { --c: #C4913A; --soft: #F3E5C8; --deep: #86601D; }
+[data-who="bo"]   { --c: #E2BF45; --soft: #F8EDC4; --deep: #7F6510; }
+[data-who="her"]  { --c: #D97F92; --soft: #F8DCE1; --deep: #A9485F; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1F17; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; font: 400 16px/1.45 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.room { position: absolute; inset: 0; background: url(her-seat/painting.jpg) -6px 0 / 1612px 900px no-repeat, #6E4B33; }
+.view { display: none; position: absolute; inset: 0; }
+[data-view="parts"] .v-parts, [data-view="room"] .v-room, [data-view="focus"] .v-focus { display: block; }
+.abs { position: absolute; }
+button { font: inherit; color: inherit; }
+.lbl { font: 500 13px/1.25 var(--sans); color: var(--ink-3); }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 15px 0 7px; border: 0; cursor: pointer; white-space: nowrap; font: 500 15px/1 var(--sans); color: var(--ink); }
+.pill .dot { width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 500 14px/1 var(--serif); }
+.pill .agent { font: 500 13px/1 var(--sans); color: var(--ink-3); padding-left: 8px; }
+.pill.has-note::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--deep); margin-left: -2px; }
+.v-room .pill { position: absolute; }
+
+/* bubble, note, decision, popover, sheet */
+.bubble { padding: 11px 16px 13px; max-width: 300px; font: italic 400 16px/1.35 var(--serif); color: var(--ink); }
+.bubble b { display: block; font: 500 13px/1.2 var(--sans); font-style: normal; color: var(--deep); margin-bottom: 3px; }
+.note { width: 240px; padding: 15px 17px 16px; font: 400 16px/1.35 var(--serif); color: var(--ink); cursor: pointer; }
+.note .lbl, .ta .lbl { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; color: var(--deep); }
+.note .lbl i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.decision { width: 256px; padding: 15px 17px 14px; font: 400 16px/1.32 var(--serif); color: var(--ink); }
+.who { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+.who .marks { display: flex; } .who .marks i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); margin-right: -5px; }
+.who .lbl { margin-left: 6px; }
+.pop { width: 312px; padding: 15px 18px 17px; color: var(--ink); }
+.pop .head { display: flex; align-items: center; gap: 8px; font: 500 15px/1 var(--sans); margin-bottom: 8px; }
+.pop .head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); }
+.pop .head .lbl { margin-left: auto; }
+.pop .lbl.k { display: block; margin: 10px 0 3px; }
+.pop .body { font: 400 16px/1.35 var(--serif); }
+.pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; font: 400 15px/1.3 var(--serif); }
+.pop li { display: flex; gap: 9px; } .pop li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); margin-top: 8px; flex: none; }
+.sheet { padding: 16px 18px 18px; color: var(--ink); }
+.sheet .tabsrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.sheet h3 { margin: 2px 0 12px; font: 400 18px/1.22 var(--serif); }
+.sheet .mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; }
+.tabs span { padding: 6px 11px; font: 500 13px/1 var(--sans); color: var(--ink-2); }
+.tabs span.on { color: var(--ink); }
+.step { padding: 7px 10px; font: 400 13px/1.25 var(--sans); color: var(--ink); }
+
+/* buttons, tags */
+.btn { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border: 0; cursor: pointer; font: 500 15px/1 var(--sans); }
+.tag { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 15px; font: 500 13px/1 var(--sans); color: var(--ink-2); white-space: nowrap; }
+.tag b { font-weight: 500; color: var(--ink); }
+.row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+/* parts board */
+.sheetbg { position: absolute; left: 40px; top: 34px; right: 40px; bottom: 34px; }
+.partsgrid { position: absolute; left: 92px; top: 76px; right: 92px; bottom: 70px; display: grid; grid-template-columns: 1.15fr .85fr 1fr; gap: 44px; }
+.pcol { display: flex; flex-direction: column; gap: 30px; }
+.phead h1 { margin: 0; font: 400 36px/1.08 var(--serif); letter-spacing: -.012em; }
+.phead .lede { margin: 6px 0 0; font: italic 400 17px/1.4 var(--serif); color: var(--ink-2); }
+.cell { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.cell h2 { margin: 0; font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+.v-parts .sheet { width: 100%; }
+
+/* focus */
+.v-focus .veil { position: absolute; inset: 0; backdrop-filter: blur(4px); background: rgba(43,31,23,.16); }
+.doc { left: 170px; top: 36px; width: 1260px; height: 828px; padding: 46px 58px 42px; display: grid; grid-template-columns: 1fr 370px; gap: 50px; }
+.doc .main { display: flex; flex-direction: column; }
+.doc h1 { margin: 6px 0 4px; font: 400 34px/1.15 var(--serif); letter-spacing: -.012em; }
+.jr { display: grid; grid-template-columns: 150px repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.jr .h { font: 500 13px/1 var(--sans); color: var(--ink-3); padding: 0 2px 2px; }
+.jr .jw { font: 400 15px/1.2 var(--serif); align-self: center; }
+.jr .step { font-size: 14px; padding: 9px 12px; }
+.q { margin: 24px 0 18px; padding: 20px 24px; font: 400 24px/1.3 var(--serif); }
+.said { padding: 4px 0 4px 20px; font: italic 400 19px/1.45 var(--serif); }
+.doc .side { display: flex; flex-direction: column; gap: 13px; padding-top: 4px; }
+.doc .side .bubble { max-width: none; }
+.ta { margin-top: 6px; padding: 18px 20px; }
+.ta p { margin: 4px 0 0; font: 400 17px/1.4 var(--serif); }
+.ta p em { font: 500 13px/1 var(--sans); font-style: normal; color: var(--deep); display: block; margin-top: 10px; }
+.actions { margin-top: auto; display: flex; gap: 10px; }
+
+.motionrow { position: absolute; left: 92px; right: 92px; bottom: 70px; }
+.motionrow h2 { margin: 0 0 14px; font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
+.stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+.stage .decision { width: 100%; }
+.v-room .sheet .mini { grid-template-columns: 1.25fr .9fr 1fr; }
+.v-room .sheet .step { padding: 7px 8px; white-space: nowrap; }
+
+/* ---------- Inked glass: the painter drew a pane of glass ----------
+   Frosted panes that let the painting through at their edges (backdrop blur, a light rim, a sheen from the window),
+   a denser frost in the middle where the words sit, and one hand-inked brown line round each card. Every card wobbles
+   with its own turbulence seed; pills get a lighter, thinner line so twelve shapes never get busy.
+   Corners: 14 / 22 / 30 / 38 and pills. */
+:root {
+  --line: #4A3020;
+  --frost-core: rgba(255, 249, 238, .9);  /* where words sit */
+  --frost-mid: rgba(255, 249, 238, .44);
+  --frost-edge: rgba(255, 249, 238, .14);  /* the see-through rim */
+  --glass-blur: blur(12px) saturate(1.45) brightness(1.1);
+  --lift: 0 2px 4px rgba(60, 36, 18, .10), 0 14px 30px -16px rgba(60, 36, 18, .5);
+  --lift-hi: 0 3px 6px rgba(60, 36, 18, .12), 0 20px 40px -18px rgba(60, 36, 18, .55);
+}
+.s { position: relative; --r: 22px; border-radius: var(--r); isolation: isolate; box-shadow: var(--lift);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  transition: backdrop-filter .7s ease, -webkit-backdrop-filter .7s ease, box-shadow .5s ease, translate 180ms cubic-bezier(.16,1,.3,1), color .45s ease .1s; }
+/* the frost itself: dense in the middle, clear at the rim; a light rim and a sheen from the window, top left */
+.s::before { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; transition: opacity .7s ease;
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.14) 20%, rgba(255,255,255,0) 38%),
+    var(--frost-edge);
+  box-shadow: inset 0 0 0 1.2px rgba(255,255,255,.75), inset 1.5px 2px 0 rgba(255,255,255,.95), inset 0 -14px 22px -14px rgba(255,255,255,.55), inset 0 0 18px rgba(255,255,255,.25); }
+.s > svg.ol { position: absolute; left: -3px; top: -3px; overflow: visible; pointer-events: none; z-index: 2; }
+.s > svg.ol .line { fill: none; stroke: var(--line); stroke-width: 1.8; stroke-opacity: .88; stroke-linecap: round; stroke-linejoin: round; }
+.s > svg.ol .tail { fill: rgba(255, 249, 238, .82); stroke: var(--line); stroke-width: 1.8; stroke-opacity: .88; stroke-linejoin: round; }
+.s.light > svg.ol .line { stroke-width: 1.25; stroke-opacity: .5; }
+
+/* while the line is drawing: clear glass, no frost, no words yet */
+.s.drawing { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; color: transparent !important; }
+.s.drawing::before, .s.drawing::after { opacity: 0; }
+/* the frost where words sit: a soft pad inset from the rim, so a clear band of glass shows all the way round */
+.s::after { content: ''; position: absolute; inset: var(--pad, 10px); border-radius: calc(var(--r) - 6px); z-index: -1; pointer-events: none;
+  background: var(--tint-core, var(--frost-core)); filter: blur(var(--soften, 7px)); transition: opacity .7s ease; }
+.pill, .tag, .btn { --pad: 4px; --soften: 3px; }
+.bubble, .note, .decision { --pad: 8px; --soften: 6px; }
+.s.drawing > :not(svg) { opacity: 0; }
+.s > :not(svg) { transition: opacity .45s ease .1s; }
+
+/* pills */
+.pill { --r: 19px; background: none; }
+.pill:hover, .pill.is-hover { translate: 0 -2px; box-shadow: var(--lift-hi); }
+.pill:active { translate: 0 1px; }
+.pill .dot { background: var(--c); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.3); }
+.pill .agent { border-left: 1px solid rgba(74,48,32,.25); }
+.pill.is-talking .dot { box-shadow: 0 0 0 4px rgba(255,255,255,.7), 0 0 0 5.5px color-mix(in srgb, var(--c) 60%, transparent); }
+.pill.is-open { --tint-core: color-mix(in srgb, var(--soft) 82%, rgba(255,255,255,.1)); --tint-mid: color-mix(in srgb, var(--soft) 70%, transparent); }
+.pill.her { --tint-core: rgba(169, 72, 95, .92); --tint-mid: rgba(169, 72, 95, .86); --frost-edge: rgba(169, 72, 95, .7); color: #fff; }
+.pill.her .dot { background: #FFF6F4; color: #A9485F; box-shadow: none; }
+.pill.her .agent { color: rgba(255,255,255,.92); border-color: rgba(255,255,255,.35); font: italic 400 15px/1 var(--serif); }
+.pill.invite { color: #8E3A4E; --tint-core: rgba(255, 246, 244, .9); }
+.pill.invite .dot { background: #F8DCE1; box-shadow: inset 0 0 0 1.5px #D97F92; width: 18px; height: 18px; }
+
+/* cards */
+.bubble { --r: 20px; }
+.note { --r: 20px; --tint-core: color-mix(in srgb, var(--soft) 55%, rgba(255,249,238,.9)); }
+.note .lbl i { box-shadow: 0 0 0 3px rgba(255,255,255,.7); }
+.decision { --r: 22px; --tint-core: color-mix(in srgb, var(--soft) 60%, rgba(255,249,238,.9)); --tint-mid: color-mix(in srgb, var(--soft) 45%, rgba(255,249,238,.55)); }
+.who .marks i { box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+.pop { --r: 28px; }
+.sheet { --r: 30px; }
+.tabs { border-radius: 999px; background: rgba(255,255,255,.45); box-shadow: inset 0 0 0 1px rgba(74,48,32,.16); }
+.tabs span { border-radius: 999px; }
+.tabs span.on { background: rgba(255,252,246,.95); box-shadow: 0 1px 3px rgba(60,36,18,.18), inset 0 0 0 1.2px rgba(74,48,32,.5); }
+.step { border-radius: 14px; background: rgba(255, 253, 248, .82); box-shadow: inset 0 0 0 1px rgba(74,48,32,.16); }
+.step.hers { background: rgba(248, 220, 225, .9); box-shadow: inset 0 0 0 1px rgba(169,72,95,.4); }
+
+.btn { --r: 23px; background: none; }
+.btn.primary { --tint-core: rgba(59, 42, 32, .94); --tint-mid: rgba(59, 42, 32, .9); --frost-edge: rgba(59, 42, 32, .82); color: #FFF7EA; }
+.btn:hover { translate: 0 -2px; box-shadow: var(--lift-hi); }
+.btn:active { translate: 0 1px; }
+.tag { --r: 17px; }
+.tag.replay { --tint-core: rgba(242, 216, 154, .95); --tint-mid: rgba(242, 216, 154, .9); --frost-edge: rgba(242, 216, 154, .78); color: #4A3510; }
+.tag.replay .rdot { width: 7px; height: 7px; border-radius: 50%; background: #4A3510; }
+
+.sheetbg { --r: 40px; --tint-core: rgba(255, 249, 238, .74); --tint-mid: rgba(255, 249, 238, .6); --frost-edge: rgba(255, 249, 238, .34); }
+.doc { --r: 38px; --tint-core: rgba(255, 250, 241, .92); --tint-mid: rgba(255, 250, 241, .86); --frost-edge: rgba(255, 249, 238, .62); }
+.v-parts .cell .s, .doc .s { box-shadow: 0 1px 2px rgba(60,36,18,.08), 0 10px 22px -14px rgba(60,36,18,.4); }
+.q { border-radius: 24px; background: rgba(244, 231, 207, .75); }
+.said { box-shadow: inset 3px 0 0 #D97F92; }
+.ta { --r: 22px; --tint-core: rgba(248, 220, 225, .92); --tint-mid: rgba(248, 220, 225, .85); --frost-edge: rgba(248, 220, 225, .7); }
+.doc .side .bubble { --tint-core: rgba(255, 252, 246, .9); }
+.herlight { position: absolute; left: 523px; top: 600px; width: 340px; height: 290px; border-radius: 50%; mix-blend-mode: screen; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,228,200,.8), rgba(255,214,180,.28) 60%, rgba(255,200,160,0)); }
+.abs, .sheetbg, .v-room .pill { position: absolute !important; }
+@media (prefers-reduced-motion: reduce) { .s, .s::before, .s > * { transition: none !important; } }
+
+/* contrast on glass: labels one step darker than on paper; her pill and Replay are solid enough to carry text */
+:root { --ink-3: #66503F; }
+.lbl, .pill .agent, .jr .h, .cell h2, .motionrow h2 { color: #66503F; }
+.pill.her { --tint-core: #A9485F; --tint-mid: #A9485F; --frost-edge: rgba(169, 72, 95, .78); }
+.ta p em, .ta .lbl { color: #8C3449 !important; }
+.note .lbl, .bubble b { color: color-mix(in srgb, var(--deep) 72%, #000) !important; }
+
+.s.frosting { -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.s.frosting::before { opacity: .45; }
+.s.frosting > :not(svg) { opacity: .4; }
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><filter id="wob0" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob1" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob2" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob3" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob4" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob5" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="29" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob6" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob7" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob8" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob9" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob10" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="wob11" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<div class="canvas" id="c">
+  <div class="room" id="paint"></div>
+
+  <!-- ===================== PARTS ===================== -->
+  <section class="view v-parts">
+    <div class="sheetbg s" id="partsSheet"></div>
+    <div class="partsgrid">
+      <div class="pcol">
+        <div class="phead"><h1>Inked glass</h1><p class="lede">A pane of frosted glass, drawn by the painter: the room glows through the edges, the words sit on the frost.</p></div>
+        <div class="cell"><h2>Name pills · rest, hover, talking, left you a note</h2>
+          <div class="row">
+            <button class="pill s" data-who="mika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+            <button class="pill s is-hover" data-who="noor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+            <button class="pill s is-talking" data-who="theo"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+          </div>
+          <div class="row">
+            <button class="pill s has-note" data-who="ines"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+            <button class="pill s" data-who="bo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+          </div></div>
+        <div class="cell"><h2>Her seat · before setup, after</h2>
+          <div class="row">
+            <button class="pill s invite" data-who="her"><span class="dot"></span>Take your seat</button>
+            <button class="pill s her" data-who="her"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button>
+          </div></div>
+        <div class="cell"><h2>Buttons and quiet labels</h2>
+          <div class="row"><button class="btn s primary">Build it</button><button class="btn s quiet">Back to the room</button></div>
+          <div class="row"><span class="tag s"><b>21</b> handled by your team · <b>3</b> for you</span><span class="tag s replay">Replay</span></div></div>
+      </div>
+      <div class="pcol">
+        <div class="cell"><h2>Chatter</h2>
+          <div class="bubble s" data-who="bo"><b>Bo</b>Orders after 8pm miss the morning bake.</div></div>
+        <div class="cell"><h2>A note for her</h2>
+          <div class="note s" data-who="noor"><span class="lbl"><i></i>Noor</span>What sells out first, and what should we do about it?</div></div>
+        <div class="cell"><h2>Decided together</h2>
+          <div class="decision s" data-who="theo"><span>Orders close at 8pm for the next morning.</span>
+            <div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div></div>
+      </div>
+      <div class="pcol">
+        <div class="cell"><h2>A teammate’s work</h2>
+          <div class="pop s" data-who="noor">
+            <div class="head"><span class="dot"></span>Noor<span class="lbl">Research</span></div>
+            <span class="lbl k">Working on</span><div class="body">What sells out first at small bakeries</div>
+            <span class="lbl k">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
+        <div class="cell"><h2>Her sheet</h2>
+          <div class="sheet s" data-who="her">
+            <div class="tabsrow"><span class="lbl">By Noor and Mika</span><div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div>
+            <h3>A website for a small bakery, so customers can order bread ahead.</h3>
+            <div class="mini"><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span></div></div></div>
+      </div>
+    </div>
+    <div class="motionrow">
+      <h2>Signature motion · the ink line draws the pane, then the glass frosts in behind it</h2>
+      <div class="stages">
+        <div class="stage"><div class="decision s demo" data-who="theo" data-stage="0"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div></div>
+        <div class="stage"><div class="decision s demo" data-who="theo" data-stage="1"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div></div>
+        <div class="stage"><div class="decision s demo" data-who="theo" data-stage="2"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div></div>
+        <div class="stage"><div class="decision s demo" data-who="theo" data-stage="3"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROOM ===================== -->
+  <section class="view v-room">
+    <div class="herlight"></div>
+    <button class="pill s" data-who="mika" data-at="492,318"><span class="dot"></span>Mika<span class="agent">agent</span></button>
+    <button class="pill s is-open" data-who="noor" data-at="676,290" id="noorPill"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="pill s" data-who="theo" data-at="852,318"><span class="dot"></span>Theo<span class="agent">agent</span></button>
+    <button class="pill s" data-who="ines" data-at="1018,244"><span class="dot"></span>Ines<span class="agent">agent</span></button>
+    <button class="pill s is-talking" data-who="bo" data-at="1196,380"><span class="dot"></span>Bo<span class="agent">agent</span></button>
+    <button class="pill s her" data-who="her" data-at="693,714"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button>
+
+    <div class="abs sheet s room-sheet" data-who="her" style="left:668px;top:504px;width:372px;rotate:-1.4deg">
+      <div class="tabsrow"><span class="lbl">By Noor and Mika</span><div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div>
+      <h3>A website for a small bakery, so customers can order bread ahead.</h3>
+      <div class="mini"><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span></div></div>
+
+    <div class="abs bubble s side" data-who="bo" style="left:1270px;top:336px;width:256px"><b>Bo</b>Orders after 8pm miss the morning bake.</div>
+
+    <div class="abs decision s" data-who="theo" style="left:852px;top:684px;width:240px;rotate:1.8deg"><span>Orders close at 8pm for the next morning.</span>
+      <div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lbl">Bo, Ines and Mika</span></div></div>
+
+    <div class="abs note s" data-who="noor" style="left:600px;top:776px;width:228px;rotate:-2.5deg"><span class="lbl"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+
+    <div class="abs pop s up" data-who="noor" style="left:520px;top:58px;--tx:156px">
+      <div class="head"><span class="dot"></span>Noor<span class="lbl">Research</span></div>
+      <span class="lbl k">Working on</span><div class="body">What sells out first at small bakeries</div>
+      <span class="lbl k">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div>
+
+    <span class="abs tag s replay" style="right:22px;top:20px">Replay</span>
+    <span class="abs tag s" style="right:22px;bottom:20px"><b>21</b> handled by your team · <b>3</b> for you</span>
+  </section>
+
+  <!-- ===================== FOCUS ===================== -->
+  <section class="view v-focus">
+    <div class="veil"></div>
+    <div class="abs doc s" data-who="her" id="doc">
+      <div class="main">
+        <span class="lbl">From Noor and Mika · the rough journey</span>
+        <h1>A website for a small bakery, so customers can order bread ahead.</h1>
+        <div class="jr">
+          <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
+          <span class="jw">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span>
+          <span class="jw">Weekend crowd</span><span class="step">Browse pastries</span><span class="step">Order by Friday</span><span class="step">Collect Saturday</span>
+        </div>
+        <div class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</div>
+        <div class="said">Bread that’s still warm, and being known. The regulars come every morning, and they hate it when the sourdough’s gone by nine.</div>
+      </div>
+      <div class="side">
+        <span class="lbl">The team</span>
+        <div class="bubble s flat" data-who="mika"><b>Mika</b>Love that. Regulars first, their usual loaf one tap away.</div>
+        <div class="bubble s flat" data-who="bo"><b>Bo</b>Then we hold it for them till ten.</div>
+        <div class="bubble s flat" data-who="ines"><b>Ines</b>Regulars might want a standing weekly order. Show that first?</div>
+        <div class="ta s" data-who="her"><span class="lbl">Your takeaways</span>
+          <p>People come for bread that’s still warm, and for being known.</p>
+          <p><em>Guidance</em>Their usual loaf first, one tap away.</p></div>
+        <div class="actions"><button class="btn s primary">Send to the team</button><button class="btn s quiet">Back to the room</button></div>
+      </div>
+    </div>
+    <span class="abs tag s replay" style="right:22px;top:20px">Replay</span>
+  </section>
+</div>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+
+const q = new URLSearchParams(location.search);
+const c = document.getElementById('c');
+const view = q.get('view') || 'parts';
+const still = q.get('still') === '1';
+c.dataset.view = view;
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+$$('[data-at]').forEach(p => { const [x, y] = p.dataset.at.split(',').map(Number); p.style.left = (x - p.offsetWidth / 2) + 'px'; p.style.top = (y - 19) + 'px'; });
+const visible = el => el.offsetParent !== null || getComputedStyle(el).position === 'fixed';
+const order = () => {
+  if (view === 'room') return ['.v-room .pill', '.v-room .room-sheet', '.v-room .bubble', '.v-room .decision', '.v-room .note', '.v-room .pop', '.v-room .tag'].flatMap(s => $$(s));
+  if (view === 'focus') return ['#doc', '.v-focus .q', '.v-focus .bubble', '.v-focus .ta', '.v-focus .btn', '.v-focus .tag'].flatMap(s => $$(s));
+  return [$$('#partsSheet'), $$('.v-parts .partsgrid .s')].flat();
+};
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+
+// ---------- Inked glass: one hand-inked line round every pane, each with its own wobble ----------
+const NS = 'http://www.w3.org/2000/svg';
+let seed = 0;
+function ink(el) {
+  const w = el.offsetWidth, h = el.offsetHeight, r = Math.min(parseFloat(getComputedStyle(el).getPropertyValue('--r')) || 22, h / 2);
+  const f = `url(#wob${seed++ % 12})`;
+  if (el.classList.contains('pill') || el.classList.contains('tag')) el.classList.add('light');
+  const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'ol');
+  svg.setAttribute('width', w + 6); svg.setAttribute('height', h + 6);
+  let tail = '';
+  if (el.classList.contains('bubble') && !el.classList.contains('flat')) {
+    if (el.classList.contains('side')) tail = `<path class="tail" d="M4 22 C -6 26, -12 34, -16 38 C -6 36, 2 34, 6 40 Z"/>`;
+    else tail = `<path class="tail" d="M24 ${h + 1} C 22 ${h + 10}, 16 ${h + 16}, 10 ${h + 20} C 22 ${h + 18}, 32 ${h + 12}, 40 ${h + 1} Z"/>`;
+  }
+  if (el.classList.contains('pop')) { const tx = parseFloat(getComputedStyle(el).getPropertyValue('--tx')) || 40;
+    tail = `<path class="tail" d="M${tx - 10} ${h + 1} C ${tx - 6} ${h + 8}, ${tx} ${h + 14}, ${tx + 4} ${h + 18} C ${tx + 6} ${h + 12}, ${tx + 10} ${h + 6}, ${tx + 14} ${h + 1} Z"/>`; }
+  svg.innerHTML = `<g transform="translate(3 3)" style="filter:${f}"><rect class="line" x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="${r}" pathLength="1"/>${tail}</g>`;
+  el.prepend(svg);
+}
+$$('.tag.replay').forEach(t => { const d = document.createElement('i'); d.className = 'rdot'; t.prepend(d); });
+$$('.s').forEach(el => { if (visible(el)) ink(el); });
+$$('.demo').forEach(el => { const k = +el.dataset.stage; const off = [.7, .3, 0, 0][k];
+  $$('.line', el).forEach(l => { l.style.strokeDasharray = 1; l.style.strokeDashoffset = off; });
+  if (k < 2) el.classList.add('drawing'); if (k === 2) el.classList.add('frosting'); });
+
+// Signature motion: the ink line draws the pane, then the glass frosts in behind it and the words settle
+if (!still) {
+  const els = order().filter(e => !e.classList.contains('demo'));
+  els.forEach(el => { el.classList.add('drawing'); $$('.line, .tail', el).forEach(l => { l.style.strokeDasharray = 1; l.style.strokeDashoffset = 1; }); });
+  (async () => {
+    await wait(350);
+    for (const el of els) {
+      const big = el.offsetWidth > 600;
+      $$('.line', el).forEach(l => Motion.animate(l, { strokeDashoffset: [1, 0] }, { duration: big ? 1.2 : .7, ease: [.45, .05, .25, 1] }));
+      setTimeout(() => { $$('.tail', el).forEach(l => Motion.animate(l, { strokeDashoffset: [1, 0] }, { duration: .3 })); el.classList.remove('drawing'); }, big ? 850 : 450);
+      await wait(el.classList.contains('pill') ? 110 : 260);
+    }
+  })();
+}
+
+</script>
+</body>
+</html>
