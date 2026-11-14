@@ -54,7 +54,7 @@ test('4. at most three asks arrive, inside her work (fork or pin), never a pop-u
 });
 
 test('5. her pin -> "Sounds like" -> written to her file', async t => {
-  t.todo('pin "Never ask for a phone number. Regulars hate it."; reword; assert runs/<id>/taste.md has the new line');
+  t.todo('pin "Cut the phone field. Name's enough; regulars hate forms." on the confirm node; reword; assert runs/<id>/taste.md has the new line');
 });
 
 test('6. Build -> page reflects her choices; a decision cites her new line', async t => {

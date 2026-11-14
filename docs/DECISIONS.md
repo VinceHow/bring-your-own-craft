@@ -28,3 +28,7 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 12:29 | agents (lead) | fal still 401 in the lead session; test from a new session | docs: a new session picks up a saved secret |
 | Sat 12:30 | Vincent → agents (lead) | Builders as visible sessions: in-flight subagents finish their task first, then all new work as sessions | handover >15 min would risk 20:00 |
 | Sat 12:30 | agents (lead) | First builder session: judges' README, SUBMISSION.md, HOW-IT-WORKS (also tests fal) | needed by 07:00, no file overlap with live builders |
+| Sat 12:31 | Vincent | Standing rule: agents decide most things; only spending, real blockers and the 3 check-ins reach him | "this is a hack, its not that deep" |
+| Sat 12:31 | Vincent | Main track: Autonomous Agents; Figma via its connector for Best-Designed | |
+| Sat 12:32 | agents (lead) | fal stays off; the demo runs on the Claude Code backend | fal key 401 from a brand-new session too; Claude Code works; not worth more time |
+| Sat 12:33 | Vincent + PO | Close reordered (judge's idea first), she overrules once, new pin text | po/close-and-taste |
