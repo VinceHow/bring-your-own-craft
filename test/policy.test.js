@@ -39,7 +39,9 @@ test('the selector\'s picks go through the door as craft, never phrased as a que
   const r = await select({ run, idea: 'x', flow: { nodes: [], edges: [] }, taste: [], candidates: [c], callModel });
   assert.equal(r.asks.length, 1);
   assert.equal(r.asks[0].mode, 'craft');
-  assert.equal(r.asks[0].why.endsWith('?'), false);
+  // The ask is the Ask, never a form: no options, recommendation, kind or why on it (they stay on the candidate).
+  for (const k of ['options', 'recommendation', 'kind', 'why']) assert.equal(r.asks[0][k], undefined, k);
+  assert.equal(r.asks[0].question, 'What does this change for the people who book?');
 });
 
 test('refuse() can carry the selector\'s cited decision', () => {
