@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../ink-paper.css">
 <style>
 /* Her seat, the teammate popover and her workspace, in ink and paper (../ink-paper.css, ../ink-paper.js).
-   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 (&note=1 opens a meeting note) · &still=1. No params: the walk-through autoplays;
+   Views: ?seat=a|b|c &st=setup|choose|after|own|card|seated · &pop=noor|bo · &ws=1 (&note=1 opens a meeting note; &inprog=1 adds one left in progress) · &still=1. No params: the walk-through autoplays;
    ?flow=own autoplays the "your own craft" path (pick, her name once, one sentence, the team's spin as her card, seated).
    &name=Sam sets the name; &name= (empty) shows the skipped case, where the card says "You".
    Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
@@ -107,7 +107,22 @@ html, body { margin: 0; background: #2B1F17; }
 .mnote .thumb.journey { grid-template-columns: repeat(3, 1fr); } .mnote .thumb.journey i { border-radius: 3px; background: rgba(212,114,136,.35); }
 .mnote .thumb.journey i:nth-child(n+3) { background: rgba(84,58,38,.14); }
 .mnote .thumb.finding i { height: 5px; border-radius: 3px; background: var(--c); align-self: center; } .mnote .thumb.finding i:nth-child(2) { width: 80%; } .mnote .thumb.finding i:nth-child(3) { width: 45%; }
-.mnote { position: relative; }
+.mnote { position: relative; overflow: visible; }
+/* the reviewed mark, shared with the wrap-up page and the room (design/loop her-page.html .reviewed) */
+.reviewed { position: absolute; right: -18px; top: -16px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 7px; rotate: 6deg; border-radius: 16px; z-index: 2;
+  background: var(--ip-paper-her); box-shadow: inset 0 0 0 1.5px rgba(147,55,79,.55), 1px 2px 3px rgba(60,35,15,.25); font: 500 13px/1 var(--ip-sans); color: var(--ip-her-t); white-space: nowrap; }
+.reviewed svg { width: 15px; height: 15px; fill: none; stroke: var(--ip-her-t); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mnote .thumb { overflow: visible; }
+.mnote .reviewed.sm { position: absolute; left: 4px; right: auto; top: 50px; padding: 4px 6px; gap: 0; rotate: -6deg; }
+.mnote .reviewed.sm svg { width: 15px; height: 15px; }
+.mnote .reviewed.sm .rt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.mnote { min-height: 96px; }
+
+.mnote .kept { font: italic 400 14px/1.3 var(--ip-serif); color: var(--ip-ink-2); }
+.mnote.inprog { background: transparent; box-shadow: inset 0 0 0 1px var(--ip-rule); }
+.mnote .thumb.wire { grid-template-columns: 1fr; } .mnote .thumb.wire i { height: 6px; border-radius: 3px; background: rgba(84,58,38,.16); }
+.mopen .changed li em { font: normal 500 13px/1 var(--ip-sans); color: var(--ip-ink-2); margin-right: 6px; padding-top: 3px; }
+.mopen .snap { position: relative; }
 .mnote .title { padding-right: 52px; }
 .mnote .mt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .mnote .title { display: flex; align-items: center; gap: 7px; font: 400 17px/1.2 var(--ip-serif); }
@@ -181,7 +196,7 @@ html, body { margin: 0; background: #2B1F17; }
 .ws { position: absolute; left: 96px; top: 34px; width: 1408px; height: 832px; border-radius: 36px; padding: 34px 40px 28px; z-index: 7;
   display: grid; grid-template-columns: 300px 1fr 330px; grid-template-rows: 1fr auto; gap: 26px 34px; box-shadow: var(--ps-lift-3); }
 .ws h4 { margin: 0 0 10px; font: 500 13px/1.2 var(--ps-sans); color: var(--ps-ink-3); }
-.ws .col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.ws .col { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: visible; }
 .ws .me { padding: 18px 18px 18px; border-radius: var(--ps-r-md); background: var(--ps-her-soft); }
 .ws .me .row { display: flex; align-items: center; gap: 12px; }
 .ws .me .seal { width: 44px; height: 44px; border-radius: 50%; background: var(--ip-her-t); color: #fff; display: grid; place-items: center; font: 500 20px/1 var(--ps-serif); box-shadow: inset 0 -3px 0 rgba(0,0,0,.1); }
@@ -209,7 +224,7 @@ html, body { margin: 0; background: #2B1F17; }
 .ws .foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding-top: 18px; box-shadow: inset 0 1px 0 var(--ps-rule); }
 .ws .foot .close { margin-left: auto; }
 .ws .foot .lab { font-size: 14px; }
-.ws .decision { width: auto; font-size: 15px; padding: 12px 14px 12px; }
+.ws .decision { width: auto; font-size: 15px; padding: 10px 14px 10px; }
 .ws .decision .by { margin-top: 7px; }
 .ws .decision .by .marks i { width: 16px; height: 16px; }
 .ws .ta { padding: 14px 16px 15px; border-radius: var(--ps-r-md); background: var(--ps-her-soft); }
@@ -335,10 +350,13 @@ html, body { margin: 0; background: #2B1F17; }
       <div class="gap"></div>
       <h4>Meeting notes</h4>
       <!-- past reviews, newest first: the question, the work it was about, her one-line belief. Shape agreed with the wrap-up page. -->
-      <button class="mnote" data-who="noor" id="mn1"><span class="thumb finding"><i></i><i></i><i></i></span>
+      <button class="mnote inprog hide" data-who="mika" id="mn0"><span class="thumb wire"><i></i><i></i><i></i></span>
+        <span class="mt"><span class="title"><i class="cd"></i>How ordering should feel</span><span class="lab">Mika · in progress</span>
+        <span class="kept">Your pieces are kept</span></span><span class="open">Open</span></button>
+      <button class="mnote" data-who="noor" id="mn1"><span class="thumb finding"><span class="reviewed sm" title="Reviewed with you"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg><span class="rt">Reviewed with you</span></span><i></i><i></i><i></i></span>
         <span class="mt"><span class="title"><i class="cd"></i>Holding the regulars’ loaves</span><span class="lab">Noor’s finding · one round</span>
         <span class="bel">Hold the regulars’ loaves first. Never sell out on them.</span></span><span class="open">Open</span></button>
-      <button class="mnote" data-who="mika" id="mn2"><span class="thumb journey"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <button class="mnote" data-who="mika" id="mn2"><span class="thumb journey"><span class="reviewed sm" title="Reviewed with you"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg><span class="rt">Reviewed with you</span></span><i></i><i></i><i></i><i></i><i></i><i></i></span>
         <span class="mt"><span class="title"><i class="cd"></i>What brings people in</span><span class="lab">Noor and Mika’s rough journey · one round</span>
         <span class="bel">People come for bread that’s still warm, and for being known.</span></span><span class="open">Open</span></button>
     </div>
@@ -349,7 +367,7 @@ html, body { margin: 0; background: #2B1F17; }
       <h2>Holding the regulars’ loaves</h2>
       <p class="asked">Noor asked: What sells out first, and what should we do about it?</p>
       <div class="mgrid">
-        <div class="snap card" data-who="noor"><span class="lab"><i></i>Noor’s finding, as you saw it</span>
+        <div class="snap card" data-who="noor"><span class="reviewed"><svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" pathLength="1"/></svg>Reviewed with you</span><span class="lab"><i></i>Noor’s finding, after</span>
           <p>At small bakeries, sourdough and morning buns sell out first, often before nine. Regulars feel it most.</p>
           <div class="bars"><span style="--w:92%">Sourdough</span><span style="--w:78%">Morning buns</span><span style="--w:41%">Rye</span><span style="--w:22%">Pastries</span></div>
           <span class="lab src">Two sources: baker interviews, a bakery forum thread</span></div>
@@ -357,9 +375,9 @@ html, body { margin: 0; background: #2B1F17; }
           <div class="take"><span class="lab">What I believe <button class="reword">Reword</button></span><p class="b">Hold the regulars’ loaves first. Never sell out on them.</p>
             <span class="lab" style="margin-top:12px;display:block">Guidance</span><p>Their usual loaf is set aside at 7am; walk-ins get the rest.</p></div>
           <div class="changed"><span class="lab">What changed in the work</span>
-            <ul><li data-who="bo">Bo reserves a regular’s loaf the moment the order lands</li><li data-who="ines">Ines added a standing weekly order</li></ul>
-            <span class="lab" style="margin-top:10px;display:block">The round</span>
-            <p class="round">You said the sourdough’s gone by nine; Noor’s two sources agreed; the team moved the hold to 7am.</p></div>
+            <ul><li data-who="bo"><em>Added</em>Bo reserves a regular’s loaf the moment the order lands</li><li data-who="noor"><em>Cut</em>Noor dropped pastries from the sell-out list</li></ul>
+            <span class="lab" style="margin-top:10px;display:block">Each round</span>
+            <p class="round">You said regulars should never miss their loaf; Bo said he’d hold it when the order lands.</p></div>
           <button class="btn quiet">Read the conversation</button>
         </div>
       </div>
@@ -528,6 +546,7 @@ html, body { margin: 0; background: #2B1F17; }
   async function openNote() { const m = $('#mopen'); show(m); m.querySelectorAll('.pane').forEach(InkPaper.redraw); InkPaper.redraw(m);
     if (!still) { InkPaper.lay(m); m.querySelectorAll('.pane').forEach((el, i) => InkPaper.lay(el, .25 + i * .1)); } }
   $('#mn1').addEventListener('click', openNote);
+  if (q.get('inprog')) show($('#mn0'));
   $('#mclose').addEventListener('click', () => hide($('#mopen')));
 
   /* ---------- views ---------- */
