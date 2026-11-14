@@ -67,13 +67,27 @@ the claim.
   invisible (it only powers the real numbers). But the work that matters is kept, and **the teammates decide what's
   worth keeping themselves**: her user journey and Design's key screens stay on the table as real artifacts she can
   come back to; she's never asked to file, approve or tidy anything.
-- **A focus moment: one question, one piece of work.** When she opens a question, the room clears and two things fill
-  her view: the work it's about, large (the journey, a finding, the wireframes), labelled with who proposed it only if
-  that's true; and **one thoughtful question** under it, in plain words, the way a great teammate asks it in a meeting.
-  **No options, no branches, no recommendation, no "why it's yours".** She talks (or types); her words land on the work
-  as she said them. Then **one or two teammates react**, a line or two each, with what they'll do and what changes;
-  the work updates in front of her. A reaction only promises what the build will really show; anything else is
-  "noted for later".
+- **A focus moment: her moment in the meeting** (Vincent, 14 Nov: the feel, not stage directions). She opens a note
+  from her tray and **a document opens**: the work to review (the journey, a finding, the wireframes), labelled with
+  who proposed it only if true, and **one big question**, in plain words. No options, no recommendation. The feel:
+  a safe room of capable people, and this is the thing she knows inside out, so she says her piece with confidence.
+  **How she engages with that document is where the polish goes:**
+  1. **She speaks her piece**, a real paragraph (or types it); her words land on the document as she said them.
+  2. **The team chimes in**, one teammate after another, about a second apart, as soon as she finishes: each a line
+     with its own real finding or what it will now do (*Noor: "That matches what small studios report."* *Mika:
+     "Then their usual class goes first, one tap."*). Streamed from one call, so it feels live and is true. Reacting
+     mid-sentence is the vision, not tonight. Every line comes from the run; reactions only promise what the build
+     will show.
+  3. **Her brief appears**: a short, beautiful summary of what she said, in her voice, that she can reword:
+     **what I believe** (her philosophy), **why** (the thinking underneath), **guidance to the team** (exactly what
+     to do). Not a template look; it should read like the best summary a great colleague would write.
+  4. **The team gets to work** on it, visibly, and the document updates in front of her.
+  - **Her briefs build up into her file**: the "file of your own philosophy you never had to write". The *what I
+    believe* line replaces the separate "Sounds like" step; rewording it works the same; her Stance slot fills from it.
+  - **On stage:** focus moment 1 in full (her paragraph, the team chiming in, her brief, the team to work); moments 2
+    and 3 short (a sentence or two; the brief updates).
+  - Builders: no literal staging (no cards turning, no spotlight); spend the time on the document, her words landing,
+    the chime-ins and the brief.
 - **The question bar** (what reaches her at all):
   1. **Big:** the answer changes the shape of the product (who it's for, the problem, the feel, the promise), not a
      setting on it.

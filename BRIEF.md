@@ -71,7 +71,10 @@ real run.
 8. **Focus moments (replaces forks and pins; Vincent, 14 Nov):** an Ask becomes `{ question, artifact, by? }`: one
    open, natural question attached to one piece of work (journey, finding, wireframes), no options or recommendation.
    Her spoken or typed answer → one call that (a) maps it onto the template's options and decisions and (b) writes 1–2
-   teammate reactions that promise only what the build will show. The work updates. Overrule, YOUR CALL and
+   teammate reactions that promise only what the build will show, streamed one after another as she finishes, and (c)
+   writes her brief (what I believe / why / guidance to the team), rewordable; briefs build up into her file and
+   replace the separate "Sounds like" step. The work updates. Polish goes into her engagement with the document, not
+   literal staging. On stage: moment 1 in full, moments 2–3 short. Overrule, YOUR CALL and
    strike-through are cut. Unanswered at Build → decided by the team.
 9. **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
    sentence + profile), natural, page can show it. Granular candidates are always decided. Ceiling of 3 and its test
