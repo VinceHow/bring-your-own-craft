@@ -743,3 +743,9 @@ html #room .her-sheet[data-open="true"] .fl-box { position: absolute !important;
 html #room .her-sheet[data-open="true"] .fl-box .fl-label { font: 500 17px/1.25 var(--ui) !important; white-space: normal; }
 html #room .her-sheet[data-open="true"] .fl-box:nth-of-type(n+5) { display: revert !important; }
 html #room .her-sheet[data-open="true"] .fl-box { width: 200px !important; box-sizing: border-box; }
+
+/* TASTE.md (Vincent): no glows, rings or hover halos. The working pill's breathing ring and her seat's pulsing dot
+   are gone; a pill shows it is working through the living painting itself. Hover stays a small lift. */
+html #room .seat .card .card-band::before, html #room .seat-product .seat-empty::before { animation: none !important; }
+html #room .seat .card[data-state="working"] .card-band::before, html #room .seat .card[data-state="thinking"] .card-band::before { box-shadow: none !important;
+  -webkit-mask: var(--wax) 0 0 / 120px 120px; mask: var(--wax) 0 0 / 120px 120px; }
