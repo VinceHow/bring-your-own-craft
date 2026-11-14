@@ -40,7 +40,7 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
 .purr { position: absolute; left: 170px; top: 64px; padding: 5px 10px 6px; border-radius: 999px; background: rgba(251,244,230,.86); font: italic 400 17px/1 var(--serif); color: #6B3E22; opacity: 0; pointer-events: none; }
 
 /* ---------- 2. the coffee ---------- */
-.machine-hit { position: absolute; left: 37px; top: 67px; width: 292px; height: 380px; cursor: pointer; border-radius: 12px; }
+.machine-hit { position: absolute; left: 0px; top: 200px; width: 290px; height: 250px; cursor: pointer; border-radius: 12px; }
 .cup-wrap { position: absolute; left: 0; top: 0; width: 64px; opacity: 0; pointer-events: none; }
 .cup-wrap img { width: 100%; display: block; }
 /* the drink surface: shown as an empty cup interior, then espresso, then (fading both) the painted heart */
@@ -51,8 +51,8 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
 .grounds i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #5B3A22; opacity: 0; }
 .steam { position: absolute; width: 60px; height: 70px; opacity: 0; pointer-events: none; }
 .steam path { fill: none; stroke: rgba(255,250,240,.85); stroke-width: 3; stroke-linecap: round; }
-#ines { left: 553px; top: 330px; width: 314px; transform: scaleX(-1); pointer-events: none; }
-.note { position: absolute; left: 232px; top: 384px; width: 178px; padding: 11px 13px 12px 14px; opacity: 0; pointer-events: none;
+#ines { left: 553px; top: 330px; width: 300px; scale: -1 1; /* mirrored, so Motion's x runs the other way */ pointer-events: none; }
+.note { position: absolute; left: 204px; top: 452px; width: 184px; padding: 11px 13px 12px 14px; opacity: 0; pointer-events: none;
   background: #FBF4E6; border-radius: 3px; border-left: 4px solid var(--ines); rotate: -3.5deg;
   box-shadow: 0 1px 1px rgba(60,35,15,.25), 0 8px 16px -8px rgba(60,35,15,.45);
   font: 400 15px/1.32 var(--serif); color: var(--ink); }
@@ -119,8 +119,9 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
         <div class="surface espresso" id="espresso"></div>
       </div>
       <svg class="steam" id="steam" viewBox="0 0 60 70"><path d="M20 66c-8-10 8-16 0-28s6-18 2-30"/><path d="M38 66c-7-9 7-14 0-25s5-15 2-24" opacity=".7"/></svg>
-      <div class="note" id="note"><div class="from"><i></i>Ines</div>For when you have a minute: what do people come here for that the supermarket can’t give them?</div>
+      <!-- Ines, explorer look (Vincent, 14 Nov); swap this one sprite if the look changes -->
       <img class="sprite" id="ines" src="../cast/toys/ines-note.webp" alt="">
+      <div class="note" id="note"><div class="from"><i></i>Ines</div>For when you have a minute: what do people come here for that the supermarket can’t give them?</div>
       <div class="machine-hit" id="machine" aria-label="Espresso machine. Click to make a coffee."></div>
       <div class="steps" id="steps"><span data-s="1">Grind</span><span data-s="2">Brew</span><span data-s="3">Milk</span></div>
     </div>
@@ -206,12 +207,12 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
   /* ---------------- 2. the coffee ---------------- */
   const cup = $('#cup'), stream = $('#stream'), espresso = $('#espresso'), inside = $('#inside'), steam = $('#steam'),
         ines = $('#ines'), note = $('#note'), grounds = $('#grounds');
-  const SPOUT = { x: 190, y: 352 }, TRAY = { x: 190, y: 427 }, FRONT = { x: 150, y: 596 };
-  const CUP_SMALL = 74, CUP_BIG = 190;
+  const SPOUT = { x: 153, y: 369 }, TRAY = { x: 153, y: 440 }, FRONT = { x: 104, y: 560 };
+  const CUP_SMALL = 70, CUP_BIG = 168;
   const place = (w, c) => ({ left: (c.x - w / 2) + 'px', top: (c.y - w * 542 / 640) + 'px', width: w + 'px' });
   Object.assign(cup.style, place(CUP_SMALL, TRAY));
   Object.assign(stream.style, { left: (SPOUT.x - 2) + 'px', top: SPOUT.y + 'px', height: (TRAY.y - CUP_SMALL * .78 - SPOUT.y) + 'px' });
-  for (let i = 0; i < 10; i++) { const g = document.createElement('i'); g.style.left = (78 + (i % 5) * 3) + 'px'; g.style.top = '350px'; grounds.appendChild(g); }
+  for (let i = 0; i < 10; i++) { const g = document.createElement('i'); g.style.left = (234 + (i % 5) * 3) + 'px'; g.style.top = '350px'; grounds.appendChild(g); }
   let step = 0, coffeeBusy = false, noteLeft = false;
   const setStep = n => document.querySelectorAll('#steps span').forEach(s => s.classList.toggle('now', +s.dataset.s === n));
   setStep(1);
@@ -220,12 +221,12 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
     if (noteLeft) return; noteLeft = true;
     if (still) { go(note, { opacity: 1 }, {}); return; }
     animate(ines, { y: [0, -6, 0, -6, 0, -6, 0] }, { duration: 1.8, ease: 'easeInOut' });
-    await animate(ines, { x: [0, -165] }, { duration: 1.8, ease: [.25, .1, .25, 1] }).finished;
+    await animate(ines, { x: [0, 320] }, { duration: 1.8, ease: [.25, .1, .25, 1] }).finished;
     await wait(250);
-    animate(note, { opacity: [0, 1], x: [70, 0], y: [-30, 0], rotate: [6, 0] }, spring(1.1));
+    animate(note, { opacity: [0, 1], x: [30, 0], y: [40, 0], rotate: [6, 0] }, spring(1.1));
     await wait(1100);
     animate(ines, { y: [0, -6, 0, -6, 0, -6, 0] }, { duration: 2.2, ease: 'easeInOut' });
-    await animate(ines, { x: [-165, 40] }, { duration: 2.2, ease: [.42, 0, .58, 1] }).finished;
+    await animate(ines, { x: [320, -40] }, { duration: 2.2, ease: [.42, 0, .58, 1] }).finished;
   }
   async function nextCoffee() {
     if (coffeeBusy) return; coffeeBusy = true;
