@@ -33,14 +33,16 @@ The presenter's lines are in the PO's demo doc (Vincent has it). Keyboard-driven
 | **0:22–0:30** First move | A blank sheet in front of her: **"What are we building today?"** She writes: "A booking page for a small yoga studio." | live |
 | **0:30–0:55** Her journey | She writes one line a step; each becomes a box with arrows: classes → a class → confirm → booked; regulars → "Book your usual". | live |
 | **0:55–1:10** Team works | Sheets fill at each seat; a counter rolls: **"23 decisions came up · 3 brought to you"** (real numbers). | live |
-| **1:10–1:45** Her three | **In her work**: a fork on her flow, a pin on a box, each with a recommendation and reason (in rehearsal: a waitlist, backed by Research's sourced finding; how a regular is recognised; what confirm asks for). **The run picks them.** She takes one branch. | live |
-| **1:45–2:05** Her taste, named | Design's grey sketches slide over. She pins: *"Never ask for a phone number. Regulars hate it."* Her file card: **"Sounds like: never ask for what you could remember."** She rewords it (*"…anything you could remember or skip"*); it writes into her file. | live |
+| **1:10–1:45** Her three | **In her work**: a fork on her flow, a pin on a box, each with a recommendation and reason (in rehearsal: a waitlist, backed by Research's sourced finding; how a regular is recognised; what confirm asks for). **The run picks them.** At least once she overrules the team: the other branch is marked **YOUR CALL**, the recommendation struck through, and the page follows her. | live |
+| **1:45–2:05** Her taste, named | Design's grey sketches slide over. She pins a call on confirm, not a principle: *"Cut the phone field. Name's enough; regulars hate forms."* Her file card: **"Sounds like: never ask for what you could remember."** She rewords it (*"…anything you could remember or skip"*); it writes into her file. | live |
 | **2:05–2:30** Build | One press; Engineering's sheet ticks through the build. She taps the counter: why her three made the cut; for each of the rest, the line of her file that decided it. | **live**, from her answers |
-| **2:30–2:42** Her page | Regulars first, no phone field, her words. Under it, "decided for you": cancel is one tap, no reason asked, **citing the line she wrote a minute ago**. | live |
-| **2:42–2:52** Not scripted | Another idea in the same seat, "a pre-order page for a café's morning pastries", with three different questions. | **REPLAY** of a real run |
-| **2:52–3:00** Close | **A judge's idea, live:** a judge gives an idea, I type it, the room shows the three questions it would bring a product person (selector only, seconds; the café replay is the fallback). Then the contrast, from the real baseline: **"A default coding agent asked 0 questions and guessed N things about your studio"** (N counted from its transcript in `docs/baseline/`) beside her **3 asked, M decided from her file**. Last line, true: this project was built the same way (`BUILT-THIS-WAY.md`). | live / real counts |
+| **2:20–2:32** Her page | Regulars first, no phone field, her words, her overruled call. Under it, "decided for you": cancel is one tap, no reason asked, **citing the line she wrote a minute ago**. | live |
+| **2:32–3:00** Close (28 s) | **A judge's idea, live:** a judge gives an idea, I type it, the team starts (selector only, ~15 s). **While it runs**, the contrast from the real baseline: **"A default coding agent asked 0 questions and guessed 22 things about your studio"** (`docs/baseline/GUESSES.md`) beside her **3 asked, M decided from her file**. Then the judge's three questions land, with counter and reasons. Last line, true: this project was built the same way (`BUILT-THIS-WAY.md`). | live / real counts |
 
-**Slow build:** reasons until ~2:40, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
+The café run ("a pre-order page for a café's morning pastries") is no longer a beat: it's the **fallback** for the
+judge's idea, REPLAY of a real run. Earlier beats are each a few seconds shorter to make room (see `DEMO.md`).
+
+**Slow build:** reasons until ~2:25, then the rehearsal build, labelled REPLAY. **Every number is a placeholder**
 until a real run makes it; the baseline is a plain coding-agent run on the same prompt (`docs/baseline/`): it asked 0 and guessed everything, so the close counts its guesses. A weak pick in
 rehearsal means fixing the ranking, never the script.
 
