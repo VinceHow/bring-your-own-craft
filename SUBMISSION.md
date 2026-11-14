@@ -32,7 +32,8 @@ everything else themselves, and each decision cites the line of her own file tha
 Her file is her product philosophy, a few lines long. She never writes it. She makes a call on her work and pins it
 ("Cut the phone field. Name's enough; regulars hate forms."), and the team names the principle behind it ("Sounds
 like: never ask for what you could remember"). She rewords it, and it is written into her file. Then she presses
-Build and gets her booking page, with a step she never touched following the rule she just wrote.
+Build and gets her booking page, with a step she never touched following the rule she just wrote. [The Build step
+and the page are in progress at the time of writing; update this once they run.]
 
 A different idea gets different questions. At the close, a judge gives us an idea live, and the agents bring the
 three questions they would ask a product person, in about 15 seconds.
@@ -50,6 +51,7 @@ three questions they would ask a product person, in about 15 seconds.
   lets one through. A question in a teammate's plain text counts as a stamp.
 - One event log per run. The counter, the reasons and the IN YOUR CRAFT % meter are computed from it.
 - The page is a template built ahead of time with taste-skill, then filled live from her flow, answers and file.
+  [In progress at the time of writing: the template and the live fill.]
 - The room's look is a risograph print: paper, ink, one ink per seat, hard shadows. Springs from the `motion` library.
 - We built it the same way: Vincent sat in the Product seat, and a lead agent and four builder agents built the
   pieces in parallel against a written contract, each change reviewed by an agent that didn't write it. Who decided
@@ -66,7 +68,7 @@ three questions they would ask a product person, in about 15 seconds.
 - A fair baseline. Headless mode can't show questions, so we ran the default agent a second time, interactively, with
   a script answering every dialog. It still asked 0.
 - We planned a second backend through fal on the user's own key. The key never reached our build sessions (401
-  every time), so we switched it off and run on Claude Code.
+  every time), so it is not the default, and not used on the day; we run on Claude Code.
 
 ## Accomplishments that we're proud of
 - The cap of three is enforced in code and tested: a fourth never gets through.

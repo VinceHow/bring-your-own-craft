@@ -30,7 +30,8 @@ Your file is a short list of your own principles. It grows from your decisions: 
 suggests a "Sounds like" line; you keep it or reword it, and it is written to the file. You never fill in a
 questionnaire.
 
-At the end you get a booking page built from your flow, your answers and your file.
+At the end you get a booking page built from your flow, your answers and your file (the build is in progress; see
+below).
 
 ## How it works
 ```
@@ -79,8 +80,8 @@ npm run e2e      # walks the yoga script through the real UI in Chromium (Playwr
 - `claude-code` (default): Claude Code run headless (`claude -p`), with our own system prompt, no tools and no
   project files loaded. It uses the machine's own Claude Code login, so no key is needed.
 - `fal`: code for Claude through fal's OpenRouter router on your own key (`FAL_KEY`) exists and is covered by the
-  leak test against a fake fal, but it is **not used**: it never ran against the real fal service, and we switched
-  it off. The demo runs on `claude-code`.
+  leak test against a fake fal, but it is **not used**: it never ran against the real fal service, and it is
+  not the default, and not used on the day. The demo runs on `claude-code`.
 
 ## What's real and what's prepared
 **Real, and tested:**
@@ -98,18 +99,18 @@ npm run e2e      # walks the yoga script through the real UI in Chromium (Playwr
 - The page templates and their booking logic. The build fills them; it doesn't write new code.
 - The first two lines of her file ("prepared for the demo").
 - Research's finding, gathered before the demo from a real source, with its URL (`data/research-finding.json`).
-- The café idea, a recorded real run, shown only if a judge's live idea fails (REPLAY), and the rehearsal run, used
-  only as a fallback (REPLAY).
 
 **In progress at the time of writing** (not yet merged to `main`): the page templates and the live fill
-(`lib/fill.js`, `routes/build.js`, `routes/book.js`), and the e2e steps from "asks arrive" to "counter matches the
+(`lib/fill.js`, `routes/build.js`, `routes/book.js`); the recorded café run (the REPLAY fallback if a judge's live
+idea fails) and the rehearsal run (the REPLAY fallback for any live beat), both to be committed under `runs/`; and
+the e2e steps from "asks arrive" to "counter matches the
 log", which are marked pending in `e2e/yoga.e2e.js`.
 
 ## Built with: APIs, models and open-source
 | What | Used for | Licence |
 |---|---|---|
 | Claude Code, headless (`claude -p`) | the model backend that runs in the demo; teammates, selector and "Sounds like" use Claude Sonnet (Claude Code's `sonnet` alias) at low effort | Anthropic commercial terms; not redistributed |
-| [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | builds the page templates in a separate folder; its design rules guide the room's look. Kit files vendored in `vendor/taste-skill/` (upstream `f6b7657`) with its licence. Never installed in this repo. | MIT |
+| [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | builds the page templates in a separate folder; its design rules guide the room's look. Its kit files and licence arrive in `vendor/taste-skill/` with the page build (in progress). Never installed in this repo. | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
 | [`motion`](https://motion.dev) 14.14.0 | springs for the room's animation; copied to `public/vendor/motion/` for offline use | MIT |
 | Archivo Black, via [@fontsource](https://fontsource.org) | display type | SIL OFL 1.1 (`public/fonts/LICENSE-archivo-black.txt`) |
@@ -118,7 +119,7 @@ log", which are marked pending in `e2e/yoga.e2e.js`.
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-Not used: fal and OpenRouter (an optional backend is in `lib/model.js`, switched off). No paid APIs beyond the
+Not used: fal and OpenRouter (an optional backend is in `lib/model.js`; not the default, and not used on the day). No paid APIs beyond the
 Claude Code login.
 
 Datasets: none. Research's one finding is a public web page, cited with its URL in `data/research-finding.json`.
