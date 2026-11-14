@@ -72,6 +72,8 @@ Who adds the attributes, file by file:
 
 | Component | Root hook | `data-state` | `data-slot`s | Events |
 |---|---|---|---|---|
+| `team-status` (the team is starting: never a silent wait) | `#team-status[role=status]` after her form ✅ (also `#room[data-team]`) | `idle` · `working` (within a frame of "team, go"; "… are on it… 2 of 5 done") · `slow` (no teammate reported in 15 s; `?teamslow=<ms>`) · `failed` (a plain line) · `done` | `text`, `retry` (`.team-retry`) | on `teammate.done`, `teammate.error`, `select.done`, `propose.error`; `BYOC.teamGo()` |
+| `team-go` (the click path for "team, go") | `button#team-go.team-go` in her form ✅ | shown while she shapes the journey | | "Team, go →"; a short go-phrase ("Sounds good. Let's build it") in her field counts as go too (`BYOC.isGo`) |
 | `inbox` (her inbox by her seat; replaced the tray) | `aside#inbox.inbox` ✅ | `collapsed` · `expanded` (and `data-needs` = `yes`·`no`) | `now` (the one item, or "Nothing needs you right now"), `toggle`, `drawer`; parts `needs` · `only-you` · `meetings` (each `[data-part]` with `title`, `body`), `next` (the folded rest), `empty` | on `owner.task`, `stage`, `reset`; reads `BYOC.focus.waiting` via room.js |
 | `inbox-item` (one thing that needs her) | `.inbox-item[data-ask][data-seat]` ✅ | `top` · `folded` | `who`, `text` | click opens it as her document |
 | `owner-task` (a thing only she can do) | `article.inbox-task[data-task]` ✅ | `todo` · `doing` · `done` | `title`, `steps` > `step` (each `data-state` todo·done, with a `tick` box); never a text or key field | on `owner.task` `{ id, title, steps[] }` |

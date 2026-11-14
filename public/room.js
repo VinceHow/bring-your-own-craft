@@ -181,6 +181,7 @@
     herForm: $('#her-form'),
     herInput: $('#her-input'),
     herHint: $('#her-hint'),
+    teamGoBtn: $('#team-go'),
     fileCard: $('#file-card'),
     fileLines: $('#file-lines'),
     fileNote: $('#file-note'),
@@ -462,6 +463,7 @@
     const inp = el.herInput;
     if (mode === 'idea') { inp.placeholder = 'Write the idea'; el.herHint.textContent = 'Enter to write it down'; }
     if (mode === 'line') { inp.placeholder = 'One step of the journey'; el.herHint.textContent = 'Enter for each step · empty Enter: team, go'; }
+    if (el.teamGoBtn) el.teamGoBtn.hidden = mode !== 'line';
     el.herForm.hidden = mode === 'off' || BYOC.replay;
     if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
   }
@@ -516,25 +518,80 @@
   }
   // The team's work arrives as events; the step stays up until the selector is done (or the team stops).
   let teamStep = null;
+  // "Team, go": always visible the moment it starts, never a silent wait. #team-status[data-component="team-status"]
+  // data-state: idle · working · slow (no teammate has reported in 15 s) · failed (a plain line and Retry) · done.
+  // The room also carries data-team="working|failed|done" for design.
+  const TEAM_SLOW_MS = Number(new URLSearchParams(location.search).get('teamslow')) || 15000; // ?teamslow=<ms> to test
+  const teamStatusEl = h('div', 'team-status');
+  teamStatusEl.id = 'team-status'; teamStatusEl.dataset.component = 'team-status'; teamStatusEl.dataset.state = 'idle';
+  teamStatusEl.setAttribute('role', 'status'); teamStatusEl.setAttribute('aria-live', 'polite'); teamStatusEl.hidden = true;
+  el.herForm.after(teamStatusEl);
+  let teamSlowTimer = null;
+  const teamNames = () => SEATS.filter(x => x !== 'product' && INFO[x]).map(x => INFO[x].agent || INFO[x].name);
+  const listNames = n => n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n.at(-1)}` : (n[0] || 'The team');
+  function teamStatus(state, text, retry) {
+    teamStatusEl.dataset.state = state; el.room.dataset.team = state;
+    teamStatusEl.hidden = state === 'idle' || BYOC.replay;
+    teamStatusEl.innerHTML = `<span data-slot="text">${esc(text || '')}</span>`;
+    if (retry) {
+      const b = h('button', 'team-retry', 'Retry'); b.type = 'button'; b.dataset.slot = 'retry';
+      b.addEventListener('click', () => teamGo());
+      teamStatusEl.appendChild(b);
+    }
+  }
+  function teamFailed(why) {
+    clearTimeout(teamSlowTimer);
+    teamStatus('failed', `The team couldn’t start${why ? ` (${why})` : ''}. Retry, or press R for the rehearsal.`, true);
+    for (const x of SEATS) if (x !== 'product') sheetStep(x, '', 'error');
+  }
   async function teamGo() {
-    if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); return; }
+    if (!BYOC.run || BYOC.run.startsWith('local-')) { status('no run API yet: the team cannot start'); teamFailed('no run yet'); return; }
+    teamStatus('working', `${listNames(teamNames())} are on it…`);
+    for (const x of SEATS) if (x !== 'product') sheetStep(x, '', 'thinking'); // teammates visibly at work at once
+    clearTimeout(teamSlowTimer);
+    teamSlowTimer = setTimeout(() => {
+      if (teamStatusEl.dataset.state === 'working' && !seen.some(e => e.type === 'teammate.start' || e.type === 'candidate' || e.type === 'teammate.done'))
+        teamStatus('slow', 'Still starting… the team is warming up.');
+    }, TEAM_SLOW_MS);
     teamStep = stepBegin('The team is proposing');
     try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/propose`, {}, { step: false }); }
-    catch (e) { status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; } }
+    catch (e) {
+      if (e.status === 409) return; // already under way (a second press): the events carry on
+      status(`propose failed (${e.status || e.message})`); if (teamStep) { stepEnd(teamStep, e); teamStep = null; }
+      teamFailed(e.status ? `error ${e.status}` : 'no answer');
+    }
   }
+  BYOC.teamGo = teamGo;
   function teamProgress() {
-    if (!teamStep) return;
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
+    const all = SEATS.length - 1;
+    if (teamStatusEl.dataset.state === 'working' || teamStatusEl.dataset.state === 'slow')
+      teamStatus('working', done >= all ? 'The team is choosing what to bring you…' : `${listNames(teamNames())} are on it… ${done} of ${all} done`);
+    if (!teamStep) return;
     stepSet(teamStep, done >= SEATS.length ? 'The team is choosing what to bring you' : `The team is proposing · ${done} of ${SEATS.length} done`);
   }
+  // "Sounds good. Let's build it": a short go-phrase is go, as an empty Enter is; anything with more in it is a redraw.
+  const GO = new Set(['go', 'go ahead', 'go for it', 'lets go', 'team go', 'go team', 'build', 'build it', 'lets build', 'lets build it',
+    'lets build this', 'build this', 'sounds good', 'sounds great', 'sounds right', 'looks good', 'looks great', 'looks right', 'good',
+    'great', 'perfect', 'nice', 'cool', 'love it', 'yes', 'yep', 'yeah', 'yup', 'ok', 'okay', 'sure', 'ship it', 'lets ship it',
+    'do it', 'lets do it', 'lets do this', 'thats it', 'thats right', 'all good', 'go on', 'start', 'lets start', 'onwards', 'done']);
+  function isGo(text) {
+    const t = String(text || '').toLowerCase().replace(/[’']/g, '');
+    if (!t.trim() || t.split(/\s+/).filter(Boolean).length > 8) return false;
+    const parts = t.split(/[.,!?;:\n]+|\s+(?:and|then|so)\s+/).map(p => p.replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+    return parts.length > 0 && parts.every(p => GO.has(p) || GO.has(p.replace(/^(ok|okay|yes|yeah|great|perfect|right|alright|so|now)\s+/, '').replace(/\s+(now|please|then|team)$/, '')));
+  }
+  BYOC.isGo = isGo;
   let buildStep = null;
+  // The click path for "team, go", next to her field (shown while she shapes the journey).
+  if (el.teamGoBtn) el.teamGoBtn.addEventListener('click', e => { e.preventDefault(); if (inputMode === 'line') { el.herInput.value = ''; setInputMode('off'); stage(5); } });
   el.herForm.addEventListener('submit', e => {
     e.preventDefault();
     const text = el.herInput.value.trim();
     if (inputMode === 'idea') { if (!text) return; el.herInput.value = ''; startRun(text); }
     else if (inputMode === 'line') {
       el.herInput.value = '';
-      if (!text) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
+      if (!text || isGo(text)) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
 
@@ -932,6 +989,7 @@
         break;
       case 'select.done':
         if (teamStep) { stepEnd(teamStep); teamStep = null; }
+        clearTimeout(teamSlowTimer); if (teamStatusEl.dataset.state !== 'idle') teamStatus('done', 'The team has done its first pass.');
         refreshTally();
         break;
       case 'ask': {
@@ -1011,6 +1069,7 @@
       case 'propose.error':
         status(`the team stopped: ${ev.error || 'error'}`);
         if (teamStep) { stepEnd(teamStep, { status: 500 }); teamStep = null; }
+        if (source === 'live') teamFailed('a model call failed');
         break;
       case 'build.step':
         if (BYOC.beat < 8) stage(8);
@@ -1293,6 +1352,7 @@
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
+    clearTimeout(teamSlowTimer); teamStatus('idle', '');
     for (const s of SEATS) {
       el.seat[s].classList.remove('filled'); el.seat[s].dataset.state = 'empty';
       el.seat[s].querySelector('.card')?.remove();
