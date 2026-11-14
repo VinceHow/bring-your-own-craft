@@ -41,3 +41,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 13:46 | Vincent (via lead) | Near weekly usage limit: ≤3 builders at once, cheaper model for reviews, minimal real-model e2e runs | if the limit hits, every session stops overnight |
 | Sat 13:47 | Vincent | Usage limits lifted: "all fine, I'm on ultra"; run builders and models as needed | |
 | Sat 13:50 | Vincent | Merged .claude/settings.json: all Figma tools and read-only fal tools allowed without prompts; fal generation (run_model, submit_job) still prompts | builders shouldn't stall overnight |
+| Sat 13:55 | agents (lead) | One e2e failure after the polish merge diagnosed as the test server being killed mid-run (run stopped 1 s after teammate.start, no error logged); 2 reruns on the same commit green 9/10; builders told to kill only their own PIDs | diagnosis before patch |
