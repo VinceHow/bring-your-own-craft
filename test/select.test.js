@@ -160,7 +160,7 @@ test('a different idea changes the picks (offline: picks come from what the team
   const b = await selectForIdea("A pre-order page for a café's morning pastries.", ['pastries'], { callModel: fakeModel({ team, score }) });
   assert.ok(a.brought <= 3 && b.brought <= 3);
   assert.notDeepEqual(a.asks.map(x => x.decision), b.asks.map(x => x.decision));
-  assert.equal(a.came, 10);
+  assert.equal(a.came, 12); // six seats x 2
   assert.equal(loadRest(a.run).length, a.came - a.brought);
 });
 
@@ -184,7 +184,7 @@ test('proposeAndSelect: Research cites only its prepared finding; a teammate fai
       reason: 'r', cost: 'high', undoable: true, attachTo: 'n9', usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] };
   };
   const r = await proposeAndSelect({ run, idea: 'x', flow, taste: readTaste(run), callModel: fakeModel({ team }) });
-  assert.equal(r.candidates.length, 4);
+  assert.equal(r.candidates.length, 5); // six seats, Data failed
   const research = r.candidates.find(c => c.seat === 'research');
   const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));
   assert.deepEqual(research.source, { title: finding.title, url: finding.url, label: finding.label, how_verified: finding.how_verified, prepared: true });
