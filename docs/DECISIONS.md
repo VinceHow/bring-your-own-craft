@@ -52,3 +52,4 @@ lead or a builder deciding for him. Only what actually happened.
 | Sat 14:32 | agents (lead) | demo-3: both templates gate-passing (yoga 2 waivers, café 1), café build 12 s, all core pieces on main; npm test 61, e2e 15/15 | |
 | Sat 14:58 | agents (lead) | Studio version accepted and priced (~6–7 builder-hours, 3 in parallel, ~3 h wall clock); gem starts as ink bars, upgraded if time; CONTRACT.md seams for sketch/reshape/flow/lean/gem | fits 20:00 rough demo and 00:00 core |
 | Sat 15:02 | agents (lead) | Guest chair accepted (~1 h, builder 6); citable as G-points like L-lines | fits 0:45–1:05 beat |
+| Sat 15:28 | agents (lead) | The bar (po/tray): new selector score 'expertise'; a question reaches her only if it changes the build AND needs her expertise; ceiling of 3 and its test unchanged. Real yoga run: 3 brought (full class/waitlist, account, Book your usual), 21 decided | docs/dry-runs/bar-yoga-1.md |
