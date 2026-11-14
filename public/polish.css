@@ -161,3 +161,12 @@ body.stage .meter-counts { font-size: 15px; }
 .gem[data-stage="symphony"] .gem-stone { transform: rotate(0deg) scale(1.06); transition: transform 900ms cubic-bezier(.2,.8,.2,1); }
 .gem[data-stage="page"] { transform: translateY(-40px) scale(0); transform-origin: left center; transition: transform 700ms cubic-bezier(.5,0,.75,0) 600ms; }
 @media (prefers-reduced-motion: reduce) { .gem-stone { transition: none !important; } }
+
+/* ---- studio warmth: teammates' sheets are sketchpads (spiral rings along the top, a card back under the pad) ---- */
+:root { --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14'%3E%3Crect x='6' y='1' width='6' height='12' rx='3' fill='%23FBF9F4' stroke='%23141414' stroke-width='1.6'/%3E%3C/svg%3E");
+  --pad-back: #D8CBB2; }
+#room .mini-sheet { overflow: visible; border-top-width: 2px; box-shadow: 3px 4px 0 -1px var(--pad-back), 5px 6px 0 0 #141414; }
+#room .mini-sheet::before { content: ''; position: absolute; left: 10px; right: 10px; top: -8px; height: 14px;
+  background-image: var(--rings); background-repeat: space no-repeat; background-size: 18px 14px; pointer-events: none; }
+#room .mini-sheet .mini-head { padding-top: 10px; border-bottom: 1.5px dashed rgba(20,20,20,.35); }
+#room .mini-sheet > * { overflow: hidden; }
