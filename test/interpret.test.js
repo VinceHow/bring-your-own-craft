@@ -32,7 +32,7 @@ function newRun({ seat = 'product', sketch = false } = {}) {
     artifact: { kind: sketch ? 'journey' : 'wires' }, decisionIds: ['c1', 'c2'] });
   return run;
 }
-const LINES = { Mika: 'Then their usual class goes first, one tap.', Ines: 'Mika, regulars buy passes too. Show the pass first?',
+const LINES = { Mika: 'Then their usual class goes first, one tap.', Ines: 'Mika, regulars buy passes too. The pass goes first.',
   Bo: 'Pass right under it, but one tap stays one tap.', Theo: 'Then I count rebooks, so we know the tap works.' };
 const fake = (reply = REPLY, seen = {}) => async a => {
   if (task(a.system) === 'thread') { const who = a.user.match(/^You are (\w+)/)[1]; (seen.turns ||= []).push(a.user); return { text: LINES[who] }; }
@@ -177,9 +177,9 @@ test('the thread: lines are spoken (≤15 words, no filler, never to her); 3 tur
   assert.match(problem('Nice.'), /concrete/);
   assert.match(problem('Her point about passes is right.'), /not to her or about her/);
   assert.match(problem('Then pass holders go first, always.', [{ text: 'Then pass holders sit on top.' }]), /repeat/);
-  assert.equal(problem('Ines, pass holders first, then?'), null, 'a light question to a teammate is fine');
+  assert.match(problem('Ines, pass holders first, then?'), /Never end on a question/, 'a trailing question lands on her');
   assert.ok(!okLine('Then your regulars go first.'), 'never addressed to her');
-  assert.ok(okLine('Hmm, regulars buy passes too. Show the pass first?'), 'a light question between teammates is fine');
+
   assert.match(problem('Pass price right beside it.', [], { by: 'Mika' }), /Answer Mika by name/);
   assert.equal(problem('Mika, pass price right beside it.', [], { by: 'Mika' }), null);
   const run = newRun();
@@ -236,4 +236,29 @@ test('seat rules: Noor only cites her prepared finding; Ines talks price only wh
   assert.ok(!thread.some(t => t.seat === 'research'), 'a promise the run cannot keep is never said');
   assert.equal(seen.filter(w => w === 'Noor').length, 2, 'Noor was asked once more first');
   assert.ok(thread.length >= 2);
+});
+
+test('a chime-in never ends on a question to her: sent back once, then the trailing question is cut', async () => {
+  const { runThread, endsInQuestion, dropTrailingQuestion } = await import('../lib/thread.js');
+  assert.ok(endsInQuestion('Show the pass first?') && endsInQuestion('Pass first, then?"') && !endsInQuestion('Pass first. Done.'));
+  assert.equal(dropTrailingQuestion('Regulars buy passes too. Show the pass first?'), 'Regulars buy passes too.');
+  assert.equal(dropTrailingQuestion('What do you think?'), null);
+  const run = newRun();
+  const ask = readEvents(run).find(e => e.type === 'ask');
+  // First try ends on a question; the retry is a statement: the retry is said.
+  let calls = 0;
+  const fixed = async a => { calls++; return { text: /first try was/.test(a.user) ? 'Then the pass sits right under the usual class.' : 'Then the pass sits right under it. Pass first, then?' }; };
+  const t1 = await runThread({ run, ask, text: 'Their spot is theirs.', callModel: fixed, gapMs: 0 });
+  assert.ok(t1.length >= 1 && t1.every(t => !endsInQuestion(t.text)), JSON.stringify(t1));
+  assert.equal(t1[0].text, 'Then the pass sits right under the usual class.');
+  // Both tries end on a question: the trailing question is cut, the statement before it is said.
+  const stubborn = async () => ({ text: 'Regulars buy passes on Mondays too. Show the pass first?' });
+  const t2 = await runThread({ run, ask, text: 'Their spot is theirs.', callModel: stubborn, gapMs: 0 });
+  assert.ok(t2.length >= 1);
+  assert.ok(t2.every(t => t.text === 'Regulars buy passes on Mondays too.'), JSON.stringify(t2));
+  // Only a question, twice: nothing is said for that turn.
+  const onlyQ = async () => ({ text: 'Should regulars see the pass first?' });
+  assert.equal((await runThread({ run, ask, text: 'x', callModel: onlyQ, gapMs: 0 })).length, 0);
+  const logged = readEvents(run).filter(e => e.type === 'chime');
+  assert.ok(logged.every(e => !endsInQuestion(e.text)), 'no logged chime ends on a question');
 });
