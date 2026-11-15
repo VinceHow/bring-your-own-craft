@@ -1539,3 +1539,10 @@ html.painted-on [data-component="tidy-moment"][data-leave] { transition: opacity
 html body #room [data-component="idea-sheet"] > :has(> [data-component="page-frame"]) { margin-left: 0 !important; }
 /* (AUDIT final F3: the same shift clipped her page's "Your page" header to "our page" at the page beat too, her sheet not
    opened large: the page sheet always lives inside her idea sheet, so it never takes the crop shift) */
+/* audit F6: while the team writes her tag (thinking), the paper holds its asking height (--pt-nt-h) but the status line
+   appears and the button grew to its 60px "Meet" size, so "Make my tag" was cut by the paper's bottom edge. While
+   thinking the button keeps its asking size, and the status takes the hint's place, so it all fits the held height. */
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="make"] { height: 52px; padding: 0 28px; font-size: 17px; box-shadow: none; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="hint"] { display: none; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="status"] { position: relative; z-index: 1; max-width: 55%; margin-bottom: -44px; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="actions"] { margin-top: 0; }
