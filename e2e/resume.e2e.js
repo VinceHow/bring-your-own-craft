@@ -25,6 +25,7 @@ const cut = (id, upto) => { // a run "so far": the rehearsal's events up to (not
 let srv, logs = '', browser;
 before(async () => {
   cut('run-resume-room', 'answer.piece'); // Focus 1 asked, not yet answered
+  cut('run-resume-piece', 'answer.round'); // in Focus 1: her thought added, not yet sent
   cut('run-resume-build', 'build.done');  // the build under way
   cut('run-resume-done', null);           // her page built
   fs.cpSync(path.join(ROOT, 'runs', 'rehearsal'), path.join(RUNS, 'rehearsal'), { recursive: true });
@@ -130,5 +131,18 @@ test('R still replays exactly as before, and never writes her run', async () => 
   await page.waitForFunction(() => BYOC.events().some(e => e.type === 'ask'), null, { timeout: 60000 });
   assert.equal(await page.evaluate(() => localStorage.getItem('byoc.run')), null);
   assert.doesNotMatch(page.url(), /[?&]run=/);
+  await page.close();
+});
+
+test('a refresh in the middle of her answer: her unsent thought is still there when she reopens the note, and not posted again', async () => {
+  const want = SRC.find(e => e.type === 'answer.piece');
+  const { page, posts } = await refreshed('run-resume-piece');
+  assert.equal(await resumed(page), 'resumed');
+  await page.waitForFunction(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', null, { timeout: 5000 });
+  await page.click('#inbox .inbox-now');
+  await page.waitForFunction(() => BYOC.focusDoc.isOpen(), null, { timeout: 3000 });
+  const pieces = await page.evaluate(() => [...document.querySelectorAll('#focus-doc .fd-piece')].map(li => li.dataset.piece));
+  assert.deepEqual(pieces, [want.pieceId], 'her piece, with its own id');
+  assert.deepEqual(posts.filter(p => /\/piece$/.test(p)), [], 'not posted again');
   await page.close();
 });

@@ -265,6 +265,7 @@
     $('.fd-input').value = ''; clearPieces();
     $('.fd-leave').hidden = true; $('.fd-leave').dataset.state = 'hidden';
     rebuild(ask); $('.fd-form').hidden = !!B.replay || ended;
+    if (!ended && !B.replay) restorePieces(ask);
     setMode(ended ? 'ended' : 'composing');
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
     $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
@@ -384,10 +385,12 @@
     if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
     if (!pieces.length) { capturing(false); ack(false); }
   }
-  function addPiece(text) {
+  // addPiece(text, { id, post, tidy, use }): a restored piece (her run picked up after a refresh, or the document
+  // reopened) keeps its own id, its tidy and her choice, and is not posted again.
+  function addPiece(text, o = {}) {
     text = String(text || '').trim();
     if (!text || !cur || sent || B.replay) return;
-    const p = { id: `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: '', use: 'tidy', showRaw: false, askId: cur.id };
+    const p = { id: o.id || `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: o.tidy || '', use: o.use || 'tidy', showRaw: false, askId: cur.id };
     p.li = h('li', 'fd-piece'); p.li.dataset.component = 'piece'; p.li.dataset.piece = p.id;
     p.words = h('span', 'fd-piece-words', text); p.words.dataset.slot = 'words';
     const btn = (slot, label) => { const b = h('button', `fd-piece-${slot}`, label); b.type = 'button'; b.dataset.slot = slot; return b; };
@@ -404,9 +407,27 @@
     p.li.append(p.words, p.see, p.mine, redo, rm);
     $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
     capturing(true);
+    if (o.post === false) return p;
     if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
     pieceApi({ askId: cur.id, pieceId: p.id, text }).catch(() => {}); // a failed post still sends raw at Send
     ack(true);
+    return p;
+  }
+  // Her pieces not yet sent come back from the run's log (answer.piece and its tidy, choice and removal since her last
+  // Send), so a refresh or a reopened document never loses a thought she added.
+  function restorePieces(ask) {
+    const evs = (B.events ? B.events() : []).filter(e => e.askId === ask.id);
+    let from = 0;
+    evs.forEach((e, i) => { if (e.type === 'answer.round' || e.type === 'answer' || e.type === 'meeting.end') from = i + 1; });
+    const kept = new Map();
+    for (const e of evs.slice(from)) {
+      if (e.type === 'answer.piece' && e.pieceId) kept.set(e.pieceId, { text: e.text, tidy: '', use: 'tidy' });
+      else if (e.type === 'answer.piece.removed') kept.delete(e.pieceId);
+      else if (e.type === 'answer.piece.tidy' && kept.has(e.pieceId)) kept.get(e.pieceId).tidy = e.text;
+      else if (e.type === 'answer.piece.choice' && kept.has(e.pieceId)) kept.get(e.pieceId).use = e.use;
+    }
+    for (const [id, k] of kept) addPiece(k.text, { id, tidy: k.tidy, use: k.use, post: false });
+    if (kept.size) ack(true);
   }
   // After "Add this" (or a spoken piece): a quiet line under her pieces says who's listening and that replies come on
   // Send, and Send pulses once (data-state="nudge", then "idle"). Vincent: added a thought, nothing reacted.
