@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
 import { MAX_ASKS } from '../lib/policy.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const PORT = 4000 + Math.floor(Math.random() * 90);
+const PORT = 4100 + Math.floor(Math.random() * 80); // 4100-4179: clear of 4045, a port Chromium refuses (ERR_UNSAFE_PORT)
 const BASE = `http://localhost:${PORT}`;
 // E2E_LOOK=painted: every page in this spec opens in that look (the freeze run covers the demo default). Unset: the
 // room's own default for an automated browser (plain), as before.
