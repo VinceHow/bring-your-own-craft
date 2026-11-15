@@ -4,6 +4,11 @@
 
 **Do the part you love; a team of agents does the rest.**
 
+## Why I built this
+I'm a builder at heart, and I love the craft: understanding people, deciding what's worth building, and writing some of the code too. But building with AI today pulls me away from it. **Coding agents ask about everything.** One prompt stopped for **20 approvals**, including which backend language to use. **AI app builders assume everything**, so it's hard to weave in my own craft and judgement. I wanted a way to spend 90% of my time on the part I love.
+
+<sub>The baseline: a default coding agent on one bakery prompt asked 0 questions, guessed 24 things that were the owner's call, and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).</sub>
+
 ## The story in 8 slides
 The talk deck tells it best. The poster above is slide 1; here are the rest, in order.
 
@@ -33,50 +38,45 @@ Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `t
 ![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.webp)
 <sub>The studio mid-run: five agent teammates at work round the table, her stool in front (the bakery run, replayed from its recording).</sub>
 
-You spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You take the seat of
-your craft; a team of AI agents fills every other seat, handles its own work, and brings you only the few big
-questions that need you.
-
-## The problem
-Most projects don't die from bad ideas. They die in the questions nobody signed up for. AI app builders guess
-everything, so a product manager's expertise never makes it in. Coding agents ask about everything: approvals,
-databases, fonts. We measured it: a default coding agent given one bakery prompt asked 0 questions, guessed 24 things
-that were the owner's call, and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
-
 ## What I built
-A hand-painted studio where you take the seat of your craft, and a team of AI agents fills the rest: Mika (Design),
-Wren (Research), Theo (Data), Ines (Strategy) and Bo (Engineering), each with its own craft and tools.
+**Bring Your Own Craft** is a hand-painted studio where you take the seat of your craft, and a team of AI agents fills every other seat: **Mika** (Design), **Wren** (Research), **Theo** (Data), **Ines** (Strategy) and **Bo** (Engineering).
 
-In the demo, Priya, a product manager, wants an ordering site for her friend's bakery. She says the idea in one rough
-sentence, gets a name tag, meets her team, and sits down. Nobody asks her about databases or logins. Three moments
+You say your idea in one rough sentence and meet your team. They get to know you, handle their own work, and bring you **only the few big questions that need your expertise**. Your app builds as you decide.
+
+In the demo, a product manager gets a bakery ordering site, and the audience reserves a real loaf on the live site from their own phones.
+
+In the demo, Priya, a product manager, wants an ordering site for her friend's bakery. She says her idea in one rough
+sentence, gets a name tag, meets her team and sits down. Nobody asks her about databases or logins. Three moments
 reach her, each about what she knows best: who the bakery is really for (Wren's research, found live), when orders
-should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. Then one press, and her
-ordering page is filled from her answers.
+should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. You can sit in any seat: pick
+your craft on the name tag, and the teammate who held it steps aside.
 
-Two more things you can see happen: **sit in any seat** (pick your craft on the name tag; the teammate who held it
-steps aside; Product is the default and the demo seat), and **your app starts building the moment you say Team, go**;
-each later decision builds the next version, with a line on what changed.
-
-At the end, the judges become the bakery's regulars. Pressing **Open the app** shows a QR card for The Usual, a live
-bakery that Bo's agent drafted earlier and our builders finished (built ahead, not in the room; source in
-[`deploy/`](deploy/README.md)). The judges scan it and reserve a real loaf; we tap **Deliver**, and every phone flips
-at once to *"Delivered: your sourdough is here."*
+At the end, pressing **Open the app** shows a QR card for The Usual, a live bakery Bo's agent drafted earlier and our
+builders finished (built ahead, not in the room; source in [`deploy/`](deploy/README.md)). The audience scans it and
+reserves a real loaf; I tap **Deliver**, and every phone flips at once to *"Delivered: your sourdough is here."*
 
 ## How it works
+- **Only the big questions.** The team proposes decisions as it works. A selector ranks every one and brings you only
+  what's big and in your craft; the team settles the rest itself and says why, citing what it knows about you. On
+  stage the three moments are set so the talk fits three minutes; everything inside them is live.
+- **A real meeting.** You speak in pieces, and a careful tidy removes the ums but keeps your words. **Send** starts a
+  round where the teammates your words touch reply live; **End meeting** writes your takeaways.
+- **Your app builds as you decide.** It starts on "Team, go", and each later decision builds the next version with a
+  line on what changed. It fills one of three designed templates (bakery, café, yoga); the model never writes code.
+  Its emblem is painted live with fal.
 - **One model function.** Every call goes through `callModel` (`lib/model.js`) and returns JSON checked against a
-  schema. Each teammate is its own call with its own craft and stance; in a discussion each turn is a separate call
-  that reads the thread so far.
-- **Only the big questions.** The team proposes decisions as it works and settles the small ones itself, citing her
-  file or its own defaults. Off the demo path, a selector ranks every candidate and brings her only what's big and in
-  her craft. On stage, the three moments are set so the talk fits three minutes; everything inside them is live.
-- **A real meeting.** She speaks in pieces (a guarded tidy removes the ums and keeps her words). **Send** starts a
-  round where one or two teammates, picked by which crafts her words touch, reply live. **End meeting** writes her
-  takeaways: what she believes, and her guidance to the team.
-- **Live tools.** Wren searches with Linkup and quotes a finding only when the quote matches the source page word for
-  word (otherwise a prepared finding, labelled). The build fills one of three designed page templates (bakery, café,
-  yoga) with her decisions; the model never writes code. Her page's emblem is painted live with fal.
-- **Honest labels.** Every number about her run is counted from its event log. Anything made ahead is labelled where
-  it shows: "researched before the demo", PREPARED, REPLAY.
+  schema. Each teammate is its own call; in a discussion each turn reads the thread so far.
+- **Honest labels.** Every number about a run is counted from its event log; anything made ahead says so on screen.
+
+## How I built it
+**One human with an idea and a team of agents.** I acted as product owner, and Claude Code agents worked as builders, designers, reviewers and a merger, each on its own branch, with every change reviewed before it reached `main`. That's over **1,000 commits in about 23 hours**.
+
+- **Claude Sonnet, Haiku and Opus via fal** run the teammates
+- **Linkup** powers Wren's live web search
+- **ElevenLabs Scribe** handles speech, and **ElevenLabs Music** makes the soundtrack
+- **fal** paints the studio art and each page's emblem
+- **Figma** and **taste-skill** shape the look
+- **Railway** hosts the live bakery site
 
 ## See it
 **The door opens on the studio.**
@@ -145,6 +145,12 @@ frame by frame: [`design/FIGMA.md`](design/FIGMA.md). The frames show the room's
 fal, ElevenLabs, Linkup, Figma and Anthropic, as above. Built 14–15 Nov 2026 at the Imperial AI hackathon, Autonomous
 Agents track.
 
+## What I learned
+AI will outdo us at a lot of work, and that means **we get to choose** what we do. The part we keep is **judgement**: taste, expertise, craft. The way we work has to change so that judgement is what we spend our time on.
+
+## What's next
+**A new way of working.** A lot of work will stop being economically productive for people to do. I want to build a way of working with AI agents that preserves our craft and imagination, and lets us spend more than 90% of our time doing what we love.
+
 ## Run it yourself
 You need Node 22. There is nothing to install.
 
@@ -156,16 +162,6 @@ You need Node 22. There is nothing to install.
 Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser; it needs
 Playwright: `npm i -g playwright && npx playwright install chromium`). The room listens on this machine only (loopback);
 `HOST=0.0.0.0` opens it to the network on purpose. The full guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
-
-## How it was built
-The same way it works. Vincent sat in the Product seat; agents did the rest overnight. A product-owner agent shaped
-the experience with him, a lead agent split the work across builder agents working in parallel, and each merge
-got an independent agent review ([`docs/DECISIONS.md`](docs/DECISIONS.md)), with an independent audit before the
-demo ([`docs/AUDIT.md`](docs/AUDIT.md)).
-
-On that audited run, her page built in 22 seconds, and the team's own work took 33.
-The story of the build: [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md). The inner workings: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
-The product picture: [`VISION.md`](VISION.md).
 
 ## Credits and licence
 - [taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx (MIT), vendored with its licence in
