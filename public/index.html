@@ -105,7 +105,11 @@
 <script src="name-tag.js"></script>
 <script src="app-button.js"></script>
 <script>/* polish.css loads last, after any stylesheet the scripts inject */(function(){var l=document.createElement("link");l.rel="stylesheet";l.href="/polish.css";document.head.appendChild(l);
-/* ?look=<name> layers public/looks/<name>.css on top (design studio); no ?look, no change */
-var k=(new URLSearchParams(location.search).get("look")||"").toLowerCase();if(/^[a-z0-9-]{1,40}$/.test(k)){var m=document.createElement("link");m.rel="stylesheet";m.href="/looks/"+k+".css";document.head.appendChild(m);document.documentElement.setAttribute("data-look",k);/* and looks/<name>.js when the look has one; none is fine */var j=document.createElement("script");j.src="/looks/"+k+".js";j.onerror=function(){j.remove();};document.body.appendChild(j);}})();</script>
+/* ?look=<name> layers public/looks/<name>.css on top (design studio); no ?look: painted (below) */
+var q=new URLSearchParams(location.search),k=(q.get("look")||"").toLowerCase();
+/* painted is the default look (Vincent, 15 Nov). ?look=plain keeps the plain room (the fallback). Automated browsers
+   (navigator.webdriver) keep plain unless they ask, so every existing spec runs as it did. The URL gains ?look=painted
+   so every painted script reads one source of truth. */
+if(!k&&!navigator.webdriver){k="painted";q.set("look","painted");try{history.replaceState(null,"",location.pathname+"?"+q.toString()+location.hash);}catch(e){}}if(k!=="plain"&&/^[a-z0-9-]{1,40}$/.test(k)){var m=document.createElement("link");m.rel="stylesheet";m.href="/looks/"+k+".css";document.head.appendChild(m);document.documentElement.setAttribute("data-look",k);/* and looks/<name>.js when the look has one; none is fine */var j=document.createElement("script");j.src="/looks/"+k+".js";j.onerror=function(){j.remove();};document.body.appendChild(j);}})();</script>
 </body>
 </html>

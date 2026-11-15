@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawn, execFileSync } from 'node:child_process';
+import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { parseEnv, loadEnvLocal, describe, ROOT } from '../scripts/env-local.mjs';
 
 const CANARY = 'canary-ENVLOCAL-7c1e5a9d3f20b864';
@@ -65,4 +65,33 @@ test('npm run local: a canary in .env.local never reaches the console, runs/ or 
   assert.ok(!out.includes(CANARY), 'no canary on the console');
   const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
   for (const f of walk(runs)) assert.ok(!fs.readFileSync(f, 'utf8').includes(CANARY), `no canary in ${f}`);
+});
+
+test('the route line: fal, claude-code, the company-gateway fallback (all six on sonnet), and a WARN for fal with sonnet overrides', async () => {
+  const { routeLine, ROUTE_VARS } = await import('../scripts/env-local.mjs');
+  assert.deepEqual(ROUTE_VARS, ['TAG_MODEL', 'THREAD_MODEL', 'JOINT_MODEL', 'FIRST_MODEL', 'GUEST_MODEL', 'TIDY_MODEL']);
+  const sonnet = Object.fromEntries(ROUTE_VARS.map(k => [k, 'sonnet']));
+  assert.deepEqual(routeLine({ MODEL_BACKEND: 'fal', FAL_KEY: CANARY }), { line: 'route: fal', warn: null });
+  assert.deepEqual(routeLine({}), { line: 'route: claude-code', warn: null });
+  assert.deepEqual(routeLine({ ...sonnet }), { line: 'route: claude-code (company gateway: haiku roles → sonnet)', warn: null });
+  assert.equal(routeLine({ TAG_MODEL: 'sonnet' }).line, 'route: claude-code (TAG_MODEL=sonnet)');
+  const both = routeLine({ MODEL_BACKEND: 'fal', FAL_KEY: CANARY, ...sonnet });
+  assert.match(both.line, /^route: fal \(TAG_MODEL=sonnet, THREAD_MODEL=sonnet/);
+  assert.match(both.warn, /^WARN {2}MODEL_BACKEND=fal with TAG_MODEL, THREAD_MODEL, JOINT_MODEL, FIRST_MODEL, GUEST_MODEL, TIDY_MODEL set to sonnet/);
+  assert.ok(![both.line, both.warn].join(' ').includes(CANARY), 'never a key');
+});
+
+test('.env.local carries the route (the six *_MODEL lines); the doctor prints the route on its first line, with the WARN', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-route-'));
+  const file = path.join(dir, '.env.local');
+  fs.writeFileSync(file, `MODEL_BACKEND=fal\nFAL_KEY=${CANARY}\nTAG_MODEL=sonnet\n# THREAD_MODEL=sonnet\n`);
+  const env = {};
+  loadEnvLocal(env, file);
+  assert.deepEqual([env.MODEL_BACKEND, env.TAG_MODEL, env.THREAD_MODEL], ['fal', 'sonnet', undefined], 'a commented line stays off');
+  const clean = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^(MODEL_BACKEND|FAL_KEY|[A-Z]+_MODEL|HTTPS?_PROXY|https?_proxy)$/.test(k)));
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'doctor.mjs'), '--only', 'port'], { env: { ...clean, ENV_LOCAL_FILE: file }, encoding: 'utf8' });
+  const lines = r.stdout.split('\n');
+  assert.equal(lines[0], 'route: fal (TAG_MODEL=sonnet)');
+  assert.match(lines[1], /^WARN {2}MODEL_BACKEND=fal with TAG_MODEL set to sonnet/);
+  assert.ok(!(r.stdout + r.stderr).includes(CANARY), 'no key on the console');
 });

@@ -47,10 +47,10 @@ The product has two moments: a short setup that ends in her first question, then
 
 **1. The setup: walking in to the first question** (under a minute)
 
-1. **Her name tag, on paper.** No room yet: it's saved for the reveal. On a paper card she gives her name, her role (any craft, or her own) and, spoken in her own words, what she loves and brings: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* Her ums and ahs are tidied into a clean sentence, and the team puts its own fun spin on it as her name tag, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
-2. **She meets the team, one by one.** Mika, Noor, Theo, Ines and Bo, each up close: name, role, a line in their own voice, what they bring. The teammate fitted to this idea comes last. The teammates are people, not job titles: they wear whichever role the table needs.
-3. **The reveal.** The living studio, everyone already seated round the table, and she takes her seat.
-4. **She says the idea.** One rough sentence lands on the table: "a website for a small bakery, so customers can order bread ahead".
+1. **She says the idea, first.** On paper, before anything else, one rough sentence: "a website for a small bakery, so customers can order bread ahead".
+2. **Her name tag, on paper.** Still no room: it's saved for the reveal. On a paper card she gives her name, her role (any craft, or her own) and, spoken in her own words, what she loves and brings: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* Her ums and ahs are tidied into a clean sentence, and the team puts its own fun spin on it as her name tag, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
+3. **She meets the team, one by one.** Mika, Noor, Theo, Ines and Bo, each up close: name, role, a line in their own voice about her idea, what they bring. The teammate fitted to this idea comes last. The teammates are people, not job titles: they wear whichever role the table needs.
+4. **The reveal.** The living studio, everyone already seated round the table, and she takes her seat.
 5. **The team gets going.** Within seconds, Noor and Mika put a rough journey on the table: who the users are, the stages they go through, no screens.
 6. **Her first question.** It opens as a document: the rough journey, and one big question. *"What do people come to a bakery like this for that they can't get at the supermarket?"*
 
@@ -70,10 +70,10 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 
 | Beat | Time | What she sees |
 | --- | --- | --- |
-| Her name tag | 0:00–0:10 | No room yet. On paper: her name, her role, what she loves, spoken; tidied into her name tag |
-| Meet the team | 0:10–0:22 | Mika, Noor, Theo, Ines, Bo one by one, up close: name, role, a line, what they bring |
-| The reveal | 0:22–0:30 | The living studio, everyone seated; she takes her seat |
-| The idea | 0:30–0:35 | One spoken sentence lands on the table |
+| The idea | 0:00–0:05 | First, on paper: one spoken sentence |
+| Her name tag | 0:05–0:15 | No room yet. On paper: her name, her role, what she loves, spoken; tidied into her name tag |
+| Meet the team | 0:15–0:27 | Mika, Noor, Theo, Ines, Bo one by one, up close: name, role, a line about her idea, what they bring |
+| The reveal | 0:27–0:31 | The living studio, everyone seated; she takes her seat |
 | Team gets going | 0:35–0:45 | Noor and Mika's rough journey draws in (~4 s, measured) |
 | Focus moment 1 | 0:45–1:05 | Journey + one big question; she speaks; the team chimes in; the takeaways |
 | The room | 1:05–1:15 | Team talks things out; joint decisions land as cards in the team space; "21 handled · 3 for you" |

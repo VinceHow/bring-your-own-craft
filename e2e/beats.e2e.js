@@ -15,8 +15,11 @@ const { chromium } = require('playwright');
 import { MAX_ASKS } from '../lib/policy.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const PORT = 4000 + Math.floor(Math.random() * 90);
+const PORT = 4100 + Math.floor(Math.random() * 80); // 4100-4179: clear of 4045, a port Chromium refuses (ERR_UNSAFE_PORT)
 const BASE = `http://localhost:${PORT}`;
+// E2E_LOOK=painted: every page in this spec opens in that look (the freeze run covers the demo default). Unset: the
+// room's own default for an automated browser (plain), as before.
+const L = u => process.env.E2E_LOOK && !/[?&]look=/.test(u) ? u + (u.includes('?') ? '&' : '?') + 'look=' + process.env.E2E_LOOK : u;
 const RUNS = fs.mkdtempSync('/tmp/byoc-beats-e2e-');
 const JUDGE_IDEA = 'A sign-up page for a neighbourhood tool library.';
 const BAKERY = "An ordering website for my friend's small bakery, so customers can order bread ahead";
@@ -57,7 +60,7 @@ const onScreen = sel => page.evaluate(sel => [...document.querySelectorAll(sel)]
 }), sel);
 
 test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
-  await page.goto(BASE + '/?hold=300');
+  await page.goto(L(BASE + '/?hold=300'));
   await page.waitForTimeout(400);
   await page.keyboard.press('?');
   assert.ok(await page.isVisible('#help-card'), 'the help card toggles with ?');
@@ -79,7 +82,7 @@ test('1b. "Your own craft" on her paper name tag: a seat choice on the one tag, 
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
-  await p.goto(BASE + '/?stage=1&hold=300');
+  await p.goto(L(BASE + '/?stage=1&hold=300'));
   await p.waitForTimeout(400);
   assert.strictEqual(await p.locator('.seat-diy').count(), 0, 'no seventh seat');
   // Her paper name tag: the role choice is on it (Product prefilled).
@@ -118,7 +121,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.route('**/api/name-tag', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
     craft: 'Product', title: 'the Customer Whisperer', traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: 'hears the problem behind the request',
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
-  await p.goto(BASE + '/?stage=1&hold=200');
+  await p.goto(L(BASE + '/?stage=1&hold=200'));
   await p.waitForTimeout(300);
   // The setup: no room yet; her name tag on paper (name, role, what she loves and brings).
   assert.ok(await p.isVisible('#setup'), 'the room is hidden');
@@ -164,7 +167,7 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
   // No model: the room's events are dispatched as a run would log them.
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
-  await p.goto(BASE + '/?stage=1');
+  await p.goto(L(BASE + '/?stage=1'));
   await p.waitForTimeout(300);
   await p.evaluate(() => {
     window.__ev = [];
@@ -225,7 +228,7 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posts = [];
   await p.route('**/api/run/stub-run/**', r => { posts.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); return r.fulfill({ json: { ok: true } }); });
-  await p.goto(BASE + '/?stage=1');
+  await p.goto(L(BASE + '/?stage=1'));
   await p.waitForTimeout(300);
   assert.ok(await p.evaluate(() => BYOC.stagePath), 'the stage path is the default');
   await p.evaluate(() => {
@@ -402,7 +405,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   const posted = [];
   await p.route('**/api/run/*/answer', async r => { posted.push(['answer', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"ok":true}' }); });
   await p.route('**/api/run/*/takeaways', async r => { posted.push(['takeaways', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
-  await p.goto(BASE + '/?stage=1&meeting=0'); // the old single-Send flow, kept as the rehearsal's fallback
+  await p.goto(L(BASE + '/?stage=1&meeting=0')); // the old single-Send flow, kept as the rehearsal's fallback
   await p.waitForTimeout(300);
   await p.evaluate(() => {
     BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
@@ -473,8 +476,8 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posted = [];
-  await p.route('**/api/run/stub-run/**', async r => { posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });
-  await p.goto(BASE + '/?stage=1');
+  await p.route('**/api/run/stub-run/**', async r => { if (r.request().method() === 'POST') posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });   // her POSTs only (a look's counters may GET the tally)
+  await p.goto(L(BASE + '/?stage=1'));
   await p.waitForTimeout(300);
   await p.evaluate(() => {
     BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
@@ -487,7 +490,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.strictEqual(await p.locator(`${side} .fd-input, ${side} .fd-conversation, ${side} .fd-brief, ${side} .fd-end`).count(), 4, 'one column holds the form, the conversation, the takeaways and End meeting');
   assert.ok(await p.locator('#focus-doc .fd-end').isHidden(), 'no End meeting before a round');
   const wide = await p.evaluate(s => [document.querySelector(s + ' .fd-input').getBoundingClientRect().width, document.querySelector(s).clientWidth], side);
-  assert.ok(wide[0] >= wide[1] - 40, `her words get the column's whole width (${wide[0]} of ${wide[1]} px)`);
+  assert.ok(wide[0] >= wide[1] * 0.85, `her words get most of the column (at least 85%; both looks) (${wide[0]} of ${wide[1]} px)`);
   assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways');
   // Round 1: a long answer (~300 words).
   const long = Array.from({ length: 30 }, (_, i) => `Regulars come in every morning, ${i + 1} of them know the sourdough sells out by nine.`).join(' ');
@@ -557,8 +560,9 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   await p.close();
 });
 
-test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async () => {
-  assert.ok(RUN, 'needs step 2');
+test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async t => {
+  // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   await page.keyboard.press('Escape');
   await page.keyboard.press('j');
   await waitFor(() => document.activeElement && document.activeElement.id === 'close-input', 3000, 'the idea input');
@@ -608,8 +612,9 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   assert.ok(!(await page.isVisible('#replay-label')), 'nothing replayed, no label');
 });
 
-test('4. replays: record-run, R in stage mode, the yoga fallback in the close; REPLAY shows throughout', async () => {
-  assert.ok(RUN, 'needs step 2');
+test('4. replays: record-run, R in stage mode, the yoga fallback in the close; REPLAY shows throughout', async t => {
+  // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const out = execFileSync('node', ['scripts/record-run.mjs', 'rehearsal', RUN], { cwd: ROOT, env: { ...process.env, RUNS_DIR: RUNS } }).toString();
   assert.match(out, /recorded/);
   assert.deepStrictEqual(readLog('rehearsal'), readLog(RUN), 'the recording is the run’s log');
@@ -649,7 +654,7 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   await p.route('**/api/run', async r => { await new Promise(f => setTimeout(f, 3500)); await r.fulfill({ status: 500, body: '{"error":"model down"}' }); });
   await p.route('**/api/sketch-for-idea', r => r.fulfill({ status: 502, body: '{"error":"no sketch"}' }));
   await p.route('**/api/select-for-idea', async r => { await new Promise(f => setTimeout(f, 3000)); await r.fulfill({ status: 502, body: '{"error":"bad gateway"}' }); });
-  await p.goto(BASE + '/?stage=1&slow=1500');
+  await p.goto(L(BASE + '/?stage=1&slow=1500'));
   await p.waitForTimeout(300);
   await p.evaluate(() => BYOC.stage(3, { instant: true }));
   await p.waitForTimeout(100);

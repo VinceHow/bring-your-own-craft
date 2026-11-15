@@ -1,0 +1,55 @@
+/* The painted room's layout at the table: who's who on the pills, her pill clear of the idea sheet, chatter clear of
+   pills and faces. Loaded by painted.js after painted-fixes.css. Selectors on data-component / data-slot / data-state
+   only (docs/COMPONENTS.md). Coordinates are on the room's 1600 x 900 stage, which scales to every window. */
+
+/* ---- 1. roles on the teammates' pills: "Mika | Design", not "Mika | agent" ----
+   You just met them; the pill says which craft each one brings. The role is the card's own name slot (it already
+   holds "Design", "Research"...), moved after the name. The word "agent" leaves the pill (the meet cards say it, and
+   the stage label says it); it stays in the pill's text for screen readers. While a teammate works, the three ink dots
+   follow the role, so the role never disappears. */
+html body #room [data-component="place-card"] [data-slot="band"] > :has(> [data-slot="agent"]) { display: contents !important; }
+html body #room [data-component="place-card"] [data-slot="agent"] { order: 1; }
+/* Theo's pill sits higher and further left than painted.css put it: over his own head, its right end (x 950) clear of Ines's hat brim and face (from x 965) */
+html body #room [data-component="seat"][data-seat="data"] { left: 761px; top: 302px; }
+/* Mika's pill 12px higher, so it floats over her head instead of resting on it */
+html body #room [data-component="seat"][data-seat="design"] { top: 340px; }
+html body #room [data-component="place-card"] [data-slot="band"] > [data-slot="name"] {
+  display: inline-block !important; order: 2; padding: 1px 0 0 9px; border-left: 1px solid rgba(80,55,35,.24);
+  font: 500 15px/1 var(--ui); color: var(--ink-2); text-transform: none; letter-spacing: 0; }
+html body #room[data-time="night"] [data-component="place-card"] [data-slot="band"] > [data-slot="name"] { border-left-color: rgba(80,55,35,.3); }
+html body #room [data-component="place-card"] [data-slot="agent-mark"] { order: 3; }
+/* idle: the "agent" word is read aloud but not drawn */
+html body #room [data-component="place-card"]:not([data-state="thinking"]):not([data-state="working"]) [data-slot="agent-mark"] {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+/* the Mika / Noor first sketch also shows the dots (painted.css), so those seats keep the mark drawn while sketching */
+html body #room[data-sketching~="design"] [data-component="place-card"][data-seat="design"] [data-slot="agent-mark"],
+html body #room[data-sketching~="research"] [data-component="place-card"][data-seat="research"] [data-slot="agent-mark"] {
+  position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; }
+/* working: just the dots after the role, no second divider */
+html body #room [data-component="place-card"] [data-slot="agent-mark"] { border-left: 0 !important; padding: 0 !important; min-width: 22px !important; }
+
+/* ---- 2. her pill on the stool never reaches the idea sheet or the strip under it (JANK #29) ----
+   The sheet and its team strip start at x 838. Her pill starts at 596 and is at most 230 wide (right edge 826), so a
+   12 px gap always stays. Her title goes on its own line under her name and wraps if it is very long. */
+html body #room [data-component="seat"][data-seat="product"] { left: 596px; max-width: 230px; }
+html body #room [data-component="her-place-card"] { max-width: 230px; box-sizing: border-box; white-space: normal !important; align-items: center !important; }
+html body #room [data-component="her-place-card"] [data-slot="band"] { flex: none; align-self: center; }
+html body #room [data-component="her-place-card"] [data-slot="who"] { white-space: nowrap; }
+html body #room [data-component="her-place-card"][data-state="named"] > :has(> [data-slot="title"]) {
+  flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; min-width: 0; }
+html body #room [data-component="her-place-card"] [data-slot="title"] { white-space: normal; line-height: 1.15 !important; }
+html body #room [data-component="her-place-card"] [data-slot="title"]:empty { display: none; }
+
+/* ---- 3. chatter clear of the pills and faces (JANK #28) ----
+   room.js puts a line at its speaker's pill (left + 12, bottom - 6). Each seat gets its own spot, measured against the
+   five pills and the five faces in the painting:
+     Mika: to the left of her pill, over the coffee corner (her face is to the right, below her pill).
+     Noor: above her pill.   Theo: above, higher, over the bookshelf top (clear of Ines's pill).
+     Ines: to the right of her pill, over the bookshelf (Theo's line keeps the space above).
+     Bo:   below and right of his pill, over the record player (his face is below-left). */
+html body #room [data-component="chatter-line"] { margin: 0 !important; max-width: 290px; }
+html body #room [data-component="chatter-line"][data-seat="design"] { translate: calc(-100% - 24px) 18px; border-radius: var(--r-md) 6px var(--r-md) var(--r-md); }
+html body #room [data-component="chatter-line"][data-seat="research"] { translate: 0 calc(-100% - 48px); }
+html body #room [data-component="chatter-line"][data-seat="data"] { translate: 100px calc(-100% - 96px); }
+html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 210px -44px; max-width: 270px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
+html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 64px 18px; max-width: 250px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
