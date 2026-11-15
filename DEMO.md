@@ -48,7 +48,7 @@ green on main 4afbc95** (merger, 15 Nov): nothing reverted; this script matches 
 the tidy helper); **Send** (one round of live team discussion, a brainstorm or a light debate, the team reacting to
 her and to each other; she can Send again for more rounds); **End meeting** (the takeaways, "What I believe" /
 "Guidance to the team", then Keep). **On stage: one Send round plus End meeting per focus moment**, to protect the
-3 minutes. The cap is unchanged: rounds sit inside one ask, so it is still exactly three things reaching her. The old wireframe focus moment and the third are cut from the stage path (the feature stays; she can open
+3 minutes. Rounds sit inside one ask: a meeting is one thing reaching her, however many rounds she takes. The old wireframe focus moment and the third are cut from the stage path (the feature stays; she can open
 more off-script). The proof is 20 s, the close 30 s on slides.
 **Timing matches the build (14 Nov, ~17:50 UTC, measured on live bakery runs):** first journey 2.7 s, redraw 2.7 s,
 team + selection 17.5–20 s, page build ~22 s, a judge's idea to its questions ~11 s. The order follows the build: her
@@ -240,8 +240,8 @@ card isn't ready when the intro reaches it, the room is honest, with humour: a s
 (*"Theo's running a little late: we're finding you someone who knows morning bake lists."*). The flow never waits,
 with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
 fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
-stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and the
-hidden ceiling of 3 stands. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
+stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and no
+number is promised (the hidden ceiling stays in code). **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
 **Cut line:** if it isn't ready, the role choice stays Product · Your own craft.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
@@ -291,12 +291,12 @@ in, labelled REPLAY, and the presenter says what was replayed.
   Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
   (Engineering). Check-ins read *"Noor (Research): …"*.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
-  the desk), and at least one choice visible on her page comes from it (e.g. a standing weekly order shown first). It reaches her three only if
+  the desk), and at least one choice visible on her page comes from it (e.g. a standing weekly order shown first). It reaches her only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
 - **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
   decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
   answer **would change what gets built and needs her expertise**. No fixed number is promised: on stage, say the
-  real count ("her team asked 3"). **A hard ceiling of 3 stays in code with its test**, as a safety net nobody sees.
+  real count ("her team asked 3"). A hidden ceiling stays in code with its test, as a safety net nobody sees; it is never a promise.
   - **Candidates:** every teammate proposes decisions as it works.
   - **Ranking:** one model call ranks them by the question bar above: big? draws on what she's good at or loves
     (her words and profile)? can the page show the answer? Granular candidates are decided, never asked. The selector
@@ -314,7 +314,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 ## 3. Real vs prepared
 **Real, and tested:**
-1. the ranking and the cap of 3 (tests: a fourth question never gets through; a different idea changes the picks);
+1. the ranking and its threshold (tests: a low-stakes candidate is never asked; a different idea changes the picks; a hidden safety ceiling holds);
 2. nothing else can ask her: refused questions are decided and logged;
 3. the counter and its reasons, and the meter, all from the log;
 4. the meeting takeaways and her rewording, and the hidden philosophy file updated from them;

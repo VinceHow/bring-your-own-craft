@@ -114,7 +114,7 @@ const SAYS = [
   'Small and warm. Nobody should feel lost on their first visit, and nobody should wait at the door.',
   'Fast. Don\'t ask for anything you already know.',
 ];
-test('4. at most three questions wait in her tray; she opens each as a document and says her piece', async t => {
+test('4. the questions that passed the bar wait in her tray; she opens each as a document and says her piece', async t => {
   if (!RUN) return t.todo('needs step 3');
   await page.keyboard.press('Enter'); // an empty line: team, go
   await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');

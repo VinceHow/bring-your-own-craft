@@ -1,4 +1,4 @@
-// Quick unblocks go through the ask policy: they count toward her three, are refused once the cap is spent (then
+// Quick unblocks go through the ask policy: they count toward the hidden safety ceiling, are refused once it is reached (then
 // decided on the team's suggestion), only her facts and calls qualify, and only lib/unblock.js can raise one. Offline.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -19,7 +19,7 @@ test('Bo raises an unblock: it is an ask (counted), with the team suggestion, an
   const a = raiseUnblock(run, BO);
   assert.ok(a && a.unblock && a.type === 'ask');
   assert.deepEqual([a.seat, a.by, a.suggestion, a.kind], ['engineering', 'Bo', '8pm the night before', 'call']);
-  assert.equal(askCount(run), 1, 'counts toward her three');
+  assert.equal(askCount(run), 1, 'counts toward the hidden ceiling');
   const evs = readEvents(run);
   assert.ok(evs.some(e => e.type === 'ask.unblock' && e.id === a.id), 'the seat\'s raise is logged');
   assert.ok(evs.some(e => e.type === 'owner.action' && e.id === a.id && e.suggestion === '8pm the night before'), 'the studio\'s owner.action event');
@@ -48,7 +48,7 @@ test('her own words replace the suggestion; empty is refused', () => {
   assert.equal(answerUnblock(run, { askId: 'nope', yes: true })[0], 404);
 });
 
-test('the cap holds: with three asks spent, an unblock is refused and decided on the suggestion', () => {
+test('safety ceiling: once the hidden ceiling is reached, an unblock is refused and decided on the suggestion', () => {
   const run = newRunId(uid());
   for (let i = 0; i < MAX_ASKS; i++) logEvent(run, 'ask', { id: `c${i}`, seat: 'design', decision: 'x' });
   assert.equal(raiseUnblock(run, BO), null);
@@ -80,7 +80,7 @@ test('a topic makes the team-space headline from her choice ("Orders close 8pm t
 
 // The mixed case (the lead's condition): two asks through the selector's own door plus one unblock spend her three;
 // after that a further unblock AND a further selector ask are both refused, and the log never holds a fourth ask.
-test('mixed: 2 selector asks + 1 unblock spend the cap; a further unblock and a further selector ask are both refused', async () => {
+test('safety ceiling, mixed: selector asks and an unblock share the hidden ceiling; past it, both are refused and decided', async () => {
   const run = newRunId(uid());
   const cand = (id, seat, decision) => ({ id, seat, decision, options: ['A', 'B'], recommendation: 'A', reason: 'r', cost: 'high', undoable: false, attachTo: null });
   const callModel = async ({ system, user }) => /Task: select/.test(system)
