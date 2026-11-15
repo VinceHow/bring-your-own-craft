@@ -35,6 +35,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   const sent = { idea: null, line: null, close: null };
   await page.route('**/api/tidy', async r => {
     const { text } = JSON.parse(r.request().postData());
+    if (/typing on/.test(text)) { await new Promise(res => setTimeout(res, 1200)); return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ text: 'Typing on.', tidied: true }) }).catch(() => {}); }
     if (/slow/.test(text)) { await new Promise(res => setTimeout(res, 4000)); return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ text: 'never used', tidied: true }) }).catch(() => {}); }
     await new Promise(res => setTimeout(res, 300));
     r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ text: CLEAN[text] || text, tidied: !!CLEAN[text] }) });
@@ -68,6 +69,16 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
   assert.equal(sent.line, 'I think regulars first, then the bread.');
   assert.equal(await inp.getAttribute('data-tidy'), 'reordered');
+  // she types on while it tidies: her new words are never overwritten, and this line goes as she sent it
+  sent.line = null;
+  await inp.fill('um typing on while it tidies'); await inp.press('Enter');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidying');
+  await inp.fill('the next line she is typing');
+  for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
+  assert.equal(sent.line, 'um typing on while it tidies', 'this line goes as she sent it');
+  assert.equal(await inp.inputValue(), 'the next line she is typing', 'what she typed meanwhile stays');
+  assert.equal(await inp.getAttribute('data-tidy'), 'skipped');
+  await inp.fill('');
   // a slow tidy: her raw words go, after at most ~2.5 s
   sent.line = null;
   const t0 = Date.now();
@@ -83,6 +94,10 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   assert.equal(await ci.getAttribute('data-raw'), 'so basically a booking page for my yoga studio');
   for (let i = 0; i < 40 && !sent.close; i++) await page.waitForTimeout(50);
   assert.equal(sent.close, 'A booking page for my yoga studio.');
+  // go-phrases with fillers are go; a real line with fillers is not (no model call)
+  const go = await page.evaluate(() => ['um, sounds good', 'uh yeah, go ahead', 'like, lets build it', 'sounds good', 'um I think regulars should come first', 'uh the bread first']
+    .map(t => BYOC.isGo(t)));
+  assert.deepStrictEqual(go, [true, true, true, true, false, false]);
   assert.deepStrictEqual(errors, []);
   await page.close();
 });
