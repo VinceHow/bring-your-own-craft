@@ -77,3 +77,16 @@ test('parseRange', () => {
   assert.equal(parseRange('items=0-1', 10), null);
   assert.equal(parseRange('bytes=-', 10), null);
 });
+
+// The close deck: /slides/ serves public/slides/index.html; /slides redirects to /slides/ (its relative links resolve);
+// a folder never lets a path out of public/.
+test('a folder in public/ serves its index.html: /slides/ is the close deck', async () => {
+  const r = await get('/slides/');
+  assert.equal(r.status, 200);
+  assert.match(String(r.headers['content-type']), /text\/html/);
+  assert.equal(r.body.toString(), fs.readFileSync(new URL('../public/slides/index.html', import.meta.url), 'utf8'));
+  const bare = await get('/slides?x=1');
+  assert.deepEqual([bare.status, bare.headers.location], [301, '/slides/?x=1']);
+  assert.equal((await get('/slides/..%2f..%2fpackage.json')).status, 403);
+  assert.equal((await get('/no-such-folder/')).status, 404);
+});
