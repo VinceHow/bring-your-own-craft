@@ -229,3 +229,10 @@ body.print .counter { display: none; }
 .chat-done span { padding: 6px 12px 7px; border-radius: 999px; background: #3A2A1F; color: #FFF8F2; font: 700 14px/1 var(--sans); box-shadow: 2px 3px 0 0 var(--cr-research); }
 .problem .chat > .sticky { position: absolute; right: -26px; bottom: -20px; max-width: 210px; padding: 14px 16px 16px; font-size: 23px; }
 .problem .half + .half::before { top: 168px; bottom: 96px; }   /* the seam stops short of the kicker and the footnote */
+/* 03 · our answer: the two cards are the hero, airy, ≥96px apart */
+.answer { gap: 30px; }
+.answer .headline { font-size: 96px; }
+.answer .row { gap: 110px; max-width: 1240px; margin: 24px auto 20px; }
+.answer .big-card { padding: 44px 46px 50px; }
+.answer .big-card .paper-big { font-size: 80px; }
+.answer .big-card { display: flex; flex-direction: column; justify-content: center; }
