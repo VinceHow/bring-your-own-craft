@@ -79,7 +79,7 @@
    "mode": "",
    "result": "PASS",
    "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
-   "evidence": "design/studio/qa/audit-0430/polish/tidy-idea-03.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-idea-strip.jpg",
    "owner": ""
   },
   {
@@ -159,7 +159,7 @@
    "mode": "",
    "result": "PASS",
    "note": "tidied: tidied/cut: “the regulars, want their usual loaf”; layout shift 0px over 10 frames",
-   "evidence": "design/studio/qa/audit-0430/polish/tidy-nametag-03.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-nametag-strip.jpg",
    "owner": ""
   },
   {
@@ -239,7 +239,7 @@
    "mode": "",
    "result": "PASS",
    "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
-   "evidence": "design/studio/qa/audit-0430/polish/tidy-focus-03.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-focus-strip.jpg",
    "owner": ""
   },
   {
@@ -319,7 +319,7 @@
    "mode": "",
    "result": "PASS",
    "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
-   "evidence": "design/studio/qa/audit-0430/polish/tidy-unblock-03.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-unblock-strip.jpg",
    "owner": ""
   },
   {
@@ -499,7 +499,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (10 × 350 ms), layout shift 0px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-the-door-plaque-05.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-the-door-plaque-strip.jpg",
    "owner": ""
   },
   {
@@ -509,7 +509,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (8 × 120 ms), layout shift 0px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-04.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-strip.jpg",
    "owner": ""
   },
   {
@@ -519,7 +519,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (8 × 300 ms), layout shift 0px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-04.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-strip.jpg",
    "owner": ""
   },
   {
@@ -529,7 +529,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (8 × 150 ms), layout shift 0px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-04.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-strip.jpg",
    "owner": ""
   },
   {
@@ -539,7 +539,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (10 × 250 ms), layout shift 1px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-05.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-strip.jpg",
    "owner": ""
   },
   {
@@ -549,7 +549,7 @@
    "mode": "",
    "result": "NOTE",
    "note": "frame strip (10 × 250 ms), layout shift 0px; scored by eye in the audit",
-   "evidence": "design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-05.jpg",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg",
    "owner": ""
   },
   {

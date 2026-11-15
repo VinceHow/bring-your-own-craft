@@ -117,7 +117,7 @@
 | the idea paper: Shift+Enter makes a new line | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-idea-shift-enter.jpg` | new line kept |  |
 | the idea paper: Esc leaves the field | 1920x1130 | PASS |  | focus left the field |  |
 | the idea paper: empty input | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-idea-empty-enter.jpg` | primary stays “Next” (enabled); Enter on empty did nothing |  |
-| the idea paper: the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-idea-03.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
+| the idea paper: the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-idea-strip.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
 | her name tag: 300 words | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-nametag-300-words.jpg` | fits (field scrolls inside itself; primary on screen) |  |
 | her name tag: has the mic | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-nametag-300-words.jpg` | mic in the card |  |
 | her name tag: pasted paragraph | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-nametag-pasted-paragraph.jpg` | fits (field scrolls inside itself; primary on screen) |  |
@@ -125,7 +125,7 @@
 | her name tag: Shift+Enter makes a new line | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-nametag-shift-enter.jpg` | new line kept |  |
 | her name tag: Esc leaves the field | 1920x1130 | PASS |  | focus left the field |  |
 | her name tag: empty input | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-nametag-empty-enter.jpg` | primary stays “Make my tag” (enabled); Enter on empty did nothing |  |
-| her name tag: the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-nametag-03.jpg` | tidied: tidied/cut: “the regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
+| her name tag: the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-nametag-strip.jpg` | tidied: tidied/cut: “the regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
 | Focus 1 (her answer): 300 words | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-focus-300-words.jpg` | fits (field scrolls inside itself; primary on screen) |  |
 | Focus 1 (her answer): has the mic | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-focus-300-words.jpg` | mic in the card |  |
 | Focus 1 (her answer): pasted paragraph | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-focus-pasted-paragraph.jpg` | fits (field scrolls inside itself; primary on screen) |  |
@@ -133,7 +133,7 @@
 | Focus 1 (her answer): Shift+Enter makes a new line | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-focus-shift-enter.jpg` | new line kept |  |
 | Focus 1 (her answer): Esc leaves the field | 1920x1130 | PASS |  | focus left the field |  |
 | Focus 1 (her answer): empty input | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-focus-empty-enter.jpg` | primary stays “Send” (enabled); Enter on empty did nothing |  |
-| Focus 1 (her answer): the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-focus-03.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
+| Focus 1 (her answer): the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-focus-strip.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
 | the unblock card (say something else): 300 words | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-unblock-300-words.jpg` | fits (field scrolls inside itself; primary on screen) |  |
 | the unblock card (say something else): has the mic | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-unblock-300-words.jpg` | mic in the card |  |
 | the unblock card (say something else): pasted paragraph | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920x1130-unblock-pasted-paragraph.jpg` | fits (field grows; primary on screen) |  |
@@ -141,7 +141,7 @@
 | the unblock card (say something else): Shift+Enter makes a new line | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-unblock-shift-enter.jpg` | new line kept |  |
 | the unblock card (say something else): Esc leaves the field | 1920x1130 | PASS |  | focus left the field |  |
 | the unblock card (say something else): empty input | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/1920-unblock-empty-enter.jpg` | primary stays “Yes” (enabled); Enter on empty did nothing |  |
-| the unblock card (say something else): the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-unblock-03.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
+| the unblock card (say something else): the tidy in place | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/tidy-unblock-strip.jpg` | tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames |  |
 | the idea paper: 300 words | 1440x900 | PASS | `design/studio/qa/audit-0430/polish/1440x900-idea-300-words.jpg` | fits (field scrolls inside itself; primary on screen) |  |
 | the idea paper: pasted paragraph | 1440x900 | PASS | `design/studio/qa/audit-0430/polish/1440x900-idea-pasted-paragraph.jpg` | fits (field scrolls inside itself; primary on screen) |  |
 | her name tag: 300 words | 1440x900 | PASS | `design/studio/qa/audit-0430/polish/1440x900-nametag-300-words.jpg` | fits (field scrolls inside itself; primary on screen) |  |
@@ -164,12 +164,12 @@
 | Item | Size | Result | Evidence | Note | Owner |
 |---|---|---|---|---|---|
 | prefers-reduced-motion gets static versions | 1920x1130 | PASS | `design/studio/qa/audit-0430/polish/reduced-motion-reveal.jpg` | door layer skipped; 1 running animations right after the reveal |  |
-| magic moment: the door plaque | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-the-door-plaque-05.jpg` | frame strip (10 × 350 ms), layout shift 0px; scored by eye in the audit |  |
-| magic moment: each meet card entrance | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-04.jpg` | frame strip (8 × 120 ms), layout shift 0px; scored by eye in the audit |  |
-| magic moment: the team getting to work | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-04.jpg` | frame strip (8 × 300 ms), layout shift 0px; scored by eye in the audit |  |
-| magic moment: a teammate reply arriving | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-04.jpg` | frame strip (8 × 150 ms), layout shift 0px; scored by eye in the audit |  |
-| magic moment: End meeting → takeaways | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-05.jpg` | frame strip (10 × 250 ms), layout shift 1px; scored by eye in the audit |  |
-| magic moment: Bo’s smile on Yes | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-05.jpg` | frame strip (10 × 250 ms), layout shift 0px; scored by eye in the audit |  |
+| magic moment: the door plaque | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-the-door-plaque-strip.jpg` | frame strip (10 × 350 ms), layout shift 0px; scored by eye in the audit |  |
+| magic moment: each meet card entrance | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-strip.jpg` | frame strip (8 × 120 ms), layout shift 0px; scored by eye in the audit |  |
+| magic moment: the team getting to work | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-strip.jpg` | frame strip (8 × 300 ms), layout shift 0px; scored by eye in the audit |  |
+| magic moment: a teammate reply arriving | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-strip.jpg` | frame strip (8 × 150 ms), layout shift 0px; scored by eye in the audit |  |
+| magic moment: End meeting → takeaways | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-strip.jpg` | frame strip (10 × 250 ms), layout shift 1px; scored by eye in the audit |  |
+| magic moment: Bo’s smile on Yes | 1920x1130 | NOTE | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | frame strip (10 × 250 ms), layout shift 0px; scored by eye in the audit |  |
 
 **§4 Never lost, never stuck**
 
