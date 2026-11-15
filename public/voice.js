@@ -228,7 +228,8 @@
     let clean = raw;
     try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
     // She typed (or spoke) on while it tidied: what she has now is never overwritten, and this line goes untidied.
-    if (el && isField && el.value !== raw) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
+    // She typed while it tidied (a field, or a contenteditable answer): her edit wins.
+    if (el && (isField ? el.value !== raw : el.isContentEditable && el.textContent.trim() !== raw)) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
     if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
     return clean;
   };
