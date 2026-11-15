@@ -152,3 +152,14 @@ test('meet the team waits for her (no ?hold=): each card stays until Next, Enter
   await page.waitForFunction(() => BYOC.beat >= 2, null, { timeout: 3000 });
   await page.close();
 });
+
+test('her idea line is tidied in place (BYOC.tidyInto) and the clean line is the idea: the meet lines and the run get it', async () => {
+  const { page, posted } = await room({ query: '' });
+  await page.unroute('**/api/tidy');
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: IDEA, tidied: true } }));
+  await page.click('#idea-input'); await page.keyboard.type('um so ' + IDEA.toLowerCase() + ' you know'); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.getElementById('setup').dataset.step === 'nametag', null, { timeout: 4000 });
+  assert.equal(await page.evaluate(() => BYOC.pendingIdea), IDEA);
+  assert.deepEqual(posted.meet, [{ idea: IDEA }]);
+  await page.close();
+});
