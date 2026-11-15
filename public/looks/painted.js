@@ -257,16 +257,16 @@
   const M = window.Motion;
   B.on('ask', ev => {
     const inbox = document.getElementById('inbox');
-    if (!M || !inbox || inbox.dataset.state === 'expanded' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!M || !inbox || inbox.dataset.state === 'open' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const [hx, hy] = HAND[ev.seat];
     inbox.dataset.ptAwaiting = '';
     setTimeout(() => {
-      if (inbox.dataset.state === 'expanded' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
+      if (inbox.dataset.state === 'open' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
       const r = room.getBoundingClientRect(), k = r.width / 1600, ib = inbox.getBoundingClientRect();
       const x1 = (ib.left - r.left) / k + 40, y1 = (ib.top - r.top) / k + 6;
       const n = document.createElement('div'); n.dataset.component = 'note-flight'; n.dataset.seat = ev.seat;
       const who = document.createElement('b'), txt = document.createElement('span'); who.dataset.slot = 'who'; txt.dataset.slot = 'text';
-      who.textContent = WHO[ev.seat] || ''; txt.textContent = few(ev.question || ev.decision || '', 8); n.append(who, txt);
+      who.textContent = WHO[ev.seat] || ''; txt.textContent = 'has a question'; n.append(who, txt); // only who: no preview of the question in the room (Vincent, 15 Nov)
       room.appendChild(n);
       const x0 = hx - 100, y0 = hy - 30, mx = (x0 + x1) / 2 + 30, my = 600;
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });

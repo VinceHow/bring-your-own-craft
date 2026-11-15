@@ -1,4 +1,8 @@
-// Her inbox (DEMO "Her inbox", Vincent 14 Nov evening): one component by her seat, replacing the tray.
+// Her inbox (DEMO "Her inbox", Vincent 14 Nov evening; ONE home at the top right, Vincent 15 Nov 02:00: "my inbox should
+// live at the top right, saying it's empty until something comes in… when I open it, it takes over my whole screen. No
+// stupid preview"). data-state empty | new | open. Empty: "Your inbox is empty". New: only who ("Noor has a question"),
+// never the question itself: the room's one attention cue. Open: the whole screen. The tally's counters live in it.
+// A quick unblock opens as its own full-screen page (data-view="action"), like her focus document.
 // Collapsed: the one item that needs her now, or "Nothing needs you right now". Expanded: a drawer with three parts:
 //   Needs you: one item at a time, the next ones folded. The tray's arrival rules, moved here unchanged: an item
 //     slides in only at a natural pause (about 1 s after it), never while she's typing or speaking; no numbers, no red,
@@ -16,10 +20,17 @@
   if (!room) return;
   // Structure and a sane default spot only (where the tray sat); the look is the studio's.
   const css = `
-.inbox { position: absolute; left: 296px; bottom: 8px; width: 300px; z-index: 9; }
+/* Where it lives is Vincent's call, not a look's: ONE home at the top right, the whole screen when open (ids, so a look's
+   class rules style it but don't move it; a look that must move it matches this specificity on purpose). */
+html body #room #inbox { position: absolute; left: auto; right: 18px; top: 16px; bottom: auto; width: 340px; z-index: 9; }
+html body #room #inbox[data-state="open"] { left: 40px; right: 40px; top: 20px; bottom: 20px; width: auto; z-index: 60; overflow: auto; overscroll-behavior: contain; background: var(--sheet, #fff); padding: 22px 28px; }
+html body #room #inbox[data-state="open"] .inbox-drawer { max-height: none; overflow: visible; }
 .inbox[hidden], .inbox [hidden] { display: none !important; }
 .inbox .inbox-now, .inbox .inbox-toggle, .inbox .inbox-item { display: block; width: 100%; text-align: left; font: inherit; cursor: pointer; }
-.inbox .inbox-drawer { max-height: 520px; overflow: auto; }
+html body #room #inbox[data-state="open"] .inbox-now { display: none; }
+html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* opened, it sits under the pointer: a hover lift would flicker */
+.inbox[data-view="action"] [data-part]:not([data-part="needs"]), .inbox[data-view="action"] .inbox-part-title, .inbox[data-view="action"] .inbox-next, .inbox[data-view="action"] .counter { display: none !important; }
+.inbox[data-view="action"] .inbox-action { width: auto; max-width: 860px; margin: 40px auto 0; }
 .inbox .inbox-steps { margin: 0; padding-left: 0; list-style: none; }
 .inbox .inbox-who, .inbox .inbox-text { display: block; }
 .inbox[data-pulse="on"] { outline: 3px solid currentColor; outline-offset: 3px; }
@@ -39,12 +50,14 @@
   };
   B.asker = asker;
   const who = n => `${asker(n)} asks`;
+  // The closed inbox says only who: "Noor has a question", "Bo's blocked". Never the question (no preview in the room).
+  const line = n => n.unblock ? `${n.by || AGENT[n.seat] || 'The team'}'s blocked` : `${asker(n)} has a question`;
   const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
 
   // ---- the frame ----------------------------------------------------------------------------------
   const box = h('aside', 'inbox'); box.id = 'inbox'; box.hidden = true;
   box.setAttribute('aria-label', 'Your inbox');
-  box.dataset.component = 'inbox'; box.dataset.state = 'collapsed';
+  box.dataset.component = 'inbox'; box.dataset.state = 'empty'; box.dataset.view = 'list';
   const now = slot(h('button', 'inbox-now'), 'now'); now.type = 'button';
   const toggle = slot(h('button', 'inbox-toggle', 'Open your inbox'), 'toggle'); toggle.type = 'button'; toggle.setAttribute('aria-expanded', 'false');
   const drawer = slot(h('div', 'inbox-drawer'), 'drawer'); drawer.hidden = true;
@@ -59,6 +72,14 @@
   const pastBody = part('meetings', 'Past meetings');
   box.append(now, toggle, drawer);
   room.appendChild(box);
+  // The tally's counters ("decisions came up · brought to you") live in the inbox now; the room's #tally keeps the meter.
+  // The node moves (its ids and room.js's rollers with it); it shows when the tally does.
+  const counter = document.getElementById('counter'), tallyEl = document.getElementById('tally');
+  if (counter) {
+    counter.dataset.slot = 'tally'; box.insertBefore(counter, toggle);
+    const sync = () => { counter.hidden = !tallyEl || tallyEl.hidden; };
+    sync(); if (tallyEl) new MutationObserver(sync).observe(tallyEl, { attributes: true, attributeFilter: ['hidden'] });
+  }
 
   // ---- state -------------------------------------------------------------------------------------
   let shown = [];           // the Needs-you items she can see (after the natural pause)
@@ -154,9 +175,12 @@
   function paint() {
     const top = shown[0];
     // Collapsed: the one item that needs her now, or nothing.
-    now.replaceChildren(...(top ? item(top, 'top').childNodes : [slot(h('span', 'inbox-empty', 'Nothing needs you right now'), 'empty')]));
+    now.replaceChildren(top ? slot(h('span', 'inbox-who', line(top)), 'who') : slot(h('span', 'inbox-empty', 'Your inbox is empty'), 'empty'));
     now.dataset.ask = top ? top.id : '';
     now.dataset.component = 'inbox-item'; if (now.dataset.state !== 'new' || !top) now.dataset.state = top ? 'top' : 'empty';
+    if (box.dataset.state !== 'open') box.dataset.state = top ? 'new' : 'empty';
+    // The unblock page closes itself once its item has gone (she answered; the server took it).
+    if (box.dataset.view === 'action' && !(top && top.unblock && top.id === box.dataset.actionId)) expand(false);
     if (top && top.unblock) now.dataset.action = top.id; else delete now.dataset.action;
     if (top) now.dataset.seat = top.seat || ''; else delete now.dataset.seat;
     box.dataset.needs = top ? 'yes' : 'no';
@@ -181,6 +205,13 @@
   function keepInView() {
     if (box.hidden) return;
     box.style.translate = '';
+    if (box.dataset.state !== 'open') { for (const k of ['left', 'top', 'right', 'bottom']) box.style[k] = ''; }
+    else { // the whole visible window, whatever the look's scale or crop: fit it inside with a small margin
+      const rr = room.getBoundingClientRect(), k = rr.width / (room.offsetWidth || rr.width) || 1, M = 12;
+      box.style.left = Math.max(40, (M - rr.left) / k) + 'px'; box.style.top = Math.max(20, (M - rr.top) / k) + 'px';
+      box.style.right = Math.max(40, (rr.right - (innerWidth - M)) / k) + 'px'; box.style.bottom = Math.max(20, (rr.bottom - (innerHeight - M)) / k) + 'px';
+      return;
+    }
     const r = box.getBoundingClientRect(); if (!r.width) return;
     const k = r.width / (box.offsetWidth || r.width) || 1, M = 8;
     let dx = 0, dy = 0;
@@ -226,14 +257,16 @@
   pastBody.appendChild(slot(h('p', 'inbox-empty', 'Your meeting notes will be here after your first meeting.'), 'empty'));
 
   // ---- open and close ----------------------------------------------------------------------------------
-  function expand(open) {
-    box.dataset.state = open ? 'expanded' : 'collapsed';
+  function expand(open, view = 'list', actionId = '') {
+    box.dataset.state = open ? 'open' : shown[0] ? 'new' : 'empty';
+    box.dataset.view = open ? view : 'list'; if (open && actionId) box.dataset.actionId = actionId; else delete box.dataset.actionId;
     drawer.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.textContent = open ? 'Close your inbox' : 'Open your inbox';
+    toggle.textContent = !open ? 'Open your inbox' : view === 'action' ? 'Back to the room' : 'Close your inbox';
     keepInView();
   }
-  toggle.addEventListener('click', () => expand(box.dataset.state !== 'expanded'));
+  toggle.addEventListener('click', () => expand(box.dataset.state !== 'open'));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && box.dataset.state === 'open') { e.stopPropagation(); expand(false); } }, true);
   // Clicking the item that needs her opens it as her document; with nothing waiting, the click opens the drawer.
   now.addEventListener('click', () => { if (now.dataset.ask) openItem(now.dataset.ask); else expand(true); });
   // owner.action (the studio's event name) arrives with the granted ask; the action itself rides on BYOC.focus.waiting.
@@ -243,10 +276,11 @@
     if ((shown.find(n => n.id === id) || {}).unblock) return showUnblock(id);
     expand(false); return B.openNote(id);
   }
-  // An unblock is answered right here: open the drawer on it, ready for Yes or her words.
+  // An unblock opens as its own full-screen page (data-view="action"): who's blocked, the question, Yes, Say it again.
   function showUnblock(id) {
     if (!shown.some(n => n.id === id)) return false;
-    expand(true);
+    if (shown[0].id !== id) { shown = [shown.find(n => n.id === id), ...shown.filter(n => n.id !== id)]; paint(); }
+    expand(true, 'action', id);
     const c = needsBody.querySelector(`.inbox-action[data-action="${CSS.escape(id)}"]`);
     if (c) c.querySelector('.ia-yes').focus();
     return true;
