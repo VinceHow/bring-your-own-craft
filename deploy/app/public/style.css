@@ -147,3 +147,56 @@ footer { padding: 32px 16px 0; color: var(--muted); font-size: 16px; text-align:
   .bag.landing { animation: none; }
   .flour { display: none; }
 }
+
+/* ---- builder hand edit 5: design polish (taste-skill rules for a place; CSS and static markup only) ---- */
+:root { --r: 14px; --card: #FFFBF4; --line: #E6D9C4; }
+body { font-size: 17px; line-height: 1.55; }
+p, h1, h2, h3 { text-wrap: pretty; }
+.banner { font-size: 13.5px; padding: 8px 16px; text-wrap: balance; letter-spacing: .01em; }
+
+/* the hero: the name big and tight, the mark beside it, one calm line under */
+.masthead { display: block; padding: 28px 16px 4px; }
+.mast-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+h1 { font-size: 46px; line-height: 1; letter-spacing: -.008em; word-spacing: .04em; font-variation-settings: "opsz" 72; max-width: 9ch; }
+.logo { width: 60px; height: 60px; margin-top: 4px; border-width: 1.5px; }
+.tag { margin-top: 12px; font-style: normal; font-size: 18px; color: var(--muted); text-wrap: pretty; max-width: 30ch; }
+
+/* section labels: sentence case in the display face, never tracked capitals */
+.section { font: 600 22px/1.2 var(--display); letter-spacing: 0; text-transform: none; color: var(--crust); margin: 32px 0 8px; }
+.lede { margin-bottom: 20px; color: var(--ink); text-wrap: balance; }
+
+/* the product cards: one surface, one radius, the photo framed inside */
+.loaves { gap: 16px; }
+.loaf { border: 1px solid var(--line); border-top: 1px solid var(--line); background: var(--card); border-radius: var(--r); padding: 12px 12px 16px; }
+.photo { border-radius: 10px; aspect-ratio: 3 / 2; margin-bottom: 14px; }
+.photo img { object-position: 50% 58%; transition: filter .4s, transform .5s ease; }
+@media (hover: hover) { .loaf:hover .photo img { transform: scale(1.025); } }
+.name-row { align-items: center; padding: 0 4px; }
+.name { font-size: 26px; letter-spacing: -.01em; }
+.count { font-size: 15px; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: #F1E4CF; color: var(--crust); }
+.loaf.out .count { background: transparent; }
+.desc { padding: 0 4px; margin: 6px 0 14px; font-size: 16.5px; }
+.hand-wrap, .usual { padding: 0 4px; }
+.hand-wrap { margin: 0 0 12px; }
+.btn { min-height: 54px; font-size: 18px; letter-spacing: .005em; transition: transform .08s ease, filter .15s ease; }
+@media (hover: hover) { .btn:hover { filter: brightness(1.06); transform: translateY(-1px); } }
+.btn:active { transform: translateY(1px); }
+.reserve { padding: 0 4px; }
+.reserve input { border-width: 1.5px; border-radius: 12px; }
+.as { padding: 4px 0; }
+
+/* the bag: a cleaner paper bag, room for the stamp */
+.bag { border-radius: var(--r); padding-bottom: 20px; }
+.sticker { box-shadow: 0 1px 0 rgba(58,37,20,.12); transform: rotate(-.6deg); }
+.bag.delivered .sticker { transform: rotate(.4deg); }
+.bag.delivered { padding-bottom: 88px; }
+.bag.delivered .stamp-wrap { bottom: 20px; }
+.sticker { border-width: 1.5px; }
+.cheer { font-weight: 600; }
+
+/* regulars' corner: a quiet kraft card, its heading like the others */
+.regulars { margin: 32px 16px 0; padding: 20px; border: 0; border-radius: var(--r); background: #EFE2CC; }
+.regulars .section { margin: 0 0 8px; }
+footer { padding-top: 28px; }
+footer p { text-wrap: balance; }
+@media (prefers-reduced-motion: reduce) { .photo img, .btn { transition: none; } .loaf:hover .photo img { transform: none; } }

@@ -43,11 +43,11 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
    Polished by our builders." Bo wrote none of this pass. Checked by `deploy/acceptance/delivered.browser.mjs`
    (headline within 1 s, the celebration, reduced motion rests).
 
-5. **Pending, not deployed** (in `deploy/polish-pending/` until the design lead approves): a design polish by builder 6 (Vincent's ask, 15 Nov morning), with the taste-skill rules for a place: CSS (one
+5. A design polish by builder 6 (Vincent's ask, 15 Nov morning), with the taste-skill rules for a place: CSS (one
    block at the end of `public/style.css`) and the static hero markup in `public/index.html` only. The hero (the name
    big, the mark beside it, one upright line under), section labels in sentence case instead of tracked capitals, the
    product cards (one surface and radius, photos framed at 3:2, the stock count as a pill), the bag's finish, the
-   Regulars' corner as a kraft card, a balanced banner. No behaviour, API or script change. Bo wrote none of it.
+   Regulars' corner as a kraft card, a balanced banner. No behaviour, API or script change. Approved by the design lead (stamp given room, bubble border 1.5px). Bo wrote none of it.
 
 Run the acceptance files one at a time (`node --test --test-concurrency=1 …`): each starts with Reset demo on the same app.
 
