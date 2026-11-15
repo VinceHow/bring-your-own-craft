@@ -13,6 +13,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: #0C0E16; overflow: hidden; }
 .stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform-origin: 0 0; overflow: hidden; background: var(--night); }
+.stage::after { content: ''; position: absolute; inset: -1px; z-index: 100; pointer-events: none; box-shadow: inset 0 0 0 3px #0C0E16; } /* hides the 1px bleed of blurred slide backdrops at the scaled stage edge */
 .slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity .25s linear, visibility 0s linear .25s;
   color: var(--cream); padding: 84px 110px 80px; display: flex; flex-direction: column; justify-content: safe center; gap: 26px; }
 .slide.on { opacity: 1; visibility: visible; transition: opacity .25s linear; }

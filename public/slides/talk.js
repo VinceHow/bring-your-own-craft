@@ -6,7 +6,7 @@
   const slides = [...document.querySelectorAll('.slide')];
   const PRINT = q.has('print'); if (PRINT) document.body.classList.add('print');
   let cur = Math.max(0, Math.min(slides.length - 1, (parseInt(q.get('n'), 10) || 1) - 1));
-  function fit() { if (PRINT) return; const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.transform = `scale(${s}) translate(-50%, -50%)`; }
+  function fit() { if (PRINT) return; const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.left = Math.round((innerWidth - 1600 * s) / 2) + 'px'; stage.style.top = Math.round((innerHeight - 900 * s) / 2) + 'px'; stage.style.transform = `scale(${s})`; /* whole-pixel edges: no hairline of the backdrop at the letterbox */ }
   // A .live slide is the real studio: the living painting (looks/comps/cast-living.html, embed: no run, no slips) with
   // the room's toys over it (looks/playful-ink.js), and no app UI. Mounted the first time the slide shows.
   function mountLive(s) {
