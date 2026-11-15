@@ -68,11 +68,14 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
     // "Loaded with": what each really has for this idea (computed on the server, not stubbed)
     const kit = await page.evaluate(() => window.__kit);
-    assert.match(kit.research[0], /^A verified finding: .+, read \d{4}-\d\d-\d\d$/);
-    assert.equal(kit.engineering[0], 'The bakery page template, on taste-skill’s kit');
+    assert.match(kit.research[0], /^Linkup finding: /, 'Noor: Linkup');
+    assert.equal(kit.engineering[0], 'The bakery page template');
+    for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /\bClaude\b/.test(x)), `${seat}'s card names Claude`);
+    for (const x of Object.values(kit).flat()) assert.ok(x.split(/\s+/).length <= 6, `at most 6 words: ${x}`);
     assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
     const made = await page.evaluate(() => window.__made);
     assert.deepEqual(made.research, ['Researched with Linkup, before the demo']);
+    assert.deepEqual(made.design, ['Studio, clips, music painted on fal'], 'Mika: fal; no Figma in the room');
     assert.deepEqual(made.engineering, ['This app, built with Claude Code']);
     assert.deepEqual(made.data, [], 'nothing claimed where there is nothing');
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
@@ -204,6 +207,9 @@ for (const available of [true, false]) test(`"voice by ElevenLabs" in the hints 
   await page.waitForTimeout(1500);
   const credit = await page.evaluate(() => { const c = document.querySelector('.idea-card .voice-credit'); return c && !c.hidden && c.getBoundingClientRect().width > 0; });
   assert.equal(credit, available);
-  if (available) assert.match(await page.getAttribute('.idea-card .voice-mic, .idea-card [data-field="idea"]', 'aria-label').catch(() => 'voice by ElevenLabs'), /ElevenLabs/);
+  if (available) {
+    const word = await page.evaluate(() => document.querySelector('.idea-card .voice-word')?.textContent || '');
+    assert.equal(word, 'tap or hold to speak · ElevenLabs', 'the mic says whose voice it is');
+  }
   await page.close();
 });
