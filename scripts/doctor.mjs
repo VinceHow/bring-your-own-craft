@@ -16,7 +16,7 @@ const env = loadEnvLocal();
 // --only port: just the port check (the tests use it; no model call, no network).
 const ONLY = (process.argv.find(a => a.startsWith('--only=')) || '').split('=')[1] || (process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : '');
 const want = k => !ONLY || ONLY === k;
-const { scrub: scrubModel, FAL_URL } = await import('../lib/model.js');
+const { scrub: scrubModel, FAL_URL, FAL_MODELS } = await import('../lib/model.js');
 const secrets = () => KEYS.filter(k => k !== 'MODEL_BACKEND').map(k => process.env[k]).filter(v => v && v.length >= 4);
 const scrub = s => { let o = scrubModel(s); for (const v of secrets()) o = o.split(v).join('[key]'); return o; };
 const proxied = !!(process.env.HTTPS_PROXY || process.env.https_proxy);
@@ -139,7 +139,7 @@ const tryKey = k => set(k) || proxied;
 if (tryKey('FAL_KEY')) await call('fal (Claude through the OpenRouter router)', async () => {
   const r = await fetch(FAL_URL, { method: 'POST', signal: AbortSignal.timeout(20000),
     headers: { 'Content-Type': 'application/json', Authorization: `Key ${process.env.FAL_KEY || 'placeholder'}` },
-    body: JSON.stringify({ model: 'anthropic/claude-haiku-4.5', max_tokens: 5, messages: [{ role: 'user', content: 'Say ok.' }] }) });
+    body: JSON.stringify({ model: FAL_MODELS.haiku, max_tokens: 5, messages: [{ role: 'user', content: 'Say ok.' }] }) });
   const t = await r.text();
   return r.ok ? true : `HTTP ${r.status} ${short(t, 100)}`;
 }, 'check FAL_KEY in .env.local (fal.ai dashboard, Keys); the demo still runs on Claude Code without it');
