@@ -16,7 +16,7 @@
 
 | # | FAIL | Where | Evidence | Owning files | Owner |
 |---|---|---|---|---|---|
-| 1 | The teammates' name pills overlap while the team works: Theo's pill, wider with its thinking dots, covers the end of Noor's by 27×13px | all sizes, day and night | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | room.js · looks/painted-room.css | living designer |
+| 1 | The teammates' name pills overlap while the team works: Theo's pill, wider with its thinking dots, covers the end of Noor's by 27×13px | all sizes, day and night | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | room.js · looks/painted-room.css | living designer · **FIXED** on d4e94d3 (re-walked 1920/1440/1280: 0 overlaps; `design/studio/qa/audit-0430/recheck/pills-d4e94d3.jpg`) |
 | 2 | The inbox, open as a sheet, scrolls on a Mac (1526×884 of content in 1510×860); the unblock drawer slot scrolls too (326 in 311 asking, 390 in 376 speaking), and the speaking card's frame is cut by 10px | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/08-drawer.jpg`, `design/studio/qa/audit-0430/painted/1920x1130-day/11-unblock-asking.jpg` | inbox.js · looks/painted.css | bug fixer |
 | 3 | The takeaways text sits 0px from its card edge (Focus 1 and Focus 2) | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/09-focus1-takeaways.jpg` | focus-doc.js · looks/painted-focus.css | bug fixer |
 | 4 | Bo's full pad: its items list scrolls (477 in 290) and is not the intended scroll column | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/07-engineering-full.jpg` | room.js · looks/painted.css | bug fixer |
