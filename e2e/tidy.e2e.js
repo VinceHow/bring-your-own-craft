@@ -68,7 +68,6 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   assert.equal(sent.line, 'Regulars come every morning.');
   // the tidied line holds in her field for a moment (data-hold), sent once; her next key clears it for her
   assert.equal(await inp.inputValue(), 'Regulars come every morning.'); assert.equal(await inp.getAttribute('data-hold'), 'on');
-  sent.line = null; await inp.press('Enter'); await page.waitForTimeout(150); assert.equal(sent.line, null, 'Enter on the held line sends nothing');
   await inp.press('r'); assert.equal(await inp.inputValue(), 'r', 'her next key ends the hold'); assert.equal(await inp.getAttribute('data-hold'), null);
   // a reordered tidy is marked so (design animates it differently)
   sent.line = null;
@@ -172,12 +171,14 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await page.fill('#focus-doc .fd-input', said); await page.press('#focus-doc .fd-input', 'Enter');
   const turn = '#focus-doc .fd-her:last-of-type .fd-her-words';
   assert.equal(await stateOf(page, turn), 'tidying', 'her raw words show at once');
+  for (let i = 0; i < 20 && !seen.answer; i++) await page.waitForTimeout(25);
+  assert.ok(seen.answer, 'sent before the tidy lands');
   assert.equal(await page.getAttribute(turn, 'data-raw'), said);
   await page.waitForFunction(sel => document.querySelector(sel)?.dataset.state === 'tidied', turn, { timeout: 4000 });
   assert.equal((await page.textContent(turn)).trim(), MORE[said]);
   assert.equal(await page.getAttribute(turn, 'data-tidy'), 'cut');
   for (let i = 0; i < 40 && !seen.answer; i++) await page.waitForTimeout(50);
-  assert.deepStrictEqual(seen.answer, { askId: 'first', text: MORE[said] }, 'the team hears the tidied turn');
+  assert.deepStrictEqual(seen.answer, { askId: 'first', text: said }, 'her answer went at once, as sent (the tidy is on her turn)');
   // a round from a piece (its own tidy not landed yet): the turn is tidied; the body still names the piece
   seen.answer = null;
   await page.waitForFunction(() => !document.querySelector('#focus-doc .fd-form').hidden && document.querySelector('#focus-doc .fd-input').offsetParent !== null, null, { timeout: 4000 });
@@ -195,6 +196,32 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await page.waitForSelector('.fl-input');
   await page.fill('.fl-input', 'uh note to self, uh, check the oven'); await page.press('.fl-input', 'Enter');
   assert.equal(await note, 'Note to self: check the oven');
+  assert.deepStrictEqual(errors, []);
+  await page.close();
+});
+
+// The hold never gets in the clicker's way: PageDown on a held line moves the beat, as on an empty field.
+test('a held line: the clicker still moves on, and a paste replaces it', async () => {
+  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e)));
+  await page.route('**/api/tidy', r => r.fulfill({ status: 200, json: { text: CLEAN[JSON.parse(r.request().postData()).text] || 'x', tidied: true } }));
+  await page.route('**/api/run', r => r.fulfill({ status: 200, json: { run: 'stub-hold' } }));
+  await page.route('**/api/run/stub-hold/**', r => r.fulfill({ status: 404, json: {} }));
+  await page.goto(BASE + '/');
+  await page.evaluate(() => { BYOC.stage(3, { instant: true }); });
+  await page.waitForSelector('#her-input', { state: 'visible' });
+  await page.fill('#her-input', 'um so the idea is, uh, a website for a small bakery so people can order bread ahead'); await page.press('#her-input', 'Enter');
+  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidied');
+  await page.fill('#her-input', 'uh regulars come every, every morning'); await page.press('#her-input', 'Enter');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.hold === 'on', null, { timeout: 3000 });
+  // a paste replaces the held line
+  await page.evaluate(() => { const i = document.getElementById('her-input'); i.focus(); i.dispatchEvent(new ClipboardEvent('paste', { bubbles: true })); });
+  assert.equal(await page.inputValue('#her-input'), '', 'a paste ends the hold first');
+  await page.fill('#her-input', 'uh regulars come every, every morning'); await page.press('#her-input', 'Enter');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.hold === 'on', null, { timeout: 3000 });
+  const beat = await page.evaluate(() => BYOC.beat);
+  await page.press('#her-input', 'PageDown');
+  await page.waitForFunction(b => BYOC.beat !== b, beat, { timeout: 2000 });
   assert.deepStrictEqual(errors, []);
   await page.close();
 });
