@@ -196,3 +196,16 @@ body.print .counter { display: none; }
 /* human or agent, at a glance: the kind is the seat's one subtitle */
 .seat small { text-transform: uppercase; letter-spacing: .14em; font-weight: 700; font-size: 12px; }
 .seat.human small { color: var(--cr-product); }
+
+/* 01 · the problem: both halves, each label → headline → its card → caption, the card the one hero; the halves share a top line */
+.problem .half { justify-content: flex-start; gap: 16px; padding: 168px 64px 96px 110px; }
+.problem .half + .half { padding-left: 84px; padding-right: 80px; }
+.problem .headline { font-size: 84px; }
+.problem .caption { font-size: 30px; margin: 0; }
+.problem .art { position: relative; display: flex; justify-content: flex-start; margin: 14px 0 22px; }
+.problem .terminal { zoom: .8; margin-bottom: 0; padding-bottom: 30px; }
+.problem .site { zoom: .66; }
+.problem .site > .sticky { zoom: 1.2; }
+.problem .terminal .pills { left: calc(100% - 110px); top: calc(100% - 150px); width: 260px; height: 190px; }
+.problem .cool .art { margin-bottom: 70px; }
+.problem .foot { position: absolute !important; left: 110px; bottom: 34px; }
