@@ -204,7 +204,7 @@
     const ctl = window.AbortController ? new AbortController() : null;
     const timer = setTimeout(() => ctl && ctl.abort(), opts.timeoutMs || 4000);
     return fetch('/api/tidy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl ? ctl.signal : undefined,
-      body: JSON.stringify({ text: raw, run: BYOC.run || undefined }) })
+      body: JSON.stringify({ text: raw, run: BYOC.run || undefined, ...(opts.field ? { field: String(opts.field) } : {}) }) })
       .then(r => r.ok ? r.json() : null).then(j => (j && typeof j.text === 'string' && j.text.trim()) ? j.text : raw)
       // Her card's "I love …" line is a fragment: begun in lower case, it stays so ("I love getting…", never "Getting").
       .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
