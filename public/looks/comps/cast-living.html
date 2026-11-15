@@ -309,8 +309,9 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   }
 
   // ---- time of day: patches are painted in afternoon light; a fitted colour matrix tints them elsewhere
-  // hand-tuned on top of the fit, judged by eye against the painting: at night the lamp gives Noor deeper colour
-  const TUNE = { night: { noor: 'saturate(1.2) contrast(1.06) hue-rotate(-8deg)', ines: 'saturate(.85) brightness(.93)' } };
+  // hand-tuned on top of the fit, judged by eye against the painting. (Noor's night tune, saturate + hue-rotate, is gone:
+  // it tinted her whole patch, wall included, so she read as glowing red once the night scene was visible again.)
+  const TUNE = { night: { ines: 'saturate(.85) brightness(.93)' } };
   const LAMPCUT = new Set(['noor', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
   function lightPatches(t) {
     for (const id of Object.keys(P)) {
