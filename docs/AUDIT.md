@@ -12,6 +12,22 @@
 
 **Evidence:** `design/studio/qa/audit-0430/painted/<size>-<mode>/<state>.jpg` (1440 and 1280 downscaled to 960 wide) and `design/studio/qa/audit-0430/polish/` (frame strips are `*-strip.jpg`). The raw flags are in `design/studio/qa/audit-0430/painted-findings.json` and `design/studio/qa/audit-0430/polish.json`.
 
+### Close-out (15 Nov 06:25 UTC, main ee38278)
+
+- **Painted look (the demo):** every routed FAIL is fixed on main and re-walked: #1, #2, #3, #4, #6c, #7, #8, and F2–F6. #5, #6a, #6b and #6d/e are WON'T FIX by design (reasons below).
+- **POLISH.md:** all items PASS at 1920/1440/1280. Magic moments: magical are the door, the tidy pen, the handwritten name tag and the team getting to work; fine are a meet card's entrance, a reply arriving, End meeting → takeaways, and Bo's Yes (now a fade with the receipt).
+- **Plain look (the fallback):**
+  - P2–P4 are FIXED.
+  - **P1 is still OPEN:** the plain meeting loses its field, Send and End meeting after the first Send. It is mitigated: REHEARSAL.md makes R, not plain, the meeting's fallback (69f0bfb).
+  - Minor residues: the plain drawer's grey item fill, and "Bo's blocked →" lingering after Yes.
+- **Not checked:**
+  - live model calls (stubs only; one live name tag was run by the design lead)
+  - Safari and Firefox
+  - Vincent's Mac GPU: the frame rate in a VM with software GL is ~15 fps by day and ~10 at night on painted; check with the FPS meter at 07:00
+  - RUN-LOCALLY.md and REHEARSAL.md command by command
+  - the full doctor
+  - Fallback B
+
 ### FAIL list, routed (status as of 05:15)
 
 | # | FAIL | Where | Evidence | Owning files | Owner |
