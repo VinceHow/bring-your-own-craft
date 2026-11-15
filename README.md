@@ -60,6 +60,10 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 
 ![Wren's question, with Priya's answer and her teammates' replies](docs/readme/meeting.webp)
 
+**When a teammate is blocked: one tap in her inbox, and the room carries on.**
+
+<img src="docs/readme/unblock.webp" alt="Bo is blocked on when orders close; she taps Yes to the suggested 8pm, and the room carries on" width="80%">
+
 **The live bakery the judges order from:**
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
 bakery: no real bread, nothing to pay, first name only.
