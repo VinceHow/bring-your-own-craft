@@ -545,3 +545,64 @@ body:has(.replay-label:not([hidden])) .app-button { bottom: 74px; }
 .fd-all { margin-left: auto; margin-right: 14px; font: 500 15px var(--ui); background: none; border: 0; padding: 4px 2px; color: inherit; opacity: .75; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .fd-all:hover { opacity: 1; }
 html body #room .fd-head .fd-all + .fd-close { margin-left: 0; } /* "All notes" takes the push to the right; Back to the room sits beside it */
+
+/* ---- The plain look's inbox, legible as a fallback (AUDIT P2 / P3 / P4) ----
+   Plain only: every rule sits under html:not(.painted-on), so the painted look never sees it. Plain's own ink-sticker
+   style (sheet, 2px ink line, offset ink shadow, 4px corners). The closed line is a sticker, not a grey browser button;
+   open, the inbox is one sheet with a centred column; Bo's unblock is one card with one ink Yes. */
+html:not(.painted-on) body #room #inbox [data-slot="now"] {
+  appearance: none; display: block; width: 100%; margin: 0 0 6px; padding: 8px 12px; text-align: left; cursor: pointer;
+  font: 600 18px/1.2 var(--ui); color: var(--ink); background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow-sm); }
+html:not(.painted-on) body #room #inbox [data-slot="now"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+html:not(.painted-on) body #room #inbox[data-state="open"] {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); align-content: start; gap: 18px 20px;
+  padding: 26px 32px; background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+html:not(.painted-on) body #room #inbox[data-state="open"] > #counter { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; }
+html:not(.painted-on) body #room #inbox[data-state="open"] > [data-slot="toggle"] {
+  grid-column: 2; grid-row: 1; justify-self: end; align-self: center; appearance: none; width: auto; margin: 0; padding: 8px 16px; cursor: pointer;
+  font: 600 16px/1 var(--ui); color: var(--ink); background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow-sm); }
+html:not(.painted-on) body #room #inbox[data-state="open"] > [data-slot="all-notes"] {
+  grid-column: 1; grid-row: 1; justify-self: end; align-self: center; appearance: none; width: auto; margin: 0; padding: 4px 2px; border: 0; background: none;
+  font: 500 15px/1.2 var(--ui); color: var(--ink); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+html:not(.painted-on) body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+html:not(.painted-on) body #room #inbox[data-state="open"][data-view="action"] > #counter { display: none; }
+html:not(.painted-on) body #room #inbox[data-state="open"] > [data-slot="drawer"] {
+  grid-column: 1 / -1; grid-row: 2; justify-self: center; align-self: start; width: min(860px, 100%); max-height: none; min-height: 0; overflow: auto; }
+html:not(.painted-on) body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { align-self: center; width: min(720px, 100%); overflow: visible; }
+/* the drawer's parts: a small ink label over each, room between them */
+html:not(.painted-on) body #room #inbox [data-part] { margin: 0 0 26px; }
+html:not(.painted-on) body #room #inbox [data-part] > [data-slot="title"] { margin: 0 0 10px; font: 700 13px/1 var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+html:not(.painted-on) body #room #inbox [data-part] [data-slot="empty"] { margin: 0; font: 400 16px/1.4 var(--ui); color: var(--ink); opacity: .7; }
+html:not(.painted-on) body #room #inbox summary { list-style: none; cursor: pointer; font: 600 16px/1.3 var(--ui); }
+html:not(.painted-on) body #room #inbox summary::-webkit-details-marker { display: none; }
+html:not(.painted-on) body #room #inbox summary::before { content: '\203A'; display: inline-block; width: 1em; font-weight: 700; transition: transform .2s; }
+html:not(.painted-on) body #room #inbox details[open] > summary::before { transform: rotate(90deg); }
+/* things only she can do: the title, and each step's tick an inked box (never a native checkbox) */
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] { padding: 14px 18px; background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow-sm); }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] > [data-slot="title"] { margin: 0 0 8px; font: 600 18px/1.25 var(--ui); }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] [data-slot="steps"] { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] [data-slot="step"] label { display: flex; align-items: center; gap: 10px; font: 400 16px/1.3 var(--ui); cursor: pointer; }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] input[type="checkbox"] {
+  appearance: none; flex: none; width: 20px; height: 20px; margin: 0; border: var(--line); border-radius: 3px; background: var(--sheet); display: grid; place-content: center; cursor: pointer; }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] input[type="checkbox"]:checked { background: var(--ink); }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] input[type="checkbox"]:checked::after { content: ''; width: 10px; height: 5px; border: solid var(--sheet); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); }
+html:not(.painted-on) body #room #inbox [data-component="owner-task"] input[type="checkbox"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+/* Bo's unblock: one card, who / the question / our suggestion / one ink Yes and a quiet "Say something else" */
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] {
+  display: block; margin: 0; padding: 26px 30px 24px; background: var(--sheet); border: var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="who"] { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="face"]:empty { display: none; }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="blocked"] { font: 700 18px/1.2 var(--ui); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="doing"] { font: 400 15px/1.2 var(--ui); opacity: .75; }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="question"] { margin: 0 0 16px; font: 600 30px/1.2 var(--display, var(--ui)); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="suggestion"] {
+  margin: 0 0 18px; padding: 12px 16px; border: 2px dashed var(--ink); border-radius: var(--r); background: var(--paper, transparent); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="suggestion"] > span { display: block; margin: 0 0 4px; font: 700 12px/1 var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="suggestion"] p { margin: 0; font: 500 20px/1.3 var(--ui); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="yes"] {
+  appearance: none; margin: 0 14px 0 0; padding: 10px 28px; cursor: pointer; font: 700 17px/1 var(--ui); color: var(--sheet); background: var(--ink);
+  border: var(--line); border-radius: var(--r); box-shadow: 3px 3px 0 var(--product, #FF4FB0); }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-slot="say"] {
+  appearance: none; margin: 0; padding: 8px 4px; cursor: pointer; font: 600 16px/1 var(--ui); color: var(--ink); background: none; border: 0;
+  text-decoration: underline; text-underline-offset: 4px; }
+html:not(.painted-on) body #room #inbox [data-component="inbox-action"] :is([data-slot="yes"], [data-slot="say"]):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
