@@ -728,6 +728,24 @@ url=public/slides/talk.html">` plus `location.replace('public/slides/talk.html' 
 studio-live and talk-deck slides (no "Noor" in text or pixels; `calm-room.jpg` gone), `npm test` 312/0, and beats 12/0
 in both looks.
 
+### Push SHA d76c82d (f388b2d..d76c82d, adding talk deck b4fa287: slides 1–3 merged into one): PASS, with the known console notes
+
+Verified by stub only.
+
+**Slides only:** besides the root `talk.html`, it touches only `public/slides/talk.html`, `public/slides/talk.css` and
+evidence PNGs under `design/`.
+
+**No external URL** in `talk.html`, `public/slides/talk.{html,js,css}` or the root `talk.html`.
+
+**The whole deck walked (8 slides, n=1…8) at 1920×1080**, from `file:///…/talk.html` (which forwards to the deck) and
+served (`/slides/talk.html`):
+- 0 external requests, 0 HTTP 4xx and 0 page errors in both.
+- Served: only the 4 known harmless `<rect> -1` console errors from `playful-ink.js:48`.
+- `file://`: the same 4, plus Chromium's `file://` blocks on the living painting's `light.json` and its 8 `mask-*.png`
+  canvas reads. Those are 16 failed loads, not 4xx; they happen on any page opened from disk. The slides still render;
+  only the live lighting touches are lost.
+- So: serve the deck for the talk, and keep the double-click as the fallback.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
