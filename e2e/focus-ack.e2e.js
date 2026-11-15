@@ -35,7 +35,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
     BYOC.openNote('first');
   });
   await page.waitForFunction(() => BYOC.focusDoc.isOpen(), null, { timeout: 3000 });
-  assert.equal((await page.textContent('#focus-doc [data-slot="help"]')).trim(), 'Add this keeps a thought · Send when you’re ready, and the team replies');
+  assert.equal((await page.textContent('#focus-doc [data-slot="help"]')).trim(), 'Add this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways', 'in a meeting, the third clause');
   assert.ok(await page.isHidden('#focus-doc [data-slot="ack"]'), 'no acknowledgement before a thought');
   await page.fill('#focus-doc .fd-input', "It's really for the regulars");
   await page.click('#focus-doc [data-slot="add-piece"]');

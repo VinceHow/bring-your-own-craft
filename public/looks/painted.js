@@ -32,7 +32,11 @@
   // its main block and its aside, so this look gathers those parts, in order, into one look-owned column inside the
   // document ([data-pfd="column"]); focus-doc.js still finds every part by doc.querySelector. Parts added later are
   // gathered too. While she captures, the aside's parts stay out of view, as focus-doc.js hides its aside.
-  if (fdoc) {
+  // the meeting's leave prompt sits at the column's foot: when it asks, the column brings it into view
+  const leave = fdoc && fdoc.querySelector('[data-component="leave-meeting"]'), side = fdoc && fdoc.querySelector(':scope > [data-slot="side"]');
+  if (leave && side) new MutationObserver(() => { if (leave.dataset.state === 'asking' && !leave.hidden) side.scrollTo({ top: side.scrollHeight, behavior: 'smooth' }); })
+    .observe(leave, { attributes: true, attributeFilter: ['data-state', 'hidden'] });
+  if (fdoc && !fdoc.querySelector(':scope > [data-slot="side"]')) {   // focus-doc.js's own column ([data-slot=side], build/beats) needs none of this
     const col = document.createElement('div'); col.dataset.pfd = 'column'; fdoc.appendChild(col);
     const newer = document.createElement('button'); newer.type = 'button'; newer.dataset.pfd = 'newer'; newer.hidden = true; newer.textContent = 'New replies ↓';
     const main = fdoc.querySelector(':scope > div:has(> [data-slot="work"])'), side = fdoc.querySelector(':scope > aside');
