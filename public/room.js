@@ -1238,6 +1238,20 @@
     body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
     c.appendChild(body);
   }
+  // Her name tag's second call, in the background: the swaps land on her card (or on her kept tag if she has moved on),
+  // and her words for the team's profile; 'tag.profile' says it arrived. On failure the team keeps her raw words.
+  function tagMore(c, cur, said) {
+    const card = { title: cur.title, traits: cur.traits, superpower: cur.superpower };
+    BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'more', card, seat: 'product' }, { step: false }).then(m => {
+      if (!m) return;
+      const alt = m.alternates || {};
+      for (const k of ['titles', 'traits', 'superpowers']) if (Array.isArray(alt[k])) cur.alternates[k] = alt[k].filter(x => x && x !== cur.title && !cur.traits.includes(x) && x !== cur.superpower);
+      if (m.goodAt) cur.goodAt = m.goodAt;
+      if (m.loves) cur.loves = m.loves;
+      if (introCard !== c && BYOC.herTag) BYOC.herTag = { ...BYOC.herTag, goodAt: cur.goodAt, loves: cur.loves };
+      emit('tag.profile', { rough: !!m.rough });
+    }).catch(() => emit('tag.profile', { rough: true }));
+  }
   async function makeCharacter(c, said) {
     // Her rough card, at once: she can meet the team now.
     const cur = { craft: 'Product', title: '', traits: [], superpower: '', loves: said, alternates: { titles: [], traits: [], superpowers: [] } };
@@ -1254,7 +1268,7 @@
     let r = null;
     try {
       r = await Promise.race([
-        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, '') }, { step: false }),
+        BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'card' }, { step: false }),
         new Promise((_, no) => setTimeout(() => no(new Error('timeout')), TAG_LIMIT_MS)),
       ]);
     } catch { r = null; }
@@ -1264,6 +1278,8 @@
       Object.assign(cur, { title: r.title || '', traits: Array.isArray(r.traits) ? r.traits.slice(0, 3) : [], superpower: r.superpower || '',
         alternates: { titles: [], traits: [], superpowers: [], ...(r.alternates || {}) } });
     }
+    // The rest (her craft, her words for the profile, the swaps) in the background: never waited on.
+    tagMore(c, cur, said);
     // She already met the team: the team's read still reaches her place card.
     if (introCard !== c) { if (usable && BYOC.herTag && !BYOC.herTag.title) { BYOC.herTag = { ...BYOC.herTag, ...cur, alternates: undefined }; drawHerCharacter(el.seat.product && el.seat.product.querySelector('.card')); emit('tag.polished', { title: cur.title }); } return; }
     if (!usable) { tagStatus(c, 'rough', 'Your name tag, in your own words.'); return; }

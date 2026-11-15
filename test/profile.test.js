@@ -104,3 +104,27 @@ test('her name tag\'s schema is flat (no nested object: it cost the CLI extra tu
     altTitles: ['the Feedback Alchemist'], altTraits: ['listener', 'problem hunter'], altSuperpowers: ['hears the request inside the complaint'] });
   assert.deepEqual(card.alternates, { titles: ['the Feedback Alchemist'], traits: ['problem hunter'], superpowers: ['hears the request inside the complaint'] });
 });
+
+test('her name tag in two calls: the card call asks only for what the card shows; the rest comes in the background', async () => {
+  const { tagCard, tagMore, CARD_SCHEMA, MORE_SCHEMA } = await import('../lib/tag.js');
+  assert.deepEqual(Object.keys(CARD_SCHEMA.properties).sort(), ['superpower', 'title', 'traits'], 'the card call: title, traits, superpower only');
+  for (const v of [...Object.values(CARD_SCHEMA.properties), ...Object.values(MORE_SCHEMA.properties)]) assert.notStrictEqual(v.type, 'object', 'flat');
+  let seen;
+  const card = await tagCard('I love talking to customers', { callModel: async a => { seen = a; return { title: 'Customer Whisperer', traits: ['listener', 'problem hunter'], superpower: '' }; } });
+  assert.equal(seen.label, 'name tag'); assert.strictEqual(seen.schema, CARD_SCHEMA);
+  assert.ok(seen.system.length < 600, `a tiny prompt (${seen.system.length} chars)`);
+  assert.equal(card.body.title, 'the Customer Whisperer');
+  const more = await tagMore('I love talking to customers', { seat: 'product', card: card.body, callModel: async a => { seen = a;
+    return { craft: 'Researcher', goodAt: 'listening', loves: 'talking to customers', altTitles: ['the Feedback Alchemist'], altTraits: ['listener', 'empathy-first'], altSuperpowers: [] }; } });
+  assert.equal(seen.label, 'profile (background)');
+  assert.match(seen.system, /the Customer Whisperer/, 'it knows her card, so the swaps differ');
+  assert.deepEqual([more.body.craft, more.body.loves], ['Product', 'talking to customers'], 'in a listed seat her craft is the seat');
+  assert.deepEqual(more.body.alternates, { titles: ['the Feedback Alchemist'], traits: ['empathy-first'], superpowers: [] });
+  // Failures never throw: a rough card, and her own words for the profile.
+  const bad = async () => { throw new Error('model timeout after 25000 ms'); };
+  const old = process.env.MODEL_QUIET; process.env.MODEL_QUIET = '1';
+  assert.equal((await tagCard('I love bread', { callModel: bad })).body.rough, true);
+  const m2 = await tagMore('I love the first batch out at 6am', { callModel: bad });
+  process.env.MODEL_QUIET = old;
+  assert.equal(m2.body.rough, true); assert.equal(m2.body.loves, 'the first batch out at 6am');
+});
