@@ -245,3 +245,9 @@ html body #room #inbox [data-component="inbox-action"] [data-rank="secondary"] {
 /* while the inbox is open, nothing in the room shows through it: the app tag and team notes step back */
 body:has(#inbox[data-state="open"]) [data-component="app-button"] { display: none !important; }
 html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { visibility: hidden; }
+/* the close, asking: the sheet hugs its one column (the idea, the mic, Build it) instead of a 1130 px sheet with a
+   blank band either side; centred in the room, and on Build it the sheet opens out to make room for the contrast */
+html body #room [data-component="close-view"] { transition: left 460ms cubic-bezier(.2,.8,.2,1), width 460ms cubic-bezier(.2,.8,.2,1); }
+html body #room [data-component="close-view"][data-state="asking"] { width: 812px; left: calc(50% - 406px + var(--crop-x, 0px)); } /* + crop-x: the cover block above pulls the sheet left by it */
+html body #room [data-component="close-view"][data-state="asking"] > :last-child { width: 100%; }
+@media (prefers-reduced-motion: reduce) { html body #room [data-component="close-view"] { transition: none; } }
