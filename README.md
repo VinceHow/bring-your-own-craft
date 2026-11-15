@@ -10,9 +10,9 @@ track. Licence: [PolyForm Noncommercial 1.0.0](LICENSE). The Devpost write-up is
 how we built it is [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md).
 
 ## Built with our sponsors
-- **[fal](https://fal.ai):** the painted cast portraits and the living-room clips were generated with fal (ledger in
-  [`design/FAL-SPEND.md`](design/FAL-SPEND.md)); the deployed bakery's images are made with fal flux in the team's
-  build run. The demo's chat runs on Claude through fal's OpenRouter router.
+- **[fal](https://fal.ai):** the painted cast, the room's clips and its record-player music (ElevenLabs Music via
+  fal), and the live bakery's photos and logo (flux, made ahead; ledger in [`design/FAL-SPEND.md`](design/FAL-SPEND.md)).
+  The demo's chat runs on Claude through fal's OpenRouter router.
 - **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she speaks her idea and her answers.
 - **[Linkup](https://www.linkup.so):** Noor's research finding was found and cited with Linkup before the demo, and is
   labelled that way on screen (not a live search on stage).
@@ -159,11 +159,12 @@ Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-
 | Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
-| [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); flux/schnell images for the bakery site (4 images in the recorded run); the cast portraits and room clips | fal terms; API only |
+| [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); flux/schnell photos and logo for the live bakery site (made ahead); the cast portraits, room clips and music | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-fal: Claude via fal's OpenRouter router is the model backend that runs in the demo (`MODEL_BACKEND=fal`); fal flux/schnell made the bakery site's
-images (timed at a median 2.2 s, about 0.3¢ an image). Paid APIs: the Claude Code
+fal: Claude via fal's OpenRouter router is the model backend that runs in the demo (`MODEL_BACKEND=fal`); fal flux/schnell made the live bakery
+site's photos and logo ahead of the demo (timed at a median 2.2 s, about 0.3¢ an image); the page the team builds in
+the room uses the credited Wikimedia Commons photos. Paid APIs: the Claude Code
 login, ElevenLabs and fal.
 
 Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
