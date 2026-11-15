@@ -1716,7 +1716,9 @@
     const seenKey = new Set(events.map(e => `${e.t}|${e.type}`));
     pending = pending.filter(e => e.run === id && !seenKey.has(`${e.t}|${e.type}`)); flushPending();
     // A build that was under way: say so; build.done arrives on the stream.
-    const building = events.some(e => e.type === 'build.step') && !events.some(e => e.type === 'build.done' || e.type === 'build.error');
+    // (The app button's background v1 isn't her build: the button shows it, the room doesn't wait on it.)
+    const fg = events.filter(e => !e.background);
+    const building = fg.some(e => e.type === 'build.step') && !fg.some(e => e.type === 'build.done' || e.type === 'build.error');
     if (building) { buildStep = stepBegin('Your app is still building'); }
     if (BYOC.beat === 4 && inputMode !== 'line') setInputMode('line');
     // Her empty field isn't focused after a pickup: the inbox never slides a note in while a field has focus.
