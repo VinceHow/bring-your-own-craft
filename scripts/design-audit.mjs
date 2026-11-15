@@ -9,6 +9,18 @@ import path from 'node:path';
 const dir = path.resolve(process.argv[2] || '.');
 const F = JSON.parse(fs.readFileSync(path.join(dir, 'findings.json'), 'utf8'));
 const rel = p => p; // shot paths in findings are already repo-relative
+// the owning files per component (js that renders it / painted css that styles it), for routing each FAIL
+const FILES = { 'focus-doc': 'focus-doc.js · looks/painted-focus.css', meeting: 'focus-doc.js · looks/painted-focus.css', takeaways: 'focus-doc.js · looks/painted-focus.css',
+  'pin-reply': 'focus-doc.js · looks/painted-focus.css', chime: 'focus-doc.js · looks/painted-focus.css', 'end-meeting': 'focus-doc.js · looks/painted-focus.css',
+  inbox: 'inbox.js · looks/painted.css, painted-room.css', 'inbox-item': 'inbox.js · looks/painted.css', 'inbox-action': 'inbox.js · looks/painted.css', 'owner-task': 'inbox.js · looks/painted-fixes.css',
+  'app-button': 'app-button.js · looks/painted.css, painted-door.css', 'idea-card': 'room.js · looks/painted.css', 'character-card': 'room.js · looks/painted.css',
+  'meet-card': 'room.js · looks/painted.css, painted.js', setup: 'room.js · looks/painted.css', 'door-open': 'looks/painted.js · looks/painted-door.css',
+  'close-view': 'close.js · looks/painted-fixes.css', 'sketchpad-open': 'room.js · looks/painted.css', workspace: 'room.js · looks/painted.css', 'idea-sheet': 'idea-sheet.js · looks/painted.css',
+  'idea-layer': 'room.js · looks/painted.css', journey: 'flow.js · looks/painted.css', 'team-space': 'team-space.js · looks/painted.css', 'decision-card': 'team-space.js · looks/painted.css',
+  chatter: 'room.js · looks/painted-room.css', 'chatter-line': 'room.js · looks/painted-room.css', tally: 'room.js · looks/painted-fixes.css', 'replay-label': 'replay.js · looks/painted.css',
+  'her-idea': 'room.js · looks/painted.css', 'team-status': 'room.js · looks/painted-room.css', 'place-card': 'room.js · looks/painted-room.css', 'her-place-card': 'room.js · looks/painted-room.css',
+  mic: 'voice.js · looks/painted.css', 'note-flight': 'looks/painted.js · looks/painted.css' };
+const fileOf = hook => { const m = String(hook).match(/data-component="([a-z-]+)"/g); if (!m) return ''; const c = m.at(-1).match(/"([a-z-]+)"/)[1]; return FILES[c] ? 'public/' + FILES[c].replace(/ · /, ' · public/').replace(/, /g, ', public/looks/').replace('public/looks/painted-door', 'public/looks/painted-door') : ''; };
 const SCREENS = [ // DEMO.md order: [label, state-name prefixes as the walk names them]
   ['The idea paper (and the tidy moment)', ['the first page: her idea', 'the idea paper']],
   ['Her name tag (form → handwritten tag)', ['her name tag (setup, paper)', 'name tag, spin', 'name tag, fallback']],
@@ -59,7 +71,7 @@ for (const { label, s, m, f } of fails) {
   seen.get(k).where.push(`${s} ${m}`);
 }
 out.push('**Failures** (one line each; where; shot):', '');
-for (const { label, f, where } of seen.values()) out.push(`- ${label} · ${f.check} · \`${f.hook}\` · ${f.note.slice(0, 160)} · ${[...new Set(where)].join(', ')} · \`${rel(f.shot)}\``);
+for (const { label, f, where } of seen.values()) out.push(`- **FAIL** ${label} · ${f.check} · \`${f.hook}\` · ${f.note.slice(0, 160)} · ${[...new Set(where)].join(', ')} · \`${rel(f.shot)}\`${fileOf(f.hook) ? ' · owning file: ' + fileOf(f.hook) : ''}`);
 // notes: soft counts per screen
 out.push('', '**Notes, counted not failed:**', '');
 for (const [label, prefixes] of SCREENS) {
