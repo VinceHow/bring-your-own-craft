@@ -18,7 +18,7 @@ don't claim more than that.)*
 
 **Their pain today:**
 
-- **AI builders like Lovable guess everything.** One prompt in, a generic product out. Their expertise never makes it in, and output is not to expectations. Building a real functional product is impossible.
+- **AI app builders guess everything.** One prompt in, a generic product out. Their expertise never makes it in, and output is not to expectations. Building a real functional product is impossible.
 - **Coding agents ask about everything.** Approvals, "continue?", questions about databases and fonts. They spend their time stamping, not doing their craft, and their flow breaks every few minutes.
 - **The questions they do get don't use what they know.** Nobody asks a PM what their customers really need; they're asked to pick a coding language instead.
 - **Every tool starts from zero.** Their judgement and taste are never kept, so they explain themselves again on every project.
