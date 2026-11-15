@@ -623,3 +623,15 @@ html:not(.painted-on) body #room #inbox [data-component="inbox-action"] :is([dat
 .meet-dot[data-state="done"] { background: currentColor; opacity: .5; }
 .meet-dot[data-state="current"] { background: currentColor; opacity: 1; }
 .meet-back[hidden] { display: none; }
+
+/* The QR card (public/app-button.js): opening the app also shows, in the room tab, a card the audience scans for the
+   live bakery. Centred, under the app button (z 45), closed by ×, Esc or a click outside. Both looks. */
+.qr-card-wrap { position: fixed; inset: 0; z-index: 44; display: grid; place-items: center; background: rgba(40,28,20,.28); }
+.qr-card-wrap[hidden] { display: none; }
+.qr-card { position: relative; line-height: 0; border-radius: 18px; box-shadow: 0 0 0 1.5px rgba(51,38,28,.55), 0 18px 44px rgba(40,28,20,.32); }
+/* the card Vincent picked, as it is: ~520px tall on the 1600x900 stage, ~620px at 1920x1080 */
+.qr-img { display: block; height: min(58vh, 620px); width: auto; border-radius: 18px; }
+.qr-close { position: absolute; top: 10px; right: 12px; background: rgba(255,253,248,.85) !important; width: 40px; height: 40px; border: 0; background: none; font: 400 30px/1 system-ui, sans-serif; color: #5A4636; cursor: pointer; border-radius: 50%; }
+.qr-close:hover { background: rgba(51,38,28,.08); }
+@media (prefers-reduced-motion: no-preference) { .qr-card-wrap[data-state="open"] .qr-card { animation: qr-in .35s cubic-bezier(.2,.9,.3,1.2) both; } }
+@keyframes qr-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }
