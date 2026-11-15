@@ -132,20 +132,14 @@ html body #room [data-component="owner-task"] [data-slot="title"], html body .re
 
 /* ---- The calm room (Vincent: "the screen is so busy"). While the team works and nothing needs her, the room is the
    painting, the name pills, a small idea glance and, only when something needs her, one quiet inbox note. ---- */
-/* 1. the team space folds to one small paper tab, "Team notes · N"; a click opens the sheet (painted-fixes.js) */
-html body #room [data-component="team-space"]:not([data-open="true"]) [data-slot="cards"] { display: none !important; }
-html body #room [data-component="team-space"], html body #room [data-component="team-space"]:not([data-open="true"]) [data-slot="title"] { pointer-events: auto !important; }
-html body #room [data-component="team-space"]:not([data-open="true"]) {
-  width: auto !important; min-width: 0 !important; height: auto !important; padding: 0 !important; cursor: pointer; }
-html body #room [data-component="team-space"]:not([data-open="true"])::before, html body #room [data-component="team-space"]:not([data-open="true"])::after { display: none !important; }
-html body #room [data-component="team-space"]:not([data-open="true"]) [data-slot="title"] {
-  display: inline-flex !important; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; font: 500 0/1 var(--ui, system-ui, sans-serif);
-  color: transparent; background: #FCF5E8 !important; box-shadow: inset 0 0 0 1.2px rgba(74, 48, 32, .55), 2px 3px 0 rgba(196, 154, 98, .6) !important; opacity: 1 !important; }
-html body #room [data-component="team-space"]:not([data-open="true"]) [data-slot="title"]::after {
-  content: 'Team notes · ' attr(data-count) !important; display: inline !important; position: static !important; font: 500 15px/1 var(--ui, system-ui, sans-serif) !important;
-  color: var(--ink-2, #4E3A2B) !important; background: none !important; border: 0 !important; box-shadow: none !important; translate: none !important; rotate: none !important;
-  -webkit-mask: none !important; mask: none !important; width: auto !important; height: auto !important; }
-html body #room [data-component="team-space"]:not([data-open="true"]) [data-slot="title"]:not([data-count])::after { content: 'Team notes' !important; }
+/* 1. the team space folds to b3's "Team notes · N" tab (team-space.js owns the fold and its click: data-component
+   team-notes, data-state closed | open). Here it's a small ink-paper pill, not a mono box. */
+html body #room [data-component="team-notes"] {
+  display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer; pointer-events: auto;
+  font: 500 15px/1 var(--ui, system-ui, sans-serif); letter-spacing: 0; text-transform: none; color: var(--ink-2, #4E3A2B);
+  background: #FCF5E8; box-shadow: inset 0 0 0 1.2px rgba(74, 48, 32, .55), 2px 3px 0 rgba(196, 154, 98, .6); }
+html body #room [data-component="team-notes"]:hover { color: var(--ink, #2B1E14); }
+html body #room [data-component="team-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
 /* 2. the inbox's bottom note goes away when nothing needs her (it comes back the moment something does) */
 html body #room [data-component="inbox"][data-state="collapsed"][data-needs="no"] { display: none !important; }
 /* 3. the tally: one quiet line, "24 decisions · 3 to you", smaller, in ink-2 (its labels have no data-slot yet, so
