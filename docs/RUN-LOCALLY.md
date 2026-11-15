@@ -30,7 +30,7 @@ MODEL_BACKEND=fal
 The demo runs on fal. `npm run local` and `npm run doctor` print the route on their first line (`route: fal`). If fal
 fails on stage, see "Fallback B" in `docs/REHEARSAL.md`.
 
-**Pages:** `/` (the studio, plain look) · `/?look=painted` (the painted look) · `/gallery` (every component).
+**Pages:** `/` (the studio, painted look: the default) · `/?look=plain` (the plain look, the fallback) · `/gallery` (every component).
 **Keys:** **S** stage mode (big type, no chrome) · **R** replay the rehearsal · **?** the help card (all the keys).
 **To update:** `git pull`, then stop it (Ctrl-C) and run `npm run local` again.
 **Voice:** the browser asks for the microphone once; say Allow. Chrome is recommended (Safari works, but asks
