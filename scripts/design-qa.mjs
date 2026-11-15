@@ -413,7 +413,7 @@ if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode o
     const wayOn = await p.evaluate(() => { const b = document.querySelector('[data-component="character-card"] [data-slot="make"]'); if (!b) return null; const r = b.getBoundingClientRect(), cs = getComputedStyle(b);
       return { text: b.innerText.trim(), w: Math.round(r.width), h: Math.round(r.height), size: cs.fontSize, weight: cs.fontWeight }; });
     const order = kind === 'spin' ? await p.evaluate(() => { const c = document.querySelector('[data-component="character-card"]'); if (!c) return [];
-      return ['name', 'title', 'trait', 'superpower', 'said', 'hint'].map(k => { const e = c.querySelector(`[data-slot="${k}"]`); return e ? [k, Math.round(e.getBoundingClientRect().top)] : null; }).filter(Boolean); }) : [];
+      return ['name', 'title', 'trait', 'superpower', 'said', 'hint'].map(k => { const e = c.querySelector(`[data-slot="${k}"]`); const r = e && e.getBoundingClientRect(); return r && r.height > 0 ? [k, Math.round(r.top)] : null; }).filter(Boolean); }) : [];
     process.stdout.write(`${tag} ${mode} nametag ${kind} way on: ${JSON.stringify(wayOn)} order: ${order.map(x => x.join('@')).join(' ')}\n`);
     if (wayOn && !/Meet your team/.test(wayOn.text)) rec('name tag', '[data-slot="make"]', `the way on reads “${wayOn.text}”, want “Meet your team →”`, last.f);
     for (let i = 1; i < order.length; i++) if (order[i][1] + 2 < order[i - 1][1]) rec('name tag', 'character-card', `the written order is broken: ${order[i][0]} sits above ${order[i - 1][0]}`, last.f);
