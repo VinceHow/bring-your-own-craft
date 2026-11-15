@@ -83,6 +83,18 @@
   });          // she said Yes to its ask: that teammate is delighted
 
   // focus wins: while a focus document is open the room holds still
+  // something covers the room (her focus document, the open inbox, a panel, the close): the painting's patches pause
+  const covering = () => {
+    const vis = e => !!e && !e.hidden && e.getBoundingClientRect().width > 0;
+    const doc = document.querySelector('[data-component="focus-doc"]');
+    const inbox = document.querySelector('[data-component="inbox"]');
+    return (vis(doc) && document.body.classList.contains('focus-open')) || (inbox && inbox.dataset.state === 'expanded')
+      || vis(document.getElementById('room-panel')) || vis(document.querySelector('[data-component="close-view"]'));
+  };
+  let lastCover = null;
+  let coverPending = false;   // at most once a frame: the room's data-state changes often
+  const syncCover = () => { if (coverPending) return; coverPending = true; requestAnimationFrame(() => { coverPending = false; const c = covering(); if (c === lastCover) return; lastCover = c; call(l => l.cover && l.cover(c)); }); };
+  new MutationObserver(syncCover).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'hidden', 'data-state'] });
   BYOC.on('focus.open', () => call(l => l.focus(true)));
   BYOC.on('focus.close', () => call(l => l.focus(false)));
   BYOC.on('focus', f => { if (f && !f.open) call(l => l.focus(false)); });

@@ -202,6 +202,12 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 
   const XFADE = .18;
   let held = false;                                     // focus: no new moods
+  // Performance (QA trace, 15 Nov): every playing patch is a masked, graded video the compositor redraws each frame.
+  // So only active teammates play: an idle one with nothing queued holds its rest frame (frame 0 of its idle clip is
+  // the painting itself, so nothing visibly changes), and the room's ambient loop keeps the scene alive. And while
+  // something covers the room (her focus document, the open inbox, a panel, the close), the patches pause.
+  const QUIET = q.get('quiet') !== '0';                 // ?quiet=0: every patch loops as before (for comparison)
+  let covered = false;
   async function play(id, mood, cut = XFADE) {
     const p = P[id];
     const asked = mood;
@@ -211,6 +217,15 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     if (!v) return;
     const prev = p.cur; p.cur = v; p.mood = mood;
     v.currentTime = 0; v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
+    const rest = QUIET && CAST[id] && mood === 'idle' && !p.queue.length && (held || p.base === 'idle');
+    p.resting = rest;
+    if (rest) {                                         // hold the rest frame: no decode, no redraw
+      v.pause(); v.classList.add('on');
+      if (!p.live) { p.live = true; p.el.style.opacity = 1; }
+      if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => { prev.classList.remove('on'); prev.style.opacity = ''; prev.pause(); });
+      return;
+    }
+    if (covered) { v.classList.add('on'); return; }    // covered: it starts when the room shows again
     try { await v.play(); } catch (e) { if (p.cur === v) p.cur = prev; return; }
     v.classList.add('on');
     if (!p.live) { p.live = true; p.el.style.opacity = 1; }
@@ -228,7 +243,13 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   function want(id, mood, now = false) {
     const p = P[id];
     if (LOOPING.has(mood)) { p.base = mood; p.queue = []; } else p.queue.push(mood);
-    if (now) play(id, p.queue.shift() || mood, .35);
+    if (now || (p.resting && !(mood === 'idle' && !p.queue.length))) { p.resting = false; play(id, p.queue.shift() || mood, .35); }   // a resting patch has no clip running to hand over at its end
+  }
+  // something covers the room: pause the patches (and their mood clocks); uncovered, they carry on from where they were
+  function cover(on) {
+    on = !!on; if (on === covered) return; covered = on;
+    for (const id of Object.keys(P)) { const p = P[id], v = p.cur; if (!v || p.resting) continue;
+      if (on) v.pause(); else v.play().catch(() => {}); }
   }
 
   // ---- slips
@@ -488,7 +509,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     else if (e.key.toLowerCase() === 'f') focus(!held);
   });
 
-  window.living = { run, focus, setTime: (t, o) => setTime(t, false, o && o.fade > 0 ? Math.min(o.fade, 6) : .8), moods: MOODS,
+  window.living = { run, focus, cover, setTime: (t, o) => setTime(t, false, o && o.fade > 0 ? Math.min(o.fade, 6) : .8), moods: MOODS,
     // play an object's clip (record, cat, coffee) when another layer handles the click (PlayfulInk, 'studio:poke')
     poke: id => { if (OBJECTS[id]) playObject(id); },
     get time() { return now; } };
