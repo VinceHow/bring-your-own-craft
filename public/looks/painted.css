@@ -1533,3 +1533,7 @@ html.painted-on [data-component="tidy-moment"] > [data-slot="pen"][data-state="l
 html.painted-on [data-component="tidy-moment"] > [data-slot="underline"] { position: absolute; height: 2px; width: 72px; border-radius: 2px; background: rgba(212,114,136,.85);
   animation: pt-underline .4s cubic-bezier(.3,.7,.2,1) both; }
 html.painted-on [data-component="tidy-moment"][data-leave] { transition: opacity .4s ease-out; }
+/* AUDIT #8: her page, inside her idea sheet opened large, ran 26 px off the left edge at 1440 (23 at 1280). painted-fixes
+   shifts the page sheet left by the cover crop (--crop-x), which suits it alone in the room, but inside her opened sheet
+   (already placed inside the window) the shift pushed it past the edge. Inside the opened sheet: no shift. */
+html body #room [data-component="idea-sheet"][data-open="true"] > :has(> [data-component="page-frame"]) { margin-left: 0 !important; }
