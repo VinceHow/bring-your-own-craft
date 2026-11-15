@@ -372,7 +372,7 @@
     const mine = open.findLast(a => a.seat === seat);
     if (mine) return { state: 'waiting', text: mine.type === 'ask.unblock' ? `${A} is blocked until you answer: “${quote(mine.question)}”` : `${A} is waiting on your answer: “${quote(mine.question || mine.decision)}”` };
     const other = open.findLast(a => INFO[a.seat]);
-    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${INFO[other.seat].agent}'s question.` };
+    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${(other.by || (INFO[other.seat] && INFO[other.seat].agent)) ? `${other.by || INFO[other.seat].agent}'s` : 'the team’s'} question.` };
     if (joints.length) return { state: 'waiting', text: `${A} starts once the team has agreed “${quote(joints.at(-1).decision)}”.` };
     if (!ev.some(e => e.type === 'teammate.start')) return { state: 'empty', text: `${A} joins once the team gets going.` };
     return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
@@ -418,12 +418,14 @@
       : teamStarted ? 'What the team agrees lands here as they work.' : 'The team gets going once you’ve said your idea; what they agree lands here.'));
     ts.appendChild(tl);
     // her takeaways so far (the latest per question; what she kept wins)
+    // Who asked, possessive, never "undefined's": the ask's own name, else its seat's teammate, else the team.
+    const askerOf = a => { const n = (a && (a.by || (INFO[a.seat] && INFO[a.seat].agent))) || ''; return n ? `${n}’s` : 'the team’s'; };
     const tk = part('takeaways', 'Your takeaways so far');
     const byAsk = new Map();
     for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
     const kl = h('ul', 'ws-list');
     for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
-    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${INFO[openAsk.seat].agent}’s question.` : 'They come from your answers to the team’s questions.'));
+    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${askerOf(openAsk)} question.` : 'They come from your answers to the team’s questions.'));
     tk.appendChild(kl);
     if (refresh) { const old = panel.querySelector('.ws-body'); if (old) old.replaceWith(body); return; }
     openPanel('workspace', null, 'Your workspace', body);
@@ -510,7 +512,7 @@
     el.herForm.hidden = mode === 'off' || BYOC.replay;
     if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
   }
-  function setIdea(text) { el.herIdea.textContent = text || ''; }
+  function setIdea(text) { el.herIdea.textContent = text || ''; if (!text) for (const k of ['raw', 'state', 'tidy']) delete el.herIdea.dataset[k]; }
   let flowMounted = false;
   function mountFlow() {
     if (flowMounted) return;
@@ -532,6 +534,7 @@
     try {
       const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
+      remember(r.run);
       status(`run ${r.run}`);
       flushPending();
       if (BYOC.firstSketch) BYOC.firstSketch.start(r.run, idea); // Design's first sketch (public/first-sketch.js)
@@ -606,16 +609,8 @@
     }
   }
   BYOC.teamGo = teamGo;
-  // A note just landed in her inbox: the sheet says who, with a way straight to it ("Noor has a question for you →").
-  // data-state 'question'; the inbox itself pulses (public/inbox.js).
-  BYOC.on('inbox.new', n => {
-    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) return;
-    clearTimeout(teamSlowTimer);
-    teamStatus('question', n.unblock ? `${n.by} is blocked: one quick answer →` : `${n.by} has a question for you →`);
-    const go = h('button', 'team-open', 'Open it'); go.type = 'button'; go.dataset.slot = 'open';
-    go.addEventListener('click', () => { const b = document.querySelector('#inbox .inbox-now'); if (b) b.click(); });
-    teamStatusEl.appendChild(go);
-  });
+  // A note just landed in her inbox: the inbox at the top right says who; that is the room's one cue (Vincent, 15 Nov:
+  // no previews in the room). The team-status line no longer repeats it.
   BYOC.on('focus.open', () => { if (teamStatusEl.dataset.state === 'question') teamStatus('idle', ''); }); // she's on it
   function teamProgress() {
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
@@ -646,21 +641,41 @@
   // most 2.5 s, else her raw words), then sent.
   const tidyLine = async (inp, raw) => (typeof BYOC.tidyInto === 'function' ? BYOC.tidyInto(inp, raw) : raw);
   let submitting = false;
+  // A tidied line stays in her field for a moment (TIDY_HOLD_MS, ?tidyhold=) so the tidy plays where she's looking;
+  // the line is sent at once. Her next keystroke ends the hold early (the box clears for her), and Enter on the
+  // held line doesn't send it twice.
+  const TIDY_HOLD_MS = Number(new URLSearchParams(location.search).get('tidyhold') ?? 1700);
+  let held = null;
+  const endHold = () => { if (!held) return; clearTimeout(held.t); if (el.herInput.value === held.text) el.herInput.value = ''; delete el.herInput.dataset.hold; held = null; };
+  function holdLine(text) {
+    endHold();
+    if (!TIDY_HOLD_MS || instantMode) { el.herInput.value = ''; return; }
+    el.herInput.dataset.hold = 'on';
+    held = { text: el.herInput.value, t: setTimeout(endHold, TIDY_HOLD_MS) };
+  }
+  el.herInput.addEventListener('keydown', e => {
+    if (!held) return;
+    // Her next key ends the hold; PageDown / PageUp (the clicker) see an empty field, as they would have.
+    if ((e.key.length === 1 && !e.ctrlKey && !e.metaKey) || e.key === 'PageDown' || e.key === 'PageUp' || e.key === 'Backspace') endHold();
+  });
+  el.herInput.addEventListener('paste', () => endHold());
   el.herForm.addEventListener('submit', async e => {
     e.preventDefault();
+    endHold(); // Enter on the held line: it was sent already, so it's an empty Enter ("team, go"), as before the hold
     const raw = el.herInput.value.trim();
     if (submitting) return;
     if (inputMode === 'idea') {
       if (!raw) return;
-      submitting = true;
-      try { const idea = await tidyLine(el.herInput, raw); if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
+      // Her idea moves up to the sheet's idea line at once (her raw words, data-state tidying) and is tidied there.
+      submitting = true; el.herInput.value = '';
+      try { const idea = await tidyLine(el.herIdea, raw); startRun(idea); } finally { submitting = false; }
     } else if (inputMode === 'line') {
       if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
       submitting = true;
       let text = raw;
       try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
       // she typed on while it tidied: her new words stay in the box; this line goes as she sent it
-      if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = '';
+      if (el.herInput.dataset.tidy !== 'skipped') holdLine(text);
       if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
@@ -744,8 +759,10 @@
         if (ev.key === 'Escape') { words.blur(); return; }
         if (ev.key !== 'Enter') return;
         ev.preventDefault();
-        const t = words.textContent.trim();
-        if (!t) return;
+        let t = words.textContent.trim();
+        if (!t || words.dataset.state === 'tidying') return;
+        // Her rewording is tidied in place (data-raw / data-state / data-tidy on the words); the team's own line is kept as is.
+        if (t !== text && typeof BYOC.tidyInto === 'function') { await BYOC.tidyInto(words, t); t = words.textContent.trim() || t; } // typed on meanwhile: hers
         words.contentEditable = 'false'; hint.textContent = 'writing it into your file';
         try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
         catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }
@@ -1204,10 +1221,11 @@
     const c = h('div', 'big-card idea-card'); c.dataset.component = 'idea-card'; c.dataset.state = 'asking';
     c.innerHTML = `<label class="idea-row"><span class="idea-q" data-slot="question">What do you want to build today?</span>
         <textarea class="idea-input" id="idea-input" data-slot="input" data-voice="idea" rows="2" spellcheck="false" maxlength="300" placeholder="One sentence is plenty" aria-label="What you want to build today"></textarea></label>
-      <div class="idea-hint" data-slot="hint">Say it or type it · Enter: next, your name tag</div>
+      <div class="idea-hint" data-slot="hint">Say it or type it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter: next, your name tag</div>
       <div class="idea-actions" data-slot="actions"><button type="button" class="idea-make" data-slot="make" data-state="make">Next</button></div>`;
     st.appendChild(c);
     ideaCard = c;
+    voiceCredit(c);
     $('#idea-input', c).addEventListener('keydown', ev => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone(); }
     });
@@ -1215,6 +1233,13 @@
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
+  // After a tidy that changed her line (data-tidy cut|reordered on the field), hold ~1.7 s so design's animation plays:
+  // the cut words strike and fade, the line closes up, the clean line settles. No hold when it's unchanged or skipped.
+  const TIDY_PAUSE_MS = Number(new URLSearchParams(location.search).get('tidypause') ?? 1700);
+  async function tidyPause(el, raw, clean) {
+    if (instantMode || !el || clean === raw || !['cut', 'reordered'].includes(el.dataset.tidy)) return;
+    await wait(TIDY_PAUSE_MS);
+  }
   async function ideaDone() {
     const c = ideaCard; if (!c || BYOC.beat !== 0 || c.dataset.state === 'tidying') return;
     const inp = $('#idea-input', c);
@@ -1224,6 +1249,8 @@
     if (raw && typeof BYOC.tidyInto === 'function' && !BYOC.replay) {
       c.dataset.state = 'tidying';
       try { text = String(await BYOC.tidyInto(inp, raw) || raw).trim() || raw; } catch { text = raw; }
+      if (ideaCard !== c || BYOC.beat !== 0) return;
+      await tidyPause(inp, raw, text); // the paper stays while her words rearrange (Vincent: "the very first screen")
       if (ideaCard !== c || BYOC.beat !== 0) return;
     }
     c.dataset.state = 'done';
@@ -1250,6 +1277,11 @@
       .then(k => { if (tok === walkToken) BYOC.kit = k || {}; return k; }).catch(() => null);
     return BYOC.kitReq;
   }
+  // "voice by ElevenLabs" in the hints, only when the mic really works here (BYOC.voice.available, known a beat after load).
+  function voiceCredit(c) {
+    const show = () => { const on = !!(BYOC.voice && BYOC.voice.available); c.querySelectorAll('.voice-credit').forEach(x => { x.hidden = !on; }); return on; };
+    if (!show()) [300, 1200, 3000].forEach(ms => setTimeout(show, ms));
+  }
   BYOC.ideaOpen = () => !!ideaCard && BYOC.beat === 0;
   BYOC.ideaDone = ideaDone;
 
@@ -1272,11 +1304,12 @@
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Type it or say it · Enter, and the team writes your tag</div>
+      <div class="nt-hint" data-slot="hint">Type it or say it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter, and the team writes your tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
       <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
+    voiceCredit(c);
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
@@ -1391,7 +1424,10 @@
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
       tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (typeof BYOC.tidyInto === 'function') { try { said = String(await BYOC.tidyInto(inp, raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      else if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (introCard !== c) return;
+      await tidyPause(inp, raw, said); // her words rearrange on the paper, then her tag
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
@@ -1428,6 +1464,7 @@
       <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
       <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
       ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
       <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
       <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
     $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
@@ -1581,5 +1618,86 @@
   BYOC.reset = reset;
   BYOC.setInstant = v => { instantMode = !!v; };
 
-  document.addEventListener('DOMContentLoaded', () => { reset(); connectSSE(); });
+  // ---- a refresh resumes (Vincent, Sun 02:17: "an accidental refresh should keep the build and the room's state") ----
+  // Her live run is kept per viewer: localStorage 'byoc.run' (in try/catch: private windows) and ?run=<id> in the URL as
+  // a backup, plus who she is ('byoc.me': her name, tag, seat and intro, which only this page knows). On load, a run
+  // that still exists is rebuilt from its own event log, instantly, as HER live run (no REPLAY label, no model call, no
+  // ask re-raised: events are only re-read), then the SSE stream carries on. Replays never write these keys.
+  // "Start over" ([data-component="start-over"], Shift+N) asks once, forgets the run (kept in runs/) and goes back to
+  // the start. Hooks: #room[data-resume="resumed|fresh"].
+  const RUN_KEY = 'byoc.run', ME_KEY = 'byoc.me';
+  const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch {} }, del: k => { try { localStorage.removeItem(k); } catch {} } };
+  function urlWithRun(id) { const u = new URL(location.href); if (id) u.searchParams.set('run', id); else u.searchParams.delete('run'); return u.pathname + u.search + u.hash; }
+  function remember(id) {
+    if (BYOC.replay || !id || String(id).startsWith('local-')) return;
+    store.set(RUN_KEY, id);
+    store.set(ME_KEY, JSON.stringify({ name: BYOC.herName || null, tag: BYOC.herTag || null, seat: BYOC.herSeat || null, intro: BYOC.intro || null }));
+    try { history.replaceState(history.state, '', urlWithRun(id)); } catch {}
+  }
+  function forget() { store.del(RUN_KEY); store.del(ME_KEY); try { history.replaceState(history.state, '', urlWithRun(null)); } catch {} }
+  BYOC.forgetRun = forget;
+  async function resume(id) {
+    let data = null;
+    try { data = await BYOC.api('/api/replay/' + encodeURIComponent(id), undefined, { step: false }); } catch { data = null; }
+    const events = (data && Array.isArray(data.events) ? data.events : []).filter(e => e && e.type).sort((a, b) => a.t - b.t);
+    if (!events.some(e => e.type === 'run.start')) return false;
+    let me = {}; try { me = JSON.parse(store.get(ME_KEY) || '{}') || {}; } catch { me = {}; }
+    const prev = instantMode; instantMode = true;
+    try {
+      if (me.name) BYOC.herName = me.name;
+      if (me.tag) BYOC.herTag = me.tag;
+      if (me.seat === 'diy') BYOC.herSeat = 'diy';
+      if (me.intro) BYOC.intro = me.intro;
+      meetSkip = true; introCard = null; ideaCard = null;
+      stage(2, { instant: true }); stage(3, { instant: true });
+      BYOC.run = id;
+      firstAskedFor = id; // resume only re-reads: Focus 1 is never asked for again
+      if (data.taste && BYOC.file && BYOC.file.load) BYOC.file.load(data.taste, '');
+      for (const ev of events) dispatch(ev, 'resume');
+    } finally { instantMode = prev; }
+    const seenKey = new Set(events.map(e => `${e.t}|${e.type}`));
+    pending = pending.filter(e => e.run === id && !seenKey.has(`${e.t}|${e.type}`)); flushPending();
+    // A build that was under way: say so; build.done arrives on the stream.
+    const building = events.some(e => e.type === 'build.step') && !events.some(e => e.type === 'build.done' || e.type === 'build.error');
+    if (building) { buildStep = stepBegin('Your app is still building'); }
+    if (BYOC.beat === 4 && inputMode !== 'line') setInputMode('line');
+    // Her empty field isn't focused after a pickup: the inbox never slides a note in while a field has focus.
+    setTimeout(() => { if (document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur(); }, 80);
+    loadFileForRun(id);
+    el.room.dataset.resume = 'resumed';
+    remember(id); // keep it (and put ?run= back in the URL) for the next refresh
+    emit('run.resumed', { run: id, events: events.length, beat: BYOC.beat, building });
+    status(building ? 'Your app is still building' : `picked up run ${id} where you left off`);
+    return true;
+  }
+  BYOC.resume = resume;
+  // Start over: a quiet control that asks once.
+  const startOver = h('div', 'start-over'); startOver.dataset.component = 'start-over'; startOver.dataset.state = 'idle';
+  startOver.innerHTML = `<button type="button" class="so-open" data-slot="open">Start over</button>
+    <div class="so-ask" data-slot="ask" hidden><span class="so-q" data-slot="question">Start a new studio? This one is kept in your past runs.</span>
+    <button type="button" class="so-yes" data-slot="yes">Start a new studio</button> <button type="button" class="so-no" data-slot="no">Keep this one</button></div>`;
+  (document.getElementById('chrome') || document.body).appendChild(startOver); // in the top bar (hidden in stage mode: Shift+N there)
+  const soAsk = on => { startOver.dataset.state = on ? 'asking' : 'idle'; $('.so-ask', startOver).hidden = !on; if (on) $('.so-yes', startOver).focus(); };
+  $('.so-open', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(startOver.dataset.state !== 'asking'); });
+  $('.so-no', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(false); });
+  $('.so-yes', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(false); forget(); el.room.dataset.resume = 'fresh'; reset(); emit('start.over', {}); });
+  BYOC.startOver = { ask: () => soAsk(true), confirm: () => $('.so-yes', startOver).click(), cancel: () => soAsk(false) };
+
+  async function boot() {
+    const q = new URLSearchParams(location.search);
+    const id = q.get('run') || store.get(RUN_KEY);
+    const fixtureOrReplay = q.has('fixture') || q.has('replay');
+    reset();
+    connectSSE();
+    if (!id || fixtureOrReplay) return;
+    const ok = await resume(id).catch(() => false);
+    if (!ok) {
+      forget();
+      el.room.dataset.resume = 'fresh';
+      status('Couldn’t pick up where you left off: starting fresh.');
+      emit('run.resume.failed', { run: id });
+    }
+  }
+  document.addEventListener('DOMContentLoaded', boot);
 })();

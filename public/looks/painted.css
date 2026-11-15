@@ -1387,3 +1387,33 @@ html #room [data-component="meet-card"] [data-slot="next"]:hover::after { transl
 html #room [data-component="meet-card"] [data-slot="next"]:focus-visible { outline: none; box-shadow: 4px 4px 0 0 var(--mc, var(--product)), 0 0 0 3px #FBF5EA, 0 0 0 5px #33261C; }
 html #room [data-component="meet-card"]:has([data-slot="next"]) { padding-bottom: 96px; }
 html #room [data-component="meet-card"]:has([data-slot="next"]) [data-slot="count"] { right: auto; left: calc(var(--fw) + var(--gap) + 34px); bottom: 38px; }
+
+/* her cursor family (Vincent: "handle the cursor holistically"): everyday scrap, clickable fold (painted.js), an inked
+   I-beam for typing, three trailing ink dots while something she started is working, a pale dashed scrap for what she
+   can't press yet. The window keeps its paw. Painted look only. */
+html.painted-on :is(input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]) { cursor: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M12.5 6.5 C14.5 6.5 15.4 7.4 16 8.6 C16.6 7.4 17.5 6.5 19.5 6.5 M16 8.6 V23.4 M12.5 25.5 C14.5 25.5 15.4 24.6 16 23.4 C16.6 24.6 17.5 25.5 19.5 25.5%22 fill=%22none%22 stroke=%22%23FFF8EE%22 stroke-width=%224%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M12.5 6.5 C14.5 6.5 15.4 7.4 16 8.6 C16.6 7.4 17.5 6.5 19.5 6.5 M16 8.6 V23.4 M12.5 25.5 C14.5 25.5 15.4 24.6 16 23.4 C16.6 24.6 17.5 25.5 19.5 25.5%22 fill=%22none%22 stroke=%22%2333261C%22 stroke-width=%221.6%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%221.5%22 fill=%22%23D47288%22/%3E%3C/svg%3E") 16 16, text; caret-color: #B5546C; }
+html.painted-on :is([aria-busy="true"], [data-slot="make"][data-state="busy"], [data-state="tidying"]) { cursor: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M3 3 L22.5 11.2 L20.6 12.6 L22.1 13.9 L19.8 15.1 L20.9 16.6 L14.6 18.3 L13.2 20.4 L12.1 19.1 L10.6 23.6 L9.2 21.8 L8.1 24.4 Z%22 transform=%22translate%281.5 1.6%29%22 fill=%22%2333261C%22 opacity=%22.25%22/%3E%3Cpath d=%22M3 3 L22.5 11.2 L20.6 12.6 L22.1 13.9 L19.8 15.1 L20.9 16.6 L14.6 18.3 L13.2 20.4 L12.1 19.1 L10.6 23.6 L9.2 21.8 L8.1 24.4 Z%22 fill=%22%23D47288%22 stroke=%22%2333261C%22 stroke-width=%221.4%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%2220%22 cy=%2225%22 r=%221.8%22 fill=%22%2333261C%22/%3E%3Ccircle cx=%2224.5%22 cy=%2225%22 r=%221.8%22 fill=%22%2333261C%22 opacity=%22.6%22/%3E%3Ccircle cx=%2229%22 cy=%2225%22 r=%221.8%22 fill=%22%2333261C%22 opacity=%22.3%22/%3E%3C/svg%3E") 3 3, progress !important; }
+html.painted-on :is(button:disabled, [aria-disabled="true"], [data-state="disabled"]) { cursor: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M3 3 L22.5 11.2 L20.6 12.6 L22.1 13.9 L19.8 15.1 L20.9 16.6 L14.6 18.3 L13.2 20.4 L12.1 19.1 L10.6 23.6 L9.2 21.8 L8.1 24.4 Z%22 fill=%22%23FFF8EE%22 stroke=%22%2333261C%22 stroke-width=%221.3%22 stroke-linejoin=%22round%22 stroke-dasharray=%222.2 1.6%22 opacity=%22.9%22/%3E%3C/svg%3E") 3 3, not-allowed !important; }
+/* "Made with" (the sponsors, prepared ahead) reads like "Loaded with", one step quieter: a dotted mark instead of a dash */
+html #room [data-component="meet-card"] [data-slot="made-label"] { display: block; margin: 12px 0 4px; font: 500 13px/1 var(--ui); color: var(--mt, var(--ink)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="meet-card"] [data-slot="made"] { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+html #room [data-component="meet-card"] [data-slot="made-item"] { position: relative; padding-left: 16px; font: italic 400 15px/1.35 var(--display); color: var(--ink-2); }
+html #room [data-component="meet-card"] [data-slot="made-item"]::before { content: ''; position: absolute; left: 1px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--mc, var(--ink)); opacity: .8; }
+html #room [data-slot="voice-credit"] { color: var(--ink-3); }
+
+/* Start over (b7's hooks: [data-component="start-over"] idle|asking; slots open, ask, question, yes, no). A quiet ink
+   word in the top bar; asked, a small paper card drops just below the bar: the question, one dark pill to start a new
+   studio, a quiet "Keep this one". Nothing is deleted, so it never looks alarming. */
+html.painted-on [data-component="start-over"] { position: relative; display: inline-flex; align-items: center; margin-left: 14px; }
+html.painted-on [data-component="start-over"] [data-slot="open"] { appearance: none; border: 0; background: none; padding: 2px 0; font: 500 13px/1 var(--ui); color: var(--ink-2);
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; opacity: .8; }
+html.painted-on [data-component="start-over"] [data-slot="open"]:hover { opacity: 1; }
+html.painted-on [data-component="start-over"][data-state="asking"] [data-slot="ask"] { position: fixed; z-index: 2000; top: 44px; left: 50%; translate: -50% 0; display: grid; grid-template-columns: auto auto; gap: 14px 12px; align-items: center;
+  width: max-content; max-width: min(520px, 92vw); padding: 20px 24px; border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; background: #FBF5EA;
+  box-shadow: inset 0 0 0 1.5px rgba(51,38,28,.72), 6px 7px 0 -1px var(--product, #D47288), 0 14px 30px -12px rgba(50,28,12,.35); animation: pt-so-in .3s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pt-so-in { from { opacity: 0; translate: -50% -8px; } }
+html.painted-on [data-component="start-over"] [data-slot="question"] { grid-column: 1 / -1; margin: 0; font: 400 21px/1.35 var(--display); color: var(--ink); }
+html.painted-on [data-component="start-over"] [data-slot="yes"] { appearance: none; border: 0; height: 46px; padding: 0 22px; border-radius: 999px; background: #33261C; color: #FBF5EA; font: 500 16px/1 var(--ui); box-shadow: 3px 3px 0 0 var(--product, #D47288); justify-self: start; }
+html.painted-on [data-component="start-over"] [data-slot="no"] { appearance: none; border: 0; background: none; padding: 4px 2px; font: 500 15px/1 var(--ui); color: var(--ink-2); justify-self: start;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; }
+html.painted-on [data-component="start-over"] :is([data-slot="yes"], [data-slot="no"]):hover { translate: 0 -1px; }

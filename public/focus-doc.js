@@ -265,6 +265,7 @@
     $('.fd-input').value = ''; clearPieces();
     $('.fd-leave').hidden = true; $('.fd-leave').dataset.state = 'hidden';
     rebuild(ask); $('.fd-form').hidden = !!B.replay || ended;
+    if (!ended && !B.replay) restorePieces(ask);
     setMode(ended ? 'ended' : 'composing');
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
     $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
@@ -384,10 +385,12 @@
     if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
     if (!pieces.length) { capturing(false); ack(false); }
   }
-  function addPiece(text) {
+  // addPiece(text, { id, post, tidy, use }): a restored piece (her run picked up after a refresh, or the document
+  // reopened) keeps its own id, its tidy and her choice, and is not posted again.
+  function addPiece(text, o = {}) {
     text = String(text || '').trim();
     if (!text || !cur || sent || B.replay) return;
-    const p = { id: `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: '', use: 'tidy', showRaw: false, askId: cur.id };
+    const p = { id: o.id || `p${++pieceN}-${Date.now().toString(36)}`, raw: text, tidy: o.tidy || '', use: o.use || 'tidy', showRaw: false, askId: cur.id };
     p.li = h('li', 'fd-piece'); p.li.dataset.component = 'piece'; p.li.dataset.piece = p.id;
     p.words = h('span', 'fd-piece-words', text); p.words.dataset.slot = 'words';
     const btn = (slot, label) => { const b = h('button', `fd-piece-${slot}`, label); b.type = 'button'; b.dataset.slot = slot; return b; };
@@ -404,9 +407,27 @@
     p.li.append(p.words, p.see, p.mine, redo, rm);
     $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
     capturing(true);
+    if (o.post === false) return p;
     if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
     pieceApi({ askId: cur.id, pieceId: p.id, text }).catch(() => {}); // a failed post still sends raw at Send
     ack(true);
+    return p;
+  }
+  // Her pieces not yet sent come back from the run's log (answer.piece and its tidy, choice and removal since her last
+  // Send), so a refresh or a reopened document never loses a thought she added.
+  function restorePieces(ask) {
+    const evs = (B.events ? B.events() : []).filter(e => e.askId === ask.id);
+    let from = 0;
+    evs.forEach((e, i) => { if (e.type === 'answer.round' || e.type === 'answer' || e.type === 'meeting.end') from = i + 1; });
+    const kept = new Map();
+    for (const e of evs.slice(from)) {
+      if (e.type === 'answer.piece' && e.pieceId) kept.set(e.pieceId, { text: e.text, tidy: '', use: 'tidy' });
+      else if (e.type === 'answer.piece.removed') kept.delete(e.pieceId);
+      else if (e.type === 'answer.piece.tidy' && kept.has(e.pieceId)) kept.get(e.pieceId).tidy = e.text;
+      else if (e.type === 'answer.piece.choice' && kept.has(e.pieceId)) kept.get(e.pieceId).use = e.use;
+    }
+    for (const [id, k] of kept) addPiece(k.text, { id, tidy: k.tidy, use: k.use, post: false });
+    if (kept.size) ack(true);
   }
   // After "Add this" (or a spoken piece): a quiet line under her pieces says who's listening and that replies come on
   // Send, and Send pulses once (data-state="nudge", then "idle"). Vincent: added a thought, nothing reacted.
@@ -452,31 +473,52 @@
     if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'PageDown') { e.preventDefault(); send(); }
   });
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
+  // Her "You" turn is tidied in place on its words (.fd-her-words: data-raw / data-state tidying → tidied / data-tidy).
+  // Pieces already tidied keep their tidy and cost nothing; words still in the field, or a piece whose tidy hasn't
+  // landed, are tidied here (2.5 s cap, her raw words on a miss). It's what she sees: her answer goes to the team at
+  // once, as sent (the readers' names within 300 ms, e2e/focus-wait), so leaving mid-tidy never loses it.
+  async function tidyTurn(li, mine, text) {
+    const span = li && li.querySelector('.fd-her-words');
+    const raw = [...mine.map(p => p.raw), text].filter(Boolean).join(' ');
+    const shown = [...mine.map(shownText), text].filter(Boolean).join(' ');
+    if (!span || typeof B.tidyInto !== 'function') return { words: shown, text };
+    if (!text && mine.every(p => p.tidy || p.use === 'mine')) { // nothing left to tidy: the hooks, no call
+      span.dataset.raw = raw; span.textContent = shown; span.dataset.tidy = B.tidyKind ? B.tidyKind(raw, shown) : 'cut'; span.dataset.state = 'tidied';
+      return { words: shown, text };
+    }
+    const words = String(await B.tidyInto(span, shown) || shown).trim() || shown;
+    if (span.dataset.raw !== raw) span.dataset.raw = raw; // her words as she said them, pieces included
+    return { words, text };
+  }
   async function send() {
-    const text = $('.fd-input').value.trim();
+    let text = $('.fd-input').value.trim();
     if ((!text && !pieces.length) || !cur || sent || ended) return;
     sent = true;
     const ask = cur, mine = pieces.filter(p => p.askId === ask.id);
-    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
-    const body = mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text } : { askId: ask.id, text };
-    const words = [...mine.map(shownText), text].filter(Boolean).join(' ');
+    let words = [...mine.map(shownText), text].filter(Boolean).join(' ');
     $('.fd-input').value = ''; $('.fd-input').blur();
     $('.fd-said').classList.remove('speaking');
     pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
+    const bodyFor = t => (mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text: t } : { askId: ask.id, text: t });
     if (MEETING) { // one round of discussion: the team replies live; no takeaways until she ends the meeting
-      rounds += 1; addTurn('her', words, rounds); landSaid(words, true);
+      rounds += 1; const li = addTurn('her', words, rounds); landSaid(words, true);
       followBottom = true; setMode('discussing'); follow();
+      const body = bodyFor(text);
       hearing = { ask, body, timer: null, heard: false, readers: null, path: 'round' };
       reading();
+      tidyTurn(li, mine, text); // on her turn, alongside: the post never waits for it
       await postAnswer(hearing, body);
       if (cur === ask) sent = false; // she can say more and Send again
       return;
     }
-    landSaid(words); addTurn('her', words, 1); $('.fd-form').hidden = true;
+    landSaid(words); const li = addTurn('her', words, 1); $('.fd-form').hidden = true;
     rounds = 1; setMode('discussing');
     // Every ask, Focus 1 and Focus 2 included, is a meeting through /answer; the stage path follows it on the server (lib/first.js).
+    const body = bodyFor(text);
     hearing = { ask, body, timer: null, heard: false, readers: null };
     reading(); // at once, before the request leaves
+    tidyTurn(li, mine, text).then(r => { const q = $('.fd-said .fd-words'); if (q && cur === ask) q.textContent = r.words; });
     await postAnswer(hearing, body);
   }
   // End meeting: the takeaways over all her rounds, appended at the bottom of the conversation.

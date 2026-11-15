@@ -50,9 +50,9 @@
   function mark(field, el) {
     const b = document.createElement('span');
     b._field = el; b.className = 'voice-mic'; b.dataset.field = field; b.dataset.component = 'mic';
-    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak');
-    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V)';
-    b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak</span>';
+    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak (voice by ElevenLabs)');
+    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V) · voice by ElevenLabs speech-to-text';
+    b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak · ElevenLabs</span>';
     b.addEventListener('pointerdown', e => {
       if (state === 'listening' && toggled) { e.preventDefault(); stop(); return; } // the second tap
       if (!available || state !== 'idle') return;
@@ -84,7 +84,7 @@
       const mine = target && (m._field ? m._field === target : fieldFor(target) === m.dataset.field);
       const s = available === false ? 'typed' : mine && state !== 'idle' ? state : 'idle';
       const word = s === 'typed' ? 'typed' : s === 'listening' ? (toggled ? 'listening · tap to stop' : 'listening')
-        : s === 'writing' ? (limited ? 'that’s 2 minutes: writing it down' : 'writing it down') : 'tap or hold to speak';
+        : s === 'writing' ? (limited ? 'that’s 2 minutes: writing it down' : 'writing it down') : 'tap or hold to speak · ElevenLabs';
       const mode = mine && s === 'listening' && toggled ? 'toggle' : null;
       if ((m.dataset.mode || null) !== mode) { if (mode) m.dataset.mode = mode; else delete m.dataset.mode; }
       // Write only on a change: these writes are inside the observed room, and must not wake the observer forever.
@@ -220,6 +220,7 @@
   // "reordered" (anything else the tidy may do: reorder, merge, small joining words, grammar).
   const tidyWords = t => String(t || '').toLowerCase().split(/\s+/).map(w => w.replace(/[^\p{L}\p{N}']+/gu, '')).filter(Boolean);
   const isCut = (raw, clean) => { const a = tidyWords(raw), b = tidyWords(clean); let i = 0; for (const w of b) { while (i < a.length && a[i] !== w) i++; if (i++ >= a.length) return false; } return true; };
+  BYOC.tidyKind = (raw, clean) => (isCut(raw, clean) ? 'cut' : 'reordered');
   BYOC.tidyInto = async function (el, text, opts = {}) {
     const raw = String(text ?? '').trim();
     if (!raw) return raw;
@@ -228,7 +229,8 @@
     let clean = raw;
     try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
     // She typed (or spoke) on while it tidied: what she has now is never overwritten, and this line goes untidied.
-    if (el && isField && el.value !== raw) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
+    // She typed while it tidied (a field, or a contenteditable answer): her edit wins.
+    if (el && (isField ? el.value !== raw : el.isContentEditable && el.textContent.trim() !== raw)) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
     if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
     return clean;
   };

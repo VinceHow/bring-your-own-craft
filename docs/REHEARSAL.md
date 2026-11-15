@@ -43,6 +43,9 @@ MODEL_BACKEND=fal
 ```
 
 ## Run sheet
+- **A refresh picks up where she was** (her run is kept in this browser and in the URL's `?run=`): the room, her idea,
+  journey, inbox and a build in progress come back at once, with no model call. To begin again on purpose: **Start
+  over** in the top bar, or **Shift+N** (asks once; the old run stays in `runs/`). **Home** also starts fresh.
 - **The opening is IDEA → YOU → TEAM** (Vincent, Sun 01:21): her idea first ("What do you want to build today?"),
   then her name tag, then the team, each teammate's line written for her idea (one call, under about 6 s, fired while
   she makes her name tag; static lines if it's slow). The room opens with her idea on the sheet and the team already

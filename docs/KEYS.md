@@ -6,7 +6,8 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 |---|---|
 | `→` · `PageDown` · `Space` | Next beat (a clicker's forward button). On her name tag: make it, then meet the team; then one teammate at a time, then the reveal. |
 | `←` · `PageUp` | Previous beat (a clicker's back button). |
-| `Home` · `0` | Reset to the empty room. |
+| `Home` · `0` | Reset to the empty room (and forget her run: a refresh then starts fresh). |
+| `Shift+N` | Start over: a new studio, after one confirm; this run is kept in `runs/`. A refresh otherwise picks up her run. |
 | `S` | Stage mode: body text 20px and up, no chrome, no help card. |
 | `R` | Replay the rehearsal run (`runs/rehearsal`), labelled REPLAY. In the close: the yoga run's check-in. |
 | `C` | Replay the yoga run (`runs/yoga`, the judge's-idea fallback), labelled REPLAY. In the close: its check-in. |

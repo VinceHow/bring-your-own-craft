@@ -121,7 +121,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.route('**/api/name-tag', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
     craft: 'Product', title: 'the Customer Whisperer', traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: 'hears the problem behind the request',
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
-  await p.goto(L(BASE + '/?stage=1&hold=200&setup=classic'));
+  await p.goto(L(BASE + '/?stage=1&hold=1500&setup=classic')); // each card holds 1.5 s, long enough to read the first one
   await p.waitForTimeout(300);
   // The setup: no room yet; her name tag on paper (name, role, what she loves and brings).
   assert.ok(await p.isVisible('#setup'), 'the room is hidden');
@@ -282,6 +282,16 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 5000, 'settled in the team space', null, p);
   assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
   assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');
+  // Folded into a small "Team notes · N" tab (Vincent, 15 Nov); a click opens the cards and closes them again.
+  const notes = p.locator('.team-space [data-component="team-notes"]');
+  assert.match((await notes.innerText()).trim(), /^Team notes · \d+$/);
+  assert.strictEqual(await notes.getAttribute('data-state'), 'closed');
+  assert.ok(await p.locator('.team-space .ts-cards').isHidden(), 'folded: the cards wait behind the tab');
+  await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
+  assert.ok(await p.locator('.team-space .ts-card[data-joint="fd-first-d2"]').isVisible(), 'open: the cards');
+  await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'closed');
   assert.strictEqual(await p.locator('.mini-sheet li[data-state="decided"]').count(), 2, 'and on their sketchpads');
   // Focus 2: Mika's rough morning journey in words; her answer; Mika rewrites the step it changes.
   const steps = [{ step: 1, time: '7:05', text: 'Sam leaves for work' }, { step: 2, time: '7:10', text: 'Sam reserves the usual on the bus' }, { step: 3, time: '7:40', text: 'Sam picks it up, still warm' }];
@@ -319,13 +329,13 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
   await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
   await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
-  assert.match(await page.textContent('#inbox .inbox-now'), /Noor asks[\s\S]*Who should we build this for/);
+  assert.strictEqual((await page.textContent('#inbox .inbox-now')).trim(), 'Noor has a question');
   await page.keyboard.press('PageDown'); // the clicker opens it
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
   assert.match(await page.textContent('#focus-doc .ff-claim'), /A third \(33%\) of UK adults who visit artisan bakeries/);
   assert.match(await page.getAttribute('#focus-doc a.ff-src', 'href'), /^https:\/\/bakerybusiness\.com\//);
-  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
+  { const pr = await pronouns(page); if (pr.length) console.log('pronouns in her document:', JSON.stringify(await page.evaluate(() => [...document.body.innerText.matchAll(/.{0,50}\b(he|she|his|him|her|hers)\b.{0,30}/gi)].map(m => m[0])))); assert.deepStrictEqual(pr, [], 'no pronouns in her document'); }
   // Readable at both sizes: the question >= 18 px at 1280x720 and >= 22 px at 1600x900, rendered.
   for (const [w, hgt, floor] of [[1280, 720, 18], [1600, 900, 22]]) {
     await page.setViewportSize({ width: w, height: hgt }); await page.waitForTimeout(300);
@@ -413,7 +423,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
   await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
-  assert.match((await p.locator('#inbox .inbox-now').innerText()).trim(), /^Noor asks\s*\n\s*What makes someone come back to…\?$/i);
+  assert.strictEqual((await p.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question', 'only who: no preview in the room');
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
@@ -647,13 +657,18 @@ test('4. replays: record-run, R in stage mode, the yoga fallback in the close; R
   assert.ok(!(await page.isVisible('#replay-label')), 'reset clears the label');
 });
 
-test('5. fallbacks: a slow or failing call shows its step and offers R; the close says so too', async () => {
+test('5. fallbacks: a slow or failing call shows its step and offers R; the close says so too', async t => {
+  // Serial: R swaps in the rehearsal recorded in step 4 from step 2's run. Run alone, or after step 2 failed, it skips.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   // Opening her run hangs, then fails; the slow threshold is 1.5 s for the test (25 s on stage).
   await p.route('**/api/run', async r => { await new Promise(f => setTimeout(f, 3500)); await r.fulfill({ status: 500, body: '{"error":"model down"}' }); });
   await p.route('**/api/sketch-for-idea', r => r.fulfill({ status: 502, body: '{"error":"no sketch"}' }));
   await p.route('**/api/select-for-idea', async r => { await new Promise(f => setTimeout(f, 3000)); await r.fulfill({ status: 502, body: '{"error":"bad gateway"}' }); });
+  // Her typed idea is tidied before it's sent (BYOC.tidyInto, up to 2.5 s): answered at once here, so the clock below
+  // times only the failing run call, not a slow tidy (in either setup order).
+  await p.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } }));
   await p.goto(L(BASE + '/?stage=1&slow=1500'));
   await p.waitForTimeout(300);
   await p.evaluate(() => BYOC.stage(3, { instant: true }));

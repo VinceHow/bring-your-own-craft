@@ -63,6 +63,22 @@ html body #room[data-fill="cover"] #room-panel[data-component="sketchpad-open"][
    keep that same 60px from the window's edge */
 html body #room[data-fill="cover"] :is([data-component="close-view"], #page-sheet) { margin-left: calc(-1 * var(--crop-x, 0px)); }
 
+/* ---- JANK 24 and 11: the close ----
+   Its painted crayon frame sits outside its box and was shaved by its own overflow: hidden; overflow: clip with a
+   margin keeps the content clipped at the paper and lets the frame show whole. While it's asking for a judge's idea the
+   left column (the reveal: the other agent's guesses) is still empty, which left the label and field starting halfway
+   across and two thirds of the paper blank: while asking, the field spans the sheet and sits in its middle, larger.
+   The sheet sizes to what it holds, so it grows as the reveal arrives. */
+html body #room [data-component="close-view"] { overflow: clip; overflow-clip-margin: 16px; }
+html body #room [data-component="close-view"][data-state="asking"] { grid-template-columns: minmax(0, 1fr); align-items: center; }
+html body #room [data-component="close-view"][data-state="asking"] > :first-child { display: none; }
+html body #room [data-component="close-view"][data-state="asking"] > :last-child { justify-self: center; width: min(720px, 100%); gap: 16px; }
+html body #room [data-component="close-view"][data-state="asking"] [data-slot="input"] { font-size: 30px; height: 56px; }
+/* at the close her idea sheet steps back (painted.css hides it), but painted.css also forces its journey pills visible
+   for the glance card, so the pills floated on the table without their paper: they step back with their sheet */
+html body #room:has(> [data-component="close-view"]:not([hidden])) [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] * { visibility: hidden !important; }
+/* and the "who's doing what" strip steps back too: at the close the teammates are hidden, so it spoke for nobody */
+html body #room:has(> [data-component="close-view"]:not([hidden])) :is([data-component="team-doing"], [data-component="team-status"]) { visibility: hidden !important; }
 /* ---- QA #37 and #27: the inbox drawer scrolled sideways (and lost its first letters) ----
    The cause: the action card's painted crayon layer (its ::before) sits ~7px past the card's right edge, so the
    drawer's content ran 13px wider than the drawer. The drawer now keeps room for that offset on its right, never

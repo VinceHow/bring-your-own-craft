@@ -257,16 +257,16 @@
   const M = window.Motion;
   B.on('ask', ev => {
     const inbox = document.getElementById('inbox');
-    if (!M || !inbox || inbox.dataset.state === 'expanded' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!M || !inbox || inbox.dataset.state === 'open' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const [hx, hy] = HAND[ev.seat];
     inbox.dataset.ptAwaiting = '';
     setTimeout(() => {
-      if (inbox.dataset.state === 'expanded' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
+      if (inbox.dataset.state === 'open' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
       const r = room.getBoundingClientRect(), k = r.width / 1600, ib = inbox.getBoundingClientRect();
       const x1 = (ib.left - r.left) / k + 40, y1 = (ib.top - r.top) / k + 6;
       const n = document.createElement('div'); n.dataset.component = 'note-flight'; n.dataset.seat = ev.seat;
       const who = document.createElement('b'), txt = document.createElement('span'); who.dataset.slot = 'who'; txt.dataset.slot = 'text';
-      who.textContent = WHO[ev.seat] || ''; txt.textContent = few(ev.question || ev.decision || '', 8); n.append(who, txt);
+      who.textContent = WHO[ev.seat] || ''; txt.textContent = 'has a question'; n.append(who, txt); // only who: no preview of the question in the room (Vincent, 15 Nov)
       room.appendChild(n);
       const x0 = hx - 100, y0 = hy - 30, mx = (x0 + x1) / 2 + 30, my = 600;
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });
@@ -339,6 +339,7 @@
     if (!HOVER_CURSOR) return;
     for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
       if (el.dataset.ptCursor) return;
+      if (el.matches(':disabled, [aria-disabled="true"], [aria-busy="true"], [data-state="tidying"], [data-state="busy"]')) return;   // their own cursor (not now / working)
       const c = getComputedStyle(el).cursor;
       if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
       if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
@@ -381,7 +382,10 @@
     ov.querySelectorAll('[data-slot="word"]').forEach(w => { w.style.maxWidth = w.offsetWidth + 'px'; });   // so the close-up is real
     el.dataset.ptTidy = 'hold';                                    // the field's clean text waits under the overlay
     requestAnimationFrame(() => requestAnimationFrame(() => { ov.dataset.state = 'go';
-      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; }); }));
+      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; });
+      // the first word left standing takes the clean line's capital as the others close up
+      const first = ov.querySelector('[data-slot="word"]:not([data-state="cut"])');
+      if (first && /^[A-Z]/.test(clean.trim()) && /^[a-z]/.test(first.textContent)) setTimeout(() => { first.style.maxWidth = 'none'; first.textContent = first.textContent[0].toUpperCase() + first.textContent.slice(1); }, 800); }));
     const total = ov.dataset.tidy === 'cut' ? 1650 : 1000;
     setTimeout(() => { el.dataset.ptTidy = 'show'; ov.dataset.leave = 'yes'; }, total - 350);
     setTimeout(() => { ov.remove(); delete el.dataset.ptTidy; }, total + 100);
