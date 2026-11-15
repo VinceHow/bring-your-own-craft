@@ -1,49 +1,49 @@
 {
   "business": {
-    "text": "She is building an online pre-order website for her friend's small bakery so customers can order bread ahead. It's a helper project for a friend's shop, not her own bakery.",
+    "text": "A pre-order website for a small bakery where regular customers can reserve their usual bread ahead of time.",
     "confidence": "high"
   },
   "positioning": {
-    "text": "The bakery's own simple, direct way for regulars to get their usual loaf held, where it already knows them and never asks for what it knows. No marketplace or fees; anything beyond that should come from what customers say.",
-    "confidence": "medium"
+    "text": "Solves the problem of favourite loaves selling out by letting regulars guarantee their usual order, while helping the bakery plan baking quantities.",
+    "confidence": "high"
   },
   "customers": {
-    "text": "Build first for the morning regulars, who come in every day and hate finding their usual sourdough gone by nine. Occasional buyers and other segments come later.",
+    "text": "The bakery's regular customers who come every morning and have their usual loaves, especially those frustrated when their favourites like sourdough sell out by nine.",
     "confidence": "high"
   },
   "whatSells": {
-    "text": "The certainty that a regular's usual loaf is held for them with no effort, especially the sourdough that sells out early. Bread quality keeps them coming back; the site adds reliability and the feeling of being known.",
-    "confidence": "medium"
+    "text": "The guarantee that regulars can hold their usual loaf and never face the disappointment of it being sold out.",
+    "confidence": "high"
   },
   "brandFeel": {
-    "text": "Personal, familiar, effortless: like the baker already knows you. Warm neighborhood bakery, with no repeated questions.",
+    "text": "Familiar and effortless, like the baker already knows you; no unnecessary questions.",
     "confidence": "high"
   },
   "strengths": {
-    "text": "She loves talking to customers and turning what they say into what gets built. She spots the real customer problem, like regulars missing their usual loaf, and has a strong instinct for removing friction (don't ask for what we already know).",
+    "text": "She excels at talking with customers and translating what they say into product decisions. She loves this direct customer connection and building from real needs.",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "Customer-led and conversational. The team should decide routine build details itself, such as remembering usual orders and prefilling them, and bring her questions grounded in customer insight about regulars. Her preferences on pace and tools are unknown.",
+    "text": "She works best when she can stay close to customers and use their voice to guide what gets built.",
     "confidence": "medium"
   },
   "domains": [
     "target customer",
     "customer problem",
-    "user journey",
-    "what success looks like"
+    "what success looks like",
+    "user journey"
   ],
   "philosophy": [
     {
       "id": "L3",
-      "believe": "I believe we should build this first for the morning regulars, who hate finding their usual sourdough gone by nine.",
-      "guidance": "Design the smallest end-to-end version around a regular reserving their usual loaf ahead so it's held past nine. Keep reorder and usual-loaf in mind, and check this with a few regulars before adding anything else.",
+      "believe": "Our first users are the regulars who come every morning and get frustrated when their favourite bread sells out.",
+      "guidance": "Focus the first version on letting regulars reserve their usual loaf so they're guaranteed to get it. Build for this morning rush problem first, then expand from there.",
       "askId": "first"
     },
     {
       "id": "L4",
-      "believe": "For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.",
-      "guidance": "Design the regular's flow around recognition: remember their usual and details, prefill everything known, and ask only for what's new. Make holding their usual a one-tap action with a warm, personal tone.",
+      "believe": "The experience should feel like walking into a shop where they know your name and your usual order.",
+      "guidance": "Don't make regulars fill in details the bakery already has. Pre-fill their usual order, their name, their pickup time. Make ordering feel like a nod to someone who knows you.",
       "askId": "feel"
     }
   ],
