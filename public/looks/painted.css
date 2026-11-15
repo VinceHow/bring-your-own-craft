@@ -1519,5 +1519,7 @@ html.painted-on [data-turn="her"]:has([data-pt-tidy="show"])::after { content: '
 
 /* AUDIT #8: her page, inside her idea sheet opened large, ran 26 px off the left edge at 1440 (23 at 1280). painted-fixes
    shifts the page sheet left by the cover crop (--crop-x), which suits it alone in the room, but inside her opened sheet
-   (already placed inside the window) the shift pushed it past the edge. Inside the opened sheet: no shift. */
-html body #room [data-component="idea-sheet"][data-open="true"] > :has(> [data-component="page-frame"]) { margin-left: 0 !important; }
+   (already placed inside the window) the shift pushed it past the edge. Inside her sheet: no shift. */
+html body #room [data-component="idea-sheet"] > :has(> [data-component="page-frame"]) { margin-left: 0 !important; }
+/* (AUDIT final F3: the same shift clipped her page's "Your page" header to "our page" at the page beat too, her sheet not
+   opened large: the page sheet always lives inside her idea sheet, so it never takes the crop shift) */
