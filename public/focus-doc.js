@@ -26,6 +26,20 @@
     <div class="fd-main">
       <div class="fd-work" data-slot="work"></div>
       <h2 class="fd-question" data-slot="question"></h2>
+    </div>
+    <div class="fd-side fd-column" data-slot="side" data-component="meeting" data-state="composing">
+      <button type="button" class="fd-earlier" data-slot="earlier" aria-expanded="false" hidden></button>
+      <ol class="fd-chimes fd-conversation" data-slot="conversation"></ol>
+      <div class="fd-hearing" data-component="team-reading" data-state="idle">
+        <div class="fd-team" data-slot="team"></div>
+        <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
+      </div>
+      <div class="fd-brief" data-component="takeaways" data-state="hidden" hidden>
+        <div class="brief-head" data-slot="head">Takeaways</div>
+        <div class="brief-part brief-believe"><span class="brief-label" data-slot="label">What I believe about this</span><p class="brief-text" data-slot="believe" data-k="believe"></p></div>
+        <div class="brief-part brief-guidance"><span class="brief-label" data-slot="label">Guidance to the team</span><p class="brief-text" data-slot="guidance" data-k="guidance"></p></div>
+        <button type="button" class="fd-keep" data-slot="keep">Keep</button>
+      </div>
       <div class="fd-said" data-component="her-answer" data-state="speaking"></div>
       <ol class="fd-pieces" data-component="pieces"></ol>
       <p class="fd-ack" data-slot="ack" data-state="hidden" role="status" aria-live="polite" hidden></p>
@@ -34,26 +48,71 @@
         <button type="button" class="fd-add" data-slot="add-piece">Add this</button>
         <button type="submit" class="fd-send" data-slot="send" data-state="idle">Send</button>
         <p class="fd-help" data-slot="help">Add this keeps a thought · Send when you’re ready, and the team replies</p>
+        <button type="button" class="fd-end" data-slot="end-meeting" data-component="end-meeting" hidden>End meeting</button>
       </form>
-    </div>
-    <aside class="fd-side">
-      <button type="button" class="fd-read" data-slot="read-conversation" aria-expanded="false" hidden>Read the conversation</button>
-      <ol class="fd-chimes" data-slot="chimes" hidden></ol>
-      <div class="fd-brief" data-component="takeaways" data-state="hidden" hidden>
-        <div class="brief-head" data-slot="head">Takeaways</div>
-        <div class="brief-part brief-believe"><span class="brief-label" data-slot="label">What I believe about this</span><p class="brief-text" data-slot="believe" data-k="believe"></p></div>
-        <div class="brief-part brief-guidance"><span class="brief-label" data-slot="label">Guidance to the team</span><p class="brief-text" data-slot="guidance" data-k="guidance"></p></div>
-        <button type="button" class="fd-keep" data-slot="keep">Keep</button>
+      <div class="fd-leave" data-component="leave-meeting" data-state="hidden" hidden>
+        <p class="fd-leave-q" data-slot="question">End the meeting now, or come back to it later?</p>
+        <button type="button" class="fd-leave-end" data-slot="end-now">End the meeting</button>
+        <button type="button" class="fd-leave-later" data-slot="later">Come back later</button>
       </div>
-      <div class="fd-hearing" data-component="team-reading" data-state="idle">
-        <div class="fd-team" data-slot="team"></div>
-        <button type="button" class="fd-retry" data-slot="retry" hidden>Retry</button>
-      </div>
-    </aside>`;
+      <button type="button" class="fd-newer" data-slot="new-replies" hidden>New replies ↓</button>
+    </div>`;
   room.appendChild(doc);
   const $ = sel => doc.querySelector(sel);
+  $('.fd-column').addEventListener('scroll', () => { followBottom = nearBottom(); if (followBottom) $('.fd-newer').hidden = true; });
 
   let cur = null;          // the open ask
+  // ---- the meeting (Vincent, 15 Nov): compose → Send = one round of discussion → … → End meeting = takeaways ----------
+  // The right column is ONE scrollable conversation ([data-slot=side], data-state composing · discussing · ended): her
+  // words and the team's replies by round, the takeaways at the bottom once she ends it. Composing: the past rounds
+  // fold into "Earlier: N rounds · show" and nothing from the team shows. Discussing: "The team is reading…", then each
+  // reply live, the column following the newest unless she scrolled up ("New replies ↓"). ?meeting=0: the old single Send.
+  const MEETING = new URLSearchParams(location.search).get('meeting') !== '0';
+  let rounds = 0, ended = false, earlierOpen = false, followBottom = true;
+  const column = () => $('.fd-column');
+  function setMode(m) {
+    const c = column(); c.dataset.state = m; doc.dataset.meeting = m;
+    const list = $('.fd-conversation');
+    const folded = m === 'composing' && !earlierOpen;
+    list.hidden = folded || !list.children.length;
+    const e = $('.fd-earlier'); e.hidden = !(m === 'composing' && rounds > 0);
+    e.textContent = `Earlier: ${rounds} round${rounds === 1 ? '' : 's'} · ${earlierOpen ? 'hide' : 'show'}`; e.setAttribute('aria-expanded', String(earlierOpen));
+    $('.fd-end').hidden = !MEETING || !rounds || ended || !!B.replay;
+    if (m !== 'discussing') $('.fd-newer').hidden = true;
+  }
+  const nearBottom = () => { const c = column(); return c.scrollHeight - c.scrollTop - c.clientHeight < 40; };
+  function follow() { // keep the newest reply in view unless she scrolled up herself
+    const c = column();
+    if (followBottom) { c.scrollTop = c.scrollHeight; $('.fd-newer').hidden = true; } else $('.fd-newer').hidden = false;
+  }
+  function addTurn(who, text, n, extra = {}) {
+    const list = $('.fd-conversation');
+    if (who === 'her' && n > 1 && !list.querySelector(`.fd-round-sep[data-round="${n}"]`)) {
+      const sep = h('li', 'fd-round-sep', `Round ${n}`); sep.dataset.slot = 'round-separator'; sep.dataset.round = n; list.appendChild(sep);
+    }
+    const li = h('li', who === 'her' ? 'fd-turn fd-her' : 'fd-turn chime'); li.dataset.slot = 'turn'; li.dataset.turn = who; li.dataset.round = n || 1;
+    if (who === 'her') { li.dataset.state = 'her-turn'; const t = h('span', 'fd-her-words', text); t.dataset.slot = 'words'; li.appendChild(t); }
+    Object.assign(li.dataset, extra);
+    list.appendChild(li); return li;
+  }
+  function teamTurn(ev, n) {
+    const li = addTurn('team', '', n, { seat: ev.seat || '', component: 'chime', state: 'team-turn' });
+    const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
+    const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
+    li.append(w, document.createTextNode(': '), t);
+    return li;
+  }
+  // Rebuild the conversation from the log (reopening a meeting she left, or a replay).
+  function rebuild(ask) {
+    $('.fd-conversation').innerHTML = ''; rounds = 0; ended = false; earlierOpen = false; followBottom = true;
+    let n = 0;
+    for (const e of (B.events ? B.events() : [])) {
+      if (e.askId !== ask.id) continue;
+      if (e.type === 'answer.round') { n = e.round || n + 1; rounds = Math.max(rounds, n); addTurn('her', e.text, n); }
+      else if (e.type === 'answer') { if (!rounds) { n = 1; rounds = 1; addTurn('her', e.text, 1); } ended = true; }
+      else if (e.type === 'chime') teamTurn(e, n || 1);
+    }
+  }
   let chimeQ = [], chimeTimer = null, briefPending = null, kept = false, sent = false, replayClose = null;
   // ---- never a dead page: after Send she always sees that the team heard her, or what went wrong, with Retry ----
   // At once: "<names> reading what you said…" (names from thread.start, logged before any model call). Nothing from
@@ -88,7 +147,7 @@
   function clearWait() { if (hearing) clearTimeout(hearing.timer); hearing = null; $('.fd-retry').hidden = true; $('.fd-hearing').dataset.state = 'idle'; delete $('.fd-hearing').dataset.why; }
   async function postAnswer(w, body) {
     try {
-      const r = await B.api(`/api/run/${encodeURIComponent(B.run)}/answer`, body, { step: false });
+      const r = await B.api(`/api/run/${encodeURIComponent(B.run)}/${w.path || 'answer'}`, body, { step: false });
       if (hearing !== w) return;
       if (r && r.pending) return reading(); // a resend while the first is still being heard: keep waiting
     } catch (e) {
@@ -199,10 +258,13 @@
     $('.fd-by').textContent = proposers ? `proposed by ${proposers.join(' and ')}` : '';
     $('.fd-question').textContent = ask.question || ask.decision || '';
     $('.fd-said').innerHTML = ''; $('.fd-said').classList.remove('speaking');
-    $('.fd-chimes').innerHTML = ''; $('.fd-team').textContent = '';
-    doc.querySelectorAll('.pin-reply').forEach(r => { clearTimeout(r._t1); clearTimeout(r._t2); }); conversation(false); readToggle();
+    $('.fd-team').textContent = '';
+    doc.querySelectorAll('.pin-reply').forEach(r => { clearTimeout(r._t1); clearTimeout(r._t2); });
     $('.fd-brief').hidden = true; doc.querySelectorAll('.brief-text').forEach(p => { p.textContent = ''; p.contentEditable = 'false'; });
-    $('.fd-input').value = ''; $('.fd-form').hidden = !!B.replay; clearPieces();
+    $('.fd-input').value = ''; clearPieces();
+    $('.fd-leave').hidden = true; $('.fd-leave').dataset.state = 'hidden';
+    rebuild(ask); $('.fd-form').hidden = !!B.replay || ended;
+    setMode(ended ? 'ended' : 'composing');
     doc.dataset.seat = seat || ''; doc.dataset.state = 'asking';
     $('.fd-brief').dataset.state = 'hidden'; $('.fd-said').dataset.state = 'speaking';
     doc.hidden = false;
@@ -216,6 +278,13 @@
   // close(quiet): back to the room. A brief she hasn't kept is kept as it stands (her file gets her belief).
   function close(quiet) {
     if (!cur) { doc.hidden = true; document.body.classList.remove('focus-open'); return; }
+    // Leaving mid-meeting: ask her plainly (End meeting now, or come back later). The presenter's keys close quietly.
+    if (!quiet && MEETING && rounds && !ended && !B.replay && $('.fd-leave').hidden) {
+      $('.fd-leave').hidden = false; $('.fd-leave').dataset.state = 'asking';
+      requestAnimationFrame(() => { const c = column(); c.scrollTop = c.scrollHeight; });
+      $('.fd-leave-end').focus();
+      return;
+    }
     const was = cur;
     if (!quiet && !kept && briefShown() && !B.replay) keepBrief();
     cur = null; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose); chimeQ = []; briefPending = null; clearWait();
@@ -230,8 +299,9 @@
   const briefShown = () => !$('.fd-brief').hidden;
 
   // ---- her piece: words land on the document ----------------------------------------------------
-  function landSaid(text) {
+  function landSaid(text, meeting = false) {
     const said = $('.fd-said');
+    if (meeting) { said.innerHTML = ''; said.dataset.state = 'landed'; doc.dataset.state = 'answered'; return; }
     said.innerHTML = '';
     const q = h('blockquote', 'fd-words', text); q.dataset.slot = 'words';
     said.appendChild(q); said.dataset.state = 'landed'; doc.dataset.state = 'answered';
@@ -248,7 +318,7 @@
   const shownText = p => (p.use === 'mine' || !p.tidy) ? p.raw : p.tidy;
   function capturing(on) {
     doc.dataset.capture = on ? 'on' : 'off';
-    $('.fd-side').hidden = !!on;
+    if (on && MEETING && !ended) setMode('composing'); // she's composing: the past rounds fold away, nothing from the team
   }
   function clearPieces() {
     pieces = []; const ol = $('.fd-pieces'); if (ol) ol.innerHTML = '';
@@ -371,6 +441,7 @@
     const t = e.target.value.trim();
     $('.fd-said').classList.toggle('speaking', !!t);
     if (!sent) doc.dataset.state = t || pieces.length ? 'speaking' : 'asking';
+    if (t && MEETING && !ended && column().dataset.state === 'discussing') setMode('composing'); // her next round: the conversation folds away
   });
   $('.fd-input').addEventListener('keydown', e => {
     if (doc.hidden) { e.target.blur(); return; } // closed: the key belongs to the room
@@ -382,20 +453,52 @@
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
   async function send() {
     const text = $('.fd-input').value.trim();
-    if ((!text && !pieces.length) || !cur || sent) return;
+    if ((!text && !pieces.length) || !cur || sent || ended) return;
     sent = true;
     const ask = cur, mine = pieces.filter(p => p.askId === ask.id);
     // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
     const body = mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text } : { askId: ask.id, text };
-    landSaid([...mine.map(shownText), text].filter(Boolean).join(' '));
-    $('.fd-input').value = ''; $('.fd-input').blur(); $('.fd-form').hidden = true;
+    const words = [...mine.map(shownText), text].filter(Boolean).join(' ');
+    $('.fd-input').value = ''; $('.fd-input').blur();
     $('.fd-said').classList.remove('speaking');
     pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    if (MEETING) { // one round of discussion: the team replies live; no takeaways until she ends the meeting
+      rounds += 1; addTurn('her', words, rounds); landSaid(words, true);
+      followBottom = true; setMode('discussing'); follow();
+      hearing = { ask, body, timer: null, heard: false, readers: null, path: 'round' };
+      reading();
+      await postAnswer(hearing, body);
+      if (cur === ask) sent = false; // she can say more and Send again
+      return;
+    }
+    landSaid(words); addTurn('her', words, 1); $('.fd-form').hidden = true;
+    rounds = 1; setMode('discussing');
     // Every ask, Focus 1 and Focus 2 included, is a meeting through /answer; the stage path follows it on the server (lib/first.js).
     hearing = { ask, body, timer: null, heard: false, readers: null };
     reading(); // at once, before the request leaves
     await postAnswer(hearing, body);
   }
+  // End meeting: the takeaways over all her rounds, appended at the bottom of the conversation.
+  async function endMeeting() {
+    if (!cur || ended || !rounds || B.replay) return;
+    const ask = cur;
+    $('.fd-leave').hidden = true; $('.fd-leave').dataset.state = 'hidden';
+    ended = true; $('.fd-end').hidden = true; $('.fd-form').hidden = true; clearPieces();
+    earlierOpen = true; setMode('discussing');
+    hearing = { ask, body: { askId: ask.id }, timer: null, heard: false, readers: null, path: 'end' };
+    status('The team is writing the takeaways…', 'reading');
+    clearTimeout(hearing.timer);
+    hearing.timer = setTimeout(() => { if (hearing && !hearing.heard && cur === hearing.ask) status('Still writing… It’s taking longer than usual. Your words are kept.', 'slow', true); }, WAIT_MS);
+    B.emit && B.emit('meeting.end', { askId: ask.id, rounds });
+    await postAnswer(hearing, { askId: ask.id });
+  }
+  $('.fd-end').addEventListener('click', () => endMeeting());
+  $('.fd-earlier').addEventListener('click', () => { earlierOpen = !earlierOpen; setMode(column().dataset.state); });
+  $('.fd-newer').addEventListener('click', () => { followBottom = true; follow(); });
+  $('.fd-leave-end').addEventListener('click', () => endMeeting());
+  $('.fd-leave-later').addEventListener('click', () => close(true));
+  // The round is over: quiet again, ready for her next words (the replies stay on show until she starts composing).
+  B.on('round.done', ev => { if (!forCur(ev)) return; heard(); status(ev.replies ? '' : 'No replies this round.', 'idle'); });
   B.on('thread.start', ev => { if (!forCur(ev) || !hearing || hearing.heard) return; hearing.readers = ev.by || []; if ($('.fd-hearing').dataset.state === 'reading') reading(); });
   for (const type of ['chime', 'takeaways', 'brief', 'answer.mapped']) B.on(type, ev => { if (forCur(ev)) heard(); });
   for (const type of ['chime.error', 'interpret.error', 'propose.error', 'teammate.error']) B.on(type, ev => { if (forCur(ev)) failed(type); });
@@ -455,26 +558,15 @@
     showReply(r);
     if (M) M.animate(r, { y: [6, 0] }, SPRING);
   }
-  function conversation(open) {
-    doc.dataset.conversation = open ? 'open' : 'closed';
-    $('.fd-chimes').hidden = !open;
-    const b = $('.fd-read');
-    b.setAttribute('aria-expanded', String(!!open));
-    b.textContent = open ? 'Hide the conversation' : 'Read the conversation';
-  }
-  $('.fd-read').addEventListener('click', () => conversation(doc.dataset.conversation !== 'open'));
-  function readToggle() { $('.fd-read').hidden = !$('.fd-chimes').children.length; }
 
   // ---- the team chimes in, one after another; then her brief -------------------------------------
   const forCur = ev => cur && (!ev.askId || ev.askId === cur.id);
   function pumpChimes() {
     if (chimeTimer || !chimeQ.length) { if (!chimeQ.length && !chimeTimer && briefPending) { const b = briefPending; briefPending = null; showBrief(b); } return; }
     const ev = chimeQ.shift();
-    const li = h('li', 'chime'); li.dataset.seat = ev.seat || ''; li.dataset.component = 'chime'; li.dataset.state = 'in';
-    const w = h('span', 'chime-who', `${ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)} · ${SEAT_NAME(ev.seat)}`); w.dataset.slot = 'who';
-    const t = h('span', 'chime-text', ev.text || ''); t.dataset.slot = 'text';
-    li.append(w, t); if (doc.dataset.state !== 'takeaways') doc.dataset.state = 'chiming'; // never back from her takeaways
-    $('.fd-chimes').appendChild(li); readToggle();
+    const li = teamTurn(ev, rounds || 1);
+    if (doc.dataset.state !== 'takeaways') doc.dataset.state = 'chiming'; // never back from her takeaways
+    setMode(column().dataset.state); follow();
     pinReply(ev);
     if (M) M.animate(li, { x: [24, 0], y: [-6, 0] }, SPRING);
     chimeTimer = setTimeout(() => { chimeTimer = null; pumpChimes(); }, CHIME_GAP_MS);
@@ -492,6 +584,8 @@
       p.spellcheck = false;
     }
     box.hidden = false; box.dataset.state = 'shown'; doc.dataset.state = 'takeaways';
+    ended = true; $('.fd-form').hidden = true; earlierOpen = true; setMode('ended');
+    requestAnimationFrame(() => { const c = column(); c.scrollTop = box.offsetTop - 12; }); // she lands on them; everything said is above
     $('.fd-keep').hidden = !!B.replay;
     if (M) M.animate(box, { y: [16, 0] }, SPRING);
     if (B.replay) { clearTimeout(replayClose); replayClose = setTimeout(() => close(true), 3500); }
@@ -532,5 +626,5 @@
   B.on('build.step', () => { if (B.replay && cur) close(true); });
   $('.fd-close').addEventListener('click', () => close());
   B.on('reset', () => close(true));
-  B.focusDoc = { open, close, isOpen: () => !doc.hidden, openId: () => (cur && !doc.hidden ? cur.id : null), keepBrief, send };
+  B.focusDoc = { open, close, isOpen: () => !doc.hidden, openId: () => (cur && !doc.hidden ? cur.id : null), keepBrief, send, endMeeting, meeting: MEETING, mode: () => column().dataset.state };
 })();

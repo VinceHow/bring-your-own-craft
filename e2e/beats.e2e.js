@@ -255,7 +255,7 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   await p.locator('#focus-doc .fd-input').fill("It's really for the regulars.");
   await p.keyboard.press('Enter');
   await p.waitForTimeout(400);
-  assert.deepStrictEqual(posts.find(x => x[0] === 'answer'), ['answer', { askId: 'first', text: "It's really for the regulars." }], 'Focus 1 is a meeting: her answer goes to /answer');
+  assert.deepStrictEqual(posts.find(x => x[0] === 'round'), ['round', { askId: 'first', text: "It's really for the regulars." }], 'Focus 1 is a meeting: Send is one round');
   await p.evaluate(() => {
     const d = ev => BYOC.dispatch({ run: 'stub-run', ...ev }, 'live');
     d({ type: 'answer', askId: 'first', text: "It's really for the regulars." });
@@ -334,7 +334,14 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   await page.setViewportSize({ width: 1280, height: 720 }); await page.waitForTimeout(200);
   await page.locator('#focus-doc .fd-input').fill("It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.");
   await page.keyboard.press('Enter');
-  // A real meeting (her takeaways), and alongside it the journey redraws and a run of decisions settles.
+  // One round of discussion: the team replies live, no takeaways yet; then she ends the meeting.
+  await waitFor(() => BYOC.events().some(e => e.type === 'round.done' && e.askId === 'first'), 40000, 'Focus 1, round 1');
+  const replies1 = await page.evaluate(() => BYOC.events().filter(e => e.type === 'chime' && e.askId === 'first').length);
+  console.log('Focus 1 round 1 replies:', replies1, '| first reply ms:', await page.evaluate(() => BYOC.events().find(e => e.type === 'chime' && e.askId === 'first')?.ms));
+  assert.ok(replies1 >= 1, 'the team replied');
+  assert.ok(await page.locator('#focus-doc .fd-brief').isHidden(), 'no takeaways before End meeting');
+  await page.click('#focus-doc .fd-end');
+  // The takeaways over her rounds, and alongside it the journey redraws and a run of decisions settles.
   await waitFor(() => BYOC.events().some(e => e.type === 'first.done'), 40000, 'Focus 1 followed');
   await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 40000, 'her takeaways');
   const first = await page.evaluate(() => BYOC.events().filter(e => e.type === 'decided' && e.round === 'first'));
@@ -365,6 +372,9 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in Mika\'s morning');
   await page.locator('#focus-doc .fd-input').fill("Like the baker already knows you. Don't ask for anything you already know.");
   await page.keyboard.press('Enter');
+  await waitFor(() => BYOC.events().some(e => e.type === 'round.done' && e.askId === 'feel'), 40000, 'Focus 2, round 1');
+  assert.ok(await page.locator('#focus-doc .fd-brief').isHidden(), 'no takeaways before End meeting');
+  await page.click('#focus-doc .fd-end');
   await waitFor(() => BYOC.events().some(e => e.type === 'journey.words.rewritten'), 40000, 'Mika rewrote the steps');
   await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 40000, 'her takeaways');
   assert.ok((await page.textContent('#focus-doc .brief-believe .brief-text')).trim().length > 0, 'what I believe');
@@ -392,7 +402,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   const posted = [];
   await p.route('**/api/run/*/answer', async r => { posted.push(['answer', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"ok":true}' }); });
   await p.route('**/api/run/*/takeaways', async r => { posted.push(['takeaways', JSON.parse(r.request().postData())]); await r.fulfill({ status: 200, body: '{"id":"L3"}' }); });
-  await p.goto(BASE + '/?stage=1');
+  await p.goto(BASE + '/?stage=1&meeting=0'); // the old single-Send flow, kept as the rehearsal's fallback
   await p.waitForTimeout(300);
   await p.evaluate(() => {
     BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
@@ -454,6 +464,79 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   await p.evaluate(() => { BYOC.focusDoc.close(true); BYOC.openNote('q2'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q2', by: 'Mika', seat: 'design', text: 'Again.' }, 'replay'); });
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length >= 1, 2500, 'a chime after a quick reopen', null, p);
   await p.evaluate(() => BYOC.focusDoc.close(true));
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
+test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the column folds, follows and lands on the takeaways', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const posted = [];
+  await p.route('**/api/run/stub-run/**', async r => { posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });
+  await p.goto(BASE + '/?stage=1');
+  await p.waitForTimeout(300);
+  await p.evaluate(() => {
+    BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'design', by: 'Mika', question: 'What should ordering feel like for a regular?', artifact: { kind: 'journey' } }, 'live');
+    BYOC.openNote('q1');
+  });
+  await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'her document', null, p);
+  const side = '#focus-doc [data-slot="side"]';
+  assert.strictEqual(await p.getAttribute(side, 'data-state'), 'composing');
+  assert.strictEqual(await p.locator(`${side} .fd-input, ${side} .fd-conversation, ${side} .fd-brief, ${side} .fd-end`).count(), 4, 'one column holds the form, the conversation, the takeaways and End meeting');
+  assert.ok(await p.locator('#focus-doc .fd-end').isHidden(), 'no End meeting before a round');
+  // Round 1: a long answer (~300 words).
+  const long = Array.from({ length: 30 }, (_, i) => `Regulars come in every morning, ${i + 1} of them know the sourdough sells out by nine.`).join(' ');
+  await p.locator('#focus-doc .fd-input').fill(long);
+  await p.keyboard.press('Enter');
+  await p.waitForTimeout(200);
+  assert.deepStrictEqual(posted[0][0], 'round');
+  assert.strictEqual(await p.getAttribute(side, 'data-state'), 'discussing');
+  assert.match(await p.textContent('#focus-doc .fd-team'), /reading what you said/, 'the team is reading, at once');
+  const reply = (n, by, seat, text) => p.evaluate(a => BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', ...a }, 'live'), { by, seat, text, round: n });
+  await reply(1, 'Mika', 'design', 'Then their usual loaf goes first, one tap.');
+  await reply(1, 'Bo', 'engineering', 'And we hold it till ten, so nine is never a race.');
+  await waitFor(() => document.querySelectorAll('#focus-doc .fd-conversation [data-turn="team"]').length === 2, 4000, 'two replies, live', null, p);
+  assert.ok(await p.locator('#focus-doc .fd-conversation').isVisible(), 'replies visible while discussing (no "Read the conversation")');
+  assert.strictEqual(await p.locator('#focus-doc .fd-read').count(), 0);
+  assert.ok(await p.evaluate(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, side), 'the column follows the newest reply');
+  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'no takeaways after a round');
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'round.done', askId: 'q1', round: 1, replies: 2 }, 'live'));
+  assert.ok(await p.locator('#focus-doc .fd-end').isVisible(), 'End meeting, once a round has happened');
+  // Round 2: as she types, the conversation folds away ("Earlier: 1 round · show").
+  await p.locator('#focus-doc .fd-input').fill('And never ask for anything we already know.');
+  assert.strictEqual(await p.getAttribute(side, 'data-state'), 'composing');
+  assert.ok(await p.locator('#focus-doc .fd-conversation').isHidden(), 'collapsed while composing');
+  assert.match(await p.textContent('#focus-doc .fd-earlier'), /Earlier: 1 round · show/);
+  await p.click('#focus-doc .fd-earlier');
+  assert.ok(await p.locator('#focus-doc .fd-conversation').isVisible(), 'she can open it');
+  await p.click('#focus-doc .fd-earlier');
+  await p.locator('#focus-doc .fd-input').focus();
+  await p.keyboard.press('Enter');
+  await p.waitForTimeout(200);
+  assert.deepStrictEqual(posted.filter(x => x[0] === 'round').length, 2);
+  assert.strictEqual(await p.getAttribute(side, 'data-state'), 'discussing');
+  assert.strictEqual(await p.locator('#focus-doc .fd-round-sep[data-round="2"]').count(), 1, 'a round separator');
+  await reply(2, 'Mika', 'design', 'Then the form asks for nothing it already has.');
+  await waitFor(() => document.querySelectorAll('#focus-doc .fd-conversation [data-turn="team"]').length === 3, 4000, 'round 2 reply', null, p);
+  assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'still no takeaways');
+  // Leaving mid-meeting asks her plainly.
+  await p.keyboard.press('Escape'); // (a second Esc means "come back later")
+  await waitFor(() => !document.querySelector('#focus-doc .fd-leave').hidden, 2000, 'end now or later?', null, p);
+  assert.ok(await p.evaluate(() => BYOC.focusDoc.isOpen()), 'still open: she chooses');
+  // End meeting: the takeaways over both rounds, at the bottom, the column scrolled to them.
+  await p.click('#focus-doc .fd-leave-end');
+  await p.waitForTimeout(200);
+  assert.deepStrictEqual(posted.find(x => x[0] === 'end'), ['end', { askId: 'q1' }]);
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'takeaways', askId: 'q1', believe: 'I believe ordering should feel like being known.', guidance: 'Their usual loaf first; ask for nothing we know.' }, 'live'));
+  await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 4000, 'the takeaways', null, p);
+  assert.strictEqual(await p.getAttribute(side, 'data-state'), 'ended');
+  assert.ok(await p.locator('#focus-doc .fd-form').isHidden(), 'no more rounds');
+  assert.ok(await p.locator('#focus-doc .fd-conversation').isVisible(), 'everything said stays above');
+  await p.waitForTimeout(300);
+  assert.ok(await p.evaluate(s => { const c = document.querySelector(s), b = c.querySelector('.fd-brief'); const cr = c.getBoundingClientRect(), br = b.getBoundingClientRect(); return br.top >= cr.top - 2 && br.top < cr.bottom; }, side), 'the column ends on the takeaways');
+  const order = await p.evaluate(s => [...document.querySelector(s).children].filter(e => !e.hidden).map(e => e.className.split(' ')[0]), side);
+  assert.ok(order.indexOf('fd-chimes') < order.indexOf('fd-brief'), `the takeaways come after the conversation: ${order}`);
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });

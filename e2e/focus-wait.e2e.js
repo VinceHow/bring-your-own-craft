@@ -30,7 +30,7 @@ before(async () => {
   page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   page.on('pageerror', e => errors.push(String(e)));
   await page.route('**/api/run/*/answer', async r => { const body = r.request().postDataJSON(); answers.push(body); await onAnswer(r, body); });
-  await page.goto(BASE + '/?stage=1');
+  await page.goto(BASE + '/?stage=1&meeting=0');
   await page.waitForFunction(() => window.BYOC && BYOC.focusDoc && BYOC.stage);
   await page.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run'; });
 });
