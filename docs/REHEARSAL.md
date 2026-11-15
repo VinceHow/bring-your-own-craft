@@ -19,7 +19,7 @@ they've run. Until then, this is the run sheet: things the presenter does that t
 
 ## Fallback notes
 
-- **fal backend, known model-judgement gap (no owner; the demo now runs on fal, so this gap is live):** in the full e2e on fal at 00:31
+- **fal backend, known model-judgement gap (the demo runs on fal; being worked by builder 8, timeboxed 45 min from 00:57 UTC):** in the full e2e on fal at 00:31
   UTC on 15 Nov, `e2e/yoga.e2e.js:186` ("a decision cites her new line") failed. At Build, no re-decision cited her newest
   takeaway (L4); every cite was L2, L3 or the team default. It's model judgement, not a crash. On claude-code the same
-  spec passes. If the room falls back to fal on stage, her page may not quote her latest line.
+  spec passes. Since the demo runs on fal, her page may not quote her latest line on stage until this is fixed.

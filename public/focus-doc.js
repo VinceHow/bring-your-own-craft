@@ -69,6 +69,7 @@
   // reply live, the column following the newest unless she scrolled up ("New replies ↓"). ?meeting=0: the old single Send.
   const MEETING = new URLSearchParams(location.search).get('meeting') !== '0';
   let rounds = 0, ended = false, earlierOpen = false, followBottom = true;
+  if (MEETING) $('.fd-help').textContent += ' · End meeting for the takeaways';
   const column = () => $('.fd-column');
   function setMode(m) {
     const c = column(); c.dataset.state = m; doc.dataset.meeting = m;

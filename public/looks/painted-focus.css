@@ -226,35 +226,98 @@ html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot=
 /* ---------- her right column: ONE painted scroll (painted.js gathers its parts into [data-pfd="column"]) ----------
    Placed absolutely in the document's grid area, so its content never sizes the grid; nothing inside scrolls on its own,
    cards grow to fit their words, and there is no browser scrollbar (a soft fade at the foot says there is more). */
-html #room [data-component="focus-doc"] > [data-pfd="column"] { position: absolute; grid-column: 2; grid-row: 3 / -1; inset: 0 auto 0 0; width: 440px; box-sizing: border-box; z-index: 1;
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) { position: absolute; grid-column: 2; grid-row: 3 / -1; inset: 0 auto 0 0; width: 440px; box-sizing: border-box; z-index: 1;
   display: flex; flex-direction: column; gap: 14px; padding: 46px 22px 28px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
   scrollbar-width: none; -webkit-mask: linear-gradient(transparent, #000 14px, #000 calc(100% - 26px), transparent); mask: linear-gradient(transparent, #000 14px, #000 calc(100% - 26px), transparent); }
-@media (max-width: 1500px) { html #room [data-component="focus-doc"] > [data-pfd="column"] { width: 380px; } }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="input"] { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form { width: 100%; box-sizing: border-box; }
-html #room [data-component="focus-doc"] > [data-pfd="column"]::-webkit-scrollbar { display: none; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] > * { grid-row: auto !important; grid-column: auto !important; margin: 0 !important; flex: none;
+@media (max-width: 1500px) { html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) { width: 380px; } }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > [data-slot="input"] { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form { width: 100%; box-sizing: border-box; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"])::-webkit-scrollbar { display: none; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) > * { grid-row: auto !important; grid-column: auto !important; margin: 0 !important; flex: none;
   max-height: none !important; overflow: visible !important; min-width: 0; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] > [hidden] { display: none !important; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] > [data-component="her-answer"]:empty { display: none; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] > [data-component="pieces"]:empty { display: none; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] [data-slot="chimes"] { max-height: none !important; overflow: visible !important; padding: 2px 6px 4px 0; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] [data-component="takeaways"] { max-height: none !important; overflow: visible !important; margin: 6px 6px 8px 0 !important; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] [data-component="takeaways"] [data-slot="keep"] { margin-top: 4px; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) > [hidden] { display: none !important; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) > [data-component="her-answer"]:empty { display: none; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) > [data-component="pieces"]:empty { display: none; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) [data-slot="chimes"] { max-height: none !important; overflow: visible !important; padding: 2px 6px 4px 0; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) [data-component="takeaways"] { max-height: none !important; overflow: visible !important; margin: 6px 6px 8px 0 !important; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) [data-component="takeaways"] [data-slot="keep"] { margin-top: 4px; }
 /* while she captures, the conversation side stays out of view (focus-doc.js hides its aside; the parts now live here) */
-html #room [data-component="focus-doc"][data-capture="on"] > [data-pfd="column"] > [data-pfd-from="side"] { display: none !important; }
+html #room [data-component="focus-doc"][data-capture="on"] > :is([data-pfd="column"], [data-slot="side"]) > [data-pfd-from="side"] { display: none !important; }
 /* "New replies ↓": a small ink pill at the column's foot when she has scrolled up and a reply lands */
 html #room [data-component="focus-doc"] [data-pfd="newer"] { position: sticky; bottom: 4px; align-self: center; z-index: 3; margin-top: auto !important;
   font: 500 15px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 9px 16px; cursor: pointer;
   border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 2px 3px 0 -1px rgba(210,122,141,.85); }
 html #room [data-component="focus-doc"] [data-pfd="newer"][hidden] { display: none !important; }
 /* her form in the column: the field full width, then the mic, Add this and Send on one row that wraps if it must */
-html #room [data-component="focus-doc"] > [data-pfd="column"] form { display: flex !important; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > * { flex: none; grid-column: auto !important; grid-row: auto !important; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="input"] { flex: 1 0 100%; order: 0; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-field] { order: 1; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="add-piece"] { order: 2; }
-html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="send"] { order: 3; margin-left: auto; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form { display: flex !important; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > * { flex: none; grid-column: auto !important; grid-row: auto !important; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > [data-slot="input"] { flex: 1 0 100%; order: 0; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > [data-field] { order: 1; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > [data-slot="add-piece"] { order: 2; }
+html #room [data-component="focus-doc"] > :is([data-pfd="column"], [data-slot="side"]) form > [data-slot="send"] { order: 3; margin-left: auto; }
 /* a reply note: the name on its own line already says who, so the ": " separator between name and words isn't drawn
    (it read as a lone colon on a line of its own) */
 html #room [data-component="focus-doc"] [data-component="pin-reply"] { font-size: 0; }
+html #room [data-component="focus-doc"] [data-component="pin-reply"] > [data-slot="who"] { display: block; }
+html #room [data-component="focus-doc"] [data-component="pin-reply"] > [data-slot="who"]::after { content: ':'; }
+
+/* ---------- the meeting (focus-doc.js, build/beats): her column is [data-slot="side"][data-component="meeting"],
+   data-state composing · discussing · ended. Ink paper, hooks only. ---------- */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="conversation"] { list-style: none; margin: 0; padding: 0 6px 0 0; display: flex; flex-direction: column; gap: 12px; }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="conversation"][hidden] { display: none; }
+/* a teammate's reply: the small inked note (the chime styling above); its ": " separator is not drawn under the name line */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"] { font-size: 0; animation: pfd-in .45s var(--ease-land) both; }
+/* her turn: her words on her own pink paper, set a little in from the right, in her ink */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="her"] { position: relative; align-self: flex-end; max-width: 92%; box-sizing: border-box;
+  padding: 11px 15px 13px; border-radius: 16px 6px 16px 16px; background: #FCE3E6; background-image: var(--tooth); background-size: 260px 260px;
+  box-shadow: 0 0 0 1.3px rgba(147,55,79,.55), 3px 4px 0 -1px rgba(210,122,141,.8); animation: pfd-in .45s var(--ease-land) both; }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="her"]::before { content: 'You'; display: block; margin-bottom: 3px; font: 500 14px/1.2 var(--ui); color: var(--product-t); }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="her"] > [data-slot="words"] { display: block; font: italic 400 19px/1.4 var(--display); color: var(--product-t); }
+/* "Round 2": a hand-drawn rule with the round in small ink across its middle */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="round-separator"] { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; font: 500 13px/1 var(--ui); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="round-separator"]::before,
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="round-separator"]::after { content: ''; flex: 1; height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='6' preserveAspectRatio='none'%3E%3Cpath d='M1 3.4 C40 2.2 80 4.4 120 3 S180 2.6 199 3.6' fill='none' stroke='%2333261C' stroke-opacity='.45' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 6px no-repeat; }
+/* composing: the past rounds fold to one quiet ink line, "Earlier: 1 round · show" */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="earlier"] { align-self: flex-start; padding: 4px 0; border: 0; background: none; box-shadow: none; cursor: pointer;
+  font: 500 15px/1.2 var(--ui); color: var(--ink-2); text-decoration: underline; text-decoration-thickness: 1.2px; text-underline-offset: 4px; text-decoration-color: rgba(51,38,28,.35); }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="earlier"]:hover { color: var(--ink); }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="earlier"][hidden] { display: none !important; }
+/* End meeting: a quiet outlined ink pill with a small door mark, never the filled Send */
+html #room [data-component="focus-doc"] [data-slot="end-meeting"] { order: 4; display: inline-flex; align-items: center; gap: 8px; font: 500 16px/1 var(--ui); color: var(--ink); background: transparent; cursor: pointer;
+  border: 0; padding: 10px 16px; border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: inset 0 0 0 1.4px rgba(51,38,28,.7); }
+html #room [data-component="focus-doc"] [data-slot="end-meeting"]::before { content: ''; flex: none; width: 9px; height: 13px; border: 1.5px solid currentColor; border-radius: 2px 2px 0 0;
+  background: radial-gradient(circle at 70% 55%, currentColor 1.2px, transparent 1.6px); }
+html #room [data-component="focus-doc"] [data-slot="end-meeting"]:hover { background: rgba(255,253,248,.7); }
+html #room [data-component="focus-doc"] [data-slot="end-meeting"][hidden] { display: none !important; }
+/* the leave prompt: a small paper card in the column, not a modal */
+html #room [data-component="focus-doc"] [data-component="leave-meeting"] { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 16px 15px;
+  border-radius: 18px 14px 20px 13px / 14px 20px 13px 18px; background: #FFFDF8; background-image: var(--tooth); box-shadow: 0 0 0 1.4px rgba(51,38,28,.6), 3px 4px 0 -1px rgba(160,128,96,.6); animation: pfd-in .4s var(--ease-land) both; }
+html #room [data-component="focus-doc"] [data-component="leave-meeting"]:is([hidden], [data-state="hidden"]) { display: none !important; }
+html #room [data-component="focus-doc"] [data-component="leave-meeting"] [data-slot="question"] { flex: 1 0 100%; margin: 0; font: 400 19px/1.35 var(--display); color: var(--ink); grid-column: auto; }
+html #room [data-component="focus-doc"] [data-component="leave-meeting"] [data-slot="end-now"] { font: 500 15px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 10px 16px; cursor: pointer;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 2px 3px 0 -1px rgba(210,122,141,.85); }
+html #room [data-component="focus-doc"] [data-component="leave-meeting"] [data-slot="later"] { font: 500 15px/1 var(--ui); color: var(--ink-2); background: none; border: 0; padding: 6px 2px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(51,38,28,.35); }
+/* "New replies ↓": a small ink pill held at the column's foot */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="new-replies"] { position: sticky; bottom: 4px; align-self: center; z-index: 3; margin-top: auto !important;
+  font: 500 15px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 9px 16px; cursor: pointer;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 2px 3px 0 -1px rgba(210,122,141,.85); }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="new-replies"][hidden] { display: none !important; }
+/* the takeaways only once she ends the meeting: never an empty card while the team reads (#20) */
+html #room [data-component="focus-doc"] [data-component="meeting"]:not([data-state="ended"]) [data-component="takeaways"]:not([data-state="shown"]) { display: none !important; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] { box-sizing: border-box; width: auto; }
+/* builder 7: a quiet italic helper line; the ack ("Noor is listening…") fades in, no box; Send's nudge is one soft lift */
+html #room [data-component="focus-doc"] [data-slot="help"] { margin: 0; font: italic 400 16px/1.4 var(--display); color: var(--ink-2); background: none; border: 0; box-shadow: none; }
+html #room [data-component="focus-doc"] [data-slot="ack"] { margin: 0; font: italic 400 16px/1.4 var(--display); color: var(--ink-2); background: none; border: 0; box-shadow: none; animation: pfd-fade-in .6s ease both; }
+html #room [data-component="focus-doc"] [data-slot="ack"]:is([hidden], [data-state="hidden"]) { display: none !important; }
+html #room [data-component="focus-doc"] [data-slot="send"][data-state="nudge"] { animation: pfd-nudge 1.2s var(--ease-land) 1; }
+@keyframes pfd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pfd-nudge { 0%, 100% { translate: 0 0; } 30% { translate: 0 -4px; } }
+/* P0 follow-ups (design lead, 15 Nov), on the meeting column:
+   1. the helper and acknowledgement lines wrap inside the column (the help line was 451px in a 336px form, cut mid-word);
+   2. the "Your thoughts" label on her pink sheet steps away once she has words in the column, so it never prints
+      over her pieces or the conversation as the column scrolls. */
+html #room [data-component="focus-doc"] [data-slot="side"] form > :is([data-slot="help"], [data-slot="ack"]),
+html #room [data-component="focus-doc"] [data-slot="side"] [data-slot="ack"] { flex: 1 1 100%; width: 100%; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+html #room [data-component="focus-doc"]:has([data-component="pieces"] > *, [data-slot="conversation"] > *, [data-component="her-answer"]:not(:empty)) > [data-pfd="sheet"] { color: transparent; }
