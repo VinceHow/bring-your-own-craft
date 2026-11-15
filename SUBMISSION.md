@@ -106,6 +106,10 @@ first, their usual loaf one tap away, reserve by first name, no account, no paym
 writes code; other ideas get the yoga layout. Every filled slot traces to her or her team; the layout is prepared.
 The page's emblem is painted live with fal during the build (symbol only; the name is real text).
 
+Two more things you can see happen: **sit in any seat** (pick your craft on the name tag; the teammate who held it
+steps aside; Product is the default and the demo seat), and **your app starts building the moment you say Team, go**;
+each later decision builds the next version, with a line on what changed.
+
 **The proof: the judges are the regulars.** When she presses **Open the app** on stage, a QR card appears for The
 Usual, a live bakery deployed on Railway. The judges scan it and reserve a real loaf, by first name only: three tiers
 (a rare drop of 3, 8 of a medium loaf, 40 of a plentiful one), one of each per phone. The Usual was built ahead,
