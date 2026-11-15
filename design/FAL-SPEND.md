@@ -27,3 +27,4 @@ at list rates: Sonnet 4.5 $3 / $15 and Haiku 4.5 $1 / $5 per million tokens in /
 | 15 Nov 00:28 (builder 1) | e2e/voice.e2e.js on fal, proxy kept with NO_PROXY=api.elevenlabs.io | not metered (as above) | not metered | ≈$0.01 (estimate) | ≈$2.1–2.3 | 9/9 (and 9/9 on the default backend) |
 
 Running total after these rows: about **$4.1–4.6 of $10** (the 00:44 row's "≈$4.0–4.5" was a slip; builder 1's two voice runs add ≈$0.02). Rows are not strictly in time order where two branches each logged runs.
+| 15 Nov 00:58 (merger) | e2e/beats.e2e.js on fal: main 0ab877f + build/questions b6227f3 + build/beats ce11d6a | 52 (29 Sonnet 4.5, 23 Haiku 4.5), all HTTP 200 | 69,814 / 10,489 | $0.32 | ≈$4.4–4.9 | 11/11, including 1b (one name tag, her own craft) and 2c |
