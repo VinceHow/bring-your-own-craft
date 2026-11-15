@@ -306,20 +306,25 @@
     // (xMidYMid slice), so it sits on the board at every window size. The board is still until ~0.6 s, then the doors
     // swing in front of it: the lettering shows once the clip plays and fades out by 1.0 s, before anything crosses it.
     layer.insertAdjacentHTML('beforeend', DOOR_SIGN);
-    v.addEventListener('playing', () => { layer.dataset.sign = 'on'; }, { once: true });
+    // The closed door holds for a beat (HOLD) with its plaque, so the name can be read, then the doors open.
+    const HOLD = 1400;
+    layer.dataset.sign = 'on';
     v.addEventListener('timeupdate', () => { if (v.currentTime >= 0.6 && layer.dataset.sign === 'on') layer.dataset.sign = 'off'; });
     let done = false, off = null;
     const finish = fade => { if (done) return; done = true; clearTimeout(guard);
       if (!fade) { layer.remove(); off && off(); return; }
       layer.dataset.state = 'leaving'; setTimeout(() => layer.remove(), 1100); };
-    const guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
+    let guard = 0;
     v.addEventListener('ended', () => finish(true), { once: true });
     // the clip's interior isn't our studio: fade into the real room while the doors are still swinging open (~1.7 s)
     v.addEventListener('timeupdate', () => { if (v.currentTime >= 1.7) finish(true); });
     v.addEventListener('error', () => finish(false), { once: true });
     layer.addEventListener('click', () => finish(true));
     v.currentTime = 0;
-    const p = v.play(); if (p && p.catch) p.catch(() => finish(false));
+    const hold = setTimeout(() => { if (done) return;
+      guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
+      const p = v.play(); if (p && p.catch) p.catch(() => finish(false)); }, HOLD);
+    layer.addEventListener('click', () => clearTimeout(hold), { once: true });
     off = B.on('reset', () => finish(false)); layer.addEventListener('transitionend', off, { once: true });
   });
 
