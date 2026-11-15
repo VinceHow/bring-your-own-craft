@@ -56,7 +56,9 @@ Body `{ loaf_id, first_name }`. Those are the only fields. `first_name` is 1–3
 ### `GET /api/reservations/:id`
 Returns `200 { id, loaf_id, first_name, status, message }`, or `404`. `status` is `reserved`, `delivered` or `released`.
 
-### `GET /api/collection` (with the device cookie)
+### `GET /api/collection` (with the device cookie): OUT OF SCOPE, cut for usage (the lead, 14 Nov)
+**Don't build this.** It's kept below only for if the collection returns. The gate skips its test (3b).
+
 Returns `200 { items: [{ reservation_id, loaf_id, name, drop }] }`: every item delivered to this device, one entry
 per delivery, each with its drop. It is this device's only; another device sees its own.
 
@@ -95,7 +97,8 @@ Nothing the app logs may contain a first name, the `ADMIN_TOKEN`, or any API key
 |---|---|---|
 | 1 | Reserve with a first name | `201` reserved; `left` drops by 1; the order is on `/api/admin/orders` within 1 s |
 | 2 | Only a first name | any other field is a `400`; a blank or 31-character name is a `400` |
-| 3 | One of each item per device per drop | a second one in the same drop is a kind `409`; after a Restock it's allowed; the collection shows both, each with its drop |
+| 3 | One of each item per device per drop | a second one in the same drop is a kind `409`; after a Restock it's allowed |
+| 3b | ~~The collection~~ (cut for usage: skipped, not built) | the collection shows both, each with its drop |
 | 4 | Sold out | the rare item starts at 3; at 0: `"Sold out for today"` on the storefront; the reservation is refused |
 | 5 | The race for the last loaf | two simultaneous reservations: exactly one succeeds; `left` is 0, never below |
 | 6 | Deliver | every reserved order's event stream says "Delivered: your … is here" within 1 s; the admin shows them delivered |
@@ -114,8 +117,8 @@ BASE_URL=http://localhost:8787 ADMIN_TOKEN=<token> APP_LOG=app.log node --test d
 - **Without `ADMIN_TOKEN`,** the suite assumes the app has none set either. It runs only test 8, checking the admin
   stays locked, and skips the rest, saying why.
 - **Without `APP_LOG`,** test 11 is skipped, saying why.
-- **The slim gate (cut path only):** `BAKERY_SLIM=1` skips test 3's collection checks, and keeps its one-per-drop
-  checks. Use it only if the lead cuts the bread collection.
+- **The collection is cut (the lead, 14 Nov, for usage), and `/api/collection` is out of scope:** test 3b, the collection, is skipped with "cut for usage".
+  Test 3 still checks one of each item per device per drop. 3b is kept as written, for if the collection returns.
 - **Every test starts with Reset demo,** so it's safe to run again.
 - **Don't point it at the live site during a demo:** it resets the shop.
 

@@ -4,6 +4,7 @@
 //   1. painted-living.js (+ .css): the living painting as the room's backdrop, teammates' moods from run events.
 //   2. playful-ink.js (+ .css): the record player, cat, coffee, lights and the day / night pill.
 //   3. painted.css: the room's own components as ink and paper (already linked by the room's ?look loader).
+//   4. painted-fixes.css: bug fixes from Vincent's testing, loaded last.
 // Shared document events: 'studio:focus' { open } when her focus document opens or closes, 'studio:time' { time }.
 // Z-order inside #room, bottom to top: painting (fallback image), living backdrop (z 0), playful layer (z 2), the room's
 // UI (pills, sheet, notes: z 5-9), panels (55), the focus document (60). The Replay label stays on top of everything.
@@ -14,6 +15,19 @@
   if (!B || !room) return;
   const base = '/looks/';
   const css = href => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + href; document.head.appendChild(l); };
+  css('painted-focus.css');   // her focus document as her review page (look only; after painted.css so it wins)
+  // Her thoughts sit on one sheet of her pink paper: a decorative layer behind her column (aria-hidden, no events,
+  // nothing reads it). focus-doc.js keeps its markup; painted-focus.css places these layers in the document's grid.
+  // Her pin is a second such layer: it lands on the work's corner once her words are in (painted-focus.css, by data-state).
+  const fdoc = document.querySelector('[data-component="focus-doc"]');
+  const layer = (name, text) => {
+    if (!fdoc || fdoc.querySelector(`:scope > [data-pfd="${name}"]`)) return;
+    const el = document.createElement('div');
+    el.dataset.pfd = name; el.setAttribute('aria-hidden', 'true'); if (text) el.textContent = text;
+    fdoc.appendChild(el);
+  };
+  layer('sheet', 'Your thoughts');
+  layer('her-pin');
   const js = src => new Promise(res => { const s = document.createElement('script'); s.src = base + src; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); }; document.body.appendChild(s); });
 
   // ---- focus: one event for every layer (the living painting holds still, the music ducks) ----
@@ -90,4 +104,6 @@
   if (chat) new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
     const t = n.querySelector && n.querySelector('.chatter-text'); if (t && !t.dataset.short) { t.dataset.short = '1'; t.textContent = few(t.textContent, 15); }
   }))).observe(chat, { childList: true });
+  // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
+  css('painted-fixes.css');
 })();
