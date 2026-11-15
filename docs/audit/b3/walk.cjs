@@ -59,12 +59,12 @@ const note = (size, item, ok, detail = '') => log.push(`${ok ? 'PASS' : 'FAIL'} 
     note(size, 'Team go failure: plain line + Retry', tf.st === 'failed' && tf.retry, tf.txt.replace(/\s+/g, ' ')); await p.waitForTimeout(600); note(size, 'Team go failure: said once (no second step note)', await p.evaluate(() => document.getElementById('live-step').hidden));
     await shot('2-teamgo-failed');
     proposeFail = false;
-    // 3. An ask arrives: "Noor has a question", no preview anywhere
-    await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
+    // 3. An ask arrives: "Wren has a question", no preview anywhere
+    await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Wren', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
     await p.waitForFunction(() => document.getElementById('inbox').dataset.state === 'new', null, { timeout: 5000 }).catch(() => {});
     bx = await box();
     const preview = await p.evaluate(() => [...document.querySelectorAll('#room *')].some(e => e.offsetParent && e.children.length === 0 && /What makes someone come back/.test(e.textContent)));
-    note(size, 'inbox new: "Noor has a question", no question preview in the room', bx.st === 'new' && bx.txt === 'Noor has a question →' && !preview, bx.txt);
+    note(size, 'inbox new: "Wren has a question", no question preview in the room', bx.st === 'new' && bx.txt === 'Wren has a question →' && !preview, bx.txt);
     await shot('3-inbox-new'); await scan('inbox new');
     // 4. Open: the whole screen, fades in
     const one = await p.evaluate(() => [...document.querySelectorAll('#inbox button, #inbox a, #inbox [tabindex]:not([tabindex="-1"])')].filter(e => e.offsetParent && getComputedStyle(e).pointerEvents !== 'none').length);
@@ -88,7 +88,7 @@ const note = (size, item, ok, detail = '') => log.push(`${ok ? 'PASS' : 'FAIL'} 
     await p.waitForFunction(() => /reading/.test(document.querySelector('#focus-doc .fd-team').textContent), null, { timeout: 2000 }).catch(() => {});
     const sf = Date.now() - t0;
     note(size, `meeting Send: "The team is reading…" within 300 ms (${sf} ms)`, sf <= 300);
-    await p.evaluate(() => { BYOC.dispatch({ run: 'stub-run', type: 'thread.start', askId: 'q1', by: ['Noor', 'Mika'] }, 'live'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Noor', seat: 'research', text: 'Then their usual should be one tap away.', round: 1 }, 'live'); });
+    await p.evaluate(() => { BYOC.dispatch({ run: 'stub-run', type: 'thread.start', askId: 'q1', by: ['Wren', 'Mika'] }, 'live'); BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Wren', seat: 'research', text: 'Then their usual should be one tap away.', round: 1 }, 'live'); });
     await p.waitForTimeout(900);
     await shot('6-meeting-discussing'); await scan('meeting discussing');
     roundBusy = true;
