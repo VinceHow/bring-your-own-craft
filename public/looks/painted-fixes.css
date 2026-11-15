@@ -149,7 +149,7 @@ html body #room #inbox[data-state="open"] > [data-slot="drawer"] {
   border-top: 0 !important; padding-top: 4px; scrollbar-width: thin; align-self: start; align-content: start; height: auto; }
 /* Bo's unblock, on its own page: the card alone, centred on the sheet, a little larger; Yes is the one dark pill
    (data-rank primary, or the yes slot until that lands), "Say something else" the quiet one beside it */
-html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="tally"] { display: none !important; }
+html body #room #inbox[data-state="open"][data-view="action"] > #counter[data-slot="tally"] { display: none !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="toggle"] { grid-column: 1 / -1; justify-self: end; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { align-self: center; width: min(720px, 100%); }
 html body #room #inbox[data-view="action"] [data-component="inbox-action"] { padding: 30px 34px 28px; }
@@ -163,3 +163,22 @@ html body #room #inbox [data-component="inbox-action"] [data-rank="secondary"] {
 /* while the inbox is open, nothing in the room shows through it: the app tag and team notes step back */
 body:has(#inbox[data-state="open"]) [data-component="app-button"] { display: none !important; }
 html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { visibility: hidden; }
+/* the tally inside the inbox: one quiet line, "26 decisions · 1 to you" (POLISH 1: counters never compete). Its paper
+   card, frame and big rolling numbers go; the numbers still roll, at text size. The roll window is exactly one digit
+   tall (it was 1em + 4px, so the pink digit's next number peeked under it and its foot was cut); the pink sits around
+   it as a soft pill. Labels have no data-slot yet on main, so they're read by position. */
+html body #room #inbox #counter {
+  display: inline-flex !important; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 6px; width: auto !important; height: auto;
+  margin: 0; padding: 2px 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; transform: none !important;
+  font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); cursor: pointer; }
+html body #room #inbox #counter::before, html body #room #inbox #counter::after { display: none !important; }
+html body #room #inbox #counter > span { display: inline-flex !important; align-items: center; gap: 5px; margin: 0; padding: 0; }
+html body #room #inbox #counter > span + span::before { content: '\00B7'; margin-right: 1px; color: var(--ink-2, #4E3A2B); }
+html body #room #inbox #counter :is(#came, #brought) {
+  font: 500 15px/1 var(--ui, system-ui, sans-serif) !important; height: 1em !important; line-height: 1 !important; padding: 0 !important; border: 0 !important;
+  color: var(--ink, #2B1E14); background: none; box-shadow: none; overflow: hidden; vertical-align: middle; }
+html body #room #inbox #counter #brought { margin: 0 3px; color: var(--product-t, #8A2E52) !important; border-radius: 999px;
+  background: color-mix(in srgb, var(--product, #D96A8F) 24%, #FCF5E8) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--product, #D96A8F) 24%, #FCF5E8) !important; }
+html body #room #inbox #counter > span > span:last-child { font-size: 0 !important; line-height: 0; }
+html body #room #inbox #counter > span:first-child > span:last-child::after { content: 'decisions'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
+html body #room #inbox #counter > span:last-child > span:last-child::after { content: 'to you'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
