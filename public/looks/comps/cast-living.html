@@ -151,16 +151,17 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     defs.insertAdjacentHTML('beforeend', `<filter id="l-${who}-${t}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${m.join(' ')} 0 0 0 1 0"/></filter>`);
 
   const rooms = [...document.querySelectorAll('video.room')];
-  // One crossfade under a second. The videos are never torn down; a scene is paused only once it is fully hidden AND
-  // still not the current one (a quick double toggle must never pause the scene that just came back).
+  // A crossfade: 0.8 s when she taps the time pill, slower (3 s) when the run moves the day on, so it reads as the light
+  // changing rather than a cut. The videos are never torn down; a scene is paused only once it is fully hidden AND still
+  // not the current one (a quick double toggle must never pause the scene that just came back).
   let roomOn = null;
-  function setRoom(t, instant) {
+  function setRoom(t, instant, fade = .8) {
     roomOn = t;
     for (const v of rooms) {
       const on = v.dataset.t === t;
       if (on) v.play().catch(() => {});
       if (instant) { v.style.opacity = on ? 1 : 0; if (!on) v.pause(); }
-      else animate(v, { opacity: on ? 1 : 0 }, { duration: .8, ease: 'easeInOut' }).finished
+      else animate(v, { opacity: on ? 1 : 0 }, { duration: fade, ease: 'easeInOut' }).finished
         .then(() => { if (v.dataset.t !== roomOn) v.pause(); else v.play().catch(() => {}); }).catch(() => {});
     }
     $('#when span').textContent = LABEL[t];
@@ -308,8 +309,9 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   }
 
   // ---- time of day: patches are painted in afternoon light; a fitted colour matrix tints them elsewhere
-  // hand-tuned on top of the fit, judged by eye against the painting: at night the lamp gives Noor deeper colour
-  const TUNE = { night: { noor: 'saturate(1.2) contrast(1.06) hue-rotate(-8deg)', ines: 'saturate(.85) brightness(.93)' } };
+  // hand-tuned on top of the fit, judged by eye against the painting. (Noor's night tune, saturate + hue-rotate, is gone:
+  // it tinted her whole patch, wall included, so she read as glowing red once the night scene was visible again.)
+  const TUNE = { night: { ines: 'saturate(.85) brightness(.93)' } };
   const LAMPCUT = new Set(['noor', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
   function lightPatches(t) {
     for (const id of Object.keys(P)) {
@@ -325,11 +327,15 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   }
   // The teammates keep doing whatever they're doing: no idle hold, no fade-out. The room crossfades and their light
   // changes with it (light maps and night masks are preloaded, so the swap is instant).
-  function setTime(t, instant) {
+  // fade: seconds for the room's crossfade (0.8 by default). On a slow fade the teammates' light swaps at its midpoint,
+  // when the two rooms are half and half, so it doesn't jump ahead of the room.
+  let lightT = 0;
+  function setTime(t, instant, fade = .8) {
     if (t === now && !instant) return;
     now = t;
-    setRoom(t, instant);
-    lightPatches(t);
+    setRoom(t, instant, fade);
+    clearTimeout(lightT);
+    if (instant || fade <= 1) lightPatches(t); else lightT = setTimeout(() => lightPatches(now), fade * 500);
     for (const id of Object.keys(P)) if (P[id].live) P[id].el.style.opacity = 1;
   }
   function preloadLight() {
@@ -447,7 +453,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     else if (e.key.toLowerCase() === 'f') focus(!held);
   });
 
-  window.living = { run, focus, setTime: t => setTime(t), moods: MOODS,
+  window.living = { run, focus, setTime: (t, o) => setTime(t, false, o && o.fade > 0 ? Math.min(o.fade, 6) : .8), moods: MOODS,
     // play an object's clip (record, cat, coffee) when another layer handles the click (PlayfulInk, 'studio:poke')
     poke: id => { if (OBJECTS[id]) playObject(id); },
     get time() { return now; } };
@@ -457,6 +463,15 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   // ---- go
   setRoom(now, true); lightPatches(now); preloadLight();
   if (still) { for (const v of rooms) v.pause(); for (const id of Object.keys(CAST)) P[id].el.style.opacity = 1; return; }
+  // A safety net, not the fix (the night freeze was a still plate drawn over this page; see painted.js): if the room
+  // showing is ever paused while the tab is visible (a play() the browser refused, a pause from a stale fade), play it.
+  const keepRoomPlaying = () => {
+    if (document.visibilityState !== 'visible') return;
+    const v = rooms.find(r => r.dataset.t === roomOn);
+    if (v && (v.paused || v.ended)) v.play().catch(() => {});
+  };
+  setInterval(keepRoomPlaying, 2000);
+  document.addEventListener('visibilitychange', keepRoomPlaying);
   const START = { mika: 'working', noor: 'working', theo: 'idle', ines: 'idle', bo: 'working' };
   for (const id of Object.keys(CAST)) { P[id].base = START[id]; play(id, START[id]); }
 

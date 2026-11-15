@@ -121,7 +121,9 @@
     const bg = room.querySelector(':scope > iframe.painted-living'); room.insertBefore(box, bg ? bg.nextSibling : room.firstChild);
     const night = new URLSearchParams(location.search).get('night') === '1';
     room.dataset.time = night ? 'night' : 'day';
-    try { window.PlayfulInk.mount(box, { night: base + 'cast/living/painting-night.jpg', music: base + 'cast/music', time: night ? 'night' : 'day' }); }
+    // No still night plate here: it sat over the living backdrop and froze the room at night (Vincent: "if I turn back to
+    // Night, the painting stops moving completely"). The backdrop's own night video is the night look.
+    try { window.PlayfulInk.mount(box, { music: base + 'cast/music', time: night ? 'night' : 'day' }); }
     catch (err) { console.warn('playful-ink', err); box.remove(); }
   });
 
@@ -281,6 +283,13 @@
   // underneath. Never blocks: a load or play error, or no frame within 1.5 s, goes straight to the room; a tap skips.
   // Not for replays, jumps (BYOC.stage(n, {instant})), ?instant, or reduced motion.
   const DOOR = base + 'cast/intro/door-open.mp4';
+  // The plaque in door-open.mp4 (1280 x 720) spans x 513-777, y 54-127; the lettering keeps 8% of its width clear each side.
+  const DOOR_SIGN = `<svg data-slot="sign" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g font-family="Newsreader, Georgia, serif" font-weight="540" font-size="25" text-anchor="middle" textLength="214" lengthAdjust="spacing">
+      <text x="645.8" y="99.9" fill="#FFE9C8" fill-opacity=".55" textLength="214" lengthAdjust="spacing">Bring your own craft</text>
+      <text x="644.5" y="98.5" fill="#2A170C" fill-opacity=".35" textLength="214" lengthAdjust="spacing" data-slot="shade">Bring your own craft</text>
+      <text x="645" y="99" fill="#4A2E1C" fill-opacity=".8" textLength="214" lengthAdjust="spacing" data-slot="ink">Bring your own craft</text>
+    </g></svg>`;
   let doorVid = null;
   const doorPreload = () => { if (doorVid) return; doorVid = document.createElement('video');
     doorVid.muted = true; doorVid.playsInline = true; doorVid.preload = 'auto'; doorVid.src = DOOR; doorVid.load(); };
@@ -295,20 +304,46 @@
     const layer = document.createElement('div'); layer.dataset.component = 'door-open'; layer.dataset.state = 'opening';
     layer.setAttribute('aria-hidden', 'true');
     v.dataset.slot = 'clip'; layer.appendChild(v); room.appendChild(layer);
+    // "Bring your own craft" carved into the plaque: drawn in the clip's own 1280 x 720 frame with the clip's cover crop
+    // (xMidYMid slice), so it sits on the board at every window size. The board is still until ~0.6 s, then the doors
+    // swing in front of it: the lettering shows once the clip plays and fades out by 1.0 s, before anything crosses it.
+    layer.insertAdjacentHTML('beforeend', DOOR_SIGN);
+    // The closed door holds for a beat (HOLD) with its plaque, so the name can be read, then the doors open.
+    const HOLD = 1400;
+    layer.dataset.sign = 'on';
+    v.addEventListener('timeupdate', () => { if (v.currentTime >= 0.6 && layer.dataset.sign === 'on') layer.dataset.sign = 'off'; });
     let done = false, off = null;
     const finish = fade => { if (done) return; done = true; clearTimeout(guard);
       if (!fade) { layer.remove(); off && off(); return; }
       layer.dataset.state = 'leaving'; setTimeout(() => layer.remove(), 1100); };
-    const guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
+    let guard = 0;
     v.addEventListener('ended', () => finish(true), { once: true });
     // the clip's interior isn't our studio: fade into the real room while the doors are still swinging open (~1.7 s)
     v.addEventListener('timeupdate', () => { if (v.currentTime >= 1.7) finish(true); });
     v.addEventListener('error', () => finish(false), { once: true });
     layer.addEventListener('click', () => finish(true));
     v.currentTime = 0;
-    const p = v.play(); if (p && p.catch) p.catch(() => finish(false));
+    const hold = setTimeout(() => { if (done) return;
+      guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
+      const p = v.play(); if (p && p.catch) p.catch(() => finish(false)); }, HOLD);
+    layer.addEventListener('click', () => clearTimeout(hold), { once: true });
     off = B.on('reset', () => finish(false)); layer.addEventListener('transitionend', off, { once: true });
   });
+
+  // ---- her cursor over clickable things: the folded paper-cut triangle (painted.css sets the everyday one) ----
+  const CLICKABLE = 'a[href], button:not(:disabled), [role="button"], label, select, summary';
+  let HOVER_CURSOR = '';
+  document.addEventListener('mouseover', e => {
+    HOVER_CURSOR = HOVER_CURSOR || getComputedStyle(document.documentElement).getPropertyValue('--pt-cursor-hover').trim();
+    if (!HOVER_CURSOR) return;
+    for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
+      if (el.dataset.ptCursor) return;
+      const c = getComputedStyle(el).cursor;
+      if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
+      if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
+      if (c !== 'auto' && !c.startsWith('url(') ) return;   // text, default, the window's paw: theirs
+    }
+  }, true);
 
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');

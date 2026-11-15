@@ -53,3 +53,8 @@ html body #room [data-component="chatter-line"][data-seat="research"] { translat
 html body #room [data-component="chatter-line"][data-seat="data"] { translate: 100px calc(-100% - 96px); }
 html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 210px -44px; max-width: 270px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
 html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 64px 18px; max-width: 250px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
+
+/* ---- 4. one place for her question: while the inbox card by her stool shows a teammate's ask, the strip under the
+   idea sheet doesn't repeat it ("Noor has a question for you" over "Noor asks…"). The strip stays for a failure or a
+   slow team, and comes back if the inbox has no ask on show (while a new note is still flying in, the strip keeps it). */
+html body #room[data-team="question"]:has([data-component="inbox"]:not([data-pt-awaiting]) > [data-slot="now"][data-ask]) [data-component="team-status"] { display: none !important; }
