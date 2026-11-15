@@ -90,6 +90,7 @@
     }
     let handled = true;
     if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') next();
+    else if ((k === 'ArrowLeft' || k === 'PageUp') && BYOC.beat === 1 && BYOC.meetBack && BYOC.meetBack()) { /* meet the team: the previous teammate */ }
     else if (k === 'ArrowLeft' || k === 'PageUp') { if (inClose()) { BYOC.close.close(); if (BYOC.beat === 11) BYOC.stage(10); } else BYOC.stage(BYOC.beat - 1); }
     else if (k === 'Home' || k === '0') { if (BYOC.forgetRun) BYOC.forgetRun(); BYOC.reset(); } // the presenter's reset: a refresh starts fresh too
     else if (k === 'N' && e.shiftKey && BYOC.startOver) BYOC.startOver.ask(); // Start over (asks once)

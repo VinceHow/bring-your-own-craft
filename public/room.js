@@ -21,7 +21,9 @@
   // Meet the team waits for her (Vincent, Sun 01:31: he talks over each card): no auto-advance unless ?hold=<ms> is
   // given (the tests and unattended walks use it).
   const HOLD_PARAM = Number(new URLSearchParams(location.search).get('hold'));
-  const HOLD_MS = HOLD_PARAM > 0 ? HOLD_PARAM : Infinity;
+  // Meet the team is hers to pace (Vincent, 15 Nov): a person's browser never auto-advances. ?hold= is a test hook
+  // only, honoured under browser automation (navigator.webdriver), so the timed specs keep working.
+  const HOLD_MS = HOLD_PARAM > 0 && navigator.webdriver ? HOLD_PARAM : Infinity;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -1322,7 +1324,7 @@
   // tidied, then the team's fun spin). Beat 1: each teammate met up close, one by one (forward: the next). Beat 2: the
   // studio appears with everyone seated, and she takes her seat. Replays jump past it to beat 3, so they reveal at once.
   const setup = $('#setup');
-  let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
+  let introCard = null, meeting = false, meetSkip = false, meetAdvance = false, meetBackReq = false;
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
   function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
@@ -1601,22 +1603,27 @@
       ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
       ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
       <span class="meet-count" data-slot="count">${i + 1} of ${n}</span>
-      <button type="button" class="meet-next" data-slot="next" data-state="${i === n - 1 ? 'last' : 'next'}">${i === n - 1 ? 'Into the studio' : 'Next'}</button>`;
+      <div class="meet-dots" data-slot="dots" data-step="${i + 1}" data-total="${n}" aria-hidden="true">${Array.from({ length: n }, (_, k) => `<span class="meet-dot" data-slot="dot" data-state="${k < i ? 'done' : k === i ? 'current' : 'todo'}"></span>`).join('')}</div>
+      <div class="meet-nav" data-slot="nav"><button type="button" class="meet-back" data-slot="back"${i === 0 ? ' hidden' : ''}>Back</button>
+      <button type="button" class="meet-next" data-slot="next" data-state="${i === n - 1 ? 'last' : 'next'}">${i === n - 1 ? 'Into the studio' : 'Next'}</button></div>`;
+    c.dataset.step = String(i + 1); c.dataset.total = String(n);
     $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
+    $('.meet-back', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetBack(); });
     return c;
   }
-  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; } // ms may be Infinity: her click, →, Enter or the clicker
+  // Waits for her: forward (Next, →, Enter, PageDown) or back (Back, ←, PageUp). Returns 'back' or 'next'.
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance && !meetBackReq) await wait(50); const r = meetBackReq ? 'back' : 'next'; meetAdvance = false; meetBackReq = false; return r; } // ms is Infinity for a person
   async function meetTeam(animate, tok) {
     if (!setup || !animate || BYOC.replay) return;
     setSetup('team');
     const st = $('#setup-stage');
-    meeting = true; meetSkip = false; meetAdvance = false;
+    meeting = true; meetSkip = false; meetAdvance = false; meetBackReq = false;
     if (!BYOC.kit) { if (!BYOC.kitReq) loadKit(''); await Promise.race([BYOC.kitReq, wait(800)]); } // never more than a beat
     try {
       // Any seat: the flex teammate is met last, and not at all while its card is still being written (a note in its chair).
       const order = BYOC.flexSeat && BYOC.cast ? [...TEAM.filter(x => x !== BYOC.flexSeat), BYOC.flexSeat] : TEAM;
       const met = order.filter(s => !flexAway(s));
-      for (let i = 0; i < met.length; i++) {
+      for (let i = 0; i < met.length;) {
         if (tok !== walkToken || meetSkip) return;
         const c = meetCard(met[i], i, met.length);
         st.replaceChildren(c);
@@ -1625,13 +1632,15 @@
         place(c, still ? { opacity: [0, 1] } : { x: [40, 0], opacity: [0, 1] }, true,
           { type: 'tween', duration: 0.38, ease: [0.22, 0.61, 0.36, 1], opacity: { duration: still ? 0.2 : 0.3, ease: 'easeOut' } });
         emit('meet', { seat: met[i], index: i });
-        await holdFor(HOLD_MS);
+        i = (await holdFor(HOLD_MS)) === 'back' ? Math.max(0, i - 1) : i + 1;
       }
     } finally { meeting = false; }
     if (tok === walkToken && BYOC.beat === 1 && !meetSkip) stage(2);
   }
   // The clicker's forward during "meet the team": the next teammate (after the last: the reveal).
   BYOC.meetNext = () => { if (meeting) meetAdvance = true; else if (BYOC.beat === 1) stage(2); };
+  // Back: the previous teammate (on the first, she stays). True while meeting, so ← / PageUp never leave the cards.
+  BYOC.meetBack = () => { if (!meeting) return false; meetBackReq = true; return true; };
   // The reveal: the studio, everyone already seated; then she takes her seat.
   async function reveal(animate, tok) {
     meetSkip = true;
