@@ -175,6 +175,7 @@ test('the guard: reorders, merges and inflections pass; a new content word or a 
   assert.equal(checkTidy('we should never ask for a phone number', 'We should ask for a phone number.'), null, 'a dropped "never" flips her stance');
   assert.equal(checkTidy('we should never ask for a phone number', 'We should always ask for a phone number.'), null, 'never -> always');
   assert.ok(checkTidy('browse the menu', 'Browsing the menu.'), 'an inflection of her word');
+  assert.equal(checkTidy('three point five stars, 3.5 stars', 'It has 35 stars.'), null, '3.5 -> 35: punctuation inside a number never merges it');
   assert.equal(checkTidy(raw, ''), null);
 });
 
