@@ -32,6 +32,16 @@
   // its main block and its aside, so this look gathers those parts, in order, into one look-owned column inside the
   // document ([data-pfd="column"]); focus-doc.js still finds every part by doc.querySelector. Parts added later are
   // gathered too. While she captures, the aside's parts stay out of view, as focus-doc.js hides its aside.
+  // (QA #30) when the meeting's takeaways land, the column brings the whole card into view, Keep included and clear of
+  // the column's soft foot fade: its bottom if the card fits, else its top
+  { const side0 = fdoc && fdoc.querySelector(':scope > [data-slot="side"]'), card0 = side0 && side0.querySelector('[data-component="takeaways"]');
+    if (card0) new MutationObserver(() => {
+      if (card0.dataset.state !== 'shown' || card0.hidden) return;
+      setTimeout(() => {
+        const top = card0.offsetTop - 12, bottom = card0.offsetTop + card0.offsetHeight + 40;
+        side0.scrollTo({ top: bottom - top <= side0.clientHeight ? bottom - side0.clientHeight : top, behavior: 'smooth' });
+      }, 650);                                          // after focus-doc.js's own follow and the card's landing
+    }).observe(card0, { attributes: true, attributeFilter: ['data-state', 'hidden'] }); }
   // the meeting's leave prompt sits at the column's foot: when it asks, the column brings it into view
   const leave = fdoc && fdoc.querySelector('[data-component="leave-meeting"]'), side = fdoc && fdoc.querySelector(':scope > [data-slot="side"]');
   if (leave && side) new MutationObserver(() => { if (leave.dataset.state === 'asking' && !leave.hidden) side.scrollTo({ top: side.scrollHeight, behavior: 'smooth' }); })
