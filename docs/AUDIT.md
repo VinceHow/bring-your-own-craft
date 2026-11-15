@@ -579,6 +579,26 @@ state intent:
   matches the code.
 - README:117 still says "There is nothing to install", but the Playwright line follows at :125, so that's fine.
 
+### design/qr-inline (859f330..64a9623): PASS
+
+Verified by stub only.
+
+**What changed:** with the live deploy, "Open the app" calls `showQr()` and returns before `window.open`
+(`public/app-button.js`). The gate (`gated()`) is the same exact-URL check as before: `deployUrl` with trailing
+slashes stripped, compared to `QR_URL`.
+
+**Tests:**
+- `e2e/qr-card.e2e.js` 4/0. It asserts `window.__opened` is empty, there's no popup, and the page count stays the
+  same when gated. Not gated, "the new tab still opens" (exactly 1 open).
+- app e2e 2/0; app-first 3/0.
+- `npm test`: 312 tests, 311 pass, 0 fail, 1 skipped.
+
+**QR:** `public/qr-live-site-card.png` and `public/qr-live-site.svg` are byte-identical to bbb49aa, where they were
+decoded (jsQR by me and the tech lead, OpenCV by the lead) to exactly
+`https://bring-your-own-craft-production.up.railway.app`.
+
+**Noor grep:** only the known PNG.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
