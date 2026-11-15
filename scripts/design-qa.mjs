@@ -346,6 +346,50 @@ if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode o
   await ctx.close();
 }
 
+// ---- meeting the team (design/meetcard): each wave plays, a tap plays the reaction then the wave again, the frame is
+// inked and rounded; and /?look=plain loads with no painted layers. Note: Playwright's Chromium has no H.264, so an
+// mp4-only clip cannot play here; that is reported as "not checkable here", not as a failure.
+if (!ONLY || ONLY.test('meetcard')) for (const [w, h] of SIZES) {
+  const tag = `${w}x${h}`; const dir = path.join(OUT, `${tag}-meet`); fs.mkdirSync(dir, { recursive: true });
+  const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode: 'day', state: 'meet the team' });
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 }); await GUARD(ctx);
+  const p = await ctx.newPage();
+  try {
+    // plain fallback
+    await p.goto(BASE + '/?look=plain&stage=1'); await wait(2500);
+    const plain = await p.evaluate(() => ({ iframe: !!document.querySelector('iframe.painted-living'), on: document.documentElement.classList.contains('painted-on'),
+      look: document.documentElement.getAttribute('data-look'), css: [...document.querySelectorAll('link[rel=stylesheet]')].map(l => l.getAttribute('href')).filter(h => /looks\/(painted|playful)/.test(h)) }));
+    process.stdout.write(`${tag} plain: ${JSON.stringify(plain)}\n`);
+    if (plain.iframe || plain.on || plain.css.length) rec('plain', '?look=plain', `painted layers on the plain look: ${JSON.stringify(plain)}`, await (async () => { const f = path.join(dir, 'plain.jpg'); await p.screenshot({ path: f, type: 'jpeg', quality: 72 }); return f; })());
+    // the meet cards
+    await p.goto(BASE + '/?look=painted&stage=1&hold=600000'); await wait(1800);   // hold: each card stays until we move on
+    await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(1200);
+    for (let i = 0; i < 5; i++) {
+      const card = p.locator('[data-component="meet-card"][data-state="in"]:visible').last();
+      const seat = await card.getAttribute('data-seat');
+      const probe = () => card.evaluate(c => { const v = c.querySelector('[data-slot="face"] video'); const fc = c.querySelector('[data-slot="face"]'); const cs = getComputedStyle(fc || c);
+        return { video: !!v, clip: v && (v.dataset.clip || 'wave'), t: v ? v.currentTime : 0, paused: v ? v.paused : null, err: v && v.error ? v.error.code : 0, canMp4: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'),
+          radius: cs.borderTopLeftRadius, border: cs.borderTopWidth + ' ' + cs.borderTopStyle, shadow: cs.boxShadow !== 'none', faceBox: (() => { const r = c.querySelector('[data-slot="face"]')?.getBoundingClientRect(); return r ? Math.round(r.width) + 'x' + Math.round(r.height) : ''; })() }; });
+      await wait(800); const a = await probe(); await wait(700); const b = await probe();
+      const f = path.join(dir, `meet-${i + 1}-${seat}.jpg`); await p.screenshot({ path: f, type: 'jpeg', quality: 72 });
+      process.stdout.write(`${tag} meet ${seat}: ${JSON.stringify({ ...b, moved: b.t > a.t })}\n`);
+      if (parseFloat(a.radius) < 6) rec('meet card', `[data-component="meet-card"][data-seat="${seat}"] [data-slot="face"]`, `square corners on the portrait frame (${a.radius})`, f);
+      if (!a.shadow && parseFloat(a.border) < 1) rec('meet card', `[data-component="meet-card"][data-seat="${seat}"] [data-slot="face"]`, 'no inked frame on the portrait (no border, no shadow)', f);
+      if (!a.video && !b.video) rec(a.canMp4 ? 'meet card' : 'not checkable here', `[data-component="meet-card"][data-seat="${seat}"] [data-slot="face"]`, a.canMp4 ? 'no wave video in the face' : 'no wave video: this Chromium cannot play H.264 mp4, so the clip fell back to the portrait (check on a real Chrome)', f);
+      else if (!(b.t > a.t) || b.paused) rec('meet card', `[data-slot="face"] video`, `the wave does not play (t ${a.t.toFixed(2)} → ${b.t.toFixed(2)}, paused ${b.paused}, error ${b.err})`, f);
+      else {
+        await card.locator('[data-slot="face"]').click({ force: true }); await wait(400); const c1 = await probe();
+        const ft = path.join(dir, `meet-${i + 1}-${seat}-tap.jpg`); await p.screenshot({ path: ft, type: 'jpeg', quality: 72 });
+        if (c1.clip !== 'tap') rec('meet card', '[data-slot="face"] video', `a tap did not play the reaction (clip ${c1.clip})`, ft);
+        let back = false; for (let k = 0; k < 20 && !back; k++) { await wait(400); back = (await probe()).clip === 'wave'; }
+        if (!back) rec('meet card', '[data-slot="face"] video', 'after the reaction the wave did not come back within 8 s', ft);
+      }
+      if (i < 4) { await p.evaluate(() => BYOC.meetNext && BYOC.meetNext()); await wait(1200); }
+    }
+  } catch (e) { if (e) rec('walk', 'meetcard', 'meetcard error: ' + String(e.message || e).split('\n')[0]); }
+  await ctx.close();
+}
+
 // ---- sound (design/rain): rain is the weather's, the window toggles it, the record is music only; and the mic ----
 // Audio is probed by wrapping HTMLMediaElement.prototype.play (every element that ever played: src, paused, volume)
 // plus the AudioContext state (rain made in code when rain.mp3 is missing). Preferences: localStorage byoc.rainSound,
