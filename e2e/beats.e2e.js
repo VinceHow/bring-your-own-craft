@@ -282,6 +282,16 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   await waitFor(() => document.querySelectorAll('.team-space .ts-card[data-kind="first"][data-state="closed"]').length === 2, 5000, 'settled in the team space', null, p);
   assert.match(await p.textContent('.team-space .ts-card[data-joint="fd-first-d2"] .ts-headline'), /Held until 10am/);
   assert.strictEqual(await p.getAttribute('.team-space .ts-card[data-joint="fd-first-d2"] .ts-mark', 'data-seat'), 'engineering');
+  // Folded into a small "Team notes · N" tab (Vincent, 15 Nov); a click opens the cards and closes them again.
+  const notes = p.locator('.team-space [data-component="team-notes"]');
+  assert.match((await notes.innerText()).trim(), /^Team notes · \d+$/);
+  assert.strictEqual(await notes.getAttribute('data-state'), 'closed');
+  assert.ok(await p.locator('.team-space .ts-cards').isHidden(), 'folded: the cards wait behind the tab');
+  await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
+  assert.ok(await p.locator('.team-space .ts-card[data-joint="fd-first-d2"]').isVisible(), 'open: the cards');
+  await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'closed');
   assert.strictEqual(await p.locator('.mini-sheet li[data-state="decided"]').count(), 2, 'and on their sketchpads');
   // Focus 2: Mika's rough morning journey in words; her answer; Mika rewrites the step it changes.
   const steps = [{ step: 1, time: '7:05', text: 'Sam leaves for work' }, { step: 2, time: '7:10', text: 'Sam reserves the usual on the bus' }, { step: 3, time: '7:40', text: 'Sam picks it up, still warm' }];
