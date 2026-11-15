@@ -1,7 +1,6 @@
 # Bring your own craft: Devpost write-up
 
-Paste each section into the matching Devpost field. Anything marked **TBD** is not measured yet: fill it from a real run
-or delete it before submitting. There is no demo video: we present live. Source of truth for the product: `VISION.md`.
+Paste each section into the matching Devpost field. There is no demo video: we present live. Source of truth for the product: `VISION.md`.
 
 **Track:** Autonomous Agents (Imperial AI hackathon).
 
@@ -171,7 +170,7 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
 
 ## Accomplishments that we're proud of
 - One spoken sentence to her own ordering page, filled live into a prepared template, with three set moments for her
-  in between. Full run, idea to her page: **TBD (Vincent's own timed run)**.
+  in between. Full run, idea to her page: measured live on stage.
 - The questions are about her craft, never about the stack.
 - Teammates that genuinely build on her and on each other, in short, human lines.
 - A default agent: 0 asked, 24 guessed, 20 approvals. Her team (demo path, three set moments): 3 asked, 14 decisions citing her file (her own lines plus one
@@ -196,6 +195,6 @@ the live bakery's photos and logo, made ahead; the painted cast, clips and music
 Playwright.
 
 ## Try it
-Repo: **TBD** (public repo URL). Node 22, nothing to install: put `FAL_KEY` and `MODEL_BACKEND=fal` in `.env.local`,
+Repo: https://github.com/VinceHow/bring-your-own-craft. Node 22, nothing to install: put `FAL_KEY` and `MODEL_BACKEND=fal` in `.env.local`,
 run `npm run local` and open the address it prints (port 3000–3010). Tests: `npm test`; `npm run e2e` also needs
 Playwright (`npm i -g playwright && npx playwright install chromium`).
