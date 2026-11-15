@@ -36,7 +36,7 @@ the room, and the room's `npm test` never runs it (its tests need the bakery ser
 
 4. A polish pass by builder 6 (the tech lead's creative brief, 15 Nov), using the vendored taste-skill's rules for a
    place (photographs and flat colour, one dealt moment, no effects, rest under reduced motion, no exclamation marks):
-   the name **Proof of Concept** (was "Priya's") in `public/index.html`, `views/admin.html` and Bo's page test; the
+   the name **The Usual** (was "Priya's", then "Proof of Concept"; renamed by the lead on Vincent's pick, 15 Nov 09:45) in `public/index.html`, `views/admin.html` and Bo's page test; the
    delivered moment in `public/app.js` + `style.css` (a warm reveal, a short flour puff, a hand-lettered "Fresh out of
    the oven" stamp, "Still warm. Worth the wait."; the scripted "Delivered: your sourdough is here" stays the headline;
    no sound; under reduced motion only the static stamp); copy (sold out: "The regulars got here first. Back next

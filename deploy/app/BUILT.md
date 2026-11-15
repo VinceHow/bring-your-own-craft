@@ -1,9 +1,9 @@
-# Built by the team: Proof of Concept
+# Built by the team: The Usual
 
 > **What Bo did not write.** Bo built this app in one attempt (15 Nov, 00:16–00:23 UTC). Our builders then made five
 > listed hand edits (`deploy/README.md`): a CSS fix so "Sold out" shows only when sold out; the admin login form and
-> session cookie; asking a device for its first name once; and a polish pass (the name "Proof of Concept", which was
-> "Priya's"; the delivered celebration; playful copy; the Regulars' corner; the credit line); and a design polish of the storefront's look (typography, spacing, the cards,
+> session cookie; asking a device for its first name once; and a polish pass (the name "The Usual", which was
+> "Priya's", then "Proof of Concept"; the delivered celebration; playful copy; the Regulars' corner; the credit line); and a design polish of the storefront's look (typography, spacing, the cards,
 > photo framing, the hero), with no behaviour change. Bo wrote none of those.
 
 Built by Bo from the team's run (decisions recorded 2026-11-15) and the brief. Plain Node 22 with `node:sqlite`, no dependencies.
