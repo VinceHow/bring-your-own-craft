@@ -1278,7 +1278,7 @@
     const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
     drawTraits();
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
-    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · tap any piece to swap it · Enter: meet your team' : 'Enter: meet your team'); hint.dataset.slot = 'hint';
+    const hint = h('div', 'char-hint', cur.title ? 'tap any piece to swap it' : ''); hint.dataset.slot = 'hint';   // a look sets it by the pieces she can tap
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
     traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits();
       traits.dataset.state = 'swapped'; const li = traits.children[i]; if (li) li.dataset.state = 'new'; c.focus(); });   // a look re-inks only the one she swapped
@@ -1421,7 +1421,7 @@
     for (const s of TEAM) seatCard(s, false);
     if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
     const prod = el.seat.product.querySelector('.card'); if (prod) drawHerCharacter(prod);
-    emit('reveal', {});
+    emit('reveal', { animate: !!animate });   // animate: the walked reveal (the door may open); false for jumps and replays
     if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 2) stage(3); }
   }
   // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
