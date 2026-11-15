@@ -52,7 +52,9 @@
   BYOC.on('chatter', ev => run('say', ev.seat));
   BYOC.on('chime', ev => run('say', ev.seat));
   BYOC.on('ask', ev => run('found', ev.seat));                         // holding up a note: it brings her one
-  BYOC.on('candidate', ev => run('start', ev.seat));                   // proposing: at work, head down
+  BYOC.on('candidate', ev => run('start', ev.seat));
+  BYOC.on('sketch.user', () => run('start', 'research'));             // the first sketch: Noor pictures the users,
+  BYOC.on('flow.line', () => run('start', 'design'));                  // Mika draws the journey, heads down                   // proposing: at work, head down
   BYOC.on('decided', ev => run('done', ev.seat));                      // its signature move; the others perk up
   BYOC.on('joint.agreed', ev => call(l => l.run({ type: 'agree', seats: (ev.seats || []).map(s => WHO[s]).filter(Boolean) })));
   BYOC.on('build.done', () => call(l => l.run({ type: 'milestone' })));
