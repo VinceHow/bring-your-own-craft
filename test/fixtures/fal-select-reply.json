@@ -1,0 +1,498 @@
+{
+ "note": "Recorded 15 Nov from the fal backend (OpenRouter) for the select call on a yoga e2e run: every score has changes 0.",
+ "idea": "A booking page for a small yoga studio.",
+ "candidates": [
+  {
+   "id": "c1",
+   "seat": "product",
+   "decision": "Who the page serves first: regulars or newcomers",
+   "options": [
+    "Regulars who book weekly",
+    "First-time visitors",
+    "Both equally"
+   ],
+   "recommendation": "Regulars who book weekly",
+   "reason": "A small studio lives on repeat attendance, and her journey already has a 'Book your usual' shortcut for them.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": null,
+   "seats": [
+    "product",
+    "design",
+    "strategy"
+   ],
+   "question": "What makes someone come back to a studio week after week?"
+  },
+  {
+   "id": "c2",
+   "seat": "product",
+   "decision": "How 'Book your usual' works from the classes list",
+   "options": [
+    "One tap rebooks their last class next week",
+    "Shows their usual class to confirm first",
+    "Leave it out until evidence exists"
+   ],
+   "recommendation": "Shows their usual class to confirm first",
+   "reason": "It keeps the shortcut fast but still passes through confirm, so people never book the wrong class by accident.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": "n5",
+   "seats": [
+    "product",
+    "design",
+    "engineering"
+   ],
+   "question": "How much should the page remember about someone before they've said anything?"
+  },
+  {
+   "id": "c3",
+   "seat": "product",
+   "decision": "What happens when a class is full",
+   "options": [
+    "Show as full, no other option",
+    "Offer a waitlist",
+    "Show as full and suggest the next similar class"
+   ],
+   "recommendation": "Show as full and suggest the next similar class",
+   "reason": "It keeps the smallest end-to-end version while not leaving the customer at a dead end.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n2",
+   "seats": [
+    "product"
+   ]
+  },
+  {
+   "id": "c4",
+   "seat": "product",
+   "decision": "What confirm asks for and what it promises about cancelling",
+   "options": [
+    "Name and email only, with a plain cancel-by time",
+    "Account sign-up plus payment",
+    "Name and email, no stated cancel policy"
+   ],
+   "recommendation": "Name and email only, with a plain cancel-by time",
+   "reason": "Minimal fields keep booking quick, and a clear cancel-by line sets expectations before the customer commits.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n3",
+   "seats": [
+    "product",
+    "engineering",
+    "strategy"
+   ]
+  },
+  {
+   "id": "c5",
+   "seat": "data",
+   "decision": "The one number that says the booking page worked",
+   "options": [
+    "Share of visitors who reach booked",
+    "Count of bookings per week",
+    "Share of booked people who attend"
+   ],
+   "recommendation": "Share of visitors who reach booked",
+   "reason": "A visit-to-booked rate shows whether the whole journey works, whatever the traffic.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": null,
+   "seats": [
+    "data",
+    "product",
+    "strategy"
+   ],
+   "question": "What would tell you, a month in, that the page is truly working for your studio?"
+  },
+  {
+   "id": "c6",
+   "seat": "data",
+   "decision": "What we measure at Book your usual",
+   "options": [
+    "Count of Book your usual taps that end in booked",
+    "Count of returning customers who book at all",
+    "Don't measure it yet"
+   ],
+   "recommendation": "Count of Book your usual taps that end in booked",
+   "reason": "It shows whether the shortcut for regulars finishes bookings, which decides if it stays.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n5",
+   "seats": [
+    "data",
+    "product",
+    "design"
+   ],
+   "question": "What makes someone come back to a studio week after week?"
+  },
+  {
+   "id": "c7",
+   "seat": "data",
+   "decision": "What we measure at confirm",
+   "options": [
+    "Share of confirm views that become booked",
+    "Time spent on confirm",
+    "Count of confirm errors"
+   ],
+   "recommendation": "Share of confirm views that become booked",
+   "reason": "Drop-off at the last step before booking is where lost bookings show up most clearly.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n3",
+   "seats": [
+    "data"
+   ]
+  },
+  {
+   "id": "c8",
+   "seat": "data",
+   "decision": "What we keep from each booking at booked",
+   "options": [
+    "Name, email, class, time; deleted after 12 months",
+    "Email and class only; deleted after 3 months",
+    "Full profile kept until the customer asks to delete"
+   ],
+   "recommendation": "Name, email, class, time; deleted after 12 months",
+   "reason": "It holds only what we need to send reminders and count repeat visits, and it sets a clear end date for personal data.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n4",
+   "seats": [
+    "data",
+    "engineering"
+   ]
+  },
+  {
+   "id": "c9",
+   "seat": "research",
+   "decision": "Who the page is built for first: regulars or newcomers",
+   "options": [
+    "Regulars who book weekly",
+    "First-time visitors",
+    "Both equally"
+   ],
+   "recommendation": "Regulars who book weekly",
+   "reason": "A small studio's steady income comes from people who return, and the 'Book your usual' path already points that way, but we'd want to check this with the studio's own booking history first.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": null,
+   "seats": [
+    "research",
+    "product",
+    "design",
+    "strategy"
+   ],
+   "question": "What makes someone come back to a studio week after week?"
+  },
+  {
+   "id": "c10",
+   "seat": "research",
+   "decision": "What the main problem is that the page solves",
+   "options": [
+    "Finding a class that fits my schedule",
+    "Booking quickly with little effort",
+    "Feeling sure my spot is held"
+   ],
+   "recommendation": "Booking quickly with little effort",
+   "reason": "We have no evidence yet, so the first thing to learn is what currently makes booking hard, by asking a few students and the owner how they book today.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": "n1",
+   "seats": [
+    "research",
+    "product",
+    "design"
+   ],
+   "question": "What gets in the way when someone tries to book a class today?"
+  },
+  {
+   "id": "c11",
+   "seat": "research",
+   "decision": "Whether a first-time visitor must create an account before booking",
+   "options": [
+    "No account, just name and email",
+    "Account required",
+    "Optional account after booking"
+   ],
+   "recommendation": "No account, just name and email",
+   "reason": "The smallest end-to-end version asks for the least, and we'd learn from drop-off whether people want accounts at all.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n3",
+   "seats": [
+    "research",
+    "engineering"
+   ]
+  },
+  {
+   "id": "c12",
+   "seat": "research",
+   "decision": "How payment or class passes fit into the confirm step",
+   "options": [
+    "Pay at the studio, book only online",
+    "Pay online per class",
+    "Use existing class pass or pay online"
+   ],
+   "recommendation": "Pay at the studio, book only online",
+   "reason": "Taking money is a promise that can't be cleanly undone, so we'd first learn how students pay now before building it.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n3",
+   "seats": [
+    "research",
+    "strategy",
+    "engineering"
+   ],
+   "question": "How do students pay for classes at this studio today?"
+  },
+  {
+   "id": "c13",
+   "seat": "engineering",
+   "decision": "Whether a returning visitor gets a one-tap 'Book your usual' shortcut",
+   "options": [
+    "On, remembered on this device only",
+    "On, tied to an account login",
+    "Off for now"
+   ],
+   "recommendation": "On, remembered on this device only",
+   "reason": "A device-stored last booking needs no accounts and is the simplest thing that makes the n1 to n5 path work.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": "n5",
+   "seats": [
+    "engineering",
+    "product",
+    "design"
+   ],
+   "question": "What makes someone come back to a studio week after week, and how should the page honour that?"
+  },
+  {
+   "id": "c14",
+   "seat": "engineering",
+   "decision": "What happens when two people take the last spot",
+   "options": [
+    "First confirmed booking wins, the other sees 'just filled' and nearby classes",
+    "Hold the spot for a few minutes during confirm",
+    "Allow overbooking and sort it out by hand"
+   ],
+   "recommendation": "First confirmed booking wins, the other sees 'just filled' and nearby classes",
+   "reason": "An atomic check at confirm is the proven way to avoid double booking without holds or timers.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n3",
+   "seats": [
+    "engineering"
+   ]
+  },
+  {
+   "id": "c15",
+   "seat": "engineering",
+   "decision": "Whether full classes get a waitlist",
+   "options": [
+    "Waitlist switch on",
+    "Waitlist off, show 'full' only",
+    "Show 'full' with a link to the next class"
+   ],
+   "recommendation": "Waitlist off, show 'full' only",
+   "reason": "The smallest end-to-end version ships without waitlist logic, and it can be switched on later with evidence.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n2",
+   "seats": [
+    "engineering"
+   ]
+  },
+  {
+   "id": "c16",
+   "seat": "engineering",
+   "decision": "How the booking is confirmed and what is stored",
+   "options": [
+    "Show confirmation on page plus email, storing name and email only",
+    "Page confirmation only, no message sent",
+    "Email and text, storing phone as well"
+   ],
+   "recommendation": "Show confirmation on page plus email, storing name and email only",
+   "reason": "Email is cheap and reliable, and collecting the least data avoids promises that cannot be undone.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n4",
+   "seats": [
+    "engineering",
+    "data"
+   ]
+  },
+  {
+   "id": "c17",
+   "seat": "design",
+   "decision": "What booking should feel like: quick and remembered, or guided and reassuring",
+   "options": [
+    "Quick and remembered",
+    "Guided and reassuring",
+    "Quick for regulars, guided for first-timers"
+   ],
+   "recommendation": "Quick for regulars, guided for first-timers",
+   "reason": "One filled button marks the main action, so the first screen leads with either 'Book your usual' or the class list, and the grey wireframes depend on which one it is.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": null,
+   "seats": [
+    "design",
+    "product"
+   ],
+   "question": "What makes someone come back to a studio week after week?"
+  },
+  {
+   "id": "c18",
+   "seat": "design",
+   "decision": "What leads the classes screen and how dense the list is",
+   "options": [
+    "Day-by-day list: time, class, teacher, spots left",
+    "Cards with photos and class descriptions",
+    "Week grid"
+   ],
+   "recommendation": "Day-by-day list: time, class, teacher, spots left",
+   "reason": "Hierarchy by size and contrast, not decoration, keeps the list scannable at 390px with 44px tap rows and no sideways scroll.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n1",
+   "seats": [
+    "design"
+   ]
+  },
+  {
+   "id": "c19",
+   "seat": "design",
+   "decision": "What a full class shows and what the customer can do next",
+   "options": [
+    "Greyed row labelled 'Full' with a waitlist button",
+    "Hidden from the list",
+    "Greyed row labelled 'Full' with next similar class"
+   ],
+   "recommendation": "Greyed row labelled 'Full' with next similar class",
+   "reason": "A visible full state with a next step avoids a dead end, and it keeps the smallest version working end to end without waitlist mechanics.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n2",
+   "seats": [
+    "design",
+    "engineering"
+   ]
+  },
+  {
+   "id": "c20",
+   "seat": "design",
+   "decision": "Where 'Book your usual' sits and how it behaves",
+   "options": [
+    "Top of the classes screen, one tap to the confirm step",
+    "Inside the class detail only",
+    "Left out of the first version"
+   ],
+   "recommendation": "Top of the classes screen, one tap to the confirm step",
+   "reason": "It skips the class step for returning customers, and the confirm screen stays the one place that takes the booking so nothing is booked by accident.",
+   "cost": "high",
+   "undoable": true,
+   "attachTo": "n5",
+   "seats": [
+    "design",
+    "product",
+    "engineering"
+   ],
+   "question": "Who is the person you picture booking this page most often?"
+  },
+  {
+   "id": "c21",
+   "seat": "strategy",
+   "decision": "Whether booking takes payment online or leaves it for the desk",
+   "options": [
+    "Pay online when booking",
+    "Pay at the desk",
+    "Online or desk, customer picks"
+   ],
+   "recommendation": "Pay online when booking",
+   "reason": "A booking that ends in 'booked' with money settled gives the smallest working end-to-end version and cuts no-shows.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n3",
+   "seats": [
+    "strategy",
+    "engineering",
+    "product"
+   ],
+   "question": "What would make someone feel the class is truly theirs the moment they book it?"
+  },
+  {
+   "id": "c22",
+   "seat": "strategy",
+   "decision": "What people buy: single classes, class packs, or a membership",
+   "options": [
+    "Single classes only",
+    "Single classes plus a class pack",
+    "Single, pack and monthly membership"
+   ],
+   "recommendation": "Single classes plus a class pack",
+   "reason": "Drop-ins let newcomers try the studio and a pack rewards regulars without the upkeep of recurring billing, and extras wait for evidence.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n2",
+   "seats": [
+    "strategy",
+    "engineering",
+    "product"
+   ],
+   "question": "Who is the person you picture booking here, and how often do they come?"
+  },
+  {
+   "id": "c23",
+   "seat": "strategy",
+   "decision": "Refund and credit rules when someone cancels late or the studio cancels",
+   "options": [
+    "Full refund early, credit if late, full refund if studio cancels",
+    "Credit only, never cash back",
+    "No refunds, studio decides case by case"
+   ],
+   "recommendation": "Full refund early, credit if late, full refund if studio cancels",
+   "reason": "A clear cutoff time protects the teacher's income while being fair when the studio is the one that cancels.",
+   "cost": "high",
+   "undoable": false,
+   "attachTo": "n3",
+   "seats": [
+    "strategy",
+    "engineering",
+    "design"
+   ],
+   "question": "How should it feel to cancel a class you have already paid for?"
+  },
+  {
+   "id": "c24",
+   "seat": "strategy",
+   "decision": "Whether first-timers get an intro offer, and what shape it takes",
+   "options": [
+    "No intro offer, one price for all",
+    "Discounted first class",
+    "Intro pack of a few classes for a set period"
+   ],
+   "recommendation": "Discounted first class",
+   "reason": "A low-risk first booking gives new people a reason to book now, and the 'Book your usual' path then serves those who return.",
+   "cost": "low",
+   "undoable": true,
+   "attachTo": "n1",
+   "seats": [
+    "strategy"
+   ]
+  }
+ ],
+ "reply": {
+  "id": "recorded",
+  "object": "chat.completion",
+  "model": "anthropic/claude-sonnet-4.5",
+  "choices": [
+   {
+    "index": 0,
+    "message": {
+     "role": "assistant",
+     "content": "{\"scores\":[{\"id\":\"c1\",\"big\":3,\"hers\":3,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":null,\"kind\":\"fork\",\"question\":\"What makes someone come back to a studio week after week?\",\"artifact\":null,\"domain\":\"target customer\",\"settles\":[\"c1\",\"c9\",\"c17\"]},{\"id\":\"c2\",\"big\":1,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":1,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c3\",\"big\":1,\"hers\":2,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":1,\"dupOf\":null,\"kind\":\"pin\",\"question\":null,\"artifact\":null,\"domain\":\"user journey\",\"settles\":[]},{\"id\":\"c4\",\"big\":2,\"hers\":2,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c5\",\"big\":1,\"hers\":0,\"granular\":true,\"showable\":false,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c6\",\"big\":0,\"hers\":0,\"granular\":true,\"showable\":false,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c7\",\"big\":0,\"hers\":0,\"granular\":true,\"showable\":false,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c8\",\"big\":0,\"hers\":0,\"granular\":true,\"showable\":false,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c9\",\"big\":3,\"hers\":3,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":\"c1\",\"kind\":\"fork\",\"question\":\"What makes someone come back to a studio week after week?\",\"artifact\":null,\"domain\":\"target customer\",\"settles\":[]},{\"id\":\"c10\",\"big\":3,\"hers\":3,\"granular\":false,\"showable\":false,\"changes\":0,\"silent\":0,\"dupOf\":null,\"kind\":\"fork\",\"question\":\"What gets in the way when someone tries to book a class today?\",\"artifact\":null,\"domain\":\"customer problem\",\"settles\":[\"c10\"]},{\"id\":\"c11\",\"big\":0,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c12\",\"big\":2,\"hers\":1,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":2,\"dupOf\":null,\"kind\":\"pin\",\"question\":\"How do students pay for classes at this studio today?\",\"artifact\":null,\"domain\":\"customer problem\",\"settles\":[]},{\"id\":\"c13\",\"big\":1,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c14\",\"big\":0,\"hers\":0,\"granular\":true,\"showable\":false,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c15\",\"big\":0,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":1,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c16\",\"big\":0,\"hers\":0,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":3,\"dupOf\":null,\"domain\":null},{\"id\":\"c17\",\"big\":3,\"hers\":3,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":\"c1\",\"kind\":\"fork\",\"question\":\"What makes someone come back to a studio week after week?\",\"artifact\":null,\"domain\":\"target customer\",\"settles\":[]},{\"id\":\"c18\",\"big\":0,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":2,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c19\",\"big\":0,\"hers\":1,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":1,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c20\",\"big\":1,\"hers\":2,\"granular\":true,\"showable\":true,\"changes\":0,\"silent\":0,\"dupOf\":null,\"domain\":\"user journey\"},{\"id\":\"c21\",\"big\":2,\"hers\":1,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":2,\"dupOf\":null,\"kind\":\"pin\",\"question\":\"What would make someone feel the class is truly theirs the moment they book it?\",\"artifact\":null,\"domain\":\"customer problem\",\"settles\":[]},{\"id\":\"c22\",\"big\":2,\"hers\":2,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":2,\"dupOf\":null,\"kind\":\"pin\",\"question\":\"Who is the person you picture booking here, and how often do they come?\",\"artifact\":null,\"domain\":\"target customer\",\"settles\":[\"c22\"]},{\"id\":\"c23\",\"big\":1,\"hers\":1,\"granular\":false,\"showable\":false,\"changes\":0,\"silent\":2,\"dupOf\":null,\"kind\":\"pin\",\"question\":\"How should it feel to cancel a class you have already paid for?\",\"artifact\":null,\"domain\":\"customer problem\",\"settles\":[]},{\"id\":\"c24\",\"big\":2,\"hers\":2,\"granular\":false,\"showable\":true,\"changes\":0,\"silent\":1,\"dupOf\":null,\"kind\":\"pin\",\"question\":null,\"artifact\":null,\"domain\":\"target customer\",\"settles\":[\"c24\"]}]}"
+    },
+    "finish_reason": "stop"
+   }
+  ]
+ }
+}

@@ -138,3 +138,23 @@ test('a tidy that only changes case or punctuation keeps her words; a lower-case
   assert.equal(f.tidied, true);
   assert.equal(f.text, 'getting the journey right before anyone draws a screen.');
 });
+
+// Her own line is hers word for word (14 Nov, the fal backend): "I love getting the journey right…" came back as
+// "I love get the journey right…" and went into her file. For the intro, a tidy that changes a word is refused and
+// her raw words stand, on any backend; the Terminal says so once, without her words.
+test('the intro: a tidy that changes her words keeps her raw words; one that only cleans is taken', async () => {
+  const { tidyText } = await import('../lib/tidy.js');
+  const raw = 'I love getting the journey right before anyone draws a screen, you know, before the first box';
+  const errs = [], orig = console.error;
+  console.error = (...a) => errs.push(a.join(' '));
+  let r;
+  try { r = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love get the journey right before anyone draws a screen, before the first box.' }) }); }
+  finally { console.error = orig; }
+  assert.deepEqual([r.text, r.tidied, r.reason], [raw, false, 'changed words']);
+  assert.deepEqual(errs, ['[model] tidy changed words, kept raw'], 'one line, none of her words');
+  const ok = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love getting the journey right before anyone draws a screen, before the first box.' }) });
+  assert.equal(ok.tidied, true, 'dropping "you know" is a clean tidy');
+  // not the intro (an answer piece): unchanged behaviour
+  const piece = await tidyText({ text: raw, callModel: async () => ({ text: 'I love get the journey right before anyone draws a screen, before the first box.' }) });
+  assert.equal(piece.tidied, true);
+});

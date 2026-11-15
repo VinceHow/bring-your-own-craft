@@ -498,3 +498,15 @@ body.stage .chatter-line { font-size: 15px; }
 .meet-line { margin: 0; font-size: 30px; font-style: italic; }
 .meet-brings { margin: 0; font-size: 20px; }
 .meet-count { font-size: 16px; align-self: flex-end; }
+/* The app button (public/app-button.js): fixed over everything at the window's bottom right, beside her seat, where
+   no card sits; above the REPLAY label when that shows. Layout only: the look is the studio's. */
+.app-button { position: fixed; z-index: 45; bottom: 14px; right: 18px; display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 6px; max-width: 380px; }
+body:has(.replay-label:not([hidden])) .app-button { bottom: 74px; }
+.app-open { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 16px; font: inherit; cursor: pointer;
+  background: var(--sheet, #fff); color: var(--ink, #141414); border: var(--line, 2px solid #141414); border-radius: var(--r, 6px); box-shadow: var(--shadow-sm, 3px 3px 0 #141414); }
+.app-open:disabled { cursor: default; opacity: .8; }
+.app-label { font: 600 20px/1.1 var(--ui, sans-serif); }
+.app-hint { font: 400 14px/1.2 var(--ui, sans-serif); }
+.app-change, .app-live { margin: 0; padding: 4px 10px; font: 400 14px/1.2 var(--ui, sans-serif); background: var(--sheet, #fff); border: var(--line, 2px solid #141414); border-radius: var(--r, 6px); }
+.app-button[data-pulse] .app-open { animation: app-pulse 1.6s ease-out 1; }
+@keyframes app-pulse { 0% { transform: scale(1); } 20% { transform: scale(1.08); } 100% { transform: scale(1); } }

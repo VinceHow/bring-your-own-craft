@@ -1,0 +1,224 @@
+/* Look: Painted · her focus document (focus-doc.js), as her review page.
+   One ink-paper document over the room: the question across the top, the work large on the left (journey, research card,
+   journey in words, wireframes, the page), her thoughts on the right on her own pink paper. After Send: her pin lands on
+   the work, each reply sits by its pin for a few seconds and folds into it, changes show on the work itself, the team's
+   reading line, then the takeaways card. "Read the conversation" is a quiet inked link.
+   Loaded by painted.js after painted.css. Look only, and selectors only on data-component / data-slot / data-state (and
+   the work's own data-node / data-kind) from docs/COMPONENTS.md, never class names. The two [data-pfd] layers are this
+   look's own, added by painted.js (aria-hidden, no events). painted.css draws the paper (::after) and crayon (::before)
+   of the document, the work, the takeaways and the conversation's notes; this file sets their colours, not their layers.
+   The document is a two-column grid; its two inner wrappers are display: contents so their parts sit in either column. */
+
+html #room [data-component="focus-doc"] { --fd-r: 22px 18px 24px 17px / 18px 24px 17px 22px;
+  inset: 18px 26px; padding: 24px 34px 28px; display: grid; column-gap: 34px; row-gap: 0;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  grid-template-rows: auto auto auto auto auto auto auto auto auto auto minmax(0, 1fr);
+  border-radius: 26px 22px 28px 20px / 22px 28px 20px 26px; overflow: visible; --cx: 10px; --cy: 11px; --crot: .4deg; }
+html #room [data-component="focus-doc"][data-seat="design"] { --fd-t: var(--design-t); }
+html #room [data-component="focus-doc"][data-seat="research"] { --fd-t: var(--research-t); }
+html #room [data-component="focus-doc"][data-seat="data"] { --fd-t: var(--data-t); }
+html #room [data-component="focus-doc"][data-seat="strategy"] { --fd-t: var(--strategy-t); }
+html #room [data-component="focus-doc"][data-seat="engineering"] { --fd-t: var(--engineering-t); }
+html #room [data-component="focus-doc"][data-seat="product"] { --fd-t: var(--product-t); }
+html #room [data-component="focus-doc"] > :is(div:has([data-slot="work"]), aside) { display: contents; }
+html #room [data-component="focus-doc"] > *, html #room [data-component="focus-doc"] > :is(div, aside) > * { position: relative; z-index: 1; min-width: 0; }
+
+/* ---------- the top: who it's from, the one big question, the way back ---------- */
+html #room [data-component="focus-doc"] > [data-slot="head"] { grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; min-height: 44px; }
+html #room [data-component="focus-doc"] [data-slot="kicker"] { display: inline-flex; align-items: center; gap: 8px; font: 500 16px/1 var(--ui); color: var(--fd-t, var(--ink-2)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="focus-doc"] [data-slot="kicker"]:not(:empty)::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--cc, var(--product)); }
+html #room [data-component="focus-doc"] [data-slot="by"] { font: italic 400 17px/1.2 var(--display); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-slot="close"] { margin-left: auto; font: 500 16px/1 var(--ui); color: var(--ink); background: var(--sheet); border: 0; padding: 11px 18px;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 0 0 0 1.5px rgba(51,38,28,.7), 3px 4px 0 -1px rgba(210,122,141,.75); cursor: pointer;
+  transition: translate .2s var(--ease-land); }
+html #room [data-component="focus-doc"] [data-slot="close"]:hover { translate: 0 -1px; }
+html #room [data-component="focus-doc"] [data-slot="question"] { grid-column: 1 / -1; grid-row: 2; margin: 12px 0 20px; max-width: 34ch; text-wrap: balance;
+  font: 400 40px/1.14 var(--display); letter-spacing: -.014em; color: var(--ink); }
+html #room [data-component="focus-doc"] [data-slot="question"]::before { display: none; }
+
+/* ---------- the work, large, on the left (its paper is painted.css's) ---------- */
+html #room [data-component="focus-doc"] [data-slot="work"] { grid-column: 1; grid-row: 3 / -1; align-self: stretch; max-height: none; min-height: 0; overflow: visible;
+  display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 28px 30px 30px;
+  border-radius: var(--fd-r); --pp: #FFFDF8; --cc: rgba(160,128,96,.55); --cx: 5px; --cy: 6px; --crot: -.3deg; }
+/* the journey: boxes [data-node], arrows between them */
+html #room [data-component="focus-doc"] [data-slot="work"] > div:has(> [data-node]) { position: relative; gap: 10px 8px; }
+html #room [data-component="focus-doc"] [data-slot="work"] [data-node] { position: relative; font: 500 19px/1.25 var(--ui); color: var(--ink); background: var(--sheet); border: 0; padding: 12px 16px; outline: 0;
+  border-radius: 14px 12px 15px 11px / 12px 15px 11px 14px; box-shadow: 0 0 0 1.2px rgba(51,38,28,.55), 3px 4px 0 -1px rgba(210,122,141,.6); }
+html #room [data-component="focus-doc"] [data-slot="work"] > div > span:not([data-node]) { font: 400 17px/1 var(--ui); color: var(--ink-3); }
+/* an empty work says what is happening (focus-doc.js words), centred and readable, not a lost line in a corner */
+html #room [data-component="focus-doc"] [data-slot="work"] > p:not([data-slot]) { margin: 0; align-self: center; text-align: center; max-width: 30ch; font: italic 400 26px/1.4 var(--display); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-slot="work"] > iframe { height: 100%; min-height: 360px; border: 0; border-radius: 14px; box-shadow: 0 0 0 1px var(--rule-c); background: #fff; }
+/* the research card */
+html #room [data-component="focus-doc"] [data-component="research-card"] { position: relative; max-width: 62ch; }
+html #room [data-component="focus-doc"] [data-slot="prepared"] { display: inline-block; font: 500 14px/1 var(--ui); color: var(--research-t); margin-bottom: 12px; }
+html #room [data-component="focus-doc"] [data-slot="claim"] { position: relative; margin: 0; font: 400 32px/1.25 var(--display); color: var(--ink); letter-spacing: -.01em; border: 0; padding: 0; }
+html #room [data-component="focus-doc"] [data-slot="about"] { margin: 14px 0 0; font: italic 400 18px/1.45 var(--display); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-slot="source"] { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 18px; padding: 9px 14px; text-decoration: none;
+  border-radius: 16px 14px 17px 13px / 14px 17px 13px 16px; background: rgba(192,96,63,.10); }
+html #room [data-component="focus-doc"] [data-slot="source-title"] { font: 500 16px/1.3 var(--ui); color: var(--research-t); }
+html #room [data-component="focus-doc"] [data-slot="source-site"] { font: 400 15px/1.3 var(--ui); color: var(--ink-2); }
+/* an older finding without a quote: a plain article */
+html #room [data-component="focus-doc"] [data-slot="work"] > article:not([data-component]) { max-width: 62ch; }
+html #room [data-component="focus-doc"] [data-slot="work"] > article:not([data-component]) > h3 { margin: 0; font: 400 30px/1.25 var(--display); color: var(--ink); }
+html #room [data-component="focus-doc"] [data-slot="work"] > article:not([data-component]) > p { font: 400 19px/1.5 var(--ui); color: var(--ink); }
+html #room [data-component="focus-doc"] [data-slot="work"] > article:not([data-component]) > p:last-child { font-size: 15px; color: var(--ink-2); }
+/* the journey in words: a struck step, then its new line in the teammate's ink */
+html #room [data-component="focus-doc"] [data-component="journey-words"] { position: relative; }
+html #room [data-component="focus-doc"] [data-slot="steps"] { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+html #room [data-component="focus-doc"] [data-slot="step"] { position: relative; display: grid; grid-template-columns: 92px 1fr; column-gap: 14px; align-items: baseline; padding: 10px 14px;
+  border-radius: 14px 12px 15px 11px / 12px 15px 11px 14px; background: var(--sheet); box-shadow: 0 0 0 1px var(--rule-c); }
+html #room [data-component="focus-doc"] [data-slot="step"] > [data-slot="time"] { font: 500 15px/1.3 var(--ui); color: var(--ink-3); }
+html #room [data-component="focus-doc"] [data-slot="step"] > [data-slot="text"] { grid-column: 2; font: 400 21px/1.35 var(--display); color: var(--ink); }
+html #room [data-component="focus-doc"] [data-slot="step"] > [data-slot="text"] s { color: var(--ink-3); text-decoration-color: var(--fd-t, var(--design-t)); text-decoration-thickness: 2px; }
+html #room [data-component="focus-doc"] [data-slot="step"] > [data-slot="new"] { grid-column: 2; margin-top: 4px; font: 400 21px/1.35 var(--display); color: var(--fd-t, var(--design-t)); animation: pfd-in .5s var(--ease-land) both; }
+html #room [data-component="focus-doc"] [data-slot="step"][data-state="rewritten"] { box-shadow: 0 0 0 1.4px color-mix(in srgb, var(--fd-t, var(--design-t)) 55%, transparent); }
+
+/* ---------- her thoughts, on her pink paper, on the right ---------- */
+html #room [data-component="focus-doc"] > [data-pfd="sheet"] { grid-column: 2; grid-row: 3 / -1; z-index: 0; align-self: stretch; pointer-events: none; padding: 18px 22px;
+  font: 500 15px/1 var(--ui); color: var(--product-t);
+  background-color: #FCEFEE; background-image: var(--tooth); background-size: 260px 260px;
+  border-radius: var(--fd-r); box-shadow: 0 0 0 1.4px rgba(51,38,28,.6), 4px 5px 0 0 rgba(210,122,141,.8); }
+html #room [data-component="focus-doc"]:not([data-state="asking"]):not([data-state="speaking"]) > [data-pfd="sheet"] { color: transparent; }
+html #room [data-component="focus-doc"] :is([data-component="her-answer"], [data-component="pieces"], form, [data-slot="read-conversation"], [data-slot="chimes"],
+  [data-component="takeaways"], [data-component="team-reading"], aside > [data-slot="team"]) { grid-column: 2; margin-inline: 22px; }
+html #room [data-component="focus-doc"] [data-component="her-answer"] { grid-row: 3; margin-top: 46px; padding: 0; border: 0; max-width: none; font: italic 400 20px/1.42 var(--display); color: var(--product-t); }
+html #room [data-component="focus-doc"] [data-component="her-answer"]::after { background: var(--product); }
+html #room [data-component="focus-doc"] [data-component="her-answer"] > [data-slot="words"] { margin: 0; padding: 0; border: 0; background: none; font: italic 400 20px/1.42 var(--display); color: var(--product-t); }
+html #room [data-component="focus-doc"] [data-component="her-answer"] > [data-slot="words"]::before { content: 'You said'; display: block; margin-bottom: 6px; font: normal 500 14px/1 var(--ui); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-component="pieces"] { grid-row: 4; margin-top: 46px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0; }
+html #room [data-component="focus-doc"] [data-component="her-answer"]:not(:empty) ~ [data-component="pieces"] { margin-top: 14px; }
+html #room [data-component="focus-doc"] form { grid-row: 5; margin-top: 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+html #room [data-component="focus-doc"] [data-slot="input"] { grid-column: 1 / -1; min-height: 96px; font: 400 21px/1.42 var(--display); color: var(--ink); background: rgba(255,253,248,.78); border: 0; padding: 12px 14px;
+  border-radius: 16px 13px 17px 12px / 13px 17px 12px 16px; box-shadow: inset 0 0 0 1.2px rgba(51,38,28,.35); resize: none; }
+html #room [data-component="focus-doc"] [data-slot="input"]::placeholder { color: var(--ink-2); font-style: italic; }
+html #room [data-component="focus-doc"] [data-slot="input"]:focus { outline: 0; box-shadow: inset 0 0 0 1.6px var(--product-t); }
+html #room [data-component="focus-doc"] [data-slot="add-piece"] { grid-column: 2; justify-self: start; white-space: nowrap; font: 500 16px/1 var(--ui); color: var(--product-t); background: none; border: 0; padding: 6px 2px 5px; cursor: pointer;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1.5px; background-position: 0 100%; background-repeat: no-repeat; box-shadow: none; }
+html #room [data-component="focus-doc"] [data-slot="send"] { grid-column: 3; font: 500 17px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 12px 22px; cursor: pointer;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 3px 4px 0 -1px rgba(210,122,141,.85); }
+html #room [data-component="focus-doc"] [data-slot="send"]:hover { translate: 0 -1px; }
+/* her voice, as her pill: a mic in her ink on her paper; listening is a soft ring, never a blinking square */
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field] { grid-column: 1; grid-row: 2; display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 16px 0 6px;
+  font: 400 16px/1 var(--ui); color: var(--ink); background: #FFF5F3; border: 0; transform: none;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 0 0 0 1.3px rgba(51,38,28,.6), 3px 4px 0 -1px rgba(210,122,141,.8); }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field] svg { box-sizing: content-box; width: 14px; height: 14px; padding: 8px; border-radius: 50%; background: var(--product-t); color: #FFF6F0; fill: currentColor; }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field][data-state="listening"] { background: #FFF5F3; transform: none; box-shadow: 0 0 0 1.3px rgba(51,38,28,.6), 3px 4px 0 -1px rgba(210,122,141,.8); }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field][data-state="listening"] svg { animation: pfd-listen 1.6s ease-in-out infinite; }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field][data-state="listening"]::after { display: none; }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field][data-state="writing"] { background: #FFF5F3; color: var(--product-t); }
+html #room [data-component="focus-doc"] [data-slot="input"] ~ [data-field][data-state="typed"] { box-shadow: none; background: none; padding: 0; color: var(--ink-2); }
+
+/* each spoken piece: raw first in soft grey, then the tidy dries to her ink */
+html #room [data-component="focus-doc"] [data-component="piece"] { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 10px 0 12px;
+  border-bottom: 1.5px dashed rgba(168,72,98,.28); animation: pfd-in .35s var(--ease-land) both; }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"] { flex: 1 0 100%; font: italic 400 21px/1.42 var(--display); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-component="piece"]:is([data-state="tidy"], [data-state="mine"]) > [data-slot="words"] { color: var(--product-t); transition: color .9s ease-out; }
+html #room [data-component="focus-doc"] [data-component="piece"][data-state="raw-shown"] > [data-slot="words"]::before { content: 'What you said · '; font: normal 500 14px/1 var(--ui); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"] > span { display: inline-block; transition: opacity .28s ease, filter .28s ease; }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"][data-view="raw"] > [data-slot="removed-word"] { color: #6E5A49; }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"] > [data-state="leaving"] { opacity: 0; filter: blur(2px); }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"] > [data-state="arriving"] { animation: pfd-fade .4s .1s ease-out both; }
+html #room [data-component="focus-doc"] [data-component="piece"] > [data-slot="words"] > [data-state="changed"] { animation: pfd-fade .4s ease-out both; }
+html #room [data-component="focus-doc"] [data-component="piece"][data-state="tidying"]::after { content: 'Tidying…'; flex: 1 0 100%; font: 400 14px/1 var(--ui); color: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-component="piece"] > :is([data-slot="see-said"], [data-slot="use-mine"], [data-slot="redo"], [data-slot="remove"]) { font: 500 15px/1 var(--ui); color: var(--ink-2);
+  background: none; border: 0; box-shadow: none; padding: 4px 0 3px; cursor: pointer; background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1.2px; background-position: 0 100%; background-repeat: no-repeat; }
+html #room [data-component="focus-doc"] [data-component="piece"] > :is([data-slot="see-said"], [data-slot="use-mine"]) { color: var(--product-t); }
+/* the controls show under the newest piece only, and on any piece she points at */
+html #room [data-component="focus-doc"] [data-component="piece"]:not(:last-child) > button { opacity: 0; transition: opacity .2s; }
+html #room [data-component="focus-doc"] [data-component="piece"]:not(:last-child):is(:hover, :focus-within) > button { opacity: 1; }
+
+/* ---------- after Send: her pin, replies by their pins, the team reading, then the takeaways ---------- */
+/* her pin lands on the work's corner the moment her words are in (a layer of this look's own, placed on the work) */
+html #room [data-component="focus-doc"] > [data-pfd="her-pin"] { grid-column: 1; grid-row: 3; justify-self: end; align-self: start; z-index: 3; margin: -12px -12px 0 0;
+  width: 26px; height: 26px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--product); box-shadow: 0 0 0 2px var(--sheet), 1px 2px 3px rgba(60,35,15,.35);
+  opacity: 0; pointer-events: none; }
+html #room [data-component="focus-doc"]:is([data-state="answered"], [data-state="chiming"], [data-state="working"], [data-state="takeaways"]) > [data-pfd="her-pin"] { animation: pfd-pin .55s var(--ease-land) both; opacity: 1; }
+/* a reply pin: a teardrop in the ink of its first reply; the count stays hidden (no counts) */
+html #room [data-component="focus-doc"] [data-component="pin"] { position: absolute; right: -14px; top: 50%; width: 26px; height: 26px; margin-top: -13px; z-index: 4; cursor: pointer;
+  --pin: var(--ink-3); --pin-t: var(--ink-2); }
+html #room [data-component="focus-doc"] [data-slot="work"] > [data-component="pin"] { right: 26px; top: 26px; margin-top: 0; }
+html #room [data-component="focus-doc"] [data-component="pin"]:has([data-component="pin-reply"]:first-child[data-seat="design"]) { --pin: var(--design); --pin-t: var(--design-t); }
+html #room [data-component="focus-doc"] [data-component="pin"]:has([data-component="pin-reply"]:first-child[data-seat="research"]) { --pin: var(--research); --pin-t: var(--research-t); }
+html #room [data-component="focus-doc"] [data-component="pin"]:has([data-component="pin-reply"]:first-child[data-seat="data"]) { --pin: var(--data); --pin-t: var(--data-t); }
+html #room [data-component="focus-doc"] [data-component="pin"]:has([data-component="pin-reply"]:first-child[data-seat="strategy"]) { --pin: var(--strategy); --pin-t: var(--strategy-t); }
+html #room [data-component="focus-doc"] [data-component="pin"]:has([data-component="pin-reply"]:first-child[data-seat="engineering"]) { --pin: var(--engineering); --pin-t: var(--engineering-t); }
+html #room [data-component="focus-doc"] [data-component="pin"] > [data-slot="mark"] { position: absolute; inset: 0; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--pin);
+  box-shadow: 0 0 0 2px var(--sheet), 1px 2px 3px rgba(60,35,15,.35); animation: pfd-pin .5s var(--ease-land) both; transition: scale .4s var(--ease-land); }
+html #room [data-component="focus-doc"] [data-component="pin"] > [data-slot="count"] { display: none; }
+html #room [data-component="focus-doc"] [data-component="pin"][data-state="folded"] > [data-slot="mark"] { scale: .62; }
+html #room [data-component="focus-doc"] [data-component="pin"]:hover > [data-slot="mark"] { scale: 1; }
+/* the replies: a short inked note beside the pin, readable for a few seconds, then it folds into the pin */
+html #room [data-component="focus-doc"] [data-component="pin"] > [data-slot="replies"] { position: absolute; left: 36px; top: -14px; width: 300px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+html #room [data-component="focus-doc"] [data-component="pin-reply"] { position: relative; display: block; padding: 11px 15px 13px; pointer-events: auto; transform-origin: 0 20px;
+  background: #FFFDF8; border-radius: 6px 18px 18px 18px; box-shadow: 0 0 0 1.4px rgba(51,38,28,.7), 3px 4px 0 -1px var(--pin, var(--ink-3)), var(--shadow-sm);
+  transition: opacity .6s ease, scale .6s var(--ease-glide), translate .6s var(--ease-glide); }
+html #room [data-component="focus-doc"] [data-component="pin-reply"] > [data-slot="who"] { display: block; margin-bottom: 3px; font: 500 14px/1.2 var(--ui); color: var(--pin-t, var(--ink-2)); }
+html #room [data-component="focus-doc"] [data-component="pin-reply"] > [data-slot="text"] { display: block; font: italic 400 19px/1.38 var(--display); color: var(--ink); }
+html #room [data-component="focus-doc"] [data-component="pin-reply"][data-state="fading"] { opacity: 0; scale: .25; translate: -26px 0; }
+html #room [data-component="focus-doc"] [data-component="pin-reply"][data-state="folded"] { display: none; }
+/* a pin near the work's right edge keeps its note inside the document: the note opens to the left */
+html #room [data-component="focus-doc"] :is([data-node]:last-child, [data-node]:nth-last-child(2), [data-node]:nth-last-child(3)) > [data-component="pin"] > [data-slot="replies"],
+html #room [data-component="focus-doc"] [data-slot="work"] > [data-component="pin"] > [data-slot="replies"] { left: auto; right: 36px; }
+html #room [data-component="focus-doc"] :is([data-node]:last-child, [data-node]:nth-last-child(2), [data-node]:nth-last-child(3)) > [data-component="pin"] [data-component="pin-reply"],
+html #room [data-component="focus-doc"] [data-slot="work"] > [data-component="pin"] [data-component="pin-reply"] { border-radius: 18px 6px 18px 18px; transform-origin: 100% 20px; }
+
+/* "Read the conversation": a quiet inked link with the speakers' dots, never a button block */
+html #room [data-component="focus-doc"] [data-slot="read-conversation"] { grid-row: 6; justify-self: start; margin-top: 16px; padding: 4px 0 4px 34px; font: 500 16px/1.2 var(--ui); color: var(--ink-2);
+  border: 0; border-radius: 0; box-shadow: none; cursor: pointer; text-align: left;
+  background: radial-gradient(circle at 6px 50%, var(--product) 5px, transparent 5.5px) 0 0 / 30px 100% no-repeat, radial-gradient(circle at 15px 50%, var(--design) 5px, transparent 5.5px) 0 0 / 30px 100% no-repeat,
+    radial-gradient(circle at 24px 50%, var(--engineering) 5px, transparent 5.5px) 0 0 / 30px 100% no-repeat, linear-gradient(currentColor, currentColor) 34px 100% / calc(100% - 34px) 1.2px no-repeat; }
+html #room [data-component="focus-doc"] [data-slot="read-conversation"]:hover { color: var(--ink); }
+html #room [data-component="focus-doc"] [data-slot="chimes"] { grid-row: 7; margin-top: 12px; gap: 12px; max-width: none; max-height: 34vh; overflow: auto; scrollbar-width: thin; padding: 4px 8px 8px 2px; }
+/* each line of the conversation is a small note on paper (painted.css draws it), its crayon in the teammate's ink */
+html #room [data-component="focus-doc"] [data-component="chime"] { display: block; padding: 10px 14px 12px; border-radius: 6px 16px 16px 16px; --pp: #FFFDF8; --cx: 3px; --cy: 4px; --crot: .4deg; }
+html #room [data-component="focus-doc"] [data-component="chime"] > [data-slot="who"] { display: block; grid-column: auto; margin-bottom: 2px; font: 500 14px/1.2 var(--ui); color: var(--ct, var(--ink-2)); }
+html #room [data-component="focus-doc"] [data-component="chime"] > [data-slot="text"] { display: block; grid-column: auto; font: 400 18px/1.4 var(--display); color: var(--ink); }
+
+/* the team reading her words: a quiet live line; the teammates' dots breathe, no ring, no glow */
+html #room [data-component="focus-doc"] [data-component="team-reading"] { grid-row: 9; margin-top: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
+html #room [data-component="focus-doc"] [data-component="team-reading"][data-state="idle"],
+html #room [data-component="focus-doc"] [data-component="team-reading"][data-state="heard"] { display: none; }
+html #room [data-component="focus-doc"] :is([data-component="team-reading"] [data-slot="team"], aside > [data-slot="team"]) { display: flex; align-items: center; gap: 10px;
+  font: 500 16px/1.35 var(--ui); color: var(--ink-2); text-transform: none; letter-spacing: 0; }
+html #room [data-component="focus-doc"] aside > [data-slot="team"] { grid-row: 9; margin-top: 14px; }
+html #room [data-component="focus-doc"] :is([data-component="team-reading"] [data-slot="team"], aside > [data-slot="team"]):empty { display: none; }
+html #room [data-component="focus-doc"] :is([data-component="team-reading"] [data-slot="team"], aside > [data-slot="team"])::before { content: ''; flex: none; width: 34px; height: 12px; border: 0; border-radius: 0;
+  background: radial-gradient(circle at 6px 50%, var(--research) 5px, transparent 5.5px), radial-gradient(circle at 17px 50%, var(--design) 5px, transparent 5.5px), radial-gradient(circle at 28px 50%, var(--engineering) 5px, transparent 5.5px); }
+html #room [data-component="focus-doc"] [data-component="team-reading"][data-state="reading"] [data-slot="team"]::before { animation: pfd-breathe 1.8s ease-in-out infinite; }
+html #room [data-component="focus-doc"] [data-component="team-reading"]:is([data-state="slow"], [data-state="failed"]) [data-slot="team"] { color: var(--ink); }
+html #room [data-component="focus-doc"] [data-component="team-reading"]:is([data-state="slow"], [data-state="failed"]) [data-slot="team"]::before { opacity: .55; }
+html #room [data-component="focus-doc"] [data-component="team-reading"] [data-slot="retry"] { font: 500 15px/1 var(--ui); color: var(--ink); background: var(--sheet); border: 0; padding: 9px 16px; cursor: pointer;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 0 0 0 1.3px rgba(51,38,28,.65), 2px 3px 0 -1px rgba(160,128,96,.7); }
+
+/* the takeaways: her paper card, in her voice, rewordable (painted.css draws the paper; its colours are set here) */
+html #room [data-component="focus-doc"] [data-component="takeaways"] { grid-row: 8; margin-top: 18px; padding: 20px 22px 18px; gap: 12px; display: flex; flex-direction: column;
+  max-height: 52vh; overflow: auto; scrollbar-width: thin;
+  border-radius: 20px 16px 22px 15px / 16px 22px 15px 20px; --pp: #FFF8F6; --cc: var(--cr-product, var(--product)); --cx: 5px; --cy: 6px; --crot: .6deg;
+  animation: pfd-in .6s var(--ease-land) both; }
+html #room [data-component="focus-doc"] :is([data-component="takeaways"], form, [data-component="team-reading"], [data-slot="chimes"], [data-slot="read-conversation"])[hidden] { display: none; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] > [data-slot="head"] { font: 500 15px/1 var(--ui); color: var(--product-t); }
+html #room [data-component="focus-doc"] [data-component="takeaways"] > div { display: flex; flex-direction: column; gap: 4px; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="label"] { font: 500 14px/1.2 var(--ui); color: var(--ink-2); text-transform: none; letter-spacing: 0; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] :is([data-slot="believe"], [data-slot="guidance"]) { margin: 0; font: 400 19px/1.38 var(--display); color: var(--ink); outline: 0; border-radius: 6px; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="believe"] { font: italic 400 21px/1.34 var(--display); }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [contenteditable="true"]:focus { box-shadow: 0 2px 0 var(--product-t); }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="keep"] { align-self: flex-start; font: 500 16px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 10px 20px;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 3px 4px 0 -1px rgba(210,122,141,.85); }
+
+/* ---------- smaller windows: a narrower column, calmer type ---------- */
+@media (max-width: 1500px) {
+  html #room [data-component="focus-doc"] { grid-template-columns: minmax(0, 1fr) 380px; column-gap: 26px; padding: 20px 26px 24px; inset: 14px 20px; }
+  html #room [data-component="focus-doc"] [data-slot="question"] { font-size: 34px; margin: 8px 0 16px; }
+  html #room [data-component="focus-doc"] [data-slot="claim"] { font-size: 27px; }
+  html #room [data-component="focus-doc"] [data-slot="work"] [data-node] { font-size: 17px; padding: 10px 14px; }
+  html #room [data-component="focus-doc"] [data-component="pin"] > [data-slot="replies"] { width: 260px; }
+  html #room [data-component="focus-doc"] [data-slot="input"] { min-height: 80px; }
+}
+
+/* ---------- motion: paper landing, no overshoot ---------- */
+@keyframes pfd-in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@keyframes pfd-fade { from { opacity: .2; } to { opacity: 1; } }
+@keyframes pfd-pin { from { opacity: 0; scale: 1.6; translate: 0 -10px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+@keyframes pfd-listen { 0%, 100% { box-shadow: 0 0 0 0 rgba(210,122,141,.45); } 50% { box-shadow: 0 0 0 7px rgba(210,122,141,.18); } }
+@keyframes pfd-breathe { 0%, 100% { scale: 1; opacity: .75; } 50% { scale: 1.08; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="focus-doc"] * { animation: none !important; transition: none !important; } }

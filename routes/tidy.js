@@ -27,7 +27,8 @@ export default [
     const text = String(body?.text ?? '').slice(0, 2000);
     if (!text.trim()) return sendJson(res, 400, { error: 'text required' });
     const run = /^[\w-]{1,80}$/.test(String(body?.run || '')) && validRun(body.run) ? body.run : null;
-    const r = await tidyText({ text, run });
+    const field = body?.field === 'intro' ? 'intro' : null; // her own line: tidy may clean it, never change its words
+    const r = await tidyText({ text, run, field });
     return sendJson(res, 200, { text: r.text, tidied: r.tidied });
   } },
 ];

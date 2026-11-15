@@ -32,10 +32,11 @@ after(async () => { await browser?.close(); srv?.kill(); fs.rmSync(RUNS, { recur
 async function card(tag, { tidyMs = 0, look = '' } = {}) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = []; page.on('pageerror', e => errors.push(String(e)));
-  const calls = { tag: 0, tidy: 0 };
+  const calls = { tag: 0, tidy: 0, parts: [] };
   await page.route('**/api/tidy', async r => { calls.tidy++; await new Promise(f => setTimeout(f, tidyMs)); await r.fulfill({ status: 200, json: { text: JSON.parse(r.request().postData()).text, tidied: false } }); });
-  await page.route('**/api/name-tag', async r => { calls.tag++; await tag(r, calls.tag); });
+  await page.route('**/api/name-tag', async r => { calls.tag++; calls.parts.push(JSON.parse(r.request().postData() || '{}').part || 'full'); await tag(r, calls.tag); });
   await page.goto(BASE + '/' + look);
+  await page.evaluate(() => BYOC.on('tag.profile', () => { window.__profile = { after: document.querySelector('.nt-paper')?.dataset.state === 'shown' || !!(BYOC.herTag && BYOC.herTag.title) }; }));
   await page.waitForFunction(() => window.BYOC && BYOC.introOpen && BYOC.introOpen(), null, { timeout: 8000 });
   await page.fill('#nt-name', 'Priya');
   await page.click('.pick-option[data-pick="product"]');
@@ -72,7 +73,10 @@ for (const [lookName, look] of LOOKS) {
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
     assert.match(await page.textContent('.nt-paper'), /Priya, the Journey Mapper/);
     assert.equal(await page.textContent('.nt-make'), 'Meet your team');
-    assert.equal(calls.tag, 1);
+    // Two calls: the card she waits on, then the rest in the background (its event lands after the card).
+    await page.waitForFunction(() => window.__profile, null, { timeout: 5000 });
+    assert.deepEqual(calls.parts, ['card', 'more']);
+    assert.ok(await page.evaluate(() => window.__profile.after), 'the profile arrives after the card');
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => BYOC.beat === 1, null, { timeout: 3000 });
     assert.deepStrictEqual(errors, []);
@@ -147,8 +151,8 @@ test('after the mic (her words land through BYOC.typeInto), Enter still makes th
   await page.close();
 });
 
-test('painted: after the team, her idea input is on screen and focused (a look never hides it), and typing goes into it', async () => {
-  const { page } = await card(ok(0), { look: '?look=painted' });
+for (const [lookName, look] of LOOKS) test(`${lookName}: after the team, her idea input is on screen and focused (a look never hides it), and typing goes into it`, async () => {
+  const { page } = await card(ok(0), { look });
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
   await page.keyboard.press('Enter');

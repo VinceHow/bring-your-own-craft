@@ -67,20 +67,21 @@ if (onPath) {
 // with its time. An older Claude Code that doesn't know a flag is said here; the server drops it and carries on.
 if (onPath && (process.env.MODEL_BACKEND || 'claude-code') === 'claude-code') {
   const M = await import('../lib/model.js');
-  const { TAG_MODEL, TAG_EFFORT, TAG_LIMIT_MS } = await import('../lib/tag.js');
+  const { TAG_MODEL, TAG_LIMIT_MS, tagCard } = await import('../lib/tag.js');
   process.env.MODEL_QUIET = '1'; // the doctor says it in its own words below
   const t0 = Date.now();
   let ok = false, why = '';
+  // The real thing: her name tag's card call (its own prompt, schema, model and limit), so a slow tag shows here.
   try {
-    await M.callModel({ system: 'Reply with JSON.', user: 'Say ok.', schema: { type: 'object', properties: { ok: { type: 'string' } }, required: ['ok'] },
-      model: TAG_MODEL, effort: TAG_EFFORT, timeoutMs: TAG_LIMIT_MS, label: 'doctor' });
-    ok = true;
+    const r = await tagCard('I love talking to customers and turning what they say into what we build', { callModel: M.callModel });
+    ok = !r.body.rough; if (!ok) why = short(r.body.error || 'no card');
   } catch (e) { why = short(e); }
+  if (ok && Date.now() - t0 > 8000) { ok = 'warn'; }
   delete process.env.MODEL_QUIET;
   const secs = ((Date.now() - t0) / 1000).toFixed(1);
   const dropped = [...M.droppedFlags];
-  say(ok ? (dropped.length ? 'warn' : true) : false,
-    ok ? `The room's call works (${TAG_MODEL}, JSON schema, through lib/model.js): ${secs} s of ${TAG_LIMIT_MS / 1000} s allowed${dropped.length ? `, but this Claude Code doesn't know ${dropped.join(', ')}` : ''}`
+  say(ok ? (dropped.length || ok === 'warn' ? 'warn' : true) : false,
+    ok ? `The room's call works (her name tag's card, ${TAG_MODEL}, through lib/model.js): ${secs} s of ${TAG_LIMIT_MS / 1000} s allowed${ok === 'warn' ? ' (slow: her rough card shows first, the team fills it in)' : ''}${dropped.length ? `, but this Claude Code doesn't know ${dropped.join(', ')}` : ''}`
       : `The room's call failed after ${secs} s: ${why}`,
     dropped.length ? 'update Claude Code: npm i -g @anthropic-ai/claude-code (the room drops the flag and carries on, but slower)'
       : 'run `claude` in a terminal and log in; if it keeps failing or is slow, set MODEL_BACKEND=fal in .env.local');
