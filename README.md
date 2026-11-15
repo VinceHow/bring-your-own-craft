@@ -27,7 +27,7 @@ judgement (taste, expertise, craft) and our joy, the part of the work we'd do ev
 
 ![Slide 5, the vision: 90% of your time on the craft you love, over the painted studio](docs/readme/slides/05-the-vision.jpg)
 So I built a team that works that way. You take the seat of your craft; agents take every other seat, do their own
-work, and bring you only the few big questions that are in your craft. The result is what I wanted all along: 90% of
+work, and bring you only the few big questions about what you love, your craft among them. The result is what I wanted all along: 90% of
 your time on the craft you love, in flow.
 
 ![Slide 6, how it feels: four real clips of the product](docs/readme/slides/06-how-it-feels.jpg)
@@ -53,12 +53,12 @@ Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `t
 ## What I built
 **Bring Your Own Craft** is a hand-painted studio where you take the seat of your craft, and a team of AI agents fills every other seat: **Mika** (Design), **Wren** (Research), **Theo** (Data), **Ines** (Strategy) and **Bo** (Engineering).
 
-You say your idea in one rough sentence and meet your team. They get to know you, handle their own work, and bring you **only the few big questions that need your expertise**. Your app builds as you decide.
+You say your idea in one rough sentence and meet your team. They get to know you, handle their own work, and bring you **only the few big questions about what you love**. Your app builds as you decide.
 
 What it feels like:
 - **You stay in your craft.** Whatever sits outside it, the team settles itself, so your time goes to what you care about.
-- **You're asked about what you love.** The questions that reach you are in your craft, with the work in front of
-  you, so you react instead of starting from a blank page.
+- **You're asked about what you love.** The questions that reach you are the parts of the work you love, your craft
+  among them, with the work in front of you, so you react instead of starting from a blank page.
 - **Your words are kept.** Say it out loud, ums and all; the team tidies it without changing what you meant, and
   builds on it.
 - **You watch your app take shape**, a new version each time you decide something.
@@ -72,7 +72,7 @@ shape the app.
 <summary>The details</summary>
 
 - **Only the big questions.** The team proposes decisions as it works. A selector ranks every one and brings you only
-  what's big and in your craft; the team settles the rest itself and says why, citing what it knows about you. On
+  what's big and about what you love (your craft is part of that); the team settles the rest itself and says why, citing what it knows about you. On
   stage the three moments are set so the talk fits three minutes (who the bakery is for, when orders close, how it
   should feel); everything inside them is live, including Wren's research, found live with Linkup.
 - **A real meeting.** You speak in pieces, and a careful tidy removes the ums but keeps your words. **Send** starts a
