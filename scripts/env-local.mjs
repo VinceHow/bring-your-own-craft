@@ -5,6 +5,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const KEYS = ['FAL_KEY', 'ELEVENLABS_API_KEY', 'LINKUP_API_KEY', 'ADMIN_TOKEN', 'MODEL_BACKEND'];
+// The route: which model each fast role uses on the Claude Code backend. Not secrets (names like "sonnet"), so they're
+// printed by value. Fallback B (docs/REHEARSAL.md): on a company gateway where "haiku" is slow, all six go to sonnet.
+export const ROUTE_VARS = ['TAG_MODEL', 'THREAD_MODEL', 'JOINT_MODEL', 'FIRST_MODEL', 'GUEST_MODEL', 'TIDY_MODEL'];
+// The first line `npm run local` and `npm run doctor` print: the active route, and a WARN when fal is on with sonnet
+// overrides (on fal those make the fast roles run on sonnet, slower). Only route names and values, never a key.
+export function routeLine(env = process.env) {
+  const backend = env.MODEL_BACKEND || 'claude-code';
+  const set = ROUTE_VARS.filter(k => env[k]);
+  const pairs = set.map(k => `${k}=${env[k]}`);
+  const sonnet = set.filter(k => /sonnet/i.test(env[k]));
+  if (backend === 'fal') {
+    return { line: `route: fal${pairs.length ? ` (${pairs.join(', ')})` : ''}`,
+      warn: sonnet.length ? `WARN  MODEL_BACKEND=fal with ${sonnet.join(', ')} set to sonnet: on fal the fast roles then run on sonnet and slow down. Comment out the *_MODEL lines in .env.local.` : null };
+  }
+  if (ROUTE_VARS.every(k => /sonnet/i.test(env[k] || ''))) return { line: 'route: claude-code (company gateway: haiku roles → sonnet)', warn: null };
+  return { line: `route: ${backend}${pairs.length ? ` (${pairs.join(', ')})` : ''}`, warn: null };
+}
 export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 export const envFile = () => process.env.ENV_LOCAL_FILE || path.join(ROOT, '.env.local');
 
@@ -28,7 +45,7 @@ export function loadEnvLocal(env = process.env, file = envFile()) {
   if (!fs.existsSync(file)) return { file, found: false, loaded: [], kept: [] };
   const vals = parseEnv(fs.readFileSync(file, 'utf8'));
   const loaded = [], kept = [];
-  for (const k of KEYS) {
+  for (const k of [...KEYS, ...ROUTE_VARS]) {
     if (!(k in vals) || vals[k] === '') continue;
     if (env[k]) { kept.push(k); continue; }
     env[k] = vals[k]; loaded.push(k);

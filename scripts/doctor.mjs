@@ -3,7 +3,7 @@
 import { spawn } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
-import { loadEnvLocal, describe, KEYS, pickPort, portFree, PORT_FROM, PORT_TO } from './env-local.mjs';
+import { loadEnvLocal, describe, routeLine, KEYS, pickPort, portFree, PORT_FROM, PORT_TO } from './env-local.mjs';
 
 // Behind an HTTPS proxy (cloud sessions) Node's fetch needs NODE_USE_ENV_PROXY=1 at start-up, as server.js does.
 if ((process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_USE_ENV_PROXY) {
@@ -26,6 +26,9 @@ const results = [];
 const say = (ok, what, fix) => { results.push(ok); console.log(`${ok === true ? 'PASS' : ok === null ? 'NOTE' : ok === 'warn' ? 'WARN' : 'FAIL'}  ${what}`); if (fix && ok !== true) console.log(`      fix: ${fix}`); };
 const short = (e, n = 140) => scrub(e?.message || e).replace(/\s+/g, ' ').slice(0, n);
 
+const route = routeLine();
+console.log(route.line); // first line: the active route (docs/REHEARSAL.md)
+if (route.warn) { results.push('warn'); console.log(route.warn); }
 console.log(`Bring your own craft: doctor\n${describe(env)}\n`);
 
 // 1. Node
@@ -55,7 +58,7 @@ say(onPath, onPath ? `Claude Code installed (${ver.out.trim().split('\n')[0]})` 
 if (onPath) {
   const t0 = Date.now();
   const r = await run('claude', ['-p', 'Reply with the single word ok.', '--system-prompt', 'You reply with one word.', '--tools', '',
-    '--setting-sources', '', '--strict-mcp-config', '--output-format', 'json', '--no-session-persistence', '--model', 'haiku'], 90000);
+    '--setting-sources', '', '--strict-mcp-config', '--output-format', 'json', '--no-session-persistence', '--model', process.env.TAG_MODEL || 'haiku'], 90000);
   let ok = false, why = '';
   if (r.timeout) why = 'no answer in 90 s';
   else if (r.error) why = short(r.error);
@@ -90,16 +93,18 @@ if (onPath && (process.env.MODEL_BACKEND || 'claude-code') === 'claude-code') {
 }
 
 // 2c. A burst shaped like her Send in a focus moment (b3, beats): four calls at once, as the server fires them:
-// the meeting's reading (sonnet), the first reply (haiku, the line she waits for), Design's redraw (sonnet) and the run
-// of decisions (haiku), all low effort, through lib/model.js. The wall time is what she waits for the whole room; over
+// the meeting's reading (sonnet), the first reply (THREAD_MODEL, default haiku: the line she waits for), Design's redraw
+// (sonnet) and the run of decisions (FIRST_MODEL, default haiku), all low effort, through lib/model.js. The wall time is what she waits for the whole room; over
 // 10 s this laptop is too slow for the live calls (the fix: MODEL_BACKEND=fal in .env.local).
 async function sendBurst(M) {
   const line = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] };
+  // The models the room will use (Fallback B sets these to sonnet on a company gateway).
+  const THREAD = process.env.THREAD_MODEL || 'haiku', FIRST = process.env.FIRST_MODEL || 'haiku';
   const shapes = [
     ['reading (sonnet)', 'sonnet', 'You read what a small business owner said about who her bakery website is for, and sum up what she believes in one sentence, in her voice.'],
-    ['first reply (haiku)', 'haiku', 'You are Noor, the researcher on a small team. React to what she said in one short line (under 15 words). Never a question.'],
+    [`first reply (${THREAD})`, THREAD, 'You are Noor, the researcher on a small team. React to what she said in one short line (under 15 words). Never a question.'],
     ['redraw (sonnet)', 'sonnet', 'You are Design. Redraw a customer journey as 3 to 5 short stage names, from what she said. Reply with the stages joined by " -> " in text.'],
-    ['decisions (haiku)', 'haiku', 'You are a small product team. Name three short product calls her answer settles, joined by "; " in text.'],
+    [`decisions (${FIRST})`, FIRST, 'You are a small product team. Name three short product calls her answer settles, joined by "; " in text.'],
   ];
   const said = "It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.";
   const t0 = Date.now();
