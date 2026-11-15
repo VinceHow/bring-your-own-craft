@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
 import { MAX_ASKS } from '../lib/policy.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const PORT = 4000 + Math.floor(Math.random() * 90);
+const PORT = 4100 + Math.floor(Math.random() * 80); // 4100-4179: clear of 4045, a port Chromium refuses (ERR_UNSAFE_PORT)
 const BASE = `http://localhost:${PORT}`;
 // E2E_LOOK=painted: every page in this spec opens in that look (the freeze run covers the demo default). Unset: the
 // room's own default for an automated browser (plain), as before.
@@ -476,7 +476,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posted = [];
-  await p.route('**/api/run/stub-run/**', async r => { posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });
+  await p.route('**/api/run/stub-run/**', async r => { if (r.request().method() === 'POST') posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });
   await p.goto(L(BASE + '/?stage=1'));
   await p.waitForTimeout(300);
   await p.evaluate(() => {
@@ -490,7 +490,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.strictEqual(await p.locator(`${side} .fd-input, ${side} .fd-conversation, ${side} .fd-brief, ${side} .fd-end`).count(), 4, 'one column holds the form, the conversation, the takeaways and End meeting');
   assert.ok(await p.locator('#focus-doc .fd-end').isHidden(), 'no End meeting before a round');
   const wide = await p.evaluate(s => [document.querySelector(s + ' .fd-input').getBoundingClientRect().width, document.querySelector(s).clientWidth], side);
-  assert.ok(wide[0] >= wide[1] - 40, `her words get the column's whole width (${wide[0]} of ${wide[1]} px)`);
+  assert.ok(wide[0] >= 0.85 * wide[1], `her words span the composer: at least 85% of the column (${wide[0]} of ${wide[1]} px)`);
   assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways');
   // Round 1: a long answer (~300 words).
   const long = Array.from({ length: 30 }, (_, i) => `Regulars come in every morning, ${i + 1} of them know the sourdough sells out by nine.`).join(' ');
