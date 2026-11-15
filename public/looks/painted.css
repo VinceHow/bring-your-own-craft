@@ -1508,11 +1508,28 @@ html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot=
 html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="keep"] { animation: pfd-fade-in .45s ease 1.6s both; }
 @keyframes pfd-fade-in { from { opacity: 0; } to { opacity: 1; } }
 /* the tidy: once the clean line settles, a short pink crayon underline is drawn under it (0.4 s), her signature */
-html.painted-on [data-turn="her"]:has([data-pt-tidy="show"])::after { content: ''; display: block; height: 2px; margin-top: 6px; border-radius: 2px;
-  background: rgba(212,114,136,.8); width: 72px; animation: pt-underline .45s cubic-bezier(.3,.7,.2,1) .25s both; }
+html.painted-on [data-turn="her"]:has(:is([data-tidy="cut"], [data-tidy="reordered"]))::after { content: ''; display: block; height: 2px; margin-top: 6px; border-radius: 2px;
+  background: rgba(212,114,136,.8); width: 72px; animation: pt-underline .4s cubic-bezier(.3,.7,.2,1) 1.25s both; }   /* signed once the pen has done its tidying, and it stays */
 @keyframes pt-underline { from { width: 0; } to { width: 72px; } }
 @media (prefers-reduced-motion: reduce) {
   html #room [data-component="setup"] [data-component="meet-card"], html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"],
   html #room [data-component="focus-doc"] [data-component="takeaways"] *, html #room [data-component="focus-doc"] [data-component="takeaways"] *::after { animation: none !important; }
   html #room [data-component="focus-doc"] [data-component="takeaways"] div:has(> [data-slot="believe"])::after { display: none; }
 }
+
+
+/* ---------- the tidy, lifted (Vincent's "magical tidying"): her ink pen strikes the cut words in turn, lifts, the kept
+   words close up and a short pink underline signs the clean line. painted.js (tidyMoment) moves the pen and marks each
+   struck word; this is how it looks. Everything stays inside her words' own box. ---------- */
+html.painted-on [data-component="tidy-moment"][data-state="go"] [data-slot="word"][data-state="cut"] { background-size: 0 1.5px; opacity: 1; }
+html.painted-on [data-component="tidy-moment"] [data-slot="word"][data-state="cut"] { transition: background-size 100ms linear, max-width .38s cubic-bezier(.3,.7,.2,1) .14s, opacity .16s ease; }
+html.painted-on [data-component="tidy-moment"] [data-slot="word"][data-state="cut"][data-struck] { background-size: 100% 1.5px; color: color-mix(in srgb, currentColor 70%, transparent); }
+html.painted-on [data-component="tidy-moment"][data-state="close"] [data-slot="word"][data-state="cut"] { opacity: 0; }
+html.painted-on [data-component="tidy-moment"] [data-slot="word"]:not([data-state="cut"]) { transition: none; }
+html.painted-on [data-component="tidy-moment"] > [data-slot="pen"] { position: absolute; left: 0; top: 0; width: 26px; height: 26px; pointer-events: none; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg stroke='%2333261C' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 27 L6 19 L22 3 L27 8 L11 24 Z' fill='%23FFF8EE'/%3E%3Cpath d='M18 7 L23 12' fill='none'/%3E%3Cpath d='M3 27 L6 19 L11 24 Z' fill='%2333261C'/%3E%3C/g%3E%3C/svg%3E") 0 0 / contain no-repeat; background-size: contain; opacity: 0; transition: opacity .15s ease; }
+html.painted-on [data-component="tidy-moment"] > [data-slot="pen"][data-state="writing"] { opacity: 1; }
+html.painted-on [data-component="tidy-moment"] > [data-slot="pen"][data-state="lift"] { opacity: 0; translate: 8px -12px; transition: opacity .2s ease, translate .22s ease-out; }
+html.painted-on [data-component="tidy-moment"] > [data-slot="underline"] { position: absolute; height: 2px; width: 72px; border-radius: 2px; background: rgba(212,114,136,.85);
+  animation: pt-underline .4s cubic-bezier(.3,.7,.2,1) both; }
+html.painted-on [data-component="tidy-moment"][data-leave] { transition: opacity .4s ease-out; }

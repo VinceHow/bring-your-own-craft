@@ -382,14 +382,52 @@
     el.offsetParent.appendChild(ov);
     ov.querySelectorAll('[data-slot="word"]').forEach(w => { w.style.maxWidth = w.offsetWidth + 'px'; });   // so the close-up is real
     el.dataset.ptTidy = 'hold';                                    // the field's clean text waits under the overlay
-    requestAnimationFrame(() => requestAnimationFrame(() => { ov.dataset.state = 'go';
-      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; });
-      // the first word left standing takes the clean line's capital as the others close up
-      const first = ov.querySelector('[data-slot="word"]:not([data-state="cut"])');
-      if (first && /^[A-Z]/.test(clean.trim()) && /^[a-z]/.test(first.textContent)) setTimeout(() => { first.style.maxWidth = 'none'; first.textContent = first.textContent[0].toUpperCase() + first.textContent.slice(1); }, 800); }));
-    const total = ov.dataset.tidy === 'cut' ? 1650 : 1000;
-    setTimeout(() => { el.dataset.ptTidy = 'show'; ov.dataset.leave = 'yes'; }, total - 350);
-    setTimeout(() => { ov.remove(); delete el.dataset.ptTidy; }, total + 100);
+    // her ink pen does the tidying (the same pen that writes her name tag): it strikes the cut words in turn, left to
+    // right, lifts, then the kept words close up and a short pink underline signs the clean line. Positions are read
+    // from the overlay's own spans, so it stays inside her words' box.
+    const pen = document.createElement('i'); pen.dataset.slot = 'pen'; ov.appendChild(pen);
+    const at = (x, y) => { pen.style.left = x + 'px'; pen.style.top = (y - 26) + 'px'; };
+    const rel = w => {                                                 // in the overlay's own px (the room is scaled to the window)
+      const o = ov.getBoundingClientRect(), k = o.width / ov.offsetWidth || 1, r = w.getBoundingClientRect();
+      return { x0: (r.left - o.left) / k, x1: (r.right - o.left) / k - 6, y: (r.top - o.top + r.height * .6) / k, h: r.height / k, vis: r.bottom > o.top && r.top < o.bottom }; };
+    const cuts = [...ov.querySelectorAll('[data-slot="word"][data-state="cut"]')];
+    const shown = cuts.filter(w => rel(w).vis).slice(0, 5);         // the pen strikes the first few in view; the rest go with the last
+    // it all fits the 1.7 s the room keeps her paper up after a tidy (room.js TIDY_PAUSE_MS)
+    const STEP = 150, wait = ms => new Promise(r => setTimeout(r, ms));
+    const firstKept = ov.querySelector('[data-slot="word"]:not([data-state="cut"])');
+    const finish = async () => {
+      // the kept words close up; the first one standing takes the clean line's capital
+      cuts.forEach(w => { w.dataset.struck = '1'; });
+      ov.dataset.state = 'close'; cuts.forEach(w => { w.style.maxWidth = '0px'; });
+      if (firstKept && /^[A-Z]/.test(clean.trim()) && /^[a-z]/.test(firstKept.textContent)) setTimeout(() => { firstKept.style.maxWidth = 'none'; firstKept.textContent = firstKept.textContent[0].toUpperCase() + firstKept.textContent.slice(1); }, 420);
+      await wait(260);
+      if (!el.closest('[data-turn]') && firstKept) {                 // her turn signs itself (painted.css); a field gets it here
+        // under the start of the clean line, where it begins once the words have closed up (the field's own padding and line)
+        const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4, u = document.createElement('i'); u.dataset.slot = 'underline';
+        Object.assign(u.style, { left: parseFloat(cs.paddingLeft) + 'px', top: (parseFloat(cs.paddingTop) + lh - 3) + 'px' }); ov.appendChild(u);
+      }
+      await wait(480);
+      el.dataset.ptTidy = 'show'; ov.dataset.leave = 'yes';
+      await wait(420); ov.remove(); delete el.dataset.ptTidy;
+    };
+    if (ov.dataset.tidy !== 'cut' || !shown.length) {
+      // reordered (or nothing in view to strike): the pen writes along the clean line while the raw one dissolves
+      const r = firstKept ? rel(firstKept) : { x0: 14, y: 26 };
+      at(r.x0, r.y); requestAnimationFrame(() => requestAnimationFrame(() => { ov.dataset.state = 'go'; pen.dataset.state = 'writing'; pen.style.transition = 'left .8s cubic-bezier(.45,.1,.55,.95)'; at(Math.min(ov.clientWidth - 40, r.x0 + 260), r.y); }));
+      (async () => { await wait(900); pen.dataset.state = 'lift'; await wait(200); await finish(); })();
+      return;
+    }
+    (async () => {
+      const r0 = rel(shown[0]); at(r0.x0 - 8, r0.y);
+      await wait(60); pen.dataset.state = 'writing'; ov.dataset.state = 'go';
+      for (const w of shown) {
+        const r = rel(w);
+        pen.style.transition = 'left 50ms ease-out, top 50ms ease-out'; at(r.x0, r.y); await wait(50);
+        pen.style.transition = 'left 100ms linear'; w.dataset.struck = '1'; at(r.x1, r.y); await wait(STEP - 50);
+      }
+      pen.dataset.state = 'lift'; await wait(140);
+      await finish();
+    })();
   }
   new MutationObserver(ms => { for (const m of ms) { const el = m.target; if (el.matches && el.matches(TIDY_FIELDS) && el.dataset.state === 'tidied' && m.oldValue === 'tidying') tidyMoment(el); } })
     .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-state'], attributeOldValue: true });
