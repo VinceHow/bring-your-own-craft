@@ -55,7 +55,7 @@ test('two rounds of discussion, no takeaways until End meeting; End reads all he
   assert.equal((await end({ run, askId: 'q1', callModel: fake })).code, 409, 'End once');
 });
 
-test('five rounds on one ask are still one ask: rounds never touch the policy or the cap', async () => {
+test('five rounds on one ask are still one ask: rounds never touch the policy or its safety ceiling', async () => {
   const { run } = newRun();
   for (let i = 1; i <= 5; i++) assert.equal((await round({ run, askId: 'q1', text: `Round ${i} words.`, callModel: fake, wait: true })).code, 200);
   await end({ run, askId: 'q1', callModel: fake });

@@ -636,7 +636,7 @@ test('2e. the build press (stubbed, audit F1): painted, one forward from the wor
   await p.close();
 });
 
-test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async t => {
+test('3. the close: a real judge idea; contrast first, then the questions that reached her, then her M from the log, then the last line', async t => {
   // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   await page.keyboard.press('Escape');

@@ -1,4 +1,4 @@
-// The selector and its cap. Offline: a fake model is injected; nothing here touches the network except the one
+// The selector, and its hidden safety ceiling (a backstop, never a promise). Offline: a fake model is injected; nothing here touches the network except the one
 // test marked LIVE, which runs only with LIVE=1.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -36,7 +36,7 @@ function fakeModel({ score, decide, team, soundsLike } = {}) {
 // newRunId is millisecond-based; two in the same ms collide, so tests add a random part.
 const newRun = () => { const r = newRunId(`t-${Math.random().toString(36).slice(2, 10)}`); initTaste(r); return r; };
 
-test('a fourth never gets through: 10 strong candidates, at most 3 asks', async () => {
+test('safety ceiling: even with 10 strong candidates, the hidden ceiling holds', async () => {
   const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
   const run = newRun();
   const r = await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs, callModel: fakeModel() });
@@ -48,7 +48,7 @@ test('a fourth never gets through: 10 strong candidates, at most 3 asks', async 
   assert.deepEqual([done.came, done.brought], [10, 3]);
 });
 
-test('a fourth never gets through: whatever max is passed, and over random scores', () => {
+test('safety ceiling: holds whatever max is passed, and over random scores', () => {
   const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
   const scores = new Map(strongScores(cs).scores.map(s => [s.id, s]));
   for (const max of [3, 4, 10, Infinity, NaN, undefined]) assert.ok(pickAsks(cs, scores, { max, flow }).picks.length <= 3, `max=${max}`);
@@ -61,7 +61,7 @@ test('a fourth never gets through: whatever max is passed, and over random score
   }
 });
 
-test('a fourth never gets through: the door re-counts the log, across selector runs on the same run', async () => {
+test('safety ceiling: the door re-counts the log, across selector runs on the same run', async () => {
   const run = newRun();
   const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
   await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs.slice(0, 5), callModel: fakeModel() });

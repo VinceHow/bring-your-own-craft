@@ -82,7 +82,7 @@ test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward ke
   await p.close();
 });
 
-test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build press says "no page" quietly', async () => {
+test('2. a run in her own craft: sketch, team, only check-ins that pass the bar (within the safety ceiling), the build press says "no page" quietly', async () => {
   // She sat in her own craft's seat in step 1; the team assembles and she goes straight to her idea.
   await waitFor(() => document.activeElement?.id === 'her-input', 40000, 'her sheet');
   assert.ok(await page.locator('.seat-product .card-diy').count(), 'her card in her seat, in her own craft');
@@ -99,7 +99,7 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 150000, 'the team');
   const evs = await events();
   const asks = evs.filter(e => e.type === 'ask');
-  assert.ok(asks.length <= 3, `at most 3 check-ins, got ${asks.length}`);
+  assert.ok(asks.length <= 3, `within the hidden safety ceiling, got ${asks.length}`);
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
     // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
