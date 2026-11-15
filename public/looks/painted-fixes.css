@@ -302,3 +302,10 @@ html body #room #inbox[data-state="open"][data-view="action"]:has([data-componen
 @keyframes pf-sheet-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(14px); visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
   html body #room #inbox[data-state="open"][data-view="action"]:has([data-component="inbox-action"][data-state="yes"]) { animation: none; opacity: 0; visibility: hidden; } }
+/* ---- AUDIT #2: the open inbox never shows a scrollbar ----
+   The open sheet is a scroll box (inbox.js) and its painted crayon frame sits past its edges, so at every size it
+   "overflowed" by its own frame (1536x884 in 1520x860) and a Mac showed scrollbars. The sheet clips instead, with a
+   margin wide enough for the frame; its list (the drawer) is the one place that scrolls, and only when it truly runs
+   long. On Bo's page the card is all there is, so its slot never scrolls (the card's own shadow made it 15px "long"). */
+html body #room #inbox[data-state="open"] { overflow: clip !important; overflow-clip-margin: 24px; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { overflow: visible !important; }
