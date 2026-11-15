@@ -163,6 +163,7 @@ if (tryKey('LINKUP_API_KEY')) await call('Linkup (search)', async () => {
   return r.ok ? true : `HTTP ${r.status} ${short(t, 100)}`;
 }, 'check LINKUP_API_KEY in .env.local; Research falls back to its prepared finding without it');
 // Wren's Focus 1 finding found live (lib/live-finding.js) when Linkup answers; otherwise the prepared one. Never the key.
+console.log(`NOTE  app v1 on Team, go: ${process.env.APP_V1 === '0' ? 'off (APP_V1=0: her press builds v1)' : 'on (APP_V1=0 turns it off)'}`);
 console.log(`NOTE  live research: ${tryKey('LINKUP_API_KEY') && results.at(-1) === true ? 'on' : 'off (prepared finding)'}`);
 
 }
