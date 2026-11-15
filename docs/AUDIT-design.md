@@ -1,6 +1,6 @@
 # Audit
 
-> Evidence paths below (`design/studio/qa/...`) live on branch `design/qa` (commit be31af5); the 58 MB of shots were kept off `main`. This file was `docs/AUDIT.md` there.
+> Evidence paths below (`design/studio/qa/...`) live on branch `design/qa` (commit c859d11); the screenshots were kept off `main`. This file was `docs/AUDIT.md` there.
 
 
 ## [design]
@@ -19,13 +19,15 @@
 
 | # | FAIL | Where | Evidence | Owning files | Owner |
 |---|---|---|---|---|---|
-| 1 | The teammates' name pills overlap while the team works: Theo's pill, wider with its thinking dots, covers the end of Noor's by 27×13px | all sizes, day and night | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | room.js · looks/painted-room.css | living designer |
-| 2 | The inbox, open as a sheet, scrolls on a Mac (1526×884 of content in 1510×860); the unblock drawer slot scrolls too (326 in 311 asking, 390 in 376 speaking), and the speaking card's frame is cut by 10px | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/08-drawer.jpg`, `design/studio/qa/audit-0430/painted/1920x1130-day/11-unblock-asking.jpg` | inbox.js · looks/painted.css | bug fixer |
-| 3 | The takeaways text sits 0px from its card edge (Focus 1 and Focus 2) | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/09-focus1-takeaways.jpg` | focus-doc.js · looks/painted-focus.css | bug fixer |
-| 4 | Bo's full pad: its items list scrolls (477 in 290) and is not the intended scroll column | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/07-engineering-full.jpg` | room.js · looks/painted.css | bug fixer |
-| 6c | The room offers 8+ clickables at once: the time pill, each journey chip as a button, the tally counter, the inbox | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | idea-sheet.js, flow.js · looks/painted.css | bug fixer |
+| 1 | The teammates' name pills overlap while the team works: Theo's pill, wider with its thinking dots, covers the end of Noor's by 27×13px | all sizes, day and night | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | room.js · looks/painted-room.css | living designer · **FIXED** on d4e94d3 (re-walked 1920/1440/1280: 0 overlaps; `design/studio/qa/audit-0430/recheck/pills-d4e94d3.jpg`) |
+| 2 | The inbox, open as a sheet, scrolls on a Mac (1526×884 of content in 1510×860); the unblock drawer slot scrolls too (326 in 311 asking, 390 in 376 speaking), and the speaking card's frame is cut by 10px | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/08-drawer.jpg`, `design/studio/qa/audit-0430/painted/1920x1130-day/11-unblock-asking.jpg` | inbox.js · looks/painted.css | bug fixer · **FIXED** on 1922da3 (re-walked 1920/1440/1280: no scrollbar on the open inbox or the unblock slot; a 2px frame shave remains, minor) |
+| 3 | The takeaways text sits 0px from its card edge (Focus 1 and Focus 2) | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/09-focus1-takeaways.jpg` | focus-doc.js · looks/painted-focus.css | bug fixer · **FIXED** on 1922da3 (by eye: ~30px of padding inside the card; the 0px reading is an inner background box; `design/studio/qa/audit-0430/recheck/takeaways-edge-1922da3.jpg`) |
+| 4 | Bo's full pad: its items list scrolls (477 in 290) and is not the intended scroll column | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/07-engineering-full.jpg` | room.js · looks/painted.css | bug fixer · **FIXED** on 1922da3 (re-walked: Bo's full pad no longer scrolls its list) |
+| 6c | The room offers 8+ clickables at once: the time pill, each journey chip as a button, the tally counter, the inbox | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | idea-sheet.js, flow.js · looks/painted.css | bug fixer · **FIXED** on c91602c (team working: the idea card is just the idea, clickables down from 8 to 3: the pill, the inbox, the tally; right after the first sketch the chips are the one thing on screen, by design (the lead, 05:39), and they fold away once the team starts; `design/studio/qa/audit-0430/recheck/6c-F2-c91602c.jpg`) |
 | 7 | Bo's smile on Yes is flat: a large blank sheet flashes before the room returns (the smile's size at room scale is a scale limit and is accepted) | 1920 | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | inbox.js · looks/painted.js | bug fixer (the flash only) |
-| 8 | At 1440 and 1280, her page sheet (idea-layer / page-frame) runs 26px off the left edge, cutting its border and the "page" label | 1440, 1280; day and night | `design/studio/qa/audit-0430/painted/1440x900-day/13-her-page-open.jpg` | room.js · looks/painted.css | (to route) |
+| 8 | At 1440 and 1280, her page sheet (idea-layer / page-frame) runs 26px off the left edge, cutting its border and the "page" label | 1440, 1280; day and night | `design/studio/qa/audit-0430/painted/1440x900-day/13-her-page-open.jpg` | room.js · looks/painted.css | painted-UI designer · **FIXED** on 1922da3 (re-walked 1440/1280/1920: 0 off-screen; the sheet keeps its border and "Your page" label; `design/studio/qa/audit-0430/recheck/page-edge-1922da3.jpg`, old main bottom right) |
+
+**Later items (the lead's final list):** F2 plain idea card: **FIXED** on c91602c (centred, styled like the name tag; same still). F3 her page edge: **FIXED** on c91602c (0 off-screen at 1440/1280; see #8).
 
 **WON'T FIX, by design** (the design lead, 05:00):
 - **#5, the close is mostly empty:** it is deliberately one field, one mic and one Build it, snug and centred. It's the one-thing screen.
@@ -225,7 +227,7 @@
 | Moment | Score | Strip | Note |
 |---|---|---|---|
 | The door plaque | magical | `design/studio/qa/audit-0430/polish/moment-the-door-plaque-strip.jpg` | the plaque holds, the doors open, then a crossfade into the room; 0px layout shift |
-| The tidy | fine | `design/studio/qa/audit-0430/polish/tidy-idea-strip.jpg`, `design/studio/qa/audit-0430/polish/tidy-focus-strip.jpg` | fillers fade and the line closes up in place, unhurried; 0px shift on the idea, the name tag and Focus 1 |
+| The tidy | **magical** (re-checked on 96d6a9f, design/tidy-pen) | `design/studio/qa/audit-0430/recheck/tidy-pen-idea-96d6a9f.jpg`, `design/studio/qa/audit-0430/recheck/tidy-pen-focus-96d6a9f.jpg` | a small pen strikes through the fillers ("um so like", "you know", "basically"), they fade, the line closes up to her own words in place, then the page moves on; 0px layout shift on the idea, the name tag and Focus 1; still tidied in place on all 4 inputs |
 | The handwritten name tag | magical | `design/studio/qa/audit-0430/painted/1920x1130-day-nametag/` | the pen writes her name, then the title, the traits and the superpower; one size throughout |
 | Each meet card's entrance | fine | `design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-strip.jpg` | a plain fade; the portrait waves |
 | The team getting to work | magical | `design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-strip.jpg` | the light warms, sketches pin up on the shelf, "getting started" captions |
@@ -294,6 +296,19 @@ WON'T FIX rows, by the lead's call: the focus meetings (6b), the app tag, time p
 | app button, ready | PASS | controls 2: “Open the app v1, 3 min ago”, “Cycle tap for day” · competing 0:  · guidance 1: “v1, 3 min ago” |  |
 | app button, new version pulse | PASS | controls 2: “Open the app v2, just now”, “Cycle tap for day” · competing 0:  · guidance 1: “v2, just now” |  |
 | /slides/ | PASS | controls 0:  · competing 0:  · guidance 0:  |  |
+
+### The plain look (`?look=plain`, the fallback), 1920/1440/1280, day and night
+
+The room, the idea sheet and journey, the team working, her page and the setup pages work. The plain look keeps its own bold sticker style: weight 600 throughout, no night grade. The fallback is not held to the painted taste rules, so its weights and grey buttons are counted, not failed. These break its use:
+
+| # | FAIL | Evidence | Owning files | Owner |
+|---|---|---|---|---|
+| P1 | **The meeting is stuck in plain.** After her first Send, the right column loses the field, Send, End meeting and the conversation; only the help line stays. The team's replies land as raw lines inside the research card, with a stray count ("2", "6"). She cannot see how to send another round or end the meeting. (The takeaways do show once End meeting is triggered.) | `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1.jpg` (before Send, fine), `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r1.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r3.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1-takeaways.jpg` | focus-doc.js · room.css / polish.css (the meeting column has no plain styles) | (to route) |
+| P2 | **The unblock card is unstyled in plain.** It's a full white sheet with a grey browser-default "Back to the room" bar, run-together text ("Bo's blockedSetting up ordering") and tiny default Yes / Say something else buttons | `design/studio/qa/audit-0430/plain/1920x1130-day-11-unblock-asking.jpg` | inbox.js · room.css / polish.css | (to route) |
+| P3 | **The inbox drawer is unstyled in plain.** It covers the room as a blank white sheet, with grey default bars ("Close your inbox", the item), a native ▶ and native checkboxes | `design/studio/qa/audit-0430/plain/1920x1130-day-08-drawer.jpg` | inbox.js · room.css / polish.css | (to route) |
+| P4 | The collapsed inbox's "Nothing needs you yet" is a grey ButtonFace button in the room (minor) | `design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg` | inbox.js · room.css | (to route) |
+
+Plain passes: the room (`design/studio/qa/audit-0430/plain/1920x1130-day-03.jpg`), the team working (`design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg`), her page at 1280 (`design/studio/qa/audit-0430/plain/1280x800-day-13-her-page-open.jpg`), and no painted layers loaded.
 
 **Also passing, by size** (no hard flag; evidence under `design/studio/qa/audit-0430/painted/<size>-daynight/`, `<size>-<mode>-nametag/`, `1920x1130-<mode>/extras/`):
 - **Day / night, all 3 sizes:**
