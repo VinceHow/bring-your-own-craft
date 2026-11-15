@@ -28,6 +28,8 @@ His rehearsal and stage fal spend is separate from the $10 test cap. "Check the 
 
 If any step fails, note which, and open `?look=plain` as the fallback (there, after "Team, go", it takes three →
 presses to reach the build, not one).
+   **`?look=plain`: check the meeting after one Send.** If the field and Send/End are missing, the meeting fallback is the
+   **R replay**, not `?look=plain` (design QA, 05:43; a plain-only CSS fix may land by 06:15).
 
 ## Pre-talk checklist
 - **The demo runs on fal** (lead's call, Sun 00:56: on the demo Mac, haiku via Claude Code took over 25 s; fal answers
@@ -91,6 +93,8 @@ MODEL_BACKEND=fal
   team's read fills the card in when it lands (about 1–3 s on fal; up to 25 s on a cold laptop on Claude Code).
 
 ## Fallback notes
+- **`?look=plain` in the meeting:** check it after one Send. If the field and Send/End are missing, the meeting
+  fallback is the **R replay**, not `?look=plain` (design QA, 05:43; design's plain-only CSS fix may land by 06:15).
 - **The bakery clip** (if the proof site won't load): `public/clips/bakery-order.mp4`, served at
   `/clips/bakery-order.mp4` on the running app (649 KB, labelled "Recorded earlier" in the clip). Open it in a new tab and
   play it full screen; say it was recorded earlier.
