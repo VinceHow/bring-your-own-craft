@@ -94,7 +94,7 @@ html body:has(#room[data-setup]:not([data-setup="off"])) [data-component="app-bu
 
 /* ---- The inbox action card ("Bo's blocked") and the drawer around it (Vincent's screenshot, 15 Nov; QA #5) ---- */
 /* the drawer's header no longer repeats what the drawer shows: open, it keeps only "Close your inbox" */
-html body #room [data-component="inbox"][data-state="expanded"] [data-slot="now"] { display: none !important; }
+html body #room [data-component="inbox"]:is([data-state="expanded"], [data-state="open"]) [data-slot="now"] { display: none !important; }
 /* "You said": her words first and roomy; the old suggestion small and struck on its own line above them; the mic inside
    the box at its bottom right, clear of her words */
 html body #room [data-component="inbox-action"] [data-slot="suggestion"] { position: relative; display: flex; flex-direction: column; gap: 4px; }
@@ -129,6 +129,122 @@ html body #room [data-component="owner-task"] [data-slot="tick"]:checked {
   background: var(--ink, #2B1F17) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23FFF6EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 html body #room [data-component="owner-task"] [data-slot="tick"]:focus-visible { outline: 2px solid var(--ink-2, #4E3A2B); outline-offset: 2px; }
 html body #room [data-component="owner-task"] [data-slot="title"], html body .replay-label, html body .replay-label * { font-weight: 500 !important; }
+
+/* ---- The calm room (Vincent: "the screen is so busy"). While the team works and nothing needs her, the room is the
+   painting, the name pills, a small idea glance and, only when something needs her, one quiet inbox note. ---- */
+/* 1. the team space folds to b3's "Team notes · N" tab (team-space.js owns the fold and its click: data-component
+   team-notes, data-state closed | open). Here it's a small ink-paper pill, not a mono box. */
+html body #room [data-component="team-notes"] {
+  display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer; pointer-events: auto;
+  font: 500 15px/1 var(--ui, system-ui, sans-serif); letter-spacing: 0; text-transform: none; color: var(--ink-2, #4E3A2B);
+  background: #FCF5E8; box-shadow: inset 0 0 0 1.2px rgba(74, 48, 32, .55), 2px 3px 0 rgba(196, 154, 98, .6); }
+html body #room [data-component="team-notes"]:hover { color: var(--ink, #2B1E14); }
+html body #room [data-component="team-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
+/* 2. the inbox's bottom note goes away when nothing needs her (it comes back the moment something does) */
+html body #room [data-component="inbox"][data-state="collapsed"][data-needs="no"] { display: none !important; }
+/* 3. the tally: one quiet line, "24 decisions · 3 to you", smaller, in ink-2 (its labels have no data-slot yet, so
+   these read the tally's own two counts by position) */
+html body #room [data-component="tally"] { scale: .82; transform-origin: 100% 0; }
+html body #room [data-component="tally"] > button { display: flex !important; flex-direction: row !important; align-items: baseline; gap: 6px; white-space: nowrap; }
+html body #room [data-component="tally"] > button > span { display: inline-flex; align-items: baseline; gap: 4px; color: var(--ink-2, #4E3A2B); }
+html body #room [data-component="tally"] > button > span > span:last-child { font-size: 0 !important; }
+html body #room [data-component="tally"] > button > span:first-child > span:last-child::after { content: 'decisions ·'; font: 400 15px/1 var(--ui, system-ui, sans-serif); }
+html body #room [data-component="tally"] > button > span:last-child > span:last-child::after { content: 'to you'; font: 400 15px/1 var(--ui, system-ui, sans-serif); }
+/* 4. chatter: small, quiet, at most two, and each fades after about three seconds; Ines's line stays on screen */
+html body #room [data-component="chatter-line"] {
+  max-width: 240px !important; font-size: 14.5px !important; line-height: 1.35 !important; color: var(--ink-2, #4E3A2B) !important; opacity: .92;
+  animation: pf-chatter-out 3.6s ease-in forwards; }
+html body #room [data-component="chatter-line"]::after { box-shadow: none !important; }
+html body #room [data-component="chatter-line"]:nth-last-of-type(n+3) { display: none !important; }
+html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 165px -44px !important; }
+@keyframes pf-chatter-out { 0%, 80% { opacity: .92; } 100% { opacity: 0; visibility: hidden; } }
+/* ---- POLISH 1: the setup pages are calm (her idea, the name tag, meeting the team: #room[data-setup] not off) ----
+   Only the setup paper and the painting behind it: the day / night pill, the toys (the cat, coffee, lights and record
+   player's tap spots, and the record player's pill) and the app tag step away until she's in the room. */
+html body:has(#room[data-setup]:not([data-setup="off"])) :is([data-component="time-pill"], [data-component="toy-track"], [data-spot], [data-component="app-button"]) {
+  visibility: hidden !important; pointer-events: none !important; }
+
+/* ---- her journey, opened large: the arrows meet the middle of their boxes, and the step editor is ink-paper ----
+   flow.js lays the boxes out with a row height (at least 64px) and draws each arrow at that height's middle, but the
+   opened sheet reverted the boxes to their own height (about 42px), so every arrow sat 11px low. Each box now takes one
+   fixed height, the same 64px the layout uses, its label centred and held to two lines. */
+html body #room [data-component="idea-sheet"][data-open="true"] [data-slot="box"] {
+  height: 64px !important; display: flex !important; align-items: center; overflow: hidden; }
+html body #room [data-component="idea-sheet"][data-open="true"] [data-slot="box"] > [data-slot="label"] {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* the step editor (a click on a step, in the reaction beat): a small paper card under the step, an inked underline to
+   type on, and two quiet ink words for strike and add. Was the browser's own input and grey buttons. */
+html body #room [data-component="step-edit"] {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; z-index: 60; min-width: 300px; max-width: 420px;
+  padding: 14px 18px 12px; border: 0; border-radius: 16px 14px 17px 13px / 14px 17px 13px 16px;
+  background: #FCF5E8; color: var(--ink, #2B1E14);
+  box-shadow: inset 0 0 0 1.5px rgba(84, 58, 38, .55), 0 14px 28px -14px rgba(60, 35, 15, .45); }
+html body #room [data-component="step-edit"] [data-slot="input"] {
+  flex: 1 0 100%; width: auto; min-width: 0; margin: 0; padding: 4px 2px 6px; border: 0; border-radius: 0;
+  border-bottom: 2px solid var(--ink, #2B1E14); background: transparent; outline: none;
+  font: 400 19px/1.25 var(--display, Georgia, serif); color: var(--ink, #2B1E14); }
+html body #room [data-component="step-edit"] [data-slot="input"]::placeholder { color: var(--ink-2, #4E3A2B); font-style: italic; opacity: 1; }
+html body #room [data-component="step-edit"] [data-slot="input"]:focus-visible { border-bottom-color: var(--ink, #2B1E14); border-bottom-width: 3px; padding-bottom: 5px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]) {
+  appearance: none; margin: 0; padding: 4px 2px; border: 0; border-radius: 6px; background: none; cursor: pointer;
+  font: 500 15px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]):hover { color: var(--ink, #2B1E14); text-decoration-thickness: 2px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]):focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 2px; }
+html body #room [data-component="step-edit"] [data-slot="strike"] { text-decoration-line: line-through underline; }
+html body #room [data-component="step-edit"] [hidden] { display: none !important; }
+/* ---- #25: the room's small labels at 14px when the room fills the window ----
+   The room is drawn at 1600 x 900 and scaled to the window; on a 1440 or 1280 screen a 13px label landed at 12-12.6px,
+   under the 13px floor. These are the room's 13px labels (measured at 1440 across the demo's beats): each steps up to
+   14px, so it lands at 13.5px on 1440. The labels are short (names, "agent", the journey's step words). */
+html body #room[data-fill="cover"] [data-component="place-card"] [data-slot="agent-mark"],
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) h1,
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] [data-slot="label"],
+html body #room[data-fill="cover"] :is([data-component="inbox"], [data-component="inbox-item"], [data-component="note-flight"], [data-component="chatter-line"]) [data-slot="who"],
+html body #room[data-fill="cover"] [data-component="team-space"] :is([data-slot="mark"], [data-slot="label"]),
+html body #room[data-fill="cover"] [data-component="sketchpad"] [data-slot="tag"],
+html body #room[data-fill="cover"] [data-component="workspace"] [data-slot] > h3 { font-size: 14px !important; }
+/* ---- JANK 2, the last bit: the research card's source link ----
+   Its title and site are inked, but the link itself kept the browser's blue (#0000EE), so the dash before it and the
+   dot between title and site showed as two blue marks on her focus document. The link is ink; its parts keep theirs. */
+html body #room [data-component="research-card"] [data-slot="source"] { color: var(--ink-3, #64503F); text-decoration: none; }
+html body #room [data-component="research-card"] [data-slot="source"]:hover [data-slot="source-title"] { text-decoration: underline; text-underline-offset: 3px; }
+/* while her focus document is open, the app chip ("No app yet") steps back: it sat on the document's bottom-right corner
+   at 1440 and 1280, the one thing over her focus. The Replay / Fake run label stays: it's the honesty label. */
+body:has([data-component="focus-doc"]:not([hidden])) [data-component="app-button"] { display: none !important; }
+/* ---- b3's inbox (15 Nov): one home at the top right, empty | new | open; open = the whole window; Bo's unblock as its
+   own page (data-view="action"). inbox.js owns where it sits and how big it is; this is how it reads, painted. ---- */
+/* open: one paper sheet over the room. A header row (the tally's two counts on the left, "Close your inbox" as a quiet
+   pill on the right), then the drawer as a centred reading column, never a 1,300px-wide card. */
+html body #room #inbox[data-state="open"] {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); align-content: start; gap: 22px 24px;
+  padding: 30px 36px 28px; border-radius: 40px 34px 42px 32px / 34px 42px 32px 40px; }
+html body #room #inbox[data-state="open"] > [data-slot="tally"] { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; margin: 0; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"] {
+  grid-column: 2; grid-row: 1; align-self: center; width: auto !important; height: 40px; padding: 0 18px !important; border: 0 !important; border-radius: 999px;
+  display: inline-flex !important; align-items: center; font: 500 16px/1 var(--ui, system-ui, sans-serif) !important; color: var(--ink, #2B1E14) !important;
+  text-decoration: none !important; background: #FCF5E8 !important; box-shadow: inset 0 0 0 1.4px rgba(74, 48, 32, .6), 2px 3px 0 rgba(196, 154, 98, .55) !important; cursor: pointer; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"]::before { content: '\2190'; margin-right: 8px; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
+html body #room #inbox[data-state="open"] > [data-slot="drawer"] {
+  grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(880px, 100%); max-height: none !important; min-height: 0; overflow: auto;
+  border-top: 0 !important; padding-top: 4px; scrollbar-width: thin; align-self: start; align-content: start; height: auto; }
+/* Bo's unblock, on its own page: the card alone, centred on the sheet, a little larger; Yes is the one dark pill
+   (data-rank primary, or the yes slot until that lands), "Say something else" the quiet one beside it */
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="tally"] { display: none !important; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="toggle"] { grid-column: 1 / -1; justify-self: end; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { align-self: center; width: min(720px, 100%); }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] { padding: 30px 34px 28px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] [data-slot="question"] { font-size: 34px !important; line-height: 1.15; margin: 14px 0 18px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] :is([data-rank="primary"], [data-slot="yes"]) { height: 46px; padding: 0 28px; font-size: 17px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] :is([data-rank="secondary"], [data-slot="say"]) { font-size: 16px; }
+html body #room #inbox [data-component="inbox-action"] [data-rank="primary"] {
+  border: 0; border-radius: 999px; background: var(--ink, #2B1E14); color: #FFFAF3; font-weight: 500; }
+html body #room #inbox [data-component="inbox-action"] [data-rank="secondary"] {
+  border: 0; border-radius: 6px; background: none; color: var(--ink-2, #4E3A2B); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; }
+/* while the inbox is open, nothing in the room shows through it: the app tag and team notes step back */
+body:has(#inbox[data-state="open"]) [data-component="app-button"] { display: none !important; }
+html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { visibility: hidden; }
 
 /* ---- JANK 16: at night the setup pages are night too (TASTE: night is really night) ----
    The idea paper, the name tag and meeting the team sat on the bright, blurred day door while the room behind was the

@@ -22,6 +22,7 @@
   doc.setAttribute('aria-label', 'Your focus');
   doc.innerHTML = `
     <header class="fd-head" data-slot="head"><span class="fd-kicker" data-slot="kicker"></span><span class="fd-by" data-slot="by"></span>
+      <button type="button" class="fd-all" data-slot="all-notes">All notes</button>
       <button type="button" class="fd-close" data-slot="close">Back to the room</button></header>
     <div class="fd-main">
       <div class="fd-work" data-slot="work"></div>
@@ -720,6 +721,8 @@
 
   B.on('build.step', () => { if (B.replay && cur) close(true); });
   $('.fd-close').addEventListener('click', () => close());
+  // "All notes": from this item to her whole inbox (the meeting keeps its place; she comes back to it from there).
+  $('.fd-all').addEventListener('click', () => { close(true); if (B.inbox) B.inbox.expand(true); });
   B.on('reset', () => close(true));
   B.focusDoc = { open, close, isOpen: () => !doc.hidden, openId: () => (cur && !doc.hidden ? cur.id : null), keepBrief, send, endMeeting, meeting: MEETING, mode: () => column().dataset.state };
 })();

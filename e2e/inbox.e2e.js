@@ -52,21 +52,32 @@ const waitFor = (fn, what, arg) => page.waitForFunction(fn, arg, { timeout: WAIT
   .catch(async () => { throw new Error(`timed out after ${WAIT_MS / 1000} s: ${what}; page: ${await snapshot()}`); });
 const ask = (id, seat, by, question) => ({ run: 'stub-run', type: 'ask', id, seat, by, question, artifact: { kind: 'journey' } });
 
-// Vincent, 15 Nov: ONE home at the top right; "Your inbox is empty" until something comes in; open, it takes the whole screen.
+// Vincent, 15 Nov: ONE home at the top right; "Nothing needs you yet" until something comes in; open, it takes the whole
+// screen. POLISH §1 (the PO's call): closed, ONE clickable, the line; with an item waiting it opens the item, and the
+// full inbox is two clicks away ("All notes" in the opened item).
+const clickables = () => page.evaluate(() => [...document.querySelectorAll('#inbox button, #inbox a, #inbox input, #inbox [tabindex]:not([tabindex="-1"])')]
+  .filter(e => e.offsetParent && getComputedStyle(e).pointerEvents !== 'none').map(e => e.dataset.slot || e.className));
+async function openAll() { // with an item waiting: the line opens it; "All notes" opens the whole inbox
+  await page.click('#inbox .inbox-now');
+  await waitFor(() => BYOC.focusDoc.isOpen(), 'the waiting item');
+  await page.click('#focus-doc [data-slot="all-notes"]');
+  await waitFor(() => document.getElementById('inbox').dataset.state === 'open' && !document.getElementById('inbox').hidden, 'the whole inbox');
+}
 const rect = sel => page.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height, vw: innerWidth, vh: innerHeight }; }, sel);
-test('empty at the top right: "Your inbox is empty"; open, it takes the whole screen with its three parts', async () => {
+test('empty at the top right: "Nothing needs you yet", one clickable; open, it takes the whole screen with its three parts and what lands there', async () => {
   await page.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run'; });
   await waitFor(() => !document.getElementById('inbox').hidden, 'her inbox by her seat');
   const box = page.locator('#inbox');
   assert.strictEqual(await box.getAttribute('data-component'), 'inbox');
   assert.strictEqual(await box.getAttribute('data-state'), 'empty');
   assert.strictEqual(await box.getAttribute('data-needs'), 'no');
-  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Your inbox is empty');
+  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Nothing needs you yet');
+  assert.deepStrictEqual(await clickables(), ['now'], 'closed: exactly one clickable');
   assert.ok(!(await page.isVisible('#inbox .inbox-drawer')), 'the drawer is closed');
   const home = await rect('#inbox');
   assert.ok(home.r > home.vw * 0.75 && home.t < home.vh * 0.2, `its one home is the top right: ${JSON.stringify(home)}`);
   assert.strictEqual(await page.locator('#inbox #counter[data-slot="tally"]').count(), 1, 'the tally\'s counters live in it');
-  await page.click('#inbox .inbox-toggle');
+  await page.click('#inbox .inbox-now'); // nothing waits: the chip itself opens the inbox
   assert.strictEqual(await box.getAttribute('data-state'), 'open');
   const full = await rect('#inbox');
   assert.ok(full.w > full.vw * 0.9 && full.h > full.vh * 0.9, `open, it takes over the whole screen: ${JSON.stringify(full)}`);
@@ -74,23 +85,25 @@ test('empty at the top right: "Your inbox is empty"; open, it takes the whole sc
   assert.deepStrictEqual(parts, [['needs', 'Needs you'], ['only-you', 'Things only you can do'], ['meetings', 'Past meetings']]);
   assert.strictEqual((await page.locator('#inbox [data-part="only-you"] .inbox-empty').innerText()).trim(), 'Nothing only you can do');
   assert.strictEqual(await page.getAttribute('#inbox [data-part="meetings"] .inbox-part-body', 'data-state'), 'stub');
+  assert.strictEqual((await page.locator('#inbox [data-part="needs"] [data-slot="hint"]').innerText()).trim(), 'When a teammate needs a call from you, it lands here.');
   await page.click('#inbox .inbox-toggle');
   assert.strictEqual(await box.getAttribute('data-state'), 'empty');
 });
 
-test('asks arrive after a natural pause; closed, it says only who ("Noor has a question"), no preview; open, the rest fold; no numbers', async () => {
+test('asks arrive after a natural pause; closed, it says only who ("Noor has a question →"), one clickable, no preview; the full inbox in two clicks, the rest folded; no numbers', async () => {
   await page.evaluate(a => a.forEach(e => BYOC.dispatch(e, 'live')), [
     ask('q1', 'research', 'Noor', 'What makes someone come back to a studio week after week?'),
     ask('q2', 'design', 'Mika', 'What should booking feel like?'),
   ]);
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'an item needs her');
   // Only who, never the question (no preview in the room), and never "<seat>'s teammate".
-  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question');
+  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question →');
+  assert.deepStrictEqual(await clickables(), ['now'], 'an item waits: exactly one clickable, the line');
   assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'new');
   assert.ok(!(await page.locator('#room').innerText()).includes('What makes someone come back'), 'the question shows nowhere in the room');
   assert.ok(!(await page.isVisible('#team-status[data-state="question"]')), 'no second cue under her idea');
   assert.strictEqual(await page.getAttribute('#inbox .inbox-now', 'data-ask'), 'q1');
-  await page.click('#inbox .inbox-toggle');
+  await openAll(); // two clicks: the line, then "All notes"
   assert.strictEqual(await page.locator('#inbox [data-part="needs"] > .inbox-part-body > .inbox-item[data-state="top"]').count(), 1, 'one at a time');
   assert.strictEqual(await page.locator('#inbox .inbox-next .inbox-item[data-state="folded"]').count(), 1, 'the next one folded');
   assert.ok(!(await page.locator('#inbox .inbox-next').evaluate(d => d.open)), 'folded until she opens it');
@@ -101,7 +114,7 @@ test('asks arrive after a natural pause; closed, it says only who ("Noor has a q
 test('Things only you can do: owner.task steps she ticks off; never a text, password or key field', async () => {
   await page.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'owner.task', id: 't1', title: 'Make a Stripe account for the studio',
     steps: ['Go to stripe.com and sign up with the studio email', 'Confirm the email', 'Tell the team it is done'] }, 'live'));
-  await page.click('#inbox .inbox-toggle');
+  await openAll();
   const task = page.locator('#inbox [data-component="owner-task"][data-task="t1"]');
   await task.waitFor();
   assert.strictEqual((await task.locator('.inbox-task-title').innerText()).trim(), 'Make a Stripe account for the studio');

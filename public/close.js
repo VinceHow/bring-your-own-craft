@@ -37,7 +37,7 @@
     </div>
     <div class="close-right">
       <div class="close-label">A judge’s idea</div>
-      <form id="close-form" autocomplete="off"><input id="close-input" class="close-input" data-slot="input" spellcheck="false" placeholder="Type the idea"></form>
+      <form id="close-form" autocomplete="off"><input id="close-input" class="close-input" data-slot="input" data-voice="close" spellcheck="false" placeholder="Type the idea"><button type="submit" class="close-make" id="close-make" data-slot="make" data-state="off" aria-disabled="true">Build it →</button></form>
       <div class="close-step" id="close-step"></div>
       <div class="close-sketch" id="close-sketch" data-slot="sketch"></div>
       <div class="close-count" id="close-count" data-slot="count"></div>
@@ -47,6 +47,15 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const wait = ms => new Promise(r => setTimeout(r, ms));
+  // The one primary action on the close: "Build it →" (Enter does the same). Hooks: [data-slot="make"][data-state]:
+  // off (nothing typed), ready, working (pressed: tidying, then the run), done (a run or a replay holds the idea).
+  function make(state) {
+    const b = $('close-make') || sheet.querySelector('[data-slot="make"]'); if (!b) return;
+    const inp = $('close-input');
+    if (!state) state = inp.readOnly ? 'done' : inp.value.trim() ? 'ready' : 'off';
+    b.dataset.state = state; b.setAttribute('aria-disabled', String(state !== 'ready'));
+    b.textContent = state === 'working' ? 'Building…' : 'Build it →';
+  }
   let ticker = null, token = 0, baseline = null, her = null;
 
   // The baseline, counted from GUESSES.md on the server. If it can't be read, the pile shows no number.
@@ -86,7 +95,7 @@
     sheet.hidden = false;
     if (M) M.animate(sheet, { y: [-60, 0], x: [700, 0], rotate: [3, 0.4] }, SPRING);
     clearOut();
-    $('close-input').value = ''; $('close-input').readOnly = false;
+    $('close-input').value = ''; $('close-input').readOnly = false; make();
     loadBaseline(); herNumbers();
     $('close-input').focus({ preventScroll: true }); // at once: the presenter may already be typing
   }
@@ -207,7 +216,7 @@
     try { r = await BYOC.api('/api/select-for-idea', lines.length ? { idea, lines } : { idea }, { step: false }); }
     catch (e) {
       clearInterval(ticker);
-      if (my === token) { $('close-step').classList.add('slow'); $('close-step').textContent = `The team stopped (${e.status || e.message}). R replays the yoga run.`; }
+      if (my === token) { $('close-step').classList.add('slow'); $('close-step').textContent = `The team stopped (${e.status || e.message}). Build it again to retry, or R replays the yoga run.`; make(); }
       return;
     }
     clearInterval(ticker);
@@ -217,6 +226,7 @@
     $('close-step').classList.remove('slow');
     $('close-step').textContent = `${(BYOC.timings.closeMs / 1000).toFixed(1)} s · live run ${r.run}`;
     landAsks(r, my);
+    make();
   }
 
   // The fallback: the yoga run's own check-in, from runs/yoga (a recorded real run), labelled REPLAY.
@@ -233,7 +243,7 @@
     const asks = evs.filter(e => e.type === 'ask');
     BYOC.closeReplayLabel = true;
     BYOC.replayLabel?.('recorded', name, evs[0]?.t, 'the judge’s-idea fallback');
-    $('close-input').value = start?.idea || ''; $('close-input').readOnly = true; $('close-input').blur();
+    $('close-input').value = start?.idea || ''; $('close-input').readOnly = true; $('close-input').blur(); make('done');
     $('close-sketch').innerHTML = '';
     $('close-asks').innerHTML = ''; $('close-count').innerHTML = '';
     $('close-her').hidden = true; $('close-built').hidden = true;
@@ -255,11 +265,14 @@
     e.preventDefault();
     if ($('close-input').readOnly) return;
     const raw = $('close-input').value.trim();
-    if (!raw || $('close-input').dataset.state === 'tidying') return; // one Enter at a time while it tidies
+    if (!raw) { $('close-input').focus(); return; } // nothing typed: the button stays 'off', the caret waits in the box
+    if ($('close-input').dataset.state === 'tidying' || $('close-make')?.dataset.state === 'working') return; // one at a time
+    make('working'); // pressed: it answers at once, before the tidy
     // her idea, tidied in place first (cut, never reworded; at most 2.5 s, else her raw words)
     const idea = typeof BYOC.tidyInto === 'function' ? await BYOC.tidyInto($('close-input'), raw) : raw;
     $('close-input').blur(); run(idea);
   });
+  $('close-input').addEventListener('input', () => { if ($('close-make')?.dataset.state !== 'working') make(); });
 
   // Beat 11 opens it. Only the presenter closes it (PageUp / Left, or Home); a replay moving beats never does.
   BYOC.on('stage', ({ beat }) => { if (beat === 11) open(); });

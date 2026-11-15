@@ -30,7 +30,7 @@ test('"Made with" (prepared ahead): each item only on its evidence; Linkup only 
   const { madeFor } = await import('../lib/kit.js');
   const m = madeFor("An ordering website for my friend's small bakery");
   assert.deepEqual(m.research, ['Researched with Linkup, before the demo']);
-  assert.deepEqual(m.design, ['Studio, clips, music painted on fal'], 'fal for what it made; no Figma claim in the room');
+  assert.deepEqual(m.design, ['Studio, clips, music painted on fal', 'The room’s frames, laid out in Figma'], 'fal for what it made; Figma for the frames (design/FIGMA.md)');
   assert.deepEqual(m.engineering, ['This app, built with Claude Code']);
   assert.deepEqual(madeFor('A sign-up page for a tool library').research, [], 'no finding cited, no Linkup');
   assert.ok(Object.values(m).every(l => l.length <= 2), 'at most 2 each');
