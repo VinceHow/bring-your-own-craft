@@ -143,7 +143,13 @@ test('room chatter: from real events, by name, never to her, never a question, c
   assert.ok(VARIANTS.call.strategy.map(f => f('class pass shown first')).includes(chatter[1].text), `Ines's line is one of hers: ${chatter[1].text}`);
   assert.ok(!chatter.some(c => /^[A-Z][a-z]+:/.test(c.text)), 'no "Name:" prefix: the room shows the speaker');
   assert.ok(!chatter.some(c => c.from === 'teammate.done'), 'a work note is a log, never chatter');
-  assert.ok(chatter.every(c => c.text.split(' ').length <= 15 && !/…/.test(c.text)), 'short, never cut');
+  assert.ok(chatter.every(c => c.text.split(' ').length <= 12 && !/…/.test(c.text)), 'short (12 words at most), never cut mid-word');
+  const { trimTail, CHATTER_WORDS } = await import('../lib/chatter.js');
+  assert.equal(CHATTER_WORDS, 12);
+  assert.equal(trimTail("Going with an 8pm cut-off for next-morning orders and a waitlist, it's what customers expect.", 'an 8pm cut-off for next-morning orders and a waitlist'), 'Going with an 8pm cut-off for next-morning orders and a waitlist.', 'too long: the tail clause goes, the call stays');
+  assert.equal(trimTail('Keeping it simple, name and email.', 'name and email'), null, 'nothing after the slot to cut');
+  const long = lineFor({ type: 'decided', id: 'z', seat: 'strategy', decision: 'x', choice: 'An 8pm cut-off for next-morning orders and a small waitlist', cites: 'team default' });
+  assert.ok(long && long.split(' ').length <= 12 && /8pm cut-off for next-morning orders and a small waitlist/.test(long), `a long call keeps the call: ${long}`);
   const bo = lineFor({ type: 'decided', id: 'd1', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' });
   assert.ok(/name and email, no account/i.test(bo) && chatterLine(bo) && /^[A-Z]/.test(bo), `Bo says the call, warmly: ${bo}`);
   const ev = { type: 'decided', id: 'd7', seat: 'design', decision: 'x', choice: 'Usual loaf first', cites: 'team default' };
