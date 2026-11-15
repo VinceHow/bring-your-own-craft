@@ -5,7 +5,8 @@ or delete it before submitting. Source of truth for the product: `VISION.md`.
 
 **Track:** Autonomous Agents (Imperial AI hackathon).
 
-**Tagline:** Bring your own craft: do the part you love, and a team of agents gets your idea built.
+**Tagline:** Bring your own craft: spend 90% of your time on the craft you love, with a team that handles the rest
+and brings you only the few big questions that need you.
 
 ## Inspiration
 Most projects don't die from bad ideas. They die in the questions nobody signed up for. A product manager with a great
@@ -33,7 +34,8 @@ and Mika put a rough journey on her idea sheet: who the users are and the stages
 the team gets going on its own: every small decision (accounts, cut-off rules, sold-out states) is theirs, joint ones
 are talked out between them and land in a shared team space. Nothing pings her.
 
-Exactly three things reach her, each a different way a team needs its product person:
+The team brings her only the big questions that need her craft. In this run, three things reached her, each a
+different way a team needs its product person:
 1. **Focus: who it's for.** Noor brings a real finding about who buys from neighbourhood bakeries, with its source,
    researched before the demo and labelled so. She reacts ("it's really for the regulars"), and that one answer
    unlocks a run of the team's decisions.
@@ -66,7 +68,7 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 - The Product teammate uses Anthropic's `write-spec` skill from the product-management plugin. The Design teammate and
   the built page use taste-skill. Research cites a real, sourced finding.
 - What reaches her is decided by a selector against a written bar (big, draws on what she's good at or loves, answerable
-  on the page), and code, not the model, enforces a hard ceiling of three questions, with tests.
+  on the page). Everything else the team decides itself, citing what it knows about her.
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she speaks her idea, her intro and her answers (ElevenLabs speech-to-text, live).
@@ -105,7 +107,8 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 - **An honest baseline.** We re-ran the default agent on the exact bakery prompt and counted every guess by hand.
 
 ## Accomplishments that we're proud of
-- One spoken sentence to a working ordering page, with three thoughtful questions in between. Full run, idea to her page: **TBD (Vincent's own timed run)**.
+- One spoken sentence to a working ordering page, with only the big questions that need her in between (three, in
+  our audited run). Full run, idea to her page: **TBD (Vincent's own timed run)**.
 - The questions are about her craft, never about the stack.
 - Teammates that genuinely build on her and on each other, in short, human lines.
 - A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, 14 decided by the team, 0 approvals (audit fal run 05:00).
@@ -114,7 +117,7 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 ## What we learned
 - The useful line is between craft and stamping, not between asking and not asking.
 - People are better at reacting than at writing from a blank page, so the team always brings something to react to.
-- Rules that matter belong in code, with a test. Models are good at ranking; they shouldn't be the ones counting.
+- The team should assume and keep moving. Waiting on her for anything it could reasonably assume breaks her flow.
 
 ## What's next
 - Every seat polished, so a designer or an engineer can take the seat of their craft.
