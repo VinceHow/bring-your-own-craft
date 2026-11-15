@@ -197,7 +197,16 @@
       }
       requestAnimationFrame(() => { busy = false; });
     };
-    let t = null; const soon = () => { clearTimeout(t); t = setTimeout(fit, 60); };
+    // her sheet opened large (QA #7): the journey's drawn layout scaled to fit the sheet's width, never running off the right
+    const fitOpen = () => {
+      const canvas = flowHost.querySelector('[data-component="journey"] > div:has(> [data-slot="box"])'); if (!canvas) return;
+      if (sheet.dataset.open !== 'true') { canvas.style.removeProperty('scale'); canvas.style.removeProperty('transform-origin'); return; }
+      const boxes = [...canvas.querySelectorAll(':scope > [data-slot="box"]')]; if (!boxes.length) return;
+      const need = Math.max(...boxes.map(b => b.offsetLeft + b.offsetWidth)) + 24, avail = flowHost.clientWidth;
+      const k = Math.min(1, avail / need);
+      canvas.style.transformOrigin = '0 0'; canvas.style.scale = String(Math.round(k * 1000) / 1000);
+    };
+        let t = null; const soon = () => { clearTimeout(t); t = setTimeout(() => { fit(); fitOpen(); }, 60); };
     new MutationObserver(soon).observe(flowHost, { childList: true, subtree: true, characterData: true });
     new MutationObserver(soon).observe(sheet, { attributes: true, attributeFilter: ['data-open', 'hidden', 'class'] });
     addEventListener('resize', soon); setInterval(fit, 1500); soon();
@@ -235,10 +244,11 @@
   const M = window.Motion;
   B.on('ask', ev => {
     const inbox = document.getElementById('inbox');
-    if (!M || !inbox || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!M || !inbox || inbox.dataset.state === 'expanded' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const [hx, hy] = HAND[ev.seat];
     inbox.dataset.ptAwaiting = '';
     setTimeout(() => {
+      if (inbox.dataset.state === 'expanded' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
       const r = room.getBoundingClientRect(), k = r.width / 1600, ib = inbox.getBoundingClientRect();
       const x1 = (ib.left - r.left) / k + 40, y1 = (ib.top - r.top) / k + 6;
       const n = document.createElement('div'); n.dataset.component = 'note-flight'; n.dataset.seat = ev.seat;
@@ -247,12 +257,12 @@
       room.appendChild(n);
       const x0 = hx - 100, y0 = hy - 30, mx = (x0 + x1) / 2 + 30, my = 600;
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });
-      M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
+      M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.2, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
         n.remove(); delete inbox.dataset.ptAwaiting;
         inbox.dataset.ptLanded = ''; setTimeout(() => { delete inbox.dataset.ptLanded; }, 2600);   // the inbox pulse's rise + ink redraw, now
       });
-    }, 1400);                                                  // the note is up in their hand first
-    setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 6000);   // never leave it hidden
+    }, 300);                                                   // a beat with the note up in their hand
+    setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 3000);   // never leave it hidden
   });
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');

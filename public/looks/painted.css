@@ -968,7 +968,8 @@ html #room [data-component="note-flight"]::before { content: ''; position: absol
 html #room [data-component="note-flight"]::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--sheet) var(--tooth); background-clip: padding-box;
   border: 2px solid transparent; border-image: var(--ink-card) 34 / 34px / 2px stretch; box-shadow: var(--paper-shadow-hi); }
 /* the inbox holds its new line back until the note has landed (#inbox[data-pt-awaiting], set by painted.js) */
-html #room [data-component="inbox"][data-pt-awaiting] [data-component="inbox-item"] > * { opacity: 0; }
+/* (QA #35) who asks shows at once ("Bo asks"); only the question waits for the note to land, about 1.5 s */
+html #room [data-component="inbox"][data-pt-awaiting] [data-slot="now"] > [data-slot="text"] { opacity: 0; }
 html #room [data-component="inbox"] [data-component="inbox-item"] > * { transition: opacity 400ms var(--ease-land); }
 
 /* =====================================================================================================================
@@ -1221,6 +1222,7 @@ html #room [data-component="character-card"]:not([data-state="asking"]) > [data-
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: 0; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }
+
 /* ---- QA #6: after her Yes on an unblock, never a blank drawer. The card folds to a one-line receipt in her ink
    ("Told Bo: 8pm the night before", painted.js) and the inbox's own line says it too, until the server takes the item
    away and the inbox reads "Nothing needs you right now". The drawer is only as tall as what it holds. ---- */
