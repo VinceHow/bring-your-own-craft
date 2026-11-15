@@ -1169,6 +1169,54 @@
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
   function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
+  // IDEA -> YOU -> TEAM (Vincent, Sun 01:21): her idea comes first, on its own paper. Enter stores it as the run's idea
+  // (the reveal opens her sheet with her words and starts the run: the room never asks again), fires the one call that
+  // tailors each teammate's intro line to it (POST /api/meet-lines, while she makes her name tag), then her name tag.
+  // ?setup=classic keeps the old order (name tag, team, then her idea at the reveal): the rehearsal's fallback.
+  // Hooks: #setup[data-step="idea"], .idea-card[data-component="idea-card"][data-state="asking|done"], data-slot
+  // question · input · hint · make; the mic is voice.js's on [data-voice="idea"].
+  const CLASSIC = new URLSearchParams(location.search).get('setup') === 'classic';
+  BYOC.setupOrder = CLASSIC ? 'classic' : 'idea-first';
+  let ideaCard = null;
+  const MEET_LIMIT_MS = 6000;
+  function openIdea() {
+    if (!setup) return;
+    setSetup('idea');
+    const st = $('#setup-stage'); st.innerHTML = '';
+    const c = h('div', 'big-card idea-card'); c.dataset.component = 'idea-card'; c.dataset.state = 'asking';
+    c.innerHTML = `<label class="idea-row"><span class="idea-q" data-slot="question">What do you want to build today?</span>
+        <textarea class="idea-input" id="idea-input" data-slot="input" data-voice="idea" rows="2" spellcheck="false" maxlength="300" placeholder="One sentence is plenty" aria-label="What you want to build today"></textarea></label>
+      <div class="idea-hint" data-slot="hint">Say it or type it · Enter: next, your name tag</div>
+      <div class="idea-actions" data-slot="actions"><button type="button" class="idea-make" data-slot="make" data-state="make">Next</button></div>`;
+    st.appendChild(c);
+    ideaCard = c;
+    $('#idea-input', c).addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone(); }
+    });
+    $('.idea-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); ideaDone(); });
+    place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
+  }
+  // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
+  function ideaDone() {
+    const c = ideaCard; if (!c || BYOC.beat !== 0) return;
+    const text = $('#idea-input', c).value.trim();
+    c.dataset.state = 'done';
+    ideaCard = null;
+    BYOC.pendingIdea = text || null;
+    BYOC.meetLines = null;
+    if (text && !BYOC.replay) {
+      const tok = walkToken;
+      BYOC.meetLinesReq = Promise.race([
+        BYOC.api('/api/meet-lines', { idea: text }, { step: false }).then(r => (r && r.lines) || {}),
+        new Promise(res => setTimeout(() => res({}), MEET_LIMIT_MS)),
+      ]).catch(() => ({})).then(lines => { if (tok === walkToken) BYOC.meetLines = lines; emit('meet.lines', { tailored: Object.keys(lines).length }); return lines; });
+    }
+    emit('idea.paper', { idea: text });
+    openPaper();
+  }
+  BYOC.ideaOpen = () => !!ideaCard && BYOC.beat === 0;
+  BYOC.ideaDone = ideaDone;
+
   // Her paper name tag. One component with the DIY name tag (character-card), so voice, swaps and the gallery carry on.
   function openPaper() {
     if (!setup) return;
@@ -1335,10 +1383,13 @@
   // once builder 8's roster lands. Each holds HOLD_MS (?hold=); forward moves to the next at once.
   function meetCard(seat, i) {
     const t = INFO[seat];
-    const c = h('div', 'meet-card'); c.dataset.component = 'meet-card'; c.dataset.seat = seat; c.dataset.state = 'in';
+    const c = h('div', 'meet-card'); c.dataset.component = 'meet-card'; c.dataset.seat = seat;
+    // Her idea's own line for this teammate when the call landed and passed the rules; else today's static line.
+    const tailored = BYOC.meetLines && BYOC.meetLines[seat];
+    c.dataset.state = tailored ? 'tailored' : 'static';
     c.innerHTML = `<span class="meet-face" data-slot="face"></span>
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
-      <p class="meet-line" data-slot="line">“${esc(t.loves)}”</p>
+      <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
       <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
       <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>`;
     return c;
@@ -1376,8 +1427,8 @@
   // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
   BYOC.typeInto = function (text) {
     const t = document.activeElement;
-    const target = (t && (t.id === 'intro-input' || t.id === 'her-input' || t.id === 'close-input')) ? t
-      : introCard ? $('#intro-input', introCard) : (!el.herForm.hidden ? el.herInput : null);
+    const target = (t && (t.id === 'idea-input' || t.id === 'intro-input' || t.id === 'her-input' || t.id === 'close-input')) ? t
+      : ideaCard ? $('#idea-input', ideaCard) : introCard ? $('#intro-input', introCard) : (!el.herForm.hidden ? el.herInput : null);
     if (!target) return false;
     target.value = String(text || ''); target.focus();
     target.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1397,7 +1448,12 @@
         el.herSheet.hidden = false; // her file (taste.md) stays off screen: her philosophy is the team's to keep
         place(el.herSheet, { y: animate ? [80, 0] : 0, rotate: animate ? [1.5, 0] : 0 }, animate);
         place(el.fileCard, { x: animate ? [-80, 0] : 0, rotate: -1, opacity: animate ? [0, 1] : 1 }, animate);
-        if (!el.herIdea.textContent) setInputMode('idea');
+        if (!el.herIdea.textContent) {
+          // Her idea from the idea paper: her sheet opens with her words and the run starts (the first sketch follows).
+          const idea = !BYOC.replay && BYOC.pendingIdea;
+          if (idea) { BYOC.pendingIdea = null; setTimeout(() => { if (BYOC.beat === 3 && !el.herIdea.textContent) startRun(idea); }, animate ? 500 : 0); }
+          else setInputMode('idea');
+        }
         if (!el.fileLines.children.length && !el.fileNote.textContent) el.fileNote.textContent = 'Your file opens when the run starts.';
         break;
       case 4:
@@ -1479,7 +1535,8 @@
     document.body.dataset.beat = '0';
     status('');
     emit('reset', {});
-    openPaper(); // the room hides again: her name tag on paper first
+    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; ideaCard = null;
+    if (CLASSIC) openPaper(); else openIdea(); // the room hides again: her idea first (classic: her name tag)
   }
   BYOC.reset = reset;
   BYOC.setInstant = v => { instantMode = !!v; };

@@ -31,7 +31,7 @@ before(async () => {
   page = await browser.newPage({ viewport: { width: 1600, height: 930 } });
   page.on('console', m => m.type() === 'error' && consoleErrors.push(m.text()));
   page.on('pageerror', e => consoleErrors.push(String(e)));
-  await page.goto(BASE + '/?hold=300&path=full');
+  await page.goto(BASE + '/?hold=300&path=full&setup=classic');
   await page.waitForTimeout(800);
 });
 after(async () => { await browser?.close(); srv?.kill(); });

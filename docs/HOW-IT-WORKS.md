@@ -105,10 +105,10 @@ first sketch (`lib/guest.js`, only with `GUEST_CHAIR=1`).
 
 ## 8. Models and the key
 Every model call goes through one function, `callModel` in `lib/model.js`, and returns JSON validated against a schema.
-- `claude-code` (default, used in the demo): Claude Code headless (`claude -p`), with our own system prompt, no tools
+- `claude-code` (the default when `MODEL_BACKEND` is unset; the alternative route): Claude Code headless (`claude -p`), with our own system prompt, no tools
   and no project files loaded, using the machine's own login. Teammates and the selector use Sonnet at low effort; the
   quick tidy uses Haiku.
-- `fal` (the fallback, `MODEL_BACKEND=fal`): Claude through fal's OpenRouter router, on `FAL_KEY`.
+- `fal` (what runs in the demo, `MODEL_BACKEND=fal`): Claude through fal's OpenRouter router, on `FAL_KEY`.
 
 The fal key:
 - is read from `FAL_KEY` and held in server memory, never written to disk, logs, `runs/`, the browser or the repo;

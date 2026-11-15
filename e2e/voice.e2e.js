@@ -59,7 +59,7 @@ async function openPage({ voice, query = '' }) {
   } else {
     await page.route('**/api/voice/status', r => r.fulfill({ json: { available: false } }));
   }
-  await page.goto(BASE + '/?hold=50' + query);
+  await page.goto(BASE + '/?hold=50&setup=classic' + query);
   return { page, sent };
 }
 const waitFor = (page, fn, ms, what) => page.waitForFunction(fn, null, { timeout: ms }).catch(() => { throw new Error('timed out: ' + what); });

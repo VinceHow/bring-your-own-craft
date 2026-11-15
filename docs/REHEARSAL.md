@@ -43,6 +43,10 @@ MODEL_BACKEND=fal
 ```
 
 ## Run sheet
+- **The opening is IDEA → YOU → TEAM** (Vincent, Sun 01:21): her idea first ("What do you want to build today?"),
+  then her name tag, then the team, each teammate's line written for her idea (one call, under about 6 s, fired while
+  she makes her name tag; static lines if it's slow). The room opens with her idea on the sheet and the team already
+  sketching. **Fallback:** add `&setup=classic` to the URL for the old order (name tag, team, then her idea).
 - **Click her name field first.** On load nothing is focused on purpose: R (replay the rehearsal) must work from the
   first screen. Typing before a click goes to the room's keys (R, S, B…), not to the name tag. One click on "I love…",
   then type or speak.
