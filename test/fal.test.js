@@ -61,3 +61,8 @@ test('every error is scrubbed: a key echoed back by the service never leaves', a
   globalThis.fetch = async () => { throw new Error(`connect failed for ${SECRET}`); };
   await assert.rejects(M.callModel({ system: 's', user: 'u', schema: SCHEMA, timeoutMs: 5000 }), e => !e.message.includes(SECRET));
 });
+
+test('opus maps to the newest Opus the router offers; an unknown name still falls back to sonnet', () => {
+  assert.equal(M.falModelId('opus'), 'anthropic/claude-opus-5.5');
+  assert.equal(M.falModelId('nope'), M.FAL_MODELS.sonnet);
+});

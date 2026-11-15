@@ -1232,7 +1232,8 @@
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
     const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · tap any piece to swap it · Enter: meet your team' : 'Enter: meet your team'); hint.dataset.slot = 'hint';
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
-    traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
+    traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits();
+      traits.dataset.state = 'swapped'; const li = traits.children[i]; if (li) li.dataset.state = 'new'; c.focus(); });   // a look re-inks only the one she swapped
     if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
     // her own words stay on her tag, small, under the team's read (or as the whole tag if the team couldn't add its spin)
     const said = cur.loves ? h('p', 'char-said', `<span>In your words</span>“${esc(cur.loves)}”`) : null; if (said) said.dataset.slot = 'said';

@@ -75,6 +75,25 @@
   B.on('focus', f => { if (f && typeof f.open === 'boolean') focus(f.open); });
   B.on('reset', () => focus(false));
 
+  // ---- meet the team: each teammate's face slot waves (their intro clip, muted and looping; the portrait is the poster).
+  // A tap on the face plays their tap reaction once, then the wave again. Hooks: meet-card[data-seat], [data-slot="face"].
+  const WAVE = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo' };
+  const waveIn = card => {
+    const face = card.querySelector('[data-slot="face"]'), who = WAVE[card.dataset.seat];
+    if (!face || !who || face.querySelector('video')) return;
+    const v = document.createElement('video'); v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute('aria-hidden', 'true');
+    v.poster = base + `cast/intro/${who}.jpg`; v.src = base + `cast/intro/wave-${who}.mp4`; v.preload = 'auto';
+    v.addEventListener('error', () => { if (v.dataset.clip !== 'tap') v.remove(); else { v.dataset.clip = 'wave'; v.loop = true; v.src = base + `cast/intro/wave-${who}.mp4`; v.play().catch(() => {}); } });
+    v.addEventListener('ended', () => { if (v.dataset.clip === 'tap') { v.dataset.clip = 'wave'; v.loop = true; v.src = base + `cast/intro/wave-${who}.mp4`; v.play().catch(() => {}); } });
+    face.addEventListener('click', e => { e.stopPropagation(); if (v.dataset.clip === 'tap') return; v.dataset.clip = 'tap'; v.loop = false; v.src = base + `cast/intro/tap-${who}.mp4`; v.play().catch(() => {}); });
+    face.appendChild(v); v.play().catch(() => {});
+  };
+  const setupEl = document.getElementById('setup');
+  if (setupEl) {
+    setupEl.querySelectorAll('[data-component="meet-card"]').forEach(waveIn);
+    new MutationObserver(() => setupEl.querySelectorAll('[data-component="meet-card"]').forEach(waveIn)).observe(setupEl, { childList: true, subtree: true });
+  }
+
   // ---- 1. the living painting: it puts itself first in #room at z 0 and sets #room[data-scene] ----
   js('painted-living.js').then(() => {
     document.addEventListener('studio:time', e => {
@@ -178,11 +197,45 @@
       }
       requestAnimationFrame(() => { busy = false; });
     };
-    let t = null; const soon = () => { clearTimeout(t); t = setTimeout(fit, 60); };
+    // her sheet opened large (QA #7): the journey's drawn layout scaled to fit the sheet's width, never running off the right
+    const fitOpen = () => {
+      const canvas = flowHost.querySelector('[data-component="journey"] > div:has(> [data-slot="box"])'); if (!canvas) return;
+      if (sheet.dataset.open !== 'true') { canvas.style.removeProperty('scale'); canvas.style.removeProperty('transform-origin'); return; }
+      const boxes = [...canvas.querySelectorAll(':scope > [data-slot="box"]')]; if (!boxes.length) return;
+      const need = Math.max(...boxes.map(b => b.offsetLeft + b.offsetWidth)) + 24, avail = flowHost.clientWidth;
+      const k = Math.min(1, avail / need);
+      canvas.style.transformOrigin = '0 0'; canvas.style.scale = String(Math.round(k * 1000) / 1000);
+    };
+        let t = null; const soon = () => { clearTimeout(t); t = setTimeout(() => { fit(); fitOpen(); }, 60); };
     new MutationObserver(soon).observe(flowHost, { childList: true, subtree: true, characterData: true });
     new MutationObserver(soon).observe(sheet, { attributes: true, attributeFilter: ['data-open', 'hidden', 'class'] });
     addEventListener('resize', soon); setInterval(fit, 1500); soon();
   }
+
+  // ---- after her Yes on an unblock (QA #6): the card becomes a one-line receipt, "Told Bo: 8pm the night before", and
+  // the inbox's own line says the same, until the server takes the item away ("Nothing needs you right now" then).
+  // Look-owned attributes only (data-pt-told); the card, its state and the inbox stay inbox.js's. ----
+  const told = new Map();                                       // ask id -> receipt line
+  const receipt = () => {
+    const ib = document.getElementById('inbox'); if (!ib) return;
+    const live = new Set([...ib.querySelectorAll('[data-action]')].map(e => e.dataset.action));
+    for (const id of [...told.keys()]) if (!live.has(id)) told.delete(id);
+    ib.querySelectorAll('[data-component="inbox-action"][data-action]').forEach(c => {
+      const t = told.get(c.dataset.action);
+      if (!t) { delete c.dataset.ptTold; c.querySelector(':scope > [data-pt-receipt]')?.remove(); return; }
+      c.dataset.ptTold = '';
+      if (!c.querySelector(':scope > [data-pt-receipt]')) { const r = document.createElement('p'); r.dataset.ptReceipt = ''; r.textContent = t; c.appendChild(r); }
+    });
+    const now = ib.querySelector('[data-slot="now"]');
+    if (now) { const t = now.dataset.action && told.get(now.dataset.action); if (t) now.dataset.ptTold = t; else delete now.dataset.ptTold; }
+  };
+  B.on('action.yes', ev => {
+    const c = document.querySelector(`[data-component="inbox-action"][data-action="${CSS.escape(String(ev.id))}"]`);
+    const name = WHO[c && c.dataset.seat] || 'the team';
+    told.set(String(ev.id), `Told ${name}: ${few(ev.choice || 'yes', 10)}`); receipt();
+  });
+  B.on('reset', () => { told.clear(); receipt(); });
+  { const ib = document.getElementById('inbox'); if (ib) new MutationObserver(() => { if (told.size || ib.querySelector('[data-pt-told]')) receipt(); }).observe(ib, { childList: true, subtree: true }); }
 
   // ---- a new note for her arrives (port of the her-inbox comp, ?st=arrive): the teammate holds up its note in the
   // painting (painted-living plays 'found' on ask), it drifts across the tabletop on a soft paper arc, below every
@@ -191,10 +244,11 @@
   const M = window.Motion;
   B.on('ask', ev => {
     const inbox = document.getElementById('inbox');
-    if (!M || !inbox || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!M || !inbox || inbox.dataset.state === 'expanded' || focusOpen || B.replay === 'instant' || !HAND[ev.seat] || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const [hx, hy] = HAND[ev.seat];
     inbox.dataset.ptAwaiting = '';
     setTimeout(() => {
+      if (inbox.dataset.state === 'expanded' || inbox.hidden) { delete inbox.dataset.ptAwaiting; return; }   // she opened it meanwhile: no flight
       const r = room.getBoundingClientRect(), k = r.width / 1600, ib = inbox.getBoundingClientRect();
       const x1 = (ib.left - r.left) / k + 40, y1 = (ib.top - r.top) / k + 6;
       const n = document.createElement('div'); n.dataset.component = 'note-flight'; n.dataset.seat = ev.seat;
@@ -203,12 +257,12 @@
       room.appendChild(n);
       const x0 = hx - 100, y0 = hy - 30, mx = (x0 + x1) / 2 + 30, my = 600;
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });
-      M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
+      M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.2, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
         n.remove(); delete inbox.dataset.ptAwaiting;
         inbox.dataset.ptLanded = ''; setTimeout(() => { delete inbox.dataset.ptLanded; }, 2600);   // the inbox pulse's rise + ink redraw, now
       });
-    }, 1400);                                                  // the note is up in their hand first
-    setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 6000);   // never leave it hidden
+    }, 300);                                                   // a beat with the note up in their hand
+    setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 3000);   // never leave it hidden
   });
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');
