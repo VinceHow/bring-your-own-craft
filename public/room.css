@@ -615,3 +615,17 @@ html:not(.painted-on) body #room #inbox [data-component="inbox-action"] :is([dat
 .meet-dot[data-state="done"] { background: currentColor; opacity: .5; }
 .meet-dot[data-state="current"] { background: currentColor; opacity: 1; }
 .meet-back[hidden] { display: none; }
+
+/* The QR card (public/app-button.js): opening the app also shows, in the room tab, a card the audience scans for the
+   live bakery. Centred, under the app button (z 45), closed by ×, Esc or a click outside. Both looks. */
+.qr-card-wrap { position: fixed; inset: 0; z-index: 44; display: grid; place-items: center; background: rgba(40,28,20,.28); }
+.qr-card-wrap[hidden] { display: none; }
+.qr-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 26px 34px 24px;
+  background: #FFFDF8; border-radius: 22px; box-shadow: 0 0 0 1.5px rgba(51,38,28,.7), 5px 6px 0 -1px #E9A3B1, 0 18px 40px rgba(40,28,20,.25); }
+.qr-title { margin: 0; font: 600 34px/1.1 Fraunces, Georgia, serif; color: #33261C; }
+.qr-img { display: block; width: min(420px, 50vh); height: min(420px, 50vh); min-height: 360px; min-width: 360px; background: #fff; padding: 14px; border-radius: 10px; box-sizing: content-box; }
+.qr-line { margin: 0; font: 500 19px/1.3 system-ui, sans-serif; color: #5A4636; }
+.qr-close { position: absolute; top: 8px; right: 10px; width: 40px; height: 40px; border: 0; background: none; font: 400 30px/1 system-ui, sans-serif; color: #5A4636; cursor: pointer; border-radius: 50%; }
+.qr-close:hover { background: rgba(51,38,28,.08); }
+@media (prefers-reduced-motion: no-preference) { .qr-card-wrap[data-state="open"] .qr-card { animation: qr-in .35s cubic-bezier(.2,.9,.3,1.2) both; } }
+@keyframes qr-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }

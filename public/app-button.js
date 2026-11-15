@@ -68,12 +68,35 @@
     const u = url();
     if (!u || root.dataset.state === 'none') return;
     window.open(u, '_blank', 'noopener');
+    showQr();
   });
+  // The QR card (Vincent, 15 Nov): when the app opens, the room tab also shows a card the audience scans to reach the
+  // live bakery. Only when /api/health says the deploy is the Railway site that public/qr-live-site.svg encodes.
+  const QR_URL = 'https://bring-your-own-craft-production.up.railway.app';
+  let deployUrl = '', qr = null;
+  function hideQr() { if (qr) { qr.dataset.state = 'closed'; qr.hidden = true; } }
+  function showQr() {
+    if (deployUrl.replace(/\/+$/, '') !== QR_URL) return;
+    if (!qr) {
+      qr = document.createElement('div');
+      qr.className = 'qr-card-wrap'; qr.dataset.slot = 'qr-backdrop';
+      qr.innerHTML = '<div class="qr-card" data-component="qr-card" role="dialog" aria-label="Scan for the live site">'
+        + '<button type="button" class="qr-close" data-slot="close" aria-label="Close">×</button>'
+        + '<p class="qr-title" data-slot="title">The Usual</p>'
+        + '<img class="qr-img" data-slot="qr" src="qr-live-site.svg" alt="QR code for the live site" width="420" height="420">'
+        + '<p class="qr-line" data-slot="caption">Scan to reserve a loaf · the live site</p></div>';
+      qr.addEventListener('click', e => { if (e.target === qr || e.target.closest('.qr-close')) hideQr(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && qr && !qr.hidden) hideQr(); });
+      (root.parentElement || document.body).appendChild(qr); // beside the app button, so it stays above the card
+    }
+    qr.hidden = false; qr.dataset.state = 'open';
+    qr.querySelector('.qr-card').dataset.state = 'open';
+  }
   setInterval(() => { if (done && !building) draw(); }, 30000); // "3 min ago" stays true
   // On stage: the live site (DEPLOY_URL), when set.
   fetch('/api/health').then(r => r.json()).then(h => {
-    if (h && typeof h.deployUrl === 'string' && /^https?:\/\//.test(h.deployUrl)) { live.href = h.deployUrl; live.hidden = false; }
+    if (h && typeof h.deployUrl === 'string' && /^https?:\/\//.test(h.deployUrl)) { live.href = h.deployUrl; live.hidden = false; deployUrl = h.deployUrl; }
   }).catch(() => {});
-  B.app = { state: () => root.dataset.state, url, open: () => btn.click() };
+  B.app = { state: () => root.dataset.state, url, open: () => btn.click(), closeQr: hideQr };
   draw();
 })();
