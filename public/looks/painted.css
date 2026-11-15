@@ -1456,3 +1456,12 @@ html #room [data-component="focus-doc"]:not(:has([data-component="piece"])) form
 /* the unblock card's answer in her words: grows to a few lines, then scrolls inside its own box */
 html #room [data-component="inbox-action"] [data-slot="hers"] { max-height: min(220px, 26vh); overflow-y: auto; overscroll-behavior: contain;
   scrollbar-width: thin; scrollbar-color: rgba(147,55,79,.35) transparent; }
+
+/* ---------- POLISH §3: calm, clean motion ----------
+   The setup's papers are placed by the room's own spring (opacity + lift). The old .big-card landing animation ran on
+   top of it, so the name tag faded in, dipped back to ~70% and faded in again. One motion only. */
+html #room [data-component="setup"] :is([data-component="idea-card"], [data-component="character-card"], [data-component="meet-card"]) { animation: none !important; }
+/* the name tag keeps its size as it turns into her tag (room.js stores its offsetHeight in --pt-nt-h): measured with its
+   padding, so the min-height must count the padding too, or the paper grows and jumps for a frame on Enter */
+html #room [data-component="character-card"][data-seat="product"] { box-sizing: border-box; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] { height: var(--pt-nt-h, auto); max-height: var(--pt-nt-h, none); overflow: hidden; }
