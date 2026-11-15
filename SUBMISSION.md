@@ -58,9 +58,10 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she can speak her intro, her idea and her answers (ElevenLabs speech-to-text).
-- A second model backend on fal: Claude through fal's OpenRouter router (`MODEL_BACKEND=fal`), tested 9/9
-  schema-valid against Claude Code on 3 real calls per step. It's slower (the team works in about 33 s against about
-  20 s), so the demo's teammates stay on Claude Code and fal is the fallback.
+- Two model routes behind one function: fal (Claude through fal's OpenRouter router, `MODEL_BACKEND=fal`) is what runs
+  in the demo; Claude Code headless is the alternative route. fal was tested 9/9 schema-valid against Claude Code on 3
+  real calls per step, and it runs the demo because on the demo laptop Claude Code's fast model, through a company
+  gateway, took over 25 s a call while fal answered in about 1 s.
 - Brand images for the bakery site: planned with fal flux/schnell (timed at a median 2.2 s, about 0.3¢ an image).
 - One event log per run; every number on screen comes from it. Anything prepared ahead is labelled PREPARED or REPLAY.
 - We built it the same way. Vincent sat in the Product seat; a product-owner agent shaped the experience with him; a
@@ -98,8 +99,8 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
 - Builds that go beyond a prepared template.
 
 ## Built with
-Node.js, JavaScript, HTML, CSS, Claude (via Claude Code, headless), Anthropic product-management plugin (`write-spec`),
-taste-skill, ElevenLabs (speech-to-text), fal (Claude via OpenRouter as the fallback model backend; flux/schnell
+Node.js, JavaScript, HTML, CSS, Claude (via fal's OpenRouter router in the demo, and Claude Code headless as the alternative route), Anthropic product-management plugin (`write-spec`),
+taste-skill, ElevenLabs (speech-to-text), fal (Claude via OpenRouter, the model backend that runs in the demo; flux/schnell
 planned for the bakery's brand images), motion, Playwright.
 
 ## Try it

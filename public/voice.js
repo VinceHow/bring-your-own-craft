@@ -211,6 +211,26 @@
       .catch(() => raw).finally(() => clearTimeout(timer));
   };
 
+  // BYOC.tidyInto(el, raw, opts) -> Promise<string>: one line she typed or spoke, cleaned in place, never reworded
+  // (lib/tidy.js only lets the tidy cut words and fix capitals and punctuation). On the element: data-raw keeps her
+  // raw words, data-state goes "tidying" then "tidied" (design animates the fillers fading); an input's value, or an
+  // element's text, becomes the cleaned line. Resolves to the cleaned line, or her raw words when slow or refused
+  // (opts.timeoutMs, 2.5 s by default), so it never blocks for long. data-tidy says how it changed, for design's
+  // animation: "cut" (her words in her order with some removed: a word diff of data-raw shows what faded) or
+  // "reordered" (anything else the tidy may do: reorder, merge, small joining words, grammar).
+  const tidyWords = t => String(t || '').toLowerCase().split(/\s+/).map(w => w.replace(/[^\p{L}\p{N}']+/gu, '')).filter(Boolean);
+  const isCut = (raw, clean) => { const a = tidyWords(raw), b = tidyWords(clean); let i = 0; for (const w of b) { while (i < a.length && a[i] !== w) i++; if (i++ >= a.length) return false; } return true; };
+  BYOC.tidyInto = async function (el, text, opts = {}) {
+    const raw = String(text ?? '').trim();
+    if (!raw) return raw;
+    const isField = el && ('value' in el) && /^(INPUT|TEXTAREA)$/.test(el.tagName);
+    if (el) { el.dataset.raw = raw; el.dataset.state = 'tidying'; if (isField) el.value = raw; else el.textContent = raw; }
+    let clean = raw;
+    try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
+    if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
+    return clean;
+  };
+
   // ---- is voice there? -------------------------------------------------------------------------
   BYOC.voice = { get available() { return available; }, get state() { return state; }, get toggled() { return toggled; }, start: () => start(currentTarget()), stop, cancel };
   if (available !== false) {

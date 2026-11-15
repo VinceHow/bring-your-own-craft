@@ -7,7 +7,8 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-tidy-'));
 process.env.THREAD_WARM = '0';
-const { addPiece, removePiece, choosePiece, gatherPieces, checkTidy, alreadyClean, tidyText } = await import('../lib/tidy.js');
+const T = await import('../lib/tidy.js');
+const { addPiece, removePiece, choosePiece, gatherPieces, checkTidy, alreadyClean, tidyText } = T;
 const { interpret } = await import('../lib/interpret.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste } = await import('../lib/taste.js');
@@ -142,19 +143,46 @@ test('a tidy that only changes case or punctuation keeps her words; a lower-case
 // Her own line is hers word for word (14 Nov, the fal backend): "I love getting the journey right…" came back as
 // "I love get the journey right…" and went into her file. For the intro, a tidy that changes a word is refused and
 // her raw words stand, on any backend; the Terminal says so once, without her words.
-test('the intro: a tidy that changes her words keeps her raw words; one that only cleans is taken', async () => {
+test('a tidy that brings in a word she didn\'t say keeps her raw words, on any line; one that only cleans is taken', async () => {
   const { tidyText } = await import('../lib/tidy.js');
   const raw = 'I love getting the journey right before anyone draws a screen, you know, before the first box';
   const errs = [], orig = console.error;
   console.error = (...a) => errs.push(a.join(' '));
   let r;
-  try { r = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love get the journey right before anyone draws a screen, before the first box.' }) }); }
+  try { r = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love perfecting the journey before anyone draws a screen, before the first box.' }) }); }
   finally { console.error = orig; }
   assert.deepEqual([r.text, r.tidied, r.reason], [raw, false, 'changed words']);
   assert.deepEqual(errs, ['[model] tidy changed words, kept raw'], 'one line, none of her words');
   const ok = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love getting the journey right before anyone draws a screen, before the first box.' }) });
   assert.equal(ok.tidied, true, 'dropping "you know" is a clean tidy');
-  // not the intro (an answer piece): unchanged behaviour
-  const piece = await tidyText({ text: raw, callModel: async () => ({ text: 'I love get the journey right before anyone draws a screen, before the first box.' }) });
-  assert.equal(piece.tidied, true);
+  // every surface now (an answer piece too): a changed word is refused
+  const piece = await tidyText({ text: raw, callModel: async () => ({ text: 'I love perfecting the journey before anyone draws a screen, before the first box.' }) });
+  assert.equal(piece.tidied, false);
+});
+
+// Her meaning, her words, clearer order (Vincent, 15 Nov): cut, reorder, merge, small function words, grammar; never a
+// content word she didn't say, never a flipped stance. On every surface.
+test('the guard: reorders, merges and inflections pass; a new content word or a flipped stance is refused', () => {
+  const { checkTidy } = T;
+  const v = "I think the journey should be you browse the menu, you build a basket, you place the order, and then you come ready to collect, there's no payment in the middle, you pay when you arrive";
+  assert.ok(checkTidy(v, 'Browse the menu, build a basket, place the order, then come ready to collect. No payment in the middle: you pay when you arrive.'), "Vincent's example passes");
+  const raw = 'um so the idea is, uh, a website for, for a small bakery so people can like order bread ahead';
+  assert.ok(checkTidy(raw, 'A website for a small bakery, so people can order bread ahead.'));
+  assert.ok(checkTidy(raw, 'So people can order bread ahead: a website for a small bakery.'), 'reordered');
+  assert.equal(checkTidy(raw, 'An app for a small bakery so people can order bread ahead.'), null, 'website -> app: a new content word');
+  assert.equal(checkTidy(raw, 'A website for a small local bakery so people can order bread ahead.'), null, 'an added adjective');
+  assert.equal(checkTidy('regulars come every morning', 'Regulars come every morning at 7.'), null, 'an added number');
+  assert.equal(checkTidy('we should never ask for a phone number', 'We should ask for a phone number.'), null, 'a dropped "never" flips her stance');
+  assert.equal(checkTidy('we should never ask for a phone number', 'We should always ask for a phone number.'), null, 'never -> always');
+  assert.ok(checkTidy('browse the menu', 'Browsing the menu.'), 'an inflection of her word');
+  assert.equal(checkTidy('three point five stars, 3.5 stars', 'It has 35 stars.'), null, '3.5 -> 35: punctuation inside a number never merges it');
+  assert.equal(checkTidy(raw, ''), null);
+});
+
+test('lead-ins are dropped: a short line with "The idea is:" still goes to the tidy, and the cut passes', async () => {
+  const { alreadyClean, tidyText } = T;
+  assert.equal(alreadyClean('The idea is: a bakery site'), false);
+  assert.equal(alreadyClean('A bakery site for regulars'), true);
+  const r = await tidyText({ text: 'The idea is: a bakery site for regulars', callModel: async () => ({ text: 'A bakery site for regulars.' }) });
+  assert.deepEqual([r.tidied, r.text], [true, 'A bakery site for regulars.']);
 });

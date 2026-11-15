@@ -18,6 +18,7 @@
 
   const frame = document.createElement('iframe');
   frame.className = 'painted-living';
+  frame.dataset.component = 'living-backdrop';                       // playful-ink keeps its still night plate off over it
   frame.title = '';
   frame.setAttribute('aria-hidden', 'true');
   frame.tabIndex = -1;
@@ -29,6 +30,17 @@
   const night = mode === 'night';
   frame.src = '/looks/comps/cast-living.html?embed=1&run=0' + (night ? '&night=1' : mode === 'day' ? '&time=afternoon' : '&time=morning');
   room.prepend(frame);                                                // first child of #room, z-index 0: under every UI layer
+  // Bug 4 (Vincent: the toys shake when clicked): a toy's clip snapped on and off in one frame, and a generated clip's
+  // first and last frames never quite match the painted still, so each click read as a small jolt. The record player,
+  // cat and coffee machine now cross-fade into their clip and back to the painting (400 ms), so the click reads as the
+  // deliberate reaction the clip is (the cat stretches, the coffee brews). Teammates' patches keep their own fades.
+  frame.addEventListener('load', () => {
+    try {
+      const d = frame.contentDocument, st = d.createElement('style');
+      st.textContent = '#patches > :is([data-who="record"], [data-who="cat"], [data-who="coffee"]) { transition: opacity .4s cubic-bezier(.4, 0, .2, 1); }';
+      d.head.appendChild(st);
+    } catch (e) { /* not same-origin: leave the clips as they are */ }
+  });
   document.documentElement.classList.add('painted-on');
 
   // The living page exposes window.living once it has started. Events that arrive earlier wait in a short queue.
@@ -75,23 +87,42 @@
   BYOC.on('focus.close', () => call(l => l.focus(false)));
   BYOC.on('focus', f => { if (f && !f.open) call(l => l.focus(false)); });
 
-  // time of day from the run's progress: morning before the team starts, building while it works, evening once her
-  // page is built. That's the 'cycle' mode; 'day' and 'night' hold one scene all run long.
+  // time of day from the run's progress: morning before the team starts, building while it works, dusk (evening) a beat
+  // after her page is built, then night (the lamps on) 40 s later, as the close comes up. That's the 'cycle' mode; 'day'
+  // and 'night' hold one scene all run long.
+  // Tempo, for a 3-minute demo: the run's changes crossfade slowly (3 s) and come at most one per 40 s, so the audience
+  // notices the day passing without it pulling their eye; a tap on the time pill answers at once (0.8 s).
   // #room[data-scene] follows the painting, so each painting can place the room's pills its own way
   let cycleAt = 'morning';                                            // where the run has got to, whatever the mode
   const shown = () => mode === 'night' ? 'night' : mode === 'day' ? 'afternoon' : cycleAt;
   let tod = shown();
   room.dataset.scene = tod;
-  const show = () => {
-    const t = shown(); if (t === tod) return;
-    tod = t; room.dataset.scene = t; call(l => l.setTime(t));
+  const RUN_FADE = 3, GAP = 40000, DUSK = 3000;
+  const show = (fade) => {
+    const t = shown(); if (t === tod) return false;
+    tod = t; room.dataset.scene = t; call(l => l.setTime(t, { fade: fade || .8 }));
     document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: t, mode, from: 'painted-living' } }));
+    return true;
   };
-  const step = t => { cycleAt = t; if (mode === 'cycle') show(); };
-  BYOC.on('teammate.start', () => step('building'));
-  BYOC.on('build.step', () => step('building'));
-  BYOC.on('build.done', () => setTimeout(() => step('evening'), 9000));   // after the celebration
-  BYOC.on('reset', () => step('morning'));
+  // the run's changes: slow, and spaced; a change that comes too soon waits its turn (the latest one wins)
+  let lastRun = 0, waitT = 0, nightT = 0;
+  const pace = () => {
+    clearTimeout(waitT);
+    if (mode !== 'cycle') return;
+    const wait = lastRun + GAP - Date.now();
+    if (wait > 0) { waitT = setTimeout(pace, wait); return; }
+    if (show(RUN_FADE)) lastRun = Date.now();
+  };
+  const step = t => { cycleAt = t; pace(); };
+  BYOC.on('teammate.start', () => { if (cycleAt === 'morning') step('building'); });
+  BYOC.on('build.step', () => { if (cycleAt === 'morning') step('building'); });
+  BYOC.on('build.done', () => {                                       // dusk a beat after it's built, then the lamps
+    clearTimeout(nightT);
+    nightT = setTimeout(() => { step('evening'); nightT = setTimeout(() => step('night'), GAP); }, DUSK);
+  });
+  BYOC.on('reset', () => {                                            // setup, not the run: straight back to morning
+    clearTimeout(nightT); clearTimeout(waitT); lastRun = 0; cycleAt = 'morning'; if (mode === 'cycle') show();
+  });
   // tell the other layers where we start (PlayfulInk reads the mode itself; this is the scene)
   setTimeout(() => document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: tod, mode, from: 'painted-living' } })), 0);
 
@@ -104,7 +135,7 @@
     if (d.mode === 'cycle' || d.mode === 'day' || d.mode === 'night') mode = d.mode;
     else if (d.time) { mode = d.time === 'night' ? 'night' : 'day'; }  // an older caller naming a time pins it
     else return;
-    show();
+    clearTimeout(waitT); show();                                      // her tap: at once, 0.8 s
   });
   document.addEventListener('studio:poke', e => { const o = e.detail && e.detail.obj; if (o) call(l => l.poke(o)); });
 })();
