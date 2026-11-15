@@ -1,0 +1,200 @@
+[hidden] { display: none !important; } /* builder hand edit: hidden must win over display rules (the sold-out mark showed on every loaf) */
+:root {
+  --cream: #F6EFE4;
+  --flour: #FFFBF4;
+  --crust: #5A3B22;
+  --ink: #3A2514;
+  --muted: #6B563F;        /* 6:1 on cream */
+  --accent: #B5462F;       /* rye red: Reserve and the stamp */
+  --rule: #DDCFB9;
+  --kraft: #D9B98C;
+  --display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --text: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --hand: "Caveat", "Bradley Hand", "Segoe Print", cursive;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--cream); color: var(--ink);
+  font: 400 18px/1.5 var(--text);
+  max-width: 560px; margin-inline: auto; padding-bottom: 48px;
+}
+h1, h2, h3, p { margin: 0; }
+
+.banner {
+  background: var(--crust); color: var(--flour);
+  font-size: 15px; line-height: 1.35; text-align: center; padding: 8px 16px;
+}
+
+.masthead { display: flex; align-items: center; gap: 16px; padding: 24px 16px 8px; }
+.logo { flex: none; width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 2px solid var(--crust); background: #F8EDD8; }
+.logo img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.9) translate(2%, 4%); display: block; }
+h1 { font: 600 40px/1.05 var(--display); color: var(--crust); font-variation-settings: "opsz" 72; }
+.tag { color: var(--muted); font-style: italic; }
+
+main { padding: 0 16px; }
+.section { font: 600 15px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 28px 0 8px; }
+.lede { margin-bottom: 16px; }
+
+/* ---- the shelf ---- */
+.loaves { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; }
+.loaf { border-top: 2px solid var(--rule); padding-top: 16px; }
+.photo { position: relative; margin: 0 0 12px; border-radius: 4px; overflow: hidden; aspect-ratio: 4 / 3; background: #E8DCC6; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter .4s; }
+.loaf.out .photo img { filter: grayscale(1) contrast(.9) brightness(1.05); opacity: .75; }
+.name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.name { position: relative; display: inline-block; font: 600 28px/1.15 var(--display); color: var(--crust); font-variation-settings: "opsz" 48; }
+.scribble { position: absolute; left: -6px; right: -6px; top: 50%; width: calc(100% + 12px); height: 18px; transform: translateY(-45%); overflow: visible; }
+.scribble path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 0; animation: draw .6s ease-out; }
+.count { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.desc { color: var(--muted); margin: 4px 0 12px; }
+.loaf.out .name { color: var(--muted); }
+.hand { font: 600 30px/1 var(--hand); color: var(--accent); transform: rotate(-3deg); display: inline-block; margin-top: 4px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 24px;
+  font: 600 18px/1 var(--text); border-radius: 999px; cursor: pointer; border: 2px solid var(--accent);
+  background: var(--accent); color: var(--flour); width: 100%; -webkit-tap-highlight-color: transparent;
+}
+.btn.quiet { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn:focus-visible, input:focus-visible { outline: 3px solid var(--crust); outline-offset: 2px; }
+
+.reserve { margin-top: 12px; display: grid; gap: 10px; }
+.reserve[hidden] { display: none; }
+.reserve label { font-weight: 600; }
+.reserve input {
+  font: 400 20px/1 var(--text); min-height: 52px; padding: 0 16px; border: 2px solid var(--crust); border-radius: 12px;
+  background: var(--flour); color: var(--ink); width: 100%;
+}
+.note { min-height: 1.5em; color: var(--ink); }
+.note.warm { color: var(--crust); font-style: italic; }
+
+footer { padding: 32px 16px 0; color: var(--muted); font-size: 16px; text-align: center; }
+
+/* ---- the bag: sticker, oven, stamp ---- */
+.bags { margin-bottom: 8px; }
+.bag {
+  position: relative; background: var(--kraft); color: #2B1B0E; border-radius: 6px; padding: 20px 16px 18px; margin-bottom: 16px; overflow: hidden;
+}
+.bag::before { /* folded top edge of the paper bag */
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 10px; background: rgba(90,59,34,.18);
+}
+.bag-top { display: flex; gap: 14px; align-items: center; margin-top: 8px; }
+.bag-photo { flex: none; width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 3px solid var(--flour); }
+.sticker {
+  background: var(--flour); border: 2px dashed var(--crust); border-radius: 18px; padding: 14px 16px;
+  transform: rotate(-1.5deg); font: 500 20px/1.35 var(--display); color: var(--ink); flex: 1;
+}
+.keep { margin-top: 14px; font-size: 17px; }
+.oven { display: block; width: 150px; height: 96px; margin: 12px auto 0; }
+.oven .loaf-shape { animation: bake 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.oven .glow { animation: glow 5s ease-in-out infinite; }
+@keyframes bake {
+  0%, 25% { transform: translate(0, 0) scale(.82); }
+  60%, 85% { transform: translate(0, -34px) scale(1); }
+  100% { transform: translate(0, 0) scale(.82); }
+}
+@keyframes glow { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
+@keyframes draw { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }
+
+.stamp-wrap { position: absolute; right: 10px; bottom: 8px; pointer-events: none; }
+.stamp {
+  display: block; font: 600 30px/1 var(--display); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); border: 4px solid var(--accent); border-radius: 10px; padding: 8px 14px;
+  transform: rotate(-9deg); filter: url(#ink); opacity: .92; mix-blend-mode: multiply;
+}
+.stamp::after { content: ""; position: absolute; inset: 4px; border: 1.5px solid var(--accent); border-radius: 6px; }
+.bag.delivered .keep, .bag.delivered .oven { display: none; }
+.bag.delivered { padding-bottom: 76px; }
+.bag.landing .stamp { animation: land .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+.bag.landing { animation: thud .4s .25s ease-out; }
+@keyframes land {
+  0% { transform: rotate(-24deg) scale(2.6); opacity: 0; }
+  60% { opacity: .95; }
+  100% { transform: rotate(-9deg) scale(1); opacity: .92; }
+}
+@keyframes thud { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(3px); } }
+.bag.released { background: #E6DCCB; }
+.bag.released .oven, .bag.released .keep { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .oven .loaf-shape, .oven .glow, .bag.landing, .bag.landing .stamp, .scribble path { animation: none; }
+  .oven .loaf-shape { transform: translate(0, -20px); }
+}
+
+/* builder hand edit 3: "Reserving as <name> · not you?" */
+.as { margin: 0; font-size: 17px; color: var(--crust, #5A3B22); }
+.not-you { background: none; border: 0; padding: 4px 2px; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
+
+/* builder hand edit 4: the delivered moment, the sold-out aside, the usual, the regulars' corner, the credit */
+.bag { position: relative; }
+.bag.delivered { background: #E9C48C; box-shadow: 0 0 0 3px #F3DDB4 inset; }
+.bag.landing { animation: reveal .6s ease-out both; }
+@keyframes reveal { 0% { transform: scale(.97); filter: brightness(.92); } 60% { transform: scale(1.015); } 100% { transform: none; filter: none; } }
+.bag .stamp { font-family: var(--hand); font-size: 26px; letter-spacing: 0; text-transform: none; transform: rotate(-7deg); }
+.cheer { margin: 6px 0 0; font-size: 17px; color: var(--crust, #5A3B22); }
+.flour { position: absolute; left: 50%; top: 45%; width: 0; height: 0; pointer-events: none; }
+.flour i { position: absolute; width: var(--s); height: var(--s); border-radius: 50%; background: #FFFBF4; opacity: 0;
+  box-shadow: 0 0 0 1px rgba(90,59,34,.18), 0 0 8px rgba(255,251,244,.95); animation: dust 1.2s ease-out forwards; }
+@keyframes dust { 0% { transform: translate(0,0) scale(.4); opacity: .95; } 100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } }
+.hand-wrap .aside { margin: 2px 0 0; font-size: 17px; color: var(--crust, #5A3B22); }
+.usual { margin: 6px 0 0; font: 600 24px/1 var(--hand); color: var(--accent); }
+.regulars { margin: 40px 16px 0; padding: 20px; border: 2px dashed #CDB79A; border-radius: 14px; }
+.regulars p { margin: 0; font-size: 17px; line-height: 1.6; }
+.credit { margin-top: 8px; font-size: 15px; opacity: .85; }
+@media (prefers-reduced-motion: reduce) {
+  .bag.landing { animation: none; }
+  .flour { display: none; }
+}
+
+/* ---- builder hand edit 5: design polish (taste-skill rules for a place; CSS and static markup only) ---- */
+:root { --r: 14px; --card: #FFFBF4; --line: #E6D9C4; }
+body { font-size: 17px; line-height: 1.55; }
+p, h1, h2, h3 { text-wrap: pretty; }
+.banner { font-size: 13.5px; padding: 8px 16px; text-wrap: balance; letter-spacing: .01em; }
+
+/* the hero: the name big and tight, the mark beside it, one calm line under */
+.masthead { display: block; padding: 28px 16px 4px; }
+.mast-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+h1 { font-size: 46px; line-height: 1; letter-spacing: -.008em; word-spacing: .04em; font-variation-settings: "opsz" 72; max-width: 9ch; }
+.logo { width: 60px; height: 60px; margin-top: 4px; border-width: 1.5px; }
+.tag { margin-top: 12px; font-style: normal; font-size: 18px; color: var(--muted); text-wrap: pretty; max-width: 30ch; }
+
+/* section labels: sentence case in the display face, never tracked capitals */
+.section { font: 600 22px/1.2 var(--display); letter-spacing: 0; text-transform: none; color: var(--crust); margin: 32px 0 8px; }
+.lede { margin-bottom: 20px; color: var(--ink); text-wrap: balance; }
+
+/* the product cards: one surface, one radius, the photo framed inside */
+.loaves { gap: 16px; }
+.loaf { border: 1px solid var(--line); border-top: 1px solid var(--line); background: var(--card); border-radius: var(--r); padding: 12px 12px 16px; }
+.photo { border-radius: 10px; aspect-ratio: 3 / 2; margin-bottom: 14px; }
+.photo img { object-position: 50% 58%; transition: filter .4s, transform .5s ease; }
+@media (hover: hover) { .loaf:hover .photo img { transform: scale(1.025); } }
+.name-row { align-items: center; padding: 0 4px; }
+.name { font-size: 26px; letter-spacing: -.01em; }
+.count { font-size: 15px; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: #F1E4CF; color: var(--crust); }
+.loaf.out .count { background: transparent; }
+.desc { padding: 0 4px; margin: 6px 0 14px; font-size: 16.5px; }
+.hand-wrap, .usual { padding: 0 4px; }
+.hand-wrap { margin: 0 0 12px; }
+.btn { min-height: 54px; font-size: 18px; letter-spacing: .005em; transition: transform .08s ease, filter .15s ease; }
+@media (hover: hover) { .btn:hover { filter: brightness(1.06); transform: translateY(-1px); } }
+.btn:active { transform: translateY(1px); }
+.reserve { padding: 0 4px; }
+.reserve input { border-width: 1.5px; border-radius: 12px; }
+.as { padding: 4px 0; }
+
+/* the bag: a cleaner paper bag, room for the stamp */
+.bag { border-radius: var(--r); padding-bottom: 20px; }
+.sticker { box-shadow: 0 1px 0 rgba(58,37,20,.12); transform: rotate(-.6deg); }
+.bag.delivered .sticker { transform: rotate(.4deg); }
+.bag.delivered { padding-bottom: 64px; }
+.cheer { font-weight: 600; }
+
+/* regulars' corner: a quiet kraft card, its heading like the others */
+.regulars { margin: 32px 16px 0; padding: 20px; border: 0; border-radius: var(--r); background: #EFE2CC; }
+.regulars .section { margin: 0 0 8px; }
+footer { padding-top: 28px; }
+footer p { text-wrap: balance; }
+@media (prefers-reduced-motion: reduce) { .photo img, .btn { transition: none; } .loaf:hover .photo img { transform: none; } }
