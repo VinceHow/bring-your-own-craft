@@ -126,7 +126,7 @@ test('the takeaways she keeps: "what I believe" goes to her hidden file and her 
   assert.equal(saveTakeaways({ run, askId: 'zz', believe: 'x' }).code, 404);
 });
 
-test('room chatter: from real events, by name, never to her, never a question, calm', () => {
+test('room chatter: from real events, by name, never to her, never a question, calm', async () => {
   installChatter();
   const run = newRunId(`ch-${Math.random().toString(36).slice(2, 8)}`);
   logEvent(run, 'run.start', { idea: 'x', seat: 'product' });
@@ -137,10 +137,23 @@ test('room chatter: from real events, by name, never to her, never a question, c
   logEvent(run, 'decided', { id: 'c5', seat: 'strategy', decision: 'Whether regulars get a class pass', choice: 'Class pass shown first', cites: 'team default' });
   for (let i = 0; i < 5; i++) logEvent(run, 'decided', { id: `d${i}`, seat: 'design', decision: `Layout ${i}`, choice: `Option ${i}`, cites: 'team default' });
   const chatter = readEvents(run).filter(e => e.type === 'chatter');
-  assert.deepEqual(chatter.slice(0, 2).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Ines: class pass shown first.']);
+  assert.deepEqual(chatter.slice(0, 2).map(c => c.by), ['Noor', 'Ines']);
+  const { VARIANTS } = await import('../lib/chatter.js');
+  assert.ok(VARIANTS.source.research.map(f => f('full classes at small studios')).includes(chatter[0].text), `Noor's line is one of hers: ${chatter[0].text}`);
+  assert.ok(VARIANTS.call.strategy.map(f => f('class pass shown first')).includes(chatter[1].text), `Ines's line is one of hers: ${chatter[1].text}`);
+  assert.ok(!chatter.some(c => /^[A-Z][a-z]+:/.test(c.text)), 'no "Name:" prefix: the room shows the speaker');
   assert.ok(!chatter.some(c => c.from === 'teammate.done'), 'a work note is a log, never chatter');
-  assert.ok(chatter.every(c => c.text.split(' ').length <= 15 && !/…/.test(c.text)), 'short, never cut');
-  assert.equal(lineFor({ type: 'decided', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' }), 'Bo: name and email, no account.');
+  assert.ok(chatter.every(c => c.text.split(' ').length <= 12 && !/…/.test(c.text)), 'short (12 words at most), never cut mid-word');
+  const { trimTail, CHATTER_WORDS } = await import('../lib/chatter.js');
+  assert.equal(CHATTER_WORDS, 12);
+  assert.equal(trimTail("Going with an 8pm cut-off for next-morning orders and a waitlist, it's what customers expect.", 'an 8pm cut-off for next-morning orders and a waitlist'), 'Going with an 8pm cut-off for next-morning orders and a waitlist.', 'too long: the tail clause goes, the call stays');
+  assert.equal(trimTail('Keeping it simple, name and email.', 'name and email'), null, 'nothing after the slot to cut');
+  const long = lineFor({ type: 'decided', id: 'z', seat: 'strategy', decision: 'x', choice: 'An 8pm cut-off for next-morning orders and a small waitlist', cites: 'team default' });
+  assert.ok(long && long.split(' ').length <= 12 && /8pm cut-off for next-morning orders and a small waitlist/.test(long), `a long call keeps the call: ${long}`);
+  const bo = lineFor({ type: 'decided', id: 'd1', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' });
+  assert.ok(/name and email, no account/i.test(bo) && chatterLine(bo) && /^[A-Z]/.test(bo), `Bo says the call, warmly: ${bo}`);
+  const ev = { type: 'decided', id: 'd7', seat: 'design', decision: 'x', choice: 'Usual loaf first', cites: 'team default' };
+  assert.equal(lineFor(ev), lineFor({ ...ev }), 'the same event says the same line (R replays it)');
   assert.ok(!chatterLine('Ines: pricing and payment decisions for a single-bakery pre-order site: when customers pay…'), 'a log line is not chatter');
   assert.ok(chatter.every(c => okLine(c.text)));
   assert.ok(!chatter.some(c => c.seat === 'product'), 'her seat never chatters');
