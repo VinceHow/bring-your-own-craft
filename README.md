@@ -25,6 +25,10 @@ reach her, each about what she knows best: who the bakery is really for (Wren's 
 should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. Then one press, and her
 ordering page is filled from her answers.
 
+Two more things you can see happen: **sit in any seat** (pick your craft on the name tag; the teammate who held it
+steps aside; Product is the default and the demo seat), and **your app starts building the moment you say Team, go**;
+each later decision builds the next version, with a line on what changed.
+
 At the end, the judges become the bakery's regulars. Pressing **Open the app** shows a QR card for The Usual, a live
 bakery that Bo's agent drafted earlier and our builders finished (built ahead, not in the room; source in
 [`deploy/`](deploy/README.md)). The judges scan it and reserve a real loaf; we tap **Deliver**, and every phone flips
