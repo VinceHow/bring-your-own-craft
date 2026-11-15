@@ -89,6 +89,39 @@ if (onPath && (process.env.MODEL_BACKEND || 'claude-code') === 'claude-code') {
 
 }
 
+// 2c. A burst shaped like her Send in a focus moment (b3, beats): four calls at once, as the server fires them:
+// the meeting's reading (sonnet), the first reply (haiku, the line she waits for), Design's redraw (sonnet) and the run
+// of decisions (haiku), all low effort, through lib/model.js. The wall time is what she waits for the whole room; over
+// 10 s this laptop is too slow for the live calls (the fix: MODEL_BACKEND=fal in .env.local).
+async function sendBurst(M) {
+  const line = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] };
+  const shapes = [
+    ['reading (sonnet)', 'sonnet', 'You read what a small business owner said about who her bakery website is for, and sum up what she believes in one sentence, in her voice.'],
+    ['first reply (haiku)', 'haiku', 'You are Noor, the researcher on a small team. React to what she said in one short line (under 15 words). Never a question.'],
+    ['redraw (sonnet)', 'sonnet', 'You are Design. Redraw a customer journey as 3 to 5 short stage names, from what she said. Reply with the stages joined by " -> " in text.'],
+    ['decisions (haiku)', 'haiku', 'You are a small product team. Name three short product calls her answer settles, joined by "; " in text.'],
+  ];
+  const said = "It's really for the regulars. They come every morning and hate it when the sourdough's gone by nine.";
+  const t0 = Date.now();
+  const out = await Promise.all(shapes.map(async ([name, model, system]) => {
+    const t = Date.now();
+    try { await M.callModel({ system, user: said, schema: line, model, effort: 'low', timeoutMs: 60000, label: `doctor ${name}` }); return `${name} ${((Date.now() - t) / 1000).toFixed(1)} s`; }
+    catch (e) { return `${name} FAILED (${short(e, 60)})`; }
+  }));
+  return { secs: (Date.now() - t0) / 1000, out, failed: out.some(o => /FAILED/.test(o)) };
+}
+const burstReady = async () => (process.env.MODEL_BACKEND || 'claude-code') !== 'claude-code' || (r => !r.error && !r.timeout && r.code === 0)(await run('claude', ['--version'], 15000));
+if (want('burst') && await burstReady()) {
+  const M = await import('../lib/model.js');
+  process.env.MODEL_QUIET = '1';
+  const b = await sendBurst(M);
+  delete process.env.MODEL_QUIET;
+  const backendName = process.env.MODEL_BACKEND || 'claude-code';
+  say(b.failed ? 'warn' : b.secs > 10 ? 'warn' : true,
+    `A Send-shaped burst (4 calls at once, ${backendName}): ${b.secs.toFixed(1)} s wall · ${b.out.join(' · ')}${b.secs > 10 ? ' (slow: her replies will lag on stage)' : ''}`,
+    'over 10 s: close other apps, or set MODEL_BACKEND=fal in .env.local (the live calls go to fal); MODEL_CONCURRENCY=2 limits how many run at once');
+}
+
 // 3. Keys: set or missing (never the value), and 4. each works, with one cheap call
 const set = k => !!process.env[k];
 if (want('keys')) {
