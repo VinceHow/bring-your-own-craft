@@ -2,8 +2,8 @@
 
 **Do the part you love; a team of agents does the rest.**
 
-![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.jpg)
-<sub>The studio mid-run on the bakery idea: five agent teammates at work round the table, her stool in front.</sub>
+![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.webp)
+<sub>The studio mid-run: five agent teammates at work round the table, her stool in front (the bakery run, replayed from its recording).</sub>
 
 You spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You take the seat of
 your craft; a team of AI agents fills every other seat, handles its own work, and brings you only the few big
@@ -43,18 +43,18 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 ## See it
 **The door opens on the studio.**
 
-![The studio door opening onto the room](docs/readme/door.jpg)
+![The studio door opening onto the room](docs/readme/door.webp)
 
 **Her name tag, and meeting the team.**
 
 <p>
-<img src="docs/readme/nametag.jpg" alt="Priya's name tag: the Regular Maker" width="38%">
-<img src="docs/readme/meet.jpg" alt="Meeting Mika, the Design teammate" width="50%">
+<img src="docs/readme/nametag.webp" alt="Priya's name tag: the Regular Maker" width="38%">
+<img src="docs/readme/meet.webp" alt="Meeting Mika, the Design teammate" width="50%">
 </p>
 
 **The tidy: her spoken sentence, cleaned up in her own words.**
 
-<img src="docs/readme/tidy.jpg" alt="A pen strikes 'um so basically' from her spoken idea" width="45%">
+<img src="docs/readme/tidy.webp" alt="A pen strikes 'um so basically' from her spoken idea" width="45%">
 
 **A focus moment: she answers, and the team builds on her.**
 
