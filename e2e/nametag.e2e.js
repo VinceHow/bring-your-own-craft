@@ -151,8 +151,8 @@ test('after the mic (her words land through BYOC.typeInto), Enter still makes th
   await page.close();
 });
 
-test('painted: after the team, her idea input is on screen and focused (a look never hides it), and typing goes into it', async () => {
-  const { page } = await card(ok(0), { look: '?look=painted' });
+for (const [lookName, look] of LOOKS) test(`${lookName}: after the team, her idea input is on screen and focused (a look never hides it), and typing goes into it`, async () => {
+  const { page } = await card(ok(0), { look });
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
   await page.keyboard.press('Enter');
