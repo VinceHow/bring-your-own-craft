@@ -3,7 +3,7 @@ const { execFileSync } = require('child_process');
 const diff = (a, b) => execFileSync('python3', ['-c', "import sys,numpy as np;from PIL import Image as I;a,b=[np.asarray(I.open(f).convert('RGB')).astype(int) for f in sys.argv[1:3]];print('%.2f'%((np.abs(a-b).sum(2)>12).mean()*100))", a, b]).toString().trim();
 (async () => {
   const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
-  for (const [W, H] of [[1440, 900]]) for (const mode of ['day', 'night']) {
+  for (const [W, H] of [[1920, 1130], [1440, 900]]) for (const mode of ['day', 'night']) {
     const ctx = await b.newContext({ viewport: { width: W, height: H }, reducedMotion: 'reduce' });
     const page = await ctx.newPage(); const errs = []; page.on('pageerror', e => errs.push(e.message));
     await page.addInitScript(m => { try { localStorage.setItem('byoc.timeMode', m); } catch (e) {} }, mode);
@@ -30,7 +30,7 @@ const diff = (a, b) => execFileSync('python3', ['-c', "import sys,numpy as np;fr
     const left = await page.evaluate(() => document.querySelectorAll('.pi-heart').length);
     console.log('  cat pet: clip', JSON.stringify(cat), 'hearts at 0.5 s', JSON.stringify(h1), 'at 1.2 s', JSON.stringify(h2), 'hearts left after 2.7 s:', left);
     console.log('  page errors:', errs.length ? errs : 'none');
-    if (mode === 'night') await page.screenshot({ path: 'reduced-night.png' });
+    await page.screenshot({ path: process.env.OUT + '/reduced-' + mode + '-' + W + 'x' + H + '.png' });
     await ctx.close();
   }
   await b.close();
