@@ -35,7 +35,7 @@ before(async () => {
 after(async () => { await browser?.close(); srv?.kill(); });
 
 test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
-  await page.goto(BASE + '/?hold=300&path=full');
+  await page.goto(BASE + '/?hold=300&path=full&meeting=0');
   await page.waitForTimeout(800);
   await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
@@ -62,7 +62,7 @@ test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward ke
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   await p.route('**/api/name-tag', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ craft: 'Baker', title: 'the Dawn Baker',
     traits: ['dough whisperer', 'up at 4am'], superpower: 'knows every regular', goodAt: 'mixing dough', loves: 'the first batch out', alternates: { titles: [], traits: [], superpowers: [] }, ms: 5 }) }));
-  await p.goto(BASE + '/?hold=300&path=full');
+  await p.goto(BASE + '/?hold=300&path=full&meeting=0');
   await p.waitForTimeout(500);
   for (const key of ['Enter', 'PageDown']) {
     await p.evaluate(() => { window.__tag = BYOC.nameTag.open(); });
