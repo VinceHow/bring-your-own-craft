@@ -516,7 +516,7 @@ html:not(.painted-on) .idea-card .idea-make { font: inherit; font-size: 18px; pa
 .nt-name { font: inherit; font-size: 30px; padding: 4px 8px; }
 .pick-options { display: flex; flex-wrap: wrap; gap: 8px; } /* any seat: one compact chip row, Product preselected */
 .pick-option { flex: 0 0 auto; font: inherit; font-size: 17px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; cursor: pointer; }
-.pick-option[data-seat="craft"] { margin-left: 4px; }
+.pick-option[data-seat="craft"] { margin-left: 4px; border-style: dashed !important; } /* "something else", not a seventh seat (design lead) */
 .pick-option[aria-pressed="true"] { outline: 3px solid currentColor; }
 .nt-love { width: 100%; }
 .nt-hint { font-size: 16px; }
