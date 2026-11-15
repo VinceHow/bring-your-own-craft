@@ -20,11 +20,11 @@
   - on: journey (n1) · settles: c9, c13, c21 · valid Ask: true
   - from c9: Who the site serves first: busy regulars or first-time neighbours (team's recommendation if she skips it: Regulars who reorder weekly)
   - why (logged only): changes the shape of the product; draws on what you know best; your file says nothing on it.
-- **Noor:** "What does a customer need to feel sure of after ordering, so they trust the bread will be waiting?" (her domain: customer problem)
+- **Wren:** "What does a customer need to feel sure of after ordering, so they trust the bread will be waiting?" (her domain: customer problem)
   - on: journey (n4) · settles: c23 · valid Ask: true
   - from c23: What promise we make once an order is placed (team's recommendation if she skips it: Guaranteed, with a limit per loaf)
   - why (logged only): changes the shape of the product; draws on what you know; your file says nothing on it.
-- **Noor:** "How early can a customer realistically know what bread they want, and how early does the baker need to know?" (her domain: user journey)
+- **Wren:** "How early can a customer realistically know what bread they want, and how early does the baker need to know?" (her domain: user journey)
   - on: finding (https://www.hippocampus.si/ISSN/1854-6935/23.259-294.pdf) · settles: c22 · valid Ask: true
   - from c22: How far ahead the baker needs orders (cutoff before pickup day) (team's recommendation if she skips it: Night before)
   - why (logged only): changes the product; draws on what you know; your file says nothing on it; backed by Small bakeries lose bread to guessing how much to bake.

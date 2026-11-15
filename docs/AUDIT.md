@@ -42,7 +42,7 @@ per-segment times, not a stage total (see a).
   about $7.9–8.5 of $10.
 - **Driver artefacts, not product faults:**
   - My selector for "Focus 1 in her inbox" was wrong (`#inbox .inbox-now`). Meanwhile a stray → opened Focus 1 at
-    about 64 s, and that → also caused the one 409 (`POST /first`, a repeat). The video shows "Noor has a question →"
+    about 64 s, and that → also caused the one 409 (`POST /first`, a repeat). The video shows "Wren has a question →"
     about 7 s after the reveal.
   - That gap, about 75 s of dead time between 68 s and 147 s, is my driver's, not the app's.
 
@@ -54,7 +54,7 @@ per-segment times, not a stage total (see a).
 | Name tag Enter → the team's read on her tag | 2.1 s ("Priya, the Journey Mapper") | 0:05–0:15 |
 | Meet the team, 5 cards (driver pressed Next every ~2 s) + door + reveal | ≈14 s | 0:15–0:31 |
 | Reveal → first sketch drawn | already drawn at the reveal (sketch.done before the room settled) | 0:31–0:38 |
-| Reveal → "Noor has a question →" | ≈7 s (video 37 → 44 s) | by 0:38 |
+| Reveal → "Wren has a question →" | ≈7 s (video 37 → 44 s) | by 0:38 |
 | Focus 1 Send → first reply visible | 2.2 s (round 1); round 2 done in 1.3 s | "under a second" (aim) |
 | Focus 1 End meeting → takeaways | 3.7 s | |
 | Focus 1 closed → Bo's unblock in inbox | < 0.1 s | 0:58 |
@@ -103,9 +103,9 @@ likely be needed.** Vincent's 07:00 timed run is the real number.
 | New opening, IDEA → YOU → TEAM | **PASS.** Idea paper, then name tag, then 5 meet cards with tailored lines (all 5 `tailored`), the door, the room with her idea on the sheet and the run already sketched. | `fal/02`–`13`, `fal/x-reveal-grid.jpg` |
 | 0:00 on-screen words | **FAIL (doc vs screen).** DEMO.md's 0:00 row says the blank sheet reads **"What's the idea?"**; the paper says **"What do you want to build today?"** REHEARSAL (Sun 01:21) has the new words, so DEMO.md wasn't re-synced. "What's the idea?" is now the room sheet's label. | `fal/02-idea-paper.jpg` |
 | Name tag | PASS. "Priya, the Journey Mapper · problem detective · user obsessed · solution builder", superpower line, "In your words" kept verbatim, "tap any piece to swap it". | `fal/06-nametag-shown.jpg` |
-| Meet the team | PASS. Name · role · agent mark, a tailored line each, "Brings", "Loaded with" / "Made with". DEMO says "the teammate fitted to this idea comes last"; the order was Mika, Theo, Noor, Ines, Bo, and I can't tell from the screen which teammate was "fitted". | `fal/07`–`11` |
+| Meet the team | PASS. Name · role · agent mark, a tailored line each, "Brings", "Loaded with" / "Made with". DEMO says "the teammate fitted to this idea comes last"; the order was Mika, Theo, Wren, Ines, Bo, and I can't tell from the screen which teammate was "fitted". | `fal/07`–`11` |
 | Reveal + team gets going | PASS. Users "Regular customers · First-time visitors · Bakery staff", stages "Browse breads → Pick a loaf → Choose pickup time → Place order → Collect". No screens. | `fal/x-chatter-overlap-1280.png` |
-| Focus 1 | PASS. Noor · Research; "researched before the demo"; the Bakery Business finding with its source and date; "Who should we build this for first?"; two rounds of replies (Noor, Theo), End meeting, takeaways in her voice, Keep, Team notes · 5. | `fal/15`–`22` |
+| Focus 1 | PASS. Wren · Research; "researched before the demo"; the Bakery Business finding with its source and date; "Who should we build this for first?"; two rounds of replies (Wren, Theo), End meeting, takeaways in her voice, Keep, Team notes · 5. | `fal/15`–`22` |
 | Unblock | PASS, word for word: "Bo's blocked · Setting up ordering · When do orders close? · We suggest 8pm the night before · Yes · Say something else". Yes → "Told Bo: 8pm the night before"; Bo's chatter "Got it: 8pm the night before. Carrying on." | `fal/24`, `fal/25` |
 | Focus 2 | PASS. Mika's journey in words (6 timed steps, "Sam" 7:10–8:45); "What should this feel like for a regular?"; one round; 4 steps rewritten in front of her; takeaways "ordering ahead should feel like the baker already knows you… just their first name: no account, no payment". Odd model text: "Sam says Sam's name, reserves Sam's usual loaf" (the names-only rule). | `fal/27`–`29` |
 | **The Focus 2 line's cite** | **PASS.** Her Focus 2 takeaway became L4. Of 29 distinct team decisions, **7 cite L4** (and 3 cite L3, Focus 1). The page's own list shows "Book your usual with just your first name". | `fal/events-summary.json` |
@@ -132,7 +132,7 @@ likely be needed.** Vincent's 07:00 timed run is the real number.
 | Fallback | Result | Evidence |
 |---|---|---|
 | `?look=plain` | **FAIL**: the run works end to end (room 22 s after the idea), but the **first screen is unstyled**: the idea card sits bottom-right with raw form controls. | `fallbacks/c1-plain-first-1440.jpg` (I opened it myself) |
-| R replay | PASS, but **slow**. The label shows throughout, with 3 asks, 3 rounds, 2 takeaways and her page; no errors. **It takes 4 min 24 s**, and Focus 1's rounds play with the doc closed (≈80 s showing only "Noor has a question →"). If R is pressed early, it alone overruns the slot. See FAIL 7. | `fallbacks/c2-*` |
+| R replay | PASS, but **slow**. The label shows throughout, with 3 asks, 3 rounds, 2 takeaways and her page; no errors. **It takes 4 min 24 s**, and Focus 1's rounds play with the doc closed (≈80 s showing only "Wren has a question →"). If R is pressed early, it alone overruns the slot. See FAIL 7. | `fallbacks/c2-*` |
 | `?setup=classic` | PASS: name tag → team → "What's the idea?" at the reveal. | `fallbacks/c3-*` |
 | `?meeting=0` | PASS (stub): single Send to `/answer`, no End meeting (`public/focus-doc.js:81`). | `fallbacks/c4-*` |
 | Fallback B (env lines → doctor) | PASS. After the switch, the first line of doctor and `npm run local` is `route: claude-code (company gateway: haiku roles → sonnet)`, word for word; the burst took 8.2 s (< 10). Original: `route: fal`. WARN case: `route: fal (TAG_MODEL=sonnet, …)` + the WARN line. Dummy keys only; full doctor with fal on not run. | `fallbacks/RESULTS.md` |
@@ -224,7 +224,7 @@ Caveats:
 - Every wait I saw had a plain status: "The team is writing your tag…", "The team is writing the takeaways…",
   "Building v1…", "Building…".
 - The stuck point after Team, go is FAIL 1.
-- Chatter didn't fade: "Noor is picturing bakery staff" stayed under her sheet from ~44 s to ~171 s.
+- Chatter didn't fade: "Wren is picturing bakery staff" stayed under her sheet from ~44 s to ~171 s.
 
 **§5 Nothing broken-looking.** **FAIL** (FAILs 3, 4, 5, 6).
 - No page scrollbars at 1920/1440/1280, day and night (`fal/sweep.txt`).
@@ -238,7 +238,7 @@ Caveats:
 
 **§6 True on screen.** PASS for the room, **FAIL** for the site credit (b).
 - Labels, as in b.
-- "Loaded with" / "Made with" on the meet cards: Linkup for Noor, Claude on every card, "Claude (Sonnet), through
+- "Loaded with" / "Made with" on the meet cards: Linkup for Wren, Claude on every card, "Claude (Sonnet), through
   fal" and "This app, built with Claude Code" for Bo, "painted on fal / laid out in Figma" for Mika, taste-skill
   (MIT) for Mika.
 - Cap and key: as in b.
@@ -254,7 +254,7 @@ except the plain first screen and the missing clip (c).
 | The tidy (idea) | ≈5.6–8 s | fine | A clean result in about 1.5 s, but a cross-fade with brief double text, not the strike-and-close-up. |
 | The handwritten name tag | ≈19–24 s | fine | Lands in 2.1 s with a nice read, but "Make my tag" is clipped while it writes (FAIL 6). |
 | Each meet card's entrance | ≈24–34 s | magical | Dealt in, calm, big face and a tailored line. |
-| The team getting to work | ≈38–50 s | fine | The sketch is already drawn at the reveal and "Noor has a question →" arrives about 6 s later. Chatter overlaps the input (FAIL 4). |
+| The team getting to work | ≈38–50 s | fine | The sketch is already drawn at the reveal and "Wren has a question →" arrives about 6 s later. Chatter overlaps the input (FAIL 4). |
 | A teammate's reply arriving | ≈149–151 s | fine | 2.2 s to the first reply, against a sub-second aim; the replies themselves read well. |
 | End meeting → takeaways | ≈158–162 s | magical | "The team is writing the takeaways…" then a calm card in her voice. |
 | Bo's smile on Yes | ≈179–181 s | flat | Yes → "Told Bo: 8pm the night before" → room; at this size I couldn't see a distinct smile on Bo. |
@@ -298,7 +298,7 @@ except the plain first screen and the missing clip (c).
 - Evidence: `fal/x-page-head-clipped-1280.png`, `fal/sweep-her-page-1440x900-night.jpg`.
 
 **4. The team's chatter line overlaps her sheet's input line, and doesn't fade (design/b3).**
-- **Seen:** "Noor is picturing bakery staff" sat over "React to it, or click a box" from ~44 s to ~171 s.
+- **Seen:** "Wren is picturing bakery staff" sat over "React to it, or click a box" from ~44 s to ~171 s.
 - **Where:** `[data-component="team-doing"]` from `public/looks/painted.js` (the "team at work" strip).
 - Evidence: `fal/x-chatter-overlap-1280.png`.
 

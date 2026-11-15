@@ -16,11 +16,11 @@
 ## Counter: 24 decisions came up · 3 brought to you · 21 decided
 
 ## Her 3
-- **Noor:** "Who is the person you most want this page to make a morning easier for?"
+- **Wren:** "Who is the person you most want this page to make a morning easier for?"
   - on: journey (n1) · settles: c5 · valid Ask: true
   - from c5: Who the page is for: regulars on a commute vs. anyone nearby (team's recommendation if she skips it: Regulars grabbing breakfast on the way to work)
   - why (logged only): changes the shape of the product; draws on what you know best; your file says nothing on it.
-- **Noor:** "What should someone feel when the pastry they were looking forward to is gone?"
+- **Wren:** "What should someone feel when the pastry they were looking forward to is gone?"
   - on: journey (n2) · settles: c7, c17 · valid Ask: true
   - from c7: What happens when a pastry sells out (team's recommendation if she skips it: Show live stock and hide sold-out items)
   - why (logged only): changes the product; draws on what you know; your file says nothing on it.

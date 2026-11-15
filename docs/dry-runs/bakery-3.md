@@ -24,7 +24,7 @@
   - on: journey (n4) · settles: c15, c19, c21, c23 · valid Ask: true
   - from c15: Whether customers pay online or at pickup (team's recommendation if she skips it: Pay at pickup)
   - why (logged only): changes the product; draws on what you know; your file barely touches it.
-- **Noor:** "When does the baker need to know what people want, and how does that fit with when customers actually decide?" (her domain: customer problem)
+- **Wren:** "When does the baker need to know what people want, and how does that fit with when customers actually decide?" (her domain: customer problem)
   - on: finding (https://www.hippocampus.si/ISSN/1854-6935/23.259-294.pdf) · settles: c17, c16 · valid Ask: true
   - from c17: Order cutoff: how far ahead customers must order (team's recommendation if she skips it: Night before, fixed time)
   - why (logged only): changes the product; draws on what you know; your file says nothing on it; backed by Small bakeries lose bread to guessing how much to bake.

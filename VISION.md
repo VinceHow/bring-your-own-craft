@@ -49,9 +49,9 @@ The product has two moments: a short setup that ends in her first question, then
 
 1. **She says the idea, first.** On paper, before anything else, one rough sentence: "a website for a small bakery, so customers can order bread ahead".
 2. **Her name tag, on paper.** Still no room: it's saved for the reveal. On a paper card she gives her name, her role (any craft, or her own) and, spoken in her own words, what she loves and brings: *"I love working on the customer journey, understanding the problems customers face, and building products that solve them."* Her ums and ahs are tidied into a clean sentence, and the team puts its own fun spin on it as her name tag, for example: "Priya, the Customer Whisperer", with traits like customer-obsessed, hands-on builder, problem hunter. Playful, not a transcript; she can swap anything. Unseen, the team starts its own picture of her.
-3. **She meets the team, one by one.** Mika, Noor, Theo, Ines and Bo, each up close: name, role, a line in their own voice about her idea, what they bring. The teammate fitted to this idea comes last. The teammates are people, not job titles: they wear whichever role the table needs.
+3. **She meets the team, one by one.** Mika, Wren, Theo, Ines and Bo, each up close: name, role, a line in their own voice about her idea, what they bring. The teammate fitted to this idea comes last. The teammates are people, not job titles: they wear whichever role the table needs.
 4. **The reveal.** The living studio, everyone already seated round the table, and she takes her seat.
-5. **The team gets going.** Within seconds, Noor and Mika put a rough journey on the table: who the users are, the stages they go through, no screens.
+5. **The team gets going.** Within seconds, Wren and Mika put a rough journey on the table: who the users are, the stages they go through, no screens.
 6. **Her first question.** It opens as a document: the rough journey, and one big question. *"What do people come to a bakery like this for that they can't get at the supermarket?"*
 
 **2. The engagement loop: the room works, she brings her best**
@@ -72,9 +72,9 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | --- | --- | --- |
 | The idea | 0:00–0:05 | First, on paper: one spoken sentence |
 | Her name tag | 0:05–0:15 | No room yet. On paper: her name, her role, what she loves, spoken; tidied into her name tag |
-| Meet the team | 0:15–0:27 | Mika, Noor, Theo, Ines, Bo one by one, up close: name, role, a line about her idea, what they bring |
+| Meet the team | 0:15–0:27 | Mika, Wren, Theo, Ines, Bo one by one, up close: name, role, a line about her idea, what they bring |
 | The reveal | 0:27–0:31 | The living studio, everyone seated; she takes her seat |
-| Team gets going | 0:35–0:45 | Noor and Mika's rough journey draws in (~4 s, measured) |
+| Team gets going | 0:35–0:45 | Wren and Mika's rough journey draws in (~4 s, measured) |
 | Focus moment 1 | 0:45–1:05 | Journey + one big question; she speaks; the team chimes in; the takeaways |
 | The room | 1:05–1:15 | Team talks things out; joint decisions land as cards in the team space; "21 handled · 3 for you" |
 | Focus moment 2 | 1:15–1:35 | From her tray: one document, one question; short |
@@ -83,7 +83,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | Her page | 2:20–2:34 | The page they built, clean: the product is just the product |
 | Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, N guessed (re-run on the bakery prompt) |
 
-**Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted; the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
+**Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted (on the demo path we set the three moments so the talk fits three minutes); the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
 
 **Smoke and mirrors (labelled where it shows):** only the documents she reviews have real depth; the room's chatter is light; the motion; the page template, prepared ahead; a prepared bakery journey if the live one is slow (PREPARED); recorded runs as fallbacks (REPLAY).
 
@@ -104,7 +104,7 @@ Most of our design effort goes into the studio, because feeling settled and safe
 - **No pressure, ever.** No timers, no counters ticking at her, no urgent interruptions. Waiting questions sit in a calm tray (no numbers, no red) and arrive only at natural pauses. Opening one turns the view into just her and one document: no dimming, no spotlight, nobody visibly waiting.
 - **No ceremony; keep what matters.** No logs, approvals or status in the room. The work that matters (her journey, Design's key screens) stays on the table, and the team decides what's worth keeping.
 - **Warm, not childish.** Calm, mature and tasteful; no points, levels, leaderboards, gradients or sparkles. Progress is about her (her takeaways) and the idea (the work itself getting sharper), never a score. The rough gem is a metaphor; nothing on screen is a gem or a progress bar.
-- **A team you'd love.** Mika, Noor, Theo, Ines and Bo are painted creature teammates with faces, each with a name, a small "agent" mark and never a pronoun. They stay seated; their moods come only from real events in the run. Personality lives in a few words: what each loves, their light chatter in the room, and how they respond when she speaks.
+- **A team you'd love.** Mika, Wren, Theo, Ines and Bo are painted creature teammates with faces, each with a name, a small "agent" mark and never a pronoun. They stay seated; their moods come only from real events in the run. Personality lives in a few words: what each loves, their light chatter in the room, and how they respond when she speaks.
 - **Real reactions only.** A line of chatter or a chime-in appears only when it really happened in the run, and a teammate only promises what the build will really show. Fake warmth would break trust.
 
 ## Still open

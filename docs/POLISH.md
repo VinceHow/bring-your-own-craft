@@ -30,7 +30,7 @@ clip path, or command output). Nothing is called done without evidence.
   Bo's smile on Yes. Fix anything flat.
 
 ## 4. Never lost, never stuck
-- Within 300 ms of any action she sees who is doing what ("Noor is reading what you said…").
+- Within 300 ms of any action she sees who is doing what ("Wren is reading what you said…").
 - Every wait has a plain status. A failure says so plainly, with Retry, and keeps her words. No dead pages.
 - The meeting: compose is calm (past rounds collapsed); Send shows live replies; End meeting gives the takeaways; the
   column scrolls to the newest item, with a "New replies ↓" pill if she has scrolled up.
@@ -50,7 +50,7 @@ clip path, or command output). Nothing is called done without evidence.
 ## 6. True on screen
 - Everything prepared ahead is labelled ("researched before the demo", "Recorded earlier", "made ahead").
 - Sponsor credits on the meet cards come in two lists, and every line must be true: **"Loaded with"** (used live: Linkup
-  for Noor, ElevenLabs on the mic, Claude for everyone, Claude Code for Bo only where it's literally true) and **"Made
+  for Wren, ElevenLabs on the mic, Claude for everyone, Claude Code for Bo only where it's literally true) and **"Made
   with"** (prepared ahead: fal for the painted studio, clips and music; Figma for the room's frames, taken from code into
   Figma per `design/FIGMA.md`; taste-skill).
 - Only big questions in her craft reach her, no number promised (rounds don't count as asks), and the fal key never appears in the browser, logs or `runs/`.
