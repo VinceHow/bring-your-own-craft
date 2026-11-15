@@ -216,6 +216,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     v.style.opacity = '';
     v.currentTime = 0; v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
     try { await v.play(); } catch (e) { if (p.cur === v) p.cur = prev; return; }
+    if (p.cur !== v) { v.pause(); return; }                // another mood took over while this one was starting
     v.classList.add('on');
     if (!p.live) { p.live = true; p.el.style.opacity = 1; }
     if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => {

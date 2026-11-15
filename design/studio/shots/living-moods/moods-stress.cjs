@@ -19,14 +19,14 @@ const SECS = +(process.argv[2] || 60);
       if (++i > SECS / .7) clearInterval(id);
     }, 700);
   }, SECS);
-  const frozen = {}; let samples = 0;
+  const frozen = {}, hidden = {}, run = {}, maxRun = {}, fz = {}, maxFz = {}; let samples = 0;
   const t0 = Date.now();
   while (Date.now() - t0 < SECS * 1000 + 3000) {
-    const r = await fr.evaluate(() => [...document.querySelectorAll('.patch')].filter(p => ['noor','theo','ines','mika','bo'].includes(p.dataset.who)).map(p => [p.dataset.who, [...p.querySelectorAll('video')].some(v => !v.paused && +getComputedStyle(v).opacity > .5)]));
-    samples++; for (const [w, ok] of r) if (!ok) frozen[w] = (frozen[w] || 0) + 1;
+    const r = await fr.evaluate(() => [...document.querySelectorAll('.patch')].filter(p => ['noor','theo','ines','mika','bo'].includes(p.dataset.who)).map(p => [p.dataset.who, [...p.querySelectorAll('video')].some(v => !v.paused && +getComputedStyle(v).opacity > .5), [...p.querySelectorAll('video')].filter(v => !v.paused && +getComputedStyle(v).opacity < .01).length]));
+    samples++; for (const [w, ok, hid] of r) { if (!ok) frozen[w] = (frozen[w] || 0) + 1; if (hid) hidden[w] = (hidden[w] || 0) + 1; run[w] = hid ? (run[w] || 0) + 1 : 0; maxRun[w] = Math.max(maxRun[w] || 0, run[w]); fz[w] = ok ? 0 : (fz[w] || 0) + 1; maxFz[w] = Math.max(maxFz[w] || 0, fz[w]); }
     await page.waitForTimeout(250);
   }
   // a teammate is frozen if no clip of theirs is both visible and playing (short gaps during a 0.18 s swap are normal: count runs of >= 3 samples)
-  console.log('samples per teammate:', samples, 'samples with no visible playing clip:', JSON.stringify(frozen), 'errors:', errs.length);
+  console.log('samples per teammate:', samples, 'no visible playing clip:', JSON.stringify(frozen), 'a clip playing hidden:', JSON.stringify(hidden), 'longest hidden run (samples):', JSON.stringify(maxRun), 'longest frozen run:', JSON.stringify(maxFz), 'errors:', errs.length);
   await b.close();
 })();
