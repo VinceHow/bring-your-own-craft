@@ -189,12 +189,12 @@
           <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="{{words.confirmSent}}" novalidate>
             <input type="hidden" name="page" value="bakery">
             <input type="hidden" name="run" value="{{{raw.run}}}">
-            <div class="field"><label for="f-name">Name</label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err">
-              <p class="field__error" id="f-name-err" hidden>Write the name to put on the loaf.</p></div>
-            <div class="field"><label for="f-email">Email</label>
+            <div class="field"><label for="f-name">First name</label>
+              <input id="f-name" name="name" type="text" autocomplete="given-name" required aria-describedby="f-name-err">
+              <p class="field__error" id="f-name-err" hidden>Write the first name to put on the loaf.</p></div>
+            <!--if:email--><div class="field" data-switch="email"><label for="f-email">Email</label>
               <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-err">
-              <p class="field__error" id="f-email-err" hidden>Write an email address with an @, like name@example.com.</p></div>
+              <p class="field__error" id="f-email-err" hidden>Write an email address with an @, like name@example.com.</p></div><!--/if:email-->
             <div class="field field--full"><label for="f-bread">Bread and collection time</label>
               <select id="f-bread" name="bread" required aria-describedby="f-bread-err">
                 <option value="">Choose a bread and a time</option>
@@ -214,9 +214,10 @@
                 </optgroup>
               </select>
               <p class="field__error" id="f-bread-err" hidden>Choose a bread and the time you will collect it.</p></div>
-            <div class="field"><label for="f-qty">How many</label>
+            <!--unless:quantity--><input type="hidden" name="quantity" value="1"><!--/unless:quantity-->
+            <!--if:quantity--><div class="field" data-switch="quantity"><label for="f-qty">How many</label>
               <input id="f-qty" name="quantity" type="text" inputmode="numeric" autocomplete="off" required aria-describedby="f-qty-err">
-              <p class="field__error" id="f-qty-err" hidden>Write how many, as a number.</p></div>
+              <p class="field__error" id="f-qty-err" hidden>Write how many, as a number.</p></div><!--/if:quantity-->
             <!--if:phone--><div class="field" data-switch="phone"><label for="f-phone">{{words.phoneLabel}}</label>
               <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="f-phone-err">
               <p class="field__error" id="f-phone-err" hidden>Write a phone number, or leave it empty.</p></div><!--/if:phone-->
@@ -243,8 +244,8 @@
             <p>{{words.orderedBody}}</p>
           </div>
           <ul class="rows">
-            <li><span class="rows__name">Confirmation</span><p>An email with your bread, the collection time and a cancel link.</p></li>
-            <li><span class="rows__name">Collection</span><p>Your loaf waits at the counter under your name, still warm.</p></li>
+            <!--if:email--><li><span class="rows__name">Confirmation</span><p>An email with your bread, the collection time and a cancel link.</p></li><!--/if:email-->
+            <li><span class="rows__name">Collection</span><p>Your loaf waits at the counter under your first name, still warm.</p></li>
             <li><span class="rows__name">Cancelling</span><!--if:oneTapCancel--><p data-switch="cancel">{{words.cancelLine}}</p><!--/if:oneTapCancel--><!--if:cancelReason--><p class="rows__note" data-switch="cancel-reason">{{words.cancelReasonLine}}</p><!--/if:cancelReason--></li>
           </ul>
         </div>
@@ -252,19 +253,9 @@
     </div>
   </section><!--/step:ordered-->
 
-  <section class="section g2m" id="decided" hidden data-step="decided" aria-labelledby="decided-h">
-    <div class="wrap grid grid--top split">
-        <div class="span-6">
-      <div class="section-head">
-        <h2 id="decided-h">{{words.decidedTitle}}</h2>
-        <p>{{words.decidedLead}}</p>
-      </div>
-          <ul class="rows decided">{{{raw.decidedRows}}}
-      </ul>
-        </div>
-        <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1.3333"><img src="img/photo-m11317510-1200.webp" srcset="img/photo-m11317510-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="800" alt="Black iron oven door with a long wooden peel resting in the opening" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 50% 50%"></figure>
-    </div>
-  </section>
+  <!-- No list of the team's choices on her page (BRIEF §2): the rows stay in the markup, hidden, for the log-to-page checks. -->
+  <ul class="decided" id="decided" hidden aria-hidden="true">{{{raw.decidedRows}}}
+  </ul>
 
   <section class="section" id="visit" data-step="visit" data-place="visit" aria-labelledby="visit-h">
     <div class="wrap">

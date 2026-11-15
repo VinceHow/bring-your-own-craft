@@ -26,7 +26,9 @@ export function storeBooking(form) {
   if (!RUN_ID.test(run) || !fs.existsSync(path.join(RUNS_DIR, run))) return { code: 404, body: { ok: false, error: 'unknown run' } };
   // "Order/book your usual" sends the remembered order only: the page knows who she is on this device.
   const usual = form.order === 'usual';
-  if (!usual && (!String(form.name || '').trim() || !/@/.test(String(form.email || '')))) return { code: 400, body: { ok: false, error: 'name and email are needed' } };
+  // Her bakery page asks for a first name only (her Focus 2 line): no email there unless the page has the field.
+  const needsEmail = form.page !== 'bakery' || form.email != null;
+  if (!usual && (!String(form.name || '').trim() || (needsEmail && !/@/.test(String(form.email || ''))))) return { code: 400, body: { ok: false, error: needsEmail ? 'name and email are needed' : 'a first name is needed' } };
   const booking = { at: new Date().toISOString(), ref: crypto.randomBytes(3).toString('hex').toUpperCase() };
   for (const k of FIELDS) if (form[k] != null && form[k] !== '') booking[k] = String(form[k]).slice(0, 200);
   fs.appendFileSync(path.join(RUNS_DIR, run, 'bookings.jsonl'), JSON.stringify(booking) + '\n');
