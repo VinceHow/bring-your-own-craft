@@ -163,3 +163,37 @@ The pixel diff shows 245 shots changed, as expected after the look merges and wi
     - Fix: use the name tag's mic pill (pink, no black frame), with at least 12px of right padding.
 
 Checked, fine: "the team is visibly at work" (`design/studio/qa/2026-11-14-23-52/1920x1130-day/06.jpg`): the captions read well and sit on paper. The name tag frame flags as cut by 24px at `#room`, but by eye the paper and its pink edge are whole, so it's left as is.
+
+<!-- PASS-3 (takeaways, asked by the lead) -->
+### Focus 1 after Send, long takeaways (~60 words of guidance) · main 03a7a59 · 15 Nov 00:20 UTC
+
+30. [design] **At 1440 and 1280 the takeaways card cuts the guidance off and hides Keep.** The card's content is 345x520 in 336x416 (1280) or 336x468 (1440): the guidance stops mid-line ("…not at"), Keep sits inside a scroll box, and a Mac shows a bar. Meanwhile the right column has free space under the card. At 1920 everything fits, Keep included. In all three sizes the takeaways card is also 9px too wide (a horizontal bar), and its text sits 0px from the box edge.
+    - Shots: `design/studio/qa/2026-11-15-takeaways/1280x800-day-09-focus1-takeaways.jpg`, `design/studio/qa/2026-11-15-takeaways/1440x900-day-09-focus1-takeaways.jpg`, and the 1920 one for comparison
+    - Hook: `[data-component="takeaways"][data-state="shown"]`, plus `[data-slot="keep"]`
+    - Fix: let the card grow into the column (no fixed height); take the 9px of extra width away (padding plus `width:100%`); keep `keep` outside any scrolling part; give it an inner padding of at least 14px.
+31. [design] **Pin replies put the colon on its own line.** They read "Noor / : / That matches the finding…" over three lines.
+    - Shots: the same three
+    - Hook: `[data-component="pin-reply"] [data-slot="who"]`
+    - Fix: `who` inline with the text ("Noor: …"), or drop the colon and keep `who` as a small label above.
+32. [design] **The app button sits on top of the focus document's bottom-right corner.** "No app yet · Bo starts once you agree the page" overlaps the document's edge at every size.
+    - Shots: the same three
+    - Hooks: `[data-component="app-button"]` over `[data-component="focus-doc"]`
+    - Fix: hide or dim the app button while a focus document is open (`body.focus-open`), or move it into the room's safe box below the document. Its label is also weight 600 (taste rule: 400/500).
+- Checked, fine: the takeaways show fully within 6 s at 1920. Before then the guidance is still animating in, so a shot at 2.8 s shows it blank: not a bug, but the walk now waits 6 s. Nothing at the top of the document is clipped at any size.
+- Pending: meeting modes (3 rounds of the conversation column, End meeting, then the takeaways). The walk adds them once b3 lands.
+
+### Pass 3 · main 03a7a59 · 15 Nov 00:07 UTC (the app button, /slides/, painted-focus.css)
+
+Fixed since pass 2:
+- "Add this" is no longer a browser-default button, and Send is no longer weight 600 (finding 2, partly).
+- The focus doc's frame is no longer clipped (part of finding 24).
+- The pads no longer scroll sideways (finding 28). Only Bo's full list scrolls inside `[data-slot="items"]`, which is real overflow, so it needs a quiet scroll style.
+- `/slides/` serves (finding 15).
+
+New:
+
+33. [design] **The app button hangs off the room.** In all four states (no app yet, building, ready, new version) it sits half below the room's bottom edge, over the dark band. Its label is weight 600. The states themselves read well: the new-version note "v2 · orders close at 8pm, sold-out loaves greyed" and "v2, just now" are clear.
+    - Shots: `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-none.jpg`, `16-app-building.jpg`, `16-app-ready.jpg`, `16-app-new-version.jpg`
+    - Where: every size; worst at 1440 and 1280, where the band is 40–45px
+    - Hook: `[data-component="app-button"]`, plus `[data-slot="label"]`
+    - Fix: anchor it inside the room's safe box (bottom ≥ 16px inside `#room`); label at weight 500. See also finding 32: hide it while a focus document is open.

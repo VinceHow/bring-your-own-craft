@@ -113,6 +113,21 @@ async function focusStub(p, ask) {
 }
 add('09-focus1', 'Focus 1 (Noor’s finding)', async p => { await focusStub(p, FOCUS1); });
 add('09-focus1-typed', 'Focus 1, her answer typed', async p => { await focusStub(p, FOCUS1); await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill('It’s really for the regulars.').catch(() => {}); await wait(300); });
+add('09-focus1-takeaways', 'Focus 1 after Send, long takeaways (~60 words)', async p => { await focusStub(p, FOCUS1);
+  await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill('It’s really for the regulars. Most of them want the same loaf every morning.').catch(() => {});
+  await p.keyboard.press('Enter'); await wait(400);
+  await p.evaluate(() => { const d = ev => BYOC.dispatch({ run: 'qa-stub-run', ...ev }, 'live');
+    d({ type: 'answer', askId: 'first', text: 'It’s really for the regulars. Most of them want the same loaf every morning.' });
+    d({ type: 'chime', askId: 'first', seat: 'research', by: 'Noor', text: 'That matches the finding: a third come back every week.' });
+    d({ type: 'chime', askId: 'first', seat: 'design', by: 'Mika', text: 'Then their usual loaf goes first, one tap away.' });
+    d({ type: 'takeaways', askId: 'first', believe: 'Regulars come first: the people who buy the same loaf every week and hate hunting for it.',
+      guidance: 'Put a regular’s usual loaf at the top of the page with one tap to reserve it for the next morning. Remember them on the device so they never fill in a form twice. New neighbours can browse below, but nothing should slow a regular down, and the cutoff time must be visible before they start, not at checkout.' }); });
+  await wait(6000);
+  // the guidance is long: say where it is, so a blank card is never mistaken for an animation
+  const g = await p.evaluate(() => { const e = document.querySelector('[data-component="takeaways"] [data-slot="guidance"]') || document.querySelector('.brief-guidance .brief-text'); if (!e) return 'no guidance slot';
+    const r = e.getBoundingClientRect(), box = e.closest('[data-component="takeaways"]').getBoundingClientRect(), cs = getComputedStyle(e);
+    return `guidance textContent ${e.textContent.length} chars, innerText ${e.innerText.length}, color ${cs.color}, -webkit-text-fill ${cs.webkitTextFillColor}, clip ${cs.clipPath}, opacity ${cs.opacity}, visibility ${cs.visibility}, top ${Math.round(r.top)} bottom ${Math.round(r.bottom)} in card ${Math.round(box.top)}-${Math.round(box.bottom)}`; });
+  console.log('  probe:', g); });
 add('10-focus2', 'Focus 2 (Mika’s journey in words)', async p => { await focusStub(p, FOCUS2); });
 async function unblock(p) {
   await p.evaluate(() => __qa.play('fixture', { until: ev => ev.type === 'ask' })); await wait(200);

@@ -1,0 +1,101 @@
+# Design QA 2026-11-15-00-07 UTC · 03a7a59
+
+2460 flags (small text 1365, weight 342, clipped frame 311, contrast 186, text on edge 163, scrollbar 36, default control 35, off-screen 12, mostly empty 6, room coverage 2, not on main yet 2).
+
+Against pass 2 (2026-11-14-23-52): 409 new flags, 232 gone, 154 shots changed (≥1.5% of pixels).
+
+## New flags
+- weight · [data-component="app-button"][data-state="none"] [data-slot="label"] · weight 600: “No app yet” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/01.jpg` (1920x1130 day)
+- scrollbar · [data-component="sketchpad-open"][data-state="open"] [data-slot="items"] · scrolls on a Mac: 382x475 of content in 382x330 (overflow hidden/auto) · `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-engineering-full.jpg` (1920x1130 day)
+- weight · [data-component="app-button"][data-state="ready"] [data-slot="label"] · weight 600: “Open the app” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-hers-full.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-sheet"][data-state="blank"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-building.jpg` (1920x1130 day)
+- weight · [data-component="app-button"][data-state="building"] [data-slot="label"] · weight 600: “Building v1…” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-building.jpg` (1920x1130 day)
+- default control · [data-component="team-status"][data-state="failed"] [data-slot="retry"] · button looks like the browser default (auto, rgb(239, 239, 239)): “Retry” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-building.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-sheet"][data-state="page"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-ready.jpg` (1920x1130 day)
+- clipped frame · [data-component="tally"][data-state="counting"] · ::before frame cut by 4px at #room overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-ready.jpg` (1920x1130 day)
+- off-screen · [data-component="tally"][data-state="counting"] · box 1724,43 → 1922,128 in 1920x1130 · `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-ready.jpg` (1920x1130 day)
+- contrast · h1 · 1.04:1 (rgb(40, 28, 20) on rgb(43,31,23)): “Be our regulars: order a loaf” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/15-slides.jpg` (1920x1130 day)
+- contrast · p · 1.50:1 (rgb(78, 58, 43) on rgb(43,31,23)): “Demo bakery for a hackathon: no real bre” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/15-slides.jpg` (1920x1130 day)
+- contrast · #url · 1.04:1 (rgb(40, 28, 20) on rgb(43,31,23)): “bring-your-own-craft-production.up.railw” · `design/studio/qa/2026-11-15-00-07/1920x1130-day/15-slides.jpg` (1920x1130 day)
+- small text · [data-component="place-card"][data-state="idle"] [data-slot="agent-mark"] · 12.5px on screen: “agent” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-none.jpg` (1440x900 day)
+- small text · [data-component="idea-sheet"][data-state="blank"] · 11.4px on screen: “What’s the idea?” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-none.jpg` (1440x900 day)
+- text on edge · [data-component="her-idea"][data-state="asking"] · 2.3px from its box: “tap or hold to speak” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-none.jpg` (1440x900 day)
+- small text · [data-component="place-card"][data-state="thinking"] [data-slot="agent-mark"] · 12.5px on screen: “agent” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-building.jpg` (1440x900 day)
+- small text · [data-component="team-status"][data-state="failed"] [data-slot="retry"] · 12.0px on screen: “Retry” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-building.jpg` (1440x900 day)
+- small text · [data-component="idea-sheet"][data-state="page"] · 11.4px on screen: “What’s the idea?” · `design/studio/qa/2026-11-15-00-07/1440x900-day/16-app-ready.jpg` (1440x900 day)
+- small text · [data-component="research-card"] [data-slot="prepared"] · 11.2px on screen: “researched before the demo” · `design/studio/qa/2026-11-15-00-07/1280x800-day/09-focus1.jpg` (1280x800 day)
+- small text · [data-component="research-card"] [data-slot="source-site"] · 11.7px on screen: “Bakery Business · read 2026-11-14” · `design/studio/qa/2026-11-15-00-07/1280x800-day/09-focus1.jpg` (1280x800 day)
+- small text · [data-component="journey-words"] [data-slot="time"] · 11.7px on screen: “7:05” · `design/studio/qa/2026-11-15-00-07/1280x800-day/10-focus2.jpg` (1280x800 day)
+- small text · button · 11.2px on screen: “Afternoon” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-none.jpg` (1280x800 day)
+- small text · span · 11.2px on screen: “tap for night” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-none.jpg` (1280x800 day)
+- small text · [data-component="her-idea"][data-state="asking"] · 12.0px on screen: “tap or hold to speak” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-none.jpg` (1280x800 day)
+- small text · [data-component="inbox"][data-state="collapsed"] [data-slot="toggle"] · 11.2px on screen: “Open your inbox” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-none.jpg` (1280x800 day)
+- small text · [data-component="place-card"][data-state="working"] [data-slot="agent-mark"] · 11.9px on screen: “agent” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-building.jpg` (1280x800 day)
+- small text · [data-component="tally"][data-state="counting"] · 12.1px on screen: “decisions came up” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-building.jpg` (1280x800 day)
+- small text · [data-component="tally"][data-state="counting"] · 11.9px on screen: “brought to you” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-building.jpg` (1280x800 day)
+- small text · [data-component="place-card"][data-state="done"] [data-slot="agent-mark"] · 11.9px on screen: “agent” · `design/studio/qa/2026-11-15-00-07/1280x800-day/16-app-ready.jpg` (1280x800 day)
+- off-screen · [data-component="chatter"] · box -5,40 → 1275,760 in 1280x800 · `design/studio/qa/2026-11-15-00-07/1280x800-night/11-unblock-yes.jpg` (1280x800 night)
+- small text · button · 11.2px on screen: “Night” · `design/studio/qa/2026-11-15-00-07/1280x800-night/16-app-none.jpg` (1280x800 night)
+- small text · span · 11.2px on screen: “rain on the window” · `design/studio/qa/2026-11-15-00-07/1280x800-night/16-app-none.jpg` (1280x800 night)
+
+## Changed shots (look at these)
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/12-decision-open.jpg` 30.23%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/11-unblock-speaking.jpg` 28.04%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/11-unblock-speaking.jpg` 26.63%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/11-unblock-speaking.jpg` 18.79%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/11-unblock-yes.jpg` 17.66%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-coffee-00.png` 17.59%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-04.png` 15.94%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-03.png` 14.75%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-05.png` 14.41%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/09-focus1.jpg` 12.14%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/09-focus1.jpg` 12.14%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/09-focus1-typed.jpg` 11.99%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/09-focus1-typed.jpg` 11.99%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/09-focus1.jpg` 11.77%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/09-focus1.jpg` 11.77%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/09-focus1-typed.jpg` 11.62%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/09-focus1-typed.jpg` 11.62%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/10-focus2.jpg` 11.34%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/10-focus2.jpg` 11.34%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/10-focus2.jpg` 11.09%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/10-focus2.jpg` 11.09%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/09-focus1.jpg` 10.48%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/09-focus1.jpg` 10.48%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/09-focus1-typed.jpg` 10.37%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/09-focus1-typed.jpg` 10.37%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-06.png` 10.06%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/10-focus2.jpg` 9.81%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/10-focus2.jpg` 9.76%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/07-engineering-empty.jpg` 9.39%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-record-09.png` 9.17%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/07-engineering-empty.jpg` 9.08%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/07-engineering-empty.jpg` 9.07%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/07-engineering-empty.jpg` 9.03%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-engineering-empty.jpg` 8.56%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/07-engineering-empty.jpg` 8.55%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/extras/toy-record-00.png` 7.66%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-00.png` 7.2%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/07-design-full.jpg` 6.54%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/07-design-full.jpg` 6.21%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/07-design-full.jpg` 6.14%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/07-design-full.jpg` 5.54%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/07-design-empty.jpg` 5.48%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-cat-07.png` 5.46%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/07-design-full.jpg` 5.26%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-design-full.jpg` 5.23%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/07-design-empty.jpg` 5.14%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/07-design-empty.jpg` 4.9%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/07-design-empty.jpg` 4.75%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-engineering-full.jpg` 4.67%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/07-design-empty.jpg` 4.41%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-night/07-engineering-full.jpg` 4.35%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-design-empty.jpg` 4.33%
+- `design/studio/qa/2026-11-15-00-07/1280x800-night/07-engineering-full.jpg` 4.24%
+- `design/studio/qa/2026-11-15-00-07/1280x800-day/07-engineering-full.jpg` 4.23%
+- `design/studio/qa/2026-11-15-00-07/1440x900-night/07-engineering-full.jpg` 4.18%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/07-engineering-full.jpg` 4.06%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/12-team-space.jpg` 3.85%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/extras/toy-record-00.png` 3.79%
+- `design/studio/qa/2026-11-15-00-07/1440x900-day/07-strategy-full.jpg` 3.7%
+- `design/studio/qa/2026-11-15-00-07/1920x1130-day/07-strategy-full.jpg` 3.54%
