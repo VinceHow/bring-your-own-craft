@@ -70,6 +70,8 @@ MODEL_BACKEND=fal
 # TIDY_MODEL=sonnet
 ```
 
+App v1 on "Team, go": the app button builds a first version in the background as the team starts. If Team, go feels slower on fal, start the server with `APP_V1=0` (doctor shows `app v1 on Team, go: off`): her press at the build beat then builds v1, as before.
+
 Live research: with `LINKUP_API_KEY` set next to `FAL_KEY`, Wren's Focus 1 finding is found live with Linkup ("found just now with Linkup") when doctor shows `live research: on`; with `off (prepared finding)` she shows the finding researched before the demo.
 
 ## Run sheet

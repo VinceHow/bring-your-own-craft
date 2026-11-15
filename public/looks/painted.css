@@ -1546,3 +1546,17 @@ html #room [data-component="character-card"][data-seat="product"][data-state="th
 html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="hint"] { display: none; }
 html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="status"] { position: relative; z-index: 1; max-width: 55%; margin-bottom: -44px; }
 html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="actions"] { margin-top: 0; }
+/* a rephrased (reordered) tidy (Vincent's Mac P0): the old blur(2px) on the raw line made the browser paint the overlay as a
+   blurred layer that covered the field's top border and turned its top half paper-coloured, and the "close" step then
+   dropped the blur so her raw words came back sharp. Now: no filter; the raw line softens, then fades out as the clean
+   line fades in, in the same box, with the box untouched. */
+html.painted-on [data-component="tidy-moment"][data-tidy="reordered"] { filter: none !important; }
+html.painted-on [data-component="tidy-moment"][data-tidy="reordered"][data-state="go"] { opacity: .35; transition: opacity .5s ease; }
+html.painted-on [data-component="tidy-moment"][data-tidy="reordered"][data-state="close"] { opacity: 0; transition: opacity .25s ease-out; }
+html.painted-on :has(> [data-component="tidy-moment"][data-tidy="reordered"][data-state="close"]) [data-raw][data-pt-tidy="hold"] { color: inherit !important; caret-color: auto; animation: pt-tidy-in .35s ease-out .1s both; }
+/* THE cause of Vincent's P0: "show" faded the whole field in from opacity 0, and the field IS the box's top half (its
+   cream fill and border), so for ~0.35 s the box lost its top border and looked paper-coloured above a white mic band.
+   Only her words fade in now; the field itself never changes opacity. */
+html.painted-on [data-raw][data-pt-tidy="show"] { animation: pt-tidy-ink .35s ease-out both !important; }
+html.painted-on :has(> [data-component="tidy-moment"][data-tidy="reordered"][data-state="close"]) [data-raw][data-pt-tidy="hold"] { animation: pt-tidy-ink .35s ease-out .22s both !important; }
+@keyframes pt-tidy-ink { from { color: transparent; } }
