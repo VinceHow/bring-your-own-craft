@@ -97,18 +97,19 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
   room as a cozy studio with two states: a busy room, and a quiet focus moment that's just her and one document.
 - **Making the team's talk real.** Teammates reacting to each other only counts if each one actually reads the others'
   lines, so every turn is its own call.
-- **Speed.** On the final audit's real fal run (15 Nov, 05:02–05:40 UTC): her name tag is read in 2.1 s, the first
+- **Speed.** On the audit fal run 05:00 (15 Nov, run `run-2026-11-15T05-06-42-808Z-xhzk`, the full
+  stage path, counted from its log): her name tag is read in 2.1 s, the first
   teammate replies 2.2 s after she sends, takeaways land in 3–4 s, the team's work plus selection takes 33 s (we
   planned for 20, so we cut a discussion round from the second focus moment to keep the talk inside 3 minutes), and
   her page builds in 22 s.
 - **An honest baseline.** We re-ran the default agent on the exact bakery prompt and counted every guess by hand.
 
 ## Accomplishments that we're proud of
-- One spoken sentence to a working ordering page, with three thoughtful questions in between. Full run: **TBD** s.
+- One spoken sentence to a working ordering page, with three thoughtful questions in between. Full run, idea to her page: **TBD (Vincent's own timed run)**.
 - The questions are about her craft, never about the stack.
 - Teammates that genuinely build on her and on each other, in short, human lines.
-- A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, 14 decided by the team, 0 approvals (final audit's fal run).
-- A judge's own idea gets a rough journey in 2 s and its first check-in in 23 s (final audit's fal run).
+- A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, 14 decided by the team, 0 approvals (audit fal run 05:00).
+- A judge's own idea gets a rough journey in 2 s and its first check-in in 23 s (audit fal run 05:00).
 
 ## What we learned
 - The useful line is between craft and stamping, not between asking and not asking.
