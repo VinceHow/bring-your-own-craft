@@ -1468,3 +1468,8 @@ html #room [data-component="character-card"][data-seat="product"][data-state="th
 /* End meeting → takeaways: the card lands as soon as the column has scrolled to it (focus-doc.js lifts it 16px); a fade
    from nothing on top left the column blank for a beat between "writing the takeaways…" and the card */
 html #room [data-component="focus-doc"] [data-component="meeting"] [data-component="takeaways"] { animation: none !important; }
+/* reduced motion: the setup's papers simply appear (the room's spring still sets an inline lift and fade) */
+@media (prefers-reduced-motion: reduce) {
+  html #room [data-component="setup"] :is([data-component="idea-card"], [data-component="character-card"], [data-component="meet-card"]) { transform: none !important; translate: none !important; opacity: 1 !important; }
+  html #room [data-component="note-flight"] { display: none !important; }
+}
