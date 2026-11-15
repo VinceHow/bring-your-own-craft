@@ -267,6 +267,20 @@
   }
 
   // ---- open and close -------------------------------------------------------------------------
+  // Never cut off (docs/POLISH.md §5): a look that scales and crops the room can push the document past the window's
+  // edge; pull each side back inside (in the room's own scaled pixels). On open and on resize.
+  function fit() {
+    for (const k of ['left', 'top', 'right', 'bottom']) doc.style[k] = '';
+    if (doc.hidden) return;
+    // From layout offsets, not the box on screen: the opening animation scales it for a moment.
+    const rr = room.getBoundingClientRect(); if (!doc.offsetWidth || !rr.width) return;
+    const k = rr.width / (room.offsetWidth || rr.width) || 1, M = 8, cs = getComputedStyle(doc);
+    const r = { left: rr.left + doc.offsetLeft * k, top: rr.top + doc.offsetTop * k };
+    r.right = r.left + doc.offsetWidth * k; r.bottom = r.top + doc.offsetHeight * k;
+    const need = { left: M - r.left, top: M - r.top, right: r.right - (innerWidth - M), bottom: r.bottom - (innerHeight - M) };
+    for (const side of Object.keys(need)) if (need[side] > 0 && cs[side] !== 'auto') doc.style[side] = (parseFloat(cs[side]) + need[side] / k).toFixed(1) + 'px';
+  }
+  addEventListener('resize', () => requestAnimationFrame(fit));
   function open(ask) {
     if (!ask) return;
     if (cur && cur.id === ask.id && !doc.hidden) return;
@@ -294,6 +308,7 @@
     doc.hidden = false;
     document.body.classList.add('focus-open');
     renderWork();
+    fit();
     if (M) M.animate(doc, { y: [18, 0], scale: [0.985, 1] }, SPRING);
     if (!B.replay) setTimeout(() => { if (cur === ask && !doc.hidden) $('.fd-input').focus(); }, 40); // only if she's still in this document
     B.syncFocus && B.syncFocus();

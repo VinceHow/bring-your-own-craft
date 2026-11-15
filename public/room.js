@@ -157,11 +157,25 @@
       const ms = now - cur.t0, slow = ms > SLOW_MS;
       stepEl.classList.toggle('slow', slow);
       stepEl.innerHTML = `<b data-slot="label">${esc(cur.label)}</b> <em>taking a while · R replays the rehearsal</em>`;
-      stepEl.dataset.state = 'slow'; stepEl.hidden = false; return;
+      stepEl.dataset.state = 'slow'; stepEl.hidden = false; onScreen(); return;
     }
     stepEl.classList.remove('slow');
-    if (stepFail) { stepEl.innerHTML = `<b data-slot="label">${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.dataset.state = 'failed'; stepEl.hidden = false; return; }
+    // One message per failure (docs/POLISH.md §1): when the team couldn't start, the line under her idea already says so,
+    // with Retry and R; the step note stays out of the way.
+    if (stepFail && document.getElementById('team-status')?.dataset.state === 'failed') { stepEl.dataset.state = 'failed'; stepEl.hidden = true; return; }
+    if (stepFail) { stepEl.innerHTML = `<b data-slot="label">${esc(stepFail.label)}: stopped</b> <span>${esc(stepFail.why)}</span><em>R replays the rehearsal</em>`; stepEl.dataset.state = 'failed'; stepEl.hidden = false; onScreen(); return; }
     stepEl.dataset.state = 'done'; stepEl.hidden = true;
+  }
+  // Never a cut-off word (docs/POLISH.md §5): a look that scales and crops the room can push the note past the window's
+  // edge; shift it back inside (in the room's own scaled pixels), as the inbox does.
+  function onScreen() {
+    stepEl.style.translate = '';
+    const r = stepEl.getBoundingClientRect(); if (!r.width) return;
+    const k = r.width / (stepEl.offsetWidth || r.width) || 1, M = 8;
+    let dx = 0, dy = 0;
+    if (r.left < M) dx = M - r.left; else if (r.right > innerWidth - M) dx = innerWidth - M - r.right;
+    if (r.bottom > innerHeight - M) dy = innerHeight - M - r.bottom;
+    if (dx || dy) stepEl.style.translate = `${(dx / k).toFixed(1)}px ${(dy / k).toFixed(1)}px`;
   }
   BYOC.step = { begin: stepBegin, set: stepSet, end: stepEnd, clear: stepClear, get state() {
     return { steps: [...steps.values()].map(s => ({ ...s })), failed: stepFail }; } };
