@@ -1009,9 +1009,16 @@
   // Entering the build beat live is her press (or B). Engineering's sheet ticks through build.step events; the
   // live step shows under the table; build.done brings her page over the table.
   let buildReq = null;
+  // The app button's first version: on "Team, go", in the background (routes/build.js, background: true), from her idea
+  // and the team's first proposals. The room's beats never move for it; the press at beat 8 builds the next version
+  // (the server queues it behind a v1 still building: never a second concurrent build, never a 409, nothing lost).
+  BYOC.buildFirst = function () {
+    if (BYOC.replay || !BYOC.run || BYOC.run.startsWith('local-') || seen.some(e => e.type === 'build.done' || e.type === 'build.step')) return;
+    BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/build`, { background: true }, { step: false }).catch(() => {});
+  };
   BYOC.build = async function () {
     if (BYOC.replay || buildReq || !BYOC.run || BYOC.run.startsWith('local-')) return;
-    if (seen.some(e => e.type === 'build.done')) return;
+    if (seen.some(e => e.type === 'build.done' && !e.background)) return; // her page is built (a background v1 doesn't count)
     if (!buildStep) buildStep = stepBegin('Engineering is building');
     buildReq = BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/build`, {}, { step: false });
     try { await buildReq; }
@@ -1187,12 +1194,14 @@
         if (source === 'live') teamFailed('a model call failed');
         break;
       case 'build.step':
+        if (ev.background) break; // the app button's first version: the button shows it; the room's beats stay put
         if (BYOC.beat < 8) stage(8);
         if (/^Build failed/.test(ev.step || '')) { sheetStep('engineering', '', 'error'); if (buildStep) { stepEnd(buildStep, { status: 500 }); buildStep = null; } setPageState('error'); break; }
         sheetStep('engineering', '', 'working'); setPageState('building');
         if (source === 'live') { if (!buildStep) buildStep = stepBegin('Engineering is building'); stepSet(buildStep, `Engineering is building: ${ev.step}`); }
         break;
       case 'build.done':
+        if (ev.background) break;
         sheetStep('engineering', '', 'done'); setPageState('built');
         if (buildStep) { stepEnd(buildStep); buildStep = null; }
         setTimeout(() => { if (BYOC.beat < 9) stage(9, { instant: instantMode }); else showPage(!instantMode); }, instantMode ? 0 : 600);
@@ -1574,7 +1583,7 @@
         setInputMode('off');
         showTally(animate);
         for (const s of SEATS) sheetShow(s, animate);
-        if (!BYOC.replay && !instantMode) teamGo();
+        if (!BYOC.replay && !instantMode) { teamGo(); BYOC.buildFirst(); }
         break;
       case 6:
         el.herSheet.classList.add('big');
