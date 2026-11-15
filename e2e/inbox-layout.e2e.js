@@ -1,8 +1,8 @@
 // From Vincent's screenshot (his Mac, Chrome): her inbox note read "Product's teammate · ProductWho walks into…", the
 // inbox and "Open your inbox" were clipped at the left edge, and the main sheet said nothing while the team worked.
 // At 1440x900 and 1280x800, in the plain and the painted look: the inbox and its toggle sit fully inside the viewport;
-// the note reads "<Name> asks" with the question on its own line, never "<seat>'s teammate"; a new note pulses and
-// the main sheet says who has a question, with a way to it. No models (events dispatched). Run: node --test e2e/inbox-layout.e2e.js
+// the closed inbox says only who ("<Name> has a question", Vincent 15 Nov: no preview), never "<seat>'s teammate"; a new
+// note pulses, and the inbox is the room's one cue (the main sheet no longer repeats it). No models (events dispatched). Run: node --test e2e/inbox-layout.e2e.js
 import { test, before, after } from 'node:test';
 import assert from 'node:assert';
 import { spawn } from 'node:child_process';
@@ -29,7 +29,7 @@ after(async () => { await browser?.close(); srv?.kill(); fs.rmSync(RUNS, { recur
 const inside = (r, w, hgt) => r && r.left >= 0 && r.top >= 0 && r.right <= w && r.bottom <= hgt;
 
 for (const look of ['', '?look=painted']) for (const [w, hgt] of [[1440, 900], [1280, 800]]) {
-  test(`${look ? 'painted' : 'plain'} at ${w}x${hgt}: the inbox fully on screen; "<Name> asks", the question on its own line; the sheet says who`, async () => {
+  test(`${look ? 'painted' : 'plain'} at ${w}x${hgt}: the inbox fully on screen; "<Name> has a question", no preview; the inbox is the one cue`, async () => {
     const p = await browser.newPage({ viewport: { width: w, height: hgt } });
     const errors = []; p.on('pageerror', e => errors.push(String(e)));
     await p.route('**/api/run/**', r => r.fulfill({ status: 200, json: { ok: true } }));
@@ -42,24 +42,24 @@ for (const look of ['', '?look=painted']) for (const [w, hgt] of [[1440, 900], [
     });
     await p.waitForFunction(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'p1', null, { timeout: 4000 });
     const text = (await p.locator('#inbox .inbox-now').innerText()).trim();
-    assert.match(text, /^The team asks\s*\n\s*Who walks into this bakery most…\?$/, text);
+    assert.strictEqual(text, 'The team has a question');
     assert.doesNotMatch(text, /teammate|· Product/);
-    // A named teammate asks next: "Noor asks".
+    // A named teammate asks next.
     await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
     await p.waitForFunction(() => document.querySelectorAll('#inbox .inbox-item').length >= 1, null, { timeout: 4000 });
-    // The new note pulses, and the main sheet says who has a question, with a way to it.
+    // The new note pulses; the main sheet stays quiet (the inbox is the one cue).
     const st = await p.evaluate(() => ({ pulse: document.getElementById('inbox').dataset.pulse, team: document.getElementById('team-status')?.dataset.state, line: document.getElementById('team-status')?.textContent }));
-    assert.equal(st.team, 'question');
-    assert.match(st.line, /has a question for you →/);
+    assert.notEqual(st.team, 'question');
+    assert.doesNotMatch(st.line || '', /has a question/);
     assert.ok(['on', 'off'].includes(st.pulse), 'the pulse hook is set');
     for (const sel of ['#inbox', '#inbox .inbox-now', '#inbox .inbox-toggle']) {
       const r = await p.evaluate(s => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; }, sel);
       assert.ok(inside(r, w, hgt), `${sel} inside ${w}x${hgt}: ${JSON.stringify(r)}`);
     }
-    // Expanded, too.
+    // Open, too (the whole screen).
     await p.click('#inbox .inbox-toggle');
     const r = await p.evaluate(() => { const b = document.getElementById('inbox').getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; });
-    assert.ok(inside(r, w, hgt), `expanded inbox inside ${w}x${hgt}: ${JSON.stringify(r)}`);
+    assert.ok(inside(r, w, hgt), `open inbox inside ${w}x${hgt}: ${JSON.stringify(r)}`);
     assert.deepStrictEqual(errors, []);
     await p.close();
   });
@@ -70,7 +70,7 @@ test('pushed off the left edge (a look or a narrow window), the inbox is brought
   await p.goto(BASE + '/');
   await p.waitForFunction(() => window.BYOC && BYOC.inbox && BYOC.stage);
   await p.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
-    const s = document.createElement('style'); s.textContent = '#room .inbox { left: -400px !important; bottom: -200px !important; }'; document.head.appendChild(s);
+    const s = document.createElement('style'); s.textContent = '#room .inbox { left: -400px !important; top: -200px !important; }'; document.head.appendChild(s);
     BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Noor', question: 'What makes someone come back?', artifact: { kind: 'journey' } }, 'live'); });
   await p.waitForFunction(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'n1', null, { timeout: 4000 });
   const r = await p.evaluate(() => { const b = document.getElementById('inbox').getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; });

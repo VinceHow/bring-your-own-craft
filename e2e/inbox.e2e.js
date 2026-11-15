@@ -15,6 +15,8 @@ const { chromium } = require('playwright');
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const PORT = 3800 + Math.floor(Math.random() * 90);
 const BASE = `http://localhost:${PORT}`;
+// E2E_LOOK=painted runs it in the demo look (as beats.e2e.js); unset, the plain room.
+const L = u => process.env.E2E_LOOK ? u + (u.includes('?') ? '&' : '?') + 'look=' + process.env.E2E_LOOK : u;
 const RUNS = fs.mkdtempSync('/tmp/byoc-inbox-e2e-');
 let srv, logs = '', browser, page, errors = [];
 
@@ -32,7 +34,7 @@ before(async () => {
   page.on('pageerror', e => errors.push(String(e)));
   // Opening an ask posts nothing, but stub the run routes so nothing reaches a model.
   await page.route('**/api/run/**', r => r.fulfill({ status: 200, json: { ok: true } }));
-  await page.goto(BASE + '/?stage=1');
+  await page.goto(BASE + L('/?stage=1'));
   await page.waitForFunction(() => window.BYOC && BYOC.inbox && BYOC.stage);
 });
 after(async () => { await browser?.close(); srv?.kill(); fs.rmSync(RUNS, { recursive: true, force: true }); });
@@ -50,39 +52,49 @@ const waitFor = (fn, what, arg) => page.waitForFunction(fn, arg, { timeout: WAIT
   .catch(async () => { throw new Error(`timed out after ${WAIT_MS / 1000} s: ${what}; page: ${await snapshot()}`); });
 const ask = (id, seat, by, question) => ({ run: 'stub-run', type: 'ask', id, seat, by, question, artifact: { kind: 'journey' } });
 
-test('collapsed with nothing waiting: "Nothing needs you right now"; the drawer has its three parts', async () => {
+// Vincent, 15 Nov: ONE home at the top right; "Your inbox is empty" until something comes in; open, it takes the whole screen.
+const rect = sel => page.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height, vw: innerWidth, vh: innerHeight }; }, sel);
+test('empty at the top right: "Your inbox is empty"; open, it takes the whole screen with its three parts', async () => {
   await page.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run'; });
   await waitFor(() => !document.getElementById('inbox').hidden, 'her inbox by her seat');
   const box = page.locator('#inbox');
   assert.strictEqual(await box.getAttribute('data-component'), 'inbox');
-  assert.strictEqual(await box.getAttribute('data-state'), 'collapsed');
+  assert.strictEqual(await box.getAttribute('data-state'), 'empty');
   assert.strictEqual(await box.getAttribute('data-needs'), 'no');
-  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Nothing needs you right now');
+  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Your inbox is empty');
   assert.ok(!(await page.isVisible('#inbox .inbox-drawer')), 'the drawer is closed');
+  const home = await rect('#inbox');
+  assert.ok(home.r > home.vw * 0.75 && home.t < home.vh * 0.2, `its one home is the top right: ${JSON.stringify(home)}`);
+  assert.strictEqual(await page.locator('#inbox #counter[data-slot="tally"]').count(), 1, 'the tally\'s counters live in it');
   await page.click('#inbox .inbox-toggle');
-  assert.strictEqual(await box.getAttribute('data-state'), 'expanded');
+  assert.strictEqual(await box.getAttribute('data-state'), 'open');
+  const full = await rect('#inbox');
+  assert.ok(full.w > full.vw * 0.9 && full.h > full.vh * 0.9, `open, it takes over the whole screen: ${JSON.stringify(full)}`);
   const parts = await page.locator('#inbox .inbox-part').evaluateAll(ps => ps.map(p => [p.dataset.part, p.querySelector('.inbox-part-title').textContent]));
   assert.deepStrictEqual(parts, [['needs', 'Needs you'], ['only-you', 'Things only you can do'], ['meetings', 'Past meetings']]);
   assert.strictEqual((await page.locator('#inbox [data-part="only-you"] .inbox-empty').innerText()).trim(), 'Nothing only you can do');
   assert.strictEqual(await page.getAttribute('#inbox [data-part="meetings"] .inbox-part-body', 'data-state'), 'stub');
   await page.click('#inbox .inbox-toggle');
-  assert.strictEqual(await box.getAttribute('data-state'), 'collapsed');
+  assert.strictEqual(await box.getAttribute('data-state'), 'empty');
 });
 
-test('asks arrive after a natural pause; collapsed shows the one that needs her, the rest fold; no numbers', async () => {
+test('asks arrive after a natural pause; closed, it says only who ("Noor has a question"), no preview; open, the rest fold; no numbers', async () => {
   await page.evaluate(a => a.forEach(e => BYOC.dispatch(e, 'live')), [
     ask('q1', 'research', 'Noor', 'What makes someone come back to a studio week after week?'),
     ask('q2', 'design', 'Mika', 'What should booking feel like?'),
   ]);
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'an item needs her');
-  // "<Name> asks", then the question on its own line (never run together, never "<seat>'s teammate").
-  assert.match((await page.locator('#inbox .inbox-now').innerText()).trim(), /^Noor asks\s*\n\s*What makes someone come back to…\?$/);
+  // Only who, never the question (no preview in the room), and never "<seat>'s teammate".
+  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question');
+  assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'new');
+  assert.ok(!(await page.locator('#room').innerText()).includes('What makes someone come back'), 'the question shows nowhere in the room');
+  assert.ok(!(await page.isVisible('#team-status[data-state="question"]')), 'no second cue under her idea');
   assert.strictEqual(await page.getAttribute('#inbox .inbox-now', 'data-ask'), 'q1');
   await page.click('#inbox .inbox-toggle');
   assert.strictEqual(await page.locator('#inbox [data-part="needs"] > .inbox-part-body > .inbox-item[data-state="top"]').count(), 1, 'one at a time');
   assert.strictEqual(await page.locator('#inbox .inbox-next .inbox-item[data-state="folded"]').count(), 1, 'the next one folded');
   assert.ok(!(await page.locator('#inbox .inbox-next').evaluate(d => d.open)), 'folded until she opens it');
-  assert.ok(!(await page.locator('#inbox').textContent()).match(/\b\d+\b/), 'no numbers anywhere');
+  assert.ok(!(await page.locator('#inbox').evaluate(b => [...b.childNodes].filter(n => n.id !== 'counter').map(n => n.textContent).join(' '))).match(/\b\d+\b/), 'no numbers anywhere (but the tally\'s own counters)');
   await page.click('#inbox .inbox-toggle');
 });
 
@@ -141,7 +153,11 @@ test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in th
   await page.click('#inbox .inbox-now');
   const card = page.locator('#inbox article.inbox-action[data-component="inbox-action"][data-seat="engineering"]');
   await card.waitFor();
-  assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'expanded');
+  assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'open');
+  assert.strictEqual(await page.getAttribute('#inbox', 'data-view'), 'action', 'its own full-screen page, not a drawer');
+  const page1 = await rect('#inbox');
+  assert.ok(page1.w > page1.vw * 0.9 && page1.h > page1.vh * 0.9, `full screen: ${JSON.stringify(page1)}`);
+  assert.ok(!(await page.isVisible('#inbox [data-part="only-you"]')), 'only the card on its page');
   assert.strictEqual(await card.getAttribute('data-state'), 'asking');
   assert.strictEqual((await card.locator('[data-slot="blocked"]').innerText()).trim(), "Bo's blocked", 'always framed as unblocking a named teammate');
   assert.strictEqual((await card.locator('[data-slot="doing"]').innerText()).trim(), 'Setting up ordering');
@@ -153,6 +169,7 @@ test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in th
   await card.locator('[data-slot="yes"]').click();
   assert.deepStrictEqual(await page.evaluate(() => window.__emitted.map(([k, e]) => [k, e.choice])), [['yes', '8pm the night before']], 'action.yes emitted');
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'no', 'answered, it leaves Needs you');
+  await waitFor(() => document.getElementById('inbox').dataset.state === 'empty', 'and the page closes back to the room');
   await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 'a decided card in the team space');
   const ts = page.locator('.team-space .ts-card[data-kind="unblock"]');
   assert.strictEqual((await ts.locator('.ts-headline').innerText()).trim(), 'Orders close 8pm the night before');
