@@ -344,3 +344,28 @@ test('Retry after a 502 re-reads the same answer (never logs a second one); 202 
   assert.ok(evs.some(e => e.type === 'takeaways') && evs.some(e => e.type === 'answer.mapped'));
   assert.equal((await interpret({ run, askId: 'a1', text: said, callModel: fake() })).code, 409);
 });
+
+test('room chatter, any seat: a Product line when she sits elsewhere is said by the teammate wearing Product, by name', async () => {
+  installChatter();
+  const { rolesFor } = await import('../lib/cast.js');
+  const run = newRunId(`chd-${Math.random().toString(36).slice(2, 8)}`);
+  logEvent(run, 'run.start', { idea: 'x', seat: 'diy', cast: { craft: 'diy', roles: rolesFor('diy') } });
+  logEvent(run, 'candidate', { id: 'c1', seat: 'product', decision: 'Waitlist', source: { title: 'Full classes at small studios' } });
+  logEvent(run, 'decided', { id: 'c2', seat: 'product', decision: 'Order cut-off', choice: 'Orders close at 8pm', cites: 'team default' });
+  const chatter = readEvents(run).filter(e => e.type === 'chatter');
+  assert.equal(chatter.length, 2);
+  assert.ok(chatter.every(c => c.by === 'Ines' && c.seat === 'strategy'), 'Ines wears Product: ' + JSON.stringify(chatter));
+  assert.ok(!chatter.some(c => c.by === 'Product' || c.seat === 'product'), 'never an unnamed "Product" line');
+  // Product path: unchanged (her seat never chatters; no cast, no remap)
+  const p = newRunId(`chp-${Math.random().toString(36).slice(2, 8)}`);
+  logEvent(p, 'run.start', { idea: 'x', seat: 'product' });
+  logEvent(p, 'decided', { id: 'c3', seat: 'product', decision: 'Order cut-off', choice: 'Orders close at 8pm', cites: 'team default' });
+  logEvent(p, 'decided', { id: 'c4', seat: 'engineering', decision: 'Accounts', choice: 'Name and email only', cites: 'team default' });
+  assert.deepEqual(readEvents(p).filter(e => e.type === 'chatter').map(c => [c.by, c.seat]), [['Bo', 'engineering']]);
+  // She took Engineering: her seat ('product' id) stays silent; Bo, wearing Product, speaks as Bo
+  const e = newRunId(`che-${Math.random().toString(36).slice(2, 8)}`);
+  logEvent(e, 'run.start', { idea: 'x', seat: 'product', cast: { craft: 'engineering', roles: rolesFor('engineering') } });
+  logEvent(e, 'decided', { id: 'c5', seat: 'product', decision: 'Stack', choice: 'One static page', cites: 'team default' });
+  logEvent(e, 'decided', { id: 'c6', seat: 'engineering', decision: 'Journey', choice: 'Three steps to order', cites: 'team default' });
+  assert.deepEqual(readEvents(e).filter(x => x.type === 'chatter').map(c => [c.by, c.seat]), [['Bo', 'engineering']]);
+});
