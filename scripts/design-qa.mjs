@@ -257,6 +257,10 @@ async function checks(p, slides) {
       if (buttonface || (el.tagName === 'SELECT' && cs.appearance !== 'none') || (el.tagName === 'INPUT' && ['checkbox', 'radio', 'range', 'file'].includes(el.type) && cs.appearance !== 'none'))
         out.push({ check: 'default control', hook: hook(el), note: `${el.tagName.toLowerCase()} looks like the browser default (${cs.appearance}, ${cs.backgroundColor}): “${(el.textContent || el.value || el.placeholder || '').trim().slice(0, 30)}”` });
     }
+    // the app tag on the setup pages (idea, name tag, meet the team): it belongs to the room
+    const setup = document.querySelector('[data-component="setup"]'), app = document.querySelector('[data-component="app-button"]');
+    if (setup && app && vis(setup) && vis(app) && setup.dataset.step !== 'off') { const r = app.getBoundingClientRect();
+      out.push({ check: 'app tag on setup', hook: '[data-component="app-button"]', note: `“${app.innerText.replace(/\s+/g, ' ').trim().slice(0, 40)}” shows at ${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)} during setup step ${setup.dataset.step}` }); }
     // mostly empty panels
     for (const el of document.querySelectorAll('[data-component="sketchpad-open"], [data-component="workspace"], [data-component="focus-doc"], [data-component="inbox"][data-state="expanded"], [data-component="close-view"]')) {
       if (!vis(el)) continue; const r = el.getBoundingClientRect(); const text = el.innerText.replace(/\s+/g, ' ').trim();

@@ -276,3 +276,36 @@ New:
     - Hooks: `[data-component="focus-doc"]`, `[data-component="meeting"]`, `[data-component="end-meeting"]`, `[data-component="takeaways"]`
     - Fix: merge design/meetcard (b3037ad). On that branch the same walk is clean: one conversation column, an inked End meeting, and full takeaways with Keep inside the card at 1920 and 1280. That also closes finding 30.
       - Shots: `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-r3.jpg`, `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-ended.jpg`
+
+### Pass 7 · main c24f7a8 · 15 Nov 01:35 UTC (meeting look, meetcard, nametag-2, painted by default, sweep fixes)
+
+Fixed, checked by eye and by the numbers:
+- Finding 36, the focus meeting: one conversation column over three rounds, an inked End meeting, and full takeaways with Keep inside the card, at all three sizes. Finding 30 is fixed too.
+  - Shots: `design/studio/qa/2026-11-15-01-35/1920x1130-day-09-meeting-r3.jpg`, `design/studio/qa/2026-11-15-01-35/1280x800-day-09-focus1-takeaways.jpg`
+- The name tag keeps one size from asking to tag: 864x772, 648x579 and 576x514 at 1920, 1440 and 1280, in spin and fallback, day and night.
+- Finding 8: meeting the team is now a waving portrait in an inked, rounded frame beside its card. Each wave plays, and a tap plays the reaction and then the wave, at all three sizes.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-02.jpg`
+- Finding 7, opened large: the journey fits on the sheet.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-05.jpg`
+- Finding 35: "Bo's blocked" shows at once while the note flies.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-08-new.jpg`
+- Finding 4: after Yes, a receipt shows ("Told Bo: 8pm the night before").
+- `?look=plain` has no painted layers.
+- Day/night, the sound and the mic still pass at all three sizes.
+
+Still open:
+- Finding 5: the native ▶ and checkboxes in the drawer.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-08-drawer.jpg`
+- Finding 17: the bands.
+
+New:
+
+37. [design] **After Yes, the drawer scrolls sideways again and cuts its text.** The new receipt chip ("Told Bo: 8pm the night before", with its offset frame) is wider than the drawer, so the drawer scrolls to it, and every line loses its first letters: "eeds you", "hings only you can do", "othing only you can do". This is finding 27 again, in the yes state.
+    - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-11-unblock-yes.jpg`
+    - Where: all sizes
+    - Hooks: `[data-component="inbox"] [data-slot="drawer"]`, `[data-component="inbox-action"][data-state="yes"]`
+    - Fix: `overflow-x: hidden` on the drawer (once, for every state), and keep the receipt's frame inside its box (`max-width: 100%` with its offset inside the padding).
+38. [question for the lead] **The "No app yet" tag shows on the setup pages.** It sits bottom-right on both the name tag and meet-the-team, the same at every size: 240x63 at 1664,1053 (1920x1130), 1184,823 (1440x900) and 1024,723 (1280x800). Its hint, "Bo starts once you agree the page", means nothing before she has met Bo.
+    - Shots: `design/studio/qa/2026-11-15-01-35/1920x1130-day-01.jpg`, `design/studio/qa/2026-11-15-01-35/1920x1130-day-02.jpg`
+    - Hooks: `[data-component="app-button"]` while `[data-component="setup"]` has `data-step` nametag or team
+    - Suggestion: hide it until the reveal (`#room[data-setup]` or `setup[data-step] ≠ off`); it has nothing to say before the room.
