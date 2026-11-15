@@ -261,7 +261,7 @@ const GUARD = async ctx => {
 async function serverUp(url) { for (let i = 0; i < 50; i++) { try { const r = await fetch(url); if (r.ok) return true; } catch {} await wait(200); } return false; }
 let srv = null;
 if (!process.env.BASE) {
-  srv = spawn(process.execPath, ['server.js'], { cwd: ROOT, env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore' });
+  srv = spawn(process.execPath, ['server.js'], { cwd: ROOT, env: { ...process.env, PORT: String(PORT), MODEL_BACKEND: process.env.MODEL_BACKEND || 'fal' }, stdio: 'ignore' });
   if (!(await serverUp(BASE + '/'))) { console.error('server did not start on ' + BASE); srv.kill(); process.exit(1); }
 }
 fs.mkdirSync(OUT, { recursive: true });
@@ -295,6 +295,52 @@ for (const [w, h] of SIZES) for (const mode of MODES) {
     process.stdout.write(`${w}x${h} ${mode} ${s.id} ${found.filter(f => !f.soft).length} flags${note ? ' (' + note + ')' : ''}\n`);
     await p.close();
   }
+  await ctx.close();
+}
+
+// ---- her name tag, handwritten (design/nametag): after Enter the form is gone, the pen writes her name then the title,
+// the card keeps one size, and a failed spin says so plainly. The tag and tidy calls are stubbed (no model calls).
+if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode of MODES) for (const kind of ['spin', 'fallback']) {
+  const tag = `${w}x${h}`; const dir = path.join(OUT, `${tag}-${mode}-nametag`); fs.mkdirSync(dir, { recursive: true });
+  const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode, state: `name tag, ${kind}` });
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, colorScheme: mode === 'night' ? 'dark' : 'light' });
+  await GUARD(ctx);
+  await ctx.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } }));
+  await ctx.route('**/api/name-tag', async r => { const part = JSON.parse(r.request().postData() || '{}').part;
+    if (kind === 'fallback') { await wait(800); return r.fulfill({ status: 502, json: { error: 'upstream' } }); }
+    await wait(1500); r.fulfill({ json: part === 'more' ? { goodAt: 'customer journeys', loves: 'shipping' } : { title: 'the Journey Mapper', traits: ['customer-obsessed', 'ships it'], superpower: 'sees the whole path' } }); });
+  const p = await ctx.newPage();
+  try {
+    await p.goto(BASE + `/?look=painted&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1800);
+    const card = p.locator('[data-component="character-card"]').first();
+    const input = p.locator('[data-component="character-card"] [data-slot="input"]').first();
+    if (!(await input.count())) { rec('walk', 'character-card', 'no name tag input'); throw null; }
+    await p.fill('#nt-name', 'Priya').catch(() => {});
+    await input.fill('figuring out customer journeys and understanding customer problems and shipping'); await input.focus();
+    const box0 = await card.boundingBox(); await p.screenshot({ path: path.join(dir, `${kind}-0-asking.jpg`), type: 'jpeg', quality: 72 });
+    await p.keyboard.press('Enter');
+    const frames = [];
+    for (const [i, ms] of [[1, 300], [2, 1000], [3, 2200], [4, 4500]]) {
+      await wait(ms - (frames.length ? [0, 300, 1000, 2200][i - 1] : 0));
+      const f = path.join(dir, `${kind}-${i}-${ms}ms.jpg`); await p.screenshot({ path: f, type: 'jpeg', quality: 72 });
+      const st = await p.evaluate(() => { const c = document.querySelector('[data-component="character-card"]'); const s = c && c.querySelector('[data-slot="status"]');
+        const vis = e => !!e && e.getBoundingClientRect().height > 0 && getComputedStyle(e).visibility !== 'hidden' && +getComputedStyle(e).opacity > 0.05;
+        return { state: c && c.dataset.state, status: s ? s.textContent.trim() : '', formVisible: vis(c && c.querySelector('[data-slot="input"]')), text: c ? c.innerText.replace(/\s+/g, ' ').slice(0, 160) : '' }; });
+      frames.push({ ms, box: await card.boundingBox(), ...st, f });
+    }
+    process.stdout.write(`${tag} ${mode} nametag ${kind}: ${frames.map(x => `${x.ms}ms ${x.state} “${x.status}” ${x.box ? Math.round(x.box.width) + 'x' + Math.round(x.box.height) : 'gone'}`).join(' | ')}\n`);
+    for (const x of frames) if (x.formVisible) rec('name tag', '[data-component="character-card"] [data-slot="input"]', `${x.ms} ms after Enter the form is still on screen`, x.f);
+    const sizes = [box0, ...frames.map(x => x.box)].filter(Boolean);
+    const dw = Math.max(...sizes.map(b => b.width)) - Math.min(...sizes.map(b => b.width)), dh = Math.max(...sizes.map(b => b.height)) - Math.min(...sizes.map(b => b.height));
+    if (dw > 2 || dh > 2) rec('name tag', '[data-component="character-card"]', `the card changes size by ${Math.round(dw)}x${Math.round(dh)}px between asking and ${frames.at(-1).ms} ms (${sizes.map(b => Math.round(b.width) + 'x' + Math.round(b.height)).join(' → ')})`, frames.at(-1).f);
+    const last = frames.at(-1);
+    if (kind === 'spin') {
+      if (!/Priya/.test(last.text)) rec('name tag', 'character-card', 'her name is not written on the tag', last.f);
+      if (!/Journey Mapper/.test(last.text)) rec('name tag', 'character-card', `the team's title had not landed 4.5 s after Enter (stub answers at 1.5 s): “${last.text}”`, last.f);
+      const iName = frames.findIndex(x => /Priya/.test(x.text)), iTitle = frames.findIndex(x => /Journey Mapper/.test(x.text));
+      if (iName >= 0 && iTitle >= 0 && iTitle < iName) rec('name tag', 'character-card', 'the title appears before her name', last.f);
+    } else if (!/own words/i.test(last.status + ' ' + last.text)) rec('name tag', '[data-slot="status"]', `the fallback does not say plainly that the tag is in her own words: “${last.status}”`, last.f);
+  } catch (e) { if (e) rec('walk', 'nametag', 'nametag error: ' + String(e.message || e).split('\n')[0]); }
   await ctx.close();
 }
 
