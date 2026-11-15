@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proof of Concept · a small bakery</title>
+<meta name="description" content="Proof of Concept: a small bakery where the baker already knows you. Reserve a loaf under your first name.">
+<meta name="theme-color" content="#F6EFE4">
+<link rel="icon" href="/img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;600&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<p class="banner">Demo bakery for a hackathon: no real bread, nothing to pay.</p>
+
+<header class="masthead">
+  <div class="mast-row">
+    <h1>Proof of Concept</h1>
+    <span class="logo"><img src="/img/logo.jpg" alt="" width="72" height="72"></span>
+  </div>
+  <p class="tag">A small bakery. Like the baker already knows you.</p>
+</header>
+
+<main>
+  <section id="bags" class="bags" aria-live="polite" hidden>
+    <h2 class="section">Your bag</h2>
+    <div id="bag-list"></div>
+  </section>
+
+  <section aria-labelledby="shelf-title">
+    <h2 class="section" id="shelf-title">On the shelf</h2>
+    <p class="lede">Still warm at 7. Put your first name down and I'll set one aside for you. Nothing to sign up for, nothing to pay: this one only rises.</p>
+    <ul id="loaves" class="loaves"></ul>
+  </section>
+</main>
+
+<section class="regulars" aria-labelledby="regulars-title">
+  <h2 class="section" id="regulars-title">Regulars' corner</h2>
+  <p>One of each loaf per person, per bake, so the sourdough goes round. Reserve while the bake lasts; I restock for the next one, and your name's already on my list.</p>
+</section>
+
+<footer>
+  <p>One of each loaf per person. Just a first name, nothing else.</p>
+  <p class="credit">Built by Bo, the team's engineer. Polished by our builders.</p>
+</footer>
+
+<!-- ink for the Delivered stamp -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.25" result="holes"/>
+    <feComposite in="SourceGraphic" in2="holes" operator="in" result="rough"/>
+    <feDisplacementMap in="rough" in2="n" scale="2.2"/>
+  </filter>
+</svg>
+<script src="/app.js" defer></script>
+</body>
+</html>

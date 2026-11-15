@@ -7,7 +7,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test",
+    "test": "node --test \"test/**/*.{js,mjs,cjs}\"",
     "e2e": "node --test --test-concurrency=1 e2e/*.e2e.js",
     "local": "node scripts/local.mjs",
     "doctor": "node scripts/doctor.mjs"
