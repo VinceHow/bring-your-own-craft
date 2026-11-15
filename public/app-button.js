@@ -27,10 +27,14 @@
       root.dataset.state = 'ready'; btn.disabled = false;
       label.textContent = 'Open the app';
       hint.textContent = failed || `v${next}, ${ago(done.t)}`;
+    } else if (failed) { // never stuck (docs/POLISH.md §4): a first build that stopped offers to try again
+      root.dataset.state = 'failed'; btn.disabled = false;
+      label.textContent = 'Build again';
+      hint.textContent = 'The build stopped. Bo can try again';
     } else {
       root.dataset.state = 'none'; btn.disabled = true;
       label.textContent = 'No app yet';
-      hint.textContent = failed || 'Bo starts once you agree the page';
+      hint.textContent = 'Bo starts once you agree the page';
     }
   }
   let hintNow = '';
@@ -51,6 +55,12 @@
   });
   B.on('reset', () => { done = null; building = false; failed = ''; hintNow = ''; change.hidden = true; change.textContent = ''; delete root.dataset.pulse; draw(); });
   btn.addEventListener('click', () => {
+    if (root.dataset.state === 'failed') {
+      failed = ''; building = true; hintNow = 'Starting again'; draw();
+      // If the request ends with no word from the build at all, say so again rather than wait on "Starting again".
+      Promise.resolve(B.build && B.build()).finally(() => { if (!done && building && hintNow === 'Starting again') { building = false; failed = 'The build stopped: no app yet'; draw(); } });
+      return;
+    }
     const u = url();
     if (!u || root.dataset.state === 'none') return;
     window.open(u, '_blank', 'noopener');

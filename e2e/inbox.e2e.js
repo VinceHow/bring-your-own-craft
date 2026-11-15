@@ -159,6 +159,8 @@ test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in th
   assert.ok(page1.w > page1.vw * 0.9 && page1.h > page1.vh * 0.9, `full screen: ${JSON.stringify(page1)}`);
   assert.ok(!(await page.isVisible('#inbox [data-part="only-you"]')), 'only the card on its page');
   assert.strictEqual(await card.getAttribute('data-state'), 'asking');
+  assert.strictEqual(await card.locator('[data-slot="yes"]').getAttribute('data-rank'), 'primary', 'Yes is the one primary action');
+  assert.strictEqual(await card.locator('[data-slot="say"]').getAttribute('data-rank'), 'secondary');
   assert.strictEqual((await card.locator('[data-slot="blocked"]').innerText()).trim(), "Bo's blocked", 'always framed as unblocking a named teammate');
   assert.strictEqual((await card.locator('[data-slot="doing"]').innerText()).trim(), 'Setting up ordering');
   assert.strictEqual((await card.locator('[data-slot="question"]').innerText()).trim(), 'When do orders close?');
