@@ -1,6 +1,6 @@
-// The stage path end to end with a fake model (DEMO stage flow): exactly three things reach her, each through the ask
-// policy: the first decision ("Who is this really for?", from Design's fast sketch), the quick unblock, and one focus
-// moment from the selector. A fourth is refused. Offline.
+// The stage path end to end with a fake model (DEMO stage flow): the stage path raises exactly its three moments, each
+// through the ask policy: the first decision ("Who is this really for?", from Design's fast sketch), the quick unblock,
+// and one focus moment. Past them the hidden safety ceiling refuses. Offline.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -59,7 +59,7 @@ const fake2 = async (o) => o.schema === STEPS_SCHEMA
   ? (/herWords/.test(o.user) ? { steps: STEPS.steps.map((x, i) => i === 1 ? { ...x, text: 'Sam does nothing: the usual is already held' } : x) } : STEPS)
   : fake(o);
 
-test('the stage path: Focus 1, then the unblock, then Focus 2 are the three grants, in order; the selector brings none; a fourth is refused', async () => {
+test('the stage path raises exactly its three moments, in order (Focus 1, the unblock, Focus 2); the selector brings none; the safety ceiling holds', async () => {
   const run = newRun(true);
   assert.equal((await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false })).code, 200);
   // 1. Focus 1: Noor asks who to build it for first, with the verified finding (quote, URL, date) in front of her.
@@ -130,7 +130,7 @@ test('her answers drive it: the installed listener follows Focus 1, raises Focus
   assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel']);
 });
 
-test('off the stage path the selector brings up to three, and nothing of Act 2 runs; with no verified finding Focus 1 makes no claim', async () => {
+test('off the stage path the selector brings only what passes its bar (within the hidden ceiling), and nothing of Act 2 runs; with no verified finding Focus 1 makes no claim', async () => {
   const run = newRun(false);
   await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
   assert.equal(selectorMax(run), 3);
