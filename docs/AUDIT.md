@@ -344,6 +344,24 @@ it, the site doesn't.
   - the tidy prompt or rule: cut-only for the idea;
   - the spec: stub `/api/tidy` in pad-status, focus-wait and teamgo.
 
+## Post-freeze exception: design/tidy-pen
+
+**PASS, verified by stub only.** Checked on main **96d6a9f**, the merge of design/tidy-pen @ **c159a03**, which
+includes aa2fcea. No fal spend.
+
+| Check | Result |
+|---|---|
+| Tidy e2e | `tidy` 5/0 and `tidy-all` 3/0 in both painted and plain; `inputs` 8/0 in both. |
+| No ghost text | No ghost text in the screenshots. The overlay is gone after the moment (0 left), and the paper moves on to the name tag. |
+| Pen stays inside the input box | Sampled every 40 ms at 1920×1130 and 1440×900: the pen was outside the input box in 0 samples. |
+| Reduced motion | Static: no moment and no pen, because `painted.js:368` skips the moment. |
+| Console and page errors | 0. |
+
+Evidence: `docs/audit/final/tidy-pen/` (`result.txt`, `e2e.txt`, `pen-*.jpg`).
+
+This exception does not touch FAIL 12. The tidy model's rewording on fal ("so" → "where") is a separate problem from
+this animation.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).

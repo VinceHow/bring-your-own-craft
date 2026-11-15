@@ -1,0 +1,6 @@
+tidy painted: # pass 5 # fail 0 
+tidy plain: # pass 5 # fail 0 
+tidy-all painted: # pass 3 # fail 0 
+tidy-all plain: # pass 3 # fail 0 
+inputs painted: # pass 8 # fail 0 
+inputs plain: # pass 8 # fail 0 

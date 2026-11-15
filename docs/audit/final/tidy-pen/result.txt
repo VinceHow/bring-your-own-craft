@@ -1,0 +1,6 @@
+main 96d6a9f (merge of design/tidy-pen @ c159a03, which includes aa2fcea). Verified by stub only (/api/tidy stubbed: cut "I want to build", 600 ms).
+e2e at 96d6a9f: tidy painted 5/0, plain 5/0; tidy-all painted 3/0, plain 3/0; inputs painted 8/0, plain 8/0.
+pen.cjs (40 ms samples over 3.2 s after the idea's Enter, painted):
+1920-no-preference: moment shown, pen seen, pen outside the input box in 0 samples, 0 overlays left after, 0 console/page errors
+1440-no-preference: same
+1920-reduce / 1440-reduce: no moment, no pen (static; painted.js:368 skips under reduced motion), 0 errors
