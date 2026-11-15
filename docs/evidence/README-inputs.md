@@ -3,7 +3,7 @@
 What was checked against `docs/POLISH.md` §2 and §4 for the stage-path inputs, and how. Stubs only: no model calls.
 
 ## Checks run
-- **`e2e/inputs.e2e.js`: 12/12** (painted and plain × 1920×1130 and 1440×900). Fields covered: the idea card, the name tag,
+- **`e2e/inputs.e2e.js`: 16/16** (12 at 03:30) (painted and plain × 1920×1130 and 1440×900). Fields covered: the idea card, the name tag,
   her sheet's line (`#her-input`), the meeting's piece/reply (`.fd-input`), Bo's unblock answer (`.ia-hers`), and the
   judge's idea (`#close-input`). For each one:
   - the mic is shown next to it;
@@ -29,6 +29,13 @@ What was checked against `docs/POLISH.md` §2 and §4 for the stage-path inputs,
     types. The clicker's forward key still skips the idea paper, as the stage fallback;
   - Bo's unblock asks for her words instead of sending the struck-out suggestion.
 - Mika's "Made with" lists "The room's frames, laid out in Figma" (evidence: `design/FIGMA.md`).
+
+## Added at 03:45
+- Enter on her idea now shows who's working within 300 ms, even while a slow tidy runs. Her box reads "Design is
+  sketching… or type your own steps"; plain also shows Design's bar. If no run opens, the line comes down.
+  `inputs.e2e` holds the tidy 2 s and the run 1.5 s, and the line is there in under 300 ms. The matrix is now 16/16.
+- The meet card's entrance is a ~380 ms ease-out with no overshoot, sampled in a browser (x: 21.8 → 0 px, falling the
+  whole way). With reduced motion it only fades.
 
 ## Screenshots (`docs/evidence/inputs/`)
 - `close-empty-painted-1920.jpg`, `close-empty-plain-1920.jpg`: Build it is `off` while nothing is typed.

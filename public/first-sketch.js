@@ -126,7 +126,7 @@
     g.hidden = false;
   }
   function clear() {
-    Object.assign(S, { state: 'off', run: null, lines: [], users: [], freshUsers: true });
+    Object.assign(S, { state: 'off', run: null, lines: [], users: [], freshUsers: true, soon: false });
     closePop();
     if (S.guest) S.guest.hidden = true;
     if (S.bar) { S.bar.hidden = true; S.list.innerHTML = ''; S.tag.textContent = ''; S.said.textContent = ''; S.tag.classList.remove('prepared'); }
@@ -151,6 +151,18 @@
     hint('Design is sketching… or type your own steps', 'Enter for each step');
     try { return await B.api(`/api/run/${encodeURIComponent(run)}/sketch`, { idea }, { step: false }); }
     catch (e) { if (S.state === 'pending') onError({}); return null; }
+  }
+  // The moment she sends her idea (before the tidy and the run come back): Design's line shows at once, so she sees
+  // who is working within 300 ms (POLISH §4). start() takes over when the run is open; quiet() takes it down if no run.
+  function soon() {
+    if (B.replay || S.state !== 'off') return;
+    S.soon = true; ensureBar(); if (!S.bar) return;
+    setState('drawing'); setTag('Design is sketching');
+    hint('Design is sketching… or type your own steps', 'Enter for each step');
+  }
+  function quiet() {
+    if (!S.soon || S.state !== 'off') return;
+    S.soon = false; if (S.bar) S.bar.hidden = true;
   }
   // The room hands her typed (or spoken) line here first. True when it was a reaction to the sketch.
   function takes(text) {
@@ -257,5 +269,5 @@
     return r;
   }
 
-  B.firstSketch = { start, takes, reshape, edit, forIdea, lineEdit, get state() { return S.state; }, get lines() { return S.lines.slice(); } };
+  B.firstSketch = { start, soon, quiet, takes, reshape, edit, forIdea, lineEdit, get state() { return S.state; }, get lines() { return S.lines.slice(); } };
 })();
