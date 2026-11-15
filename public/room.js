@@ -1206,10 +1206,11 @@
     const c = h('div', 'big-card idea-card'); c.dataset.component = 'idea-card'; c.dataset.state = 'asking';
     c.innerHTML = `<label class="idea-row"><span class="idea-q" data-slot="question">What do you want to build today?</span>
         <textarea class="idea-input" id="idea-input" data-slot="input" data-voice="idea" rows="2" spellcheck="false" maxlength="300" placeholder="One sentence is plenty" aria-label="What you want to build today"></textarea></label>
-      <div class="idea-hint" data-slot="hint">Say it or type it · Enter: next, your name tag</div>
+      <div class="idea-hint" data-slot="hint">Say it or type it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter: next, your name tag</div>
       <div class="idea-actions" data-slot="actions"><button type="button" class="idea-make" data-slot="make" data-state="make">Next</button></div>`;
     st.appendChild(c);
     ideaCard = c;
+    voiceCredit(c);
     $('#idea-input', c).addEventListener('keydown', ev => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone(); }
     });
@@ -1261,6 +1262,11 @@
       .then(k => { if (tok === walkToken) BYOC.kit = k || {}; return k; }).catch(() => null);
     return BYOC.kitReq;
   }
+  // "voice by ElevenLabs" in the hints, only when the mic really works here (BYOC.voice.available, known a beat after load).
+  function voiceCredit(c) {
+    const show = () => { const on = !!(BYOC.voice && BYOC.voice.available); c.querySelectorAll('.voice-credit').forEach(x => { x.hidden = !on; }); return on; };
+    if (!show()) [300, 1200, 3000].forEach(ms => setTimeout(show, ms));
+  }
   BYOC.ideaOpen = () => !!ideaCard && BYOC.beat === 0;
   BYOC.ideaDone = ideaDone;
 
@@ -1283,11 +1289,12 @@
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Type it or say it · Enter, and the team writes your tag</div>
+      <div class="nt-hint" data-slot="hint">Type it or say it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter, and the team writes your tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
       <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
+    voiceCredit(c);
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
@@ -1442,6 +1449,7 @@
       <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
       <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
       ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
       <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
       <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
     $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
