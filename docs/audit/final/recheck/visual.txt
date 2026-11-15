@@ -1,0 +1,29 @@
+Recheck of final-audit fixes, main @ 0095d1a (worktree /tmp/claude-0/rc). VERIFIED BY STUB ONLY.
+Server: PORT=4900 RUNS_DIR=/tmp/claude-0/rcruns, claude-code backend (MODEL_BACKEND=fal never set). Playwright chromium, deviceScaleFactor 1, JPEG q60.
+Page errors / console errors: none in any scenario below.
+Evidence dir: docs/audit/final/recheck/ (paths below are relative to it). Scripts: session scratchpad rc.js, rc1b.js, f4x.js, f5x.js (not committed).
+
+F1 PASS (verified by stub only). Mid-run copies: run-recheck-f1 = events cut just after select.done (135 lines; "run" field rewritten in every line); run-recheck-f1b = same minus the two "sketches" events, so the resume lands at beat 5 (working room) instead of 7. /build route-stubbed 200 {ok:true}.
+  painted f1b: before beat 5, pill "Press → and Bo builds the page"; ONE PageDown (body focused) -> beat 8 and POST /api/run/run-recheck-f1b/build fired on that first press. F1b-painted-1440-before.jpg, F1b-painted-1440-after-1press.jpg
+  plain f1b: pill "Bo starts once you agree the page"; presses 1->beat 6, 2->beat 7, 3->beat 8 + build POST. Three presses, as docs/REHEARSAL.md:78-79 says. F1b-plain-1440-before.jpg, F1b-plain-1440-after-3press.jpg
+  f1 (resumes at beat 7): one press builds in both looks (expected: 7->8 is one step either way). F1-*-1440-*.jpg
+  Code: public/stage.js:129-131 (painted, live, beat 5-7 -> BYOC.stage(8)); public/app-button.js:37-39 (pill text), :58 (redraw on stage).
+  Side note: after the stubbed press the pill goes back to "Bo starts once you agree the page" at beat 8 (no build.step arrives from the stub); not checked with a real build.
+
+F2 PASS (verified by stub only). /?look=plain first screen: idea card centred and styled (bordered paper with hard shadow, IBM Plex Sans 22px input with 2px border, Next button, mic chip). Rect 1920x1130: x504 y380 912x400; 1440x900: x378 y315 684x300 (both centred). F2-plain-1920x1130.jpg, F2-plain-1440x900.jpg
+
+F3 PASS (verified by stub only). Full resumed run (no POST made on load), painted, day and &night=1, beat 9. ".page-title" "Your page": 1280x800 rect L84 T163 (page-sheet L70, her-sheet L50); 1440x900 L92 T181 (page-sheet L76, her-sheet L53). elementFromPoint at title left+2/left+6 hits the title itself in all 4 cases; no overflow/clip ancestor starts right of or below it. F3-{1280,1440}-{day,night}-head.jpg (+ -full.jpg)
+
+F4 PASS (verified by stub only). run-recheck-f4b (cut after Bo's chatter, beat 7), chatter + teammate.start dispatched live. team-doing sits 9-10 px under her sheet's real bottom edge: 1280 sheet bottom 555 / strip top 564; 1440 624 / 633; zero intersection with her sheet. When her sheet grows (1280 bottom 608) the strip follows (top 617); 1440 683 -> 694. With her sheet opened large the strip is hidden. Fades: hidden 5.7 s (1280) / 5.9 s (1440) after the last fresh line (was ~2 min). #her-input/#her-hint were not displayed in these states, so overlap with them is 0 trivially; the "hides while she types" path was not exercised with a real focused input. F4-f4b-{1280,1440}.jpg, -after-blur.jpg, -typing.jpg (sheet open, strip hidden), -after7s.jpg. Code: public/looks/painted.js (1a1555d: place(), FRESH_MS 6000, typing check).
+  WARNING (side effect): resuming run-recheck-f4 (cut at the first ask, before teammate.start) made the room POST /api/run/run-recheck-f4/propose (I had stubbed only /build there). That ran the team on the claude-code backend (real model calls, not fal) and appended ~84 events to that copy. F4-f4-*.jpg show it live; the f4b measurements above were redone with all POST /api/run/*/* stubbed and made no POST.
+
+F5 PASS (verified by stub only). run-recheck-f5 (27 lines, 1 decided counted): #counter data-came="1", painted ::after content "decision", label "decision came up" -> on screen "1 decision · 1 to you". F5-inbox-1.jpg, F5-1440-count1.jpg. Plain (f5b, came=1): label "decision came up", F5-plain-f5b-count1.jpg. Plural: full run came=27 ::after "decisions"; f4b shows "2 decisions · 2 to you" (F4-f4b-1440.jpg). Code: public/room.js:814 (data-came + label), public/looks/painted-fixes.css:344-345. Note: a live-dispatched extra "decided" did not move the tally (server tally), so plural was checked on other runs.
+
+F6 PASS (verified by stub only). Painted fresh walk; /api/tidy (2 s delay on the intro tidy, to hold the thinking state), /api/meet-lines {lines:{}}, /api/name-tag 3 s delay -> {title:'the Journey Mapper',...}, POST /api/run stubbed. In state "thinking" with status "The team is writing your tag…": 1280 card T134-B696, button "Make my tag" T592-B636 (inside, card overflow hidden); 1440 card B783, button B715 (inside). elementFromPoint at button bottom-left/bottom-right/bottom-middle = the button in both sizes. F6-{1280,1440}-thinking.jpg, -at-measure.jpg, -made.jpg
+  Note: with an instant tidy stub the thinking state lasts only a few ms before a rough tag shows, so the delay was needed to see it.
+
+409 PASS (verified by stub only). POST /api/run/<id>/first {} twice: run-recheck-f1 (copy of the real fal run) -> 200 {"already":true} both times; the original run-2026-11-15T05-06-42-808Z-xhzk -> 200 {"already":true} both times. No new run created (no POST /api/run), so no profile model call for this check. Code: routes/first.js:21-23.
+
+Plain meeting (design QA P1-P4): NOT LANDED. origin/main top: 4afbc95 (AUDIT-design.md text only), 0862969/69f0bfb (REHEARSAL note: on plain, check the meeting after one Send; fallback is R). No commit styling the plain meeting.
+
+Other observed side effects: on resume, the server appended "sketches" events to the truncated copies f5, f5b, f4b (+2 each), with no POST from the page; source not traced, possibly a model call on the claude-code backend. The original run dir is unchanged (177 lines). Server killed at the end.

@@ -362,6 +362,45 @@ Evidence: `docs/audit/final/tidy-pen/` (`result.txt`, `e2e.txt`, `pen-*.jpg`).
 This exception does not touch FAIL 12. The tidy model's rewording on fal ("so" → "where") is a separate problem from
 this animation.
 
+## Re-check of the fixes (main 0095d1a): 17 PASS, 0 FAIL
+
+Every line here is **verified by stub only**: no fal spend. Each fix was checked against what its owner claimed,
+independently. Evidence is in `docs/audit/final/recheck/` (`visual.txt`, `tests.txt`, `f9.txt`, screenshots).
+
+| Item | Result | Evidence |
+|---|---|---|
+| F1 (61ab4d9): one → after Team, go builds | **PASS**. Painted, from the working room: the pill reads "Press → and Bo builds the page", and the first PageDown fires `POST /build` (stubbed). Plain: the third press does, as REHEARSAL:78-79 says. | `F1b-*.jpg`; `public/stage.js:129-131`, `public/app-button.js:37-39` |
+| F2 (275bdb4): plain first screen | **PASS**. The idea card is centred and styled at 1920×1130 and 1440×900. | `F2-plain-*.jpg` |
+| F3 (95735a9): "Your page" not clipped | **PASS**. 1280 and 1440, day and night: the title is in full, and `elementFromPoint` at its left edge returns the title. | `F3-*-head.jpg` (I viewed the 1280 night shot myself) |
+| F4 (1a1555d): chatter clear of her sheet | **PASS**. The strip hangs 9–10 px under her sheet, follows it when it grows, hides when the sheet opens large, and fades about 5.8 s after the last line (was about 2 min). Not measured: overlap with a focused `#her-input` while typing. | `F4-f4b-*.jpg` |
+| F5 (b016d1a): "1 decision" | **PASS**. Count 1 reads "1 decision · 1 to you"; 2 and 27 read "decisions". | `F5-*.jpg`; `public/room.js:814` |
+| F6 (604db55): "Make my tag" not clipped | **PASS**. While "The team is writing your tag…" shows, the button sits fully inside the card at 1280 and 1440 (`elementFromPoint` checked at its bottom corners). | `F6-*-thinking.jpg` |
+| F7: cut order in effect | **PASS**. REHEARSAL.md:10 and :72, and DEMO.md:43 and its rows (Focus 2 straight to End meeting, her page 5 s). | docs |
+| F8 (55c87ca): docs match the screen | **PASS**. RUN-LOCALLY:33 says `/` is painted (the default) and `?look=plain` is the fallback. DEMO 0:00 reads "What do you want to build today?". REHEARSAL puts the door after the team, and names the doctor's real line ("A Send-shaped burst…"). | docs |
+| F9 (8d3ecc7): her page follows her line | **PASS**. Re-filled with **my fal run's own recorded model output** (`page/slots.json` `.model`) and its real answers, not the owner's stub. The form is First name, Bread and collection time, and Remember me. There's no Email or How many field, no phone, no "A text arrives" and no "Decided for you". Regulars come first (order: hero, regulars, bread, …). "Email" appears only as the "Email the bakery" contact link. | `f9.txt`, `f9-her-page-1440-*.jpg` |
+| F10 (6e4528e): bakery clip | **PASS**. `/clips/bakery-order.mp4` serves 200 `video/mp4` (14.6 s, 390×844), labelled "Recorded earlier" in every frame, and REHEARSAL:94 points at it. No `railway.json`. `deploy/` exists, but only with `ACCEPTANCE.md` and an acceptance spec, unchanged since 1f6e56c. | `f10-clip-frames.jpg` |
+| F12 (60da476): the tidy guard | **PASS**. `checkTidy(raw, "…bakery where customers can…")` returns null (refused), and `tidyText` gives back her raw words (`reason: changed words`); the control with ", so" is accepted. pad-status passed 3/3 painted and 3/3 plain, and it now stubs `/api/tidy`. | `tests.txt` |
+| The /first 409 | **PASS**. Two `POST /first` on a run return 200 `{"already":true}` both times (checked on my server and on the helper's). | |
+| `npm test` | **PASS**. 285 pass / 0 fail / 1 skip (LIVE only). | `tests.txt` |
+| Leak test | **PASS**. 1/1. | `tests.txt` |
+| Cap test, and 5 rounds = 1 ask | **PASS**. 41/0 across select, stagepath, unblock, policy and meeting; `meeting.test.js:58` passes. | `tests.txt` |
+| Key grep of the whole tree | **PASS**. The only hits are the test sentinels and canaries. | `tests.txt` |
+| beats 1–2e, both looks | **PASS**. 10/10 painted, 10/10 plain. Test 2 (the live path) ran on real claude-code calls (not fal) in about 60 s. | `tests.txt` |
+
+**Accepted, not defects:**
+- **The instant "Design is sketching…" at the idea's Enter.** I agree with the owner: on the IDEA → YOU → TEAM order
+  the run hasn't started there, so the line would be untrue.
+- **F11 is accepted as slide-only.** One doc word is left: `DEMO.md:72` still says "The slide **and site** carry the
+  label". It should say the slide only (b7, docs).
+
+**Not landed, not checked:** the plain meeting styling (design QA P1–P4). It isn't on origin/main.
+
+**Observations, not FAILs:**
+- **Her tag after a resume.** A resume via `?run=` in a fresh browser shows "Priya · your seat", not her tag title,
+  because her tag lives in that browser's localStorage. In Vincent's own Chrome a refresh keeps it (d, `vpath/16`).
+- **Resuming a cut-short copy started work.** It made the room continue the run: `POST /propose`, and 2 `sketches`
+  events added on resume. That is expected for a run that hadn't finished.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
