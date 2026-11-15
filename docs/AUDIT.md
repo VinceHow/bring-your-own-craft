@@ -759,6 +759,23 @@ the known harmless `<rect> -1` lines.
 
 **`file://` walk:** all 8 slides, 0 page errors, 0 external requests.
 
+### d76c82d..35be63c (talk deck c084de5 + 6077b03 slide 3; lead/no-sponsor-jab 9eac84b): PASS
+
+Verified by stub only.
+
+**Scope:** slides plus `VISION.md` text only. The diff is `public/slides/talk.{html,css}`, `VISION.md` and evidence
+PNGs under `design/`.
+
+**`VISION.md:21`** now reads "AI app builders guess everything…" (it was "AI builders like Lovable…"). A grep of
+`VISION.md` and the deck for Lovable, bolt.new, v0.dev, Replit and Cursor finds no hits.
+
+**No external URLs** in the deck files.
+
+**Served walk of all 8 slides at 1920×1080:** 0 page errors, 0 4xx, 0 external requests. The only console errors are
+the known harmless `<rect> -1` lines.
+
+**`file://` walk:** all 8 slides, 0 page errors, 0 external requests.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
