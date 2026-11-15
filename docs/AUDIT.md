@@ -222,7 +222,7 @@
 | Moment | Score | Strip | Note |
 |---|---|---|---|
 | The door plaque | magical | `design/studio/qa/audit-0430/polish/moment-the-door-plaque-strip.jpg` | the plaque holds, the doors open, then a crossfade into the room; 0px layout shift |
-| The tidy | fine | `design/studio/qa/audit-0430/polish/tidy-idea-strip.jpg`, `design/studio/qa/audit-0430/polish/tidy-focus-strip.jpg` | fillers fade and the line closes up in place, unhurried; 0px shift on the idea, the name tag and Focus 1 |
+| The tidy | **magical** (re-checked on 96d6a9f, design/tidy-pen) | `design/studio/qa/audit-0430/recheck/tidy-pen-idea-96d6a9f.jpg`, `design/studio/qa/audit-0430/recheck/tidy-pen-focus-96d6a9f.jpg` | a small pen strikes through the fillers ("um so like", "you know", "basically"), they fade, the line closes up to her own words in place, then the page moves on; 0px layout shift on the idea, the name tag and Focus 1; still tidied in place on all 4 inputs |
 | The handwritten name tag | magical | `design/studio/qa/audit-0430/painted/1920x1130-day-nametag/` | the pen writes her name, then the title, the traits and the superpower; one size throughout |
 | Each meet card's entrance | fine | `design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-strip.jpg` | a plain fade; the portrait waves |
 | The team getting to work | magical | `design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-strip.jpg` | the light warms, sketches pin up on the shelf, "getting started" captions |
