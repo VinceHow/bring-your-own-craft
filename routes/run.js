@@ -45,7 +45,7 @@ const handlers = {
     if (running.has(run) || s.evs.some(e => e.type === 'select.done')) return [409, { error: 'already proposed for this run' }];
     running.add(run);
     // On the stage path the selector brings one focus moment; asks already made (the first decision) count (lib/first.js).
-    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag, ...(s.seat !== 'product' && SEATS.includes(s.seat) ? { seats: SEATS.filter(x => x !== s.seat) } : {}), /* any seat: the teammate whose seat she took steps aside */ max: selectorMax(run, s.evs), gate: () => gateFirst(run) })
+    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag, max: selectorMax(run, s.evs), gate: () => gateFirst(run) })
       .catch(e => { logEvent(run, 'propose.error', { error: scrub(e.message) }); return null; })
       .finally(() => running.delete(run));
     if (!body?.wait) return [202, { started: true }];

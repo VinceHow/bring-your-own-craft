@@ -514,10 +514,8 @@ html:not(.painted-on) .idea-card .idea-make { font: inherit; font-size: 18px; pa
 .nt-row { display: flex; flex-direction: column; gap: 6px; }
 .nt-label { font-size: 18px; }
 .nt-name { font: inherit; font-size: 30px; padding: 4px 8px; }
-.pick-options { display: flex; flex-wrap: wrap; gap: 8px; } /* any seat: one compact chip row, Product preselected */
-.pick-option { flex: 0 0 auto; font: inherit; font-size: 17px; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
-.pick-option[data-seat="diy"] { margin-left: 4px; }
-.card-aside { display: block; font-size: 13px; opacity: .75; margin-top: 4px; }
+.pick-options { display: flex; gap: 12px; }
+.pick-option { flex: 1; font: inherit; font-size: 20px; padding: 10px; cursor: pointer; }
 .pick-option[aria-pressed="true"] { outline: 3px solid currentColor; }
 .nt-love { width: 100%; }
 .nt-hint { font-size: 16px; }

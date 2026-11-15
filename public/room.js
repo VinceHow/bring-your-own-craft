@@ -288,22 +288,11 @@
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
-    pc.querySelectorAll('.pick-option').forEach(b => { const on = b.dataset.pick === what; b.setAttribute('aria-pressed', String(on)); b.dataset.state = on ? 'picked' : 'idle'; b.dataset.selected = String(on); });
+    pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
     $('#intro-input', introCard)?.focus();
   }
   BYOC.pick = { choose: pick, current: () => (introCard && $('.pick-card', introCard)?.dataset.pick) || null };
-  // Any seat (Vincent, 15 Nov): she can take any craft's seat. Product stays the default (the stage path, DEMO, R).
-  // Taking a teammate's seat, she sits in her chair wearing that craft; that teammate steps aside from it (its card
-  // says so, it proposes nothing, the server leaves its seat out) and the rest of the team works around her.
-  const PICKS = [['product', 'Product'], ['design', 'Design'], ['data', 'Data'], ['research', 'Research'], ['engineering', 'Engineering'], ['strategy', 'Strategy'], ['craft', 'Your own craft']];
-  const takesTeamSeat = () => TEAM.includes(BYOC.herSeat);
-  function markAside(seat) {
-    const c = el.seat[seat] && el.seat[seat].querySelector('.card'); if (!c || c.querySelector('.card-aside')) return;
-    c.dataset.state = 'aside';
-    const n = h('span', 'card-aside'); n.dataset.slot = 'aside'; n.textContent = `${INFO[seat].agent} steps aside: ${INFO[seat].name} is your seat today`;
-    c.appendChild(n);
-  }
   // Her card in her own craft: in her seat, with the craft her name tag says.
   function seatDiy(animate) {
     const s = el.seat.product;
@@ -313,10 +302,10 @@
     c.innerHTML = `<div class="card-band" data-slot="band">${GLYPH.product}<span class="card-name" data-slot="name">${esc(t.craft || 'Your craft')}</span></div>
       <span class="card-character" data-slot="character"></span>
       <div class="card-her"><span class="card-who" data-slot="who">${t.goodAt ? 'good at ' + esc(t.goodAt) : 'your seat'}</span><span class="card-title" data-slot="title"></span><span class="card-traits" data-slot="traits"></span></div>`;
-    c.dataset.component = 'her-place-card'; c.dataset.state = 'empty'; c.dataset.seat = takesTeamSeat() ? BYOC.herSeat : 'diy';
+    c.dataset.component = 'her-place-card'; c.dataset.state = 'empty'; c.dataset.seat = 'diy';
     s.appendChild(c); s.classList.add('filled'); s.dataset.state = 'her';
     drawHerCharacter(c);
-    el.room.dataset.herSeat = takesTeamSeat() ? BYOC.herSeat : 'diy';
+    el.room.dataset.herSeat = 'diy';
     place(c, { y: animate ? [220, 0] : 0, rotate: animate ? [0, TILT.product] : TILT.product }, animate);
   }
   async function takeDiySeat() {
@@ -384,7 +373,6 @@
   // decision), not started yet, or done with nothing for her. States: error · working · waiting · empty.
   function padStatus(seat, ev) {
     const A = INFO[seat].agent;
-    if (seat === BYOC.herSeat) return { state: 'aside', text: `${A} steps aside today: ${INFO[seat].name} is your seat, and the team works around you.` };
     const at = (type, f = () => true) => ev.findLastIndex(e => e.type === type && f(e));
     const started = at('teammate.start', e => e.seat === seat), ended = Math.max(at('teammate.done', e => e.seat === seat), at('teammate.error', e => e.seat === seat));
     if (at('teammate.error', e => e.seat === seat) > started && started >= 0) return { state: 'error', text: `${A} hit a snag; the team carries on.` };
@@ -559,7 +547,7 @@
     stage(4);
     if (BYOC.firstSketch && BYOC.firstSketch.soon) BYOC.firstSketch.soon(); // Design's line shows now, not when the run answers
     try {
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : takesTeamSeat() ? { seat: BYOC.herSeat } : {}) }); // her own craft: public/name-tag.js; any seat
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       remember(r.run);
       status(`run ${r.run}`);
@@ -1084,11 +1072,6 @@
           el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
           seatDiy(false);
         }
-        if (TEAM.includes(ev.seat) && BYOC.herSeat !== ev.seat) { // a replay (or a resume) of a run where she took a teammate's seat
-          BYOC.herSeat = ev.seat; BYOC.herTag = { ...(BYOC.herTag || {}), craft: INFO[ev.seat].name };
-          el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
-          seatDiy(false); markAside(ev.seat);
-        }
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
@@ -1345,7 +1328,8 @@
       <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
         <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
         <div class="pick-options" data-slot="options">
-          ${PICKS.map(([pk, label]) => `<button type="button" class="pick-option" data-pick="${pk}" data-seat="${pk === 'craft' ? 'diy' : pk}" data-slot="option" data-state="${pk === 'product' ? 'picked' : 'idle'}" data-selected="${pk === 'product'}" aria-pressed="${pk === 'product'}">${label}</button>`).join('')}
+          <button type="button" class="pick-option" data-pick="product" data-slot="option" data-state="picked" aria-pressed="true">Product</button>
+          <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
@@ -1483,9 +1467,7 @@
     introCard = null;
     BYOC.herName = herNameField();
     if (c._char) BYOC.herTag = { ...c._char, alternates: undefined };
-    const picked = $('.pick-card', c)?.dataset.pick;
-    if (TEAM.includes(picked)) { BYOC.herSeat = picked; BYOC.herTag = { ...(BYOC.herTag || {}), craft: INFO[picked].name }; }
-    if (picked === 'craft') {
+    if ($('.pick-card', c)?.dataset.pick === 'craft') {
       BYOC.herSeat = 'diy';
       BYOC.herTag = { ...(BYOC.herTag || {}), craft: (c._char && c._char.craft !== 'Product' && c._char.craft) || 'Your own craft' };
     }
@@ -1548,8 +1530,7 @@
     meetSkip = true;
     setSetup('off');
     for (const s of TEAM) seatCard(s, false);
-    if (BYOC.herSeat === 'diy' || takesTeamSeat()) seatDiy(animate); else seatCard('product', animate);
-    if (takesTeamSeat()) markAside(BYOC.herSeat);
+    if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
     const prod = el.seat.product.querySelector('.card'); if (prod) drawHerCharacter(prod);
     emit('reveal', { animate: !!animate });   // animate: the walked reveal (the door may open); false for jumps and replays
     if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 2) stage(3); }
