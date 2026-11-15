@@ -51,7 +51,7 @@ html, body { margin: 0; height: 100%; background: #1F1813; overflow: hidden; }
   const lines = [...document.querySelectorAll('.line')], box = document.getElementById('lines');
 
   // fit the 1600×900 stage to the window, letterboxed
-  const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+  const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.left = Math.round((innerWidth - 1600 * s) / 2) + 'px'; stage.style.top = Math.round((innerHeight - 900 * s) / 2) + 'px'; stage.style.transform = `scale(${s})`; };
   addEventListener('resize', fit); fit();
 
   // 1. the living painting: its own sample run drives the moods (not ?embed, which stops it); the light pinned to day or night
