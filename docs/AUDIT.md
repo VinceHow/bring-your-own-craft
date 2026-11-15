@@ -599,6 +599,43 @@ decoded (jsQR by me and the tech lead, OpenCV by the lead) to exactly
 
 **Noor grep:** only the known PNG.
 
+### Final batch 859f330..59578c8 (the last audit before the public push): PASS
+
+Verified by stub only, with no fal or Linkup spend.
+
+**qr-inline (64a9623): PASS.** See its own line above. `public/app-button.js`, `public/qr-live-site-card.png` and
+`public/qr-live-site.svg` are unchanged from 64a9623 to 59578c8. The QR is byte-identical to the one decoded (jsQR and
+OpenCV) to exactly the storefront root. qr-card e2e 4/0: only the card, no `window.open`, no popup; not gated, the tab
+still opens.
+
+**Cap text (102ca27): PASS.**
+- `git grep "capped at 3\|at most 3 asks" -- public lib scripts` is empty.
+- The slides' numbers (3 / 0 / 24 / 20), URL and QR SVG are unchanged: compared from `data.js` at 859f330 and 59578c8,
+  with the QR hash identical.
+- `scripts/env-local.mjs` now describes the loopback default.
+- Note (not stage-visible; the slide renders only the file part, `index.html:136`): the new source text "(ask events;
+  asks raised by the selector's threshold)" in `numbers.json`, `data.js` and `build.mjs` isn't accurate for the R run.
+  On the stage path the selector raises none; the three asks come from `lib/first.js` (Focus 1, the unblock, Focus 2).
+  An honest wording would be "(ask events: the stage path's three moments)".
+
+**Role-card tip (04f8c87): PASS, with no Product-path regression.** `lib/chatter.js` has the teammate wearing Product
+speak a product line under their own name when she sits elsewhere. With no cast, which is the Product path, `wearer`
+is null and the behaviour is unchanged. role-card 3/0, anyseat 12/0, reorder 10/0; interpret tests in `npm test`.
+
+**po/final (3f7853f, 3b882de): PASS.** The README and SUBMISSION add "sit in any seat… Product is the default and the
+demo seat" and "your app starts building the moment you say Team, go; each later decision builds the next version, with
+a line on what changed". Both match the code:
+- any seat: anyseat 12/0;
+- v1 on Team, go, then v2 with "what changed": app-first 3/0, app 2/0.
+
+DEMO drops the QR caveat now qr-inline is in. The SUBMISSION TBDs at :170 and :195 are Vincent's.
+
+**Runs on 59578c8:**
+- `npm test`: 313 tests, 312 pass, 0 fail, 1 skipped.
+- beats 1–2f and 4 (replays): **12/0 painted, 12/0 plain**.
+- page e2e 2/0.
+- Noor grep: only the known PNG.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
