@@ -21,8 +21,13 @@
   frame.title = '';
   frame.setAttribute('aria-hidden', 'true');
   frame.tabIndex = -1;
-  const night = q.get('night') === '1' || (q.get('night') !== '0' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-  frame.src = '/looks/comps/cast-living.html?embed=1&run=0' + (night ? '&night=1' : '&time=morning');
+  // The time mode, remembered per viewer: 'cycle' (the run drives morning -> building -> evening, the default),
+  // 'day' (always afternoon) or 'night' (always night). ?night=1 / ?night=0 override it for one visit.
+  let mode = 'cycle';
+  try { const m = localStorage.getItem('byoc.timeMode'); if (m === 'day' || m === 'night' || m === 'cycle') mode = m; } catch (e) { /* no storage */ }
+  if (q.get('night') === '1') mode = 'night'; else if (q.get('night') === '0' && mode === 'night') mode = 'day';
+  const night = mode === 'night';
+  frame.src = '/looks/comps/cast-living.html?embed=1&run=0' + (night ? '&night=1' : mode === 'day' ? '&time=afternoon' : '&time=morning');
   room.prepend(frame);                                                // first child of #room, z-index 0: under every UI layer
   document.documentElement.classList.add('painted-on');
 
@@ -71,20 +76,35 @@
   BYOC.on('focus', f => { if (f && !f.open) call(l => l.focus(false)); });
 
   // time of day from the run's progress: morning before the team starts, building while it works, evening once her
-  // page is built. Night (?night=1, or a dark laptop) holds all run long.
+  // page is built. That's the 'cycle' mode; 'day' and 'night' hold one scene all run long.
   // #room[data-scene] follows the painting, so each painting can place the room's pills its own way
-  let tod = night ? 'night' : 'morning';
+  let cycleAt = 'morning';                                            // where the run has got to, whatever the mode
+  const shown = () => mode === 'night' ? 'night' : mode === 'day' ? 'afternoon' : cycleAt;
+  let tod = shown();
   room.dataset.scene = tod;
-  let nightOn = night;
-  const to = (t, force) => { if ((nightOn && !force) || t === tod) return; tod = t; room.dataset.scene = t; call(l => l.setTime(t)); };
-  BYOC.on('teammate.start', () => to('building'));
-  BYOC.on('build.step', () => to('building'));
-  BYOC.on('build.done', () => setTimeout(() => to('evening'), 9000));   // after the celebration
-  BYOC.on('reset', () => { if (!nightOn) to('morning'); });
+  const show = () => {
+    const t = shown(); if (t === tod) return;
+    tod = t; room.dataset.scene = t; call(l => l.setTime(t));
+    document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: t, mode, from: 'painted-living' } }));
+  };
+  const step = t => { cycleAt = t; if (mode === 'cycle') show(); };
+  BYOC.on('teammate.start', () => step('building'));
+  BYOC.on('build.step', () => step('building'));
+  BYOC.on('build.done', () => setTimeout(() => step('evening'), 9000));   // after the celebration
+  BYOC.on('reset', () => step('morning'));
+  // tell the other layers where we start (PlayfulInk reads the mode itself; this is the scene)
+  setTimeout(() => document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: tod, mode, from: 'painted-living' } })), 0);
 
   // shared with the other painted layers (PlayfulInk owns the toys and the day/night toggle):
   //   document 'studio:time' {time: morning|afternoon|building|evening|night} sets the painting's time of day;
   //   document 'studio:poke' {obj: record|cat|coffee} plays that object's clip (PlayfulInk draws hearts, notes, steam, music).
-  document.addEventListener('studio:time', e => { const t = e.detail && e.detail.time; if (!t) return; nightOn = t === 'night'; to(t, true); });
+  //   'studio:time' {mode: cycle|day|night} from the pill switches the mode; this layer answers with {time, mode} when the scene changes.
+  document.addEventListener('studio:time', e => {
+    const d = e.detail || {}; if (d.from === 'painted-living') return;
+    if (d.mode === 'cycle' || d.mode === 'day' || d.mode === 'night') mode = d.mode;
+    else if (d.time) { mode = d.time === 'night' ? 'night' : 'day'; }  // an older caller naming a time pins it
+    else return;
+    show();
+  });
   document.addEventListener('studio:poke', e => { const o = e.detail && e.detail.obj; if (o) call(l => l.poke(o)); });
 })();
