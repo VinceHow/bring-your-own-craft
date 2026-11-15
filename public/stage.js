@@ -4,9 +4,9 @@
 //   Left / PageUp            : previous beat (a clicker's back button)
 //   Home or 0                : reset to the empty room
 //   S                        : stage mode (body >= 20px, no chrome, no help card)
-//   R                        : replay the rehearsal run; in the close, replay the yoga run's check-in
-//   C                        : replay the yoga run (in the close: its check-in)
-//   J                        : the close: type a judge's idea
+//   R                        : replay the rehearsal run
+//   C                        : replay the yoga run
+//   (J, the judge's-idea close, is unhooked from the stage path: Vincent, 15 Nov; close.js stays, unreachable)
 //   B                        : build her page (same as moving on to the build beat)
 //   F                        : play the fake fixture run (labelled FAKE)
 //   Enter                    : back to her sheet's input
@@ -23,9 +23,8 @@
     ['← · PageUp', 'previous beat (clicker back)'],
     ['Home · 0', 'reset to the empty room'],
     ['S', 'stage mode: big type, no chrome'],
-    ['R', 'replay the rehearsal (in the close: the yoga run)'],
-    ['C', 'replay the yoga run (the judge’s-idea fallback)'],
-    ['J', 'the close: type a judge’s idea'],
+    ['R', 'replay the rehearsal'],
+    ['C', 'replay the yoga run'],
     ['B', 'build her page'],
     ['F', 'fake fixture run (labelled FAKE)'],
     ['V · `', 'speak: hold to talk, or tap to start and tap to stop (Esc cancels)'],
@@ -79,7 +78,7 @@
       const back = k === 'Escape' || ((k === 'PageDown' || k === 'ArrowRight') && document.querySelector('#focus-doc .fd-brief:not([hidden])'));
       if (back) { e.preventDefault(); BYOC.focusDoc.close(); return; }
       if (['PageDown', 'PageUp', 'ArrowRight', 'ArrowLeft', ' '].includes(k)) { e.preventDefault(); return; }
-      if (['Home', '0', 'r', 'R', 'c', 'C', 'j', 'J', 's', 'S', 'f', 'F', 'b', 'B'].includes(k)) BYOC.focusDoc.close(true);
+      if (['Home', '0', 'r', 'R', 'c', 'C', 's', 'S', 'f', 'F', 'b', 'B'].includes(k)) BYOC.focusDoc.close(true);
       else return;
     }
     if (isTyping(e.target)) {
@@ -98,7 +97,6 @@
     else if (k === 'r' || k === 'R') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.(q.get('replay') || 'rehearsal');
     else if (k === 'c' || k === 'C') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.('yoga');
     else if (k === 'f' || k === 'F') BYOC.playFixture && BYOC.playFixture();
-    else if (k === 'j' || k === 'J') BYOC.close?.open();
     else if (k === 'b' || k === 'B') { if (BYOC.beat < 8) BYOC.stage(8); else BYOC.build?.(); }
     else if (k === '?') toggleHelp();
     else if (k === 'Enter') { if (BYOC.introShown && BYOC.introShown()) BYOC.introDone(); else if (BYOC.beat === 1 && BYOC.meetNext) BYOC.meetNext(); else focusInput(); }
@@ -125,7 +123,7 @@
     }
     if (b === 1) return BYOC.meetNext ? BYOC.meetNext() : BYOC.stage(2); // the next teammate; after the last, the reveal
     if (b === 3 && !idea) return focusInput();
-    if (b >= 11 || inClose()) return;
+    if (b >= 9 || inClose()) return; // her page is the last beat: the judge's-idea close is unhooked
     if (BYOC.openTopNote && BYOC.openTopNote()) return; // her tray is out: forward opens the team's suggested note
     // Audit F1: in the painted look, beats 6 (her sheet large) and 7 (Design's sketches) draw nothing she can see, so one
     // forward from the working room is the build press (DEMO: one press). Live only; replays and the plain look step on.
