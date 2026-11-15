@@ -30,6 +30,17 @@
   const night = mode === 'night';
   frame.src = '/looks/comps/cast-living.html?embed=1&run=0' + (night ? '&night=1' : mode === 'day' ? '&time=afternoon' : '&time=morning');
   room.prepend(frame);                                                // first child of #room, z-index 0: under every UI layer
+  // Bug 4 (Vincent: the toys shake when clicked): a toy's clip snapped on and off in one frame, and a generated clip's
+  // first and last frames never quite match the painted still, so each click read as a small jolt. The record player,
+  // cat and coffee machine now cross-fade into their clip and back to the painting (400 ms), so the click reads as the
+  // deliberate reaction the clip is (the cat stretches, the coffee brews). Teammates' patches keep their own fades.
+  frame.addEventListener('load', () => {
+    try {
+      const d = frame.contentDocument, st = d.createElement('style');
+      st.textContent = '#patches > :is([data-who="record"], [data-who="cat"], [data-who="coffee"]) { transition: opacity .4s cubic-bezier(.4, 0, .2, 1); }';
+      d.head.appendChild(st);
+    } catch (e) { /* not same-origin: leave the clips as they are */ }
+  });
   document.documentElement.classList.add('painted-on');
 
   // The living page exposes window.living once it has started. Events that arrive earlier wait in a short queue.
