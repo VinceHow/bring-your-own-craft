@@ -1,15 +1,17 @@
-PASS [1920x1130] inbox empty: top right, "Your inbox is empty" — {"r":1911.995849609375,"t":20.069580078125,"w":426.904052734375,"h":170.5065460205078,"st":"empty","txt":"Your inbox is empty"}
+PASS [1920x1130] inbox empty: top right, "Nothing needs you yet" — {"r":1911.995849609375,"t":20.069580078125,"w":426.904052734375,"h":142.8833465576172,"st":"empty","txt":"Nothing needs you yet"}
 PASS [1920x1130] room: no page scrollbar
 PASS [1920x1130] room: no "undefined"/"NaN" on screen
 PASS [1920x1130] room: no cut-off text in b3 components
-PASS [1920x1130] Team go: status within 300 ms (43 ms)
+PASS [1920x1130] Team go: status within 300 ms (53 ms)
 PASS [1920x1130] Team go failure: plain line + Retry — The team couldn’t start (error 500). Retry, or press R for the rehearsal. Retry
 PASS [1920x1130] Team go failure: said once (no second step note)
-PASS [1920x1130] inbox new: "Noor has a question", no question preview in the room — Noor has a question
+PASS [1920x1130] inbox new: "Noor has a question", no question preview in the room — Noor has a question →
 PASS [1920x1130] inbox new: no page scrollbar
 PASS [1920x1130] inbox new: no "undefined"/"NaN" on screen
 PASS [1920x1130] inbox new: no cut-off text in b3 components
-PASS [1920x1130] inbox open: the whole screen — 1895x1079
+PASS [1920x1130] inbox closed with an item: exactly one clickable — 1
+PASS [1920x1130] the full inbox in two clicks (the line, then "All notes")
+PASS [1920x1130] inbox open: the whole screen — 1858x1080
 PASS [1920x1130] inbox open: no page scrollbar
 PASS [1920x1130] inbox open: no "undefined"/"NaN" on screen
 PASS [1920x1130] inbox open: no cut-off text in b3 components
@@ -18,7 +20,7 @@ PASS [1920x1130] meeting: Send primary, End meeting secondary — primary/second
 PASS [1920x1130] meeting compose: no page scrollbar
 PASS [1920x1130] meeting compose: no "undefined"/"NaN" on screen
 PASS [1920x1130] meeting compose: no cut-off text in b3 components
-PASS [1920x1130] meeting Send: "The team is reading…" within 300 ms (161 ms)
+PASS [1920x1130] meeting Send: "The team is reading…" within 300 ms (178 ms)
 PASS [1920x1130] meeting discussing: no page scrollbar
 PASS [1920x1130] meeting discussing: no "undefined"/"NaN" on screen
 PASS [1920x1130] meeting discussing: no cut-off text in b3 components
@@ -36,17 +38,19 @@ PASS [1920x1130] unblock page: no cut-off text in b3 components
 PASS [1920x1130] unblock: after Yes, back to the room on its own
 PASS [1920x1130] build stopped: "Build again", enabled — failed/Build again/false
 PASS [1920x1130] no console/page errors (beyond the 500/404/409 the stubs inject on purpose)
-PASS [1440x900] inbox empty: top right, "Your inbox is empty" — {"r":1432,"t":16,"w":340,"h":135.796875,"st":"empty","txt":"Your inbox is empty"}
+PASS [1440x900] inbox empty: top right, "Nothing needs you yet" — {"r":1432,"t":16,"w":340,"h":113.796875,"st":"empty","txt":"Nothing needs you yet"}
 PASS [1440x900] room: no page scrollbar
 PASS [1440x900] room: no "undefined"/"NaN" on screen
 PASS [1440x900] room: no cut-off text in b3 components
-PASS [1440x900] Team go: status within 300 ms (60 ms)
+PASS [1440x900] Team go: status within 300 ms (52 ms)
 PASS [1440x900] Team go failure: plain line + Retry — The team couldn’t start (error 500). Retry, or press R for the rehearsal. Retry
 PASS [1440x900] Team go failure: said once (no second step note)
-PASS [1440x900] inbox new: "Noor has a question", no question preview in the room — Noor has a question
+PASS [1440x900] inbox new: "Noor has a question", no question preview in the room — Noor has a question →
 PASS [1440x900] inbox new: no page scrollbar
 PASS [1440x900] inbox new: no "undefined"/"NaN" on screen
 PASS [1440x900] inbox new: no cut-off text in b3 components
+PASS [1440x900] inbox closed with an item: exactly one clickable — 1
+PASS [1440x900] the full inbox in two clicks (the line, then "All notes")
 PASS [1440x900] inbox open: the whole screen — 1416x860
 PASS [1440x900] inbox open: no page scrollbar
 PASS [1440x900] inbox open: no "undefined"/"NaN" on screen

@@ -127,10 +127,10 @@ test('hold ` on her card: listening, then the words land in "I love…" as edita
   await waitFor(page, () => document.getElementById('her-input').value.length > 0, 8000, 'transcript in her sheet');
   assert.strictEqual(await page.inputValue('#her-input'), 'A booking page for a small yoga studio');
   assert.strictEqual(sent.at(-1).field, 'idea');
-  // A journey line is typed: once the idea is down the mic leaves her sheet.
+  // Once the idea is down, her sheet's line (journey lines, the sketch reaction) keeps the mic (POLISH §2: every input).
   await page.keyboard.press('Enter');
   await waitFor(page, () => document.getElementById('her-idea').textContent.trim().length > 0, 8000, 'the idea written down');
-  await waitFor(page, () => !document.querySelector('#her-form .voice-mic')?.offsetParent, 3000, 'mic gone from journey lines');
+  await waitFor(page, () => document.getElementById('her-form').hidden || !!document.querySelector('#her-form .voice-mic')?.offsetParent, 3000, 'the mic stays while her sheet asks');
   assert.deepStrictEqual(errors, []);
   await page.close();
 });

@@ -46,7 +46,7 @@ const note = (size, item, ok, detail = '') => log.push(`${ok ? 'PASS' : 'FAIL'} 
     await p.waitForTimeout(600);
     const box = () => p.evaluate(() => { const r = document.getElementById('inbox').getBoundingClientRect(); return { r: r.right, t: r.top, w: r.width, h: r.height, st: document.getElementById('inbox').dataset.state, txt: document.querySelector('#inbox .inbox-now').innerText.trim() }; });
     let bx = await box();
-    note(size, 'inbox empty: top right, "Your inbox is empty"', bx.st === 'empty' && bx.r > w * 0.75 && bx.t < h * 0.2 && bx.txt === 'Your inbox is empty', JSON.stringify(bx));
+    note(size, 'inbox empty: top right, "Nothing needs you yet"', bx.st === 'empty' && bx.r > w * 0.75 && bx.t < h * 0.2 && bx.txt === 'Nothing needs you yet', JSON.stringify(bx));
     await shot('1-room-inbox-empty'); await scan('room');
     // 2. Team go failing: feedback within 300 ms, then a plain failure + Retry
     let t0 = Date.now();
@@ -64,11 +64,15 @@ const note = (size, item, ok, detail = '') => log.push(`${ok ? 'PASS' : 'FAIL'} 
     await p.waitForFunction(() => document.getElementById('inbox').dataset.state === 'new', null, { timeout: 5000 }).catch(() => {});
     bx = await box();
     const preview = await p.evaluate(() => [...document.querySelectorAll('#room *')].some(e => e.offsetParent && e.children.length === 0 && /What makes someone come back/.test(e.textContent)));
-    note(size, 'inbox new: "Noor has a question", no question preview in the room', bx.st === 'new' && bx.txt === 'Noor has a question' && !preview, bx.txt);
+    note(size, 'inbox new: "Noor has a question", no question preview in the room', bx.st === 'new' && bx.txt === 'Noor has a question →' && !preview, bx.txt);
     await shot('3-inbox-new'); await scan('inbox new');
     // 4. Open: the whole screen, fades in
-    await p.click('#inbox .inbox-toggle');
-    await p.waitForTimeout(300); bx = await box();
+    const one = await p.evaluate(() => [...document.querySelectorAll('#inbox button, #inbox a, #inbox [tabindex]:not([tabindex="-1"])')].filter(e => e.offsetParent && getComputedStyle(e).pointerEvents !== 'none').length);
+    note(size, 'inbox closed with an item: exactly one clickable', one === 1, String(one));
+    await p.click('#inbox .inbox-now'); await p.waitForTimeout(400);
+    await p.click('#focus-doc [data-slot="all-notes"]');
+    await p.waitForTimeout(400); bx = await box();
+    note(size, 'the full inbox in two clicks (the line, then "All notes")', bx.st === 'open');
     note(size, 'inbox open: the whole screen', bx.st === 'open' && bx.w > w * 0.9 && bx.h > h * 0.9, `${Math.round(bx.w)}x${Math.round(bx.h)}`);
     await shot('4-inbox-open'); await scan('inbox open');
     await p.keyboard.press('Escape'); await p.waitForTimeout(200);

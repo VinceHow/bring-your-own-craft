@@ -1229,6 +1229,11 @@
   BYOC.setupOrder = CLASSIC ? 'classic' : 'idea-first';
   let ideaCard = null;
   const MEET_LIMIT_MS = 6000;
+  // An empty paper and her Enter: the field asks (a short shake on its card, the caret back in the box), never moves on.
+  function nudgeEmpty(c, inp) {
+    c.dataset.nudge = 'empty'; inp.focus();
+    clearTimeout(c._nudge); c._nudge = setTimeout(() => { delete c.dataset.nudge; }, 900);
+  }
   function openIdea() {
     if (!setup) return;
     setSetup('idea');
@@ -1242,9 +1247,12 @@
     ideaCard = c;
     voiceCredit(c);
     $('#idea-input', c).addEventListener('keydown', ev => {
-      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone(); }
+      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone({ typed: true }); }
     });
-    $('.idea-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); ideaDone(); });
+    $('.idea-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); ideaDone({ typed: true }); });
+    const make = $('.idea-make', c), inp = $('#idea-input', c);
+    const ready = () => { if (make.dataset.state === 'make' || make.dataset.state === 'off') make.dataset.state = inp.value.trim() ? 'make' : 'off'; };
+    inp.addEventListener('input', ready); ready();
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
@@ -1255,10 +1263,13 @@
     if (instantMode || !el || clean === raw || !['cut', 'reordered'].includes(el.dataset.tidy)) return;
     await wait(TIDY_PAUSE_MS);
   }
-  async function ideaDone() {
+  async function ideaDone(opts = {}) {
     const c = ideaCard; if (!c || BYOC.beat !== 0 || c.dataset.state === 'tidying') return;
     const inp = $('#idea-input', c);
     const raw = inp.value.trim();
+    // Her Enter or Next on an empty paper asks for the idea (POLISH §2: empty never moves on by accident). The clicker's
+    // forward key still moves on without one (the stage fallback: she gives it in the room).
+    if (!raw && opts.typed) { nudgeEmpty(c, inp); return; }
     // Her line, tidied in place first (BYOC.tidyInto, builder 8: cut, never reworded; her raw words if slow or refused).
     let text = raw;
     if (raw && typeof BYOC.tidyInto === 'function' && !BYOC.replay) {
@@ -1328,10 +1339,10 @@
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
-      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); introDone(); }
+      if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); introDone({ typed: true }); }
     });
     // The click path, as well as Enter: "Make my tag", then "Meet your team" once it's made; "Try again" after a failure.
-    $('.nt-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); introDone(); });
+    $('.nt-make', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); introDone({ typed: true }); });
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her character card (DEMO 0:22): after her "I love…" sentence, the team's playful read of it: a title, two or three
@@ -1430,10 +1441,11 @@
   // Enter (or the clicker) on her paper: the first time with her words, they're tidied (builder 7's speech tidy) and
   // the team writes her name tag; the next time, she meets the team. Empty words move on without a line (her file
   // keeps its prepared lines).
-  async function introDone() {
+  async function introDone(opts = {}) {
     const c = introCard; if (!c || BYOC.beat !== 0) return;
     const inp = $('#intro-input', c);
     const raw = inp.value.trim();
+    if (!raw && opts.typed && c.dataset.state === 'asking') { nudgeEmpty(c, inp); return; } // empty: the paper asks, never skips her tag
     if (raw && c.dataset.state === 'asking') {
       c.style.setProperty('--pt-nt-h', c.offsetHeight + 'px'); // the paper keeps its size as it turns into her tag (a look may use it)
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;

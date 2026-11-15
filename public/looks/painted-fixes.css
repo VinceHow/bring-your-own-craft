@@ -219,3 +219,58 @@ html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(-
    beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
 html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+
+/* ---- POLISH 1: the setup pages are calm (her idea, the name tag, meeting the team: #room[data-setup] not off) ----
+   Only the setup paper and the painting behind it: the day / night pill, the toys (the cat, coffee, lights and record
+   player's tap spots, and the record player's pill) and the app tag step away until she's in the room. */
+html body:has(#room[data-setup]:not([data-setup="off"])) :is([data-component="time-pill"], [data-component="toy-track"], [data-spot], [data-component="app-button"]) {
+  visibility: hidden !important; pointer-events: none !important; }
+
+/* ---- her journey, opened large: the arrows meet the middle of their boxes, and the step editor is ink-paper ----
+   flow.js lays the boxes out with a row height (at least 64px) and draws each arrow at that height's middle, but the
+   opened sheet reverted the boxes to their own height (about 42px), so every arrow sat 11px low. Each box now takes one
+   fixed height, the same 64px the layout uses, its label centred and held to two lines. */
+html body #room [data-component="idea-sheet"][data-open="true"] [data-slot="box"] {
+  height: 64px !important; display: flex !important; align-items: center; overflow: hidden; }
+html body #room [data-component="idea-sheet"][data-open="true"] [data-slot="box"] > [data-slot="label"] {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* the step editor (a click on a step, in the reaction beat): a small paper card under the step, an inked underline to
+   type on, and two quiet ink words for strike and add. Was the browser's own input and grey buttons. */
+html body #room [data-component="step-edit"] {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; z-index: 60; min-width: 300px; max-width: 420px;
+  padding: 14px 18px 12px; border: 0; border-radius: 16px 14px 17px 13px / 14px 17px 13px 16px;
+  background: #FCF5E8; color: var(--ink, #2B1E14);
+  box-shadow: inset 0 0 0 1.5px rgba(84, 58, 38, .55), 0 14px 28px -14px rgba(60, 35, 15, .45); }
+html body #room [data-component="step-edit"] [data-slot="input"] {
+  flex: 1 0 100%; width: auto; min-width: 0; margin: 0; padding: 4px 2px 6px; border: 0; border-radius: 0;
+  border-bottom: 2px solid var(--ink, #2B1E14); background: transparent; outline: none;
+  font: 400 19px/1.25 var(--display, Georgia, serif); color: var(--ink, #2B1E14); }
+html body #room [data-component="step-edit"] [data-slot="input"]::placeholder { color: var(--ink-2, #4E3A2B); font-style: italic; opacity: 1; }
+html body #room [data-component="step-edit"] [data-slot="input"]:focus-visible { border-bottom-color: var(--ink, #2B1E14); border-bottom-width: 3px; padding-bottom: 5px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]) {
+  appearance: none; margin: 0; padding: 4px 2px; border: 0; border-radius: 6px; background: none; cursor: pointer;
+  font: 500 15px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]):hover { color: var(--ink, #2B1E14); text-decoration-thickness: 2px; }
+html body #room [data-component="step-edit"] :is([data-slot="strike"], [data-slot="add"]):focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 2px; }
+html body #room [data-component="step-edit"] [data-slot="strike"] { text-decoration-line: line-through underline; }
+html body #room [data-component="step-edit"] [hidden] { display: none !important; }
+/* ---- #25: the room's small labels at 14px when the room fills the window ----
+   The room is drawn at 1600 x 900 and scaled to the window; on a 1440 or 1280 screen a 13px label landed at 12-12.6px,
+   under the 13px floor. These are the room's 13px labels (measured at 1440 across the demo's beats): each steps up to
+   14px, so it lands at 13.5px on 1440. The labels are short (names, "agent", the journey's step words). */
+html body #room[data-fill="cover"] [data-component="place-card"] [data-slot="agent-mark"],
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) h1,
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] [data-slot="label"],
+html body #room[data-fill="cover"] :is([data-component="inbox"], [data-component="inbox-item"], [data-component="note-flight"], [data-component="chatter-line"]) [data-slot="who"],
+html body #room[data-fill="cover"] [data-component="team-space"] :is([data-slot="mark"], [data-slot="label"]),
+html body #room[data-fill="cover"] [data-component="sketchpad"] [data-slot="tag"],
+html body #room[data-fill="cover"] [data-component="workspace"] [data-slot] > h3 { font-size: 14px !important; }
+/* ---- JANK 2, the last bit: the research card's source link ----
+   Its title and site are inked, but the link itself kept the browser's blue (#0000EE), so the dash before it and the
+   dot between title and site showed as two blue marks on her focus document. The link is ink; its parts keep theirs. */
+html body #room [data-component="research-card"] [data-slot="source"] { color: var(--ink-3, #64503F); text-decoration: none; }
+html body #room [data-component="research-card"] [data-slot="source"]:hover [data-slot="source-title"] { text-decoration: underline; text-underline-offset: 3px; }
+/* while her focus document is open, the app chip ("No app yet") steps back: it sat on the document's bottom-right corner
+   at 1440 and 1280, the one thing over her focus. The Replay / Fake run label stays: it's the honesty label. */
+body:has([data-component="focus-doc"]:not([hidden])) [data-component="app-button"] { display: none !important; }
