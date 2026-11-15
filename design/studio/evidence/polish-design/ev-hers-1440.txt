@@ -1,4 +1,0 @@
-shown {"shown":["u9"],"waiting":["u9"],"beat":5,"hidden":false,"act":""}
-showUnblock true
-300w {"hers":[220,459,"auto"],"card":[87,600],"inbox":[20,880,23],"vh":900,"ctrlsOff":[],"page":0}
-para {"hers":[27,27,"auto"],"card":[87,407],"inbox":[20,880,23],"vh":900,"ctrlsOff":[],"page":0}

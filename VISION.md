@@ -1,8 +1,7 @@
 # Bring your own craft: vision and hackathon build
 
 Vincent's one-pager, 14 Nov 2026. The agreed picture of the product and the hackathon build; `DEMO.md` (beat by beat)
-and `BRIEF.md` (how it's built) carry the detail. Source: the shared doc of the same name; this copy is for every
-session to read.
+carries the detail.
 
 You spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. They handle their own work, check in only when it's something where you're the expert or you love doing, and build your rough idea up with you.
 
