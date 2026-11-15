@@ -37,12 +37,22 @@ async function room(look, deployUrl, size = { width: 1600, height: 900 }) {
 }
 
 for (const look of ['painted', 'plain']) {
-  test(`${look}: Open the app opens the new tab and shows the QR card; ×, Esc and a click outside close it`, async () => {
+  test(`${look}: with the live deploy, Open the app shows only the QR card at once, no new tab; ×, Esc and a click outside close it`, async () => {
     const { p, errors } = await room(look, LIVE);
-    await p.click('#app-button .app-open');
-    assert.deepStrictEqual(await p.evaluate(() => window.__opened), ['/runs/stub-run/page/'], 'the new tab still opens');
+    const pages = () => p.context().pages().length, before = pages();
+    let popups = 0; p.on('popup', () => popups++); p.context().on('page', () => popups++);
+    await p.locator('#app-button .app-open').waitFor({ state: 'visible' }); // the look may bring the button in a beat later
+    // the press, timed inside the page: the card is up within 500ms of the click (it is shown in the click itself)
+    const ms = await p.evaluate(() => new Promise(res => { const t0 = performance.now();
+      document.querySelector('#app-button .app-open').click();
+      const check = () => { const c = document.querySelector('[data-component="qr-card"]'); if (c && c.offsetParent !== null) res(performance.now() - t0); else if (performance.now() - t0 > 2000) res(9999); else requestAnimationFrame(check); };
+      check(); }));
+    assert.ok(ms < 500, `the card within 500ms of the press (${Math.round(ms)}ms)`);
     const card = p.locator('[data-component="qr-card"]');
-    await card.waitFor({ state: 'visible', timeout: 2000 });
+    await card.waitFor({ state: 'visible', timeout: 500 });
+    assert.deepStrictEqual(await p.evaluate(() => window.__opened), [], 'no window.open');
+    await p.waitForTimeout(300);
+    assert.strictEqual(popups, 0, 'no popup or new page'); assert.strictEqual(pages(), before, 'the page count stays');
     assert.strictEqual(await card.getAttribute('data-state'), 'open');
     assert.match(await p.getAttribute('[data-component="qr-card"] img', 'src'), /qr-live-site-card\.png$/, 'the card Vincent picked, as it is');
     await p.waitForFunction(() => { const i = document.querySelector('[data-component="qr-card"] img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 3000 });
@@ -52,8 +62,8 @@ for (const look of ['painted', 'plain']) {
     const btn = await p.locator('#app-button .app-open').boundingBox(), c = await card.boundingBox();
     const overlap = !(btn.x > c.x + c.width || btn.x + btn.width < c.x || btn.y > c.y + c.height || btn.y + btn.height < c.y);
     assert.ok(!overlap, 'the card does not cover the app button');
-    assert.ok(await p.evaluate(() => { const b = document.querySelector('#app-button .app-open').getBoundingClientRect();
-      return document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2)?.closest('#app-button') != null; }), 'the app button is on top');
+    assert.ok(await p.evaluate(() => { const a = document.querySelector('#app-button'), w = document.querySelector('[data-component="qr-card"]').parentElement;
+      return a.parentElement === w.parentElement && +getComputedStyle(a).zIndex > +getComputedStyle(w).zIndex; }), 'the app button stacks above the card (same layer, higher z)');
     await p.keyboard.press('Escape'); assert.ok(await card.isHidden(), 'Esc closes it');
     await p.click('#app-button .app-open'); await card.waitFor({ state: 'visible' });
     await p.click('[data-component="qr-card"] [data-slot="close"]'); assert.ok(await card.isHidden(), '× closes it');
