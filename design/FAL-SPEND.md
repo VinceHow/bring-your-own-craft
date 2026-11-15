@@ -46,4 +46,5 @@ The earlier top-up closed at $5.60. From here, design spend has a fresh $5 ceili
 | What | Model | Cost |
 |---|---|---|
 | "Multiplayer next" slide painting: the team with two more empty stools (teal, lavender) | nano-banana-pro/edit | $0.15 |
-| **Running total** | | **$0.15 of $5** |
+| Live name-tag check on MODEL_BACKEND=fal (1 run: tidy + name-tag card + more = 3 LLM calls; est. from the build lead's ~$1.12 / 155 calls) | fal LLM | ~$0.02 |
+| **Running total** | | **~$0.17 of $5** |
