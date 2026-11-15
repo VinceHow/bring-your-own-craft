@@ -198,7 +198,7 @@ body.print .counter { display: none; }
 .seat.human small { color: var(--cr-product); }
 
 /* 01 · the problem: both halves, each label → headline → its card → caption, the card the one hero; the halves share a top line */
-.problem .half { justify-content: flex-start; gap: 16px; padding: 168px 64px 96px 110px; }
+.problem .half { justify-content: flex-start; gap: 14px; padding: 150px 64px 96px 110px; }
 .problem .half + .half { padding-left: 84px; padding-right: 80px; }
 .problem .headline { font-size: 84px; }
 .problem .caption { font-size: 30px; margin: 0; }
@@ -207,5 +207,7 @@ body.print .counter { display: none; }
 .problem .site { zoom: .66; }
 .problem .site > .sticky { zoom: 1.2; }
 .problem .terminal .pills { left: calc(100% - 110px); top: calc(100% - 150px); width: 260px; height: 190px; }
-.problem .cool .art { margin-bottom: 70px; }
+.problem .cool .art { margin-bottom: 52px; }
 .problem .foot { position: absolute !important; left: 110px; bottom: 34px; }
+.problem .site > .sticky { bottom: -12px; }
+.problem .warm .art { margin-bottom: 40px; }
