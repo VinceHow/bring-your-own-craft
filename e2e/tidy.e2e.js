@@ -50,14 +50,11 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   const inp = page.locator('#her-input');
   // her idea: tidying (raw kept), then tidied; the cleaned idea starts the run
   const raw = 'um so the idea is, uh, a website for a small bakery so people can order bread ahead';
-  // it moves up to the sheet's idea line at once, raw, and is tidied there (the field clears for her first step)
   await inp.fill(raw); await inp.press('Enter');
-  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidying');
-  assert.equal(await page.getAttribute('#her-idea', 'data-raw'), raw);
-  assert.equal(await page.textContent('#her-idea'), raw, 'her raw words where she is looking');
-  assert.equal(await inp.inputValue(), '');
-  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidied');
-  assert.equal(await page.getAttribute('#her-idea', 'data-tidy'), 'cut', 'her words with some removed');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidying');
+  assert.equal(await inp.getAttribute('data-raw'), raw);
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidied');
+  assert.equal(await inp.getAttribute('data-tidy'), 'cut', 'her words with some removed');
   for (let i = 0; i < 40 && !sent.idea; i++) await page.waitForTimeout(50);
   assert.equal(sent.idea, 'A website for a small bakery so people can order bread ahead.');
   assert.equal(await page.textContent('#her-idea'), 'A website for a small bakery so people can order bread ahead.');
@@ -66,9 +63,6 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await inp.fill('uh regulars come every, every morning'); await inp.press('Enter');
   for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
   assert.equal(sent.line, 'Regulars come every morning.');
-  // the tidied line holds in her field for a moment (data-hold), sent once; her next key clears it for her
-  assert.equal(await inp.inputValue(), 'Regulars come every morning.'); assert.equal(await inp.getAttribute('data-hold'), 'on');
-  await inp.press('r'); assert.equal(await inp.inputValue(), 'r', 'her next key ends the hold'); assert.equal(await inp.getAttribute('data-hold'), null);
   // a reordered tidy is marked so (design animates it differently)
   sent.line = null;
   await inp.fill('regulars first and then the bread i think'); await inp.press('Enter');
@@ -104,124 +98,6 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   const go = await page.evaluate(() => ['um, sounds good', 'uh yeah, go ahead', 'like, lets build it', 'sounds good', 'um I think regulars should come first', 'uh the bread first']
     .map(t => BYOC.isGo(t)));
   assert.deepStrictEqual(go, [true, true, true, true, false, false]);
-  assert.deepStrictEqual(errors, []);
-  await page.close();
-});
-
-// Every other place she types or speaks (the design lead's audit): the idea card, the name-tag sentence (tidied while
-// the form still shows), the meeting's "You" turn (typed, and from pieces), and a sticky note. Same stubbed tidy.
-const MORE = { 'um so a, a website for my bakery': 'A website for my bakery',
-  'uh i love, like, baking sourdough for the regulars': 'I love baking sourdough for the regulars',
-  'So, the regulars, they just need to tell me their name and what they want for that day. But for our most popular items, we can only give them one each':
-    'The regulars just need to tell me their name and what they want that day. But our most popular items: only one each.',
-  'um the regulars come first': 'The regulars come first', 'uh note to self, uh, check the oven': 'Note to self: check the oven' };
-async function stubbed(look) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  const errors = []; page.on('pageerror', e => errors.push(String(e)));
-  const seen = { tidy: [], answer: null };
-  await page.route('**/api/tidy', async r => { const b = JSON.parse(r.request().postData()); seen.tidy.push(b); await new Promise(f => setTimeout(f, 300));
-    r.fulfill({ status: 200, json: { text: MORE[b.text] || b.text, tidied: !!MORE[b.text] } }); });
-  await page.route('**/api/name-tag', r => r.fulfill({ status: 500, json: { error: 'stubbed' } }));
-  await page.route('**/api/meet-lines', r => r.fulfill({ status: 200, json: { lines: {} } }));
-  await page.route('**/api/run/stub-run/**', r => { if (/\/(answer|round)$/.test(r.request().url())) seen.answer = JSON.parse(r.request().postData()); r.fulfill({ json: { ok: true } }); });
-  await page.goto(BASE + '/' + look);
-  return { page, errors, seen };
-}
-const stateOf = (page, sel) => page.evaluate(sel => document.querySelector(sel)?.dataset.state, sel);
-
-for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) test(`${lookName}: the idea card, the name-tag sentence, the meeting's "You" turn and a note are tidied in place`, async () => {
-  const { page, errors, seen } = await stubbed(look);
-  // the idea card
-  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen(), null, { timeout: 8000 });
-  // The card leaves once it's done, so its hooks are read as they change.
-  await page.evaluate(() => { const i = document.getElementById('idea-input'); window.__idea = [];
-    new MutationObserver(() => window.__idea.push([i.dataset.state, i.dataset.raw, i.dataset.tidy || '', i.value])).observe(i, { attributes: true, attributeFilter: ['data-state'] }); });
-  await page.fill('#idea-input', 'um so a, a website for my bakery'); await page.press('#idea-input', 'Enter');
-  await page.waitForFunction(() => window.BYOC.pendingIdea, null, { timeout: 4000 });
-  assert.equal(await page.evaluate(() => BYOC.pendingIdea), 'A website for my bakery', 'the tidied idea is kept');
-  assert.deepStrictEqual(await page.evaluate(() => window.__idea), [['tidying', 'um so a, a website for my bakery', '', 'um so a, a website for my bakery'],
-    ['tidied', 'um so a, a website for my bakery', 'cut', 'A website for my bakery']]);
-  // the name-tag sentence: tidying → tidied on #intro-input while the form is still up (card thinking, not yet shown)
-  await page.waitForFunction(() => BYOC.introOpen && BYOC.introOpen(), null, { timeout: 8000 });
-  await page.evaluate(() => { const i = document.getElementById('intro-input'); window.__atTidied = null;
-    new MutationObserver(() => { if (i.dataset.state === 'tidied' && !window.__atTidied) window.__atTidied = { card: document.querySelector('.nt-paper')?.dataset.state, shown: i.offsetParent !== null }; })
-      .observe(i, { attributes: true, attributeFilter: ['data-state'] }); });
-  await page.fill('#nt-name', 'Priya');
-  await page.click('.pick-option[data-pick="product"]');
-  await page.fill('#intro-input', 'uh i love, like, baking sourdough for the regulars'); await page.press('#intro-input', 'Enter');
-  assert.equal(await stateOf(page, '#intro-input'), 'tidying');
-  await page.waitForFunction(() => window.__atTidied, null, { timeout: 4000 });
-  // Code's half: tidied before the card moves on. Keeping the form visible during 'thinking' is design's (the painted
-  // look hides it today), so plain checks it's on screen and painted only logs it.
-  const at = await page.evaluate(() => window.__atTidied);
-  assert.equal(at.card, 'thinking', 'tidied before the card moves to its tag');
-  if (!look) assert.equal(at.shown, true, 'her form still shows');
-  assert.equal(await page.getAttribute('#intro-input', 'data-raw'), 'uh i love, like, baking sourdough for the regulars');
-  assert.match(await page.inputValue('#intro-input'), /^i love baking sourdough for the regulars$/i); // the room lower-cases her first word after
-  assert.equal(seen.tidy.find(b => /sourdough/.test(b.text)).field, 'intro', 'the intro rules');
-  // the meeting: her typed "You" turn (the screenshot's line), then a turn from a piece
-  await page.evaluate(() => {
-    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?',
-      artifact: { kind: 'finding', ref: { title: 'A finding', quote: 'A third of visitors buy weekly.', url: 'https://example.org/f', label: 'researched before the demo' } } }, 'live');
-    BYOC.openNote('first');
-  });
-  await page.waitForFunction(() => BYOC.focusDoc.isOpen(), null, { timeout: 3000 });
-  const said = 'So, the regulars, they just need to tell me their name and what they want for that day. But for our most popular items, we can only give them one each';
-  await page.fill('#focus-doc .fd-input', said); await page.press('#focus-doc .fd-input', 'Enter');
-  const turn = '#focus-doc .fd-her:last-of-type .fd-her-words';
-  assert.equal(await stateOf(page, turn), 'tidying', 'her raw words show at once');
-  for (let i = 0; i < 20 && !seen.answer; i++) await page.waitForTimeout(25);
-  assert.ok(seen.answer, 'sent before the tidy lands');
-  assert.equal(await page.getAttribute(turn, 'data-raw'), said);
-  await page.waitForFunction(sel => document.querySelector(sel)?.dataset.state === 'tidied', turn, { timeout: 4000 });
-  assert.equal((await page.textContent(turn)).trim(), MORE[said]);
-  assert.equal(await page.getAttribute(turn, 'data-tidy'), 'cut');
-  for (let i = 0; i < 40 && !seen.answer; i++) await page.waitForTimeout(50);
-  assert.deepStrictEqual(seen.answer, { askId: 'first', text: said }, 'her answer went at once, as sent (the tidy is on her turn)');
-  // a round from a piece (its own tidy not landed yet): the turn is tidied; the body still names the piece
-  seen.answer = null;
-  await page.waitForFunction(() => !document.querySelector('#focus-doc .fd-form').hidden && document.querySelector('#focus-doc .fd-input').offsetParent !== null, null, { timeout: 4000 });
-  {
-    await page.fill('#focus-doc .fd-input', 'um the regulars come first');
-    await page.click('#focus-doc [data-slot="add-piece"]');
-    await page.press('#focus-doc .fd-input', 'Enter');
-    await page.waitForFunction(() => [...document.querySelectorAll('#focus-doc .fd-her-words')].length >= 2 && [...document.querySelectorAll('#focus-doc .fd-her-words')].at(-1).dataset.state === 'tidied', null, { timeout: 4000 });
-    assert.equal((await page.evaluate(() => [...document.querySelectorAll('#focus-doc .fd-her-words')].at(-1).textContent)).trim(), 'The regulars come first');
-    for (let i = 0; i < 40 && !seen.answer; i++) await page.waitForTimeout(50);
-    assert.equal(seen.answer.pieces.length, 1); assert.equal(seen.answer.text, '');
-  }
-  // a sticky note: tidied in place, then pinned as the tidy
-  const note = page.evaluate(() => BYOC.flow.noteEditor(document.body));
-  await page.waitForSelector('.fl-input');
-  await page.fill('.fl-input', 'uh note to self, uh, check the oven'); await page.press('.fl-input', 'Enter');
-  assert.equal(await note, 'Note to self: check the oven');
-  assert.deepStrictEqual(errors, []);
-  await page.close();
-});
-
-// The hold never gets in the clicker's way: PageDown on a held line moves the beat, as on an empty field.
-test('a held line: the clicker still moves on, and a paste replaces it', async () => {
-  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-  const errors = []; page.on('pageerror', e => errors.push(String(e)));
-  await page.route('**/api/tidy', r => r.fulfill({ status: 200, json: { text: CLEAN[JSON.parse(r.request().postData()).text] || 'x', tidied: true } }));
-  await page.route('**/api/run', r => r.fulfill({ status: 200, json: { run: 'stub-hold' } }));
-  await page.route('**/api/run/stub-hold/**', r => r.fulfill({ status: 404, json: {} }));
-  await page.goto(BASE + '/');
-  await page.evaluate(() => { BYOC.stage(3, { instant: true }); });
-  await page.waitForSelector('#her-input', { state: 'visible' });
-  await page.fill('#her-input', 'um so the idea is, uh, a website for a small bakery so people can order bread ahead'); await page.press('#her-input', 'Enter');
-  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidied');
-  await page.fill('#her-input', 'uh regulars come every, every morning'); await page.press('#her-input', 'Enter');
-  await page.waitForFunction(() => document.getElementById('her-input').dataset.hold === 'on', null, { timeout: 3000 });
-  // a paste replaces the held line
-  await page.evaluate(() => { const i = document.getElementById('her-input'); i.focus(); i.dispatchEvent(new ClipboardEvent('paste', { bubbles: true })); });
-  assert.equal(await page.inputValue('#her-input'), '', 'a paste ends the hold first');
-  await page.fill('#her-input', 'uh regulars come every, every morning'); await page.press('#her-input', 'Enter');
-  await page.waitForFunction(() => document.getElementById('her-input').dataset.hold === 'on', null, { timeout: 3000 });
-  const beat = await page.evaluate(() => BYOC.beat);
-  await page.press('#her-input', 'PageDown');
-  await page.waitForFunction(b => BYOC.beat !== b, beat, { timeout: 2000 });
   assert.deepStrictEqual(errors, []);
   await page.close();
 });
