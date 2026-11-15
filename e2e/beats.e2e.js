@@ -144,7 +144,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   assert.strictEqual(await p.locator('.big-card[data-seat="product"] .bc-stance').count(), 0, 'no stance on her card');
   await p.keyboard.press('Enter'); // her name tag is made: she meets the team
   await waitFor(() => !!document.querySelector('.meet-card'), 3000, 'meet the team', null, p);
-  assert.match(await p.textContent('.meet-card'), /Mika · Design[\s\S]*agent[\s\S]*A rough sketch in seconds[\s\S]*Brings/);
+  assert.match(await p.textContent('.meet-card'), /Mika · Design[\s\S]*agent[\s\S]*I’m Mika\.[\s\S]*Live in this room[\s\S]*Built with/);
   assert.strictEqual(await p.getAttribute('.meet-card', 'data-component'), 'meet-card');
   assert.strictEqual(await p.locator('.seat .card').count(), 0, 'still no room while she meets the team');
   await p.keyboard.press('PageDown'); // forward: the next teammate
