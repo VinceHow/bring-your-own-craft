@@ -186,8 +186,9 @@ body.print .counter { display: none; }
 :is(.live, .poster) > .live-painting { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; border: 0; z-index: 0; pointer-events: none; }
 :is(.live, .poster) > .live-toys { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; z-index: 1; }
 :is(.live, .poster) > .live-toys .pi-sky { display: none; }   /* no UI: the time pill stays off on stage */
-.live > .live-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; z-index: 1; pointer-events: none;
-  background: linear-gradient(transparent, rgba(10, 10, 18, .62) 38%, rgba(10, 10, 18, .9)); }
+.live > .live-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; z-index: 1; pointer-events: none;
+  background: linear-gradient(transparent, rgba(10, 10, 18, .7) 50%, rgba(10, 10, 18, .92)); }
+.live .giant, .live .kicker { text-shadow: 0 2px 24px rgba(20, 16, 12, .7); }
 .live > .overlay { position: relative; z-index: 2; pointer-events: none; margin-bottom: 44px; text-shadow: 0 4px 30px rgba(0, 0, 0, .55); }
 .live .giant { font-size: 150px; margin: 10px 0 0; line-height: .95; }
 .live .line { margin-top: 14px; font-size: 44px; }
