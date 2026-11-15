@@ -134,7 +134,13 @@ add('13-her-page', 'her page, built (room)', async p => { await p.evaluate(() =>
 add('13-her-page-open', 'her page, built, sheet open large', async p => { await p.evaluate(() => __qa.play('rehearsal')); await wait(2500);
   await p.locator('[data-component="idea-sheet"]').click({ position: { x: 30, y: 20 } }).catch(() => {}); await wait(1200); });
 add('14-close', 'the close (from the room, after the run)', async p => { await p.evaluate(() => { __qa.play('rehearsal'); BYOC.close.open(); }); await wait(900); });
-add('15-slides', '/slides/ (index.html: /slides/ itself 404s on this server)', async () => { await wait(1500); }, '/slides/index.html');
+const room3 = () => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); BYOC.stage(4, { instant: true }); BYOC.run = 'qa-stub-run'; };
+add('16-app-none', 'app button, no app yet', async p => { await p.evaluate(room3); await wait(500); });
+add('16-app-building', 'app button, building', async p => { await p.evaluate(room3); await p.evaluate(() => BYOC.dispatch({ run: 'qa-stub-run', type: 'build.step', step: 'Laying out the order page' }, 'live')); await wait(500); });
+add('16-app-ready', 'app button, ready', async p => { await p.evaluate(room3); await p.evaluate(() => BYOC.dispatch({ run: 'qa-stub-run', type: 'build.done', version: 1, t: Date.now() - 180000, url: '/runs/rehearsal/page/' }, 'live')); await wait(500); });
+add('16-app-new-version', 'app button, new version pulse', async p => { await p.evaluate(room3); await p.evaluate(() => { const d = ev => BYOC.dispatch({ run: 'qa-stub-run', ...ev }, 'live');
+  d({ type: 'build.done', version: 1, t: Date.now() - 300000, url: '/runs/rehearsal/page/' }); d({ type: 'build.step', step: 'Adding the cutoff line' }); d({ type: 'build.done', version: 2, t: Date.now(), url: '/runs/rehearsal/page/', changes: ['orders close at 8pm', 'sold-out loaves greyed'] }); }); await wait(250); });
+add('15-slides', '/slides/', async () => { await wait(1500); }, '/slides/');
 
 // ---- automatic checks (QA.md); every flag is a lead for the eye, not a verdict ----
 async function checks(p, slides) {
