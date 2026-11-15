@@ -1,0 +1,182 @@
+/* Ink and paper: the studio's UI design system (chosen by Vincent, 14 Nov).
+   Every surface is a cream sheet laid over a torn, crayon-grained paper in the ink of whoever it's from (it peeks out
+   down-right, away from the window light), outlined in a wobbly brown ink line, as if the painter drew it.
+
+   How to use
+   - Put class="ink-paper" on a container (the room, a page). Everything below is scoped to it, so nothing leaks.
+     Add data-time="night" to the same element for the lamp-lit night look.
+   - Load ink-paper.js after the markup and call InkPaper.dress(container). It adds the crayon paper (.cr), the cream
+     sheet (.gl) and the ink line (svg.ol) to every surface, and the shared SVG filters once. InkPaper.lay(el, delay)
+     plays the signature motion for one surface; InkPaper.redraw(el) re-inks one after its size changes.
+   - Surfaces: .pill, .bubble, .note, .decision, .sheet, .pop, .btn, .tag, .doc, .take, .card. Whose ink: data-who on
+     the element or an ancestor (mika, noor, theo, ines, bo, her). A decision takes three: --c, --c2, --c3.
+   - No page layout here: positions, sizes and grids belong to the page.
+   Rules kept: no square corners, nothing under 13px, sentence case, no violet, no counts in red, every text pair at
+   4.5:1 or more on its own paper (measured against composited pixels, day and night). */
+
+@font-face { font-family: 'Newsreader'; src: url(fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+
+/* ======================================================= tokens */
+.ink-paper {
+  /* words */
+  --ip-ink: #281C14; --ip-ink-2: #4E3A2B; --ip-ink-3: #64503F;
+  /* the team's crayons: a touch richer than the paint so they read in a thin sliver */
+  --ip-mika: #3D5A92; --ip-noor: #C95E38; --ip-theo: #6E9877; --ip-ines: #C08A32; --ip-bo: #E2B83A; --ip-her: #D47288; --ip-kraft: #C49A62;
+  /* deep versions of each ink, for words on cream (all 4.5:1 or more on --ip-paper) */
+  --ip-mika-t: #2D4775; --ip-noor-t: #8E3F22; --ip-theo-t: #3E5E3F; --ip-ines-t: #6F4A12; --ip-bo-t: #634A08; --ip-her-t: #93374F;
+  /* papers */
+  --ip-paper: #FCF5E8;        /* the cream top sheet */
+  --ip-paper-her: #FCEBEF;    /* her pill, her takeaways */
+  --ip-paper-deep: #FAF2E3;   /* the focus document */
+  --ip-paper-dark: #3A2A1F;   /* the main button, the Replay label */
+  --ip-inset: rgba(255,255,255,.62); --ip-inset-her: rgba(253,230,236,.9); --ip-rule: rgba(84,58,38,.14);
+  /* the ink line */
+  --ip-line: #4A3020; --ip-line-w: 1.6px; --ip-line-o: .82;     /* cards */
+  --ip-line-w-sm: 1.2px; --ip-line-o-sm: .5;                       /* pills, tags, buttons: a whisper */
+  /* corners: one scale, nothing square */
+  --ip-r-sm: 16px; --ip-r-md: 24px; --ip-r-lg: 32px; --ip-r-doc: 40px; --ip-r-pill: 999px;
+  /* light: from the window, top left, so papers cast down-right */
+  --ip-lift: 0 1px 1px rgba(60,35,15,.12), 3px 6px 14px -8px rgba(60,35,15,.4);
+  --ip-lift-hi: 0 1px 1px rgba(60,35,15,.12), 5px 10px 18px -8px rgba(60,35,15,.45);
+  /* type */
+  --ip-serif: 'Newsreader', Georgia, serif; --ip-sans: 'Hanken Grotesk', system-ui, sans-serif;
+  /* motion: things land like paper. The signature gesture lives in ink-paper.js */
+  --ip-land: cubic-bezier(.16,1,.3,1); --ip-t-fast: 180ms; --ip-t-mid: 300ms;
+  /* textures */
+  --ip-tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .28 0 0 0 0 .14 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  --ip-wax: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .07' numOctaves='3' seed='6'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.6 0 0 0 2.05'/%3E%3C/filter%3E%3Cg transform='rotate(-24 120 120)'%3E%3Crect x='-80' y='-80' width='400' height='400' filter='url(%23w)'/%3E%3C/g%3E%3C/svg%3E");
+  color: var(--ip-ink); font: 400 16px/1.45 var(--ip-sans); -webkit-font-smoothing: antialiased;
+}
+/* night: the paper is lit warmly by the table lamp, crayons a shade deeper, the line a touch softer, a warm halo */
+.ink-paper[data-time="night"] {
+  --ip-mika: #34507F; --ip-noor: #B5502D; --ip-theo: #5E8566; --ip-ines: #AD7A28; --ip-bo: #CFA22C; --ip-her: #C05F77; --ip-kraft: #A9824F;
+  --ip-paper: #F7E6C8; --ip-paper-her: #F8DFD9; --ip-paper-deep: #F4E2C3; --ip-paper-dark: #2A1D14;
+  --ip-inset: rgba(255,246,228,.55); --ip-inset-her: rgba(250,222,222,.9);
+  --ip-line: #3C2617; --ip-line-o: .9;
+  --ip-lift: 0 1px 1px rgba(0,0,0,.35), 4px 8px 18px -8px rgba(0,0,0,.65), 0 0 22px -6px rgba(255,190,110,.28);
+  --ip-lift-hi: 0 1px 1px rgba(0,0,0,.35), 6px 12px 22px -8px rgba(0,0,0,.7), 0 0 26px -6px rgba(255,190,110,.34);
+}
+
+/* whose ink */
+.ink-paper [data-who="mika"], .ink-paper[data-who="mika"] { --c: var(--ip-mika); --t: var(--ip-mika-t); }
+.ink-paper [data-who="noor"] { --c: var(--ip-noor); --t: var(--ip-noor-t); }
+.ink-paper [data-who="theo"] { --c: var(--ip-theo); --t: var(--ip-theo-t); }
+.ink-paper [data-who="ines"] { --c: var(--ip-ines); --t: var(--ip-ines-t); }
+.ink-paper [data-who="bo"] { --c: var(--ip-bo); --t: var(--ip-bo-t); }
+.ink-paper [data-who="her"] { --c: var(--ip-her); --t: var(--ip-her-t); }
+.ink-paper .lab { font: 500 13px/1.2 var(--ip-sans); color: var(--ip-ink-3); }
+
+/* ======================================================= the one surface: crayon paper, cream sheet, ink line */
+.ink-paper .pane { position: relative; isolation: isolate; background: none; }
+.ink-paper .pane > .cr, .ink-paper .pane > .gl { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; }
+.ink-paper .pane > .cr { inset: -2px; background: var(--cc, var(--c, var(--ip-kraft)));
+  -webkit-mask: var(--ip-wax) 0 0 / 240px 240px; mask: var(--ip-wax) 0 0 / 240px 240px;
+  filter: url(#ip-tear); translate: var(--cx, 5px) var(--cy, 6px); rotate: var(--crot, 1deg); }
+.ink-paper .pane > .cr.c2 { --cc: var(--c2); translate: var(--c2x, 7px) var(--c2y, 9px); rotate: 1.4deg; }
+.ink-paper .pane > .cr.c3 { --cc: var(--c3); translate: 11px 12px; rotate: 2.4deg; }
+.ink-paper .pane > .gl { background: var(--sheet, var(--ip-paper)) var(--ip-tooth); box-shadow: var(--ip-lift); transition: box-shadow var(--ip-t-mid) var(--ip-land); }
+/* night: warm light falls on each sheet from the lamp (InkPaper.lamp sets where it is and how strong) */
+.ink-paper[data-time="night"] .pane > .gl { background: radial-gradient(150% 130% at var(--ip-lx, 50%) var(--ip-ly, -20%), rgba(255,228,180,var(--ip-lamp, .35)), rgba(255,228,180,0) 75%), var(--sheet, var(--ip-paper)) var(--ip-tooth); }
+.ink-paper .pane > svg.ol { position: absolute; left: -3px; top: -3px; overflow: visible; pointer-events: none; z-index: 0; }
+.ink-paper .ol .ln { fill: none; stroke: var(--ip-line); stroke-width: var(--ip-line-w); stroke-opacity: var(--ip-line-o); stroke-linecap: round; stroke-linejoin: round; }
+.ink-paper .pill > svg.ol .ln, .ink-paper .tag > svg.ol .ln, .ink-paper .btn > svg.ol .ln { stroke-width: var(--ip-line-w-sm); stroke-opacity: var(--ip-line-o-sm); }
+.ink-paper .doc > svg.ol .ln { stroke-width: 2px; }
+.ink-paper .btn:not(.quiet) > svg.ol .ln, .ink-paper .tag.replay > svg.ol .ln { stroke: #1E140D; stroke-opacity: .6; }
+.ink-paper[data-time="night"] .pane > svg.ol { filter: drop-shadow(0 0 1.2px rgba(255,214,160,.55)); }
+.ink-paper .drawing, .ink-paper .drawing * { color: transparent !important; }
+
+/* ======================================================= pills: who's who, by every head */
+.ink-paper .pill { display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 15px 0 9px; border: 0; border-radius: var(--ip-r-pill); cursor: pointer;
+  font: 500 18px/1 var(--ip-serif); color: var(--ip-ink); white-space: nowrap; background: none; --cx: 3px; --cy: 4px; --crot: 1deg;
+  transition: transform var(--ip-t-mid) var(--ip-land); }
+.ink-paper .pill .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); flex: none; display: grid; place-items: center;
+  font: 600 13px/1 var(--ip-sans); color: #fff; -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; }
+.ink-paper .pill .agent { font: 500 13px/1 var(--ip-sans); color: var(--ip-ink-3); padding-left: 9px; border-left: 1px solid rgba(80,55,35,.2); }
+.ink-paper .pill:hover, .ink-paper .pill.is-hover { transform: translateY(-2px); }
+.ink-paper .pill:hover > .gl, .ink-paper .pill.is-hover > .gl, .ink-paper .pill.is-open > .gl { box-shadow: var(--ip-lift-hi); }
+.ink-paper .pill:active, .ink-paper .pill.is-pressed { transform: scale(.97); transition-duration: var(--ip-t-fast); }
+.ink-paper .pill:focus-visible, .ink-paper .pill.is-focus { outline: 2px solid var(--t); outline-offset: 4px; }
+/* talking: a soft crayon ring breathes round the dot (ink-paper.js gives it a slow pulse, never a flash) */
+.ink-paper .pill.is-talking .dot { -webkit-mask: none; mask: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 32%, transparent); }
+/* left her a note: a small folded corner of their paper tucked under the pill's end, no number */
+.ink-paper .pill.has-note::after { content: ''; position: absolute; right: -5px; top: -4px; width: 13px; height: 13px; border-radius: 3px 3px 3px 7px;
+  background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 80px 80px; mask: var(--ip-wax) 0 0 / 80px 80px; rotate: 18deg; }
+.ink-paper .pill.is-open { --cy: 6px; }
+.ink-paper .pill.is-open > .gl { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent), var(--ip-lift-hi); }
+/* her pill: before (an invitation) and after (her seat, her name, her character) */
+.ink-paper .pill.is-her .nm, .ink-paper .pill.is-invite { color: var(--ip-her-t); }
+.ink-paper .pill.is-her .dot { -webkit-mask: none; mask: none; background: var(--ip-her-t); }
+.ink-paper .pill.is-her > .gl, .ink-paper .pill.is-invite > .gl { --sheet: var(--ip-paper-her); }
+.ink-paper .pill.is-her .agent { font: italic 400 15px/1 var(--ip-serif); color: var(--ip-ink-2); }
+.ink-paper .pill.is-invite .dot { width: 12px; height: 12px; margin-left: 4px; -webkit-mask: none; mask: none; }
+
+/* ======================================================= chatter, a note, a decision */
+.ink-paper .bubble { display: block; max-width: 300px; padding: 12px 16px 13px; border-radius: 6px var(--ip-r-md) var(--ip-r-md) var(--ip-r-md);
+  font: italic 400 18px/1.35 var(--ip-serif); --cx: 6px; --cy: 5px; --crot: 1.4deg; }
+.ink-paper .bubble b { display: flex; align-items: center; gap: 7px; font: 500 13px/1 var(--ip-sans); font-style: normal; color: var(--t); margin-bottom: 5px; }
+.ink-paper .note { display: block; width: 236px; padding: 14px 16px 15px; border-radius: var(--ip-r-md); font: 400 17px/1.35 var(--ip-serif); cursor: pointer;
+  --cx: 6px; --cy: 7px; --crot: 1.6deg; transition: transform var(--ip-t-mid) var(--ip-land); }
+.ink-paper .note:hover { transform: translateY(-2px); } .ink-paper .note:hover > .gl { box-shadow: var(--ip-lift-hi); }
+.ink-paper .note .lab { display: flex; align-items: center; gap: 7px; color: var(--t); margin-bottom: 5px; }
+.ink-paper .note .lab i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.ink-paper .decision { display: block; width: 250px; padding: 15px 17px 14px; border-radius: var(--ip-r-md); font: 400 18px/1.32 var(--ip-serif);
+  --c: var(--ip-bo); --c2: var(--ip-ines); --c3: var(--ip-mika); --cx: 3px; --cy: 5px; --crot: .8deg; }
+.ink-paper .decision .by { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.ink-paper .marks { display: inline-flex; }
+.ink-paper .marks i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--ip-paper); }
+.ink-paper .marks i + i { margin-left: -5px; }
+
+/* ======================================================= her sheet, tabs and steps */
+.ink-paper .sheet { padding: 16px 20px 16px; border-radius: var(--ip-r-lg); --c: var(--ip-her); --cx: 7px; --cy: 7px; --crot: .8deg; }
+.ink-paper .sheet h3 { margin: 5px 0 10px; font: 400 21px/1.2 var(--ip-serif); letter-spacing: -.01em; }
+.ink-paper .steps { display: flex; gap: 6px; margin-bottom: 12px; }
+.ink-paper .step { padding: 7px 11px; border-radius: var(--ip-r-sm); background: var(--ip-inset); font: 400 14px/1.2 var(--ip-sans); box-shadow: inset 0 0 0 1px rgba(84,58,38,.12); }
+.ink-paper .step.hers { background: var(--ip-inset-her); box-shadow: inset 0 0 0 1px rgba(212,114,136,.5); }
+.ink-paper .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--ip-r-pill); background: rgba(84,58,38,.08); }
+.ink-paper .tabs span, .ink-paper .tabs button { padding: 7px 14px; border: 0; background: none; border-radius: var(--ip-r-pill); font: 500 14px/1 var(--ip-sans); color: var(--ip-ink-2); cursor: pointer; }
+.ink-paper .tabs .on { background: rgba(255,255,255,.9); color: var(--ip-ink); box-shadow: 0 1px 3px rgba(80,45,15,.2); }
+
+/* ======================================================= a teammate's work (the popover from their pill) */
+.ink-paper .pop { width: 320px; padding: 16px 20px 18px; border-radius: var(--ip-r-lg); --cx: 8px; --cy: 8px; --crot: 1.2deg; }
+.ink-paper .pop .pop-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding-bottom: 11px; border-bottom: 1px solid var(--ip-rule); }
+.ink-paper .pop .pop-head .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--c); -webkit-mask: var(--ip-wax) 0 0 / 120px 120px; mask: var(--ip-wax) 0 0 / 120px 120px; }
+.ink-paper .pop .pop-head .nm { font: 500 20px/1 var(--ip-serif); color: var(--t); }
+.ink-paper .pop .t { margin: 3px 0 12px; font: 400 18px/1.35 var(--ip-serif); }
+.ink-paper .pop ul { margin: 5px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.ink-paper .pop li { display: flex; gap: 9px; font: 400 15px/1.35 var(--ip-sans); }
+.ink-paper .pop li::before { content: ''; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* ======================================================= buttons: one pair */
+.ink-paper .btns { display: flex; gap: 12px; }
+.ink-paper .btn { height: 46px; padding: 0 22px; border: 0; border-radius: var(--ip-r-pill); font: 500 16px/1 var(--ip-sans); cursor: pointer; color: #FFF8EE; background: none;
+  --c: var(--ip-kraft); --cx: 3px; --cy: 4px; transition: transform var(--ip-t-mid) var(--ip-land); }
+.ink-paper .btn > .gl { --sheet: var(--ip-paper-dark); }
+.ink-paper .btn.quiet { color: var(--ip-ink); } .ink-paper .btn.quiet > .gl { --sheet: var(--ip-paper); }
+.ink-paper .btn:hover, .ink-paper .btn.is-hover { transform: translateY(-2px); }
+.ink-paper .btn:hover > .gl, .ink-paper .btn.is-hover > .gl { box-shadow: var(--ip-lift-hi); }
+.ink-paper .btn:active, .ink-paper .btn.is-pressed { transform: scale(.97); transition-duration: var(--ip-t-fast); }
+.ink-paper .btn:focus-visible, .ink-paper .btn.is-focus { outline: 2px solid var(--ip-ink-2); outline-offset: 4px; }
+
+/* ======================================================= quiet labels: tally, Replay (always visible), time of day */
+.ink-paper .tag { display: inline-flex; align-items: baseline; gap: 5px; padding: 9px 15px; border-radius: var(--ip-r-pill); font: 400 14px/1 var(--ip-sans); color: var(--ip-ink-2);
+  --c: var(--ip-kraft); --cx: 3px; --cy: 3px; }
+.ink-paper .tag b { font: 500 16px/1 var(--ip-serif); color: var(--ip-ink); }
+.ink-paper .tag.replay { flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 16px 10px; border-radius: var(--ip-r-sm); color: #FFF6EA; font: 500 16px/1 var(--ip-serif); --c: var(--ip-ines); }
+.ink-paper .tag.replay > .gl { --sheet: var(--ip-paper-dark); }
+.ink-paper .tag.replay small { font: 400 13px/1 var(--ip-sans); }
+.ink-paper .tag.time { align-items: center; gap: 8px; --c: var(--ip-ines); }
+.ink-paper .tag.time i { width: 12px; height: 12px; border-radius: 50%; background: #E7B54A; box-shadow: 0 0 0 3px rgba(231,181,74,.25); }
+.ink-paper[data-time="night"] .tag.time { --c: var(--ip-mika); }
+.ink-paper[data-time="night"] .tag.time i { background: radial-gradient(circle at 72% 30%, transparent 4.5px, #D9B66A 5px); box-shadow: none; }
+
+/* ======================================================= a card, the focus document, her takeaways */
+.ink-paper .card { display: block; padding: 18px 20px; border-radius: var(--ip-r-lg); --cx: 7px; --cy: 7px; --crot: .8deg; }
+.ink-paper .doc { border-radius: var(--ip-r-doc); --c: var(--ip-kraft); --cx: 10px; --cy: 10px; --crot: .4deg; }
+.ink-paper .doc > .gl { --sheet: var(--ip-paper-deep); }
+.ink-paper .take { padding: 16px 18px; border-radius: var(--ip-r-md); --c: var(--ip-her); --cx: 6px; --cy: 6px; --crot: 1deg; }
+.ink-paper .take > .gl { --sheet: var(--ip-paper-her); }
+.ink-paper .take .lab { color: var(--ip-her-t); }
+
+@media (prefers-reduced-motion: reduce) { .ink-paper .pill, .ink-paper .btn, .ink-paper .note { transition: none; } }

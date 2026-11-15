@@ -13,6 +13,7 @@ import { cleanTag, templateFor, nameTag } from '../lib/tag.js';
 import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
+import { selectorMax, gateFirst } from '../lib/first.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
@@ -43,7 +44,8 @@ const handlers = {
     const s = state(run);
     if (running.has(run) || s.evs.some(e => e.type === 'select.done')) return [409, { error: 'already proposed for this run' }];
     running.add(run);
-    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag })
+    // On the stage path the selector brings one focus moment; asks already made (the first decision) count (lib/first.js).
+    const job = proposeAndSelect({ run, idea: s.idea, flow: s.flow, taste: readTaste(run), herSeat: s.seat, herTag: s.tag, max: selectorMax(run, s.evs), gate: () => gateFirst(run) })
       .catch(e => { logEvent(run, 'propose.error', { error: scrub(e.message) }); return null; })
       .finally(() => running.delete(run));
     if (!body?.wait) return [202, { started: true }];
@@ -55,7 +57,7 @@ const handlers = {
 
   async answer(run, body) {
     // A focus moment: her words, heard by one interpret call (lib/interpret.js). { choice } stays for the old path.
-    if (body?.text != null) { const r = await interpret({ run, askId: body.askId, text: body.text }); delete r.body.profile; return [r.code, r.body]; }
+    if (body?.text != null || Array.isArray(body?.pieces)) { const r = await interpret({ run, askId: body.askId, text: body.text, pieces: Array.isArray(body?.pieces) ? body.pieces : undefined }); delete r.body.profile; return [r.code, r.body]; }
     const { askId, choice } = body || {};
     const a = state(run).evs.find(e => e.type === 'ask' && e.id === askId);
     if (!a) return [404, { error: 'no such ask' }];
@@ -138,7 +140,7 @@ export default [
       // "Your own craft": her seat is 'diy' and her name tag travels with the run (lib/craft.js).
       const seat = SEAT_IDS.includes(body?.seat) ? body.seat : 'product';
       const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}) });
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(body?.path === 'full' || body?.full === true ? {} : { stagePath: true }) }); // the stage path unless the room asks for the full one (an old client still gets it)
       if (intro || tag) buildProfile(run).catch(() => {}); // her sentence + idea: the private profile starts, never waited on
       return sendJson(res, 200, { run });
     },

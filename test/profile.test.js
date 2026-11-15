@@ -96,3 +96,11 @@ test('/intro in the Product seat returns the full character card (title, traits,
   assert.deepEqual(r.body.alternates.titles, ['the Journey Mapper']);
   assert.deepEqual(cleanTag(r.body).title, 'the Customer Whisperer', 'what /intro logs and returns keeps the whole card');
 });
+
+test('her name tag\'s schema is flat (no nested object: it cost the CLI extra turns), and flat swaps still reach the card', async () => {
+  const { TAG_SCHEMA, cleanTag } = await import('../lib/tag.js');
+  for (const [k, v] of Object.entries(TAG_SCHEMA.properties)) assert.notStrictEqual(v.type, 'object', `${k} is not a nested object`);
+  const card = cleanTag({ craft: 'Product', title: 'Customer Whisperer', traits: ['listener'], superpower: '', goodAt: '', loves: '',
+    altTitles: ['the Feedback Alchemist'], altTraits: ['listener', 'problem hunter'], altSuperpowers: ['hears the request inside the complaint'] });
+  assert.deepEqual(card.alternates, { titles: ['the Feedback Alchemist'], traits: ['problem hunter'], superpowers: ['hears the request inside the complaint'] });
+});

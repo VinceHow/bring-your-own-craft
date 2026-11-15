@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>The studio, a living painting</title>
+<style>
+/* The living painting. Every moving thing is a short video loop made ahead of time with fal (Wan 3.0 image-to-video)
+   and played from local files in public/looks/cast/living/: nothing calls fal here, and it works offline.
+   Layers: 1) the room, one ambient 5 s loop per time of day;
+           2) one soft-edged patch per teammate, playing 5 s mood clips that start and end on the same painted rest
+              frame, so moods swap without a jump; plus one patch each for the record player, the cat, the coffee machine;
+           3) code on top: string-light glow, hearts, notes, steam, speech slips (on solid paper).
+   Product rules: every mood comes from a run event (living.run), never at random; focus wins (living.focus);
+   music starts only on a click on the record player and never autoplays.
+   URL: ?notes=1 shows the review card, the time of day and review keys (1 to 8 moods, 0 sample run, T time, F focus);
+        ?time=morning|afternoon|building|evening pins the light; ?still=1 shows the rest frame; ?run=0 stops the sample run; ?review=1 adds living.review(who, mood) with no UI. */
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-style: normal; font-display: block; }
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-italic-var.woff2) format('woff2'); font-weight: 200 800; font-style: italic; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root {
+  --serif: 'Newsreader', Georgia, serif;
+  --sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --ink: #3A2A1E; --ink-2: #6B5644; --paper: #FFF8EC; --edge: rgba(92,62,38,.28);
+  --design: #3F5A8C; --research: #C8643F; --data: #6F9273; --strategy: #B68A2E; --engineering: #C9A227;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2B1E15; }
+body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #E9D2AE; }
+
+/* Wan's 16:9 frame is the painting's 1588 x 893 centre (x 6 to 1594), shown at 1600 x 900: k = 1600 / 1588 */
+.room { position: absolute; inset: 0; width: 1600px; height: 900px; object-fit: fill; display: block; opacity: 0; }
+
+.patch { position: absolute; opacity: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; pointer-events: none; }
+.patch > * { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.patch { isolation: isolate; }
+.patch > video, .patch > img.rest { filter: var(--grade, none); }
+.patch > img.map { mix-blend-mode: multiply; opacity: 0; z-index: 5; }
+.patch.mapped > img.map { opacity: 1; }
+.patch video { opacity: 0; }
+.patch video.on { opacity: 1; }
+
+/* clickable things in the room */
+.hit { position: absolute; cursor: pointer; border-radius: 40%; }
+.canvas.focus .hit { pointer-events: none; cursor: default; }
+.glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
+.glow.night .bulb { width: 54px; height: 54px; margin: -27px 0 0 -27px; background: radial-gradient(circle, rgba(255,224,150,.85) 0, rgba(255,214,130,.35) 30%, rgba(255,206,120,0) 68%); }
+/* night: code rain on the window panes, under the patches */
+.rain { position: absolute; pointer-events: none; opacity: 0; }
+.bulb { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,228,150,.8), rgba(255,214,130,0) 66%); }
+.fx { position: absolute; pointer-events: none; font: italic 400 20px/1 var(--serif); color: var(--ink); opacity: 0; }
+.fx.heart { color: #C8643F; font-style: normal; }
+
+/* a line said aloud: a paper slip near the speaker, never addressed to her */
+.say { position: absolute; z-index: 5; padding: 10px 15px 11px; background: var(--paper); border-radius: 14px;
+  box-shadow: 0 1px 0 var(--edge), 0 10px 24px -14px rgba(60,36,18,.55); opacity: 0; pointer-events: none; transform-origin: var(--ox, 50%) 100%; }
+.say::after { content: ''; position: absolute; bottom: -7px; left: var(--tail, 50%); width: 14px; height: 14px; margin-left: -7px; background: var(--paper); transform: rotate(45deg); border-radius: 0 0 3px 0; }
+.say .n { display: flex; align-items: center; gap: 6px; font: 500 13px/1 var(--sans); color: var(--ink-2); margin-bottom: 5px; }
+.say .n i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.say p { margin: 0; font: 400 19px/1.25 var(--serif); color: var(--ink); white-space: nowrap; }
+
+/* a stand-in focus document (review only): solid paper, and while it is open the room holds still */
+.doc { position: absolute; left: 50%; top: 50%; width: 560px; margin: -170px 0 0 -280px; padding: 28px 32px; background: var(--paper);
+  border-radius: 12px; box-shadow: 0 1px 0 var(--edge), 0 24px 60px -20px rgba(42,28,18,.6); opacity: 0; pointer-events: none; z-index: 8; }
+.doc h2 { margin: 0 0 8px; font: 400 26px/1.2 var(--serif); }
+.doc p { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--ink-2); }
+
+/* review only (?notes=1): time of day, a note card, a key hint; all on solid paper */
+.review { display: none; }
+.notes .review { display: block; }
+.when { position: absolute; left: 24px; top: 22px; padding: 5px 12px 6px; border-radius: 999px; background: var(--paper);
+  box-shadow: 0 6px 14px -8px rgba(60,36,18,.6); font: italic 400 16px/1 var(--serif); color: var(--ink-2); pointer-events: none; }
+.card { position: absolute; right: 24px; bottom: 20px; width: 330px; padding: 12px 15px 13px; border-radius: 10px; background: var(--paper);
+  box-shadow: 0 1px 0 var(--edge), 0 10px 24px -14px rgba(60,36,18,.55); font: 400 13px/1.45 var(--sans); color: var(--ink-2); pointer-events: none; }
+.card b { font-weight: 500; color: var(--ink); }
+.card .ev { margin-top: 6px; color: var(--ink); min-height: 19px; }
+</style>
+</head>
+<body>
+<div class="canvas" id="canvas">
+  <video class="room" data-t="morning"   muted playsinline loop preload="auto"><source src="../cast/living/scene-morning.webm" type="video/webm"><source src="../cast/living/scene-morning.mp4" type="video/mp4"></video>
+  <video class="room" data-t="afternoon" muted playsinline loop preload="auto"><source src="../cast/living/scene-afternoon.webm" type="video/webm"><source src="../cast/living/scene-afternoon.mp4" type="video/mp4"></video>
+  <video class="room" data-t="building"  muted playsinline loop preload="auto"><source src="../cast/living/scene-building.webm" type="video/webm"><source src="../cast/living/scene-building.mp4" type="video/mp4"></video>
+  <video class="room" data-t="evening"   muted playsinline loop preload="auto"><source src="../cast/living/scene-evening.webm" type="video/webm"><source src="../cast/living/scene-evening.mp4" type="video/mp4"></video>
+  <video class="room" data-t="night"     muted playsinline loop preload="auto" poster="../cast/living/painting-night.jpg"><source src="../cast/living/scene-night.webm" type="video/webm"><source src="../cast/living/scene-night.mp4" type="video/mp4"></video>
+  <canvas class="rain" id="rain"></canvas>
+  <div id="patches"></div>
+  <div class="glow" id="glow"></div>
+  <div id="hits"></div>
+  <div class="doc" id="doc"><h2>Her page, in focus</h2><p>A stand-in for a focus document. While it is open the team keeps quiet: no mood changes, nothing to click, the music turned down.</p></div>
+  <div class="when review" id="when"><span>Afternoon</span></div>
+  <div class="card review" id="card"><b>Living painting, review mode.</b> Clips made ahead with fal, played from files. The sample run below is prepared, not live.<div class="ev" id="ev"></div></div>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="filters"></defs></svg>
+
+<script src="../../vendor/motion/motion.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const still = q.get('still') === '1', notes = q.get('notes') === '1';
+  // ?embed=1: the room's backdrop (public/looks/painted-living.js). No sample run, no slips (the room's UI draws
+  // those), no clicks; scaled to cover the frame.
+  const embed = q.get('embed') === '1';
+  const { animate } = window.Motion;
+  const $ = (s, r = document) => r.querySelector(s);
+  const canvas = $('#canvas');
+  if (notes) canvas.classList.add('notes');
+  if (embed) {
+    document.documentElement.style.background = 'transparent'; document.body.style.background = 'transparent';
+    canvas.style.position = 'fixed'; canvas.style.left = '50%'; canvas.style.top = '50%'; canvas.style.transformOrigin = '50% 50%';
+    const fit = () => { const k = Math.max(innerWidth / 1600, innerHeight / 900); canvas.style.transform = `translate(-50%, -50%) scale(${k})`; };
+    fit(); addEventListener('resize', fit);
+    canvas.style.pointerEvents = 'none';
+  }
+  const spring = (d = .7) => ({ type: 'spring', bounce: 0, duration: d });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const BASE = '../cast/living/';
+  const K = 1600 / 1588, OX = 6;                         // painting px (1600 x 893) -> page px
+  const P2 = (x, y) => [(x - OX) * K, y * K];
+
+  // Patches: square crops of the painting (x, y, size in painting px). Front teammates sit on top.
+  const CAST = {
+    noor: { name: 'Noor', c: 'var(--research)',    x: 500, y: 170, size: 400, head: [680, 330] },
+    theo: { name: 'Theo', c: 'var(--data)',        x: 680, y: 190, size: 370, head: [852, 352] },
+    ines: { name: 'Ines', c: 'var(--strategy)',    x: 850, y: 130, size: 430, head: [1020, 285] },
+    mika: { name: 'Mika', c: 'var(--design)',      x: 280, y: 190, size: 540, head: [470, 362] },
+    bo:   { name: 'Bo',   c: 'var(--engineering)', x: 975, y: 270, size: 480, head: [1190, 420], side: 'right' },
+  };
+  const OBJECTS = {
+    record: { x: 1330, y: 360, size: 270, hit: [1400, 430, 190, 150], tip: 'Play a record' },
+    cat:    { x: 250,  y: 590, size: 303, hit: [326, 700, 190, 105], tip: 'Pet the cat' },
+    coffee: { x: 0,    y: 290, size: 280, hit: [12, 355, 160, 165], tip: 'Make a coffee' },
+  };
+  const MOODS = ['idle', 'working', 'thinking', 'talking', 'delighted', 'note', 'signature', 'celebrating'];
+  const LOOPING = new Set(['idle', 'working', 'thinking']);
+  // clips that failed QC are not shown; the mood falls back to a close neighbour (see design/studio/cast-loops/NOTES-living.md)
+  const STANDIN = {};
+
+  // Time of day
+  const LABEL = { morning: 'Morning', afternoon: 'Afternoon', building: 'Afternoon, building her page', evening: 'Evening', night: 'Night, raining' };
+  const ORDER = ['afternoon', 'building', 'evening', 'night', 'morning'];
+  const pinned = !!LABEL[q.get('time')] || q.get('night') === '1';
+  let now = q.get('night') === '1' ? 'night' : (LABEL[q.get('time')] ? q.get('time') : 'afternoon');
+  const MAPS = { night: true, evening: true };            // soft multiply light maps exist for these times
+  let LIGHT = {};
+  try { LIGHT = await (await fetch(BASE + 'light.json')).json(); } catch (e) { /* afternoon light only */ }
+  const defs = $('#filters');
+  for (const [t, per] of Object.entries(LIGHT)) for (const [who, m] of Object.entries(per))
+    defs.insertAdjacentHTML('beforeend', `<filter id="l-${who}-${t}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${m.join(' ')} 0 0 0 1 0"/></filter>`);
+
+  const rooms = [...document.querySelectorAll('video.room')];
+  function setRoom(t, instant) {
+    for (const v of rooms) {
+      const on = v.dataset.t === t;
+      if (on) v.play().catch(() => {});
+      if (instant) v.style.opacity = on ? 1 : 0;
+      else animate(v, { opacity: on ? 1 : 0 }, { duration: 2.6, ease: 'easeInOut' }).finished.then(() => { if (!on) v.pause(); });
+    }
+    $('#when span').textContent = LABEL[t];
+  }
+
+  // ---- patches (teammates and objects share the machinery)
+  const P = {};
+  function makePatch(id, c, z) {
+    const el = document.createElement('div');
+    el.className = 'patch'; el.dataset.who = id; el.style.zIndex = z;
+    const [l, t] = P2(c.x, c.y);
+    Object.assign(el.style, { left: l + 'px', top: t + 'px', width: c.size * K + 'px', height: c.size * K + 'px',
+      webkitMaskImage: `url(${BASE}mask-${id}.png)`, maskImage: `url(${BASE}mask-${id}.png)` });
+    const rest = new Image(); rest.className = 'rest'; rest.src = `${BASE}rest-${id}.jpg`; rest.alt = ''; el.append(rest);
+    const map = new Image(); map.className = 'map'; map.alt = ''; el.append(map);
+    $('#patches').append(el);
+    P[id] = { el, vids: {}, cur: null, mood: 'rest', base: 'idle', queue: [], onStart: null, live: false };
+  }
+  Object.entries(CAST).forEach(([id, c], i) => makePatch(id, c, i + 1));
+  Object.entries(OBJECTS).forEach(([id, c]) => makePatch(id, c, 10));
+
+  function clip(id, mood) {
+    const p = P[id], key = mood || 'clip';
+    if (key in p.vids) return p.vids[key];
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    const file = mood ? `${id}-${mood}` : id;
+    for (const [ext, type] of [['webm', 'video/webm'], ['mp4', 'video/mp4']]) {
+      const s = document.createElement('source'); s.src = `${BASE}${file}.${ext}`; s.type = type; v.append(s);
+    }
+    let failed = false;
+    v.lastElementChild.addEventListener('error', () => { failed = true; p.vids[key] = null; });
+    p.el.append(v); p.vids[key] = v;
+    return v;
+  }
+
+  const XFADE = .18;
+  let held = false;                                     // focus: no new moods
+  async function play(id, mood, cut = XFADE) {
+    const p = P[id];
+    const asked = mood;
+    if (mood && STANDIN[id] && STANDIN[id][mood]) mood = STANDIN[id][mood];
+    let v = clip(id, mood);
+    if (!v && mood !== 'idle') { v = clip(id, 'idle'); mood = 'idle'; }
+    if (!v) return;
+    const prev = p.cur; p.cur = v; p.mood = mood;
+    v.currentTime = 0; v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
+    try { await v.play(); } catch (e) { if (p.cur === v) p.cur = prev; return; }
+    v.classList.add('on');
+    if (!p.live) { p.live = true; p.el.style.opacity = 1; }
+    if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => { prev.classList.remove('on'); prev.style.opacity = ''; prev.pause(); });
+    if (p.onStart) { const f = p.onStart; p.onStart = null; f(asked); }
+    const next = () => (held ? 'idle' : (p.queue[0] || p.base));
+    const tick = () => {
+      if (p.cur !== v) return;
+      const n = next(), lead = n === mood ? .034 : XFADE;
+      if (v.duration && (v.ended || v.currentTime >= v.duration - lead)) play(id, held ? 'idle' : (p.queue.shift() || p.base));
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  function want(id, mood, now = false) {
+    const p = P[id];
+    if (LOOPING.has(mood)) { p.base = mood; p.queue = []; } else p.queue.push(mood);
+    if (now) play(id, p.queue.shift() || mood, .35);
+  }
+
+  // ---- slips
+  function headPoint(id) { return P2(...CAST[id].head); }
+  function say(id, text) {
+    if (embed) return null;
+    const [x, y] = headPoint(id);
+    const b = document.createElement('div');
+    b.className = 'say'; b.style.setProperty('--c', CAST[id].c);
+    b.innerHTML = `<div class="n"><i></i>${CAST[id].name}</div><p></p>`;
+    b.querySelector('p').textContent = text;
+    canvas.appendChild(b);
+    const w = b.offsetWidth, h = b.offsetHeight;
+    const anchor = CAST[id].side === 'right' ? x - 34 : x - w * .5;
+    const left = Math.max(16, Math.min(1600 - 16 - w, anchor));
+    let top = y - h - 22;
+    for (const o of canvas.querySelectorAll('.say')) {
+      if (o === b || o.dataset.gone) continue;
+      if (left < o.offsetLeft + o.offsetWidth && left + w > o.offsetLeft && top < o.offsetTop + o.offsetHeight && top + h > o.offsetTop) top = o.offsetTop - h - 10;
+    }
+    b.style.left = left + 'px'; b.style.top = Math.max(12, top) + 'px';
+    const tail = Math.max(20, Math.min(w - 20, x - left));
+    b.style.setProperty('--tail', tail + 'px'); b.style.setProperty('--ox', tail + 'px');
+    animate(b, { opacity: [0, 1], y: [8, 0], scale: [.96, 1] }, spring(.6));
+    setTimeout(() => unsay(b), 4600);
+    return b;
+  }
+  async function unsay(b) { if (!b || b.dataset.gone) return; b.dataset.gone = 1; await animate(b, { opacity: 0, y: -4 }, { duration: .5, ease: 'easeOut' }); b.remove(); }
+
+  // ---- run events -> moods. This is the only way a mood changes.
+  //   start {who}            -> working          think {who}          -> thinking
+  //   say {who, text}        -> talking + slip   found {who, text}    -> holding up a note + slip
+  //   done {who, text?}      -> signature move, the others perk up     idle {who} -> idle
+  //   milestone {text?}      -> everyone celebrates
+  const listening = id => { for (const o of Object.keys(CAST)) if (o !== id && !P[o].queue.length && P[o].base !== 'working') P[o].base = 'thinking'; };
+  function speakWhenOn(id, mood, text) {
+    if (!text) return;
+    P[id].onStart = m => { if (m === mood) say(id, text); };
+  }
+  const run = ev => {
+    if (held) return false;                               // focus wins
+    if (notes) $('#ev').textContent = `${ev.type}${ev.who ? ' · ' + ev.who : ''}${ev.text ? ': ' + ev.text : ''}`;
+    const id = ev.who;
+    switch (ev.type) {
+      case 'start': want(id, 'working'); break;
+      case 'think': want(id, 'thinking'); break;
+      case 'idle':  want(id, 'idle'); break;
+      case 'delighted': if (P[id]) {                      // she said Yes to its ask (painted-living.js: action.yes)
+        P[id].queue = P[id].queue.filter(m => m !== 'delighted');
+        play(id, 'delighted', .35).then(() => {               // at once; the clip smiles from ~1.5 s to ~3.5 s:
+          const v = P[id].cur; if (!v || P[id].mood !== 'delighted') return;   // hold the top of the smile 1.5 s more (~2.75 s in all)
+          const peak = () => { if (P[id].cur !== v) return; if (v.currentTime >= 2.4) { v.pause(); setTimeout(() => { if (P[id].cur === v) v.play().catch(() => {}); }, 1500); } else requestAnimationFrame(peak); };
+          requestAnimationFrame(peak);
+        });
+      } break;   // she said Yes to its ask (painted-living.js: action.yes): at once, and the whole 5 s clip plays
+      case 'say':   listening(id); speakWhenOn(id, 'talking', ev.text); want(id, 'talking'); break;
+      case 'found': listening(id); speakWhenOn(id, 'note', ev.text); want(id, 'note'); break;
+      case 'done':  speakWhenOn(id, 'signature', ev.text); want(id, 'signature');
+                    for (const o of Object.keys(CAST)) if (o !== id) want(o, 'delighted'); break;
+      case 'milestone': for (const o of Object.keys(CAST)) want(o, 'celebrating'); break;
+      case 'agree': for (const o of (ev.seats || [])) nod(o); break;   // drawn in code: a small nod, no clip
+    }
+    return true;
+  };
+
+  // a nod: the whole patch dips 4 px and comes back (agreeing, in code; no clip)
+  function nod(id) {
+    const p = P[id]; if (!p || !p.live) return;
+    animate(p.el, { y: [0, 4, 0, 2.5, 0] }, { duration: 1.4, ease: 'easeInOut' });
+  }
+
+  // ---- focus wins: no new moods, nothing to click, music ducks
+  function focus(on) {
+    held = !!on;
+    canvas.classList.toggle('focus', held);
+    if (held) for (const id of Object.keys(CAST)) { P[id].queue = []; P[id].base = 'idle'; }
+    if (audio) audio.volume = held ? .12 : .6;
+    if (typeof rainSound === 'function') rainSound();
+    animate($('#doc'), { opacity: held ? 1 : 0 }, { duration: .4 });
+  }
+
+  // ---- time of day: patches are painted in afternoon light; a fitted colour matrix tints them elsewhere
+  // hand-tuned on top of the fit, judged by eye against the painting: at night the lamp gives Noor deeper colour
+  const TUNE = { night: { noor: 'saturate(1.2) contrast(1.06) hue-rotate(-8deg)', ines: 'saturate(.85) brightness(.93)' } };
+  const LAMPCUT = new Set(['noor', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
+  function lightPatches(t) {
+    for (const id of Object.keys(P)) {
+      const el = P[id].el, graded = t !== 'afternoon' && LIGHT[t] && LIGHT[t][id];
+      const tune = (TUNE[t] && TUNE[t][id]) || '';
+      el.style.setProperty('--grade', graded ? `url(#l-${id}-${t}) ${tune}` : 'none');
+      const map = el.querySelector('img.map');
+      if (graded && MAPS[t]) { map.src = `${BASE}lightmap-${id}-${t}.png`; el.classList.add('mapped'); } else el.classList.remove('mapped');
+      const m = (t === 'night' && LAMPCUT.has(id)) ? `mask-${id}-night.png` : `mask-${id}.png`;
+      el.style.webkitMaskImage = el.style.maskImage = `url(${BASE}${m})`;
+    }
+    nightExtras(t === 'night');
+  }
+  async function setTime(t, instant) {
+    now = t;
+    if (instant) { setRoom(t, true); lightPatches(t); return; }
+    for (const id of Object.keys(CAST)) want(id, 'idle');
+    await wait(5200);                                      // everyone back at the rest frame, where patch and room agree
+    for (const id of Object.keys(CAST)) if (P[id].live) animate(P[id].el, { opacity: 0 }, { duration: .5 });
+    setRoom(t);
+    await wait(2700);
+    lightPatches(t);
+    for (const id of Object.keys(CAST)) if (P[id].live) animate(P[id].el, { opacity: 1 }, { duration: .6 });
+  }
+
+  // ---- night extras: rain on the glass (code), a brighter fairy-light glow, the electronic track
+  let lightsOn = false;
+  const rainEl = $('#rain'); let rainOn = false, rainRAF = 0;
+  { const [x0, y0] = P2(150, 40), [x1, y1] = P2(392, 392);
+    Object.assign(rainEl.style, { left: x0 + 'px', top: y0 + 'px' }); rainEl.width = Math.round(x1 - x0); rainEl.height = Math.round(y1 - y0); }
+  const rctx = rainEl.getContext('2d');
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // fixed seed: the same rain every load
+  const streaks = Array.from({ length: 70 }, () => ({ x: rnd() * rainEl.width, y: rnd() * rainEl.height, l: 8 + rnd() * 18, v: 5 + rnd() * 5 }));
+  const drops = Array.from({ length: 16 }, () => ({ x: rnd() * rainEl.width, y: rnd() * rainEl.height, r: 1.2 + rnd() * 1.6, v: .15 + rnd() * .5, hold: rnd() * 200 }));
+  function drawRain() {
+    const w = rainEl.width, h = rainEl.height; rctx.clearRect(0, 0, w, h);
+    rctx.strokeStyle = 'rgba(200,215,240,.35)'; rctx.lineWidth = 1;
+    rctx.beginPath();
+    for (const s of streaks) { s.y += s.v; s.x -= s.v * .08; if (s.y > h) { s.y = -s.l; s.x = Math.random() * w; } rctx.moveTo(s.x, s.y); rctx.lineTo(s.x - s.l * .08, s.y + s.l); }
+    rctx.stroke();
+    for (const d of drops) {
+      if (d.hold > 0) d.hold--; else { d.y += d.v; d.v = Math.min(d.v * 1.01, 2.2); }
+      if (d.y > h + 4) { d.y = Math.random() * h * .6; d.x = Math.random() * w; d.v = .15 + Math.random() * .4; d.hold = 60 + Math.random() * 240; }
+      rctx.fillStyle = 'rgba(225,235,250,.55)'; rctx.beginPath(); rctx.arc(d.x, d.y, d.r, 0, 7); rctx.fill();
+      if (d.hold <= 0) { rctx.fillStyle = 'rgba(210,225,245,.18)'; rctx.fillRect(d.x - .6, d.y - 14, 1.2, 14); }
+    }
+    if (rainOn) rainRAF = requestAnimationFrame(drawRain);
+  }
+  function nightExtras(on) {
+    animate(rainEl, { opacity: on ? 1 : 0 }, { duration: 1.2 });
+    if (on && !rainOn) { rainOn = true; if (!still) drawRain(); else drawRain(); }
+    if (!on) { rainOn = false; cancelAnimationFrame(rainRAF); }
+    $('#glow').classList.toggle('night', on);
+    lightsOn = on;                                           // the fairy lights glow brighter at night; a click still toggles them
+    animate($('#glow'), { opacity: on ? 1 : 0 }, { duration: .8 });
+    if (on && audio && TRACKS[track] !== 'electronic') { track = -1; nextTrack(); }   // electronic is the night track
+    rainSound();
+  }
+
+  // ---- clickable objects
+  const fx = (cls, text, x, y, delay = 0, dy = -40) => {
+    const e = document.createElement('div'); e.className = 'fx ' + cls; e.textContent = text;
+    e.style.left = x + 'px'; e.style.top = y + 'px'; canvas.append(e);
+    animate(e, { opacity: [0, 1, 0], y: [0, dy], x: [0, (dy / -8)] }, { duration: 2.2, delay, ease: 'easeOut' }).finished.then(() => e.remove());
+  };
+  const busy = {};
+  async function playObject(id) {
+    if (busy[id] || held) return; busy[id] = true;
+    const p = P[id], v = clip(id);
+    if (v) {
+      v.currentTime = 0;
+      try { await v.play(); v.classList.add('on'); p.el.style.opacity = 1;
+        v.onended = () => { p.el.style.opacity = 0; v.classList.remove('on'); busy[id] = false; };
+      } catch (e) { busy[id] = false; }
+    } else busy[id] = false;
+    setTimeout(() => { busy[id] = false; }, 5200);
+  }
+  const hits = $('#hits');
+  for (const [id, o] of Object.entries(OBJECTS)) {
+    const [x, y] = P2(o.hit[0], o.hit[1]);
+    const h = document.createElement('div'); h.className = 'hit'; h.title = o.tip; h.dataset.obj = id;
+    Object.assign(h.style, { left: x + 'px', top: y + 'px', width: o.hit[2] * K + 'px', height: o.hit[3] * K + 'px' });
+    hits.append(h);
+  }
+  // the string lights: a glow drawn in code, click to toggle
+  const BULBS = [[497, 35], [567, 72], [653, 73], [724, 46], [785, 23], [872, 58], [953, 62], [1030, 42], [1108, 25], [1174, 40], [1245, 28]];
+  for (const [bx, by] of BULBS) { const [x, y] = P2(bx, by); const b = document.createElement('div'); b.className = 'bulb'; b.style.left = x + 'px'; b.style.top = y + 'px'; $('#glow').append(b); }
+  { const [x, y] = P2(470, 0); const h = document.createElement('div'); h.className = 'hit'; h.title = 'The string lights';
+    Object.assign(h.style, { left: x + 'px', top: y + 'px', width: 800 * K + 'px', height: 95 * K + 'px' }); h.dataset.obj = 'lights'; hits.append(h); }
+
+  // music: never autoplays; each click on the record player moves to the next track, then off
+  const TRACKS = ['electronic', 'chiptune', 'piano'];
+  let audio = null, track = -1, noteTimer = null;
+  // soft rain under the music, only at night while a record plays (public/looks/cast/music/rain.mp3; silent if the file is missing)
+  let rainAudio = null;
+  function rainSound() {
+    const want = now === 'night' && !!audio;
+    if (want && !rainAudio) { rainAudio = new Audio('../cast/music/rain.mp3'); rainAudio.loop = true; rainAudio.volume = 0; rainAudio.play().catch(() => { rainAudio = null; }); }
+    if (rainAudio) {
+      const v = want ? (held ? .04 : .18) : 0;
+      animate(rainAudio, { volume: v }, { duration: 1.2 }).finished.then(() => { if (!want && rainAudio && rainAudio.volume === 0) { rainAudio.pause(); rainAudio = null; } });
+    }
+  }
+  function nextTrack() {
+    track = track + 1;
+    if (audio) { audio.pause(); audio = null; }
+    clearInterval(noteTimer);
+    if (track >= TRACKS.length) { track = -1; rainSound(); return; }
+    audio = new Audio(`../cast/music/${TRACKS[track]}.mp3`); audio.loop = true; audio.volume = held ? .12 : .6;
+    audio.play().catch(() => {});
+    const [x, y] = P2(1470, 440);
+    const notesFx = () => fx('note', '♪', x + (track * 14), y, 0, -50);
+    notesFx(); noteTimer = setInterval(notesFx, 1600);
+    rainSound();
+  }
+  hits.addEventListener('click', e => {
+    const id = e.target.dataset.obj; if (!id || held) return;
+    if (id === 'lights') { lightsOn = !lightsOn; animate($('#glow'), { opacity: lightsOn ? 1 : 0 }, { duration: .8 }); return; }
+    playObject(id);
+    if (id === 'record') nextTrack();
+    if (id === 'cat') { const [x, y] = P2(430, 700); for (let i = 0; i < 3; i++) fx('heart', '♥', x + i * 26, y - i * 6, .4 + i * .35); }
+    if (id === 'coffee') { const [x, y] = P2(100, 420); for (let i = 0; i < 4; i++) fx('steam', '~', x + (i % 2) * 10, y, .6 + i * .5, -55); }
+  });
+
+  // ---- review keys (?notes=1 only)
+  if (notes) addEventListener('keydown', e => {
+    const n = Number(e.key);
+    if (n >= 1 && n <= 8) { sample = false; const m = MOODS[n - 1]; for (const id of Object.keys(CAST)) { P[id].queue = []; if (LOOPING.has(m)) P[id].base = m; want(id, m, true); } $('#ev').textContent = 'everyone: ' + m; }
+    else if (e.key === '0') { sample = true; $('#ev').textContent = 'sample run'; }
+    else if (e.key.toLowerCase() === 't') { const i = ORDER.indexOf(now); setTime(ORDER[(i + 1) % ORDER.length]); }
+    else if (e.key.toLowerCase() === 'f') focus(!held);
+  });
+
+  window.living = { run, focus, setTime: t => setTime(t), moods: MOODS,
+    // play an object's clip (record, cat, coffee) when another layer handles the click (PlayfulInk, 'studio:poke')
+    poke: id => { if (OBJECTS[id]) playObject(id); },
+    get time() { return now; } };
+  // review only (?notes=1 or ?review=1, no UI): put one teammate straight into a mood, for QC recordings
+  if (notes || q.get('review') === '1') window.living.review = (id, m) => { P[id].queue = []; if (LOOPING.has(m)) P[id].base = m; want(id, m, true); };
+
+  // ---- go
+  setRoom(now, true); lightPatches(now);
+  if (still) { for (const v of rooms) v.pause(); for (const id of Object.keys(CAST)) P[id].el.style.opacity = 1; return; }
+  const START = { mika: 'working', noor: 'working', theo: 'idle', ines: 'idle', bo: 'working' };
+  for (const id of Object.keys(CAST)) { P[id].base = START[id]; play(id, START[id]); }
+
+  // A prepared sample run (not live), so the comp shows events driving moods. Lines from DEMO.md where they exist.
+  let sample = q.get('run') !== '0' && !embed;
+  const SAMPLE = [
+    [3000,  { type: 'start', who: 'ines' }],
+    [5000,  { type: 'found', who: 'noor', text: 'Found a source on what sells out first.' }],
+    [11000, { type: 'say', who: 'theo', text: 'Sourdough, gone by ten. Every week.' }],
+    [16500, { type: 'think', who: 'mika' }],
+    [18000, { type: 'say', who: 'bo', text: 'Orders after 8pm miss the morning bake.' }],
+    [24000, { type: 'say', who: 'ines', text: 'Then a cut-off, and say it plainly.' }],
+    [30000, { type: 'start', who: 'mika' }],
+    [31000, { type: 'done', who: 'mika', text: 'I’ve put 8pm right on the button.' }],
+    [38000, { type: 'idle', who: 'noor' }],
+    [40000, { type: 'done', who: 'bo', text: 'Booking form’s shipped.' }],
+    [47000, { type: 'milestone' }],
+    [54000, { type: 'start', who: 'noor' }],
+  ];
+  const LOOP = 60000;
+  let t0 = performance.now(), cycles = 0;
+  (async function sampleRun() {
+    for (;;) {
+      for (const [at, ev] of SAMPLE) {
+        const dt = at - (performance.now() - t0); if (dt > 0) await wait(dt);
+        if (sample) run(ev);
+      }
+      const dt = LOOP - (performance.now() - t0); if (dt > 0) await wait(dt);
+      cycles++; t0 = performance.now();
+      if (!pinned && sample) { const i = ORDER.indexOf(now); await setTime(ORDER[(i + 1) % ORDER.length]); t0 = performance.now(); }
+    }
+  })();
+})();
+</script>
+</body>
+</html>

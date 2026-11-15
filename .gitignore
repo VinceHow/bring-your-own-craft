@@ -7,3 +7,6 @@ runs/*
 *.log
 .env
 .claude/worktrees/
+.env.local
+.byoc-server.pid
+.byoc-server.port

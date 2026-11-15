@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Living painting test</title>
+<style>
+/* A test of the "living painting" approach: the afternoon studio painting, brought to life with short video loops
+   generated ahead of time (fal, Wan 3.0 image-to-video). Nothing calls fal here; every clip is a file in
+   public/looks/cast/loops/. Each clip starts and ends on the same painted rest frame, so clips can be swapped
+   without a jump.
+   Layers: 1) the whole scene as one ambient 5 s loop (everyone breathes, the cat's tummy rises);
+           2) two feathered patches, over Mika and over Bo, that switch between idle, working and thinking loops. */
+@font-face { font-family: 'Newsreader'; src: url(../fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+@font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
+:root { --ink: #3B2E22; --ink-2: #6B5A48; --paper: rgba(251,245,234,.92); }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #2A211A; }
+body { font: 400 16px/1.5 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #E9D9BE; }
+
+/* the scene video is a 1588x893 centre crop of the 1600x893 painting, shown at 1600x900 */
+.scene, .scene-still { position: absolute; inset: 0; width: 1600px; height: 900px; object-fit: fill; display: block; }
+
+/* patches: a 400x400 crop of the painting (painting px), placed at (crop.x - 6) * k, crop.y * k, with k = 1600/1588 */
+.patch { position: absolute; width: 403px; height: 403px; }
+.patch video, .patch img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.patch video { opacity: 0; }
+.patch video.on { opacity: 1; }
+/* soft-feathered: an ellipse that fully covers the character, fading out over the chair and the table */
+.mika { left: 346.6px; top: 302.3px;
+  -webkit-mask-image: radial-gradient(ellipse 30% 44% at 37% 51%, #000 78%, transparent 100%);
+          mask-image: radial-gradient(ellipse 30% 44% at 37% 51%, #000 78%, transparent 100%); }
+.bo { left: 1011.6px; top: 332.5px;
+  -webkit-mask-image: radial-gradient(ellipse 39% 41% at 49% 50%, #000 78%, transparent 100%);
+          mask-image: radial-gradient(ellipse 39% 41% at 49% 50%, #000 78%, transparent 100%); }
+
+/* a quiet note, so Vincent knows what he is looking at */
+.note { position: absolute; right: 32px; bottom: 28px; width: 360px; padding: 16px 20px 15px; border-radius: 10px;
+  background: var(--paper); box-shadow: 0 1px 0 rgba(59,46,34,.08), 0 10px 30px -14px rgba(42,33,26,.45); }
+.note h1 { margin: 0; font: 500 20px/1.2 'Newsreader', Georgia, serif; letter-spacing: -.005em; }
+.note p { margin: 6px 0 0; font: 400 13px/1.45 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink-2); }
+.moods { margin-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font: 400 15px/1.3 'Hanken Grotesk', system-ui, sans-serif; }
+.moods dt { font-weight: 500; }
+.moods dd { margin: 0; color: var(--ink-2); }
+.moods dd span { display: inline-block; transition: opacity 400ms ease; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <video class="scene" id="scene" muted playsinline loop preload="auto" poster="../cast/loops/scene-rest.jpg">
+    <source src="../cast/loops/scene.webm" type="video/webm">
+    <source src="../cast/loops/scene.mp4" type="video/mp4">
+  </video>
+
+  <div class="patch mika" data-who="mika"></div>
+  <div class="patch bo" data-who="bo"></div>
+
+  <aside class="note">
+    <h1>Living painting test</h1>
+    <p>Painted loops made ahead of time with fal and played from files. Every clip starts and ends on the same frame, so moods swap without a jump.</p>
+    <dl class="moods">
+      <dt>Mika</dt><dd><span id="mood-mika">at rest</span></dd>
+      <dt>Bo</dt><dd><span id="mood-bo">at rest</span></dd>
+    </dl>
+  </aside>
+</div>
+
+<script>
+const still = new URLSearchParams(location.search).has('still');
+const BASE = '../cast/loops/';
+// mood running order per character; each clip is 5 s, so a mood lasts 5 s (or 10 s when it repeats)
+const ORDER = {
+  mika: ['working', 'working', 'thinking', 'idle', 'working', 'thinking'],
+  bo:   ['idle', 'working', 'working', 'thinking', 'idle', 'working'],
+};
+const WORDS = { idle: 'idle, just breathing', working: 'working', thinking: 'thinking' };
+const XFADE = 0.18; // seconds: hand over to the next clip just before the end, softening the forced last frame
+
+function makeVideo(who, mood) {
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.preload = 'auto';
+  v.poster = BASE + who + '-rest.jpg';
+  for (const [ext, type] of [['webm', 'video/webm'], ['mp4', 'video/mp4']]) {
+    const s = document.createElement('source'); s.src = `${BASE}${who}-${mood}.${ext}`; s.type = type; v.append(s);
+  }
+  return v;
+}
+
+function setMood(who, text) {
+  const el = document.getElementById('mood-' + who);
+  if (el.textContent === text) return;
+  el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.then(() => {
+    el.textContent = text;
+    el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
+  });
+}
+
+function runPatch(box) {
+  const who = box.dataset.who;
+  const rest = new Image(); rest.src = BASE + who + '-rest.jpg'; rest.alt = ''; box.append(rest);
+  if (still) return;
+  const vids = {};
+  for (const m of ['idle', 'working', 'thinking']) { vids[m] = makeVideo(who, m); box.append(vids[m]); }
+  let i = 0, cur = null;
+  function start() {
+    const mood = ORDER[who][i % ORDER[who].length]; i++;
+    const v = vids[mood];
+    const prev = cur; cur = v;
+    v.currentTime = 0;
+    v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
+    v.play().then(() => {
+      v.classList.add('on');
+      if (prev && prev !== v) {
+        // the outgoing clip is on (nearly) the same rest frame: a short crossfade hides the model's forced last-frame snap
+        prev.animate([{ opacity: 1 }, { opacity: 0 }], { duration: XFADE * 1000, fill: 'none' })
+          .finished.then(() => { prev.classList.remove('on'); prev.pause(); });
+      }
+    });
+    setMood(who, WORDS[mood]);
+    // the same mood again: play to the very end, since its last frame is its own first frame; a new mood: hand over early
+    const next = ORDER[who][i % ORDER[who].length];
+    const lead = next === mood ? 0.034 : XFADE;
+    const tick = () => {
+      if (cur !== v) return;
+      if (v.duration && (v.ended || v.currentTime >= v.duration - lead)) start();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  start();
+}
+
+const scene = document.getElementById('scene');
+if (still) {
+  scene.removeAttribute('autoplay'); scene.preload = 'none';
+  const img = new Image(); img.src = BASE + 'scene-rest.jpg'; img.className = 'scene-still'; img.alt = ''; scene.replaceWith(img);
+  setMood('mika', 'at rest'); setMood('bo', 'at rest');
+} else {
+  scene.play();
+}
+document.querySelectorAll('.patch').forEach(runPatch);
+</script>
+</body>
+</html>

@@ -31,13 +31,13 @@ before(async () => {
   page = await browser.newPage({ viewport: { width: 1600, height: 930 } });
   page.on('console', m => m.type() === 'error' && consoleErrors.push(m.text()));
   page.on('pageerror', e => consoleErrors.push(String(e)));
-  await page.goto(BASE + '/?hold=300');
+  await page.goto(BASE + '/?hold=300&path=full');
   await page.waitForTimeout(800);
 });
 after(async () => { await browser?.close(); srv?.kill(); });
 
 test('the team talks out its joint decisions, and the agreements land in the team space', async () => {
-  const r = await api('/api/run', { idea: 'A booking page for a small yoga studio.' });
+  const r = await api('/api/run', { idea: 'A booking page for a small yoga studio.', path: 'full' });
   RUN = r.run;
   await page.evaluate(run => { BYOC.run = run; BYOC.stage(6, { instant: true }); }, RUN);
   await api(`/api/run/${RUN}/sketch`, {});

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Painted UI · comp</title>
+<style>
+  /* This page only frames the real room. Everything inside the frame is the room's own markup and scripts, styled by
+     ?look=painted (public/looks/painted.css). It plays the fake fixture plus a few clearly labelled sample events, the
+     way /gallery does: no model calls, nothing live. */
+  html, body { margin: 0; height: 100%; background: #EFE3CF; overflow: hidden; }
+  .canvas { position: relative; width: 1600px; height: 900px; overflow: hidden; }
+  .canvas iframe { position: absolute; inset: 0; width: 1600px; height: 900px; border: 0; }
+  .notes { display: none; position: absolute; left: 24px; top: 24px; z-index: 5; max-width: 520px; padding: 14px 18px; border-radius: 10px;
+    background: #FBF5EA; color: #33261C; font: 400 15px/1.45 'Hanken Grotesk', system-ui, sans-serif; box-shadow: 4px 8px 18px -6px rgba(110,70,32,.35); }
+  .notes b { font-weight: 500; }
+  body.show-notes .notes { display: block; }
+  .beat { display: none; position: absolute; right: 24px; top: 24px; z-index: 5; padding: 6px 12px; border-radius: 8px; background: #33261C; color: #FFFAF3;
+    font: 500 14px 'Hanken Grotesk', system-ui, sans-serif; }
+  body.show-notes .beat { display: block; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="notes"><b>Painted UI, on the real room.</b> The room's own components and scripts, styled only by
+    <code>?look=painted</code>. Driven by the fake fixture and a few sample events (the chimes, takeaways and decisions
+    are sample text, not from a run). The Fake run label stays on screen throughout.</div>
+  <div class="beat" id="beat"></div>
+</div>
+<script>
+(async function () {
+  'use strict';
+  const q = new URLSearchParams(location.search);
+  const still = q.get('still') === '1';
+  if (q.get('notes') === '1') document.body.classList.add('show-notes');
+  const wait = ms => new Promise(r => setTimeout(r, still ? Math.min(ms, 120) : ms));
+  const beat = t => { document.getElementById('beat').textContent = t; };
+
+  // the room as served, its live event stream off, the painted look linked last (as ?look= does in the room)
+  const html = await fetch('/').then(r => r.text());
+  const pre = '<base href="/"><script>window.EventSource = undefined;<\/script>';
+  const post = '<link rel="stylesheet" href="/looks/painted.css">';
+  const iframe = document.createElement('iframe');
+  iframe.title = 'the room, painted look'; iframe.setAttribute('tabindex', '-1');
+  iframe.srcdoc = html.replace(/<head([^>]*)>/i, m => m + pre).replace(/<\/head>/i, post + '</head>');
+  document.querySelector('.canvas').appendChild(iframe);
+  await new Promise(r => iframe.addEventListener('load', r, { once: true }));
+  const win = iframe.contentWindow, doc = win.document;
+  for (let i = 0; i < 50 && !(win.BYOC && win.BYOC.dispatch && win.BYOC.focusDoc); i++) await new Promise(r => setTimeout(r, 100));
+  const B = win.BYOC;
+  // polish.css is appended after load; keep the look last so the cascade matches the room with ?look=painted
+  const lookLink = doc.createElement('link'); lookLink.rel = 'stylesheet'; lookLink.href = '/looks/painted.css';
+  await wait(50); doc.head.appendChild(lookLink);
+  doc.body.classList.add('stage');
+
+  // ---- the fake fixture, played instantly up to its first question, labelled as fake on screen ----
+  const fx = (await fetch('/fixtures/fake-run.jsonl').then(r => r.text())).split('\n').filter(Boolean).map(l => JSON.parse(l)).sort((a, b) => a.t - b.t);
+  const asks = fx.filter(e => e.type === 'ask');
+  B.reset();
+  B.replay = true; B.replayKind = 'fixture'; B.replayName = 'fixture'; B.run = fx[0].run;
+  if (B.replayLabel) B.replayLabel('fixture', 'fixture', fx[0].t, 'painted-ui comp');
+  B.stage(2, { instant: true }); B.stage(3, { instant: true });
+  const scene = q.get('scene');
+  if (scene === 'seat') { B.reset(); document.body.dataset.done = '1'; return; }          // before she sits: "Take your seat"
+  for (const ev of fx) { if (ev.type === 'ask' || (scene === 'early' && ev.type === 'candidate')) break; B.dispatch(ev, 'replay'); }
+  B.replay = false;  // a replay would close her document by itself; this comp holds it open
+  const sample = ev => B.dispatch(Object.assign({ t: Date.now(), run: B.run, sample: true }, ev), 'replay');
+  // ?scene=early|busy|focus: jump straight to one state for stills
+  if (scene === 'early') { document.body.dataset.done = '1'; return; }
+  if (scene === 'busy' || scene === 'focus') {
+    for (const a of asks) B.dispatch(a, 'replay');
+    const J = [
+      { type: 'joint.agreed', id: 's-j1', headline: 'Waitlist auto-offers the spot, no logins.', seats: ['engineering', 'design'], withTakeaways: true,
+        turns: [{ by: 'Bo', seat: 'engineering', text: 'Logins slow regulars down.' }, { by: 'Mika', seat: 'design', text: 'Then remember them on the device.' }] },
+      { type: 'joint.agreed', id: 's-j2', headline: 'Price shows on the class list, not at checkout.', seats: ['strategy', 'data'],
+        turns: [{ by: 'Ines', seat: 'strategy', text: 'Surprise prices lose first-timers.' }] },
+    ];
+    J.forEach(j => sample(j)); if (B.teamSpace) B.teamSpace.render();
+    sample({ type: 'chatter', by: 'Mika', seat: 'design', text: 'then remember them on the device.' });
+    sample({ type: 'chatter', by: 'Ines', seat: 'strategy', text: 'price up front, or first-timers leave.' });
+    if (scene === 'focus') {
+      const A = { id: 'comp-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
+        decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+      B.focusDoc.open(A);
+      const sd = doc.querySelector('.fd-said'); sd.innerHTML = '';
+      const b = doc.createElement('blockquote'); b.className = 'fd-words';
+      b.textContent = 'Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.'; sd.appendChild(b);
+      doc.querySelector('.fd-form').hidden = true;
+      [{ seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+       { seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' }].forEach(c => B.emit('chime', Object.assign({ askId: A.id }, c)));
+      B.emit('brief', { askId: A.id, believe: 'Regulars should never hunt for their usual class.', why: '',
+        guidance: 'Put a regular’s usual class first, one tap to book. Remember them; don’t ask again.' });
+    }
+    document.body.dataset.done = '1'; return;
+  }
+
+  // ---- 1. the room: notes slide across the table to her stool, one at a time ----
+  beat('1 · notes arrive in her tray');
+  await wait(1400);
+  for (const a of asks) { B.dispatch(a, 'replay'); await wait(1100); }
+  await wait(400);
+  sample({ type: 'chatter', by: 'Mika', seat: 'design', text: 'then remember them on the device.' });
+  await wait(2200);
+
+  // ---- 2. focus: just her and one document ----
+  beat('2 · her focus opens');
+  const ASK = { id: 'comp-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
+    decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+  B.focusDoc.open(ASK);
+  await wait(1800);
+  // her words, as she says them (shown in the input while speaking, then landing on the document)
+  const HER = 'Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.';
+  const input = doc.querySelector('.fd-input'), saidEl = doc.querySelector('.fd-said');
+  const words = HER.split(' ');
+  for (let i = 1; i <= words.length; i++) {
+    input.value = words.slice(0, i).join(' '); input.dispatchEvent(new win.Event('input'));
+    if (!still) await wait(110);
+  }
+  await wait(500);
+  saidEl.classList.remove('speaking'); saidEl.innerHTML = '';
+  const bq = doc.createElement('blockquote'); bq.className = 'fd-words'; bq.textContent = HER; saidEl.appendChild(bq);
+  input.value = ''; doc.querySelector('.fd-form').hidden = true;
+  await wait(900);
+  beat('3 · the team chimes in, one after another');
+  const CHIMES = [
+    { seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+    { seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' },
+    { seat: 'engineering', by: 'Bo', text: 'Then we hold their spot. No login, I’ll remember the device.' },
+  ];
+  for (const c of CHIMES) B.emit('chime', Object.assign({ askId: ASK.id }, c));
+  await wait(CHIMES.length * 1300 + 600);
+  beat('4 · the takeaways are written in');
+  B.emit('brief', { askId: ASK.id, believe: 'Regulars should never hunt for their usual class.', why: '',
+    guidance: 'Put a regular’s usual class first, one tap to book. Remember them; don’t ask again.' });
+  await wait(1200);
+  B.emit('answer.mapped', { askId: ASK.id });
+  await wait(4200);
+
+  // ---- 3. back at the table: decisions set down in the team space ----
+  beat('5 · a decision card is set down');
+  B.focusDoc.close(true);
+  await wait(900);
+  const JOINTS = [
+    { type: 'joint.agreed', id: 'c-j1', headline: 'Waitlist auto-offers the spot, no logins.', seats: ['engineering', 'design'], withTakeaways: true,
+      turns: [{ by: 'Bo', seat: 'engineering', text: 'Logins slow regulars down.' }, { by: 'Mika', seat: 'design', text: 'Then remember them on the device.' },
+        { by: 'Bo', seat: 'engineering', text: 'A device token, no account.' }] },
+    { type: 'joint.agreed', id: 'c-j2', headline: 'Price shows on the class list, not at checkout.', seats: ['strategy', 'data'],
+      turns: [{ by: 'Ines', seat: 'strategy', text: 'Surprise prices lose first-timers.' }, { by: 'Theo', seat: 'data', text: 'We’ll watch drop-off at confirm.' }] },
+  ];
+  for (const j of JOINTS) { sample(j); if (B.teamSpace) B.teamSpace.render(); await wait(1500); }
+  await wait(900);
+  const card = doc.querySelector('.ts-card'); if (card) card.click();
+  beat('6 · she opens it: the real exchange');
+  document.body.dataset.done = '1';
+})();
+</script>
+</body>
+</html>

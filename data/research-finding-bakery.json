@@ -8,5 +8,31 @@
   "source": "Managing Global Transitions 23(3), 2025: inventory models (EOQ, newsvendor) applied to small bakeries",
   "how_verified": "Seen in web search result summaries on 14 Nov 2026; the paper itself could not be opened from the build session (host not reachable). Open the link to check before relying on it.",
   "not_claimed": "No figure on how often bakeries sell out, or on pre-orders' measured effect: none was found from a reliable source.",
-  "fits": ["bakery", "bread", "pastry", "pre-order", "order ahead", "sell out", "sold out", "waste", "how many to bake"]
+  "fits": [
+    "bakery",
+    "bread",
+    "pastry",
+    "pre-order",
+    "order ahead",
+    "sell out",
+    "sold out",
+    "waste",
+    "how many to bake"
+  ],
+  "regulars": {
+    "prepared": true,
+    "label": "researched before the demo",
+    "for": "Focus 1 on the stage path: who do we build this for first?",
+    "title": "A third of artisan-bakery visitors buy bread there every week",
+    "quote": "A third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week, while sourdough is nearly as popular as the traditional white loaf, new research from Marriage’s has revealed.",
+    "claim": "A third of UK adults who visit artisan bakeries buy bread there at least once a week, and sourdough is nearly as popular as white bread.",
+    "url": "https://bakerybusiness.com/story-marketplace.php?s=2026-11-10-new-artisan-bakery-report",
+    "site": "Bakery Business",
+    "source": "Bakery Business, 10 Nov 2026: \"New artisan bakery report\", on Marriage's Millers' report Crafting the Future of Artisan Bakeries (https://flour.co.uk/artisan-bakery-report/)",
+    "fetched": "2026-11-14",
+    "how_verified": "Found with one Linkup search on 14 Nov 2026; the page was opened through Linkup's fetch (the build session's proxy refuses bakerybusiness.com directly) and the quote above is copied exactly from it.",
+    "not_claimed": "A UK consumer survey commissioned by a flour miller (Marriage's); sample size and method are not on the page. Nothing here about pre-orders, sell-outs or any single bakery."
+  },
+  "verified": false,
+  "why_unverified": "The page was never opened (seen only in search summaries), so nothing was quoted from it. Code never shows or cites a finding without its URL, a quoted line and the date it was read."
 }

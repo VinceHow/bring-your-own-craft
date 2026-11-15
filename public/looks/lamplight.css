@@ -1,0 +1,102 @@
+/* Look: Lamplight. A warm evening studio: a dark walnut table under one lamp, cream sheets, inks turned down
+   to earth tones, soft lifted shadows instead of hard black offsets. Calm, late-night craft.
+   Layered on top of room.css + polish.css via ?look=lamplight. Look only: no behaviour. */
+
+:root {
+  --paper: #2A211B;          /* the room around the table, in shadow */
+  --table: #4A3A2E;          /* walnut */
+  --sheet: #F7F0E3;          /* cream sheets under warm light */
+  --ink: #2B231D;            /* warm brown-black, never pure black */
+  --product: #D8746A;        /* terracotta rose */
+  --design: #5B7FA0;
+  --engineering: #E2B85A;
+  --data: #6E9670;
+  --research: #D08A4E;
+  --strategy: #A88A60;
+  --stamp: #B5473A;
+  --shadow: 0 10px 28px rgba(0,0,0,.38), 0 2px 4px rgba(0,0,0,.25);
+  --shadow-sm: 0 6px 16px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.2);
+  --line: 1px solid rgba(43,35,29,.18);
+  --r: 8px;
+  --display: 'Charter', 'Bitstream Charter', Georgia, 'DejaVu Serif', serif;
+  --pad-back: #E6DAC4;
+}
+
+html body { background-color: var(--paper); color: var(--ink); background-image: none; }
+
+/* the table: wood grain lines, a soft pool of lamplight (an inset shadow, not a gradient) */
+html #room .table {
+  border: 0; border-radius: 18px;
+  box-shadow: inset 0 0 220px 40px rgba(0,0,0,.42), 0 30px 60px rgba(0,0,0,.45);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='40'%3E%3Cpath d='M0 8 C150 4 300 14 600 9 M0 22 C200 26 380 16 600 24 M0 34 C160 31 420 38 600 33' fill='none' stroke='%23000' stroke-opacity='.10' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: 600px 40px;
+}
+
+/* empty seats: chalk outlines on the wood */
+html #room .seat-empty { background: transparent; border: 1.5px dashed rgba(247,240,227,.28); color: rgba(247,240,227,.55);
+  font-family: var(--ui); font-weight: 500; letter-spacing: .14em; border-radius: 10px; }
+html body[data-beat="0"] #room .seat-product .seat-empty { border-color: var(--product); color: var(--sheet); }
+
+/* seat cards: cream place cards; the ink is a small swatch and the name, not a full band */
+html #room .card { border: 0; border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+html #room .card-band { background: var(--sheet); color: var(--ink); border-bottom: 1px solid rgba(43,35,29,.12); height: 42px; }
+html #room .card-band svg { color: var(--seat-ink); filter: none; width: 20px; height: 20px; }
+html #room .card-band svg * { stroke: var(--seat-ink); }
+html #room .card-band::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--seat-ink); flex: none; }
+html #room .card-name { font: 600 20px/1 var(--display); text-transform: none; letter-spacing: 0; text-shadow: none; }
+html #room .card-stance { font-family: var(--display); font-style: italic; color: #5A4A3C; }
+html #room .card-note { border-top: 1px solid rgba(43,35,29,.10); color: #7A6A5A; }
+html #room .seat-product .card-band { border-right: 1px solid rgba(43,35,29,.12); background: #F2E3D2; }
+html #room .seat-product .card-name { font-size: 26px; }
+
+/* teammates' sketchpads: cream pads, faint rings, soft lift */
+html #room .mini-sheet { border: 0; border-radius: 6px; box-shadow: 0 2px 0 var(--pad-back), 0 4px 0 #D5C7AE, var(--shadow-sm); }
+html #room .mini-sheet::before { opacity: .5; }
+html #room .mini-head { border-bottom: 1px solid rgba(43,35,29,.10); }
+html #room .mini-head i { border: 0; border-radius: 50%; }
+html #room .mini-title { font-family: var(--display); text-transform: none; font-size: 14px; letter-spacing: 0; }
+html #room .mini-lines li { font-family: var(--ui); color: #4A3D32; }
+html #room .mini-lines li::before { border: 0; border-radius: 50%; top: 6px; }
+html #room .mini-lines li.brought::after { border: 0; border-radius: 10px; padding: 0 6px; color: var(--sheet); }
+
+/* her sheet: the brightest thing on the table, directly under the lamp */
+html #room .her-sheet { border: 0; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255,236,200,.25), 0 0 80px rgba(255,214,150,.18), var(--shadow); background-color: #FBF6EC; }
+html #room .her-sheet::before { width: 4px; border: 0; background: var(--product); border-radius: 10px 0 0 10px; }
+html #room .her-q { font: 600 32px/1.1 var(--display); }
+html #room .her-form { border-top: 1px solid rgba(43,35,29,.18); }
+
+/* her file */
+html #room .file-card { border: 0; border-radius: 8px; box-shadow: var(--shadow); }
+html #room .file-head { background: var(--sheet); border-bottom: 1px solid rgba(43,35,29,.12); }
+html #room .file-name { font: 600 17px var(--display); text-transform: none; color: var(--product); }
+html #room .file-lines li.new .ltext, html #room .sounds-like .sl-mark { background: rgba(226,184,90,.45); }
+html #room .sounds-like { border: 0; background: #F0E6D4; border-radius: 6px; }
+html #room .file-lines .prep { border-color: rgba(43,35,29,.3); border-radius: 10px; }
+
+/* counter and meter: quiet cream slips, numbers in serif, no shouting */
+html #room .counter, html #room .meter { border: 0; border-radius: 8px; box-shadow: var(--shadow); }
+html #room .counter .roll, html #room .meter-num { font-family: var(--display); font-weight: 600; }
+html #room .meter-num { font-size: 96px; }
+html #room .roll-pink { border: 0; border-radius: 6px; color: var(--sheet); }
+html #room .meter-bar { border: 0; height: 8px; border-radius: 4px; background: #E8DCC7; }
+html #room .meter-label { color: #7A6A5A; }
+
+/* the journey boxes and her calls */
+html #room .fl-box { border: 1px solid rgba(43,35,29,.22); border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,.12); background: #FFFDF8; }
+html #room .fl-box:hover { box-shadow: 0 6px 14px rgba(0,0,0,.16); }
+html #room .fl-edge { stroke: #8A7766; stroke-width: 1.5; }
+html #room .fl-opt { border-radius: 8px; border-color: rgba(43,35,29,.3); }
+html #room .fl-opt.is-rec, html #room .fl-opt.is-chosen { box-shadow: 0 4px 10px rgba(0,0,0,.14); }
+html #room .fl-item > div, html #room .fl-fork { border-radius: 8px; }
+html #room .note { border: 0; border-radius: 6px; box-shadow: var(--shadow-sm); color: var(--ink); background: #F3C9B8; }
+html #room .fl-tag { border-radius: 10px; border: 0; }
+
+/* Design's sketch sheet and the page */
+html #room .sketch-sheet { border: 0; border-radius: 10px; box-shadow: var(--shadow); }
+
+/* the pencil and the ring: brass and lamplight */
+html #room .pencil, html #room [class*="pencil"] { opacity: .7; }
+
+/* REPLAY label: still unmissable, in the room's tones */
+html body .replay-label { background: var(--sheet); color: var(--ink); box-shadow: 0 6px 18px rgba(0,0,0,.4); border-radius: 8px; font-family: var(--display); font-weight: 600; }
+html body .chrome { background: #1E1814; color: #E8DCC7; border-bottom-color: #000; }

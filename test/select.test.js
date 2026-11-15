@@ -259,14 +259,14 @@ test('proposeAndSelect: Research cites only its prepared finding; a teammate fai
   const run = newRun();
   const team = system => {
     if (/You are the Data teammate/.test(system)) throw new Error('boom');
-    return { note: 'ok', candidates: [{ decision: 'Whether full classes get a waitlist', options: ['Yes', 'No'], recommendation: 'Yes',
+    return { note: 'ok', candidates: [{ decision: 'Who we build this for first: the weekly regulars', options: ['Yes', 'No'], recommendation: 'Yes',
       reason: 'r', cost: 'high', undoable: true, attachTo: 'n9', usesFinding: true, source: { title: 'Made up', url: 'http://x' } }] };
   };
-  const r = await proposeAndSelect({ run, idea: 'A booking page for a small yoga studio.', flow, taste: readTaste(run), callModel: fakeModel({ team }) });
+  const r = await proposeAndSelect({ run, idea: 'A website for a small bakery, so customers can order bread ahead.', flow, taste: readTaste(run), callModel: fakeModel({ team }) });
   assert.equal(r.candidates.length, 5); // six seats, Data failed
   const research = r.candidates.find(c => c.seat === 'research');
-  const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding.json', import.meta.url)));
-  assert.deepEqual(research.source, { title: finding.title, url: finding.url, label: finding.label, how_verified: finding.how_verified, prepared: true });
+  const finding = JSON.parse(fs.readFileSync(new URL('../data/research-finding-bakery.json', import.meta.url))).regulars;
+  assert.deepEqual(research.source, { title: finding.title, url: finding.url, quote: finding.quote, read: finding.fetched, label: finding.label, how_verified: finding.how_verified, prepared: true });
   assert.ok(r.candidates.filter(c => c.seat !== 'research').every(c => !c.source));
   assert.ok(r.candidates.every(c => c.attachTo === null)); // n9 isn't a box of hers
   assert.ok(readEvents(run).some(e => e.type === 'teammate.error' && e.seat === 'data'));

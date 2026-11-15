@@ -35,9 +35,9 @@ before(async () => {
 after(async () => { await browser?.close(); srv?.kill(); });
 
 test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
-  await page.goto(BASE + '/?hold=300');
+  await page.goto(BASE + '/?hold=300&path=full');
   await page.waitForTimeout(800);
-  await page.click('.seat-diy'); // the dashed seventh seat: Your own craft
+  await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft
   await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
@@ -62,7 +62,7 @@ test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward ke
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   await p.route('**/api/name-tag', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ craft: 'Baker', title: 'the Dawn Baker',
     traits: ['dough whisperer', 'up at 4am'], superpower: 'knows every regular', goodAt: 'mixing dough', loves: 'the first batch out', alternates: { titles: [], traits: [], superpowers: [] }, ms: 5 }) }));
-  await p.goto(BASE + '/?hold=300');
+  await p.goto(BASE + '/?hold=300&path=full');
   await p.waitForTimeout(500);
   for (const key of ['Enter', 'PageDown']) {
     await p.evaluate(() => { window.__tag = BYOC.nameTag.open(); });
@@ -81,8 +81,8 @@ test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward ke
 test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build press says "no page" quietly', async () => {
   // She sat in her own craft's seat in step 1; the team assembles and she goes straight to her idea.
   await waitFor(() => document.activeElement?.id === 'her-input', 40000, 'her sheet');
-  assert.ok(await page.locator('.seat-diy .card').count(), 'her card in the craft seat');
-  assert.strictEqual(await page.locator('.seat-product .card').count(), 0, 'not in Product');
+  assert.ok(await page.locator('.seat-product .card-diy').count(), 'her card in her seat, in her own craft');
+  assert.strictEqual(await page.locator('.seat-product .card:not(.card-diy)').count(), 0, 'not the Product card');
   await page.keyboard.type('Flash day sign-ups for my tattoo shop');
   await page.keyboard.press('Enter');
   await waitFor(() => BYOC.run && !BYOC.run.startsWith('local-'), 5000, 'a run');
@@ -99,8 +99,8 @@ test('2. a run in her own craft: sketch, team, at most 3 check-ins, the build pr
   console.log('craft check-ins:', JSON.stringify(asks.map(a => `${a.seat}: ${a.question || a.decision}`)));
   for (let i = 0; i < asks.length; i++) {
     // Nothing opens by itself (DEMO focus rules): she picks a note from her tray; it opens as her document.
-    await page.waitForSelector('#tray:not([hidden]) .tray-note', { timeout: 5000 });
-    await page.locator('#tray .tray-note').first().click();
+    await page.waitForSelector('#inbox:not([hidden])[data-needs="yes"] .inbox-now', { timeout: 5000 });
+    await page.locator('#inbox .inbox-now').click();
     await waitFor(() => BYOC.focusDoc.isOpen(), 3000, 'her document');
     await page.locator('#focus-doc .fd-input').fill('Clear and kind. Say what to do next in plain words.');
     await page.click('#focus-doc .fd-send'); // she sends when she's ready

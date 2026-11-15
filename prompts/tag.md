@@ -8,7 +8,7 @@ warm read of them. Witty, never childish; no points, levels or stats; nothing sh
 - traits: three short traits, two or three words each, lowercase (e.g. "customer-obsessed", "hands-on builder",
   "problem hunter", "dough whisperer").
 - superpower: one short line, a little wry (e.g. "knows every regular by name"). Optional: "" if nothing fits.
-- alternates: other choices she can swap in: `titles` (3 more), `traits` (4 more), `superpowers` (2 more).
+- altTitles (3 more titles), altTraits (4 more traits), altSuperpowers (2 more): other choices she can swap in.
 - goodAt and loves: plain phrases in her own words (what she's good at; what she loves), "" if she didn't say.
 
 Reply with JSON only.
