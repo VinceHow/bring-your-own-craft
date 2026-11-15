@@ -1,4 +1,4 @@
-// Run: PORT=5177 node server.js, then: PORT=5177 node design/studio/shots/living-night/night-suite.js 1440 900 (needs python3 with numpy + Pillow).
+// Run: PORT=5177 node server.js, then: PORT=5177 node design/studio/shots/living-night/night-suite.cjs 1440 900 (needs python3 with numpy + Pillow).
 // The night-freeze repro list. After each step: is the visible room video playing and advancing, does every visible
 // patch video advance, and how much of the screen actually moves (from real screenshots).
 const { chromium } = require('playwright');
