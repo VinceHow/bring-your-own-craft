@@ -341,3 +341,5 @@ html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"],
   #room [data-component="idea-sheet"]:not([data-open="true"]) :has(> [data-component="journey"]) { flex: none !important; min-height: 63px !important; }
 html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
   #room [data-component="idea-sheet"]:not([data-open="true"]) > * { flex-shrink: 0 !important; }
+/* "1 decision", never "1 decisions" (audit F5): room.js sets #counter[data-came] with the count */
+html body #room #inbox #counter[data-came="1"] > span:first-child > span:last-child::after { content: 'decision'; }
