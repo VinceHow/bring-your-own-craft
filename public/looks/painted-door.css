@@ -15,3 +15,14 @@ html body #room [data-component="door-open"] > [data-slot="sign"] { position: ab
   opacity: 0; transition: opacity 400ms ease-in-out; }
 html body #room [data-component="door-open"][data-sign="on"] > [data-slot="sign"] { opacity: 1; transition: none; }
 html body #room [data-component="door-open"] > [data-slot="sign"] :is([data-slot="ink"], [data-slot="shade"]) { mix-blend-mode: multiply; }
+
+/* the door opening, without a frame of the arch over the room (the clip's last frame and the room have different crops):
+   as the layer leaves, the room shows first through the open doorway and the reveal widens outward, so the arch is
+   gone before the room's own edges arrive */
+@property --pt-door-r { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+html body #room [data-component="door-open"][data-state="leaving"] { opacity: 1 !important; transition: none !important;
+  -webkit-mask: radial-gradient(ellipse 60% 70% at 50% 58%, transparent var(--pt-door-r), #000 calc(var(--pt-door-r) + 18%));
+          mask: radial-gradient(ellipse 60% 70% at 50% 58%, transparent var(--pt-door-r), #000 calc(var(--pt-door-r) + 18%));
+  animation: pt-door-reveal .9s cubic-bezier(.45,.05,.3,1) forwards; }
+@keyframes pt-door-reveal { from { --pt-door-r: 0%; } to { --pt-door-r: 140%; } }
+@media (prefers-reduced-motion: reduce) { html body #room [data-component="door-open"][data-state="leaving"] { animation: none; opacity: 0 !important; -webkit-mask: none; mask: none; } }
