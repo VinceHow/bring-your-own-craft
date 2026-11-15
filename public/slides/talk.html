@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bring your own craft · talk</title>
+<link rel="stylesheet" href="talk.css">
+<!--
+  HOW TO EDIT (every word on the slides is plain text in this file; change it here and reload)
+  Keys: → Space PageDown next · ← PageUp back · Home/End.  ?n=3 opens slide 3.  ?print=1 (or Print) = one PDF page per slide.
+
+  One <section class="slide …"> per slide, in order. Inside it, mix these:
+    .kicker               the small pink numbered label          <p class="kicker">02 — Coding agents</p>
+    .headline             the one huge serif headline             <h1 class="headline">Lovable <em class="accent">assumes</em> everything.</h1>
+    <em class="accent">   the ONE pink word, crayon-underlined (any length)
+    .caption              the italic line under a headline
+    .foot                 a small source / footnote line at the bottom
+    .paper                a cream ink-paper card; add .tilt-l or .tilt-r to tilt it; style="--cr: var(--cr-design)" picks its crayon
+                          (crayons: --cr-product pink, --cr-design blue, --cr-research rust, --cr-data green, --cr-strategy ochre, --cr-engineering yellow)
+    .sticky               a yellow sticky note (inside a .paper it pins to the paper's corner)
+    .terminal             a coding agent's message card (use on a .paper)
+    .stat                 a big number with its label:  <div class="paper stat"><b>23 hours</b><span>first commit to now</span></div>
+  Layouts (on the section):
+    .duo     words left, artifact right          .split   two dark halves, each with its own words and paper
+    .live    the real studio, alive (moving painting, clickable toys, no UI), with your words over it in .overlay
+    .center  everything centred, stacked         .poster  the film one-sheet: a full-bleed <img class="bleed-img">, billing, title, tagline, credits
+    .clips   a 2×2 grid of product clips (<figure class="paper clip"><img src="img/….webp"><figcaption class="sticky">…</figcaption>)
+    .row     (a div) papers side by side, any number; they share the width
+
+  Example slide:
+    <section class="slide duo">
+      <div class="room"></div>
+      <div class="words">
+        <p class="kicker">02 — Coding agents</p>
+        <h1 class="headline">Coding agents ask about <em class="accent">everything.</em></h1>
+        <p class="caption">How is a designer supposed to know that?</p>
+      </div>
+      <div class="art"><div class="paper tilt-l">…</div></div>
+    </section>
+-->
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- 01 · two ways to build today -->
+  <section class="slide split" data-title="Two ways to build today">
+    <div class="room"></div>
+    <p class="kicker over">01 — Two ways to build today</p>
+    <div class="half cool">
+      <p class="label">Coding agents</p>
+      <h1 class="headline">Asks about <em class="accent">everything.</em></h1>
+    </div>
+    <div class="half warm">
+      <p class="label">Lovable</p>
+      <h1 class="headline">Assumes <em class="accent">everything.</em></h1>
+    </div>
+  </section>
+
+  <!-- 02 · coding agents -->
+  <section class="slide duo" data-title="Coding agents">
+    <div class="room"></div>
+    <div class="words">
+      <p class="kicker">02 — Coding agents</p>
+      <h1 class="headline">Coding agents ask about <em class="accent">everything.</em></h1>
+      <p class="caption">How is a designer supposed to know that?</p>
+    </div>
+    <div class="art">
+      <div class="paper terminal tilt-l" style="--cr: var(--cr-design)">
+        <p class="term-head"><i></i><i></i><i></i><span>coding agent</span></p>
+        <p class="term-q">Which language should the backend use?</p>
+        <p class="term-opt on">&gt; Go</p>
+        <p class="term-opt">&gt; Rust</p>
+        <p class="term-opt">&gt; Node</p>
+        <div class="pills">
+          <span class="approve" style="left:0px;top:7px;rotate:11deg">Approve</span>
+          <span class="approve" style="left:106px;top:4px;rotate:-2deg">Approve</span>
+          <span class="approve" style="left:205px;top:8px;rotate:-10deg">Approve</span>
+          <span class="approve" style="left:299px;top:6px;rotate:-1deg">Approve</span>
+          <span class="approve" style="left:389px;top:-5px;rotate:-13deg">Approve</span>
+          <span class="approve" style="left:-5px;top:52px;rotate:-13deg">Approve</span>
+          <span class="approve" style="left:107px;top:68px;rotate:-15deg">Approve</span>
+          <span class="approve" style="left:190px;top:62px;rotate:5deg">Approve</span>
+          <span class="approve" style="left:293px;top:68px;rotate:-11deg">Approve</span>
+          <span class="approve" style="left:370px;top:64px;rotate:-14deg">Approve</span>
+          <span class="approve" style="left:-13px;top:112px;rotate:12deg">Approve</span>
+          <span class="approve" style="left:101px;top:106px;rotate:9deg">Approve</span>
+          <span class="approve" style="left:188px;top:120px;rotate:3deg">Approve</span>
+          <span class="approve" style="left:280px;top:122px;rotate:-9deg">Approve</span>
+          <span class="approve" style="left:379px;top:121px;rotate:-16deg">Approve</span>
+          <span class="approve" style="left:-12px;top:178px;rotate:5deg">Approve</span>
+          <span class="approve" style="left:95px;top:181px;rotate:16deg">Approve</span>
+          <span class="approve" style="left:204px;top:166px;rotate:7deg">Approve</span>
+          <span class="approve" style="left:284px;top:171px;rotate:0deg">Approve</span>
+          <span class="approve" style="left:370px;top:166px;rotate:2deg">Approve</span>
+        </div>
+      </div>
+    </div>
+    <p class="foot">Baseline: a default coding agent, same bakery prompt: 20 approvals.</p>
+  </section>
+
+  <!-- 03 · Lovable -->
+  <section class="slide duo" data-title="Lovable">
+    <div class="room"></div>
+    <div class="words">
+      <p class="kicker">03 — Lovable</p>
+      <h1 class="headline">Lovable <em class="accent">assumes</em> everything.</h1>
+      <p class="caption">Your expertise never makes it in.</p>
+    </div>
+    <div class="art">
+      <div class="paper site tilt-r" style="--cr: var(--cr-research)">
+        <div class="site-nav"><b>Artisan Bakery</b><span>Shop</span><span>About</span><span>Contact</span></div>
+        <div class="site-hero"><p class="site-h">Fresh Bread, Baked Daily</p><p class="site-sub">Handcrafted with love since forever.</p><span class="site-btn">Shop Now</span></div>
+        <div class="site-tiles"><i></i><i></i><i></i></div>
+        <p class="sticky">Your regulars? Never asked.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · the shift -->
+  <section class="slide duo" data-title="The shift">
+    <div class="room"></div>
+    <div class="words">
+      <p class="kicker">04 — The shift</p>
+      <h1 class="headline">AI will <em class="accent">outdo</em> us at a lot of our work.</h1>
+      <p class="caption">Some work stops being worth doing by hand.</p>
+    </div>
+    <div class="art">
+      <div class="paper diff tilt-l" style="--cr: var(--cr-data)">
+        <p class="diff-head">checkout.tsx <span>+1,042 −318</span></p>
+        <pre class="diff-body"><span class="add">+ export function Checkout({ cart, user }) {</span>
+<span class="add">+   const [step, setStep] = useState('address');</span>
+<span class="del">−   const total = cart.reduce((a, b) =&gt; a + b, 0);</span>
+<span class="add">+   const total = useMemo(() =&gt; sum(cart), [cart]);</span>
+<span class="add">+   const slots = usePickupSlots(user.store);</span>
+<span class="add">+   if (!slots.ready) return &lt;Spinner /&gt;;</span>
+<span class="del">−   return &lt;Form onSubmit={pay} /&gt;;</span>
+<span class="add">+   return (</span>
+<span class="add">+     &lt;Steps value={step} onChange={setStep}&gt;</span>
+<span class="add">+       &lt;Address prefill={user.lastOrder} /&gt;</span>
+<span class="add">+       &lt;Pickup slots={slots} /&gt;</span>
+<span class="add">+       &lt;Pay total={total} /&gt;</span>
+<span class="add">+     &lt;/Steps&gt;</span>
+<span class="add">+   );</span>
+<span class="add">+ }</span></pre>
+        <p class="sticky">+1,000 lines. Review before lunch?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · what we still bring -->
+  <section class="slide center" data-title="What we still bring">
+    <div class="room"></div>
+    <p class="kicker">05 — What we still bring</p>
+    <div class="row">
+      <div class="paper big-card tilt-l" style="--cr: var(--cr-product)"><h2 class="paper-big"><em class="accent">Judgement</em></h2><p class="paper-line">knowing what’s good</p></div>
+      <div class="paper big-card tilt-r" style="--cr: var(--cr-strategy)"><h2 class="paper-big">The work we love</h2><p class="paper-line">even when it’s not the efficient way</p></div>
+    </div>
+    <p class="caption small">I love mapping user journeys. I can’t interview a thousand users. My team can.</p>
+  </section>
+
+  <!-- 06 · the vision, LIVE: the real studio, the painting moving and every toy clickable (record player, cat, coffee,
+       string lights, the window at night). No app UI. Click the toys while you talk; the arrow keys still move on.
+       data-time on the section: morning · afternoon · evening · night -->
+  <section class="slide live" data-title="The vision" data-time="afternoon">
+    <div class="overlay">
+      <p class="kicker">06 — The vision</p>
+      <p class="giant"><em class="accent">90%</em></p>
+      <p class="line">of your time on the craft you love.</p>
+      <p class="line quiet">No distractions.</p>
+    </div>
+  </section>
+
+  <!-- the poster: the product reveal, right before the live demo (the presenter switches to the app after it).
+       The key art is the real studio, alive (as on the vision slide); img/poster-key.jpg is its still, for print. -->
+  <section class="slide poster" data-title="Bring your own craft" data-time="afternoon">
+    <img class="bleed-img" src="img/poster-key.jpg" alt="The studio: the team at the table">
+    <p class="billing">Mika · Wren · Theo · Ines · Bo · and you</p>
+    <div class="laurel"><p>Official selection</p><p class="laurel-event">Imperial AI Hackathon 2026</p></div>
+    <div class="poster-title">
+      <h1 class="title">Bring your own <em class="accent">craft</em></h1>
+      <p class="tagline">Do the part you love. Your team does the rest.</p>
+    </div>
+    <div class="credits">
+      <p>A Vincent Hao production · Design Mika · Research Wren · Data Theo · Strategy Ines · Engineering Bo · Painted with fal · Voice ElevenLabs · Research Linkup · Built with Claude Code · Frames in Figma</p>
+      <p class="showing"><span class="ticket">Admit one</span>Now showing · Live</p>
+    </div>
+  </section>
+
+  <!-- 07 · how it feels: the product, large; one line per clip on a sticky note -->
+  <section class="slide clips" data-title="How it feels">
+    <div class="room"></div>
+    <p class="kicker over">07 — How it feels</p>
+    <div class="grid">
+      <figure class="paper clip tilt-l" style="--cr: var(--cr-product)"><img src="img/nametag.webp" alt="Her name tag"><figcaption class="sticky">Bring your best self</figcaption></figure>
+      <figure class="paper clip tilt-r" style="--cr: var(--cr-design)"><img src="img/unblock.webp" alt="Only the questions that matter reach her"><figcaption class="sticky">Only the decisions that matter</figcaption></figure>
+      <figure class="paper clip tilt-r" style="--cr: var(--cr-data)"><img src="img/tidy.webp" alt="Her words, tidied"><figcaption class="sticky">Your voice, heard</figcaption></figure>
+      <figure class="paper clip tilt-l" style="--cr: var(--cr-engineering)"><img src="img/meeting.webp" alt="A meeting with the team"><figcaption class="sticky">A safe room to think out loud</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 08 · built the way it works -->
+  <section class="slide center" data-title="Built the way it works">
+    <div class="room"></div>
+    <p class="kicker">08 — Built the way it works</p>
+    <h1 class="headline">One human with <em class="accent">judgement.</em> A team of agents.</h1>
+    <div class="row">
+      <div class="paper stat tilt-l" style="--cr: var(--cr-design)"><b>1,000+</b><span>commits</span></div>
+      <div class="paper stat tilt-r" style="--cr: var(--cr-data)"><b>23 hours</b><span>first commit to now</span></div>
+      <div class="paper stat tilt-l" style="--cr: var(--cr-product)"><b>1</b><span>product owner</span></div>
+    </div>
+    <p class="caption small">Vincent never reviewed the code. He said “the replies look off.”</p>
+    <p class="foot">Counted from this repo’s git history (main), 15 Nov.</p>
+  </section>
+
+  <!-- 09 · the future: one big table, humans and agents side by side, and an empty seat for you.
+       A seat: <div class="seat" style="--a: 40deg; --cr: var(--cr-design)"> (a teammate: an <img>; a person: .seat.human with
+       <span class="face">V</span>; the open seat: .seat.empty). --a is the seat's angle round the table, -90deg is the top. -->
+  <section class="slide duo future" data-title="The future">
+    <div class="room"></div>
+    <div class="words">
+      <p class="kicker">09 — The future</p>
+      <h1 class="headline">A table with room for <em class="accent">everyone.</em></h1>
+      <p class="caption">People and agents, side by side. Each of us on the craft we love, and better at it.</p>
+    </div>
+    <div class="art">
+      <div class="table big">
+        <div class="table-top"></div>
+        <div class="seat human" style="--a: -90deg; --cr: var(--cr-product)"><span class="face">P</span><b>Priya</b><small>Human</small></div>
+        <div class="seat human" style="--a: -50deg; --cr: var(--cr-product)"><span class="face">V</span><b>Vincent</b><small>Human</small></div>
+        <div class="seat" style="--a: -10deg; --cr: var(--cr-engineering)"><img src="../looks/cast/bo.webp" alt=""><b>Bo</b><small>Agent</small></div>
+        <div class="seat" style="--a: 30deg; --cr: var(--cr-strategy)"><img src="../looks/cast/ines.webp" alt=""><b>Ines</b><small>Agent</small></div>
+        <div class="seat" style="--a: 70deg; --cr: var(--cr-data)"><img src="../looks/cast/theo.webp" alt=""><b>Theo</b><small>Agent</small></div>
+        <div class="seat human" style="--a: 110deg; --cr: var(--cr-research)"><span class="face">M</span><b>Mike</b><small>Human</small></div>
+        <div class="seat" style="--a: 150deg; --cr: var(--cr-research)"><img src="../looks/cast/wren.webp" alt=""><b>Wren</b><small>Agent</small></div>
+        <div class="seat" style="--a: 190deg; --cr: var(--cr-design)"><img src="../looks/cast/mika.webp" alt=""><b>Mika</b><small>Agent</small></div>
+        <div class="seat empty" style="--a: 230deg"><span class="face">?</span><b>You</b></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<div class="counter" id="counter"></div>
+<script src="talk.js"></script>
+</body>
+</html>
