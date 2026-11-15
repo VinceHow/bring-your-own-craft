@@ -1654,17 +1654,25 @@
   // GET /api/kit cards) and "Built with" (prepared ahead), and the whole team's shared line. Without cards (an old
   // server), the earlier "Brings / Loaded with / Made with" lists.
   // The card follows the role worn (lib/kit.js cardFor): a seat wearing Product shows the product card in its own
-  // name; every other seat (its own craft, or the flex role) keeps its home card. No cast (the Product path): as before.
+  // name, the flex seat a card built from the cast's flex role; every other seat keeps its home card. No cast (the
+  // Product path): as before.
   function meetCardFor(seat) {
     const cards = BYOC.kit && BYOC.kit.cards; if (!cards) return null;
     const p = cards.product, roles = BYOC.cast && BYOC.cast.roles;
     if (roles && roles[seat] === 'product' && p && p.intros && p.intros[seat]) return { ...p, intro: p.intros[seat] };
+    if (roles && roles[seat] === 'flex') { // the flex role: built from the cast's flex card, as lib/kit.js flexCard
+      const f = BYOC.cast.flex, base = cards.flex || { live: [], built: [] }, name = (INFO[seat] && INFO[seat].agent) || 'Theo';
+      if (!f || !f.name || !f.focus) return null;
+      return { intro: `I’m ${name}. Today I’m ${f.name}: ${f.focus}.`, loves: f.loves || `${f.stance || f.focus}.`,
+        live: [`${f.name} calls, box by box`, ...base.live], built: base.built };
+    }
     return cards[seat] || null;
   }
   // The tailored line, in the role worn: a seat wearing Product says only a line asked for it as Product (askCastLine),
-  // never its home craft's line; until that lands (or if it doesn't), the card's static loves line.
+  // never its home craft's line; until that lands (or if it doesn't), the card's static loves line. Flex: its loves.
   function tailoredFor(seat) {
     const role = BYOC.cast && BYOC.cast.roles && BYOC.cast.roles[seat];
+    if (role === 'flex') return null; // its home line was asked for its home craft: the flex card's loves line instead
     if (role !== 'product') return BYOC.meetLines && BYOC.meetLines[seat];
     const c = BYOC.castLine;
     return c && c.seat === seat && c.craft === BYOC.cast.craft && c.idea === BYOC.pendingIdea ? c.line : null;

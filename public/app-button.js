@@ -4,6 +4,11 @@
 // pulses it once and says what changed (build.done.changes). With DEPLOY_URL set (/api/health), "Open the live site".
 (function () {
   const B = window.BYOC = window.BYOC || {};
+  // Who builds, in the pill's words: Bo on the Product path (unchanged). When she took Engineering nobody else wears
+  // it (lib/cast.js rolesFor), so the copy names no builder.
+  B.appCopy = herCraft => herCraft === 'engineering'
+    ? { onIt: 'The page is building', retry: 'The build stopped. Try again', press: 'Press → and the page builds', wait: 'Your page builds once you agree it' }
+    : { onIt: 'Bo is on it', retry: 'The build stopped. Bo can try again', press: 'Press → and Bo builds the page', wait: 'Bo starts once you agree the page' };
   const root = document.getElementById('app-button');
   if (!root || typeof B.on !== 'function') return;
   const $ = s => root.querySelector(s);
@@ -18,12 +23,13 @@
   const url = () => (B.replay && B.replayName ? `/runs/${encodeURIComponent(B.replayName)}/page/` : done && done.url);
 
   function draw() {
+    const copy = B.appCopy(document.body && document.body.dataset.herCraft);
     const next = done ? done.version || 1 : 1;
     root.dataset.version = done ? String(next) : '0'; // hooks: data-state none|building|ready|failed, data-version, data-pulse
     if (building) {
       root.dataset.state = 'building'; btn.disabled = !done;
       label.textContent = done ? `Building v${next + 1}…` : 'Building your app…';
-      hint.textContent = failed || hintNow || 'Bo is on it';
+      hint.textContent = failed || hintNow || copy.onIt;
     } else if (done) {
       root.dataset.state = 'ready'; btn.disabled = false;
       label.textContent = `Open the app · v${next}`;
@@ -31,13 +37,13 @@
     } else if (failed) { // never stuck (docs/POLISH.md §4): a first build that stopped offers to try again
       root.dataset.state = 'failed'; btn.disabled = false;
       label.textContent = 'Build again';
-      hint.textContent = 'The build stopped. Bo can try again';
+      hint.textContent = copy.retry;
     } else {
       root.dataset.state = 'none'; btn.disabled = true;
       label.textContent = 'No app yet';
       // painted, live, while the team works: the presenter's one press is →, and the pill says so
       const pressNow = B.beat >= 5 && B.beat <= 7 && !B.replay && new URLSearchParams(location.search).get('look') === 'painted';
-      hint.textContent = pressNow ? 'Press → and Bo builds the page' : 'Bo starts once you agree the page';
+      hint.textContent = pressNow ? copy.press : copy.wait;
     }
   }
   let hintNow = '';
