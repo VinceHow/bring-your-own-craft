@@ -249,6 +249,14 @@ async function checks(p, slides) {
   }, slides);
 }
 
+// No walk ever makes a paid call: every POST to the room's server is answered here (a page's own routes win), and the
+// mic's speech-to-text is a stub. GETs (pages, recordings, assets) go through.
+const GUARD = async ctx => {
+  await ctx.route('**/api/**', r => r.request().method() === 'GET' ? r.continue() : r.fulfill({ json: { ok: true } }));
+  await ctx.route('**/api/voice/status', r => r.fulfill({ json: { available: true } }));
+  await ctx.route('**/api/voice/stt', async r => { await wait(4000); r.fulfill({ json: { text: 'I love bread', ms: 10 } }); });
+};
+
 // ---- run ----
 async function serverUp(url) { for (let i = 0; i < 50; i++) { try { const r = await fetch(url); if (r.ok) return true; } catch {} await wait(200); } return false; }
 let srv = null;
@@ -264,6 +272,7 @@ const rev = (await new Promise(r => { const g = spawn('git', ['rev-parse', '--sh
 for (const [w, h] of SIZES) for (const mode of MODES) {
   const dir = path.join(OUT, `${w}x${h}-${mode}`); fs.mkdirSync(dir, { recursive: true });
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, colorScheme: mode === 'night' ? 'dark' : 'light' });
+  await GUARD(ctx);
   for (const s of S) {
     if (ONLY && !ONLY.test(s.id + ' ' + s.name)) continue;
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 200)));
@@ -287,6 +296,103 @@ for (const [w, h] of SIZES) for (const mode of MODES) {
     await p.close();
   }
   await ctx.close();
+}
+
+// ---- sound (design/rain): rain is the weather's, the window toggles it, the record is music only; and the mic ----
+// Audio is probed by wrapping HTMLMediaElement.prototype.play (every element that ever played: src, paused, volume)
+// plus the AudioContext state (rain made in code when rain.mp3 is missing). Preferences: localStorage byoc.rainSound,
+// byoc.music, byoc.timeMode. The mic runs on Chromium's fake microphone, so listening and writing are its real states.
+const AUDIO_INIT = () => {
+  window.__qaMedia = new Set(); const orig = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () { window.__qaMedia.add(this); return orig.apply(this, arguments); };
+  const AC = window.AudioContext; if (AC) window.AudioContext = class extends AC { constructor(...a) { super(...a); (window.__qaCtx = window.__qaCtx || []).push(this); } };
+};
+const audioNow = p => p.evaluate(() => {
+  const els = [...(window.__qaMedia || [])].filter(e => e.tagName === 'AUDIO');
+  const playing = els.filter(e => !e.paused && e.volume > 0.001);
+  const name = e => (e.currentSrc || e.src || '').split('/').pop();
+  return { rain: playing.some(e => /rain/.test(name(e))), music: playing.filter(e => !/rain/.test(name(e))).map(name), all: playing.map(e => `${name(e)}@${e.volume.toFixed(2)}`),
+    ctx: (window.__qaCtx || []).map(c => c.state) };
+});
+const SOUND_SIZES = (process.env.QA_SOUND_SIZES || '1920x1130').split(',').filter(Boolean).map(x => x.split('x').map(Number));
+if (!ONLY || ONLY.test('sound')) for (const [w, h] of SOUND_SIZES) {
+  const tag = `${w}x${h}`; const dir = path.join(OUT, `${tag}-sound`); fs.mkdirSync(dir, { recursive: true });
+  const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode: 'sound', state: 'sound and mic' });
+  const sb = await chromium.launch({ args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'] });
+  const ctx = await sb.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, permissions: ['microphone'] });
+  await ctx.addInitScript(AUDIO_INIT); await GUARD(ctx);
+  const p = await ctx.newPage();
+  const log = (k, v) => process.stdout.write(`${tag} sound ${k}: ${typeof v === 'string' ? v : JSON.stringify(v)}\n`);
+  const shot = async n => { const f = path.join(dir, `${n}.jpg`); await p.screenshot({ path: f, type: 'jpeg', quality: 72 }); return f; };
+  const open = async (stage, mode) => {
+    await p.goto(BASE + '/?look=painted' + (stage ? '&stage=1' : ''));
+    if (mode) { await p.evaluate(m => { try { localStorage.setItem('byoc.timeMode', m); } catch (e) {} }, mode); await p.reload(); }
+    await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(3000);
+  };
+  try {
+    await open(false, 'day');
+    const win = p.locator('button[data-spot="window"]');
+    if (!(await win.count())) { rec('not on main yet', '[data-spot="window"]', 'no window rain toggle on this build (design/rain not merged)'); throw null; }
+    // day: no rain, the window spot hidden
+    let a = await audioNow(p); log('day', a);
+    if (a.rain) rec('sound', 'rain', `rain plays in Day mode (${a.all.join(', ')})`, await shot('day'));
+    if (await win.isVisible()) rec('sound', '[data-spot="window"]', 'the window spot is visible in Day mode', await shot('day'));
+    // night, not on stage: rain plays; the record changes music only; the window toggles only the rain
+    await open(false, 'night'); await p.mouse.click(5, 5); await wait(2500);   // a first gesture, as a person would make
+    a = await audioNow(p); log('night', a); const fNight = await shot('night');
+    if (!a.rain) rec('sound', 'rain', `no rain at night (playing: ${a.all.join(', ') || 'nothing'}; audio contexts ${a.ctx.join(',') || 'none'})`, fNight);
+    await p.locator('button[data-spot="record"]').click({ force: true }); await wait(2000);
+    const tracks = []; a = await audioNow(p); tracks.push(a.music.join('+')); log('record 1', a);
+    if (!a.music.length) rec('sound', '[data-spot="record"]', 'the record player started no music', await shot('record-1'));
+    if (!a.rain) rec('sound', 'rain', 'rain stopped when the record started', await shot('record-1'));
+    for (let i = 2; i <= 4; i++) { await p.locator('button[data-spot="record"]').click({ force: true }); await wait(1500); const b = await audioNow(p); tracks.push(b.music.join('+') || 'off'); if (b.music.some(m => /rain/i.test(m))) rec('sound', '[data-spot="record"]', `the record cycles to a rain track (${b.music})`); }
+    log('record cycle', tracks.join(' → '));
+    // back to the first track, then the window: rain off, music keeps playing
+    await p.locator('button[data-spot="record"]').click({ force: true }); await wait(1500);
+    const before = await audioNow(p);
+    await win.click({ force: true }); await wait(1800);
+    const st = await win.getAttribute('data-state'); a = await audioNow(p); log('window click', { st, ...a });
+    if (st !== 'rain-off') rec('sound', '[data-spot="window"]', `after a click the window says data-state=${st}, want rain-off`, await shot('window-off'));
+    if (a.rain) rec('sound', 'rain', 'rain still plays after the window turned it off', await shot('window-off'));
+    if (before.music.length && !a.music.length) rec('sound', 'music', 'the window click stopped the music too', await shot('window-off'));
+    // both choices survive a reload
+    const prefs = await p.evaluate(() => ({ rain: localStorage.getItem('byoc.rainSound'), music: localStorage.getItem('byoc.music') }));
+    await p.reload(); await wait(1500); await p.evaluate(() => { BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500);
+    const prefs2 = await p.evaluate(() => ({ rain: localStorage.getItem('byoc.rainSound'), music: localStorage.getItem('byoc.music') }));
+    const st2 = await win.getAttribute('data-state'); log('reload', { prefs, prefs2, st2 });
+    if (JSON.stringify(prefs) !== JSON.stringify(prefs2) || st2 !== 'rain-off') rec('sound', 'preferences', `after a reload: ${JSON.stringify(prefs2)}, window ${st2} (before: ${JSON.stringify(prefs)}, rain-off)`);
+    // stage: nothing plays until a toggle is tapped
+    await p.evaluate(() => { localStorage.setItem('byoc.rainSound', 'on'); localStorage.setItem('byoc.music', 'piano'); });
+    await open(true, 'night'); await p.mouse.click(5, 5); await wait(2500);
+    a = await audioNow(p); log('stage', a);
+    if (a.all.length) rec('sound', 'stage', `with ?stage=1 something plays before any toggle: ${a.all.join(', ')}`, await shot('stage'));
+    await win.click({ force: true }); await wait(1800); a = await audioNow(p); log('stage after window', a);
+    if (!a.rain) rec('sound', 'stage', 'on stage, tapping the window did not start the rain', await shot('stage-window'));
+    // the mic: idle, listening (held), writing (released; the transcription held back so the state can be seen)
+    await open(false, 'day');
+    const mic = p.locator('[data-component="mic"]:visible').first();
+    if (!(await mic.count())) rec('mic', '[data-component="mic"]', 'no mic on the room view');
+    else {
+      const style = async () => mic.evaluate(m => { const cs = getComputedStyle(m); return { state: m.dataset.state || 'idle', bg: cs.backgroundColor, border: `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`, radius: cs.borderTopLeftRadius, shadow: cs.boxShadow, weight: cs.fontWeight, color: cs.color, text: m.innerText.trim() }; });
+      const lookAt = async name => { const s1 = await style(); const b = await mic.boundingBox(); const f = path.join(dir, `mic-${name}.png`);
+        if (b) await p.screenshot({ path: f, clip: { x: Math.max(0, b.x - 24), y: Math.max(0, b.y - 16), width: b.width + 48, height: b.height + 32 } });
+        log(`mic ${name}`, s1);
+        if (parseFloat(s1.radius) < 4) rec('mic', '[data-component="mic"]', `${name}: square corners (${s1.radius})`, f);
+        if (+s1.weight > 500) rec('mic', '[data-component="mic"]', `${name}: weight ${s1.weight}`, f);
+        if (/rgb\(0, 0, 0\)|#000/.test(s1.border) && parseFloat(s1.border) >= 1) rec('mic', '[data-component="mic"]', `${name}: a hard black border (${s1.border})`, f);
+        if (/\d+px \d+px (1[2-9]|[2-9]\d)px/.test(s1.shadow) && !/rgba\([^)]*0\.[0-2]\d*\)/.test(s1.shadow)) rec('mic', '[data-component="mic"]', `${name}: a glow-like shadow (${s1.shadow})`, f);
+        return s1; };
+      await lookAt('idle');
+      const b = await mic.boundingBox();
+      if (b) {
+        await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await p.mouse.down(); await wait(1200);
+        const L = await lookAt('listening'); if (L.state !== 'listening') rec('mic', '[data-component="mic"]', `held, the mic says ${L.state}, want listening (fake microphone)`);
+        await p.mouse.up(); await wait(400);
+        const W = await lookAt('writing'); if (W.state !== 'writing') rec('mic', '[data-component="mic"]', `released, the mic says ${W.state}, want writing`);
+      }
+    }
+  } catch (e) { if (e) rec('walk', 'sound', 'sound error: ' + String(e.message || e).split('\n')[0]); }
+  await sb.close();
 }
 
 // ---- day / night modes (design/daynight): Cycle -> Day -> Night pill, at each size ----
@@ -314,6 +420,7 @@ if (!ONLY || ONLY.test('daynight')) for (const [w, h] of SIZES) {
   const tag = `${w}x${h}`; const dir = path.join(OUT, `${tag}-daynight`); fs.mkdirSync(dir, { recursive: true });
   const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode: 'daynight', state: 'day/night modes' });
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+  await GUARD(ctx);
   const p = await ctx.newPage();
   try {
     const open = async () => { await p.goto(BASE + '/?look=painted&stage=1'); await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500); };
@@ -355,6 +462,7 @@ for (const [w, h] of EXTRA) for (const mode of MODES) {
   if (ONLY && !ONLY.test('extras')) continue;
   const dir = path.join(OUT, `${w}x${h}-${mode}`, 'extras'); fs.mkdirSync(dir, { recursive: true });
   const ctx = await browser2().newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, colorScheme: mode === 'night' ? 'dark' : 'light' });
+  await GUARD(ctx);
   const p = await ctx.newPage(); const tag = `${w}x${h}`;
   const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode, state: 'extras' });
   try {
