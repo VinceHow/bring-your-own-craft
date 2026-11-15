@@ -219,3 +219,33 @@ New:
     - Where: 1920x1130 day
     - Hooks: `[data-component="app-button"]`, `[data-component="replay-label"]` over `[data-component="idea-layer"]` (`#page-sheet`)
     - Fix: give the open sheet the same foot strip the focus document now has, or tuck the tag left of the Replay label inside it.
+
+### Pass 5 · main 8019281 · 15 Nov 00:42 UTC (full walk: jank sweep 1, the app tag's strip, the note flight)
+
+Fixed, checked by eye and by the numbers:
+- Finding 10: an empty pad now says what's coming ("Theo joins once the team gets going").
+- Finding 7, at a glance: the chips wrap, with "+3".
+- Finding 27: the drawer no longer cuts its text while she speaks.
+- Finding 14: no ButtonFace Retry.
+- Finding 12, part: the app tag's weight.
+- Finding 24, part: the idea sheet and team status frames are no longer shaved.
+- The team-at-work strip now sits under her glance card, clear of the cat.
+
+Still open:
+- Finding 8: meeting the team is still a bare square card with an empty face circle.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-02.jpg`
+- Finding 7, opened large: the journey still runs off the right edge ("Pick u…"), and the lower half is empty.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-05.jpg`
+- Finding 4: after Yes, the drawer is still a blank column.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-11-unblock-yes.jpg`
+- Finding 5: native ▶ and checkboxes, and the 700 title, remain in the drawer.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-drawer.jpg`
+- Finding 17: the 25px bands remain until the room-cover change lands.
+- Flags for the idea layer's `::before` frame (2px) and for the note flight's frame cut at `#room` (finding 24).
+
+New:
+
+35. [design] **While a new note flies to her inbox, the inbox shows a blank card for about 3.5 s.** The note arcs from the teammate (`note-flight`). Meanwhile `[data-component="inbox-item"] [data-slot="text"]` sits at opacity 0 from the moment the ask lands until about 4 s, so the collapsed inbox reads as an empty paper with only "Open your inbox". Opened during that time, the drawer shows an empty white box under "Needs you". Measured at 300, 800, 1500, 2500 and 4000 ms (opacity 0, 0, 0, 0, 1).
+    - Shots: `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-new.jpg` (600 ms), `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-drawer.jpg`
+    - Hooks: `[data-component="inbox-item"][data-state="top"] [data-slot="text"]`, `[data-component="note-flight"]`
+    - Fix: show who is asking at once ("Bo asks…"), and fade the question in as the flight lands; keep the flight at 1.5 s or less. In the drawer, show the item's text at once.

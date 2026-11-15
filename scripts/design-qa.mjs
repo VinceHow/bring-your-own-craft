@@ -98,8 +98,10 @@ add('07-hers-full', 'her workspace, full', async p => { await p.evaluate(() => {
 add('08-collapsed', 'inbox collapsed, nothing waiting', async p => { await p.evaluate(() => __qa.play('fixture', { until: ev => ev.type === 'ask' })); await wait(600); });
 add('08-new', 'inbox, a new note', async p => { await p.evaluate(() => __qa.play('fixture', { until: ev => ev.type === 'ask' })); await wait(300);
   await p.evaluate(a => __qa.d(a), ASK_UNBLOCK); await wait(600); });
+add('08-new-landed', 'inbox, a new note after its flight lands', async p => { await p.evaluate(() => __qa.play('fixture', { until: ev => ev.type === 'ask' })); await wait(300);
+  await p.evaluate(a => __qa.d(a), ASK_UNBLOCK); await wait(4500); });
 add('08-drawer', 'inbox drawer', async p => { await p.evaluate(() => { __qa.play('fixture'); __qa.d({ type: 'owner.task', id: 'qa-t1', title: 'Make a Stripe account for the bakery', steps: ['Sign up with the bakery email', 'Confirm the email', 'Tell the team it’s done'] }); }); await wait(300);
-  await p.evaluate(() => BYOC.inbox.expand(true)); await wait(500); });
+  await wait(3500); await p.evaluate(() => BYOC.inbox.expand(true)); await wait(500); });
 async function focusStub(p, ask) {
   await p.route('**/api/run/qa-stub-run/**', r => r.fulfill({ json: { ok: true } }));
   await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); BYOC.stage(4, { instant: true }); BYOC.run = 'qa-stub-run';

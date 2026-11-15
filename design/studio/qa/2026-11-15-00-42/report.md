@@ -1,0 +1,104 @@
+# Design QA 2026-11-15-00-42 UTC · 8019281
+
+2083 flags (small text 1389, contrast 186, text on edge 174, weight 126, clipped frame 124, scrollbar 42, default control 18, off-screen 10, mostly empty 6, not on main yet 6, room coverage 2).
+
+Against pass 3 (2026-11-15-00-07): 180 new flags, 569 gone, 178 shots changed (≥1.5% of pixels).
+
+## New flags
+- clipped frame · [data-component="idea-layer"][data-state="on"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-42/1920x1130-day/07-hers-full.jpg` (1920x1130 day)
+- clipped frame · [data-component="focus-doc"][data-state="takeaways"] [data-slot="work"] · ::before frame cut by 1281px at [data-component="focus-doc"][data-state="takeaways"] overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-takeaways.jpg` (1920x1130 day)
+- scrollbar · [data-component="takeaways"][data-state="shown"] · scrolls on a Mac: 405x468 of content in 396x400 (overflow auto/auto) · `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-takeaways.jpg` (1920x1130 day)
+- clipped frame · [data-component="takeaways"][data-state="shown"] · ::before frame cut by 2px at its own overflow:auto/auto · `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-takeaways.jpg` (1920x1130 day)
+- text on edge · [data-component="takeaways"][data-state="shown"] · 0.0px from its box: “Guidance to the team” · `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-takeaways.jpg` (1920x1130 day)
+- text on edge · [data-component="takeaways"][data-state="shown"] · 0.0px from its box: “Put a regular’s usual loaf at the top of” · `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-takeaways.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-sheet"][data-state="page"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-42/1920x1130-day/14-close.jpg` (1920x1130 day)
+- clipped frame · [data-component="note-flight"] · ::before frame cut by 19px at #room overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-42/1920x1130-night/13-her-page.jpg` (1920x1130 night)
+- small text · [data-component="idea-layer"][data-state="on"] [data-slot="url"] · 11.7px on screen: “/runs/rehearsal/page/” · `design/studio/qa/2026-11-15-00-42/1440x900-day/07-hers-full.jpg` (1440x900 day)
+- small text · [data-component="takeaways"][data-state="shown"] [data-slot="label"] · 12.4px on screen: “What I believe about this” · `design/studio/qa/2026-11-15-00-42/1440x900-day/09-focus1-takeaways.jpg` (1440x900 day)
+- small text · [data-component="takeaways"][data-state="shown"] [data-slot="label"] · 12.4px on screen: “Guidance to the team” · `design/studio/qa/2026-11-15-00-42/1440x900-day/09-focus1-takeaways.jpg` (1440x900 day)
+- small text · [data-component="note-flight"] [data-slot="who"] · 10.7px on screen: “Bo” · `design/studio/qa/2026-11-15-00-42/1440x900-day/11-unblock-yes.jpg` (1440x900 day)
+- small text · [data-component="note-flight"] [data-slot="who"] · 9.3px on screen: “Noor” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page.jpg` (1440x900 day)
+- small text · [data-component="note-flight"] [data-slot="text"] · 10.8px on screen: “Who should we build this for first?” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page.jpg` (1440x900 day)
+- small text · [data-component="idea-sheet"][data-state="page"] · 11.4px on screen: “What’s the idea?” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- small text · [data-component="journey"][data-state="drawn"] [data-slot="label"] · 11.9px on screen: “Browse breads” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- small text · [data-component="journey"][data-state="drawn"] [data-slot="label"] · 11.9px on screen: “Reserve your usual” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- small text · [data-component="journey"][data-state="drawn"] [data-slot="label"] · 11.9px on screen: “Pick loaves” · `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- clipped frame · [data-component="tally"][data-state="counting"] · ::before frame cut by 7px at #room overflow:hidden/hidden · `design/studio/qa/2026-11-15-00-42/1440x900-day/16-app-ready.jpg` (1440x900 day)
+- off-screen · [data-component="tally"][data-state="counting"] · box 1297,59 → 1445,122 in 1440x900 · `design/studio/qa/2026-11-15-00-42/1440x900-day/16-app-ready.jpg` (1440x900 day)
+- small text · [data-component="tally"][data-state="counting"] · 12.5px on screen: “decisions came up” · `design/studio/qa/2026-11-15-00-42/1440x900-day/16-app-ready.jpg` (1440x900 day)
+- small text · [data-component="tally"][data-state="counting"] · 12.5px on screen: “brought to you” · `design/studio/qa/2026-11-15-00-42/1440x900-day/16-app-ready.jpg` (1440x900 day)
+- off-screen · [data-component="chatter"] · box -5,45 → 1435,855 in 1440x900 · `design/studio/qa/2026-11-15-00-42/1440x900-night/11-unblock-speaking.jpg` (1440x900 night)
+- small text · [data-component="chatter-line"][data-state="in"] [data-slot="who"] · 11.7px on screen: “Ines:” · `design/studio/qa/2026-11-15-00-42/1440x900-night/13-her-page-open.jpg` (1440x900 night)
+- small text · [data-component="glance-more"] · 11.2px on screen: “+3” · `design/studio/qa/2026-11-15-00-42/1280x800-day/04.jpg` (1280x800 day)
+- small text · [data-component="idea-sheet"][data-state="page"] [data-slot="tab"] · 11.2px on screen: “sketch” · `design/studio/qa/2026-11-15-00-42/1280x800-day/07-hers-full.jpg` (1280x800 day)
+- small text · [data-component="idea-sheet"][data-state="page"] [data-slot="tab"] · 11.2px on screen: “screens” · `design/studio/qa/2026-11-15-00-42/1280x800-day/07-hers-full.jpg` (1280x800 day)
+- small text · [data-component="idea-sheet"][data-state="page"] [data-slot="tab"] · 11.2px on screen: “page” · `design/studio/qa/2026-11-15-00-42/1280x800-day/07-hers-full.jpg` (1280x800 day)
+- small text · [data-component="research-card"] [data-slot="prepared"] · 11.2px on screen: “researched before the demo” · `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1-takeaways.jpg` (1280x800 day)
+- small text · [data-component="research-card"] [data-slot="source-site"] · 11.7px on screen: “Bakery Business · read 2026-11-14” · `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1-takeaways.jpg` (1280x800 day)
+- small text · [data-component="takeaways"][data-state="shown"] [data-slot="head"] · 12.0px on screen: “Takeaways” · `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1-takeaways.jpg` (1280x800 day)
+- small text · [data-component="focus-doc"][data-state="takeaways"] · 12.0px on screen: “Your thoughts” · `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1-takeaways.jpg` (1280x800 day)
+- small text · [data-component="note-flight"] [data-slot="text"] · 11.3px on screen: “When do orders close?” · `design/studio/qa/2026-11-15-00-42/1280x800-day/11-unblock-yes.jpg` (1280x800 day)
+- not on main yet · [data-spot="window"] · no window rain toggle on this build (design/rain not merged) · `` (1920x1130 sound)
+- not on main yet · day/night pill · no Cycle / Day / Night pill on this build (design/daynight not merged) · `` (1920x1130 daynight)
+
+## Changed shots (look at these)
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/14-close.jpg` 64.62%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/13-her-page-open.jpg` 63.82%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/13-her-page.jpg` 61.8%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/14-close.jpg` 61.32%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/14-close.jpg` 61.25%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/13-her-page-open.jpg` 60.47%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/13-her-page-open.jpg` 60.36%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/13-her-page-open.jpg` 59%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/13-her-page.jpg` 58.91%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/14-close.jpg` 58.57%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/13-her-page.jpg` 58.52%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/13-her-page.jpg` 56.24%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/14-close.jpg` 55.47%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/14-close.jpg` 55.4%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page-open.jpg` 55.11%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/13-her-page-open.jpg` 55.01%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/13-her-page.jpg` 53.07%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/13-her-page.jpg` 53.05%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/12-decision-open.jpg` 37.29%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/07-hers-full.jpg` 33.54%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/07-hers-full.jpg` 32.55%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/07-hers-full.jpg` 32.38%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/07-hers-full.jpg` 32.02%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/11-unblock-speaking.jpg` 30.64%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/12-decision-open.jpg` 29.34%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/11-unblock-speaking.jpg` 20.21%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/11-unblock-yes.jpg` 20.04%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/extras/toy-coffee-00.png` 17.63%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/extras/toy-cat-05.png` 17.36%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/extras/toy-cat-04.png` 15.94%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/extras/toy-cat-03.png` 14.8%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/12-decision-open.jpg` 13.68%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/extras/toy-cat-06.png` 13.26%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/12-decision-open.jpg` 13.16%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/12-decision-open.jpg` 11.81%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/09-focus1-typed.jpg` 11.8%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/09-focus1.jpg` 11.8%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1-typed.jpg` 11.8%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/09-focus1.jpg` 11.8%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/10-focus2.jpg` 11.78%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/10-focus2.jpg` 11.78%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/09-focus1-typed.jpg` 11.66%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/09-focus1.jpg` 11.66%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/09-focus1-typed.jpg` 11.66%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/09-focus1.jpg` 11.66%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/09-focus1-typed.jpg` 11.51%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/09-focus1.jpg` 11.51%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1-typed.jpg` 11.51%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/09-focus1.jpg` 11.51%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/10-focus2.jpg` 11.06%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/10-focus2.jpg` 11.06%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/10-focus2.jpg` 10.96%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/10-focus2.jpg` 10.96%
+- `design/studio/qa/2026-11-15-00-42/1440x900-day/12-decision-open.jpg` 10.74%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/extras/toy-record-09.png` 9.48%
+- `design/studio/qa/2026-11-15-00-42/1280x800-night/12-team-space.jpg` 9.33%
+- `design/studio/qa/2026-11-15-00-42/1440x900-night/12-team-space.jpg` 9.02%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-night/12-team-space.jpg` 9%
+- `design/studio/qa/2026-11-15-00-42/1280x800-day/12-team-space.jpg` 7.73%
+- `design/studio/qa/2026-11-15-00-42/1920x1130-day/12-team-space.jpg` 7.53%
