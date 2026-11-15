@@ -343,3 +343,19 @@ html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"],
   #room [data-component="idea-sheet"]:not([data-open="true"]) > * { flex-shrink: 0 !important; }
 /* "1 decision", never "1 decisions" (audit F5): room.js sets #counter[data-came] with the count */
 html body #room #inbox #counter[data-came="1"] > span:first-child > span:last-child::after { content: 'decision'; }
+/* Vincent, Sun 09:20: the pins on her work in the focus view (her pink pin, the teammates' coloured teardrops) added
+   nothing: the replies read in the column. They're gone; her work stays clean. */
+html body #room [data-component="focus-doc"] :is([data-pfd="her-pin"], [data-component="pin"]),
+html body #room [data-component="focus-doc"] > [data-pfd="her-pin"] { display: none !important; }
+/* Vincent, Sun 09:25: once the meeting is wrapped up and the takeaways are written, "Back to the room" is THE next step,
+   so it moves from the header to the bottom right, right under the takeaways she just read, as the one dark primary.
+   The stale "… is listening · Send when you're done" line goes once the meeting has ended. */
+html body #room [data-component="focus-doc"][data-state="takeaways"] { padding-bottom: 88px !important; }
+html body #room [data-component="focus-doc"][data-state="takeaways"] .fd-close { position: absolute !important; right: 34px; bottom: 24px; top: auto; left: auto; z-index: 6;
+  height: 50px; padding: 0 26px; border: 0; border-radius: 999px; background: #33261C !important; color: #FBF5EA !important; font: 500 17px/1 var(--ui);
+  box-shadow: 4px 4px 0 0 var(--product, #D4728A) !important; animation: pt-back-in .4s cubic-bezier(.2,.7,.2,1) .3s both; }
+html body #room [data-component="focus-doc"][data-state="takeaways"] .fd-close:hover { translate: 0 -2px; }
+html body #room [data-component="focus-doc"][data-state="takeaways"] .fd-ack { display: none !important; }
+@keyframes pt-back-in { from { opacity: 0; translate: 0 8px; } }
+@media (prefers-reduced-motion: reduce) { html body #room [data-component="focus-doc"][data-state="takeaways"] .fd-close { animation: none; } }
+html body #room [data-component="focus-doc"][data-state="takeaways"] .fd-head { position: static !important; transform: none !important; }
