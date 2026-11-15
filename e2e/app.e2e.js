@@ -68,12 +68,12 @@ test('the app button: there from the first frame, never covered, a sensible stat
   // a build: building with its live step, then ready, with what changed
   await p.evaluate(() => { BYOC.run = 'stub-app'; BYOC.dispatch({ run: 'stub-app', type: 'build.step', step: 'Writing the page words from her flow, answers and file', t: Date.now() }, 'replay'); });
   assert.equal(await state(), 'building');
-  assert.match(await p.textContent('.app-label'), /Building v1…/);
+  assert.match(await p.textContent('.app-label'), /Building your app…/);
   assert.match(await p.textContent('.app-hint'), /Writing the page words/);
   await p.evaluate(run => BYOC.dispatch({ run: 'stub-app', type: 'build.done', url: `/runs/${run}/page/`, version: 1, changes: ['no phone field', 'Order by 8pm'], t: Date.now() }, 'replay'), RUN);
   assert.equal(await state(), 'ready');
-  assert.match(await p.textContent('.app-label'), /Open the app/);
-  assert.match(await p.textContent('.app-hint'), /v1, just now/);
+  assert.match(await p.textContent('.app-label'), /Open the app · v1/);
+  assert.match(await p.textContent('.app-hint'), /just now/);
   assert.equal(await p.textContent('.app-change'), 'v1 · no phone field, Order by 8pm');
   assert.equal(await p.getAttribute('[data-component="app-button"]', 'data-pulse'), '1', 'a new version pulses once');
   assert.ok(await onTop(p));
@@ -95,7 +95,7 @@ test('the app button: there from the first frame, never covered, a sensible stat
   await p.evaluate(run => BYOC.dispatch({ run: 'stub-app', type: 'build.step', step: 'Build failed: model timeout after 120000 ms', t: Date.now() }, 'replay'), RUN);
   assert.equal(await state(), 'ready'); assert.match(await p.textContent('.app-hint'), /stopped/);
   await p.evaluate(run => BYOC.dispatch({ run: 'stub-app', type: 'build.done', url: `/runs/${run}/page/`, version: 2, changes: ['remembers no one'], t: Date.now() }, 'replay'), RUN);
-  assert.match(await p.textContent('.app-hint'), /v2, just now/);
+  assert.match(await p.textContent('.app-hint'), /just now/);
   assert.equal(await p.textContent('.app-change'), 'v2 · remembers no one');
   assert.equal(await p.getAttribute('[data-component="app-button"]', 'data-pulse'), '1');
   // reset (a new run): back to none
