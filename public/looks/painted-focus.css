@@ -340,3 +340,13 @@ html #room [data-component="focus-doc"] form :is([data-rank="secondary"][data-sl
 /* P0 (b3's audit, 1440 -6/-8): in the meeting a teammate's reply showed twice, as a note by its pin on the work and in the
    column. The column is the one place a reply reads; on the work only the pin stays, a quiet mark of where it points. */
 html #room [data-component="focus-doc"]:has([data-component="meeting"]) [data-component="pin"] > [data-slot="replies"] { display: none !important; }
+
+/* a teammate's reply note in the meeting, drawn like her pink note, mirrored: the fill is clipped to the same radius as
+   the ink ring, the ring is even all round, and the crayon is a soft offset under the card (the shared paper layers in
+   painted.css drew a square fill, a heavier border-image stroke on the right and a wax strip down the left) */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"] { align-self: flex-start; max-width: 92%; box-sizing: border-box; margin-left: 6px;
+  padding: 11px 15px 13px; border-radius: 6px 16px 16px 16px; }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"]::before { display: none !important; }
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"]::after { inset: 0; border-radius: inherit;
+  border: 0 !important; border-image: none !important; background-clip: border-box !important;
+  box-shadow: 0 0 0 1.3px rgba(51,38,28,.55), 3px 4px 0 -1px var(--cc, var(--ink-3)); }
