@@ -34,7 +34,9 @@
     } else {
       root.dataset.state = 'none'; btn.disabled = true;
       label.textContent = 'No app yet';
-      hint.textContent = 'Bo starts once you agree the page';
+      // painted, live, while the team works: the presenter's one press is →, and the pill says so
+      const pressNow = B.beat >= 5 && B.beat <= 7 && !B.replay && new URLSearchParams(location.search).get('look') === 'painted';
+      hint.textContent = pressNow ? 'Press → and Bo builds the page' : 'Bo starts once you agree the page';
     }
   }
   let hintNow = '';
@@ -53,6 +55,7 @@
     draw();
     if (fresh) { root.dataset.pulse = '1'; setTimeout(() => { delete root.dataset.pulse; }, 1800); }
   });
+  B.on('stage', () => draw());
   B.on('reset', () => { done = null; building = false; failed = ''; hintNow = ''; change.hidden = true; change.textContent = ''; delete root.dataset.pulse; draw(); });
   btn.addEventListener('click', () => {
     if (root.dataset.state === 'failed') {

@@ -18,6 +18,9 @@ export default [{
     if (!validRun(run)) return sendJson(res, 404, { error: 'no such run' });
     try {
       const r = body?.text != null ? await firstAnswer({ run, askId: body.askId, text: body.text }) : firstAsk({ run });
+      // The room's backup ask after sketch.done usually lands after the server's own (lib/first.js): that's fine, not an
+      // error, so no failed request shows in the console (audit). Every other refusal keeps its 409.
+      if (body?.text == null && r.code === 409 && r.body?.error === 'already asked') return sendJson(res, 200, { already: true });
       return sendJson(res, r.code, r.body);
     } catch (e) { console.error(scrub(e.message)); return sendJson(res, 500, { error: scrub(e.message) }); }
   },
