@@ -198,12 +198,12 @@
     const label = box.querySelector('.fl-label')?.textContent || box.textContent;
     const sr = sheet.getBoundingClientRect(), br = box.getBoundingClientRect();
     const k = sr.width / (sheet.offsetWidth || sr.width) || 1;
-    const pop = slot(h('div', 'fs-pop'), 'edit');
+    const pop = slot(h('div', 'fs-pop'), 'edit'); pop.dataset.component = 'step-edit';
     pop.style.left = Math.max(8, (br.left - sr.left) / k) + 'px';
     pop.style.top = ((br.bottom - sr.top) / k + 6) + 'px';
-    const inp = h('input'); inp.value = label; inp.setAttribute('aria-label', 'Rename the box');
-    const strike = h('button', null, 'strike'); strike.type = 'button';
-    const add = h('button', null, '+ box after'); add.type = 'button';
+    const inp = slot(h('input'), 'input'); inp.value = label; inp.setAttribute('aria-label', 'Rename the box');
+    const strike = slot(h('button', null, 'Strike'), 'strike'); strike.type = 'button';
+    const add = slot(h('button', null, '+ Add a step after'), 'add'); add.type = 'button';
     pop.append(inp, strike, add);
     sheet.appendChild(pop);
     S.pop = pop;
@@ -227,7 +227,7 @@
       }
     });
     strike.addEventListener('click', () => go('strike'));
-    add.addEventListener('click', () => { adding = true; inp.value = ''; inp.placeholder = 'New box'; inp.setAttribute('aria-label', 'New box'); add.hidden = true; strike.hidden = true; inp.focus(); });
+    add.addEventListener('click', () => { adding = true; inp.value = ''; inp.placeholder = 'New step'; inp.setAttribute('aria-label', 'New step'); add.hidden = true; strike.hidden = true; inp.focus(); });
     inp.focus(); inp.select(); // now, so her first keystroke never lands on the box button behind
   }
   document.addEventListener('mousedown', e => { if (S.pop && !S.pop.contains(e.target) && !(e.target.closest && e.target.closest('.fl-box'))) closePop(); });
