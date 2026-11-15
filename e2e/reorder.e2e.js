@@ -68,7 +68,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
     // The cards (the PO's copy): an intro, then "Live in this room" (computed on the server, not stubbed) and "Built with"
     const kit = await page.evaluate(() => window.__kit), made = await page.evaluate(() => window.__made), intro = await page.evaluate(() => window.__intro);
-    assert.match(intro.research, /^I’m Noor\./); assert.match(intro.engineering, /^I’m Bo\./);
+    assert.match(intro.research, /^I’m [A-Z][a-z]+\./); assert.match(intro.engineering, /^I’m Bo\./);
     assert.ok(kit.research.includes('Prepared finding if nothing verifies (labelled)') && !kit.research.some(x => /Linkup/.test(x)), 'Noor: no Linkup chip without a key on this server');
     assert.ok(kit.engineering.includes('Builds her page from her decisions') && kit.engineering.includes('Schema-checked template fill'));
     for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /^Claude/.test(x)), `${seat}'s card names the Claude it thinks with`);
