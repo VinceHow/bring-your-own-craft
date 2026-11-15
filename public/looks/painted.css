@@ -1221,3 +1221,8 @@ html #room [data-component="character-card"]:not([data-state="asking"]) > [data-
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: 0; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }
+/* a swap: the row never replays its entrance (it vanished for 1.25 s, Vincent); only the piece she tapped re-inks, quickly */
+html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"] { animation: none; }
+html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"][data-state="new"] { animation: pt-reink .35s ease-out both; }
+html #room [data-component="character-card"] :is([data-slot="title"], [data-slot="superpower"]):active { opacity: .55; }
+@keyframes pt-reink { from { opacity: .25; translate: 0 2px; } }
