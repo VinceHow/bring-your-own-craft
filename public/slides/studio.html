@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bring your own craft · the studio</title>
+<link rel="stylesheet" href="../looks/playful-ink.css">
+<!-- The living studio, for the talk: the real moving painting (looks/comps/cast-living.html, its sample run driving the
+     team's moods) with every toy on it (looks/playful-ink.js: record player, cat, coffee, string lights, the rain
+     window at night) and the vision lines below. No app, no room, no UI.
+     Edit the lines: the <div class="line"> elements below, in order. → Space PageDown next line · ← PageUp back ·
+     Home none · End all. ?night=1 for night. ?n=2 opens on line 2 (0 = no line). -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url(../looks/fonts/newsreader-var.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #1F1813; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform-origin: 0 0; overflow: hidden; background: #1F1813; }
+/* the living painting, as itself (1600×900): clicks go to the toys above it */
+.stage > iframe { position: absolute; inset: 0; width: 1600px; height: 900px; border: 0; pointer-events: none; }
+/* the toys, over the painting's own box (as the painted room places them) */
+.toys { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; z-index: 2; }
+.toys [data-component="time-pill"], .toys .pi-sky { visibility: hidden !important; pointer-events: none !important; }   /* the time pill is UI: the page sets day or night */
+/* the lines: large, in the display serif, over a soft dark gradient at the bottom */
+.lines { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; z-index: 3; pointer-events: none;
+  background: linear-gradient(to top, rgba(24, 16, 10, .82) 0%, rgba(24, 16, 10, .58) 50%, rgba(24, 16, 10, 0) 100%);
+  opacity: 0; transition: opacity .6s ease; }
+.lines.on { opacity: 1; }
+.line { position: absolute; left: 120px; right: 120px; bottom: 78px; margin: 0; text-align: center;
+  font: 400 64px/1.12 'Newsreader', Georgia, serif; letter-spacing: -.012em; color: #FCF5E8; text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(20, 12, 6, .55); opacity: 0; translate: 0 10px; transition: opacity .7s ease, translate .7s ease; }
+.line.on { opacity: 1; translate: 0 0; }
+@media (prefers-reduced-motion: reduce) { .lines, .line { transition: none; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <iframe id="living" title="The living studio" aria-hidden="true" tabindex="-1"></iframe>
+  <div class="toys" id="toys"></div>
+  <div class="lines" id="lines">
+    <!-- Vincent: edit these lines; add or remove as many as you like, in order. -->
+    <div class="line" data-step="1">You spend 90% of your time on the craft you love.</div>
+    <div class="line" data-step="2">In flow, with a team you’d love to work with.</div>
+    <div class="line" data-step="3">They handle the rest, and bring you only what needs you.</div>
+  </div>
+</div>
+<script src="../looks/playful-ink.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search), night = q.get('night') === '1';
+  const stage = document.getElementById('stage'), frame = document.getElementById('living');
+  const lines = [...document.querySelectorAll('.line')], box = document.getElementById('lines');
+
+  // fit the 1600×900 stage to the window, letterboxed
+  const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+  addEventListener('resize', fit); fit();
+
+  // 1. the living painting: its own sample run drives the moods (not ?embed, which stops it); the light pinned to day or night
+  frame.src = '../looks/comps/cast-living.html?' + (night ? 'night=1' : 'time=afternoon');
+  let living = null;
+  frame.addEventListener('load', () => {
+    const doc = frame.contentDocument, win = frame.contentWindow;
+    // no text UI from the painting: its speech slips stay hidden (the moods and the motion are what we want)
+    const st = doc.createElement('style'); st.textContent = '.say, .review, #hits { display: none !important; }'; doc.head.appendChild(st);
+    win.addEventListener('keydown', onKey);                                  // keys work even if focus lands in the frame
+    const poll = setInterval(() => { if (win.living) { living = win.living; clearInterval(poll); } }, 100);
+    setTimeout(() => clearInterval(poll), 20000);
+  });
+
+  // 2. the toys, wired to the painting exactly as the painted room does (looks/painted-living.js):
+  //    studio:poke {obj} plays that object's clip; the toys draw the ink and play the sound
+  document.addEventListener('studio:poke', e => { const o = e.detail && e.detail.obj; if (o && living) try { living.poke(o); } catch (err) { /* not ready */ } });
+  //    studio:time: the page sets day or night once; the toys follow the scene the painting reports
+  const toys = window.PlayfulInk.mount(document.getElementById('toys'), { music: '../looks/cast/music', time: night ? 'night' : 'day' });
+  toys.setNight(night);                                                       // not setMode: that would save a choice for the room
+  setTimeout(() => document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: night ? 'night' : 'afternoon', mode: night ? 'night' : 'day', from: 'painted-living' } })), 0);
+
+  // 3. the lines: one at a time, over the gradient
+  let cur = Math.max(0, Math.min(lines.length, parseInt(q.get('n'), 10) || 0));
+  function show(i) {
+    cur = Math.max(0, Math.min(lines.length, i));
+    lines.forEach((l, k) => l.classList.toggle('on', k === cur - 1));
+    box.classList.toggle('on', cur > 0);
+  }
+  function onKey(e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (['ArrowRight', ' ', 'PageDown', 'ArrowDown', 'Enter'].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+    else if (['ArrowLeft', 'PageUp', 'ArrowUp', 'Backspace'].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(0); }
+    else if (e.key === 'End') { e.preventDefault(); show(lines.length); }
+  }
+  addEventListener('keydown', onKey);
+  // 4. keep focus on this page after a toy is clicked
+  document.addEventListener('pointerup', () => { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); window.focus(); });
+  frame.addEventListener('focus', () => window.focus());
+  show(cur);
+})();
+</script>
+</body>
+</html>
