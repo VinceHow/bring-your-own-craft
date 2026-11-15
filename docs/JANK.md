@@ -186,4 +186,23 @@ team done 194 s, her page 231 s. Her idea input is focused after the reveal and 
 | 22 | "No app yet · Bo starts once you agree the page" sits on the focus document's bottom-right corner; "v1 · no reason asked to cancel…" overlaps her page's sheet. | `app-pill`; `page-sheet` | `jank/takeaways-empty-box-1440.jpg`, `jank/her-page-live-1440.jpg` | all | DESIGN | sent |
 | 23 | Works: the unblock (Yes → "Bo: Got it: 8pm the night before. Carrying on."), Focus 2's word diff on Mika's steps, the five sketchpads, her workspace, her page after the build. | — | `jank/unblock-answered-1440.jpg`, `jank/her-page-live-1440.jpg` | — | — | clean |
 
-Next: a re-sweep once painted is the default (~02:30), with R on b3's new rehearsal.
+### Sweep 2 · the R recording run: claude-code, painted, main with the meeting model + build/questions, 00:48 Sun
+
+One real run, recorded as the new `runs/rehearsal` (R): Focus 1 in two rounds then End meeting, the unblock, Focus 2
+in one round then End, Team go, her page (279 s; no model failures, no error events). R replayed once on painted:
+all three moments, both meetings, her page, no 4xx or page errors (250 s).
+
+**Fixed since sweep 1 (by the design studio unless noted):** #5 (the journey shows on the table), #7 (pills fit,
+"+3"), #8 and #18 (team-space cards moved to the top left, off the idea sheet and Bo), #17 (meter reads 27 came
+up · 3 brought, builder 7), #1 and #2 (the idea input and the name tag hold in the real flow).
+
+| # | What | Where (component · state) | Screenshot | Size | Owner | Status |
+|---|---|---|---|---|---|---|
+| 24 | **P0.** Her focus document overprints under the meeting model on painted. Once she adds a piece or a round runs, the work (finding, or Mika's steps) slides over the kicker and the question; her pieces and "Round 2" land on the source line; the reply card covers the work; the right "Your thoughts" box stays empty. painted.css still targets the old `.fd-side`/`.fd-read`. | `focus-doc` · composing/discussing/ended; `meeting` column | `jank/focus-meeting-overprint-1440.jpg`, `jank/focus2-meeting-overprint-1440.jpg`, `jank/focus-meeting-takeaways-1440.jpg` | all | DESIGN | sent (P0) |
+| 25 | "End meeting" is a default grey button. | `end-meeting` | same | all | DESIGN | sent |
+| 26 | Plain look, meeting layout: the form sits in the narrow side column, so her textarea is about 40 px wide. My helper line inside the form made it worse. | `focus-doc` form (plain) | — | all | BUILD (b3's layout) | helper line **fixed** (858fb60, now under the form); layout told to b3 |
+| 27 | The inbox drawer for Focus 2: the "Needs you" card is blank and Mika's note floats beside it. | `inbox` · expanded, `inbox-item` | `jank/inbox-drawer-empty-needs-1440.jpg` | 1440 | DESIGN | sent |
+| 28 | Chatter bubbles land on the teammates' pills (Mika's, Ines's) after Team go. | `chatter-line` | `jank/room-after-team-go-1440.jpg` | 1440 | DESIGN | sent |
+| 29 | The team-status line under the idea card is cut by her place card ("…team has done its first pass."). | `team-status` · done | `jank/status-line-clipped-1440.jpg` | 1440 | DESIGN | sent |
+
+Next: a re-check of #24 once the design studio pushes the meeting-layout fix (stubbed, no cost), then the clean bill by 05:00.

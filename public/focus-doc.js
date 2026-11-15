@@ -47,9 +47,9 @@
         <textarea class="fd-input" data-slot="input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Take your time; send when you’re ready."></textarea>
         <button type="button" class="fd-add" data-slot="add-piece">Add this</button>
         <button type="submit" class="fd-send" data-slot="send" data-state="idle">Send</button>
-        <p class="fd-help" data-slot="help">Add this keeps a thought · Send when you’re ready, and the team replies</p>
         <button type="button" class="fd-end" data-slot="end-meeting" data-component="end-meeting" hidden>End meeting</button>
       </form>
+      <p class="fd-help" data-slot="help">Add this keeps a thought · Send when you’re ready, and the team replies</p>
       <div class="fd-leave" data-component="leave-meeting" data-state="hidden" hidden>
         <p class="fd-leave-q" data-slot="question">End the meeting now, or come back to it later?</p>
         <button type="button" class="fd-leave-end" data-slot="end-now">End the meeting</button>
