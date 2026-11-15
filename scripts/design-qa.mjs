@@ -82,8 +82,21 @@ async function helpers(p) {
 
 const S = []; // { id, name, url?, run(p) }
 const add = (id, name, run, url) => S.push({ id, name, run, url });
-add('01', 'name tag (setup, paper)', async p => { await p.evaluate(() => BYOC.reset()); await wait(700); });
+add('01', 'the first page: her idea (setup, paper)', async p => { await p.evaluate(() => BYOC.reset()); await wait(900); });
+const TIDY_RAW = "um so like a website for my friend's small bakery, you know, so people can order bread ahead";
+const TIDY_CLEAN = "A website for my friend's small bakery, so people can order bread ahead";
+const tidyStub = async p => p.route('**/api/tidy', async r => { await wait(700); r.fulfill({ json: { text: TIDY_CLEAN, tidied: true } }); });
+for (const [id, ms] of [['01-idea-tidy-a', 250], ['01-idea-tidy-b', 1100], ['01-idea-tidy-c', 2200]])
+  add(id, `the idea paper, the tidy moment at ${ms} ms`, async p => { await tidyStub(p); await p.evaluate(() => BYOC.reset()); await wait(900);
+    const idea = p.locator('[data-component="idea-card"] [data-slot="input"]'); if (!(await idea.count())) return;
+    await idea.fill(TIDY_RAW); await idea.press('Enter'); await wait(ms); });
+const toNameTag = async p => { const idea = p.locator('[data-component="idea-card"] [data-slot="input"]');
+  if (await idea.count() && await idea.isVisible()) { await idea.fill("An ordering website for my friend's small bakery"); await idea.press('Enter'); await wait(900); } };
+add('01b', 'her name tag (setup, paper)', async p => { await p.evaluate(() => BYOC.reset()); await wait(700); await toNameTag(p); });
 add('02', 'meeting the team', async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(700); });
+for (const [id, ms] of [['02r-a', 300], ['02r-b', 1200], ['02r-c', 2200], ['02r-d', 3200], ['02r-e', 4800]])
+  add(id, `the reveal, ${ms} ms after the last teammate`, async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(800);
+    await p.evaluate(() => BYOC.stage(2)); await wait(ms); });
 add('03', 'the room, empty', async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(700); });
 add('04', 'idea sheet, glance (sketched)', async p => { await p.evaluate(() => __qa.play('rehearsal', { until: ev => ev.type === 'ask' })); await wait(900); });
 add('05', 'idea sheet, open large', async p => { await p.evaluate(() => __qa.play('rehearsal', { until: ev => ev.type === 'ask' })); await wait(400);
@@ -149,6 +162,19 @@ add('09-focus1-takeaways', 'Focus 1 meeting: End meeting, then long takeaways (~
     return `meeting ${m && m.dataset.state}; guidance ${e.textContent.length} chars, top ${Math.round(r.top)} bottom ${Math.round(r.bottom)} in card ${Math.round(c.top)}-${Math.round(c.bottom)}`; });
   console.log('  probe:', g); });
 add('10-focus2', 'Focus 2 (Mika’s journey in words)', async p => { await focusStub(p, FOCUS2); });
+add('10-focus2-meeting', 'Focus 2 meeting: one round, End meeting, takeaways', async p => { await focusStub(p, FOCUS2);
+  await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill('It should feel like the bakery already knows them.').catch(() => {});
+  await p.keyboard.press('Enter'); await wait(500);
+  await p.evaluate(() => { const d = ev => BYOC.dispatch({ run: 'qa-stub-run', ...ev }, 'live');
+    d({ type: 'thread.start', askId: 'feel', seats: ['design', 'engineering'] });
+    d({ type: 'chime', askId: 'feel', seat: 'design', by: 'Mika', text: 'Then step 2 goes away: the usual is already held.' });
+    d({ type: 'chime', askId: 'feel', seat: 'engineering', by: 'Bo', text: 'I can hold it by default and let them cancel.' });
+    d({ type: 'journey.words.rewritten', id: 'feel', steps: [{ step: 1, time: '7:05', text: 'Sam leaves for work' }, { step: 2, time: '7:10', text: 'Sam reserves the usual on the bus', new: 'Sam does nothing: the usual is already held' }, { step: 3, time: '7:40', text: 'Sam picks it up, still warm' }] });
+    d({ type: 'round.done', askId: 'feel' }); });
+  await wait(3500);
+  await p.evaluate(() => document.querySelector('[data-component="focus-doc"] [data-slot="end-meeting"]')?.click()); await wait(600);
+  await p.evaluate(() => BYOC.dispatch({ run: 'qa-stub-run', type: 'takeaways', askId: 'feel', believe: 'Ordering should feel like being known.', guidance: 'Hold a regular’s usual by default; let them cancel, never re-enter.' }, 'live'));
+  await wait(5000); });
 async function unblock(p) {
   await p.evaluate(() => __qa.play('fixture', { until: ev => ev.type === 'ask' })); await wait(200);
   await p.evaluate(a => { __qa.d(a); }, ASK_UNBLOCK); await wait(300);
@@ -209,8 +235,11 @@ async function checks(p, slides) {
       }
     }
     // parts that leave the screen
+    // the room scales to cover the window (its edges may sit outside it by design): anything the room's own size is skipped
+    const RM = document.getElementById('room')?.getBoundingClientRect();
+    const roomSized = r => RM && Math.abs(r.width - RM.width) < 4 && Math.abs(r.height - RM.height) < 4;
     for (const el of document.querySelectorAll('[data-component]')) {
-      if (!vis(el) || el.tagName === 'IFRAME') continue; const r = el.getBoundingClientRect();
+      if (!vis(el) || el.tagName === 'IFRAME') continue; const r = el.getBoundingClientRect(); if (roomSized(r)) continue;
       if (r.left < -1 || r.top < -1 || r.right > W + 1 || r.bottom > H + 1) out.push({ check: 'off-screen', hook: hook(el), note: `box ${Math.round(r.left)},${Math.round(r.top)} → ${Math.round(r.right)},${Math.round(r.bottom)} in ${W}x${H}` });
     }
     // text: size, edges, contrast
@@ -257,6 +286,11 @@ async function checks(p, slides) {
       if (buttonface || (el.tagName === 'SELECT' && cs.appearance !== 'none') || (el.tagName === 'INPUT' && ['checkbox', 'radio', 'range', 'file'].includes(el.type) && cs.appearance !== 'none'))
         out.push({ check: 'default control', hook: hook(el), note: `${el.tagName.toLowerCase()} looks like the browser default (${cs.appearance}, ${cs.backgroundColor}): “${(el.textContent || el.value || el.placeholder || '').trim().slice(0, 30)}”` });
     }
+    // room roles: the teammates' name pills never overlap each other
+    const pills = [...document.querySelectorAll('[data-component="place-card"], [data-component="her-place-card"]')].filter(vis).map(e => ({ e, r: e.getBoundingClientRect() }));
+    for (let i = 0; i < pills.length; i++) for (let j = i + 1; j < pills.length; j++) { const a = pills[i].r, b = pills[j].r;
+      const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left), oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      if (ox > 2 && oy > 2) out.push({ check: 'pill overlap', hook: `${hook(pills[i].e)} × ${hook(pills[j].e)}`, note: `${pills[i].e.closest('[data-seat]')?.dataset.seat || '?'} and ${pills[j].e.closest('[data-seat]')?.dataset.seat || '?'} overlap by ${Math.round(ox)}x${Math.round(oy)}px` }); }
     // the app tag on the setup pages (idea, name tag, meet the team): it belongs to the room
     const setup = document.querySelector('[data-component="setup"]'), app = document.querySelector('[data-component="app-button"]');
     if (setup && app && vis(setup) && vis(app) && setup.dataset.step !== 'off') { const r = app.getBoundingClientRect();
@@ -336,6 +370,7 @@ if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode o
   const p = await ctx.newPage();
   try {
     await p.goto(BASE + `/?look=painted&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1800);
+    await toNameTag(p);
     const card = p.locator('[data-component="character-card"]').first();
     const input = p.locator('[data-component="character-card"] [data-slot="input"]').first();
     if (!(await input.count())) { rec('walk', 'character-card', 'no name tag input'); throw null; }
@@ -358,6 +393,13 @@ if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode o
     const dw = Math.max(...sizes.map(b => b.width)) - Math.min(...sizes.map(b => b.width)), dh = Math.max(...sizes.map(b => b.height)) - Math.min(...sizes.map(b => b.height));
     if (dw > 2 || dh > 2) rec('name tag', '[data-component="character-card"]', `the card changes size by ${Math.round(dw)}x${Math.round(dh)}px between asking and ${frames.at(-1).ms} ms (${sizes.map(b => Math.round(b.width) + 'x' + Math.round(b.height)).join(' → ')})`, frames.at(-1).f);
     const last = frames.at(-1);
+    const wayOn = await p.evaluate(() => { const b = document.querySelector('[data-component="character-card"] [data-slot="make"]'); if (!b) return null; const r = b.getBoundingClientRect(), cs = getComputedStyle(b);
+      return { text: b.innerText.trim(), w: Math.round(r.width), h: Math.round(r.height), size: cs.fontSize, weight: cs.fontWeight }; });
+    const order = kind === 'spin' ? await p.evaluate(() => { const c = document.querySelector('[data-component="character-card"]'); if (!c) return [];
+      return ['name', 'title', 'trait', 'superpower', 'said', 'hint'].map(k => { const e = c.querySelector(`[data-slot="${k}"]`); return e ? [k, Math.round(e.getBoundingClientRect().top)] : null; }).filter(Boolean); }) : [];
+    process.stdout.write(`${tag} ${mode} nametag ${kind} way on: ${JSON.stringify(wayOn)} order: ${order.map(x => x.join('@')).join(' ')}\n`);
+    if (wayOn && !/Meet your team/.test(wayOn.text)) rec('name tag', '[data-slot="make"]', `the way on reads “${wayOn.text}”, want “Meet your team →”`, last.f);
+    for (let i = 1; i < order.length; i++) if (order[i][1] + 2 < order[i - 1][1]) rec('name tag', 'character-card', `the written order is broken: ${order[i][0]} sits above ${order[i - 1][0]}`, last.f);
     if (kind === 'spin') {
       if (!/Priya/.test(last.text)) rec('name tag', 'character-card', 'her name is not written on the tag', last.f);
       if (!/Journey Mapper/.test(last.text)) rec('name tag', 'character-card', `the team's title had not landed 4.5 s after Enter (stub answers at 1.5 s): “${last.text}”`, last.f);
