@@ -1129,3 +1129,24 @@ html #room [data-component="team-space"] [data-slot="cards"]:has(> :nth-child(3)
    foot strip as her focus document, and the tag drops its change note (label + hint only) while a big sheet is open */
 html body:has(#her-sheet[data-open="true"]) #room .her-sheet[data-open="true"] { height: 752px !important; }
 html body:is(.focus-open, :has(#her-sheet[data-open="true"])) [data-component="app-button"] [data-slot="change"] { display: none !important; }
+
+/* The mic, ink-paper (QA #29): a cream pill with a hand-inked edge and her colour peeking out down-right, like the
+   other pills on her sheet. Listening fills softly in her colour with one slow ink dot; writing goes warm amber.
+   Hooks: [data-component="mic"] (voice.js), data-state idle|listening|writing|typed. Visibility rules stay voice.css's. */
+html.painted-on [data-component="mic"][data-field] { position: relative; font: 500 14px/1 var(--ui); color: var(--ink); padding: 8px 14px 8px 11px; gap: 7px;
+  background: var(--paper, #FCF6EA); border: 0; border-radius: 19px 17px 20px 16px / 17px 20px 16px 19px;
+  box-shadow: 0 0 0 1.4px rgba(51,38,28,.75), 3px 4px 0 -1px var(--product, #C76B83); transform: none;
+  transition: translate .18s ease, box-shadow .18s ease, background-color .3s ease; }
+html.painted-on [data-component="mic"][data-field]:hover { translate: 0 -1px; }
+html.painted-on [data-component="mic"][data-field]:active,
+html.painted-on [data-component="mic"][data-field][data-state="listening"] { translate: 1px 1px; transform: none;
+  box-shadow: 0 0 0 1.4px rgba(51,38,28,.75), 1px 2px 0 -1px var(--product, #C76B83); }
+html.painted-on [data-component="mic"][data-field][data-state="listening"] { background: color-mix(in srgb, var(--product, #C76B83) 28%, var(--paper, #FCF6EA)); }
+html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { position: absolute; right: 5px; top: 50%; margin-top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: var(--ink);
+  animation: painted-mic 1.6s ease-in-out infinite; }
+@keyframes painted-mic { 50% { opacity: .25; } }
+html.painted-on [data-component="mic"][data-field][data-state="writing"] { background: color-mix(in srgb, #E8C36A 32%, var(--paper, #FCF6EA)); }
+html.painted-on [data-component="mic"][data-field][data-state="typed"] { background: transparent; box-shadow: none; padding: 0; translate: none;
+  font: italic 400 14px/1 'Newsreader', Georgia, serif; color: var(--ink-3); }
+html.painted-on [data-component="mic"][data-field] svg { opacity: .85; }
+@media (prefers-reduced-motion: reduce) { html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { animation: none; } }
