@@ -608,16 +608,8 @@
     }
   }
   BYOC.teamGo = teamGo;
-  // A note just landed in her inbox: the sheet says who, with a way straight to it ("Noor has a question for you →").
-  // data-state 'question'; the inbox itself pulses (public/inbox.js).
-  BYOC.on('inbox.new', n => {
-    if (BYOC.replay || (BYOC.focus && BYOC.focus.open)) return;
-    clearTimeout(teamSlowTimer);
-    teamStatus('question', n.unblock ? `${n.by} is blocked: one quick answer →` : `${n.by} has a question for you →`);
-    const go = h('button', 'team-open', 'Open it'); go.type = 'button'; go.dataset.slot = 'open';
-    go.addEventListener('click', () => { const b = document.querySelector('#inbox .inbox-now'); if (b) b.click(); });
-    teamStatusEl.appendChild(go);
-  });
+  // A note just landed in her inbox: the inbox at the top right says who; that is the room's one cue (Vincent, 15 Nov:
+  // no previews in the room). The team-status line no longer repeats it.
   BYOC.on('focus.open', () => { if (teamStatusEl.dataset.state === 'question') teamStatus('idle', ''); }); // she's on it
   function teamProgress() {
     const done = new Set(seen.filter(e => e.type === 'teammate.done' || e.type === 'teammate.error').map(e => e.seat)).size;
