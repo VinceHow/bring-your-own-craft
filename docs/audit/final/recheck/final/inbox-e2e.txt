@@ -1,0 +1,2 @@
+inbox plain: # pass 8 # fail 0 
+inbox painted: # pass 8 # fail 0 

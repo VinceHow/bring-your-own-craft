@@ -1,0 +1,32 @@
+{
+ "plain": {
+  "meeting": {
+   "field": "visible 360x108 bg=rgb(255, 254, 251) border=2px",
+   "send": "visible 69x39 bg=rgb(251, 249, 244) border=2px",
+   "end": "visible 84x35 bg=rgba(0, 0, 0, 0) border=0px"
+  },
+  "unblock": {
+   "yes": "not visible (0x0 at 0,0)",
+   "card": "not visible (0x0 at 0,0)"
+  },
+  "drawer": {
+   "drawer": "not visible (0x0 at 0,0)"
+  },
+  "errors": []
+ },
+ "painted": {
+  "meeting": {
+   "field": "visible 336x120 bg=rgba(255, 253, 248, 0.92) border=1px",
+   "send": "visible 82x41 bg=rgb(58, 42, 31) border=0px",
+   "end": "visible 130x33 bg=rgba(0, 0, 0, 0) border=0px"
+  },
+  "unblock": {
+   "yes": "not visible (0x0 at 0,0)",
+   "card": "not visible (0x0 at 0,0)"
+  },
+  "drawer": {
+   "drawer": "not visible (0x0 at 0,0)"
+  },
+  "errors": []
+ }
+}

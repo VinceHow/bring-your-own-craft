@@ -1,0 +1,32 @@
+{
+ "plain": {
+  "run": "run-2026-11-15T06-19-30-518Z-yo64",
+  "card": {
+   "card": 648,
+   "yesBg": "rgb(20, 20, 20)",
+   "yesAppearance": "none"
+  },
+  "drawer": {
+   "state": "new",
+   "view": "list"
+  },
+  "errors": [
+   "toggle: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#in"
+  ]
+ },
+ "painted": {
+  "run": "run-2026-11-15T06-20-06-782Z-ogri",
+  "card": {
+   "card": 706,
+   "yesBg": "rgb(40, 28, 20)",
+   "yesAppearance": "auto"
+  },
+  "drawer": {
+   "state": "new",
+   "view": "list"
+  },
+  "errors": [
+   "toggle: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#in"
+  ]
+ }
+}

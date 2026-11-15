@@ -401,6 +401,27 @@ independently. Evidence is in `docs/audit/final/recheck/` (`visual.txt`, `tests.
 - **Resuming a cut-short copy started work.** It made the room continue the run: `POST /propose`, and 2 `sketches`
   events added on resume. That is expected for a run that hadn't finished.
 
+### Last pass on final main f5de3a1 (06:17–06:25 UTC): 5 PASS, 1 known red (documented)
+
+Verified by stub only. Evidence is in `docs/audit/final/recheck/final/`.
+
+**What landed after 0095d1a:**
+- design/plain-inbox (P2/P3/P4): `public/room.css` +61 lines.
+- DEMO re-syncs (F11 wording; the her-page fallback dropped).
+- REHEARSAL's plain-meeting note.
+- AUDIT-design.md text.
+- **P1, the plain meeting, did not land.**
+
+| Item | Result | Evidence |
+|---|---|---|
+| Painted unchanged on beats 1a–2e | **PASS.** The only code change is `public/room.css`, and all 61 new lines sit under `html:not(.painted-on)` (painted adds `painted-on`, `painted-living.js:44`). So painted can't see them, and no other public/ file changed since 0095d1a, where beats 1–2e passed 10/10 painted. I didn't re-run beats on f5de3a1; I'm relying on the diff. | `git diff 0095d1a f5de3a1 -- public` |
+| Plain unblock card | **PASS.** One card, "Bo's blocked · Setting up ordering", "When do orders close?", a dashed "We suggest" box, an ink Yes (`appearance: none`) and "Say something else". | `unblock-card-plain-1440.jpg`, `unblock.json` |
+| Plain inbox (new / drawer) | **PASS.** `e2e/inbox.e2e.js` 8/0 plain and 8/0 painted, covering the collapsed line, the drawer and the unblock flow. My own drawer screenshot didn't open (my click), so the evidence for it is the spec. | `inbox-e2e.txt`, `inbox-new-plain-1440.jpg` |
+| **Plain meeting after one Send** | **RED, known and documented.** The field, Send and End are in the DOM but covered: `elementFromPoint` at each centre hits another element, and the screenshot shows no field, Send or End, only the help line. Mika's reply also lands inside the work box. This is P1, which did not land. REHEARSAL already says the meeting fallback is the **R replay**, not `?look=plain`. Painted's meeting is fine (field, Send, End visible). | `meeting-after-send-plain-1440.jpg`, `result.json` |
+| DEMO.md:72 slide-only | **PASS.** "The slide carries the label "Built earlier by this same team"" (4d90118). | DEMO.md:72 |
+| `npm test` on f5de3a1 | **PASS.** 286 tests, 285 pass, 0 fail, 1 skipped (LIVE). | |
+| Key grep of the whole tree on f5de3a1 | **PASS.** No hits outside the known test sentinels and canaries. | |
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
