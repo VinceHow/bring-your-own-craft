@@ -339,6 +339,7 @@
     if (!HOVER_CURSOR) return;
     for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
       if (el.dataset.ptCursor) return;
+      if (el.matches(':disabled, [aria-disabled="true"], [aria-busy="true"], [data-state="tidying"], [data-state="busy"]')) return;   // their own cursor (not now / working)
       const c = getComputedStyle(el).cursor;
       if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
       if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
@@ -381,7 +382,10 @@
     ov.querySelectorAll('[data-slot="word"]').forEach(w => { w.style.maxWidth = w.offsetWidth + 'px'; });   // so the close-up is real
     el.dataset.ptTidy = 'hold';                                    // the field's clean text waits under the overlay
     requestAnimationFrame(() => requestAnimationFrame(() => { ov.dataset.state = 'go';
-      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; }); }));
+      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; });
+      // the first word left standing takes the clean line's capital as the others close up
+      const first = ov.querySelector('[data-slot="word"]:not([data-state="cut"])');
+      if (first && /^[A-Z]/.test(clean.trim()) && /^[a-z]/.test(first.textContent)) setTimeout(() => { first.style.maxWidth = 'none'; first.textContent = first.textContent[0].toUpperCase() + first.textContent.slice(1); }, 800); }));
     const total = ov.dataset.tidy === 'cut' ? 1650 : 1000;
     setTimeout(() => { el.dataset.ptTidy = 'show'; ov.dataset.leave = 'yes'; }, total - 350);
     setTimeout(() => { ov.remove(); delete el.dataset.ptTidy; }, total + 100);
