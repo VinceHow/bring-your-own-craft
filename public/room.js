@@ -658,11 +658,15 @@
     el.herInput.dataset.hold = 'on';
     held = { text: el.herInput.value, t: setTimeout(endHold, TIDY_HOLD_MS) };
   }
-  el.herInput.addEventListener('keydown', e => { if (held && e.key.length === 1 && !e.ctrlKey && !e.metaKey) endHold(); });
+  el.herInput.addEventListener('keydown', e => {
+    if (!held) return;
+    // Her next key ends the hold; PageDown / PageUp (the clicker) see an empty field, as they would have.
+    if ((e.key.length === 1 && !e.ctrlKey && !e.metaKey) || e.key === 'PageDown' || e.key === 'PageUp' || e.key === 'Backspace') endHold();
+  });
+  el.herInput.addEventListener('paste', () => endHold());
   el.herForm.addEventListener('submit', async e => {
     e.preventDefault();
-    if (held && el.herInput.value === held.text) return; // the held line was sent already
-    endHold();
+    endHold(); // Enter on the held line: it was sent already, so it's an empty Enter ("team, go"), as before the hold
     const raw = el.herInput.value.trim();
     if (submitting) return;
     if (inputMode === 'idea') {
@@ -763,7 +767,7 @@
         let t = words.textContent.trim();
         if (!t || words.dataset.state === 'tidying') return;
         // Her rewording is tidied in place (data-raw / data-state / data-tidy on the words); the team's own line is kept as is.
-        if (t !== text && typeof BYOC.tidyInto === 'function') t = String(await BYOC.tidyInto(words, t) || t).trim() || t;
+        if (t !== text && typeof BYOC.tidyInto === 'function') { await BYOC.tidyInto(words, t); t = words.textContent.trim() || t; } // typed on meanwhile: hers
         words.contentEditable = 'false'; hint.textContent = 'writing it into your file';
         try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
         catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }
