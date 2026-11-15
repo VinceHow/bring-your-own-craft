@@ -302,3 +302,5 @@ html body #room #inbox[data-state="open"][data-view="action"]:has([data-componen
 @keyframes pf-sheet-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(14px); visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
   html body #room #inbox[data-state="open"][data-view="action"]:has([data-component="inbox-action"][data-state="yes"]) { animation: none; opacity: 0; visibility: hidden; } }
+/* "1 decision", never "1 decisions" (audit F5): room.js sets #counter[data-came] with the count */
+html body #room #inbox #counter[data-came="1"] > span:first-child > span:last-child::after { content: 'decision'; }

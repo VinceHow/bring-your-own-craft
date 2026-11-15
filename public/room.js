@@ -811,6 +811,7 @@
   function renderTally(t) {
     const animate = !instantMode;
     rollers.came.set(t.came, animate);
+    { const c = $('#counter'), l = c && c.querySelector('[data-slot="came-label"]'); if (c) c.dataset.came = String(t.came ?? ''); if (l) l.textContent = t.came === 1 ? 'decision came up' : 'decisions came up'; }   // "1 decision", never "1 decisions"
     rollers.brought.set(t.brought, animate);
     rollers.pct.set(t.meter.pct, animate);
     const { craft, stamp } = t.meter, tot = craft + stamp;
