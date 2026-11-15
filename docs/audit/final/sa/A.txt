@@ -122,4 +122,10 @@ beats 1-2f (+4), run with --test-name-pattern '^(1|1b|1c|1d|1e|2|2b|2c|2d|2e|2f|
   so twice. 1, 1c, 1d(*), 1e, 2b, 2c, 2d, 2e and 2f are stubbed (1c stubs /api/name-tag; 2f stubs Linkup).
   (*) 1d drives the room through a stub.
 R replays (manual Playwright, stubbed: server with WARM_UP=0 on port 5111, a copy of runs/rehearsal, no live run):
-  REPLAY_RESULT_PLACEHOLDER
+  painted: R from Home in stage mode. The label "Replay  recorded run "rehearsal" · Sun 02:49 AM" showed on every
+           1 s poll from the start to the end. Her page (#page-sheet) appeared at 265.1 s (beat 9, all 188 events),
+           with 0 page errors. PASS (inside 300 s).
+  plain:   the same; her page at 265.0 s, the label shown throughout, 0 page errors. PASS.
+  Margin: 265 s against the 300 s budget. That is the run's own timing at speed=1 (build.done is at t+263.5 s in
+  runs/rehearsal/events.jsonl). beats test 4 also passed in painted.
+  The rehearsal recording uses Wren (no "Noor" in runs/rehearsal).

@@ -422,6 +422,89 @@ Verified by stub only. Evidence is in `docs/audit/final/recheck/final/`.
 | `npm test` on f5de3a1 | **PASS.** 286 tests, 285 pass, 0 fail, 1 skipped (LIVE). | |
 | Key grep of the whole tree on f5de3a1 | **PASS.** No hits outside the known test sentinels and canaries. | |
 
+## Submission re-audit (bbb49aa)
+
+Checked at 10:00–10:15 UTC, Sun 15 Nov, on final main **bbb49aa** (141 commits since 273aa9e). **Verified by stub
+only:** every server ran with the proxy env, `FAL_KEY`, `LINKUP_API_KEY` and `MODEL_BACKEND` removed, so there was
+**no fal and no Linkup spend**.
+
+A few real calls went through the default claude CLI backend, never fal:
+- beats 1b and 2;
+- tidy-first tests 1–4;
+- the server's warm-up.
+
+Evidence is in `docs/audit/final/sa/` (`A.txt`, `B.txt`, `C.txt`, screenshots).
+
+**Result: 0 stage-visible FAILs. 15 items: 14 PASS, 1 FAIL (item 15, submission text only).** The checks all pass.
+There are two test flakes, and a few notes that aren't on stage.
+
+| # | Item | Result | Evidence |
+|---|---|---|---|
+| 1 | Cap removal | **PASS** | `git grep MAX_ASKS lib public` is empty. No count-based refusal is left: `lib/policy.js` refuses only a missing or forged grant, a grant for another run, an ask the selector didn't pick, or the same decision twice. `askCount()` (`policy.js:24`) is exported but never called. The stage path gets `max: 0` and raises exactly Focus 1, the unblock and Focus 2 (`lib/first.js:31-32,55-57`). stagepath, ranking and policy tests pass 17/17, including "only lib/policy.js writes ask events" and "the stage path raises exactly its moments… the selector brings none". |
+| 2 | Live logo | **PASS** | logo unit tests pass; `e2e/logo.e2e.js` 2/2. With a stubbed fetch, success writes a local `logo.jpg`; a timeout gives `timeout after 300 ms` and the page keeps its usual mark. The prompt asks for "symbol only, no text, no letters" (`lib/logo.js:20-26`); whether flux really draws no letters needs a live run. Neither built page contains fal.media, fal.run or v3.fal. "Painted live with fal" appears only on the live build. |
+| 3 | Live Linkup | **PASS** | live-finding unit tests pass. With a stubbed fetch: verified gives "found just now with Linkup"; unverifiable gives "no quotable line…"; a timeout falls back; a tampered quote fails. beats 2f, the browser label test, passes ("researched before the demo" on none or timeout, and the label never swaps under her). The doctor with no key prints `NOTE  live research: off (prepared finding)`. |
+| 4 | Any seat | **PASS** | anyseat e2e 12/12. All 7 chips in both looks reach the room with 0 page or console errors; Product is the default. |
+| 5 | App button | **PASS** | app-button unit tests; app-first e2e 3/3; app e2e 2/2. Team, go starts v1. A press during v1 queues v2 (build codes [200, 200], no 409). v2 shows "v2 · no standing order". With `APP_V1=0` the button stays "No app yet" until the press. |
+| 6 | Chatter | **PASS** | `CHATTER_WORDS=12`, with no "Name:" prefix; a line over 12 words is dropped. Samples: "Ooh, found a good piece on full classes at small studios." and "Pickup only on Saturdays, easiest to run day to day." interpret tests pass 14/14. |
+| 7 | Meet cards say "live" only when live | **PASS, by configuration (note N2)** | With no keys, research shows "Prepared finding…" and there's no emblem chip. With keys, "Linkup web search, live" and "The page's emblem, painted live on fal" appear. N2: the chips follow the config, not the run's outcome (`lib/kit.js:85,89`). Builder 9's role-card diff claims to fix this; see its own line below. |
+| 8 | User-paced meet | **PASS** | meet-paced e2e 2/2; reorder 10/10. Painted and plain at 1440×900: still on card 1 after 12 s idle; PageDown, →, PageUp, ← and Next/Back each move one card; the dots are correct; the last card reads "Into the studio" and waits. 0 errors. |
+| 9 | Tidy | **PASS** | Commits 091752c, c082470 and 8c8dad7. For "So, um, I wanna build a bakery shop", `checkTidy` accepts "I want to build a bakery shop." and refuses "open a bakery". `tidyText` with a bad answer or a timeout falls back to "I wanna build a bakery shop". On 10 inputs, `cutFillers` only deletes words (its output is always a subsequence of the input). tidy and leak tests 17/17; tidy and tidy-all e2e 8/8 in each look; tidy-first 7/7. |
+| 10 | Reply notes | **PASS** | 7b89813, `painted-focus.css` only. In a stubbed painted meeting, a team note's corners are `6px 16px 16px`, the mirror of hers, with the ink ring and offset shadow, inside the column. Plain is unaffected. 0 errors. |
+| 11 | Localhost bind | **PASS (code)**; docs gap, see F1 | Read from `/proc/net/tcp`: the default listens on 127.0.0.1 and refuses on the other address; `HOST=0.0.0.0` listens on 0.0.0.0 and answers. `scripts/local.mjs` passes the environment through. |
+| 12 | QR card | **PASS** | It shows only for `DEPLOY_URL=https://bring-your-own-craft-production.up.railway.app` (with or without a trailing `/`). It stays hidden when unset, for another https URL, for `http://`, `/admin` or `?x=1` (`public/app-button.js:78`; `routes/health.js:6-9`). **Decoded:** jsQR (mine) reads the SVG `public/qr-live-site.svg`, the card `public/qr-live-site-card.png` and the in-room card, and all give exactly `https://bring-your-own-craft-production.up.railway.app` (no /admin, no token, no query). This matches the tech lead's jsQR decode and the lead's OpenCV decodes; the lead also reports the card PNG is byte-identical and `qr-1920.png` decodes the same. Note: the small "Open the live site" link shows for any https `DEPLOY_URL` (`app-button.js:93`). DEPLOY_URL is the bare storefront address (tech lead). |
+| 13 | deploy/ | **PASS** | The bakery source is in `deploy/app/`, plus `acceptance/`, `bo/`, `run/`, `clips/` and `shots/`. There's no `railway.json` anywhere. No `.env` files or key-shaped strings; `ADMIN_TOKEN` appears only as placeholders. No real customer data: only demo names, a fictional 07700 900xxx number and an `@example.org` address, in a test that checks they're rejected. Root `npm test` covers `test/**` only, so `deploy/app/test/` doesn't run; `test/acceptance.test.js` runs the deploy acceptance suite against a stub on purpose. |
+| 14 | Noor → Wren | **PASS** | `git grep -il noor` finds only the known binary `docs/screens/page-bakery-390.png`. Text grep, untracked files and `runs/rehearsal`/`runs/yoga` are clean (they say Wren). |
+| 15 | README / SUBMISSION vs code | **FAIL (submission text, not stage)** | Every cited path exists. The names, 3 templates, logo and Linkup labels, any seat, timings, "3 asked · 14 decided", the bakery's tiers, hold and credit, and the QR all match. Mismatches below. |
+
+**The checks:**
+- `npm test`: 308 tests, 307 pass, **0 fail**, 1 skipped (LIVE).
+- **Leak test:** PASS.
+- **Key grep of the whole tree:** 9 hits, none a real key (test sentinels and canaries, the README placeholder, the
+  pattern quoted in this file).
+- **Personal-email grep** (addresses never printed): the only addresses in the tree are the GitHub noreply author,
+  `noreply@anthropic.com` in baseline transcripts, the vendored taste-skill contact and `.example`/`.org` demo
+  addresses. Every commit since 273aa9e uses the noreply author.
+- **beats 1–2f plus 4:** 11/12 in each look. Painted: 2c failed once under load, then passed 3/3 alone (F4). Plain:
+  4 failed on a record-vs-live timing race in the test (F3).
+- **R replay:** a manual stubbed run in both looks. "Replay · recorded run rehearsal" shows throughout; her page
+  appears at 265 s, with 0 errors.
+
+**Item 15 mismatches** (sent to the tech lead at 10:12):
+- **(a)** `SUBMISSION.md:145` says "Run `npm start`, open http://localhost:3000". `npm start` doesn't load
+  `.env.local` (`scripts/local.mjs:8` is the only loader). Use `npm run local`, which picks a port in 3000–3010.
+- **(b)** `README.md:91` says "There is nothing to install", but `npm run e2e` needs Playwright (no deps in
+  `package.json`, and `docs/RUN-LOCALLY.md` doesn't mention it).
+- **(c)** `SUBMISSION.md:62` says "one of each per person", but `:92` and the code say per device per drop
+  (`deploy/acceptance/bakery.acceptance.js:116`).
+- **(d)** `SUBMISSION.md:90` says "11-test acceptance suite", but the file has 13 `test()` calls (11 numbered rules).
+- **(e)** TBDs at `SUBMISSION.md:120`, `:145` and `:146`.
+- **(f)** The localhost bind is undocumented (F1).
+- **Not checkable offline:** the vendor commit `e91a134` (`README.md:127`).
+
+**Non-stage notes:**
+- **F1:** the bind is documented only in the `server.js:105-107` comment. `scripts/env-local.mjs:76` ("every address
+  the server listens on (all of them)") is stale. Fix: one README line, and reword that comment.
+- **F2:** stale cap wording, **not stage-visible**: `lib/select.js:2` "at most 3 asks", and `"capped at 3 in
+  lib/policy.js"` in `public/slides/numbers.json:5` and `data.js:2`. The slide renders only the text before " ("
+  (`public/slides/index.html:136`), and `slides.pdf` has no text layer. (CLAUDE.md:14 already describes the
+  selector, not a cap.)
+- **F3:** beats test 4 compares the recording with a run that is still being written (around `e2e/beats.e2e.js:690`);
+  a test fix only.
+- **F4:** beats 2c is flaky under heavy load (`e2e/beats.e2e.js:544`); it passes alone.
+- **N1 (dropped, Vincent's call):** the painted "v2 · what changed" note hides while her page is open
+  (`painted.css:1135`).
+- **Off the stage path, minor:**
+  - The doctor ignores `LIVE_FINDING=1` (`scripts/doctor.mjs:167`), while `lib/live-finding.js:20` honours it.
+  - `lib/chatter.js:15` still says "at most 15 words".
+  - When she takes another seat, the Product seat can chatter under the name "Product".
+  - A possible race between makeCharacter and introDone (`public/room.js:1599-1601`); it was seen only when the
+    script forced it.
+
+**Not tested:**
+- any real fal or Linkup call, so whether a live flux emblem really has no letters is unknown;
+- the Claude-backed routes beyond the calls listed above;
+- the vendor commit.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
