@@ -636,6 +636,42 @@ test('2e. the build press (stubbed, audit F1): painted, one forward from the wor
   await p.close();
 });
 
+test('2f. Noor\'s live finding (stubbed): verified -> "found just now with Linkup" on Focus 1; none or a timeout -> the prepared one; never swapped under her', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  await p.route('**/api/run/stub-run/**', r => r.fulfill({ status: 202, json: { ok: true } }));
+  await p.goto(L(BASE + '/?stage=1'));
+  await p.waitForTimeout(300);
+  const PREP = { title: 'A third of artisan-bakery visitors buy bread there every week', quote: 'A third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week', url: 'https://bakerybusiness.com/r', site: 'Bakery Business', fetched: '2026-11-10', label: 'researched before the demo' };
+  const LIVE = { title: 'UK artisan bakery shoppers', quote: 'Among 18 to 24-year-olds who shop at artisan bakeries, 45% do so at least weekly.', url: 'https://www.bakingeurope.com/news/x', site: 'bakingeurope.com', fetched: '2026-11-15', label: 'found just now with Linkup' };
+  const open = async () => { await p.evaluate(() => BYOC.openNote('first')); await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'Focus 1', null, p); };
+  const card = () => p.evaluate(() => ({ label: document.querySelector('#focus-doc [data-slot="prepared"]')?.textContent, quote: document.querySelector('#focus-doc [data-slot="claim"]')?.textContent, site: document.querySelector('#focus-doc [data-slot="source-site"]')?.textContent }));
+  const raise = () => p.evaluate(ref => { BYOC.reset(); BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?', artifact: { kind: 'finding', ref: { ...ref, users: ['Morning regulars'] } } }, 'live'); }, PREP);
+  // verified, while Focus 1 waits: the live finding takes the prepared one's place, labelled truthfully, with its source
+  await raise();
+  await p.evaluate(ref => BYOC.dispatch({ run: 'stub-run', type: 'finding.live', askId: 'first', ref }, 'live'), LIVE);
+  await open();
+  let c = await card();
+  assert.strictEqual(c.label, 'found just now with Linkup');
+  assert.strictEqual(c.quote, LIVE.quote);
+  assert.match(c.site, /bakingeurope\.com · read 2026-11-15/);
+  await p.evaluate(() => BYOC.focusDoc.close(true));
+  // nothing verified (finding.none) or the search timed out (no event at all): the prepared finding, as before
+  await raise();
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'finding.none', why: 'timeout' }, 'live'));
+  await open();
+  c = await card();
+  assert.strictEqual(c.label, 'researched before the demo');
+  assert.strictEqual(c.quote, PREP.quote);
+  // verified only after she opened it: never swapped under her
+  await p.evaluate(ref => BYOC.dispatch({ run: 'stub-run', type: 'finding.live', askId: 'first', ref }, 'live'), LIVE);
+  await p.waitForTimeout(200);
+  assert.strictEqual((await card()).quote, PREP.quote, 'what she is reading stays');
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
 test('3. the close: a real judge idea; contrast first, then the questions that reached her, then her M from the log, then the last line', async t => {
   // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
