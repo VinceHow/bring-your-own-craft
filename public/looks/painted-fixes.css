@@ -193,9 +193,12 @@ html body #room [data-component="team-notes"] {
 html body #room [data-component="team-notes"]:hover { color: var(--ink, #2B1E14); }
 html body #room [data-component="team-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
 /* 2. (the old bottom inbox note and the tally's own line are b3's inbox now: see the inbox section) */
-/* 3. "who's doing what" under the idea card: one line, never two clipped half-sentences */
+/* 3. "who's doing what" under the idea card: one line, the first teammate only (the strip is one paragraph with a line
+   per teammate: the paper is one line tall and only its first line is inked), never two clipped half-sentences */
 html body #room [data-component="team-doing"] {
-  display: block !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+  display: block !important; white-space: pre !important; overflow: visible !important; box-sizing: border-box;
+  height: calc(1lh + 17px) !important; color: transparent !important; }
+html body #room [data-component="team-doing"]::first-line { color: var(--ink-2, #4E3A2B); }
 /* 4. chatter: one bubble at a time (the newest), 14px, at most two lines, fading after about three seconds */
 html body #room [data-component="chatter-line"] {
   max-width: 260px !important; font-size: 14px !important; line-height: 1.35 !important; color: var(--ink-2, #4E3A2B) !important; opacity: .92;
