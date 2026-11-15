@@ -7,8 +7,9 @@ they've run. Until then, this is the run sheet: things the presenter does that t
 The lead's and the tech lead's run, in this order, on his Mac:
 1. `npm run local`, then read the route line: it must say **fal**.
 2. `npm run doctor`: the route on its first line, and the line **"A Send-shaped burst (4 calls at once, fal): … s wall"** under 10 s.
-3. One full stage-path run: idea → name tag → meet the team → Focus 1 (2 rounds + End meeting) → Bo's unblock →
-   Focus 2 → Team, go → her page.
+3. One full stage-path run, **with the cut order in effect** (the lead, 15 Nov; DEMO.md's agreed cut order): idea →
+   name tag → meet the team → Focus 1 (2 rounds + End meeting) → Bo's unblock → **Focus 2: no Send round, straight to
+   End meeting** → Team, go → **her page for 5 s**. Time it; the target is under 3:00.
 4. One refresh mid-room: it must **resume** her run (no REPLAY label, nothing asked twice).
 5. **Start over** (top right, or Shift+N): back to the idea paper.
 
@@ -67,6 +68,11 @@ MODEL_BACKEND=fal
 ```
 
 ## Run sheet
+- **The default path is the cut order** (in effect from Sun 05:22, the lead): in Focus 2 she reads Mika's journey, then
+  presses **End meeting** at once (no Send round); her page is up for **5 s**, then on to the proof.
+- **Talk over the wait after "Team, go"** (about 30 s while the team works and the selector runs). The room shows who's
+  doing what; say what they're doing ("Mika's laying out the page, Noor is checking the claim, Bo's building it") rather
+  than waiting in silence.
 - **A refresh picks up where she was** (her run is kept in this browser and in the URL's `?run=`): the room, her idea,
   journey, inbox and a build in progress come back at once, with no model call. To begin again on purpose: **Start
   over** in the top bar, or **Shift+N** (asks once; the old run stays in `runs/`). **Home** also starts fresh.
@@ -81,6 +87,9 @@ MODEL_BACKEND=fal
   team's read fills the card in when it lands (about 1–3 s on fal; up to 25 s on a cold laptop on Claude Code).
 
 ## Fallback notes
+- **The bakery clip** (if the proof site won't load): `public/clips/bakery-order.mp4`, served at
+  `/clips/bakery-order.mp4` on the running app (649 KB, labelled "Recorded earlier" in the clip). Open it in a new tab and
+  play it full screen; say it was recorded earlier.
 
 - **fal backend, known model-judgement gap (the demo runs on fal; resolved with the PO's Focus 2 line: decide cites it 7–12 of 24 on fal, in three replays at 01:19 UTC):** in the full e2e on fal at 00:31
   UTC on 15 Nov, `e2e/yoga.e2e.js:186` ("a decision cites her new line") failed. At Build, no re-decision cited her newest
