@@ -292,3 +292,13 @@ html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(-
    beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
 html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+
+/* ---- AUDIT #7: after Yes on Bo's page, the room comes straight back ----
+   inbox.js keeps the page open for a beat after Yes (the card turns to data-state="yes" and empties) before it closes,
+   so a big blank sheet sat over the room and hid Bo's smile. The moment the card says yes, the sheet and its content
+   leave together: a 250ms fade with a slight drop, and it stops taking clicks. inbox.js then closes it as before. */
+html body #room #inbox[data-state="open"][data-view="action"]:has([data-component="inbox-action"][data-state="yes"]) {
+  animation: pf-sheet-leave 250ms cubic-bezier(.4, 0, .2, 1) forwards; pointer-events: none; }
+@keyframes pf-sheet-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(14px); visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  html body #room #inbox[data-state="open"][data-view="action"]:has([data-component="inbox-action"][data-state="yes"]) { animation: none; opacity: 0; visibility: hidden; } }
