@@ -447,7 +447,7 @@ if (!ONLY || ONLY.test('meetcard')) for (const [w, h] of SIZES) {
     await p.goto(BASE + `/?look=${LOOK}&stage=1&hold=600000`); await wait(1800);   // hold: each card stays until we move on
     await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(1200);
     for (let i = 0; i < 5; i++) {
-      const card = p.locator('[data-component="meet-card"][data-state="in"]:visible').last();
+      const card = p.locator('[data-component="meet-card"]:visible').last();
       const seat = await card.getAttribute('data-seat');
       const probe = () => card.evaluate(c => { const v = c.querySelector('[data-slot="face"] video'); const fc = c.querySelector('[data-slot="face"]'); const cs = getComputedStyle(fc || c);
         return { video: !!v, clip: v && (v.dataset.clip || 'wave'), t: v ? v.currentTime : 0, paused: v ? v.paused : null, err: v && v.error ? v.error.code : 0, canMp4: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'),
