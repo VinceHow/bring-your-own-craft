@@ -143,30 +143,14 @@
     w.appendChild(card);
   }
   // Noor's finding for Focus 1 (lib/first.js): researched before the demo, quoted exactly, with its source and date.
-  function renderResearch(w, f) {
-    const card = h('article', 'finding ff'); card.dataset.component = 'research-card'; card.dataset.slot = 'finding';
-    const sl = (e, n) => { e.dataset.slot = n; return e; };
-    card.appendChild(sl(h('span', 'ff-prepared', f.label || 'researched before the demo'), 'prepared'));
-    card.appendChild(sl(h('blockquote', 'ff-claim', f.quote || f.claim || ''), 'claim'));
-    if (f.users && f.users.length) card.appendChild(sl(h('p', 'ff-about', `Design's first sketch: ${f.users.join(' · ')}`), 'about'));
-    const a = sl(h('a', 'ff-src'), 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
-    a.append(sl(h('span', 'ff-src-title', f.title || f.url), 'source-title'), ' ', sl(h('span', 'ff-src-site', [f.site, f.fetched && `read ${f.fetched}`].filter(Boolean).join(' · ')), 'source-site'));
-    card.appendChild(a);
-    w.appendChild(card);
-  }
+  function renderResearch(w, f) { w.appendChild(B.fdCards.research(document, f)); } // public/fd-cards.js
   // Mika's rough morning journey in words for Focus 2 (lib/first.js): 4-6 steps; after her answer the ones her words
   // change are struck (draft -> struck) and rewritten (.jw-new, her pink).
   function renderSteps(w) {
     const box = h('div', 'jw'); box.dataset.component = 'journey-words'; box.dataset.slot = 'journey-words';
     const ol = h('ol', 'jw-steps'); ol.dataset.slot = 'steps';
     const rewritten = (B.events ? B.events() : []).findLast(e => e.type === 'journey.words.rewritten' && e.id === cur.id);
-    for (const st of (rewritten ? rewritten.steps : cur.steps) || []) {
-      const li = h('li', 'jw-step'); li.dataset.step = st.step; li.dataset.state = st.new ? 'rewritten' : 'draft'; li.dataset.slot = 'step';
-      if (st.time) { const t = h('span', 'jw-time', st.time); t.dataset.slot = 'time'; li.appendChild(t); }
-      const tx = h('span', 'jw-text'); tx.dataset.slot = 'text'; const sx = document.createElement(st.new ? 's' : 'span'); sx.textContent = st.text; tx.appendChild(sx); li.appendChild(tx);
-      if (st.new) { const n = h('span', 'jw-new', st.new); n.dataset.slot = 'new'; li.appendChild(n); }
-      ol.appendChild(li);
-    }
+    for (const st of (rewritten ? rewritten.steps : cur.steps) || []) ol.appendChild(B.fdCards.step(document, st)); // public/fd-cards.js
     box.appendChild(ol); w.appendChild(box);
   }
   // Mika's rewrite lands on the open document: each changed step is struck, then its new line appears.
@@ -175,9 +159,8 @@
     for (const st of ev.steps || []) {
       if (!st.new) continue;
       const li = doc.querySelector(`.jw-step[data-step="${st.step}"]`); if (!li) continue;
-      const tx = li.querySelector('.jw-text'); tx.innerHTML = ''; const sx = document.createElement('s'); sx.textContent = st.text; tx.appendChild(sx);
-      li.dataset.state = 'struck';
-      setTimeout(() => { const n = h('span', 'jw-new', st.new); n.dataset.slot = 'new'; li.appendChild(n); li.dataset.state = 'rewritten'; }, B.replay ? 0 : 500);
+      B.fdCards.strike(document, li, st);
+      setTimeout(() => B.fdCards.rewrite(document, li, st), B.replay ? 0 : 500);
     }
   });
   // Design's grey wireframes, from the same request the room makes.
@@ -423,11 +406,11 @@
       const mark = h('span', 'fd-pin-mark'); mark.dataset.slot = 'mark';
       const count = h('span', 'fd-pin-count'); count.dataset.slot = 'count';
       const list = h('div', 'fd-pin-replies'); list.dataset.slot = 'replies';
-      pin.append(mark, count, list);
+      pin.append(mark, count, document.createTextNode(' '), list);
       const reopen = e => { if (e.target.closest('.pin-reply')) return; e.preventDefault(); pin.querySelectorAll('.pin-reply').forEach(showReply); };
       pin.addEventListener('click', reopen);
       pin.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') reopen(e); });
-      el.appendChild(pin);
+      el.append(document.createTextNode(' '), pin); // never glued to the box's label ("Browse breads 1")
     }
     return pin;
   }
@@ -449,7 +432,7 @@
     const r = h('div', 'pin-reply'); r.dataset.component = 'pin-reply'; r.dataset.seat = ev.seat || ''; r.dataset.pin = pin.dataset.pin;
     const w = h('span', 'pin-reply-who', ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)); w.dataset.slot = 'who';
     const t = h('span', 'pin-reply-text', ev.text || ''); t.dataset.slot = 'text';
-    r.append(w, ' ', t); r._pin = pin; r._text = ev.text; // the space: "Noor You're right…", never "NoorYou're"
+    r.append(w, document.createTextNode(': '), t); r._pin = pin; r._text = ev.text; // "Noor: Warm bread…"
     pin.querySelector('.fd-pin-replies').appendChild(r);
     showReply(r);
     if (M) M.animate(r, { y: [6, 0] }, SPRING);

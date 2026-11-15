@@ -976,3 +976,33 @@ html #room .painted-status::after { content: ''; position: absolute; inset: 0; z
 @keyframes pt-status { from { opacity: 0; translate: 0 6px; } }
 /* chatter bubbles sit ABOVE their speaker's pill (the room places them under it), clear of every face */
 html #room .chatter-line { translate: 0 calc(-100% - 58px); border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; max-width: 300px; }
+
+/* ---------- her inbox: something new arrives (design studio, 14 Nov) ----------
+   Hooks only: inbox[data-pulse], inbox-item[data-state new · top · empty][data-seat], data-slot now · who · text · empty.
+   The arrival is the comp's (her-inbox.html): the tray rises ~8px and settles, and its ink line redraws once around it
+   in the asking teammate's crayon, then fades back to the paper's own line. No glow, no ring, no outline. The lift is a
+   transform, never translate, so the inbox can still nudge itself back on screen. */
+@property --pt-sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+html #room [data-component="inbox"][data-pulse="on"] { outline: none; animation: pt-inbox-rise 1.1s cubic-bezier(.33,0,.2,1) both; }
+@keyframes pt-inbox-rise { 0% { transform: none; } 35% { transform: translateY(-8px); } 100% { transform: none; } }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="design"] { --pc: var(--cr-design); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="research"] { --pc: var(--cr-research); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="data"] { --pc: var(--cr-data); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="strategy"] { --pc: var(--cr-strategy); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="engineering"] { --pc: #B48A1E; }
+html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border-radius: var(--r-md); border: 2.2px solid var(--pc, var(--cr-product));
+  -webkit-mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0); mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0);
+  animation: pt-inbox-ink .9s cubic-bezier(.45,.05,.25,1) .25s both, pt-inbox-ink-out .8s ease 1.6s forwards; }
+@keyframes pt-inbox-ink { from { --pt-sweep: 0deg; } to { --pt-sweep: 360deg; } }
+@keyframes pt-inbox-ink-out { to { opacity: 0; } }
+/* the item: who asks as a small ink label in their colour, the question on its own line */
+html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="who"] { display: block; font: 500 13px/1.2 var(--ui); color: var(--ct, var(--ink-2)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="text"] { display: block; margin-top: 3px; font: 400 18px/1.3 var(--display); color: var(--ink); }
+html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: pt-inbox-text .5s ease .2s both; }
+@keyframes pt-inbox-text { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+html #room [data-component="inbox"] [data-component="inbox-item"][data-state="empty"] [data-slot="empty"] { font: italic 400 16px/1.3 var(--display); color: var(--ink-2); }
+@media (prefers-reduced-motion: reduce) {
+  html #room [data-component="inbox"][data-pulse="on"], html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after,
+  html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: none; }
+  html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { --pt-sweep: 360deg; opacity: .8; } }
