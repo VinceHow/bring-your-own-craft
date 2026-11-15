@@ -264,20 +264,15 @@
   }
 
   // ---- her role on her paper name tag: Product, or her own craft ------------------------------------
-  // Product is prefilled (the stage path). "Your own craft" makes her name tag with builder 6's flow (public/name-tag.js);
-  // once she keeps it, she meets the team and sits in her seat with that craft.
-  async function pick(what) {
+  // Product is prefilled (the stage path). "Your own craft" is only a seat choice on this same paper: her "I love…"
+  // words carry her craft (the name tag's background call names it), and she sits in her own-craft seat. The old
+  // separate DIY popup (public/name-tag.js) is retired from the room: one name tag, one input, one mic.
+  function pick(what) {
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
     pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
-    if (what === 'craft') {
-      BYOC.herName = herNameField();
-      const tag = await takeDiySeat();
-      if (!tag && BYOC.beat === 0 && pc.isConnected) { pc.dataset.pick = 'product'; pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === 'product'))); }
-      return;
-    }
     $('#intro-input', introCard)?.focus();
   }
   BYOC.pick = { choose: pick, current: () => (introCard && $('.pick-card', introCard)?.dataset.pick) || null };
@@ -746,9 +741,11 @@
   // meter = craft / (craft + stamp) over events that carry a mode.
   function tallyFromEvents(events) {
     let came = 0, brought = 0, decided = 0, craft = 0, stamp = 0;
+    // An ask raised before the team proposes (Focus 1, an unblock, Focus 2) came up too: never "0 came up, 3 brought".
+    const cand = new Set(events.filter(e => e.type === 'candidate').map(e => e.id));
     for (const e of events) {
       if (e.type === 'candidate') came++;
-      else if (e.type === 'ask') brought++;
+      else if (e.type === 'ask') { brought++; if (!cand.has(e.id)) came++; }
       else if (e.type === 'decided') decided++;
       if (e.mode === 'craft') craft++;
       else if (e.mode === 'stamp') stamp++;
@@ -799,7 +796,9 @@
   const sk = { sheet: $('#sketch-sheet'), inner: $('#sketch-inner'), wait: $('#sketch-wait'), req: null };
   BYOC.el.sketchSheet = sk.sheet;
   BYOC.timings = {};
-  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
+  // In a replay the frames come from the recording's own folder (its cached sketches), never the original run's id,
+  // which this server may not have (a 404 in the console during R).
+  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.replay && BYOC.replayName ? BYOC.replayName : BYOC.run)}/sketches`; }
   // One request for Design's frames, shared by the sketch sheet and her focus document.
   BYOC.getSketches = () => sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false }).catch(e => { sk.req = null; throw e; }));
   // Her journey changed (a line, a reshape, her answer redrawing it): frames fetched for the old boxes are stale.
@@ -1242,13 +1241,18 @@
   // and her words for the team's profile; 'tag.profile' says it arrived. On failure the team keeps her raw words.
   function tagMore(c, cur, said) {
     const card = { title: cur.title, traits: cur.traits, superpower: cur.superpower };
-    BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'more', card, seat: 'product' }, { step: false }).then(m => {
+    const diy = $('.pick-card', c)?.dataset.pick === 'craft';
+    BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'more', card, ...(diy ? {} : { seat: 'product' }) }, { step: false }).then(m => {
       if (!m) return;
       const alt = m.alternates || {};
       for (const k of ['titles', 'traits', 'superpowers']) if (Array.isArray(alt[k])) cur.alternates[k] = alt[k].filter(x => x && x !== cur.title && !cur.traits.includes(x) && x !== cur.superpower);
       if (m.goodAt) cur.goodAt = m.goodAt;
       if (m.loves) cur.loves = m.loves;
-      if (introCard !== c && BYOC.herTag) BYOC.herTag = { ...BYOC.herTag, goodAt: cur.goodAt, loves: cur.loves };
+      if (diy && m.craft) cur.craft = m.craft;
+      if (introCard !== c && BYOC.herTag) {
+        BYOC.herTag = { ...BYOC.herTag, goodAt: cur.goodAt, loves: cur.loves, ...(diy ? { craft: cur.craft } : {}) };
+        const name = diy && el.seat.product.querySelector('.card-diy .card-name'); if (name && cur.craft) name.textContent = cur.craft;
+      }
       emit('tag.profile', { rough: !!m.rough });
     }).catch(() => emit('tag.profile', { rough: true }));
   }
@@ -1308,6 +1312,10 @@
     introCard = null;
     BYOC.herName = herNameField();
     if (c._char) BYOC.herTag = { ...c._char, alternates: undefined };
+    if ($('.pick-card', c)?.dataset.pick === 'craft') {
+      BYOC.herSeat = 'diy';
+      BYOC.herTag = { ...(BYOC.herTag || {}), craft: (c._char && c._char.craft !== 'Product' && c._char.craft) || 'Your own craft' };
+    }
     const said = inp.value.trim();
     BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
     inp.blur();

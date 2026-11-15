@@ -75,7 +75,7 @@ test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
   assert.ok(r[0] >= -1 && r[1] >= -1 && r[2] <= 1281 && r[3] <= 721, `the room fits the screen: ${r}`);
 });
 
-test('1b. "Your own craft" on her paper name tag: builder 6\'s tag, then the team, then she sits in her seat', async () => {
+test('1b. "Your own craft" on her paper name tag: a seat choice on the one tag, then the team, then she sits in her own craft', async () => {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
@@ -86,14 +86,18 @@ test('1b. "Your own craft" on her paper name tag: builder 6\'s tag, then the tea
   assert.strictEqual(await p.textContent('.nt-paper .pick-q'), 'What do you bring to the table?');
   assert.deepStrictEqual(await p.locator('.nt-paper .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
   assert.strictEqual(await p.getAttribute('.nt-paper .pick-card', 'data-pick'), 'product');
+  // "Your own craft" only selects the seat (the old DIY popup is retired): one name tag, her words next.
   await p.click('.nt-paper [data-pick="craft"]');
-  await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input', null, p);
+  await waitFor(() => document.activeElement?.id === 'intro-input', 3000, 'her words', null, p);
+  assert.strictEqual(await p.locator('.name-tag').count(), 0, 'no second name tag');
+  assert.strictEqual(await p.getAttribute('.nt-paper .pick-card', 'data-pick'), 'craft');
   await p.keyboard.type('I bake sourdough for my village and I love the 7am queue');
   await p.keyboard.press('Enter');
-  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 20000, 'her tag', null, p);
-  await p.click('.name-tag .tag-craft'); await p.keyboard.press('End');
-  await p.keyboard.press('Enter'); // keep it: she takes the seat
-  await waitFor(() => !!document.querySelector('.seat-product .card-diy'), 5000, 'her card in her seat, in her own craft', null, p);
+  await waitFor(() => ['rough', 'shown'].includes(document.querySelector('.nt-paper')?.dataset.state), 20000, 'her tag', null, p);
+  await waitFor(() => document.querySelector('.nt-paper')?.dataset.state === 'shown' || document.querySelector('.nt-status')?.dataset.state === 'rough', 30000, 'the team\'s read (or her rough card)', null, p);
+  await p.locator('.nt-paper').focus();
+  await p.keyboard.press('Enter'); // meet the team: she takes her own-craft seat
+  await waitFor(() => !!document.querySelector('.seat-product .card-diy'), 30000, 'her card in her seat, in her own craft', null, p);
   assert.strictEqual(await p.getAttribute('.seat-product .card', 'data-seat'), 'diy', 'her own craft, not Product');
   assert.match(await p.textContent('.seat-product .card-name'), /\S/, 'her craft names her card');
   assert.strictEqual(await p.locator('#her-stance').count(), 0, 'no stance slot on her card');

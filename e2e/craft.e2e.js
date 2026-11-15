@@ -1,8 +1,8 @@
 // End-to-end, "Your own craft": her name tag from her words, then a run in the DIY seat (a tattoo artist, a craft we
 // never listed): first sketch, the team, check-ins in her craft (at most 3), and at the build press the quiet known
 // limit, no page, never the wrong one. Real model backend. Owned by the first-sketch piece.
-// Until the dashed seat is on the table (beats), the tag opens through BYOC.nameTag.open() and the walk-in goes
-// through the Product seat; her seat on the run is still 'diy'.
+// "Your own craft" is a seat choice on her one paper name tag (the old DIY popup is retired from the room; 1b still
+// checks public/name-tag.js itself, which the gallery shows). Her seat on the run is 'diy'.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert';
 import { spawn } from 'node:child_process';
@@ -34,28 +34,32 @@ before(async () => {
 });
 after(async () => { await browser?.close(); srv?.kill(); });
 
-test('1. her character card: the team\'s fun read of her words, each piece swappable, her craft editable', async () => {
+test('1. her own craft, on her one paper name tag: the team\'s fun read, each piece swappable, her craft named', async () => {
   await page.goto(BASE + '/?hold=300&path=full&meeting=0');
   await page.waitForTimeout(800);
-  await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft
-  await waitFor(() => document.activeElement?.classList.contains('tag-input'), 3000, 'her tag input');
+  await page.evaluate(() => BYOC.on('tag.profile', () => { window.__profile = true; }));
+  await page.click('.nt-paper [data-pick="craft"]'); // her paper name tag: Your own craft (a seat choice, no popup)
+  await waitFor(() => document.activeElement?.id === 'intro-input', 3000, 'her words');
+  assert.strictEqual(await page.locator('.name-tag').count(), 0, 'no second name tag');
   await page.keyboard.type('I do fine-line tattoos, flowers mostly, and I love the moment the stencil comes off');
   await page.keyboard.press('Enter');
-  await waitFor(() => !document.querySelector('.name-tag .tag-card').hidden, 15000, 'her card');
-  assert.match(await page.locator('.tag-craft').innerText(), /tattoo/i);
-  assert.match(await page.locator('.tag-title').innerText(), /^the /);
-  assert.ok((await page.locator('.tag-trait').count()) >= 2, 'two or three traits');
-  const before = await page.locator('.tag-trait').first().innerText();
-  await page.locator('.tag-trait').first().click();
-  const after = await page.locator('.tag-trait').first().innerText();
+  await waitFor(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', 30000, 'her card');
+  assert.match(await page.locator('.nt-paper .char-title').innerText(), /^the /);
+  assert.ok((await page.locator('.nt-paper .char-trait').count()) >= 2, 'two or three traits');
+  await waitFor(() => window.__profile, 30000, 'the background call (her craft and the swaps)');
+  const before = await page.locator('.nt-paper .char-swap').first().innerText();
+  await page.locator('.nt-paper .char-swap').first().click();
+  const after = await page.locator('.nt-paper .char-swap').first().innerText();
   assert.notStrictEqual(after, before, 'a click swaps a trait');
+  await page.locator('.nt-paper').focus();
   await page.keyboard.press('Enter');
-  await waitFor(() => !document.querySelector('.name-tag'), 3000, 'her card kept');
+  await waitFor(() => BYOC.beat >= 1, 3000, 'she meets the team');
   const tag = await page.evaluate(() => BYOC.herTag);
   assert.strictEqual(tag.traits[0], after, 'her swap kept');
-  assert.ok(!('alternates' in tag), 'the pools stay behind');
+  assert.ok(!('alternates' in tag) || tag.alternates === undefined, 'the pools stay behind');
   console.log('card:', JSON.stringify(tag));
-  assert.deepStrictEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft]), ['diy', tag.craft]);
+  assert.strictEqual(await page.evaluate(() => BYOC.herSeat), 'diy');
+  assert.match(tag.craft, /tattoo/i, 'her craft, named from her words');
 });
 
 test('1b. when her card lands, focus is on it: Enter, or a clicker\'s forward key, keeps it without a click (faked reply)', async () => {
