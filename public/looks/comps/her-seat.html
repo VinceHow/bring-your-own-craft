@@ -10,7 +10,7 @@
 :root {
   --paper: #FBF5EA; --paper-2: #F3EAD9; --ink: #3A2C22; --ink-2: #6B5848; --ink-3: #9A8674;
   --her: #D9788F; --her-soft: #F4D3DA; --her-deep: #A84862;
-  --mika: #3F5E93; --noor: #D0673F; --theo: #7FA58A; --ines: #C99A3E; --bo: #E3C24A;
+  --mika: #3F5E93; --wren: #D0673F; --theo: #7FA58A; --ines: #C99A3E; --bo: #E3C24A;
   --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
   --shadow: 0 1px 1px rgba(70,40,20,.18), 0 6px 14px -6px rgba(70,40,20,.35), 0 18px 34px -18px rgba(60,30,10,.45);
 }
@@ -47,7 +47,7 @@ html, body { margin: 0; background: #2B1F17; }
 .tent .chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .tucked { position: absolute; width: 120px; height: 64px; padding: 7px 10px; font: 500 13px/1.2 var(--sans); color: var(--ink-2); border-top: 4px solid var(--c); }
 .tucked.n1 { --c: var(--mika); left: 728px; top: 748px; rotate: 10deg; }
-.tucked.n2 { --c: var(--noor); left: 760px; top: 760px; rotate: 18deg; }
+.tucked.n2 { --c: var(--wren); left: 760px; top: 760px; rotate: 18deg; }
 
 /* ---------- B: her notebook at her place on the table ---------- */
 .book { position: absolute; left: 540px; top: 604px; width: 270px; height: 150px; rotate: -7deg; border-radius: 3px 8px 8px 3px;
@@ -58,7 +58,7 @@ html, body { margin: 0; background: #2B1F17; }
 .book .plate .char { font-size: 14px; }
 .book .open { position: absolute; right: 14px; bottom: 10px; font: 500 13px/1 var(--sans); color: var(--her-deep); }
 .mark { position: absolute; top: -26px; width: 22px; height: 40px; background: var(--c); border-radius: 2px 2px 0 0; clip-path: polygon(0 0,100% 0,100% 100%,50% 82%,0 100%); box-shadow: 0 2px 3px rgba(0,0,0,.15); }
-.mark.m1 { --c: var(--mika); left: 120px; } .mark.m2 { --c: var(--noor); left: 150px; top: -18px; }
+.mark.m1 { --c: var(--mika); left: 120px; } .mark.m2 { --c: var(--wren); left: 150px; top: -18px; }
 .book.setup .plate { padding-bottom: 11px; }
 .book.setup .chips { display: flex; gap: 6px; margin-top: 8px; }
 .book.setup .chip { padding: 6px 10px; font-size: 13px; }
@@ -114,7 +114,7 @@ html, body { margin: 0; background: #2B1F17; }
   <div class="ring hide" id="ring"></div>
 
   <!-- A -->
-  <div class="tucked paper n2 hide" data-opt="a" data-st="work">Noor</div>
+  <div class="tucked paper n2 hide" data-opt="a" data-st="work">Wren</div>
   <div class="tucked paper n1 hide" data-opt="a" data-st="work">Mika</div>
   <div class="tent paper hide" data-opt="a" data-st="work"><span class="yours">Your seat</span><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div>
   <div class="tent paper setup hide" data-opt="a" data-st="setup"><span class="yours">This seat is yours</span><h3>What do you bring to the table?</h3><p>Pick a craft. The team fills every other seat.</p>
@@ -132,7 +132,7 @@ html, body { margin: 0; background: #2B1F17; }
   <div class="desk paper hide" data-opt="c" data-st="work">
     <div class="me"><div class="seal">P</div><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
     <div class="notes">
-      <div class="slip" style="--c:var(--noor)"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" style="--c:var(--wren)"><span class="label">Wren</span>What sells out first, and what should we do about it?</div>
       <div class="slip" style="--c:var(--mika)"><span class="label">Mika</span>If ordering could feel like one thing…</div>
     </div>
     <div class="work"><div class="thumb">Bakery ordering<i></i><i></i><i></i></div><span class="btn">Open your desk</span></div>
@@ -150,13 +150,13 @@ html, body { margin: 0; background: #2B1F17; }
       <div class="card"><div class="name">Priya</div><div class="char">the Customer Whisperer</div>
         <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
       <h4>Waiting for you, when you're ready</h4>
-      <div class="slip" style="--c:var(--noor)"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" style="--c:var(--wren)"><span class="label">Wren</span>What sells out first, and what should we do about it?</div>
       <div class="slip" style="--c:var(--mika)"><span class="label">Mika</span>If ordering could feel like one thing, what should it feel like?</div>
     </div>
     <div class="mid">
       <div class="label">Your idea</div>
       <h2>A website for a small bakery, so customers can order bread ahead.</h2>
-      <div class="char">Rough journey by Noor and Mika</div>
+      <div class="char">Rough journey by Wren and Mika</div>
       <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
       <div class="jr">
         <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
@@ -170,7 +170,7 @@ html, body { margin: 0; background: #2B1F17; }
       <h4>Decided by the team</h4>
       <div class="dec">Orders close at 8pm for the next morning.<span class="label">Bo, Ines and Mika</span></div>
       <div class="dec">Regulars cancel in one tap, up to the cut-off.<span class="label">Ines and Bo</span></div>
-      <div class="dec">Sold out shows as sold out, never hidden.<span class="label">Noor and Mika</span></div>
+      <div class="dec">Sold out shows as sold out, never hidden.<span class="label">Wren and Mika</span></div>
       <h4 style="margin-top:10px">Your takeaways</h4>
       <div class="dec" style="font-style:italic">People come for bread that's still warm, and for being known.</div>
     </div>

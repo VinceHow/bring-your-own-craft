@@ -11,7 +11,7 @@
 :root {
   --cream: #F6ECDB; --sheet: #FBF5EA; --ink: #3A2C22; --ink-2: #6A5646; --ink-3: #94806C;
   --rule: rgba(84,58,38,.16); --cushion: #CF6A82; --cushion-soft: rgba(232,170,184,.32);
-  --mika: #44608F; --noor: #C8673F; --theo: #6F9271; --ines: #B98A3E; --bo: #D6AE3A;
+  --mika: #44608F; --wren: #C8673F; --theo: #6F9271; --ines: #B98A3E; --bo: #D6AE3A;
 }
 body { background: var(--cream); }
 
@@ -93,7 +93,7 @@ body { background: var(--cream); }
 .chime.quiet .mate { height: 92px; }
 
 .chime.quiet .note p { font: 400 15px/1.35 var(--sans); color: var(--ink-2); }
-[data-mate="mika"] { --c: var(--mika); } [data-mate="noor"] { --c: var(--noor); } [data-mate="theo"] { --c: #4F7552; }
+[data-mate="mika"] { --c: var(--mika); } [data-mate="wren"] { --c: var(--wren); } [data-mate="theo"] { --c: #4F7552; }
 [data-mate="ines"] { --c: #946A28; } [data-mate="bo"] { --c: #A57F15; }
 
 /* the work redraws to her answer */
@@ -106,17 +106,17 @@ body { background: var(--cream); }
 
   <div class="focus">
     <div class="wash"></div>
-    <div class="top"><span class="label">A question from Noor and Mika</span><span class="back">Back to the table</span></div>
+    <div class="top"><span class="label">A question from Wren and Mika</span><span class="back">Back to the table</span></div>
     <article class="doc">
       <div class="from">
-        <span class="face" data-mate="noor" style="--c:#E7B49A"><img src="../cast/noor-face.webp" alt=""></span>
+        <span class="face" data-mate="wren" style="--c:#E7B49A"><img src="../cast/wren-face.webp" alt=""></span>
         <span class="face" data-mate="mika" style="--c:#B9C3D6"><img src="../cast/mika-face.webp" alt=""></span>
         <span class="label">About the rough journey</span>
       </div>
       <h1 class="q">What do people come to a bakery like this for that they can’t get at the supermarket?</h1>
 
       <div class="work journey-frame">
-        <div class="cap"><span class="label">Rough journey · Noor and Mika</span><span class="label">Who · stages they go through</span></div>
+        <div class="cap"><span class="label">Rough journey · Wren and Mika</span><span class="label">Who · stages they go through</span></div>
         <div class="journey">
           <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span>
           <span class="who">Morning regulars</span><span class="step" id="s1">Browse today’s bread</span><span class="step" id="s2">Order with an account</span><span class="step end" id="s3">Collect at opening</span>
@@ -144,8 +144,8 @@ body { background: var(--cream); }
         <div class="note"><span class="n">Mika</span><p>Love that. Regulars first, their usual loaf one tap away.</p><div class="will">Redrawing the regulars’ row</div></div></div>
       <div class="chime" data-mate="bo"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/bo-rest.webp" alt=""><img class="react" src="../cast/bo-react.webp" alt=""></div></div></div>
         <div class="note"><span class="n">Bo</span><p>Then we hold it for them till ten. No account needed, I’ll remember them.</p></div></div>
-      <div class="chime" data-mate="noor"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/noor-rest.webp" alt=""><img class="react" src="../cast/noor-react.webp" alt=""></div></div></div>
-        <div class="note"><span class="n">Noor</span><p>Matches what small bakeries report: sourdough’s gone by nine.</p><div class="will">2 sources</div></div></div>
+      <div class="chime" data-mate="wren"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/wren-rest.webp" alt=""><img class="react" src="../cast/wren-react.webp" alt=""></div></div></div>
+        <div class="note"><span class="n">Wren</span><p>Matches what small bakeries report: sourdough’s gone by nine.</p><div class="will">2 sources</div></div></div>
       <div class="chime" data-mate="ines"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/ines-rest.webp" alt=""><img class="react" src="../cast/ines-react.webp" alt=""></div></div></div>
         <div class="note"><span class="n">Ines</span><p>Hmm, regulars might want a standing weekly order. Show that first?</p></div></div>
       <div class="chime quiet" data-mate="theo"><div class="mate"><div class="act"><div class="body"><img class="rest" src="../cast/theo-rest.webp" alt=""><img class="react" src="../cast/theo-react.webp" alt=""></div></div></div>
@@ -166,7 +166,7 @@ body { background: var(--cream); }
   const mate = n => $(`.chime[data-mate="${n}"]`);
 
   // Each teammate breathes at its own pace (and Bo slowest of all). Tiny, endless, never in step.
-  const breathe = { mika: 2.7, noor: 3.5, theo: 4.3, ines: 3.9, bo: 5.2 };
+  const breathe = { mika: 2.7, wren: 3.5, theo: 4.3, ines: 3.9, bo: 5.2 };
   const startBreathing = () => Object.entries(breathe).forEach(([n, s], i) =>
     mate(n).querySelector('.body').animate(
       [{ transform: 'scale(1,1)' }, { transform: 'scale(1.012,.985)' }, { transform: 'scale(1,1)' }],
@@ -200,8 +200,8 @@ body { background: var(--cream); }
     mika: async el => { pose('mika', 1, .2); await animate(el, { rotate: [0, -7], x: [0, -8] }, settle(.35)); await wait(1600);
       pose('mika', 0, .5); animate(el, { rotate: 0, x: 0 }, settle(.9)); },                                      // leans in fast, pencil ready
     bo:   async el => { await wait(250); pose('bo', 1, .6); await wait(2300); pose('bo', 0, .9); },             // opens one eye, slowly; back to bliss
-    noor: async el => { pose('noor', 1, .4); await animate(el, { y: [0, -5], rotate: [0, -3] }, settle(.6)); await wait(1900);
-      pose('noor', 0, .6); animate(el, { y: 0, rotate: 0 }, settle(.9)); },                                     // peers over the glasses, holds up a tab
+    wren: async el => { pose('wren', 1, .4); await animate(el, { y: [0, -5], rotate: [0, -3] }, settle(.6)); await wait(1900);
+      pose('wren', 0, .6); animate(el, { y: 0, rotate: 0 }, settle(.9)); },                                     // peers over the glasses, holds up a tab
     ines: async el => { await wait(150); pose('ines', 1, .7); await animate(el, { rotate: [0, -4], x: [0, -4] }, settle(.9)); await wait(2100);
       pose('ines', 0, .8); animate(el, { rotate: 0, x: 0 }, settle(1)); },                                     // points ahead with a slow, knowing wink
     theo: async el => { await wait(400); pose('theo', 1, .45); await animate(el, { rotate: [0, 2, 0] }, { duration: .9, ...glide }); await wait(1800);
@@ -255,7 +255,7 @@ body { background: var(--cream); }
       });
     }, i * 260));
     await wait(500); chime('bo');
-    await wait(1100); chime('noor');
+    await wait(1100); chime('wren');
     await wait(1100); chime('ines');
     await wait(1100); chime('theo');
     await wait(900);

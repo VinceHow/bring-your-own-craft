@@ -145,7 +145,7 @@ The room shows it as a dashed-border GUEST card: "a stand-in for your customer, 
 | The two states (room with chatter / her document), the tray opening a document, removing the dimming | BYOC builder 3 (beats) | `public/room.js`, `public/room.css`, `public/close.js`, `public/flow.js`, `public/focus-doc.js` (new), e2e |
 | The document's look (words landing, chime-ins, her brief), room chatter's look | BYOC builder 1 (polish) | `public/polish.css`, `design/` |
 
-**Ask (replaces fork/pin):** `{ id, seat, by?: 'Noor', question, artifact: { kind: 'journey'|'finding'|'wires'|'page', ref? },
+**Ask (replaces fork/pin):** `{ id, seat, by?: 'Wren', question, artifact: { kind: 'journey'|'finding'|'wires'|'page', ref? },
 decisionIds: [candidate ids this question settles] }`. No options, recommendation or "why".
 `lib/policy.js` still guards every `ask` event.
 

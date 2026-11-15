@@ -9,7 +9,7 @@
      sheet (.gl) and the ink line (svg.ol) to every surface, and the shared SVG filters once. InkPaper.lay(el, delay)
      plays the signature motion for one surface; InkPaper.redraw(el) re-inks one after its size changes.
    - Surfaces: .pill, .bubble, .note, .decision, .sheet, .pop, .btn, .tag, .doc, .take, .card. Whose ink: data-who on
-     the element or an ancestor (mika, noor, theo, ines, bo, her). A decision takes three: --c, --c2, --c3.
+     the element or an ancestor (mika, wren, theo, ines, bo, her). A decision takes three: --c, --c2, --c3.
    - No page layout here: positions, sizes and grids belong to the page.
    Rules kept: no square corners, nothing under 13px, sentence case, no violet, no counts in red, every text pair at
    4.5:1 or more on its own paper (measured against composited pixels, day and night). */
@@ -23,9 +23,9 @@
   /* words */
   --ip-ink: #281C14; --ip-ink-2: #4E3A2B; --ip-ink-3: #64503F;
   /* the team's crayons: a touch richer than the paint so they read in a thin sliver */
-  --ip-mika: #3D5A92; --ip-noor: #C95E38; --ip-theo: #6E9877; --ip-ines: #C08A32; --ip-bo: #E2B83A; --ip-her: #D47288; --ip-kraft: #C49A62;
+  --ip-mika: #3D5A92; --ip-wren: #C95E38; --ip-theo: #6E9877; --ip-ines: #C08A32; --ip-bo: #E2B83A; --ip-her: #D47288; --ip-kraft: #C49A62;
   /* deep versions of each ink, for words on cream (all 4.5:1 or more on --ip-paper) */
-  --ip-mika-t: #2D4775; --ip-noor-t: #8E3F22; --ip-theo-t: #3E5E3F; --ip-ines-t: #6F4A12; --ip-bo-t: #634A08; --ip-her-t: #93374F;
+  --ip-mika-t: #2D4775; --ip-wren-t: #8E3F22; --ip-theo-t: #3E5E3F; --ip-ines-t: #6F4A12; --ip-bo-t: #634A08; --ip-her-t: #93374F;
   /* papers */
   --ip-paper: #FCF5E8;        /* the cream top sheet */
   --ip-paper-her: #FCEBEF;    /* her pill, her takeaways */
@@ -51,7 +51,7 @@
 }
 /* night: the paper is lit warmly by the table lamp, crayons a shade deeper, the line a touch softer, a warm halo */
 .ink-paper[data-time="night"] {
-  --ip-mika: #34507F; --ip-noor: #B5502D; --ip-theo: #5E8566; --ip-ines: #AD7A28; --ip-bo: #CFA22C; --ip-her: #C05F77; --ip-kraft: #A9824F;
+  --ip-mika: #34507F; --ip-wren: #B5502D; --ip-theo: #5E8566; --ip-ines: #AD7A28; --ip-bo: #CFA22C; --ip-her: #C05F77; --ip-kraft: #A9824F;
   --ip-paper: #F7E6C8; --ip-paper-her: #F8DFD9; --ip-paper-deep: #F4E2C3; --ip-paper-dark: #2A1D14;
   --ip-inset: rgba(255,246,228,.55); --ip-inset-her: rgba(250,222,222,.9);
   --ip-line: #3C2617; --ip-line-o: .9;
@@ -61,7 +61,7 @@
 
 /* whose ink */
 .ink-paper [data-who="mika"], .ink-paper[data-who="mika"] { --c: var(--ip-mika); --t: var(--ip-mika-t); }
-.ink-paper [data-who="noor"] { --c: var(--ip-noor); --t: var(--ip-noor-t); }
+.ink-paper [data-who="wren"] { --c: var(--ip-wren); --t: var(--ip-wren-t); }
 .ink-paper [data-who="theo"] { --c: var(--ip-theo); --t: var(--ip-theo-t); }
 .ink-paper [data-who="ines"] { --c: var(--ip-ines); --t: var(--ip-ines-t); }
 .ink-paper [data-who="bo"] { --c: var(--ip-bo); --t: var(--ip-bo-t); }

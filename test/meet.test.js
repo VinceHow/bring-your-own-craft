@@ -20,7 +20,7 @@ test('lines that break the rules are dropped (the client keeps that seat static)
   assert.equal(meetLine("I'll make sure your page loads fast."), null);
   assert.equal(meetLine("I'll " + 'really '.repeat(20) + 'build it.'), null);
   assert.equal(meetLine('You have hit your usage limit'), null);
-  assert.equal(meetLine('Noor: I’ll find the regulars'), 'I’ll find the regulars.');
+  assert.equal(meetLine('Wren: I’ll find the regulars'), 'I’ll find the regulars.');
 });
 test('slow or failing: static, never waits past the limit, never throws', async () => {
   const t0 = Date.now();

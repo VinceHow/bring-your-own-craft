@@ -1,11 +1,11 @@
 // Shared content for the wide UI exploration (ui-glass.html, ui-film.html): the same parts, room and focus document in
 // every direction, so they compare fairly. Text from painted-system.html. Each page brings its own CSS and motion.
-// Views: ?view=parts|room|focus · ?still=1 for the end state · ?pop=0 hides Noor's popover in the room.
+// Views: ?view=parts|room|focus · ?still=1 for the end state · ?pop=0 hides Wren's popover in the room.
 (function () {
   'use strict';
   const PILLS = [
     { who: 'mika', name: 'Mika', x: 262, y: 258 },
-    { who: 'noor', name: 'Noor', x: 560, y: 220 },
+    { who: 'wren', name: 'Wren', x: 560, y: 220 },
     { who: 'theo', name: 'Theo', x: 770, y: 262 },
     { who: 'ines', name: 'Ines', x: 1062, y: 228 },
     { who: 'bo', name: 'Bo', x: 1236, y: 330 },
@@ -14,14 +14,14 @@
   const herPill = (cls = '') => `<button class="pill is-her ${cls}" data-who="her" type="button"><span class="dot">P</span><span class="nm">Priya</span><span class="agent">the Customer Whisperer</span></button>`;
   const invite = `<button class="pill is-invite" data-who="her" type="button"><span class="dot"></span><span class="nm">Take your seat</span></button>`;
   const bubble = (who, name, text) => `<div class="bubble" data-who="${who}"><b>${name}</b><span class="t">${text}</span></div>`;
-  const note = `<div class="note" data-who="noor"><span class="lab"><i></i>Noor</span><span class="t">What sells out first, and what should we do about it?</span></div>`;
+  const note = `<div class="note" data-who="wren"><span class="lab"><i></i>Wren</span><span class="t">What sells out first, and what should we do about it?</span></div>`;
   const decision = `<div class="decision"><span class="t">Orders close at 8pm for the next morning.</span>
     <span class="by"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="lab">Bo, Ines and Mika</span></span></div>`;
-  const sheet = (big) => `<div class="sheet"><span class="lab">Her idea · rough journey by Noor and Mika</span>
+  const sheet = (big) => `<div class="sheet"><span class="lab">Her idea · rough journey by Wren and Mika</span>
     <h3>A website for a small bakery, so customers can order bread ahead.</h3>
     ${big ? '' : '<div class="steps"><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span></div>'}
     <div class="tabs" role="tablist"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div>`;
-  const pop = `<div class="pop" data-who="noor"><div class="pop-head"><span class="dot"></span><span class="nm">Noor</span><span class="lab">Research</span></div>
+  const pop = `<div class="pop" data-who="wren"><div class="pop-head"><span class="dot"></span><span class="nm">Wren</span><span class="lab">Research</span></div>
     <span class="lab">Working on</span><p class="t">What sells out first at small bakeries</p>
     <span class="lab">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div>`;
   const btns = `<div class="btns"><button class="btn" type="button">Build it</button><button class="btn quiet" type="button">Back to the room</button></div>`;
@@ -42,7 +42,7 @@
     </div></section>`;
 
   const ROOM = `<section class="view v-room">
-    ${PILLS.map(p => `<div class="at" style="left:${p.x}px;top:${p.y}px" data-in>${pill(p, p.who === 'bo' ? 'is-talking' : p.who === 'noor' ? 'is-open' : '')}</div>`).join('')}
+    ${PILLS.map(p => `<div class="at" style="left:${p.x}px;top:${p.y}px" data-in>${pill(p, p.who === 'bo' ? 'is-talking' : p.who === 'wren' ? 'is-open' : '')}</div>`).join('')}
     <div class="at a-bubble" style="left:1250px;top:232px" data-in>${bubble('bo', 'Bo', 'Orders after 8pm miss the morning bake.')}</div>
     <div class="at a-pop" style="left:222px;top:26px">${pop}</div>
     <div class="at a-sheet" style="left:586px;top:494px" data-in>${sheet(false)}</div>
@@ -57,7 +57,7 @@
   const FOCUS = `<section class="view v-focus">
     <div class="doc">
       <div class="main">
-        <span class="lab">From Noor and Mika · the rough journey</span>
+        <span class="lab">From Wren and Mika · the rough journey</span>
         <h1>A website for a small bakery, so customers can order bread ahead.</h1>
         <div class="jr"><span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
           <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step">Held till ten</span>

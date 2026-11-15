@@ -28,7 +28,7 @@ function newRun({ takeaway = false } = {}) {
   initTaste(run);
   logEvent(run, 'run.start', { mode: 'craft', idea: 'A booking page for a small yoga studio.', seat: 'product' });
   for (const c of CANDS) logEvent(run, 'candidate', c);
-  logEvent(run, 'ask', { id: 'c4', seat: 'research', by: 'Noor', question: 'What makes someone come back week after week?', decisionIds: ['c4'] });
+  logEvent(run, 'ask', { id: 'c4', seat: 'research', by: 'Wren', question: 'What makes someone come back week after week?', decisionIds: ['c4'] });
   for (const c of CANDS) if (c.id !== 'c4') logEvent(run, 'decided', { id: c.id, seat: c.seat, decision: c.decision, choice: 'A way', cites: 'team default', round: 'select' });
   if (takeaway) logEvent(run, 'taste.written', { mode: 'craft', id: 'L5', text: 'Never ask for what we could remember.', askId: 'c4' });
   logEvent(run, 'select.done', { came: CANDS.length, brought: 1, ms: 1 });

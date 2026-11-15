@@ -171,7 +171,7 @@ svg * { transform-box: fill-box; }
   // ---- the cast: each a shape with its own temperament ----
   const cast = [
     { id: 'mika', name: 'Mika', seat: 'Design', color: '#2F5DA8', x: 455, shape: 'triangle', rate: 3.2 },
-    { id: 'noor', name: 'Noor', seat: 'Research', color: '#E2683C', x: 630, shape: 'circle', rate: 4.1 },
+    { id: 'wren', name: 'Wren', seat: 'Research', color: '#E2683C', x: 630, shape: 'circle', rate: 4.1 },
     { id: 'bo', name: 'Bo', seat: 'Engineering', color: '#F2C230', x: 800, shape: 'square', rate: 4.8 },
     { id: 'theo', name: 'Theo', seat: 'Data', color: '#3E8F6B', x: 970, shape: 'arch', rate: 3.7 },
     { id: 'ines', name: 'Ines', seat: 'Strategy', color: '#D29B3A', x: 1140, shape: 'bell', rate: 4.4 },
@@ -234,7 +234,7 @@ svg * { transform-box: fill-box; }
       el('path', { d: 'M8 30 L46 -14', stroke: ink, 'stroke-width': 7, 'stroke-linecap': 'round' }, h);
       el('path', { d: 'M8 30 L46 -14', stroke: '#F2C230', 'stroke-width': 4, 'stroke-linecap': 'round' }, h);
       hand(h, 26, 12, C);
-    } else if (c.id === 'noor') { // book with tabs
+    } else if (c.id === 'wren') { // book with tabs
       const b = el('g', {}, p);
       el('path', { d: 'M-70 8 Q-35 -4 0 10 Q35 -4 70 8 V66 Q35 54 0 68 Q-35 54 -70 66 Z', fill: '#FBF7EF', stroke: ink, 'stroke-width': 3 }, b);
       el('path', { d: 'M0 10 V68', stroke: ink, 'stroke-width': 3 }, b);
@@ -308,7 +308,7 @@ svg * { transform-box: fill-box; }
         A(c.hand, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(-14px,4px) rotate(-6deg)' }, { transform: 'translate(-4px,10px) rotate(3deg)' }, { transform: 'translate(-22px,12px) rotate(-4deg)' }, { transform: 'translate(0,0) rotate(0)' }], { duration: 1500 });
         A(c.scribble, [{ strokeDashoffset: 300 }, { strokeDashoffset: 0, offset: .8 }, { strokeDashoffset: 0 }], { duration: 5200, easing: 'linear' });
         A(c.body, [{ rotate: '0deg' }, { rotate: '-2deg' }, { rotate: '0deg' }], { duration: 3000, composite: 'add' });
-      } else if (c.id === 'noor') {
+      } else if (c.id === 'wren') {
         A(c.eyes, [{ transform: 'translate(-10px,9px)' }, { transform: 'translate(10px,9px)', offset: .45 }, { transform: 'translate(-10px,12px)', offset: .5 }, { transform: 'translate(10px,12px)', offset: .95 }, { transform: 'translate(-10px,9px)' }], { duration: 4200, easing: 'linear' });
         A(c.page, [{ opacity: 0, transform: 'scaleX(1)' }, { opacity: 0, offset: .82 }, { opacity: 1, transform: 'scaleX(1)', offset: .84 }, { opacity: 1, transform: 'scaleX(-1)', offset: .97 }, { opacity: 0, transform: 'scaleX(-1)' }], { duration: 8400 });
       } else if (c.id === 'bo') {
@@ -362,7 +362,7 @@ svg * { transform-box: fill-box; }
     ['bo', 'Orders after 8pm miss the morning bake.'],
     ['ines', 'Then a cut-off, and say it plainly.'],
     ['mika', 'I’ll put it right under the button.'],
-    ['noor', 'Found a source on what sells out first.'],
+    ['wren', 'Found a source on what sells out first.'],
     ['theo', 'Regulars reordering: that’s my one number.'],
     ['bo', 'I can hold their loaf till ten.'],
     ['mika', 'Ooh. Then “your usual” goes first.'],

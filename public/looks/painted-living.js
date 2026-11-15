@@ -10,7 +10,7 @@
   if (!BYOC || typeof BYOC.on !== 'function') return;
 
   // seats in the room -> teammates in the painting (product is her seat: no character)
-  const WHO = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo' };
+  const WHO = { design: 'mika', research: 'wren', data: 'theo', strategy: 'ines', engineering: 'bo' };
 
   const room = document.getElementById('room');
   if (!room) return;
@@ -70,7 +70,7 @@
   BYOC.on('chime', ev => run('say', ev.seat));
   BYOC.on('ask', ev => run('found', ev.seat));                         // holding up a note: it brings her one
   BYOC.on('candidate', ev => run('start', ev.seat));
-  BYOC.on('sketch.user', () => run('start', 'research'));             // the first sketch: Noor pictures the users,
+  BYOC.on('sketch.user', () => run('start', 'research'));             // the first sketch: Wren pictures the users,
   BYOC.on('flow.line', () => run('start', 'design'));                  // Mika draws the journey, heads down                   // proposing: at work, head down
   BYOC.on('decided', ev => run('done', ev.seat));                      // its signature move; the others perk up
   BYOC.on('joint.agreed', ev => call(l => l.run({ type: 'agree', seats: (ev.seats || []).map(s => WHO[s]).filter(Boolean) })));

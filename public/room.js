@@ -13,7 +13,7 @@
     product: { name: 'Product', brings: 'product: user journeys and the calls that shape them' },
     design: { name: 'Design', agent: 'Mika', stance: 'sketch first, polish last', loves: 'A rough sketch in seconds. Polish at the very end.', brings: 'taste-skill’s design rules: type, colour, spacing' },
     data: { name: 'Data', agent: 'Theo', stance: 'only what we’ll measure', loves: 'One number that says it worked.', brings: 'what to measure at each step' },
-    research: { name: 'Research', agent: 'Noor', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
+    research: { name: 'Research', agent: 'Wren', stance: 'what’s known, with sources', loves: 'A source for every claim.', brings: 'a real finding with its link, researched before the demo' },
     strategy: { name: 'Strategy', agent: 'Ines', stance: 'who pays, and why now', loves: 'Knowing who pays before we build.', brings: 'pricing and payment calls' },
     engineering: { name: 'Engineering', agent: 'Bo', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
@@ -963,7 +963,7 @@
     const line = h('div', 'chatter-line'); line.dataset.seat = ev.seat; line.dataset.component = 'chatter-line'; line.dataset.state = 'in';
     const who = ev.by || (INFO[ev.seat] && INFO[ev.seat].agent) || INFO[ev.seat].name;
     const cw = h('span', 'chatter-who'); cw.textContent = `${who}: `; cw.dataset.slot = 'who';
-    // The log's line already starts with the speaker ("Noor: found a source…"); say the name once.
+    // The log's line already starts with the speaker ("Wren: found a source…"); say the name once.
     const ct = h('span', 'chatter-text'); ct.textContent = String(ev.text).replace(new RegExp('^\\s*' + who.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*', 'i'), ''); ct.dataset.slot = 'text';
     line.append(cw, ct);
     line.style.left = (s.offsetLeft + 12) + 'px';
@@ -1120,7 +1120,7 @@
         clearTimeout(teamSlowTimer); if (!['idle', 'question'].includes(teamStatusEl.dataset.state)) teamStatus('done', 'The team has done its first pass.');
         refreshTally();
         break;
-      // Noor's finding, found live with Linkup and verified on the server (lib/live-finding.js): it takes the prepared
+      // Wren's finding, found live with Linkup and verified on the server (lib/live-finding.js): it takes the prepared
       // one's place on Focus 1 while Focus 1 still waits. Never under her: not once she opened or answered it.
       case 'finding.live': {
         pendingLive = ev.ref || null;

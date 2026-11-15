@@ -1,5 +1,5 @@
 // Research's finding feeds Design's first sketch only when it fits the idea, and sketch.done says whether it was used,
-// so "proposed by Noor and Mika" is only ever true. Offline: a fake model that records the prompt it got.
+// so "proposed by Wren and Mika" is only ever true. Offline: a fake model that records the prompt it got.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -19,9 +19,9 @@ const done = run => readEvents(run).find(e => e.type === 'sketch.done');
 
 test('yoga: its finding was never opened, so it never reaches the sketch and the flag stays false', async () => {
   const run = newRun('A booking page for a small yoga studio.');
-  const callModel = recorder(WITH); // even a shape that shows a waitlist isn't Noor's work: her finding is unread
+  const callModel = recorder(WITH); // even a shape that shows a waitlist isn't Wren's work: her finding is unread
   await firstSketch({ run, callModel, ...opts });
-  assert.doesNotMatch(callModel.seen[0], /Noor|waitlist on full group fitness classes/);
+  assert.doesNotMatch(callModel.seen[0], /Wren|waitlist on full group fitness classes/);
   assert.equal(done(run).usedFinding, false);
   assert.equal(done(run).by, undefined);
 });
@@ -30,7 +30,7 @@ test('bakery: only the verified regulars finding reaches the sketch, never the u
   const run = newRun('A website for a small bakery, so customers can order bread ahead.');
   const callModel = recorder({ users: ['Weekly regulars', 'Weekend crowd'], stages: ['Choose bread', 'Order ahead', 'Pick up'] });
   await firstSketch({ run, callModel, ...opts });
-  assert.match(callModel.seen[0], /Noor \(Research\) found/);
+  assert.match(callModel.seen[0], /Wren \(Research\) found/);
   assert.match(callModel.seen[0], /artisan bakeries buy bread there at least once a week/);
   assert.doesNotMatch(callModel.seen[0], /guess how many loaves|group fitness/);
   assert.equal(done(run).usedFinding, true);
@@ -45,9 +45,9 @@ test('bakery: only the verified regulars finding reaches the sketch, never the u
 test('a bike shop and a tattoo studio: no finding reaches the sketch, the flag is false', async () => {
   for (const idea of ['A shop for second-hand bikes.', 'A booking site for a tattoo studio.']) {
     const run = newRun(idea);
-    const callModel = recorder(WITH); // even a shape that mentions "full" isn't Noor's work here
+    const callModel = recorder(WITH); // even a shape that mentions "full" isn't Wren's work here
     await firstSketch({ run, callModel, ...opts });
-    assert.doesNotMatch(callModel.seen[0], /Noor|Research/, idea);
+    assert.doesNotMatch(callModel.seen[0], /Wren|Research/, idea);
     assert.equal(done(run).usedFinding, false, idea);
   }
 });

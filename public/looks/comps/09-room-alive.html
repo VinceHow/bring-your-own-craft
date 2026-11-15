@@ -106,7 +106,7 @@ svg.art { display: block; width: 100%; height: 38px; overflow: visible; }
 .tray .n.sinks .label { transition: color 600ms 1100ms; }
 .tray .n.sinks.sunk .label { color: transparent; }
 .tray .n.sinks.sunk { translate: 5px 6px; rotate: 1.6deg; color: transparent; }
-/* Noor's note travels in from Noor's side of the table (up and to the left), lifted, and settles on the stack */
+/* Wren's note travels in from Wren's side of the table (up and to the left), lifted, and settles on the stack */
 .tray .n.arrive { opacity: 0; translate: -150px -230px; rotate: -4deg;
   box-shadow: 0 2px 2px rgba(20,12,6,.18), 0 18px 30px -8px rgba(20,12,6,.42), 0 48px 72px -22px rgba(10,6,3,.6);
   transition: opacity 500ms var(--settle), translate 1500ms var(--glide), rotate 1500ms var(--glide), box-shadow 900ms var(--settle) 1200ms; }
@@ -137,11 +137,11 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     </div>
     <div class="station" data-seat="research">
       <div class="pad paper">
-        <div class="who-row"><span class="mark">N</span><span class="name">Noor</span><span class="label seat">Research</span></div>
+        <div class="who-row"><span class="mark">N</span><span class="name">Wren</span><span class="label seat">Research</span></div>
         <div class="on">What sells out first</div>
         <div class="art src"><span>Sourdough and morning buns, by 9am</span><u>2 sources</u></div>
       </div>
-      <div class="chat"><div class="line on old" id="c-noor"><span class="mark sm">N</span><span>Found a source on what sells out first.</span></div></div>
+      <div class="chat"><div class="line on old" id="c-wren"><span class="mark sm">N</span><span>Found a source on what sells out first.</span></div></div>
     </div>
     <div class="station" data-seat="data">
       <div class="pad paper">
@@ -177,7 +177,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
 
   <section class="idea paper">
     <h1>A website for a small bakery, so customers can order bread ahead.</h1>
-    <div class="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;Rough journey by Noor and Mika</span></div>
+    <div class="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">&nbsp;Rough journey by Wren and Mika</span></div>
     <div class="journey">
       <span class="stage"></span><span class="stage">Choose</span><span class="stage">Order</span><span class="stage">Pick up</span><span></span>
       <span class="who">Morning regulars</span><span class="step hers">Their usual loaf</span><span class="step hers">One tap</span><span class="step end new">Held till ten</span>
@@ -197,7 +197,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     <div class="decision paper d2"><p>Regulars cancel in one tap, up to the cut-off.</p>
       <div class="marks"><span class="mark sm" data-seat="strategy">I</span><span class="mark sm" data-seat="engineering">B</span><span class="label">Ines and Bo</span></div></div>
     <div class="decision paper d3"><p>Sold out shows as sold out, never hidden.</p>
-      <div class="marks"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Noor and Mika</span></div></div>
+      <div class="marks"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Wren and Mika</span></div></div>
     <div class="decision paper d4"><p>No phone number on the order form.</p>
       <div class="marks"><span class="mark sm" data-seat="design">M</span><span class="mark sm" data-seat="engineering">B</span><span class="label">Mika and Bo</span></div></div>
     <p class="tally" id="tally"><span class="prev"><b>20</b> handled by your team · <b>3</b> for you</span><span class="next"><b>21</b> handled by your team · <b>3</b> for you</span></p>
@@ -206,7 +206,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
   <div class="her paper" data-seat="product"><span class="mark">P</span><div><div class="name">Priya</div><div class="char">the Customer Whisperer</div></div></div>
   <div class="tray">
     <div class="n paper sinks top" data-seat="design" id="n-mika"><span class="label">Mika</span>If ordering could feel like one thing…</div>
-    <div class="n paper arrive" data-seat="research" id="n-noor"><span class="label">Noor</span>What sells out first, and what should we do about it?</div>
+    <div class="n paper arrive" data-seat="research" id="n-wren"><span class="label">Wren</span>What sells out first, and what should we do about it?</div>
   </div>
 </div>
 <script>
@@ -223,7 +223,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     [7900,  () => $('slot-new').classList.remove('closed')],
     [8150,  () => $('d-new').classList.add('landed')],
     [9800,  () => $('tally').classList.add('swap')],
-    [12000, () => { $('n-noor').classList.add('landed'); $('n-mika').classList.add('sunk'); }],
+    [12000, () => { $('n-wren').classList.add('landed'); $('n-mika').classList.add('sunk'); }],
   ];
   if (still) { document.documentElement.classList.add('still'); steps.forEach(s => s[1]()); return; }
   steps.forEach(([t, f]) => setTimeout(f, t));

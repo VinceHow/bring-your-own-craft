@@ -222,7 +222,7 @@ test('1d. a teammate thinking, its sketchpad opened from its card, and her works
   await p.close();
 });
 
-test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade into the team space, then Focus 2 with Mika\'s journey in words', async () => {
+test('1e. Act 2 in the room (stubbed): Focus 1 with Wren\'s finding, its cascade into the team space, then Focus 2 with Mika\'s journey in words', async () => {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posts = [];
@@ -240,8 +240,8 @@ test('1e. Act 2 in the room (stubbed): Focus 1 with Noor\'s finding, its cascade
   });
   await p.waitForTimeout(500);
   assert.deepStrictEqual(posts.filter(x => x[0] === 'first'), [['first', {}]], 'the room asks for Focus 1 once the sketch is down');
-  // Focus 1: Noor's finding, quoted with its source.
-  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor',
+  // Focus 1: Wren's finding, quoted with its source.
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Wren',
     question: 'Who should we build this for first?', users: ['Morning regulars', 'Weekend pastry crowd'], decisionIds: [],
     artifact: { kind: 'finding', ref: { title: 'A third of artisan-bakery visitors buy bread there every week', quote: 'A third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week',
       url: 'https://example.org/report', site: 'Bakery Business', fetched: '2026-11-14', label: 'researched before the demo', users: ['Morning regulars', 'Weekend pastry crowd'] } } }, 'live'));
@@ -325,10 +325,10 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   RUN = await page.evaluate(() => BYOC.run);
   await waitFor(() => BYOC.events().some(e => e.type === 'sketch.done'), 30000, 'the first sketch');
   await waitFor(() => document.querySelectorAll('#her-flow .fl-box').length >= 2, 5000, 'the journey on her sheet');
-  // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
+  // 1. Focus 1 (DEMO 0:38): Wren asks who to build this for first, with the finding researched before the demo.
   await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
   await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
-  assert.strictEqual((await page.textContent('#inbox .inbox-now')).trim(), 'Noor has a question →');
+  assert.strictEqual((await page.textContent('#inbox .inbox-now')).trim(), 'Wren has a question →');
   await page.keyboard.press('PageDown'); // the clicker opens it
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
@@ -417,19 +417,19 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   await p.waitForTimeout(300);
   await p.evaluate(() => {
     BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'research', by: 'Wren', question: 'What makes someone come back to a studio week after week?',
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
   await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
-  assert.strictEqual((await p.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question →', 'only who: no preview in the room');
+  assert.strictEqual((await p.locator('#inbox .inbox-now').innerText()).trim(), 'Wren has a question →', 'only who: no preview in the room');
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
-  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
-  assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Wren', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
+  assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Wren: Found a source on full classes\.$/i);
   await p.locator('#inbox .inbox-now').click();
   await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'the document', null, p);
   assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies', 'the old flow keeps two clauses');
   assert.ok(!(await p.isVisible('.chatter-line')), 'the room and its chatter are gone from view');
-  assert.match(await p.textContent('#focus-doc .fd-kicker'), /Noor · Research/);
+  assert.match(await p.textContent('#focus-doc .fd-kicker'), /Wren · Research/);
   assert.match(await p.textContent('#focus-doc .fd-work'), /Small studios fill their popular classes/);
   const said = 'Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.';
   await p.locator('#focus-doc .fd-input').fill(said);
@@ -441,7 +441,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   // Two chime-ins and the brief arrive together; they land one after another, about a second apart, then the brief.
   const t0 = Date.now();
   await p.evaluate(() => {
-    BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Noor', seat: 'research', text: 'That matches what small studios report.' }, 'replay');
+    BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Wren', seat: 'research', text: 'That matches what small studios report.' }, 'replay');
     BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Mika', seat: 'design', text: 'Then their usual class goes first, one tap.' }, 'replay');
     BYOC.dispatch({ run: 'stub-run', type: 'takeaways', askId: 'q1', believe: 'Regulars should never have to hunt for their class.', guidance: 'Put their usual class first, one tap to book.' }, 'replay');
   });
@@ -450,7 +450,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'the takeaways wait for the chimes');
   await waitFor(() => document.querySelectorAll('#focus-doc .chime').length === 2, 2500, 'the second chime', null, p);
   assert.ok(Date.now() - t0 >= 800, 'about a second apart');
-  assert.match(await p.locator('#focus-doc .chime').first().innerText(), /Noor · Research[\s\S]*small studios report/i);
+  assert.match(await p.locator('#focus-doc .chime').first().innerText(), /Wren · Research[\s\S]*small studios report/i);
   await waitFor(() => !document.querySelector('#focus-doc .fd-brief').hidden, 2500, 'the takeaways', null, p);
   assert.match(await p.textContent('#focus-doc .brief-believe .brief-text'), /never have to hunt/);
   assert.ok(await p.locator('#focus-doc .brief-why').isHidden(), 'two parts: what I believe, guidance to the team');
@@ -634,7 +634,7 @@ test('2e. the build press (stubbed, audit F1): painted, one forward from the wor
   await p.close();
 });
 
-test('2f. Noor\'s live finding (stubbed): verified -> "found just now with Linkup" on Focus 1; none or a timeout -> the prepared one; never swapped under her', async () => {
+test('2f. Wren\'s live finding (stubbed): verified -> "found just now with Linkup" on Focus 1; none or a timeout -> the prepared one; never swapped under her', async () => {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   await p.route('**/api/run/stub-run/**', r => r.fulfill({ status: 202, json: { ok: true } }));
@@ -645,7 +645,7 @@ test('2f. Noor\'s live finding (stubbed): verified -> "found just now with Linku
   const open = async () => { await p.evaluate(() => BYOC.openNote('first')); await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'Focus 1', null, p); };
   const card = () => p.evaluate(() => ({ label: document.querySelector('#focus-doc [data-slot="prepared"]')?.textContent, quote: document.querySelector('#focus-doc [data-slot="claim"]')?.textContent, site: document.querySelector('#focus-doc [data-slot="source-site"]')?.textContent }));
   const raise = () => p.evaluate(ref => { BYOC.reset(); BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?', artifact: { kind: 'finding', ref: { ...ref, users: ['Morning regulars'] } } }, 'live'); }, PREP);
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Wren', question: 'Who should we build this for first?', artifact: { kind: 'finding', ref: { ...ref, users: ['Morning regulars'] } } }, 'live'); }, PREP);
   // verified, while Focus 1 waits: the live finding takes the prepared one's place, labelled truthfully, with its source
   await raise();
   await p.evaluate(ref => BYOC.dispatch({ run: 'stub-run', type: 'finding.live', askId: 'first', ref }, 'live'), LIVE);

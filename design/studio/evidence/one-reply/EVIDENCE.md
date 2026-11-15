@@ -1,6 +1,6 @@
 # Evidence: design/one-reply (P0: a reply shown twice in the meeting)
 
-Before: `before-b3-1440x900-6.jpg` (b3's audit). Noor's reply showed both as a note by its pin on the work and in the column.
+Before: `before-b3-1440x900-6.jpg` (b3's audit). Wren's reply showed both as a note by its pin on the work and in the column.
 Fix (painted-focus.css): while her document has the meeting column, the pin's reply notes are hidden. The pin stays.
 Measured (painted, a stubbed meeting, one reply): at 1440 and 1920, pin notes visible 0, column replies 1, pins 1.
 After the document closes, a room chatter line still shows (1 visible).

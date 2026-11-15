@@ -78,14 +78,14 @@
     sample({ type: 'chatter', by: 'Mika', seat: 'design', text: 'then remember them on the device.' });
     sample({ type: 'chatter', by: 'Ines', seat: 'strategy', text: 'price up front, or first-timers leave.' });
     if (scene === 'focus') {
-      const A = { id: 'comp-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
-        decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+      const A = { id: 'comp-ask', seat: 'research', by: 'Wren', question: 'What makes someone come back to a studio week after week?',
+        decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Wren', 'Mika'] } };
       B.focusDoc.open(A);
       const sd = doc.querySelector('.fd-said'); sd.innerHTML = '';
       const b = doc.createElement('blockquote'); b.className = 'fd-words';
       b.textContent = 'Knowing their spot is theirs. My regulars do the same Tuesday class every week and hate hunting for it.'; sd.appendChild(b);
       doc.querySelector('.fd-form').hidden = true;
-      [{ seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+      [{ seat: 'research', by: 'Wren', text: 'That matches what small studios report: regulars book the same slot.' },
        { seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' }].forEach(c => B.emit('chime', Object.assign({ askId: A.id }, c)));
       B.emit('brief', { askId: A.id, believe: 'Regulars should never hunt for their usual class.', why: '',
         guidance: 'Put a regular’s usual class first, one tap to book. Remember them; don’t ask again.' });
@@ -103,8 +103,8 @@
 
   // ---- 2. focus: just her and one document ----
   beat('2 · her focus opens');
-  const ASK = { id: 'comp-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
-    decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+  const ASK = { id: 'comp-ask', seat: 'research', by: 'Wren', question: 'What makes someone come back to a studio week after week?',
+    decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Wren', 'Mika'] } };
   B.focusDoc.open(ASK);
   await wait(1800);
   // her words, as she says them (shown in the input while speaking, then landing on the document)
@@ -122,7 +122,7 @@
   await wait(900);
   beat('3 · the team chimes in, one after another');
   const CHIMES = [
-    { seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+    { seat: 'research', by: 'Wren', text: 'That matches what small studios report: regulars book the same slot.' },
     { seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' },
     { seat: 'engineering', by: 'Bo', text: 'Then we hold their spot. No login, I’ll remember the device.' },
   ];

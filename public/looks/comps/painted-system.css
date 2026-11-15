@@ -16,7 +16,7 @@
   --ps-rule: rgba(59, 42, 32, .12);
   /* the team's inks, matched to the gouache */
   --ps-mika: #3E5C92;
-  --ps-noor: #D2673F;
+  --ps-wren: #D2673F;
   --ps-theo: #7FA88B;
   --ps-ines: #C4913A;
   --ps-bo: #E2BF45;
@@ -24,7 +24,7 @@
   --ps-her-deep: #A9485F;
   --ps-her-soft: #F8DCE1;
   /* soft tints of each ink, for pill grounds and marks */
-  --ps-mika-soft: #DCE4F1; --ps-noor-soft: #F7DDD0; --ps-theo-soft: #E0ECE2; --ps-ines-soft: #F3E5C8; --ps-bo-soft: #F8EDC4;
+  --ps-mika-soft: #DCE4F1; --ps-wren-soft: #F7DDD0; --ps-theo-soft: #E0ECE2; --ps-ines-soft: #F3E5C8; --ps-bo-soft: #F8EDC4;
   /* type */
   --ps-serif: 'Newsreader', Georgia, serif;
   --ps-sans: 'Hanken Grotesk', system-ui, sans-serif;
@@ -66,7 +66,7 @@
 .ps-pill:focus-visible { outline: 2.5px solid var(--c); outline-offset: 3px; }
 .ps-pill.is-talking .dot { box-shadow: 0 0 0 4px var(--soft), inset 0 -3px 0 rgba(0,0,0,.12); }
 .ps-pill.has-note::after { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-left: -2px; }
-[data-who="mika"] { --c: var(--ps-mika); --soft: var(--ps-mika-soft); } [data-who="noor"] { --c: var(--ps-noor); --soft: var(--ps-noor-soft); }
+[data-who="mika"] { --c: var(--ps-mika); --soft: var(--ps-mika-soft); } [data-who="wren"] { --c: var(--ps-wren); --soft: var(--ps-wren-soft); }
 [data-who="theo"] { --c: var(--ps-theo); --soft: var(--ps-theo-soft); } [data-who="ines"] { --c: var(--ps-ines); --soft: var(--ps-ines-soft); }
 [data-who="bo"] { --c: var(--ps-bo); --soft: var(--ps-bo-soft); } [data-who="her"] { --c: var(--ps-her); --soft: var(--ps-her-soft); }
 

@@ -114,13 +114,13 @@ No model calls and no fal spend.
     - Where: 1920x1130 day and night
     - Hook: `button[data-spot="lights"]`
     - Fix: make the toggle visible: bulbs brighten with a soft 300 ms fade in the day, and dim at night.
-20. [design] **Art at 1:1 is clean.** No extra limbs or paws, and no broken hands or faces, on Mika, Noor, Theo, Ines, Bo, the cat, the coffee machine or the record player, day or night. One small thing: the idea sheet's paper covers Bo's hand on the laptop.
+20. [design] **Art at 1:1 is clean.** No extra limbs or paws, and no broken hands or faces, on Mika, Wren, Theo, Ines, Bo, the cat, the coffee machine or the record player, day or night. One small thing: the idea sheet's paper covers Bo's hand on the laptop.
     - Shots: `design/studio/qa/2026-11-14-23-36/1920x1130-*/extras/art-*.jpg`
     - Where: 1920x1130 day and night
     - Hook: `[data-component="idea-sheet"]`
     - Fix: optional; nudge the sheet about 40px left or down so Bo's hand shows.
 21. [not on main yet] `[data-component="app-button"]` and the custom cursor are not on this build. The walk checks for them and will shoot their states once they land.
-22. [content, for builder 7, reported by the lead] **On the rehearsal replay, the focus doc's labels run together.** Journey step labels carry a stray digit ("Browse breads1", "Choose pickup time2"), and the teammate name is glued onto its line ("NoorWarm bread…", "MikaNoor, I'd lead…"). Seen at about 45–60 s into the replay on main. This is the same missing-separator pattern as finding 2's "7:05Sam" and "weekBakery Business".
+22. [content, for builder 7, reported by the lead] **On the rehearsal replay, the focus doc's labels run together.** Journey step labels carry a stray digit ("Browse breads1", "Choose pickup time2"), and the teammate name is glued onto its line ("WrenWarm bread…", "MikaWren, I'd lead…"). Seen at about 45–60 s into the replay on main. This is the same missing-separator pattern as finding 2's "7:05Sam" and "weekBakery Business".
     - Hooks: `[data-component="focus-doc"] [data-slot="work"]` (the journey boxes with their pin count), `[data-component="pin-reply"] [data-slot="who"]`
     - Fix: put a space or separator (" · ", or a block-level `who`) between name and text, and keep the pin count (`[data-slot="count"]`) visually apart from the box label.
 23. [design] **Scrollbars a Mac will show.** These were measured, not seen: headless Chromium hides overlay scrollbars.
@@ -156,14 +156,14 @@ studio) · **open**.
 |---|---|---|---|---|---|---|
 | 1 | **P0.** On painted she could not type her idea: `painted.css` hid `#her-form` (her input, the mic, Team go). Nothing was focused after the reveal, so typing the idea fired the shortcuts (S toggled stage mode, R started the replay). | `her-idea` · asking | `jank/idea-sheet-no-input-1440.jpg` → `jank/idea-sheet-input-fixed-1440.jpg` | all | BUILD (in a look) | **fixed** (c8e91a9 and design/painted-form 2b0a228, both on main): shown while the room asks, focused; e2e checks it |
 | 2 | **P0.** The name tag could block her for 25 s when the tag call was slow (Vincent's Mac). | `character-card` · thinking | `jank/nametag-before-1440.jpg` → `jank/nametag-after-1440.jpg` | all | BUILD | **fixed** c8e91a9: rough card at once (`data-state="rough"`), filled in place; flat schema |
-| 3 | Chatter says the speaker twice: "Noor: Noor: guaranteed up to…". The log line already starts with the name. | `chatter-line` · in | `jank/chatter-name-twice-1440.jpg` | all | BUILD | **fixed** c8e91a9 (client strips it, so old recordings read right too) |
-| 4 | A pin's reply reads "NoorYou're right…", and the source reads "…every weekBakery Business". | `pin-reply` · shown; finding `source` | `jank/focus-doc-unstyled-1440.jpg` | all | BUILD | **fixed** c4a8139 (a space between the slots) |
-| 5 | The rough journey never shows on the table in painted. Once a question arrives, the team-status line ("Noor has a question for you → Open it") takes the journey's place in the clipped glance card (160 px). | `her-sheet` glance · `team-status` · question | `jank/team-status-hides-journey-1280.jpg` | all | DESIGN | sent |
+| 3 | Chatter says the speaker twice: "Wren: Wren: guaranteed up to…". The log line already starts with the name. | `chatter-line` · in | `jank/chatter-name-twice-1440.jpg` | all | BUILD | **fixed** c8e91a9 (client strips it, so old recordings read right too) |
+| 4 | A pin's reply reads "WrenYou're right…", and the source reads "…every weekBakery Business". | `pin-reply` · shown; finding `source` | `jank/focus-doc-unstyled-1440.jpg` | all | BUILD | **fixed** c4a8139 (a space between the slots) |
+| 5 | The rough journey never shows on the table in painted. Once a question arrives, the team-status line ("Wren has a question for you → Open it") takes the journey's place in the clipped glance card (160 px). | `her-sheet` glance · `team-status` · question | `jank/team-status-hides-journey-1280.jpg` | all | DESIGN | sent |
 | 6 | The team-status "Open it" button and Retry are browser-default grey buttons in painted. | `team-status` · question/failed | same | all | DESIGN | sent |
 | 7 | The journey pills in the glance card are cut mid-word ("Choo…", "Chec"). | `her-sheet` glance · flow | `jank/idea-pills-clipped-1440.jpg` | all | DESIGN | sent |
 | 8 | Team-space cards stack over Bo's body and the right-hand plant at 1920×1130 and 1440×900. | `team-space` · cards | `jank/team-space-over-bo-1920.jpg` | 1440, 1920 | DESIGN | sent |
 | 9 | Meet the team in painted: a plain card with an empty avatar circle and no character. | `meet-card` | `jank/meet-card-empty-avatar-1440.jpg` | all | DESIGN | sent |
-| 10 | While Mika and Noor draw the first sketch, nothing in the painted room shows that anyone is working (the `thinking` state is invisible on the pills). | `place-card` · thinking | `jank/no-thinking-sign-1920.jpg` | all | DESIGN | sent |
+| 10 | While Mika and Wren draw the first sketch, nothing in the painted room shows that anyone is working (the `thinking` state is invisible on the pills). | `place-card` · thinking | `jank/no-thinking-sign-1920.jpg` | all | DESIGN | sent |
 | 11 | The sketchpad panel covers the Afternoon/night pill (top left). | `sketchpad-open` | `jank/sketchpad-over-pill-1440.jpg` | 1440, 1280 | DESIGN | sent |
 | 12 | Focus document in painted: the pins and pin replies are unstyled (a bare "1" with the text under it), "Read the conversation" and "Add this" are default buttons, and the source link is default blue. | `focus-doc` · replying/takeaways; `pin`; `fd-read` | `jank/focus-doc-unstyled-1440.jpg` | all | DESIGN | sent |
 | 13 | R replays `runs/rehearsal`, recorded at 18:53: it has no unblock and no Focus 2, so the replay no longer matches the demo. At the end of the replay, her page did not appear in the shot. | `replay-label`; `page-sheet` | `jank/replay-end-no-page-1440.jpg` | all | BUILD | page: **fixed** (build.done opens the sheet her page lives on; painted kept it small, so the page never showed; e2e/page.e2e.js). Rehearsal: b3's new bakery recording (all three moments) is on main 5d48c19; re-check R in the re-sweep; re-record once, on fal, after painted is the default |
@@ -180,7 +180,7 @@ team done 194 s, her page 231 s. Her idea input is focused after the reveal and 
 |---|---|---|---|---|---|---|
 | 17 | The meter read "0 decisions came up · 3 brought to you" when the team started: the three asks are raised before any candidate, and came up counted candidates only. | `tally` · counter | `jank/meter-0-came-3-brought-1440.jpg` | all | BUILD | **fixed**: came = candidates + asks raised without one (lib/tally.js and the client tally; test) |
 | 18 | Team-space cards (Ines, Mika) sit on the idea sheet from Focus 1 to the end: they cover the journey pills and the team-status line ("The team has done its fir…"). | `team-space` · cards over `her-sheet` | `jank/ts-over-idea-sheet-1440.jpg` | 1440, 1280 | DESIGN | sent |
-| 19 | A pin reply shows "Noor" with the ":" on its own line. | `pin-reply` · shown, `who` slot | `jank/pin-who-colon-1440.jpg` | all | DESIGN | sent |
+| 19 | A pin reply shows "Wren" with the ":" on its own line. | `pin-reply` · shown, `who` slot | `jank/pin-who-colon-1440.jpg` | all | DESIGN | sent |
 | 20 | Focus 2's takeaways panel shows its labels and Keep with no text while the team reads (an empty box). | `focus-doc` · replying, `fd-brief` | `jank/takeaways-empty-box-1440.jpg` | all | DESIGN (b-polish's reading state) | sent |
 | 21 | The live step ("The team is choosing what to bring you · taking a while · R replays the rehearsal") is cut by the frame's bottom edge. | `live-step` | `jank/live-step-clipped-1440.jpg` | 1440 | DESIGN | sent |
 | 22 | "No app yet · Bo starts once you agree the page" sits on the focus document's bottom-right corner; "v1 · no reason asked to cancel…" overlaps her page's sheet. | `app-pill`; `page-sheet` | `jank/takeaways-empty-box-1440.jpg`, `jank/her-page-live-1440.jpg` | all | DESIGN | sent |
@@ -238,10 +238,10 @@ Checked, fine: "the team is visibly at work" (`design/studio/qa/2026-11-14-23-52
     - Shots: `design/studio/qa/2026-11-15-takeaways/1280x800-day-09-focus1-takeaways.jpg`, `design/studio/qa/2026-11-15-takeaways/1440x900-day-09-focus1-takeaways.jpg`, and the 1920 one for comparison
     - Hook: `[data-component="takeaways"][data-state="shown"]`, plus `[data-slot="keep"]`
     - Fix: let the card grow into the column (no fixed height); take the 9px of extra width away (padding plus `width:100%`); keep `keep` outside any scrolling part; give it an inner padding of at least 14px.
-31. [design] **Pin replies put the colon on its own line.** They read "Noor / : / That matches the finding…" over three lines.
+31. [design] **Pin replies put the colon on its own line.** They read "Wren / : / That matches the finding…" over three lines.
     - Shots: the same three
     - Hook: `[data-component="pin-reply"] [data-slot="who"]`
-    - Fix: `who` inline with the text ("Noor: …"), or drop the colon and keep `who` as a small label above.
+    - Fix: `who` inline with the text ("Wren: …"), or drop the colon and keep `who` as a small label above.
 32. [design] **The app button sits on top of the focus document's bottom-right corner.** "No app yet · Bo starts once you agree the page" overlaps the document's edge at every size.
     - Shots: the same three
     - Hooks: `[data-component="app-button"]` over `[data-component="focus-doc"]`

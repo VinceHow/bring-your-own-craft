@@ -68,7 +68,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
     // "Loaded with": what each really has for this idea (computed on the server, not stubbed)
     const kit = await page.evaluate(() => window.__kit);
-    assert.match(kit.research[0], /^Linkup finding: /, 'Noor: Linkup');
+    assert.match(kit.research[0], /^Linkup finding: /, 'Wren: Linkup');
     assert.equal(kit.engineering[0], 'The bakery page template');
     for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /\bClaude\b/.test(x)), `${seat}'s card names Claude`);
     for (const x of Object.values(kit).flat()) assert.ok(x.split(/\s+/).length <= 6, `at most 6 words: ${x}`);

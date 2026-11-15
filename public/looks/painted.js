@@ -88,7 +88,7 @@
 
   // ---- meet the team: each teammate's face slot waves (their intro clip, muted and looping; the portrait is the poster).
   // A tap on the face plays their tap reaction once, then the wave again. Hooks: meet-card[data-seat], [data-slot="face"].
-  const WAVE = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo' };
+  const WAVE = { design: 'mika', research: 'wren', data: 'theo', strategy: 'ines', engineering: 'bo' };
   const waveIn = card => {
     const face = card.querySelector('[data-slot="face"]'), who = WAVE[card.dataset.seat];
     if (!face || !who || face.querySelector('video')) return;
@@ -131,7 +131,7 @@
   // ---- the team at work, made visible (from real run events only): a small ink strip under her glance card, a line per
   // teammate, and the room's chatter kept short (15 words) and few (two at once). No counts, no spinners, no progress.
   // It shares its place with the room's #team-status: anything for her (a question, a failure) takes the strip. ----
-  const WHO = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
+  const WHO = { design: 'Mika', research: 'Wren', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
   const doing = new Map();                                     // seat -> what it is on, in a few plain words
   const line = document.createElement('p');
   line.dataset.component = 'team-doing'; line.setAttribute('aria-live', 'polite'); line.hidden = true;
@@ -167,7 +167,7 @@
   const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); when.set(seat, Date.now()); show(); if (!timer) timer = setInterval(tick, 1000); };
   document.addEventListener('focusin', show); document.addEventListener('focusout', () => setTimeout(show, 0));
   addEventListener('resize', () => { if (!line.hidden) place(); });
-  // before the team starts, Noor and Mika are already sketching her rough journey (sketch.user / flow.line events)
+  // before the team starts, Wren and Mika are already sketching her rough journey (sketch.user / flow.line events)
   // (#room[data-sketching] marks their pills as at work: the room's place-cards stay idle until the team starts)
   const sketching = new Set(), sketchMark = () => { if (sketching.size) room.dataset.sketching = [...sketching].join(' '); else delete room.dataset.sketching; };
   let sketchQuiet = null;
@@ -181,7 +181,7 @@
   B.on('chatter', ev => {
     if (!ev.seat || !WHO[ev.seat]) return;
     const t = String(ev.text || '');
-    // a settled call reads as their own short note: "Noor · found a source on a third of…" (never "is settling found…")
+    // a settled call reads as their own short note: "Wren · found a source on a third of…" (never "is settling found…")
     if (/^[A-Z][a-z]+:/.test(t)) set(ev.seat, '· ' + few(lower(t.replace(/^[A-Z][a-z]+:\s*/, '').replace(/[.]+$/, '')), 7));
     else set(ev.seat, 'talking it through with the team');
   });

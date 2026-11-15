@@ -53,10 +53,10 @@
   }
 
   // Sample events: not from any run. The gallery says so under every state that uses them.
-  const SAMPLE_ASK = { id: 'gallery-ask', seat: 'research', by: 'Noor', question: 'What makes someone come back to a studio week after week?',
-    decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Noor', 'Mika'] } };
+  const SAMPLE_ASK = { id: 'gallery-ask', seat: 'research', by: 'Wren', question: 'What makes someone come back to a studio week after week?',
+    decision: 'What makes someone come back to a studio week after week?', artifact: { kind: 'journey', by: ['Wren', 'Mika'] } };
   const CHIMES = [
-    { askId: 'gallery-ask', seat: 'research', by: 'Noor', text: 'That matches what small studios report: regulars book the same slot.' },
+    { askId: 'gallery-ask', seat: 'research', by: 'Wren', text: 'That matches what small studios report: regulars book the same slot.' },
     { askId: 'gallery-ask', seat: 'design', by: 'Mika', text: 'Love that. Regulars go first, their usual class one tap away.' },
   ];
   const BRIEF = { askId: 'gallery-ask', believe: 'Regulars should never hunt for their usual class.', why: '',

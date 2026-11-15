@@ -20,7 +20,7 @@
   - on: journey (n1) · settles: c17, c6 · valid Ask: true
   - from c17: Who the site serves first (team's recommendation if she skips it: Regulars who want their usual loaves reserved)
   - why (logged only): changes the shape of the product; draws on what you know best; your file barely touches it.
-- **Noor:** "What would the baker need to know, and by when, to bake with confidence instead of guessing?" (her domain: customer problem)
+- **Wren:** "What would the baker need to know, and by when, to bake with confidence instead of guessing?" (her domain: customer problem)
   - on: finding (https://www.hippocampus.si/ISSN/1854-6935/23.259-294.pdf) · settles: c5, c11, c15 · valid Ask: true
   - from c5: Whether orders close at a cutoff so the baker knows the bake count (team's recommendation if she skips it: Close orders the evening before)
   - why (logged only): changes the product; draws on what you know; your file says nothing on it; backed by Small bakeries lose bread to guessing how much to bake.

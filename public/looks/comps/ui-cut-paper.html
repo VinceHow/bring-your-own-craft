@@ -13,8 +13,8 @@
   --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
   --ink: #33251C; --ink-2: #5F4A3B; --ink-3: #7F6A58;
   --cream: #FBF4E6; --paper2: #F1E6D0; --kraft: #C9A77E; --kraft-2: #D9BE98; --bark: #3E2C21;
-  --mika: #44629A; --noor: #CF6A42; --theo: #7EA88C; --ines: #C69238; --bo: #E3BE45; --her: #C2627A; --her-deep: #9C4259;
-  --mika-soft: #D8E0EF; --noor-soft: #F5D8CA; --theo-soft: #DAEADF; --ines-soft: #F1E1C0; --bo-soft: #F7EABD; --her-soft: #F4D5DD;
+  --mika: #44629A; --wren: #CF6A42; --theo: #7EA88C; --ines: #C69238; --bo: #E3BE45; --her: #C2627A; --her-deep: #9C4259;
+  --mika-soft: #D8E0EF; --wren-soft: #F5D8CA; --theo-soft: #DAEADF; --ines-soft: #F1E1C0; --bo-soft: #F7EABD; --her-soft: #F4D5DD;
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 
@@ -46,7 +46,7 @@ button { font: inherit; color: inherit; }
 .part { display: flex; flex-direction: column; }
 .part.wide { grid-column: span 2; gap: 0; }
 .part.wide .row + .row { margin-top: 12px; }
-[data-who="mika"] { --c: var(--mika); --soft: var(--mika-soft); } [data-who="noor"] { --c: var(--noor); --soft: var(--noor-soft); }
+[data-who="mika"] { --c: var(--mika); --soft: var(--mika-soft); } [data-who="wren"] { --c: var(--wren); --soft: var(--wren-soft); }
 [data-who="theo"] { --c: var(--theo); --soft: var(--theo-soft); } [data-who="ines"] { --c: var(--ines); --soft: var(--ines-soft); }
 [data-who="bo"] { --c: var(--bo); --soft: var(--bo-soft); } [data-who="her"] { --c: var(--her); --soft: var(--her-soft); }
 .pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 15px 0 7px; border: 0; cursor: pointer; white-space: nowrap; font: 500 15px/1 var(--sans); position: relative; }
@@ -168,7 +168,7 @@ button.mat:active { scale: .97; translate: 0 0; }
         <p class="lede">Coloured papers torn soft and laid one over another, each teammate in their own ink, cream paper for every word.</p>
         <h2>Inks</h2>
         <div class="inks">
-          <span class="ink" data-who="mika"><i></i>Mika</span><span class="ink" data-who="noor"><i></i>Noor</span><span class="ink" data-who="theo"><i></i>Theo</span>
+          <span class="ink" data-who="mika"><i></i>Mika</span><span class="ink" data-who="wren"><i></i>Wren</span><span class="ink" data-who="theo"><i></i>Theo</span>
           <span class="ink" data-who="ines"><i></i>Ines</span><span class="ink" data-who="bo"><i></i>Bo</span><span class="ink" data-who="her"><i></i>Her</span>
         </div>
         <h2>Type</h2>
@@ -186,7 +186,7 @@ button.mat:active { scale: .97; translate: 0 0; }
         <div class="part wide"><h2>Who’s who: a pill by every head</h2>
           <div class="row">
             <button class="pill mat" data-who="mika"><span class="dot"></span>Mika<span class="agent">agent</span></button>
-            <button class="pill mat" data-who="noor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+            <button class="pill mat" data-who="wren"><span class="dot"></span>Wren<span class="agent">agent</span></button>
             <button class="pill mat" data-who="theo"><span class="dot"></span>Theo<span class="agent">agent</span></button>
             <button class="pill mat" data-who="ines"><span class="dot"></span>Ines<span class="agent">agent</span></button>
             <button class="pill mat" data-who="bo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
@@ -195,12 +195,12 @@ button.mat:active { scale: .97; translate: 0 0; }
             <button class="pill her mat" data-who="her"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button></div>
         </div>
         <div class="part"><h2>Chatter</h2><div class="bubble mat" data-who="bo"><b>Bo</b>Orders after 8pm miss the morning bake.</div></div>
-        <div class="part"><h2>A note for her</h2><div class="note mat" data-who="noor"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div></div>
+        <div class="part"><h2>A note for her</h2><div class="note mat" data-who="wren"><span class="t-label lab"><i></i>Wren</span>What sells out first, and what should we do about it?</div></div>
         <div class="part"><h2>Decided together</h2><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
-        <div class="part"><h2>A teammate’s work</h2><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+        <div class="part"><h2>A teammate’s work</h2><div class="pop mat" data-who="wren"><div class="head"><span class="dot"></span><b>Wren</b><span class="craft">Research</span></div>
   <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
   <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
-        <div class="part wide"><h2>Her sheet</h2><div class="sheet mat"><div class="sh-text"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+        <div class="part wide"><h2>Her sheet</h2><div class="sheet mat"><div class="sh-text"><span class="t-label">Her idea · rough journey by Wren and Mika</span>
   <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div></div>
   <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
       </div>
@@ -212,18 +212,18 @@ button.mat:active { scale: .97; translate: 0 0; }
     <div class="room"></div>
     <div class="glow"></div>
     <button class="abs pill mat" data-who="mika" style="left:420px;top:306px"><span class="dot"></span>Mika<span class="agent">agent</span></button>
-    <button class="abs pill mat is-open" data-who="noor" style="left:612px;top:290px"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="abs pill mat is-open" data-who="wren" style="left:612px;top:290px"><span class="dot"></span>Wren<span class="agent">agent</span></button>
     <button class="abs pill mat" data-who="theo" style="left:790px;top:322px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
     <button class="abs pill mat" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
     <button class="abs pill mat" data-who="bo" style="left:1150px;top:372px"><span class="dot"></span>Bo<span class="agent">agent</span></button>
     <div class="abs bubble mat" data-who="bo" style="left:1296px;top:430px;width:262px"><b>Bo</b>Orders after 8pm miss the morning bake.</div>
-    <div class="abs room-sheet" style="left:22px;top:560px;width:340px"><div class="sheet mat small"><span class="t-label">Her idea · rough journey by Noor and Mika</span>
+    <div class="abs room-sheet" style="left:22px;top:560px;width:340px"><div class="sheet mat small"><span class="t-label">Her idea · rough journey by Wren and Mika</span>
   <div class="sh-title">A website for a small bakery, so customers can order bread ahead.</div>
   <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div></div></div>
     <div class="abs room-dec" style="left:850px;top:528px;width:240px;rotate:1.5deg"><div class="decision mat"><span>Orders close at 8pm for the next morning.</span><div class="who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="t-label">Bo, Ines and Mika</span></div></div></div>
     <button class="abs pill her mat" data-who="her" style="left:584px;top:616px"><span class="dot">P</span>Priya<span class="agent">the Customer Whisperer</span></button>
-    <div class="abs note mat" data-who="noor" style="left:806px;top:766px;width:250px;rotate:-2.5deg"><span class="t-label lab"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
-    <div class="abs" style="left:226px;top:20px;width:372px"><div class="pop mat" data-who="noor"><div class="head"><span class="dot"></span><b>Noor</b><span class="craft">Research</span></div>
+    <div class="abs note mat" data-who="wren" style="left:806px;top:766px;width:250px;rotate:-2.5deg"><span class="t-label lab"><i></i>Wren</span>What sells out first, and what should we do about it?</div>
+    <div class="abs" style="left:226px;top:20px;width:372px"><div class="pop mat" data-who="wren"><div class="head"><span class="dot"></span><b>Wren</b><span class="craft">Research</span></div>
   <span class="t-label">On now</span><div class="on">What sells out first at small bakeries</div>
   <span class="t-label">Settled</span><ul><li>Sourdough and morning buns go before 9am</li><li>Two sources, both linked</li></ul></div></div>
     <span class="abs tag mat" style="right:22px;bottom:18px"><b>24</b>&nbsp;handled by your team&nbsp;·&nbsp;<b>3</b>&nbsp;for you</span>
@@ -236,7 +236,7 @@ button.mat:active { scale: .97; translate: 0 0; }
     <div class="veil"></div>
     <div class="abs doc mat">
       <div class="main">
-        <span class="t-label">From Noor and Mika · the rough journey</span>
+        <span class="t-label">From Wren and Mika · the rough journey</span>
         <h1>A website for a small bakery, so customers can order bread ahead.</h1>
         <div class="jr">
           <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>

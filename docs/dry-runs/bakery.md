@@ -15,18 +15,18 @@ Idea: "A website for a small bakery, so customers can order bread ahead."
 
 **Run 1**
 - Product's teammate (journey, target customer): "What makes someone come back to the same bakery week after week?"
-- Noor (journey, customer problem): "What does a customer need to feel sure of after ordering, so they trust the bread will be waiting?"
-- Noor (finding, user journey): "How early can a customer realistically know what bread they want, and how early does the baker need to know?"
+- Wren (journey, customer problem): "What does a customer need to feel sure of after ordering, so they trust the bread will be waiting?"
+- Wren (finding, user journey): "How early can a customer realistically know what bread they want, and how early does the baker need to know?"
 
 **Run 2**
 - Product's teammate (journey, target customer): "What makes someone choose to plan their bread ahead instead of just walking in?"
-- Noor (finding, customer problem): "What would the baker need to know, and by when, to bake with confidence instead of guessing?"
+- Wren (finding, customer problem): "What would the baker need to know, and by when, to bake with confidence instead of guessing?"
 - Mika (wires, user journey): "What do you want a customer to feel in the minute after they've ordered their bread?"
 
 **Run 3**
 - Product's teammate (journey, target customer): "What makes someone come back to a small bakery week after week?"
 - Product's teammate (journey, customer problem): "When a customer orders ahead, what are they promising the bakery, and what is the bakery promising back?"
-- Noor (finding, customer problem): "When does the baker need to know what people want, and how does that fit with when customers actually decide?"
+- Wren (finding, customer problem): "When does the baker need to know what people want, and how does that fit with when customers actually decide?"
 
 The finding on the bakery runs is `data/research-finding-bakery.json` (never the yoga one). Each sketch drew a step
 like "Baker sees total" (the finding's point), but these three logs say `usedFinding false`: the check only knew
@@ -34,5 +34,5 @@ like "Baker sees total" (the finding's point), but these three logs say `usedFin
 
 **Yoga (questions-yoga.md), same code:** Product's teammate (journey, target customer): "What makes someone come back
 to a studio week after week?" · Ines (journey, user journey): "How should it feel to hand over money at the moment you
-decide to come to a class?" · Noor (finding, customer problem): "How should it feel for someone who wanted a class and
+decide to come to a class?" · Wren (finding, customer problem): "How should it feel for someone who wanted a class and
 found it full?" Sketch 2.6 s (used the yoga finding), team 8.9 s, select 12.1 s, total 20.9 s.

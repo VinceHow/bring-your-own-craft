@@ -45,7 +45,7 @@ for (const look of ['', '?look=painted']) for (const [w, hgt] of [[1440, 900], [
     assert.strictEqual(text, 'The team has a question →');
     assert.doesNotMatch(text, /teammate|· Product/);
     // A named teammate asks next.
-    await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
+    await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Wren', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
     await p.waitForFunction(() => document.querySelectorAll('#inbox .inbox-item').length >= 1, null, { timeout: 4000 });
     // The new note pulses; the main sheet stays quiet (the inbox is the one cue).
     const st = await p.evaluate(() => ({ pulse: document.getElementById('inbox').dataset.pulse, team: document.getElementById('team-status')?.dataset.state, line: document.getElementById('team-status')?.textContent }));
@@ -74,7 +74,7 @@ test('pushed off the left edge (a look or a narrow window), the inbox is brought
   await p.waitForFunction(() => window.BYOC && BYOC.inbox && BYOC.stage);
   await p.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
     const s = document.createElement('style'); s.textContent = '#room .inbox { left: -400px !important; top: -200px !important; }'; document.head.appendChild(s);
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Noor', question: 'What makes someone come back?', artifact: { kind: 'journey' } }, 'live'); });
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Wren', question: 'What makes someone come back?', artifact: { kind: 'journey' } }, 'live'); });
   await p.waitForFunction(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'n1', null, { timeout: 4000 });
   const r = await p.evaluate(() => { const b = document.getElementById('inbox').getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; });
   assert.ok(inside(r, 1440, 900), JSON.stringify(r));

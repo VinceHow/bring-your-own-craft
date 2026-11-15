@@ -126,7 +126,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 
   // Patches: square crops of the painting (x, y, size in painting px). Front teammates sit on top.
   const CAST = {
-    noor: { name: 'Noor', c: 'var(--research)',    x: 500, y: 170, size: 400, head: [680, 330] },
+    wren: { name: 'Wren', c: 'var(--research)',    x: 500, y: 170, size: 400, head: [680, 330] },
     theo: { name: 'Theo', c: 'var(--data)',        x: 680, y: 190, size: 370, head: [852, 352] },
     ines: { name: 'Ines', c: 'var(--strategy)',    x: 850, y: 130, size: 430, head: [1020, 285] },
     mika: { name: 'Mika', c: 'var(--design)',      x: 280, y: 190, size: 540, head: [470, 362] },
@@ -326,10 +326,10 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   }
 
   // ---- time of day: patches are painted in afternoon light; a fitted colour matrix tints them elsewhere
-  // hand-tuned on top of the fit, judged by eye against the painting. (Noor's night tune, saturate + hue-rotate, is gone:
+  // hand-tuned on top of the fit, judged by eye against the painting. (Wren's night tune, saturate + hue-rotate, is gone:
   // it tinted her whole patch, wall included, so she read as glowing red once the night scene was visible again.)
   const TUNE = { night: { ines: 'saturate(.85) brightness(.93)' } };
-  const LAMPCUT = new Set(['noor', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
+  const LAMPCUT = new Set(['wren', 'theo', 'ines', 'mika']);   // at night the lamp stays on top of these patches
   // A light change lands on the patches over the same time as the room's crossfade (Vincent: "the clip around the
   // characters changes colour quicker than the background"). The grade is an SVG filter and can't be interpolated, so
   // each visible patch gets a ghost: a canvas that keeps drawing its live frame in the OLD light (grade + light map) and
@@ -522,24 +522,24 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   };
   setInterval(keepRoomPlaying, 2000);
   document.addEventListener('visibilitychange', keepRoomPlaying);
-  const START = { mika: 'working', noor: 'working', theo: 'idle', ines: 'idle', bo: 'working' };
+  const START = { mika: 'working', wren: 'working', theo: 'idle', ines: 'idle', bo: 'working' };
   for (const id of Object.keys(CAST)) { P[id].base = START[id]; play(id, START[id]); }
 
   // A prepared sample run (not live), so the comp shows events driving moods. Lines from DEMO.md where they exist.
   let sample = q.get('run') !== '0' && !embed;
   const SAMPLE = [
     [3000,  { type: 'start', who: 'ines' }],
-    [5000,  { type: 'found', who: 'noor', text: 'Found a source on what sells out first.' }],
+    [5000,  { type: 'found', who: 'wren', text: 'Found a source on what sells out first.' }],
     [11000, { type: 'say', who: 'theo', text: 'Sourdough, gone by ten. Every week.' }],
     [16500, { type: 'think', who: 'mika' }],
     [18000, { type: 'say', who: 'bo', text: 'Orders after 8pm miss the morning bake.' }],
     [24000, { type: 'say', who: 'ines', text: 'Then a cut-off, and say it plainly.' }],
     [30000, { type: 'start', who: 'mika' }],
     [31000, { type: 'done', who: 'mika', text: 'I’ve put 8pm right on the button.' }],
-    [38000, { type: 'idle', who: 'noor' }],
+    [38000, { type: 'idle', who: 'wren' }],
     [40000, { type: 'done', who: 'bo', text: 'Booking form’s shipped.' }],
     [47000, { type: 'milestone' }],
-    [54000, { type: 'start', who: 'noor' }],
+    [54000, { type: 'start', who: 'wren' }],
   ];
   const LOOP = 60000;
   let t0 = performance.now(), cycles = 0;

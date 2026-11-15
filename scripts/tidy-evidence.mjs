@@ -103,7 +103,7 @@ for (const size of ['1920x1130', '1440x900']) {
   ({ page, errors } = await fresh(size));
   await page.evaluate(() => {
     BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?',
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Wren', question: 'Who should we build this for first?',
       artifact: { kind: 'finding', ref: { title: 'A finding', quote: 'A third of visitors buy weekly.', url: 'https://example.org/f', label: 'researched before the demo' } } }, 'live');
     BYOC.openNote('first');
   });
