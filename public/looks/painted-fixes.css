@@ -195,13 +195,11 @@ html body #room [data-component="team-notes"]:focus-visible { outline: 2px solid
 /* 2. (the old bottom inbox note and the tally's own line are b3's inbox now: see the inbox section) */
 /* 3. "who's doing what" under the idea card: one line, never two clipped half-sentences */
 html body #room [data-component="team-doing"] {
-  display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; max-height: 1.5em; }
+  display: block !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 /* 4. chatter: one bubble at a time (the newest), 14px, at most two lines, fading after about three seconds */
 html body #room [data-component="chatter-line"] {
   max-width: 260px !important; font-size: 14px !important; line-height: 1.35 !important; color: var(--ink-2, #4E3A2B) !important; opacity: .92;
   animation: pf-chatter-out 3.6s ease-in forwards; }
-html body #room [data-component="chatter-line"] [data-slot="text"] {
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 html body #room [data-component="chatter-line"]::after { box-shadow: none !important; }
 html body #room [data-component="chatter-line"]:nth-last-of-type(n+2) { display: none !important; }
 html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 165px -44px !important; }
