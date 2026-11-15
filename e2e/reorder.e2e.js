@@ -69,7 +69,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     // The cards (the PO's copy): an intro, then "Live in this room" (computed on the server, not stubbed) and "Built with"
     const kit = await page.evaluate(() => window.__kit), made = await page.evaluate(() => window.__made), intro = await page.evaluate(() => window.__intro);
     assert.match(intro.research, /^I’m Noor\./); assert.match(intro.engineering, /^I’m Bo\./);
-    assert.ok(kit.research.includes('Linkup web search, live'), 'Noor: Linkup live on a bakery idea');
+    assert.ok(kit.research.includes('Prepared finding if nothing verifies (labelled)') && !kit.research.some(x => /Linkup/.test(x)), 'Noor: no Linkup chip without a key on this server');
     assert.ok(kit.engineering.includes('Builds her page from her decisions') && kit.engineering.includes('Schema-checked template fill'));
     for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /^Claude/.test(x)), `${seat}'s card names the Claude it thinks with`);
     assert.ok(!kit.design.some(x => /emblem/.test(x)), 'no live emblem off fal');
