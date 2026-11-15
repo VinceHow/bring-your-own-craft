@@ -94,7 +94,7 @@ html body:has(#room[data-setup]:not([data-setup="off"])) [data-component="app-bu
 
 /* ---- The inbox action card ("Bo's blocked") and the drawer around it (Vincent's screenshot, 15 Nov; QA #5) ---- */
 /* the drawer's header no longer repeats what the drawer shows: open, it keeps only "Close your inbox" */
-html body #room [data-component="inbox"][data-state="expanded"] [data-slot="now"] { display: none !important; }
+html body #room [data-component="inbox"]:is([data-state="expanded"], [data-state="open"]) [data-slot="now"] { display: none !important; }
 /* "You said": her words first and roomy; the old suggestion small and struck on its own line above them; the mic inside
    the box at its bottom right, clear of her words */
 html body #room [data-component="inbox-action"] [data-slot="suggestion"] { position: relative; display: flex; flex-direction: column; gap: 4px; }
@@ -212,3 +212,36 @@ html body #room [data-component="research-card"] [data-slot="source"]:hover [dat
 /* while her focus document is open, the app chip ("No app yet") steps back: it sat on the document's bottom-right corner
    at 1440 and 1280, the one thing over her focus. The Replay / Fake run label stays: it's the honesty label. */
 body:has([data-component="focus-doc"]:not([hidden])) [data-component="app-button"] { display: none !important; }
+/* ---- b3's inbox (15 Nov): one home at the top right, empty | new | open; open = the whole window; Bo's unblock as its
+   own page (data-view="action"). inbox.js owns where it sits and how big it is; this is how it reads, painted. ---- */
+/* open: one paper sheet over the room. A header row (the tally's two counts on the left, "Close your inbox" as a quiet
+   pill on the right), then the drawer as a centred reading column, never a 1,300px-wide card. */
+html body #room #inbox[data-state="open"] {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); align-content: start; gap: 22px 24px;
+  padding: 30px 36px 28px; border-radius: 40px 34px 42px 32px / 34px 42px 32px 40px; }
+html body #room #inbox[data-state="open"] > [data-slot="tally"] { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; margin: 0; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"] {
+  grid-column: 2; grid-row: 1; align-self: center; width: auto !important; height: 40px; padding: 0 18px !important; border: 0 !important; border-radius: 999px;
+  display: inline-flex !important; align-items: center; font: 500 16px/1 var(--ui, system-ui, sans-serif) !important; color: var(--ink, #2B1E14) !important;
+  text-decoration: none !important; background: #FCF5E8 !important; box-shadow: inset 0 0 0 1.4px rgba(74, 48, 32, .6), 2px 3px 0 rgba(196, 154, 98, .55) !important; cursor: pointer; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"]::before { content: '\2190'; margin-right: 8px; }
+html body #room #inbox[data-state="open"] > [data-slot="toggle"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
+html body #room #inbox[data-state="open"] > [data-slot="drawer"] {
+  grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(880px, 100%); max-height: none !important; min-height: 0; overflow: auto;
+  border-top: 0 !important; padding-top: 4px; scrollbar-width: thin; align-self: start; align-content: start; height: auto; }
+/* Bo's unblock, on its own page: the card alone, centred on the sheet, a little larger; Yes is the one dark pill
+   (data-rank primary, or the yes slot until that lands), "Say something else" the quiet one beside it */
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="tally"] { display: none !important; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="toggle"] { grid-column: 1 / -1; justify-self: end; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { align-self: center; width: min(720px, 100%); }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] { padding: 30px 34px 28px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] [data-slot="question"] { font-size: 34px !important; line-height: 1.15; margin: 14px 0 18px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] :is([data-rank="primary"], [data-slot="yes"]) { height: 46px; padding: 0 28px; font-size: 17px; }
+html body #room #inbox[data-view="action"] [data-component="inbox-action"] :is([data-rank="secondary"], [data-slot="say"]) { font-size: 16px; }
+html body #room #inbox [data-component="inbox-action"] [data-rank="primary"] {
+  border: 0; border-radius: 999px; background: var(--ink, #2B1E14); color: #FFFAF3; font-weight: 500; }
+html body #room #inbox [data-component="inbox-action"] [data-rank="secondary"] {
+  border: 0; border-radius: 6px; background: none; color: var(--ink-2, #4E3A2B); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; }
+/* while the inbox is open, nothing in the room shows through it: the app tag and team notes step back */
+body:has(#inbox[data-state="open"]) [data-component="app-button"] { display: none !important; }
+html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { visibility: hidden; }
