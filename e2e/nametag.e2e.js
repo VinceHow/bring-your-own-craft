@@ -60,12 +60,12 @@ for (const [lookName, look] of LOOKS) {
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
     assert.ok(Date.now() - t0 <= 300 + 150, `progress shown in ${Date.now() - t0} ms`);
-    assert.match((await status(page)).text, /making your name tag/i);
+    assert.match((await status(page)).text, /writing your tag/i);
     assert.ok(await visible(page), 'the progress line is on screen');
     // The tidy (800 ms) done, her rough card is up before the team answers (1.5 s), Meet your team ready.
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'rough', null, { timeout: 2000 });
     assert.equal((await status(page)).state, 'polishing');
-    assert.match((await status(page)).text, /polishing your tag/i);
+    assert.match((await status(page)).text, /adding its spin/i);
     assert.ok(await visible(page), 'the polishing line is on screen');
     assert.equal(await page.textContent('.nt-make'), 'Meet your team');
     assert.ok(await shown(page, '.nt-make'), 'Meet your team on screen');
@@ -110,7 +110,7 @@ test('slow: it says it is still polishing; it still lands in place', async () =>
   const { page } = await card(ok(7500));
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'slow', null, { timeout: 8000 });
-  assert.match((await status(page)).text, /still polishing your tag/i);
+  assert.match((await status(page)).text, /still adding its spin/i);
   assert.equal(await page.textContent('.nt-make'), 'Meet your team', 'never blocked while slow');
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
   await page.close();

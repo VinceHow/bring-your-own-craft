@@ -1149,3 +1149,73 @@ html.painted-on [data-component="mic"][data-field][data-state="typed"] { backgro
   font: italic 400 14px/1 'Newsreader', Georgia, serif; color: var(--ink-3); }
 html.painted-on [data-component="mic"][data-field] svg { opacity: .85; }
 @media (prefers-reduced-motion: reduce) { html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { animation: none; } }
+
+/* ---------- her name tag, in two steps (design lead, 15 Nov; Vincent: "after she hits submit, the stage moves on") ----------
+   Step 1, asking: her name, her seat, her sentence (the mic inside its box), one hint, "Make my tag".
+   Step 2, from Enter on: the form is gone and the paper IS her name tag: her name large, the team's title, traits and
+   superpower when they land, her own words as a small quote, one calm status line, "Meet your team".
+   Hooks only: character-card[data-state] asking · thinking · rough · shown; data-slot name · input · hint · status ·
+   character · said · traits; the pick-card; the mic is [data-field="intro"]. */
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) { position: relative; }
+html #room [data-component="character-card"][data-state="asking"] [data-slot="input"] { min-height: 118px; padding-bottom: 58px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] { position: absolute; right: 10px; bottom: 10px; margin: 0; height: 40px; padding: 0 14px 0 5px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] svg { padding: 7px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] > span { font-size: 14px; }
+html #room [data-component="character-card"] > [data-slot="hint"] { margin-top: 10px; color: #6F5A49; }
+/* step 2: the form steps away */
+html #room [data-component="character-card"]:not([data-state="asking"]) > label:has([data-slot="name"]),
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-component="pick-card"],
+html #room [data-component="character-card"]:not([data-state="asking"]) > label:has([data-slot="input"]),
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="hint"] { display: none !important; }
+/* the tag itself */
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="character"] { order: 0; margin: 4px 0 0; padding: 0; border-top: 0;
+  animation: pt-nt-arrive .5s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pt-nt-arrive { from { opacity: 0; translate: 0 10px; } }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child { font: 400 52px/1.1 var(--display); color: var(--ink); }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child > :first-child { font: inherit; }
+html #room [data-component="character-card"] [data-slot="title"] { display: block; margin-top: 6px; font-size: 34px; }
+html #room [data-component="character-card"] [data-slot="traits"] { margin-top: 18px; }
+html #room [data-component="character-card"] [data-slot="traits"]:empty { display: none; }
+html #room [data-component="character-card"] [data-slot="superpower"] { margin-top: 4px; }
+html #room [data-component="character-card"] [data-slot="said"] { margin: 18px 0 0; padding: 12px 0 0; border-top: 1px dashed rgba(147,55,79,.35);
+  font: italic 400 19px/1.4 var(--display); color: var(--ink-2); }
+html #room [data-component="character-card"] [data-slot="said"] > span { display: block; margin-bottom: 4px; font: 500 13px/1 var(--ui); font-style: normal; color: #93374F; }
+html #room [data-component="character-card"] [data-slot="character"] > [data-slot="hint"] { margin-top: 14px; color: #6F5A49; }
+/* thinking (before her words are tidied): the status, large, where the tag is about to be */
+html #room [data-component="character-card"][data-state="thinking"] [data-slot="status"] { margin: 8px 0 6px; font-size: 30px; color: var(--ink); }
+/* the status line: one calm sentence; while the team works, three ink dots breathe after it */
+html #room [data-component="character-card"] [data-slot="status"] { order: 1; margin-top: 16px; }
+html #room [data-component="character-card"] [data-slot="status"]:is([data-state="thinking"], [data-state="polishing"], [data-state="slow"])::after {
+  content: '•••'; display: inline-block; margin-left: 6px; letter-spacing: 2px; font-style: normal; color: #93374F; animation: pt-nt-dots 1.4s ease-in-out infinite; }
+@keyframes pt-nt-dots { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="character-card"] [data-slot="status"]::after,
+  html #room [data-component="character-card"] [data-slot="character"] { animation: none; } }
+/* handwritten: a small ink pen writes her name in (rough), then the team's title when it lands (shown); the traits are
+   set down one by one, the superpower is written last, her words settle in. The pen lifts away when it's done. */
+html #room [data-component="character-card"] [data-slot="character"] > :first-child { position: relative; width: fit-content; }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child::after { content: ''; position: absolute; top: 4px; left: 100%; width: 30px; height: 30px; margin-left: -4px;
+  pointer-events: none; opacity: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg stroke='%2333261C' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 27 L6 19 L22 3 L27 8 L11 24 Z' fill='%23FFF8EE'/%3E%3Cpath d='M18 7 L23 12' fill='none'/%3E%3Cpath d='M3 27 L6 19 L11 24 Z' fill='%2333261C'/%3E%3C/g%3E%3C/svg%3E") 0 0 / contain no-repeat; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] { animation: none; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :first-child > :first-child { display: inline-block; animation: pt-write 1.2s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :first-child::after { top: 14px; animation: pt-pen 1.2s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :not(:first-child) { animation: pt-nt-arrive .5s 1.1s cubic-bezier(.2,.7,.2,1) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] { animation: none; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="title"] { animation: pt-write 1.3s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > :first-child::after { top: auto; bottom: 8px; animation: pt-pen 1.3s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"] { animation: pt-set .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: 1.25s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"]:nth-child(2) { animation-delay: 1.45s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"]:nth-child(3) { animation-delay: 1.65s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > :has(> [data-slot="superpower"]) { animation: pt-write 1.1s 1.9s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="said"],
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > [data-slot="hint"] { animation: pt-nt-arrive .5s 2.8s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pt-write { from { clip-path: inset(-20% 100% -20% 0); } to { clip-path: inset(-20% -2% -20% 0); } }
+@keyframes pt-pen { 0% { left: 0; opacity: 0; translate: 0 0; } 8% { opacity: 1; } 25% { translate: 0 -3px; } 50% { translate: 0 2px; } 75% { translate: 0 -2px; }
+  92% { left: 100%; opacity: 1; translate: 0 0; } 100% { left: 100%; opacity: 0; translate: 10px -14px; } }
+@keyframes pt-set { from { opacity: 0; translate: 0 -8px; rotate: -3deg; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="character-card"] [data-slot="character"] *,
+  html #room [data-component="character-card"] [data-slot="character"] > :first-child::after { animation: none !important; } }
+/* step 2 keeps one size from the first pen stroke to the last, so the tag never jumps when the team's read lands */
+html #room [data-component="character-card"][data-seat="product"]:not([data-state="asking"]) { min-height: 520px; }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }

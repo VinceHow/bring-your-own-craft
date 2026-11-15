@@ -1187,9 +1187,9 @@
           <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
-      <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
+      <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>
+      <div class="nt-hint" data-slot="hint">Type it or say it · Enter, and the team writes your tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
       <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
@@ -1231,11 +1231,13 @@
     const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
     drawTraits();
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
-    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · click any piece to swap it · Enter: meet your team' : 'Your name tag, in your words · Enter: meet your team'); hint.dataset.slot = 'hint';
+    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · tap any piece to swap it · Enter: meet your team' : 'Enter: meet your team'); hint.dataset.slot = 'hint';
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
     traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
     if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
-    body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
+    // her own words stay on her tag, small, under the team's read (or as the whole tag if the team couldn't add its spin)
+    const said = cur.loves ? h('p', 'char-said', `<span>In your words</span>“${esc(cur.loves)}”`) : null; if (said) said.dataset.slot = 'said';
+    body.append(title, traits); if (power) body.appendChild(power); if (said) body.appendChild(said); body.appendChild(hint);
     c.appendChild(body);
   }
   // Her name tag's second call, in the background: the swaps land on her card (or on her kept tag if she has moved on),
@@ -1258,13 +1260,13 @@
     c._char = cur;
     drawCharacter(c, cur);
     c.dataset.state = 'rough';
-    tagStatus(c, 'polishing', 'The team is polishing your tag…');
+    tagStatus(c, 'polishing', 'The team is adding its spin… meet them whenever you like.');
     if (!c._keys) {
       c._keys = true;
       c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
     }
     c.tabIndex = -1; c.focus(); // Enter or the clicker: meet the team
-    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'rough') tagStatus(c, 'slow', 'Still polishing your tag… meet the team whenever you like.'); }, TAG_SLOW_MS);
+    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'rough') tagStatus(c, 'slow', 'Still adding its spin… meet the team whenever you like.'); }, TAG_SLOW_MS);
     let r = null;
     try {
       r = await Promise.race([
@@ -1282,7 +1284,7 @@
     tagMore(c, cur, said);
     // She already met the team: the team's read still reaches her place card.
     if (introCard !== c) { if (usable && BYOC.herTag && !BYOC.herTag.title) { BYOC.herTag = { ...BYOC.herTag, ...cur, alternates: undefined }; drawHerCharacter(el.seat.product && el.seat.product.querySelector('.card')); emit('tag.polished', { title: cur.title }); } return; }
-    if (!usable) { tagStatus(c, 'rough', 'Your name tag, in your own words.'); return; }
+    if (!usable) { tagStatus(c, 'rough', 'The team couldn’t add its spin this time, so your tag is in your own words.'); return; }
     drawCharacter(c, cur);
     c.dataset.state = 'shown';
     tagStatus(c, 'done', '');
@@ -1297,7 +1299,7 @@
     const raw = inp.value.trim();
     if (raw && c.dataset.state === 'asking') {
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
-      tagStatus(c, 'thinking', 'The team is making your name tag…');
+      tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;
       if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
       if (introCard !== c) return;
