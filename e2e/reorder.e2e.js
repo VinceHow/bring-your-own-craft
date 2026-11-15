@@ -158,6 +158,12 @@ test('her idea line is tidied in place (BYOC.tidyInto) and the clean line is the
   await page.unroute('**/api/tidy');
   await page.route('**/api/tidy', r => r.fulfill({ json: { text: IDEA, tidied: true } }));
   await page.click('#idea-input'); await page.keyboard.type('um so ' + IDEA.toLowerCase() + ' you know'); await page.keyboard.press('Enter');
+  // The paper stays while her words rearrange: the field shows the clean line, marked cut, for about 1.7 s.
+  await page.waitForFunction(() => document.getElementById('idea-input')?.dataset.state === 'tidied', null, { timeout: 3000 });
+  assert.equal(await page.getAttribute('#idea-input', 'data-tidy'), 'cut');
+  assert.equal(await page.inputValue('#idea-input'), IDEA);
+  await page.waitForTimeout(900);
+  assert.equal(await page.getAttribute('#setup', 'data-step'), 'idea', 'still on the idea paper while the animation plays');
   await page.waitForFunction(() => document.getElementById('setup').dataset.step === 'nametag', null, { timeout: 4000 });
   assert.equal(await page.evaluate(() => BYOC.pendingIdea), IDEA);
   assert.deepEqual(posted.meet, [{ idea: IDEA }]);

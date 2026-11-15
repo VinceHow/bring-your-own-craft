@@ -1217,6 +1217,13 @@
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
+  // After a tidy that changed her line (data-tidy cut|reordered on the field), hold ~1.7 s so design's animation plays:
+  // the cut words strike and fade, the line closes up, the clean line settles. No hold when it's unchanged or skipped.
+  const TIDY_PAUSE_MS = Number(new URLSearchParams(location.search).get('tidypause') ?? 1700);
+  async function tidyPause(el, raw, clean) {
+    if (instantMode || !el || clean === raw || !['cut', 'reordered'].includes(el.dataset.tidy)) return;
+    await wait(TIDY_PAUSE_MS);
+  }
   async function ideaDone() {
     const c = ideaCard; if (!c || BYOC.beat !== 0 || c.dataset.state === 'tidying') return;
     const inp = $('#idea-input', c);
@@ -1226,6 +1233,8 @@
     if (raw && typeof BYOC.tidyInto === 'function' && !BYOC.replay) {
       c.dataset.state = 'tidying';
       try { text = String(await BYOC.tidyInto(inp, raw) || raw).trim() || raw; } catch { text = raw; }
+      if (ideaCard !== c || BYOC.beat !== 0) return;
+      await tidyPause(inp, raw, text); // the paper stays while her words rearrange (Vincent: "the very first screen")
       if (ideaCard !== c || BYOC.beat !== 0) return;
     }
     c.dataset.state = 'done';
@@ -1393,7 +1402,10 @@
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
       tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (typeof BYOC.tidyInto === 'function') { try { said = String(await BYOC.tidyInto(inp, raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      else if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (introCard !== c) return;
+      await tidyPause(inp, raw, said); // her words rearrange on the paper, then her tag
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
