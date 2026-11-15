@@ -274,6 +274,40 @@
     }, 300);                                                   // a beat with the note up in their hand
     setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 3000);   // never leave it hidden
   });
+  css('painted-door.css');
+  // ---- the studio door opens at the reveal (door-open.mp4, 5 s), then crossfades into the room (0.6 s) ----
+  // Full-bleed over the room in the room's own 16:9 box, so its crop matches the painting. The closed door (door.jpg)
+  // is the layer's background until the first frame plays: never a white frame. The room and the run carry on
+  // underneath. Never blocks: a load or play error, or no frame within 1.5 s, goes straight to the room; a tap skips.
+  // Not for replays, jumps (BYOC.stage(n, {instant})), ?instant, or reduced motion.
+  const DOOR = base + 'cast/intro/door-open.mp4';
+  let doorVid = null;
+  const doorPreload = () => { if (doorVid) return; doorVid = document.createElement('video');
+    doorVid.muted = true; doorVid.playsInline = true; doorVid.preload = 'auto'; doorVid.src = DOOR; doorVid.load(); };
+  // warm it up while she meets the team, so the first frame is ready at the reveal
+  const doorSetup = room.querySelector('[data-component="setup"]');
+  if (doorSetup) new MutationObserver(() => { if (doorSetup.dataset.step === 'team') doorPreload(); }).observe(doorSetup, { attributes: true, attributeFilter: ['data-step'] });
+  B.on('reveal', ev => {
+    if (!ev || !ev.animate || B.replay || new URLSearchParams(location.search).has('instant')
+      || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    doorPreload();
+    const v = doorVid; doorVid = null;          // a fresh one next time (a second reveal after a reset)
+    const layer = document.createElement('div'); layer.dataset.component = 'door-open'; layer.dataset.state = 'opening';
+    layer.setAttribute('aria-hidden', 'true');
+    v.dataset.slot = 'clip'; layer.appendChild(v); room.appendChild(layer);
+    let done = false, off = null;
+    const finish = fade => { if (done) return; done = true; clearTimeout(guard);
+      if (!fade) { layer.remove(); off && off(); return; }
+      layer.dataset.state = 'leaving'; setTimeout(() => layer.remove(), 700); };
+    const guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
+    v.addEventListener('ended', () => finish(true), { once: true });
+    v.addEventListener('error', () => finish(false), { once: true });
+    layer.addEventListener('click', () => finish(true));
+    v.currentTime = 0;
+    const p = v.play(); if (p && p.catch) p.catch(() => finish(false));
+    off = B.on('reset', () => finish(false)); layer.addEventListener('transitionend', off, { once: true });
+  });
+
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');
   // ---- 5. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----

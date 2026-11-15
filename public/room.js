@@ -1370,7 +1370,7 @@
     for (const s of TEAM) seatCard(s, false);
     if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
     const prod = el.seat.product.querySelector('.card'); if (prod) drawHerCharacter(prod);
-    emit('reveal', {});
+    emit('reveal', { animate: !!animate });   // animate: the walked reveal (the door may open); false for jumps and replays
     if (animate && !BYOC.replay) { await wait(1100); if (tok === walkToken && BYOC.beat === 2) stage(3); }
   }
   // Voice hook (sponsor, later): put spoken words into whichever line she is writing, as editable text.
