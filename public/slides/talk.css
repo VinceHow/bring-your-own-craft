@@ -51,7 +51,7 @@ html, body { margin: 0; height: 100%; background: #0C0E16; overflow: hidden; }
 .duo .art { display: flex; justify-content: center; align-items: center; }
 /* split: two full-height halves, each a label and a huge headline, a torn seam down the middle */
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 0; }
-.split .half { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 150px 80px 100px 110px; }
+.split .half { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 230px 80px 60px 110px; }
 .split .half + .half { padding-left: 90px; }
 .split .half.cool { background: rgba(61, 90, 146, .16); }
 .split .half.warm { background: rgba(201, 94, 56, .13); }
@@ -182,16 +182,16 @@ body.print .counter { display: none; }
 
 /* .live: the real studio, alive. The painting (1612×900, as the room draws it) and the toys over it; no app UI.
    The words sit on a soft shade at the top so the toys below stay free to click. */
-.live { padding: 0; justify-content: flex-start; align-items: center; text-align: center; }
+.live { padding: 0; justify-content: flex-end; align-items: center; text-align: center; }
 :is(.live, .poster) > .live-painting { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; border: 0; z-index: 0; pointer-events: none; }
 :is(.live, .poster) > .live-toys { position: absolute; left: -6px; top: 0; width: 1612px; height: 900px; z-index: 1; }
 :is(.live, .poster) > .live-toys .pi-sky { display: none; }   /* no UI: the time pill stays off on stage */
-.live > .live-shade { position: absolute; left: 0; right: 0; top: 0; height: 58%; z-index: 1; pointer-events: none;
-  background: linear-gradient(rgba(10, 10, 18, .78), rgba(10, 10, 18, .5) 50%, transparent); }
-.live > .overlay { position: relative; z-index: 2; pointer-events: none; margin-top: 40px; text-shadow: 0 4px 30px rgba(0, 0, 0, .55); }
-.live .giant { font-size: 170px; margin: 18px 0 0; }
+.live > .live-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; z-index: 1; pointer-events: none;
+  background: linear-gradient(transparent, rgba(10, 10, 18, .62) 38%, rgba(10, 10, 18, .9)); }
+.live > .overlay { position: relative; z-index: 2; pointer-events: none; margin-bottom: 44px; text-shadow: 0 4px 30px rgba(0, 0, 0, .55); }
+.live .giant { font-size: 150px; margin: 10px 0 0; line-height: .95; }
 .live .line { margin-top: 14px; font-size: 44px; }
-.live .line.quiet { margin-top: 2px; font-size: 32px; color: rgba(251, 244, 234, .85); }
+.live .line.quiet { margin-top: 4px; font-size: 32px; color: rgba(251, 244, 234, .92); }
 /* human or agent, at a glance: the kind is the seat's one subtitle */
 .seat small { text-transform: uppercase; letter-spacing: .14em; font-weight: 700; font-size: 12px; }
 .seat.human small { color: var(--cr-product); }
