@@ -215,3 +215,7 @@ html body #room [data-slot="all-notes"] {
 html body #room [data-slot="all-notes"]::before, html body #room [data-slot="all-notes"]::after { display: none !important; }
 html body #room [data-slot="all-notes"]:hover { color: var(--ink, #2B1E14) !important; }
 html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 2px; }
+/* b3's "All notes" on the open inbox sits in the header row: top left on Bo's page (the tally steps away there), and
+   beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
+html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
