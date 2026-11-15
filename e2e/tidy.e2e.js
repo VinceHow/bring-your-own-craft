@@ -26,7 +26,8 @@ after(async () => { await browser?.close(); srv?.kill(); fs.rmSync(RUNS, { recur
 
 // The stubbed tidy: cuts fillers and lead-ins, as the real one may (deletion only); "slow" never answers in time.
 const CLEAN = { 'um so the idea is, uh, a website for a small bakery so people can order bread ahead': 'A website for a small bakery so people can order bread ahead.',
-  'uh regulars come every, every morning': 'Regulars come every morning.', 'so basically a booking page for my yoga studio': 'A booking page for my yoga studio.' };
+  'uh regulars come every, every morning': 'Regulars come every morning.', 'so basically a booking page for my yoga studio': 'A booking page for my yoga studio.',
+  'regulars first and then the bread i think': 'I think regulars first, then the bread.' };
 
 for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) test(`${lookName}: her idea, a line and the close are tidied in place before they're sent; slow falls back to raw`, async () => {
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
@@ -52,6 +53,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidying');
   assert.equal(await inp.getAttribute('data-raw'), raw);
   await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidied');
+  assert.equal(await inp.getAttribute('data-tidy'), 'cut', 'her words with some removed');
   for (let i = 0; i < 40 && !sent.idea; i++) await page.waitForTimeout(50);
   assert.equal(sent.idea, 'A website for a small bakery so people can order bread ahead.');
   assert.equal(await page.textContent('#her-idea'), 'A website for a small bakery so people can order bread ahead.');
@@ -60,6 +62,12 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await inp.fill('uh regulars come every, every morning'); await inp.press('Enter');
   for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
   assert.equal(sent.line, 'Regulars come every morning.');
+  // a reordered tidy is marked so (design animates it differently)
+  sent.line = null;
+  await inp.fill('regulars first and then the bread i think'); await inp.press('Enter');
+  for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
+  assert.equal(sent.line, 'I think regulars first, then the bread.');
+  assert.equal(await inp.getAttribute('data-tidy'), 'reordered');
   // a slow tidy: her raw words go, after at most ~2.5 s
   sent.line = null;
   const t0 = Date.now();
