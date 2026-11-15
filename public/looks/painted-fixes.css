@@ -324,3 +324,20 @@ html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineer
   top: calc(124px + var(--crop-y, 0px)) !important; bottom: auto !important; max-height: calc(100% - 296px - 2 * var(--crop-y, 0px)) !important; height: auto !important; margin: 0 !important; }
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] { gap: 10px !important; }
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] > li { padding-top: 10px !important; padding-bottom: 10px !important; margin: 0 !important; }
+/* ---- AUDIT #6c (BYOC lead): the calm room's idea card is just the idea ----
+   Once the team is at work (beat 5 on), the closed idea card drops its journey chips and "+N": the room has fewer
+   things that look clickable, and the card reads as one quiet line of what she's building. The chips come back on
+   hover, and in full when she opens the card. In the first sketch (beats 1-4) she reacts to the chips, so they stay.
+   The chips only fade out (flow.js measures them, so they keep their layout) and the card is clipped to its idea
+   line, with a margin so its painted frame still shows whole. */
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]):not(:hover) :is([data-component="journey"], [data-component="glance-more"]) {
+  opacity: 0 !important; pointer-events: none !important; }
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]):not(:hover) { max-height: 66px !important; min-height: 0 !important; overflow: clip !important; overflow-clip-margin: 14px; }
+/* the journey's holder keeps its own glance height (63px) while the card is clipped, so room.js's fit-to-sheet never
+   squeezes the chips to nothing (it only refits when the journey changes, not on hover) */
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]) :has(> [data-component="journey"]) { flex: none !important; min-height: 63px !important; }
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]) > * { flex-shrink: 0 !important; }
