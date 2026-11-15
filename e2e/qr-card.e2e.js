@@ -44,10 +44,10 @@ for (const look of ['painted', 'plain']) {
     const card = p.locator('[data-component="qr-card"]');
     await card.waitFor({ state: 'visible', timeout: 2000 });
     assert.strictEqual(await card.getAttribute('data-state'), 'open');
-    assert.match(await card.textContent(), /The Usual[\s\S]*Scan to reserve a loaf · the live site/);
+    assert.match(await p.getAttribute('[data-component="qr-card"] img', 'src'), /qr-live-site-card\.png$/, 'the card Vincent picked, as it is');
     await p.waitForFunction(() => { const i = document.querySelector('[data-component="qr-card"] img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 3000 });
     const img = await p.locator('[data-component="qr-card"] img').boundingBox();
-    assert.ok(img.height >= 360, `the QR is at least 360px tall (${img.height})`);
+    assert.ok(img.height >= 480, `the card is large: at least 480px tall on the 1600x900 stage (${img.height})`);
     // never covers the app button, which stays clickable above it
     const btn = await p.locator('#app-button .app-open').boundingBox(), c = await card.boundingBox();
     const overlap = !(btn.x > c.x + c.width || btn.x + btn.width < c.x || btn.y > c.y + c.height || btn.y + btn.height < c.y);
@@ -78,6 +78,7 @@ test('the still: 1920x1080, painted, the card open', { skip: !process.env.QR_SHO
   const { p } = await room('painted', LIVE, { width: 1920, height: 1080 });
   await p.click('#app-button .app-open');
   await p.waitForFunction(() => { const i = document.querySelector('[data-component="qr-card"] img'); return i && i.naturalWidth > 0; });
+  const h = (await p.locator('[data-component="qr-card"] img').boundingBox()).height; assert.ok(h >= 560, `at least 560px tall at 1920x1080 (${h})`);
   await p.waitForTimeout(500);
   await p.screenshot({ path: process.env.QR_SHOT });
   await p.close();

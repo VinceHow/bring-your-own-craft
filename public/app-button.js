@@ -82,9 +82,7 @@
       qr.className = 'qr-card-wrap'; qr.dataset.slot = 'qr-backdrop';
       qr.innerHTML = '<div class="qr-card" data-component="qr-card" role="dialog" aria-label="Scan for the live site">'
         + '<button type="button" class="qr-close" data-slot="close" aria-label="Close">×</button>'
-        + '<p class="qr-title" data-slot="title">The Usual</p>'
-        + '<img class="qr-img" data-slot="qr" src="qr-live-site.svg" alt="QR code for the live site" width="420" height="420">'
-        + '<p class="qr-line" data-slot="caption">Scan to reserve a loaf · the live site</p></div>';
+        + '<img class="qr-img" data-slot="qr" src="qr-live-site-card.png" alt="The Usual: scan to reserve a loaf on the live site" width="980" height="1240"></div>';
       qr.addEventListener('click', e => { if (e.target === qr || e.target.closest('.qr-close')) hideQr(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && qr && !qr.hidden) hideQr(); });
       (root.parentElement || document.body).appendChild(qr); // beside the app button, so it stays above the card
