@@ -39,7 +39,7 @@ async function room({ look = '', lines = async r => r.fulfill({ json: { lines: L
   return { page, errors, posted };
 }
 const meetStates = page => page.evaluate(() => window.__meet || []);
-const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="kit-item"]')].map(li => li.textContent); } }); });
+const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="kit-item"]')].map(li => li.textContent); (window.__made = window.__made || {})[c.dataset.seat] = [...c.querySelectorAll('[data-slot="made-item"]')].map(li => li.textContent); } }); });
 
 for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
   test(`${lookName}: idea, then her name tag, then the team with lines tailored to her idea, then the room with her idea and the run started`, async () => {
@@ -71,6 +71,10 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.match(kit.research[0], /^A verified finding: .+, read \d{4}-\d\d-\d\d$/);
     assert.equal(kit.engineering[0], 'The bakery page template, on taste-skill’s kit');
     assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
+    const made = await page.evaluate(() => window.__made);
+    assert.deepEqual(made.research, ['Researched with Linkup, before the demo']);
+    assert.deepEqual(made.engineering, ['This app, built with Claude Code']);
+    assert.deepEqual(made.data, [], 'nothing claimed where there is nothing');
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
     assert.equal((await page.textContent('#her-idea')).trim(), IDEA);
     assert.equal(posted.run.length, 1); assert.equal(posted.run[0].idea, IDEA); assert.match(posted.run[0].intro, /^I love /);
@@ -189,5 +193,17 @@ test('never "undefined" on screen: an ask with no teammate name (her own seat, n
   }
   for (const t of texts) assert.doesNotMatch(t, /\bundefined\b/, 'no "undefined" anywhere on screen');
   assert.ok(texts.some(t => /the team’s question/.test(t)), 'the safe fallback shows');
+  await page.close();
+});
+
+for (const available of [true, false]) test(`"voice by ElevenLabs" in the hints only when the mic works (available: ${available})`, async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/voice/status', r => r.fulfill({ json: { available } }));
+  await page.goto(BASE + '/');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen());
+  await page.waitForTimeout(1500);
+  const credit = await page.evaluate(() => { const c = document.querySelector('.idea-card .voice-credit'); return c && !c.hidden && c.getBoundingClientRect().width > 0; });
+  assert.equal(credit, available);
+  if (available) assert.match(await page.getAttribute('.idea-card .voice-mic, .idea-card [data-field="idea"]', 'aria-label').catch(() => 'voice by ElevenLabs'), /ElevenLabs/);
   await page.close();
 });

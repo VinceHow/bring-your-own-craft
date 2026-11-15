@@ -21,3 +21,22 @@ test('nothing aspirational: no fal images, no MCP, no tools the code does not ru
   const all = Object.values(kitFor('A bakery', { start: '/x' })).flat().join(' | ');
   assert.doesNotMatch(all, /\bfal\b|\bMCP\b|image|flux|web search/i);
 });
+
+test('"Made with" (prepared ahead): each item only on its evidence; Linkup only when the cited finding was found with it', async () => {
+  const { madeFor } = await import('../lib/kit.js');
+  const m = madeFor("An ordering website for my friend's small bakery");
+  assert.deepEqual(m.research, ['Researched with Linkup, before the demo']);
+  assert.ok(m.design.includes('This studio, its clips and music, painted on fal'));
+  assert.ok(m.design.includes('The room’s frames, laid out in Figma'));
+  assert.deepEqual(m.engineering, ['This app, built with Claude Code']);
+  assert.deepEqual(madeFor('A sign-up page for a tool library').research, [], 'no finding cited, no Linkup');
+  assert.ok(Object.values(m).every(l => l.length <= 2), 'at most 2 each');
+  assert.doesNotMatch(Object.values(m).flat().join(' | '), /ElevenLabs|MCP|image/i, 'no music by ElevenLabs, no MCP, no runtime images');
+});
+test('Bo thinks with what this server really runs on', async () => {
+  const { kitFor } = await import('../lib/kit.js');
+  const old = process.env.MODEL_BACKEND;
+  process.env.MODEL_BACKEND = 'fal'; assert.equal(kitFor('A bakery').engineering.at(-1), 'Thinks with Claude (Sonnet), through fal');
+  delete process.env.MODEL_BACKEND; assert.equal(kitFor('A bakery').engineering.at(-1), 'Thinks with Claude, through Claude Code');
+  if (old !== undefined) process.env.MODEL_BACKEND = old;
+});

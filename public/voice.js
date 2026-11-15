@@ -50,8 +50,8 @@
   function mark(field, el) {
     const b = document.createElement('span');
     b._field = el; b.className = 'voice-mic'; b.dataset.field = field; b.dataset.component = 'mic';
-    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak');
-    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V)';
+    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak (voice by ElevenLabs)');
+    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V) · voice by ElevenLabs speech-to-text';
     b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak</span>';
     b.addEventListener('pointerdown', e => {
       if (state === 'listening' && toggled) { e.preventDefault(); stop(); return; } // the second tap
