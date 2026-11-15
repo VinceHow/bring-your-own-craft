@@ -203,9 +203,10 @@
   // deletions; "like" / "you know" / "I mean" only set off by commas). So the first screen's tidy always plays.
   const cutFillers = raw => {
     let s = ' ' + String(raw || '').replace(/\s+/g, ' ').trim() + ' ';
+    for (let i = 0; i < 3; i++) s = s.replace(/^\s*(?:basically\b\s*,?|(?:so|okay|ok|well|right)\s*,)\s*/i, ' ');
     s = s.replace(/[\s,]+\b(?:u+m+|u+h+|e+r+m*|hm+)\b[,.]?(?=\s)/gi, ' ');
+    for (let i = 0; i < 3; i++) s = s.replace(/^\s*(?:basically\b\s*,?|(?:so|okay|ok|well|right)\s*,)\s*/i, ' '); // 'Well,' and 'Right,' only with their comma ('Right now…' stays)
     s = s.replace(/,\s*(?:like|you know|i mean)\s*,/gi, ',').replace(/^\s*(?:like|you know|i mean)\s*,/i, ' ');
-    for (let i = 0; i < 3; i++) s = s.replace(/^\s*(?:so|okay|ok|well|basically|right)\b\s*[,.]?\s*/i, ' ');
     s = s.replace(/\s+([,.!?])/g, '$1').replace(/,\s*,/g, ',').replace(/^[\s,.;:]+/, '').replace(/\s+/g, ' ').trim();
     if (!s || s.toLowerCase() === String(raw || '').replace(/\s+/g, ' ').trim().toLowerCase()) return String(raw || ''); // nothing cut: her words as they were
     return s[0].toUpperCase() + s.slice(1);
