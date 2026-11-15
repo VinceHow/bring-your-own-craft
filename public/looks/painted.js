@@ -28,6 +28,39 @@
   };
   layer('sheet', 'Your thoughts');
   layer('her-pin');
+  // Her right column is ONE painted scroll (no nested scroll boxes, no browser scrollbars). focus-doc.js splits it between
+  // its main block and its aside, so this look gathers those parts, in order, into one look-owned column inside the
+  // document ([data-pfd="column"]); focus-doc.js still finds every part by doc.querySelector. Parts added later are
+  // gathered too. While she captures, the aside's parts stay out of view, as focus-doc.js hides its aside.
+  if (fdoc) {
+    const col = document.createElement('div'); col.dataset.pfd = 'column'; fdoc.appendChild(col);
+    const newer = document.createElement('button'); newer.type = 'button'; newer.dataset.pfd = 'newer'; newer.hidden = true; newer.textContent = 'New replies ↓';
+    const main = fdoc.querySelector(':scope > div:has(> [data-slot="work"])'), side = fdoc.querySelector(':scope > aside');
+    const mine = n => n.nodeType === 1 && !n.matches('[data-slot="work"], [data-slot="question"]');
+    const gather = () => {
+      if (main) [...main.children].filter(mine).forEach(n => { n.dataset.pfdFrom = 'main'; col.insertBefore(n, col.querySelector(':scope > [data-pfd-from="side"]') || (newer.parentNode ? newer : null)); });
+      if (side) [...side.children].filter(mine).forEach(n => { n.dataset.pfdFrom = 'side'; col.insertBefore(n, newer.parentNode ? newer : null); });
+      if (!newer.parentNode) col.appendChild(newer);
+    };
+    gather();
+    [main, side].forEach(p => p && new MutationObserver(gather).observe(p, { childList: true }));
+    const nearEnd = () => col.scrollHeight - col.scrollTop - col.clientHeight < 60;
+    const toEnd = () => col.scrollTo({ top: col.scrollHeight, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    col.addEventListener('scroll', () => { if (nearEnd()) newer.hidden = true; });
+    newer.addEventListener('click', () => { newer.hidden = true; toEnd(); });
+    let wasEnd = true;
+    new MutationObserver(ms => {
+      const card = col.querySelector('[data-component="takeaways"]');
+      if (ms.some(m => m.target === card && m.attributeName === 'data-state') && card.dataset.state === 'shown') {   // the takeaways: its top into view
+        newer.hidden = true; requestAnimationFrame(() => col.scrollTo({ top: Math.max(0, card.offsetTop - 16), behavior: 'smooth' })); return;
+      }
+      if (ms.some(m => m.type === 'childList' && [...m.addedNodes].some(n => n.nodeType === 1 && n.dataset.component === 'chime'))) {   // a reply arrives
+        if (wasEnd) requestAnimationFrame(toEnd); else newer.hidden = false;
+      }
+    }).observe(col, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-state'] });
+    col.addEventListener('scroll', () => { wasEnd = nearEnd(); });
+    B.on('focus.open', () => { col.scrollTop = 0; newer.hidden = true; wasEnd = true; });
+  }
   const js = src => new Promise(res => { const s = document.createElement('script'); s.src = base + src; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); }; document.body.appendChild(s); });
 
   // ---- focus: one event for every layer (the living painting holds still, the music ducks) ----
@@ -168,15 +201,11 @@
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });
       M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
         n.remove(); delete inbox.dataset.ptAwaiting;
-        M.animate(inbox, { y: [0, -8, 0] }, { duration: 1.1, ease: [.33, 0, .2, 1] });
+        inbox.dataset.ptLanded = ''; setTimeout(() => { delete inbox.dataset.ptLanded; }, 2600);   // the inbox pulse's rise + ink redraw, now
       });
     }, 1400);                                                  // the note is up in their hand first
     setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 6000);   // never leave it hidden
   });
-  const chat = room.querySelector('.chatter');
-  if (chat) new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
-    const t = n.querySelector && n.querySelector('.chatter-text'); if (t && !t.dataset.short) { t.dataset.short = '1'; t.textContent = few(t.textContent, 15); }
-  }))).observe(chat, { childList: true });
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');
 })();

@@ -53,3 +53,6 @@
 .pi-layer.lights .pi-bulb::before { opacity: var(--b, .8); }
 
 @media (prefers-reduced-motion: reduce) { .pi-plate, .pi-pill, .pi-bulb::before { transition: none; } .pi-track.playing .eq i { animation: none; height: 8px; } }
+/* the window, at night: the rain-sound toggle. A small inked paw is the only sign; a quiet pill says on / off. */
+.pi-spot[data-spot="window"] { border-radius: 18px; cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg fill='%23FFF8EE' stroke='%233B2A20' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M14 13.5c-4 0-7.2 3.6-7.2 6.6 0 2.4 2 3.6 3.9 3.2 1.4-.3 2.2-.9 3.3-.9s1.9.6 3.3.9c1.9.4 3.9-.8 3.9-3.2 0-3-3.2-6.6-7.2-6.6Z'/%3E%3Cellipse cx='6.6' cy='11.2' rx='2.2' ry='2.8'/%3E%3Cellipse cx='11' cy='6.8' rx='2.2' ry='2.9'/%3E%3Cellipse cx='17' cy='6.8' rx='2.2' ry='2.9'/%3E%3Cellipse cx='21.4' cy='11.2' rx='2.2' ry='2.8'/%3E%3C/g%3E%3C/svg%3E") 14 14, pointer; }
+.pi-rain { --pi-under: #7E94C4; }

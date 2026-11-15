@@ -971,80 +971,6 @@ html #room [data-component="note-flight"]::after { content: ''; position: absolu
 html #room [data-component="inbox"][data-pt-awaiting] [data-component="inbox-item"] > * { opacity: 0; }
 html #room [data-component="inbox"] [data-component="inbox-item"] > * { transition: opacity 400ms var(--ease-land); }
 
-/* chatter: at most two on screen, and each fades */
-html #room .chatter .chatter-line:nth-last-child(n+3) { display: none; }
-html #room .chatter-line[data-state="leaving"] { opacity: 0; transition: opacity 700ms var(--ease-glide); }
-@media (prefers-reduced-motion: reduce) { html #room .painted-status.in { animation: none; } }
-/* the status note: bottom left on the rug, clear of her inbox and stool; one teammate per line */
-html #room .painted-status { left: 230px; bottom: 26px; translate: none; max-width: 520px; padding: 11px 20px 12px; border-radius: 22px 18px 24px 16px / 18px 24px 16px 22px;
-  white-space: pre-line; text-align: left; font-size: 19px; line-height: 1.4; isolation: isolate; background: none; box-shadow: none; }
-html #room .painted-status::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--kraft);
-  -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; translate: 5px 6px; rotate: 1deg; }
-html #room .painted-status::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--sheet) var(--tooth); background-clip: padding-box;
-  border: 2px solid transparent; border-image: var(--ink-pill) 34 / 20px / 2px stretch; box-shadow: var(--paper-shadow); }
-@keyframes pt-status { from { opacity: 0; translate: 0 6px; } }
-/* chatter bubbles sit ABOVE their speaker's pill (the room places them under it), clear of every face */
-html #room .chatter-line { translate: 0 calc(-100% - 58px); border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; max-width: 300px; }
-
-/* ---------- her inbox: something new arrives (design studio, 14 Nov) ----------
-   Hooks only: inbox[data-pulse], inbox-item[data-state new · top · empty][data-seat], data-slot now · who · text · empty.
-   The arrival is the comp's (her-inbox.html): the tray rises ~8px and settles, and its ink line redraws once around it
-   in the asking teammate's crayon, then fades back to the paper's own line. No glow, no ring, no outline. The lift is a
-   transform, never translate, so the inbox can still nudge itself back on screen. */
-@property --pt-sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-html #room [data-component="inbox"][data-pulse="on"] { outline: none; animation: pt-inbox-rise 1.1s cubic-bezier(.33,0,.2,1) both; }
-@keyframes pt-inbox-rise { 0% { transform: none; } 35% { transform: translateY(-8px); } 100% { transform: none; } }
-html #room [data-component="inbox"] [data-slot="now"][data-seat="design"] { --pc: var(--cr-design); }
-html #room [data-component="inbox"] [data-slot="now"][data-seat="research"] { --pc: var(--cr-research); }
-html #room [data-component="inbox"] [data-slot="now"][data-seat="data"] { --pc: var(--cr-data); }
-html #room [data-component="inbox"] [data-slot="now"][data-seat="strategy"] { --pc: var(--cr-strategy); }
-html #room [data-component="inbox"] [data-slot="now"][data-seat="engineering"] { --pc: #B48A1E; }
-html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  border-radius: var(--r-md); border: 2.2px solid var(--pc, var(--cr-product));
-  -webkit-mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0); mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0);
-  animation: pt-inbox-ink .9s cubic-bezier(.45,.05,.25,1) .25s both, pt-inbox-ink-out .8s ease 1.6s forwards; }
-@keyframes pt-inbox-ink { from { --pt-sweep: 0deg; } to { --pt-sweep: 360deg; } }
-@keyframes pt-inbox-ink-out { to { opacity: 0; } }
-/* the item: who asks as a small ink label in their colour, the question on its own line */
-html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="who"] { display: block; font: 500 13px/1.2 var(--ui); color: var(--ct, var(--ink-2)); text-transform: none; letter-spacing: 0; }
-html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="text"] { display: block; margin-top: 3px; font: 400 18px/1.3 var(--display); color: var(--ink); }
-html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: pt-inbox-text .5s ease .2s both; }
-@keyframes pt-inbox-text { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-html #room [data-component="inbox"] [data-component="inbox-item"][data-state="empty"] [data-slot="empty"] { font: italic 400 16px/1.3 var(--display); color: var(--ink-2); }
-@media (prefers-reduced-motion: reduce) {
-  html #room [data-component="inbox"][data-pulse="on"], html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after,
-  html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: none; }
-  html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { --pt-sweep: 360deg; opacity: .8; } }
-
-/* ---- "Open the app" (app-button.js), painted: a small hand-painted shop tag at the window's bottom right.
-   Hooks only: [data-component="app-button"][data-state=none|building|ready], [data-pulse], slots open/label/hint/change/live.
-   It never clips its own words and never sits on her focus document: while a document is open the document leaves a
-   strip at its foot and the tag sits in it. ---- */
-html [data-component="app-button"] { max-width: min(320px, 40vw); right: 16px; bottom: 14px; }
-html [data-component="app-button"] [data-slot="open"] { position: relative; isolation: isolate; align-items: flex-start; gap: 3px; max-width: 100%;
-  padding: 10px 18px 11px 16px; border: 0; border-radius: 26px 22px 28px 20px / 22px 28px 20px 26px; box-shadow: var(--paper-shadow-hi, 0 2px 4px rgba(60,35,15,.18));
-  background: var(--paper, #FCF6EA) var(--tooth, none); color: var(--ink, #3B2A20); white-space: normal; text-align: left; }
-html [data-component="app-button"] [data-slot="open"]::before { content: ''; position: absolute; inset: -3px -4px -4px -3px; z-index: -1; border-radius: inherit;
-  background: var(--ink-3, #957D69); opacity: .35; }
-html [data-component="app-button"] [data-slot="label"] { font: 500 19px/1.15 var(--display, Georgia, serif); color: var(--ink, #3B2A20); }
-html [data-component="app-button"] [data-slot="hint"] { font: 400 13.5px/1.3 var(--ui, sans-serif); color: var(--ink-2, #6E5646); overflow-wrap: anywhere; }
-html [data-component="app-button"][data-state="none"] [data-slot="open"]:disabled { opacity: 1; cursor: default; }
-html [data-component="app-button"][data-state="none"] [data-slot="label"] { color: var(--ink-2, #6E5646); font-style: italic; }
-html [data-component="app-button"][data-state="ready"] [data-slot="open"]::before { background: var(--product, #D97F92); opacity: .75; }
-html [data-component="app-button"][data-state="ready"] [data-slot="label"] { font-size: 21px; }
-html [data-component="app-button"][data-state="ready"] [data-slot="open"]:hover { translate: 0 -2px; }
-html [data-component="app-button"][data-state="building"] [data-slot="open"]::before { background: var(--ink-3, #957D69); animation: app-breathe 2.8s ease-in-out infinite; }
-@keyframes app-breathe { 0%, 100% { opacity: .25; } 50% { opacity: .55; } }
-html [data-component="app-button"][data-pulse] [data-slot="open"] { animation: app-lift .9s cubic-bezier(.16,1,.3,1) 1; }
-@keyframes app-lift { 0% { translate: 0 0; } 35% { translate: 0 -8px; } 100% { translate: 0 0; } }
-html [data-component="app-button"] :is([data-slot="change"], [data-slot="live"]) { border: 0; border-radius: 14px 12px 16px 10px; background: var(--paper, #FCF6EA);
-  box-shadow: var(--paper-shadow-hi, 0 2px 4px rgba(60,35,15,.18)); font: italic 400 14px/1.3 var(--display, Georgia, serif); color: var(--ink, #3B2A20); max-width: 100%; }
-html [data-component="app-button"] [data-slot="live"] { font-style: normal; color: var(--ink, #3B2A20); text-decoration: underline; text-decoration-color: var(--product, #D97F92); }
-/* her focus document leaves a strip at its foot for the tag; the tag goes compact (one line) while she's focused */
-html body.focus-open #room .focus-doc { bottom: 96px; }
-html body.focus-open [data-component="app-button"] [data-slot="hint"] { display: none; }
-html body.focus-open [data-component="app-button"] [data-slot="open"] { padding: 8px 16px; }
-@media (prefers-reduced-motion: reduce) { html [data-component="app-button"] [data-slot="open"] { animation: none !important; } }
 /* =====================================================================================================================
    Jank sweep 1 + the team at work, on builder hooks (15 Nov). Selectors here use data-component / data-slot / data-state
    only (docs/COMPONENTS.md); the two look-owned elements carry their own data-component (team-doing, glance-more).
@@ -1125,7 +1051,171 @@ html #room [data-component="idea-sheet"]:not([data-open="true"]) > :has(> [data-
 /* (8, cont.) "+N more": a small cream pill in ink, readable on the window */
 html #room [data-component="team-space"] [data-slot="cards"]:has(> :nth-child(3))::after { background: var(--sheet); border-radius: 999px; padding: 6px 12px 7px;
   box-shadow: 0 0 0 1.5px rgba(80,55,35,.25), var(--paper-shadow); color: var(--ink); margin-left: 4px; }
+
+/* ---------- her inbox: something new arrives (design studio, 14 Nov) ----------
+   Hooks only: inbox[data-pulse], inbox-item[data-state new · top · empty][data-seat], data-slot now · who · text · empty.
+   The arrival is the comp's (her-inbox.html): the tray rises ~8px and settles, and its ink line redraws once around it
+   in the asking teammate's crayon, then fades back to the paper's own line. No glow, no ring, no outline. The lift is a
+   transform, never translate, so the inbox can still nudge itself back on screen. */
+@property --pt-sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+html #room [data-component="inbox"][data-pulse="on"] { outline: none; animation: pt-inbox-rise 1.1s cubic-bezier(.33,0,.2,1) both; }
+@keyframes pt-inbox-rise { 0% { transform: none; } 35% { transform: translateY(-8px); } 100% { transform: none; } }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="design"] { --pc: var(--cr-design); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="research"] { --pc: var(--cr-research); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="data"] { --pc: var(--cr-data); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="strategy"] { --pc: var(--cr-strategy); }
+html #room [data-component="inbox"] [data-slot="now"][data-seat="engineering"] { --pc: #B48A1E; }
+html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border-radius: var(--r-md); border: 2.2px solid var(--pc, var(--cr-product));
+  -webkit-mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0); mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0);
+  animation: pt-inbox-ink .9s cubic-bezier(.45,.05,.25,1) .25s both, pt-inbox-ink-out .8s ease 1.6s forwards; }
+@keyframes pt-inbox-ink { from { --pt-sweep: 0deg; } to { --pt-sweep: 360deg; } }
+@keyframes pt-inbox-ink-out { to { opacity: 0; } }
+/* the item: who asks as a small ink label in their colour, the question on its own line */
+html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="who"] { display: block; font: 500 13px/1.2 var(--ui); color: var(--ct, var(--ink-2)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="inbox"] [data-component="inbox-item"] [data-slot="text"] { display: block; margin-top: 3px; font: 400 18px/1.3 var(--display); color: var(--ink); }
+html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: pt-inbox-text .5s ease .2s both; }
+@keyframes pt-inbox-text { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+html #room [data-component="inbox"] [data-component="inbox-item"][data-state="empty"] [data-slot="empty"] { font: italic 400 16px/1.3 var(--display); color: var(--ink-2); }
+@media (prefers-reduced-motion: reduce) {
+  html #room [data-component="inbox"][data-pulse="on"], html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after,
+  html #room [data-component="inbox"] [data-component="inbox-item"][data-state="new"] [data-slot="text"] { animation: none; }
+  html #room [data-component="inbox"][data-pulse="on"] [data-slot="now"]::after { --pt-sweep: 360deg; opacity: .8; } }
+
+/* ---- "Open the app" (app-button.js), painted: a small hand-painted shop tag at the window's bottom right.
+   Hooks only: [data-component="app-button"][data-state=none|building|ready], [data-pulse], slots open/label/hint/change/live.
+   It never clips its own words and never sits on her focus document: while a document is open the document leaves a
+   strip at its foot and the tag sits in it. ---- */
+html [data-component="app-button"] { max-width: min(320px, 40vw); right: 16px; bottom: 14px; }
+html [data-component="app-button"] [data-slot="open"] { position: relative; isolation: isolate; align-items: flex-start; gap: 3px; max-width: 100%;
+  padding: 10px 18px 11px 16px; border: 0; border-radius: 26px 22px 28px 20px / 22px 28px 20px 26px; box-shadow: var(--paper-shadow-hi, 0 2px 4px rgba(60,35,15,.18));
+  background: var(--paper, #FCF6EA) var(--tooth, none); color: var(--ink, #3B2A20); white-space: normal; text-align: left; }
+html [data-component="app-button"] [data-slot="open"]::before { content: ''; position: absolute; inset: -3px -4px -4px -3px; z-index: -1; border-radius: inherit;
+  background: var(--ink-3, #957D69); opacity: .35; }
+html [data-component="app-button"] [data-slot="label"] { font: 500 19px/1.15 var(--display, Georgia, serif); color: var(--ink, #3B2A20); }
+html [data-component="app-button"] [data-slot="hint"] { font: 400 13.5px/1.3 var(--ui, sans-serif); color: var(--ink-2, #6E5646); overflow-wrap: anywhere; }
+html [data-component="app-button"][data-state="none"] [data-slot="open"]:disabled { opacity: 1; cursor: default; }
+html [data-component="app-button"][data-state="none"] [data-slot="label"] { color: var(--ink-2, #6E5646); font-style: italic; }
+html [data-component="app-button"][data-state="ready"] [data-slot="open"]::before { background: var(--product, #D97F92); opacity: .75; }
+html [data-component="app-button"][data-state="ready"] [data-slot="label"] { font-size: 21px; }
+html [data-component="app-button"][data-state="ready"] [data-slot="open"]:hover { translate: 0 -2px; }
+html [data-component="app-button"][data-state="building"] [data-slot="open"]::before { background: var(--ink-3, #957D69); animation: app-breathe 2.8s ease-in-out infinite; }
+@keyframes app-breathe { 0%, 100% { opacity: .25; } 50% { opacity: .55; } }
+html [data-component="app-button"][data-pulse] [data-slot="open"] { animation: app-lift .9s cubic-bezier(.16,1,.3,1) 1; }
+@keyframes app-lift { 0% { translate: 0 0; } 35% { translate: 0 -8px; } 100% { translate: 0 0; } }
+html [data-component="app-button"] :is([data-slot="change"], [data-slot="live"]) { border: 0; border-radius: 14px 12px 16px 10px; background: var(--paper, #FCF6EA);
+  box-shadow: var(--paper-shadow-hi, 0 2px 4px rgba(60,35,15,.18)); font: italic 400 14px/1.3 var(--display, Georgia, serif); color: var(--ink, #3B2A20); max-width: 100%; }
+html [data-component="app-button"] [data-slot="live"] { font-style: normal; color: var(--ink, #3B2A20); text-decoration: underline; text-decoration-color: var(--product, #D97F92); }
+/* her focus document leaves a strip at its foot for the tag; the tag goes compact (one line) while she's focused */
+html body.focus-open #room .focus-doc { bottom: 96px; }
+html body.focus-open [data-component="app-button"] [data-slot="hint"] { display: none; }
+html body.focus-open [data-component="app-button"] [data-slot="open"] { padding: 8px 16px; }
+@media (prefers-reduced-motion: reduce) { html [data-component="app-button"] [data-slot="open"] { animation: none !important; } }
+
+/* the arrival is ONE moment (with the inbox pulse above): while the note is in flight (painted.js sets data-pt-awaiting) the
+   pulse holds back; when the note lands, painted.js sets data-pt-landed and the same rise and ink redraw play then */
+html #room [data-component="inbox"][data-pt-awaiting], html #room [data-component="inbox"][data-pt-awaiting] [data-slot="now"]::after { animation: none !important; }
+html #room [data-component="inbox"][data-pt-awaiting] [data-slot="now"]::after { opacity: 0; }
+html #room [data-component="inbox"][data-pt-landed] { animation: pt-inbox-rise 1.1s cubic-bezier(.33,0,.2,1) both; }
+html #room [data-component="inbox"][data-pt-landed] [data-slot="now"]::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border-radius: var(--r-md); border: 2.2px solid var(--pc, var(--cr-product));
+  -webkit-mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0); mask: conic-gradient(from -90deg at 50% 50%, #000 var(--pt-sweep), transparent 0);
+  animation: pt-inbox-ink .9s cubic-bezier(.45,.05,.25,1) .25s both, pt-inbox-ink-out .8s ease 1.6s forwards; }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="inbox"][data-pt-landed], html #room [data-component="inbox"][data-pt-landed] [data-slot="now"]::after { animation: none; } }
+
 /* the app tag and her big sheets share the window's bottom right: her sheet opened large and her page leave the same
    foot strip as her focus document, and the tag drops its change note (label + hint only) while a big sheet is open */
 html body:has(#her-sheet[data-open="true"]) #room .her-sheet[data-open="true"] { height: 752px !important; }
 html body:is(.focus-open, :has(#her-sheet[data-open="true"])) [data-component="app-button"] [data-slot="change"] { display: none !important; }
+
+
+/* The mic, ink-paper (QA #29): a cream pill with a hand-inked edge and her colour peeking out down-right, like the
+   other pills on her sheet. Listening fills softly in her colour with one slow ink dot; writing goes warm amber.
+   Hooks: [data-component="mic"] (voice.js), data-state idle|listening|writing|typed. Visibility rules stay voice.css's. */
+html.painted-on [data-component="mic"][data-field] { position: relative; font: 500 14px/1 var(--ui); color: var(--ink); padding: 8px 14px 8px 11px; gap: 7px;
+  background: var(--paper, #FCF6EA); border: 0; border-radius: 19px 17px 20px 16px / 17px 20px 16px 19px;
+  box-shadow: 0 0 0 1.4px rgba(51,38,28,.75), 3px 4px 0 -1px var(--product, #C76B83); transform: none;
+  transition: translate .18s ease, box-shadow .18s ease, background-color .3s ease; }
+html.painted-on [data-component="mic"][data-field]:hover { translate: 0 -1px; }
+html.painted-on [data-component="mic"][data-field]:active,
+html.painted-on [data-component="mic"][data-field][data-state="listening"] { translate: 1px 1px; transform: none;
+  box-shadow: 0 0 0 1.4px rgba(51,38,28,.75), 1px 2px 0 -1px var(--product, #C76B83); }
+html.painted-on [data-component="mic"][data-field][data-state="listening"] { background: color-mix(in srgb, var(--product, #C76B83) 28%, var(--paper, #FCF6EA)); }
+html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { position: absolute; right: 5px; top: 50%; margin-top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: var(--ink);
+  animation: painted-mic 1.6s ease-in-out infinite; }
+@keyframes painted-mic { 50% { opacity: .25; } }
+html.painted-on [data-component="mic"][data-field][data-state="writing"] { background: color-mix(in srgb, #E8C36A 32%, var(--paper, #FCF6EA)); }
+html.painted-on [data-component="mic"][data-field][data-state="typed"] { background: transparent; box-shadow: none; padding: 0; translate: none;
+  font: italic 400 14px/1 'Newsreader', Georgia, serif; color: var(--ink-3); }
+html.painted-on [data-component="mic"][data-field] svg { opacity: .85; }
+@media (prefers-reduced-motion: reduce) { html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { animation: none; } }
+
+/* ---------- her name tag, in two steps (design lead, 15 Nov; Vincent: "after she hits submit, the stage moves on") ----------
+   Step 1, asking: her name, her seat, her sentence (the mic inside its box), one hint, "Make my tag".
+   Step 2, from Enter on: the form is gone and the paper IS her name tag: her name large, the team's title, traits and
+   superpower when they land, her own words as a small quote, one calm status line, "Meet your team".
+   Hooks only: character-card[data-state] asking · thinking · rough · shown; data-slot name · input · hint · status ·
+   character · said · traits; the pick-card; the mic is [data-field="intro"]. */
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) { position: relative; }
+html #room [data-component="character-card"][data-state="asking"] [data-slot="input"] { min-height: 118px; padding-bottom: 58px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] { position: absolute; right: 10px; bottom: 10px; margin: 0; height: 40px; padding: 0 14px 0 5px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] svg { padding: 7px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) [data-field="intro"] > span { font-size: 14px; }
+html #room [data-component="character-card"] > [data-slot="hint"] { margin-top: 10px; color: #6F5A49; }
+/* step 2: the form steps away */
+html #room [data-component="character-card"]:not([data-state="asking"]) > label:has([data-slot="name"]),
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-component="pick-card"],
+html #room [data-component="character-card"]:not([data-state="asking"]) > label:has([data-slot="input"]),
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="hint"] { display: none !important; }
+/* the tag itself */
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="character"] { order: 0; margin: 4px 0 0; padding: 0; border-top: 0;
+  animation: pt-nt-arrive .5s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pt-nt-arrive { from { opacity: 0; translate: 0 10px; } }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child { font: 400 52px/1.1 var(--display); color: var(--ink); }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child > :first-child { font: inherit; }
+html #room [data-component="character-card"] [data-slot="title"] { display: block; margin-top: 6px; font-size: 34px; }
+html #room [data-component="character-card"] [data-slot="traits"] { margin-top: 18px; }
+html #room [data-component="character-card"] [data-slot="traits"]:empty { display: none; }
+html #room [data-component="character-card"] [data-slot="superpower"] { margin-top: 4px; }
+html #room [data-component="character-card"] [data-slot="said"] { margin: 18px 0 0; padding: 12px 0 0; border-top: 1px dashed rgba(147,55,79,.35);
+  font: italic 400 19px/1.4 var(--display); color: var(--ink-2); }
+html #room [data-component="character-card"] [data-slot="said"] > span { display: block; margin-bottom: 4px; font: 500 13px/1 var(--ui); font-style: normal; color: #93374F; }
+html #room [data-component="character-card"] [data-slot="character"] > [data-slot="hint"] { margin-top: 14px; color: #6F5A49; }
+/* thinking (before her words are tidied): the status, large, where the tag is about to be */
+html #room [data-component="character-card"][data-state="thinking"] [data-slot="status"] { margin: 8px 0 6px; font-size: 30px; color: var(--ink); }
+/* the status line: one calm sentence; while the team works, three ink dots breathe after it */
+html #room [data-component="character-card"] [data-slot="status"] { order: 1; margin-top: 16px; }
+html #room [data-component="character-card"] [data-slot="status"]:is([data-state="thinking"], [data-state="polishing"], [data-state="slow"])::after {
+  content: '•••'; display: inline-block; margin-left: 6px; letter-spacing: 2px; font-style: normal; color: #93374F; animation: pt-nt-dots 1.4s ease-in-out infinite; }
+@keyframes pt-nt-dots { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="character-card"] [data-slot="status"]::after,
+  html #room [data-component="character-card"] [data-slot="character"] { animation: none; } }
+/* handwritten: a small ink pen writes her name in (rough), then the team's title when it lands (shown); the traits are
+   set down one by one, the superpower is written last, her words settle in. The pen lifts away when it's done. */
+html #room [data-component="character-card"] [data-slot="character"] > :first-child { position: relative; width: fit-content; }
+html #room [data-component="character-card"] [data-slot="character"] > :first-child::after { content: ''; position: absolute; top: 4px; left: 100%; width: 30px; height: 30px; margin-left: -4px;
+  pointer-events: none; opacity: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg stroke='%2333261C' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 27 L6 19 L22 3 L27 8 L11 24 Z' fill='%23FFF8EE'/%3E%3Cpath d='M18 7 L23 12' fill='none'/%3E%3Cpath d='M3 27 L6 19 L11 24 Z' fill='%2333261C'/%3E%3C/g%3E%3C/svg%3E") 0 0 / contain no-repeat; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] { animation: none; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :first-child > :first-child { display: inline-block; animation: pt-write 1.2s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :first-child::after { top: 14px; animation: pt-pen 1.2s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="rough"] [data-slot="character"] > :not(:first-child) { animation: pt-nt-arrive .5s 1.1s cubic-bezier(.2,.7,.2,1) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] { animation: none; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="title"] { animation: pt-write 1.3s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > :first-child::after { top: auto; bottom: 8px; animation: pt-pen 1.3s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"] { animation: pt-set .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: 1.25s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"]:nth-child(2) { animation-delay: 1.45s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="trait"]:nth-child(3) { animation-delay: 1.65s; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > :has(> [data-slot="superpower"]) { animation: pt-write 1.1s 1.9s cubic-bezier(.45,.1,.55,.95) both; }
+html #room [data-component="character-card"][data-state="shown"] [data-slot="said"],
+html #room [data-component="character-card"][data-state="shown"] [data-slot="character"] > [data-slot="hint"] { animation: pt-nt-arrive .5s 2.8s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pt-write { from { clip-path: inset(-20% 100% -20% 0); } to { clip-path: inset(-20% -2% -20% 0); } }
+@keyframes pt-pen { 0% { left: 0; opacity: 0; translate: 0 0; } 8% { opacity: 1; } 25% { translate: 0 -3px; } 50% { translate: 0 2px; } 75% { translate: 0 -2px; }
+  92% { left: 100%; opacity: 1; translate: 0 0; } 100% { left: 100%; opacity: 0; translate: 10px -14px; } }
+@keyframes pt-set { from { opacity: 0; translate: 0 -8px; rotate: -3deg; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="character-card"] [data-slot="character"] *,
+  html #room [data-component="character-card"] [data-slot="character"] > :first-child::after { animation: none !important; } }
+/* step 2 keeps one size from the first pen stroke to the last, so the tag never jumps when the team's read lands */
+html #room [data-component="character-card"][data-seat="product"]:not([data-state="asking"]) { min-height: 520px; }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }
