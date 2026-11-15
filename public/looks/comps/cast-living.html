@@ -101,7 +101,9 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 <script>
 (async () => {
   const q = new URLSearchParams(location.search);
-  const still = q.get('still') === '1', notes = q.get('notes') === '1';
+  // prefers-reduced-motion: the room holds still (the painted rest frames, no loops) and every change is instant
+  const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const still = q.get('still') === '1' || reduced, notes = q.get('notes') === '1';
   // ?embed=1: the room's backdrop (public/looks/painted-living.js). No sample run, no slips (the room's UI draws
   // those), no clicks; scaled to cover the frame.
   const embed = q.get('embed') === '1';
@@ -159,10 +161,11 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   let roomOn = null;
   function setRoom(t, instant, fade = .8) {
     roomOn = t;
+    if (still) instant = true;                              // reduced motion: a cut, and the scene stays on its first frame
     for (const v of rooms) {
       const on = v.dataset.t === t;
-      if (on) v.play().catch(() => {});
-      if (instant) { v.style.opacity = on ? 1 : 0; if (!on) v.pause(); }
+      if (on && !still) v.play().catch(() => {});
+      if (instant) { v.style.opacity = on ? 1 : 0; if (!on || still) v.pause(); }
       else animate(v, { opacity: on ? 1 : 0 }, { duration: fade, ease: 'easeInOut' }).finished
         .then(() => { if (v.dataset.t !== roomOn) v.pause(); else v.play().catch(() => {}); }).catch(() => {});
     }
@@ -203,6 +206,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   const XFADE = .18;
   let held = false;                                     // focus: no new moods
   async function play(id, mood, cut = XFADE) {
+    if (still) return;                                     // reduced motion / ?still=1: teammates stay on their rest frame
     const p = P[id];
     const asked = mood;
     if (mood && STANDIN[id] && STANDIN[id][mood]) mood = STANDIN[id][mood];
@@ -296,7 +300,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 
   // a nod: the whole patch dips 4 px and comes back (agreeing, in code; no clip)
   function nod(id) {
-    const p = P[id]; if (!p || !p.live) return;
+    const p = P[id]; if (!p || !p.live || still) return;
     animate(p.el, { y: [0, 4, 0, 2.5, 0] }, { duration: 1.4, ease: 'easeInOut' });
   }
 
@@ -370,7 +374,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     if (t === now && !instant) return;
     now = t;
     setRoom(t, instant, fade);
-    lightPatches(t, instant ? 0 : fade);
+    lightPatches(t, instant || still ? 0 : fade);
     for (const id of Object.keys(P)) if (P[id].live) P[id].el.style.opacity = 1;
   }
   function preloadLight() {
@@ -401,15 +405,15 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
       rctx.fillStyle = 'rgba(225,235,250,.55)'; rctx.beginPath(); rctx.arc(d.x, d.y, d.r, 0, 7); rctx.fill();
       if (d.hold <= 0) { rctx.fillStyle = 'rgba(210,225,245,.18)'; rctx.fillRect(d.x - .6, d.y - 14, 1.2, 14); }
     }
-    if (rainOn) rainRAF = requestAnimationFrame(drawRain);
+    if (rainOn && !still) rainRAF = requestAnimationFrame(drawRain);      // still: one frame of rain, held
   }
   function nightExtras(on) {
-    animate(rainEl, { opacity: on ? 1 : 0 }, { duration: 1.2 });
-    if (on && !rainOn) { rainOn = true; if (!still) drawRain(); else drawRain(); }
+    animate(rainEl, { opacity: on ? 1 : 0 }, { duration: still ? 0 : 1.2 });
+    if (on && !rainOn) { rainOn = true; drawRain(); }
     if (!on) { rainOn = false; cancelAnimationFrame(rainRAF); }
     $('#glow').classList.toggle('night', on);
     lightsOn = on;                                           // the fairy lights glow brighter at night; a click still toggles them
-    animate($('#glow'), { opacity: on ? 1 : 0 }, { duration: .8 });
+    animate($('#glow'), { opacity: on ? 1 : 0 }, { duration: still ? 0 : .8 });
     if (on && audio && TRACKS[track] !== 'electronic') { track = -1; nextTrack(); }   // electronic is the night track
     rainSound();
   }
@@ -422,7 +426,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
   };
   const busy = {};
   async function playObject(id) {
-    if (busy[id] || held) return; busy[id] = true;
+    if (busy[id] || held || still) return; busy[id] = true;
     const p = P[id], v = clip(id);
     if (v) {
       v.currentTime = 0;

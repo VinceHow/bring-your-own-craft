@@ -210,7 +210,16 @@
     function noteFloat() {   // one small inked note rises from the record when a track starts
       const s = svgEl(20, 26, '<path d="M7 20 V5 L17 3 V17"/><path d="M7 20 a3 2.4 -20 1 1 -1 -1 M17 17 a3 2.4 -20 1 1 -1 -1"/>', 'pi-draw');
       Object.assign(s.style, { left: pct(.925), top: pct(.52), width: '22px', height: '28px' }); L.appendChild(s);
+      if (calm()) { s.style.transform = 'translate(-10px,-34px)'; calmly(s); return; }
       s.animate([{ transform: 'translate(0,0) rotate(-6deg)', opacity: 0 }, { opacity: 1, offset: .2 }, { transform: 'translate(-18px,-70px) rotate(8deg)', opacity: 0 }], { duration: 2600, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => s.remove();
+    }
+
+    // prefers-reduced-motion: a toy's mark appears where it is and fades, with no drift; the idle steam loop is off
+    const calm = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function calmly(s) {
+      const p = s.querySelector('path'); if (p) { p.style.strokeDashoffset = 0; p.style.fillOpacity = 1; }
+      s.style.opacity = 0;
+      s.animate([{ opacity: 0 }, { opacity: 1, offset: .2 }, { opacity: 1, offset: .7 }, { opacity: 0 }], { duration: 1800, easing: 'linear' }).onfinish = () => s.remove();
     }
 
     // ---------- the cat: two ink hearts ----------
@@ -219,6 +228,7 @@
         const s = svgEl(24, 22, '<path pathLength="1" d="M12 20 C 4 14, 1 9, 3.5 5 C 6 1.5, 10.5 2.5, 12 6.5 C 13.5 2.5, 18 1.5, 20.5 5 C 23 9, 20 14, 12 20 Z"/>', 'pi-draw pi-heart');
         Object.assign(s.style, { left: `calc(${pct(.215)} + ${dx}px)`, top: pct(.775), width: '34px', height: '31px' }); L.appendChild(s);
         const p = s.querySelector('path'); p.style.strokeDasharray = 1; p.style.fillOpacity = 0;
+        if (calm()) { s.style.transform = `translate(${dx / 4}px,-40px)`; calmly(s); return; }
         setTimeout(() => {
           p.animate([{ strokeDashoffset: 1, fillOpacity: 0 }, { strokeDashoffset: 0, fillOpacity: 0, offset: .55 }, { strokeDashoffset: 0, fillOpacity: 1 }], { duration: 700, fill: 'forwards', easing: 'ease-out' });
           s.animate([{ transform: `translate(0,6px) rotate(${rot}deg) scale(.8)`, opacity: 1 }, { transform: `translate(${dx / 4}px,-46px) rotate(${-rot / 2}deg) scale(1)`, opacity: 1, offset: .7 }, { transform: `translate(${dx / 3}px,-60px) rotate(0deg) scale(1)`, opacity: 0 }],
@@ -236,12 +246,13 @@
       Object.assign(s.style, { left: pct(x), top: pct(y), width: tiny ? '14px' : '24px', height: tiny ? '38px' : '66px' }); L.appendChild(s);
       const p = s.querySelector('path'); p.style.strokeDasharray = 1;
       if (o.still) { p.style.strokeDashoffset = 0; s.style.opacity = .9; return; }
+      if (calm()) { calmly(s); return; }
       p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1400, fill: 'forwards', easing: 'ease-out' });
       s.animate([{ transform: 'translateY(8px)', opacity: 0 }, { opacity: strong ? 1 : .45, offset: .3 }, { transform: 'translateY(-26px)', opacity: 0 }], { duration: o.still ? 1e9 : 3200, easing: 'ease-out' }).onfinish = () => s.remove();
     }
     sCoffee.addEventListener('click', () => { poke('coffee'); steamOnce(.064, true); setTimeout(() => steamOnce(.072, true), 300); });
     // on its own: only a tiny, faint curl from the cup, every 9 to 15 s
-    if (!o.still) (function loop() { setTimeout(() => { steamOnce(.066, false, .47, true); loop(); }, 9000 + Math.random() * 6000); })();
+    if (!o.still) (function loop() { setTimeout(() => { if (!calm()) steamOnce(.066, false, .47, true); loop(); }, 9000 + Math.random() * 6000); })();
     else steamOnce(.064, true);
 
     // ---------- string lights ----------
