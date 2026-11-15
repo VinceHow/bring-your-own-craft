@@ -34,62 +34,69 @@ and Mika put a rough journey on her idea sheet: who the users are and the stages
 the team gets going on its own: every small decision (accounts, cut-off rules, sold-out states) is theirs, joint ones
 are talked out between them and land in a shared team space. Nothing pings her.
 
-The team brings her only the big questions that need her craft. In this run, three things reached her, each a
-different way a team needs its product person:
+On stage, the demo fixes which three moments reach her; everything inside them (research, replies, takeaways, the
+decisions, the build) is live. Off-stage, the team's selector decides what's big enough to bring her. The three, each
+a different way a team needs its product person:
 1. **Focus: who it's for.** Noor looks up who buys from neighbourhood bakeries, live with Linkup, and quotes her
    source; the finding is labelled "found just now with Linkup". She reacts ("it's really for the regulars"), and that one answer
    unlocks a run of the team's decisions.
-2. **A quick unblock.** An action card: "Bo's blocked: when do orders close? We suggest 8pm the night before." One
-   tap on Yes, and Bo carries on.
+2. **A quick unblock.** A scripted unblock card, fixed for the demo: "Bo's blocked: when do orders close? We suggest
+   8pm the night before." One tap on Yes, and Bo carries on; her answer is decided and logged like any other.
 3. **Focus: the customer experience.** Mika's rough journey in words for a regular's morning, and one question: what
    should this feel like for a regular?
 
 Each focus moment is a short meeting with three modes: **Compose** (she speaks in pieces), **Send** (a round of live
-team discussion, teammates building on her and on each other; only the relevant ones chime in), and **End meeting**
+team discussion: one or two teammates, picked by which crafts her words touch, reply live and build on her and on
+each other), and **End meeting**
 (the takeaways: what she believes, and her guidance to the team). Behind the scenes the team keeps a private picture
 of her (her customers, her taste, her philosophy) and decides everything else her way.
 
-One press, and her bakery's ordering page builds from her answers: regulars first, their usual loaf one tap away,
-reserve by first name, no account, no payment, an 8pm cut-off. Every line traces to her or her team.
+One press, and the team fills one of three designed templates (bakery, café, yoga) with her decisions: regulars
+first, their usual loaf one tap away, reserve by first name, no account, no payment, an 8pm cut-off. The model never
+writes code; other ideas get the yoga layout. Every filled slot traces to her or her team; the layout is prepared.
+The page's emblem is painted live with fal during the build (symbol only; the name is real text).
 
 **The proof: the judges are the regulars.** Before the talk, the judges scan a QR code and reserve a loaf, by first
 name only, from a live bakery deployed on Railway: three tiers (a rare drop of 3, 8 of a medium loaf, 40 of a
-plentiful one), one of each per person. That bakery was built earlier by the same team of agents from a differently
-worded brief, and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
+plentiful one), one of each per person. That bakery was drafted earlier by Bo's agent, from a differently worded brief, and
+finished by our builders to pass the acceptance suite in `deploy/ACCEPTANCE.md`; the app itself is deployed
+separately, and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
 and taps **Deliver**, and every judge's open page flips at once to "Delivered: your sourdough is here." Real software
-with a real database, rules and tests, not a page generator. (Demo bread: nothing real is delivered or paid.)
+with a database, rules and tests. (Demo bread: nothing real is delivered or paid.)
 
 ## How we built it
 - One Node 22 server, one HTML page, vanilla JavaScript, no build step.
-- Every model call goes through one function that returns JSON validated against a schema. Models run through Claude
-  Code headless, with our own system prompts and no tools.
+- Every model call goes through one function that returns JSON validated against a schema, on fal (the demo) or
+  headless Claude Code (the fallback), with our own system prompts and no tools.
 - Each teammate is its own model call with its own craft and stance. They really talk to each other: in a joint
   decision or a chime-in, each turn is a separate call that reads the thread so far.
 - The Product teammate uses Anthropic's `write-spec` skill from the product-management plugin. The Design teammate and
-  the built page use taste-skill. Research cites a real, sourced finding.
-- What reaches her is decided by a selector against a written bar (big, draws on what she's good at or loves, answerable
-  on the page). Everything else the team decides itself, citing what it knows about her.
+  the built page use taste-skill.
+- Off the demo path, what reaches her is decided by a selector against a written bar (big, draws on what she's good
+  at or loves, answerable on the page). On the demo path the three moments are set. Everything else the team decides
+  itself, citing her file where it can, its own defaults where it can't.
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she speaks her idea, her intro and her answers (ElevenLabs speech-to-text, live).
 - Research: Noor searches live with Linkup and quotes a finding only when the quote verifies against the source page;
   otherwise she shows a prepared finding, labelled "researched before the demo".
 - Two model routes behind one function: fal (Claude through fal's OpenRouter router, `MODEL_BACKEND=fal`) is what runs
-  in the demo; Claude Code headless is the alternative route. fal was tested 9/9 schema-valid against Claude Code on 3
-  real calls per step, and it runs the demo because on the demo laptop Claude Code's fast model, through a company
-  gateway, took over 25 s a call while fal answered in about 1 s.
-- The live bakery (`deploy/app/`): Bo's agent wrote it from the brief and a recorded run's decisions; our builders
-  fixed what failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`), so its credit reads "Built by Bo, the
+  in the demo; Claude Code headless is the fallback. fal was tested 9/9 schema-valid against Claude Code on 3
+  real calls per step, and it runs the demo because, in our tests on the demo laptop, Claude Code's fast model through a
+  company gateway took over 25 s a call while fal answered in about 1 s.
+- The live bakery: Bo's agent drafted it from the brief and a recorded run's decisions; our builders finished what
+  failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
   team's engineer. Polished by our builders." Plain Node 22 with `node:sqlite` on a Railway volume, server-sent events
   for the Deliver flip, stock that can't go below zero, one of each per device per drop, a 15-minute hold, and an
   admin page locked behind a token. Its photos and logo were made ahead with fal flux/schnell
-  (`deploy/make-images.mjs`; median 2.2 s, about 0.3¢ an image).
+  (median 2.2 s, about 0.3¢ an image). The app's source is deployed separately, not in this repo.
 - The room's art: fal made the painted cast, the living-painting clips and the record-player music (ElevenLabs Music
   via fal); the ledger is in `design/FAL-SPEND.md`.
-- One event log per run; every number on screen comes from it. Anything prepared ahead is labelled PREPARED or REPLAY.
+- One event log per run; every number about her run comes from it (the baseline's are a hand count, linked). Anything
+  prepared ahead is labelled where it's shown as hers: PREPARED, REPLAY, or "researched before the demo".
 - We built it the same way. Vincent sat in the Product seat; a product-owner agent shaped the experience with him; a
-  lead agent split the work across up to eight builder agents in parallel; every change was reviewed by an agent that
-  didn't write it. How the idea evolved, with timestamps: `docs/HOW-THE-IDEA-EVOLVED.md`.
+  lead agent split the work across builder agents in parallel; each merge got an independent agent review
+  (`docs/DECISIONS.md`, `docs/AUDIT.md`). How the idea evolved, with timestamps: `docs/HOW-THE-IDEA-EVOLVED.md`.
 
 ## Challenges we ran into
 - **Asking the right questions.** Our first version asked about logins and form fields. The fix was a better bar, not a
@@ -101,17 +108,18 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
   lines, so every turn is its own call.
 - **Speed.** On the audit fal run 05:00 (15 Nov, run `run-2026-11-15T05-06-42-808Z-xhzk`, the full
   stage path, counted from its log): her name tag is read in 2.1 s, the first
-  teammate replies 2.2 s after she sends, takeaways land in 3–4 s, the team's work plus selection takes 33 s (we
+  teammate replies 2.2 s after she sends, takeaways land in 3–4 s, the team's work takes 33 s (we
   planned for 20, so we cut a discussion round from the second focus moment to keep the talk inside 3 minutes), and
   her page builds in 22 s.
 - **An honest baseline.** We re-ran the default agent on the exact bakery prompt and counted every guess by hand.
 
 ## Accomplishments that we're proud of
-- One spoken sentence to a working ordering page, with only the big questions that need her in between (three, in
-  our audited run). Full run, idea to her page: **TBD (Vincent's own timed run)**.
+- One spoken sentence to her own ordering page, filled live into a prepared template, with three set moments for her
+  in between. Full run, idea to her page: **TBD (Vincent's own timed run)**.
 - The questions are about her craft, never about the stack.
 - Teammates that genuinely build on her and on each other, in short, human lines.
-- A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, 14 decided by the team, 0 approvals (audit fal run 05:00).
+- A default agent: 0 asked, 24 guessed, 20 approvals. Her team (demo path, three set moments): 3 asked, 14 decisions citing her file (her own lines plus one
+  prepared seed line), 0 approvals (audit fal run 05:00).
 - A judge's own idea gets a rough journey in 2 s and its first check-in in 23 s (audit fal run 05:00).
 
 ## What we learned
@@ -127,9 +135,9 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 
 ## Built with
 Node.js (`node:sqlite`), JavaScript, HTML, CSS, server-sent events, Railway, Claude (via fal's OpenRouter router in the
-demo, and Claude Code headless as the alternative route), Anthropic product-management plugin (`write-spec`),
-taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for the live bakery's photos
-and logo, made ahead; the painted cast, clips and music), Linkup (Noor's live research), motion,
+demo, and Claude Code headless as the fallback), Anthropic product-management plugin (`write-spec`),
+taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for her page's emblem, live, and
+the live bakery's photos and logo, made ahead; the painted cast, clips and music), Linkup (Noor's live research), motion,
 Playwright.
 
 ## Try it
