@@ -40,7 +40,7 @@ The proof: I built it the same way. One human with an idea and a team of agents:
 decisions I'm good at, and agents did the rest, as builders, designers, reviewers and a merger. That's over 1,000
 commits in about 23 hours.
 
-![Slide 8, the future: a table with room for everyone, people and agents working side by side, each in the seat they love](docs/readme/slides/08-the-future.jpg)
+![Slide 8, the future: a table with room for everyone, humans bring their craft and taste, specialist agents bring complementary skills: AI that empowers us to do what we love, not replaces us](docs/readme/slides/08-the-future.jpg)
 Next, the table gets bigger. Today the other seats are agents; next, real people join them: a real engineer takes
 the Engineering seat and brings their own team of agents. A table with room for everyone, each doing what they're
 best at.
