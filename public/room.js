@@ -746,9 +746,11 @@
   // meter = craft / (craft + stamp) over events that carry a mode.
   function tallyFromEvents(events) {
     let came = 0, brought = 0, decided = 0, craft = 0, stamp = 0;
+    // An ask raised before the team proposes (Focus 1, an unblock, Focus 2) came up too: never "0 came up, 3 brought".
+    const cand = new Set(events.filter(e => e.type === 'candidate').map(e => e.id));
     for (const e of events) {
       if (e.type === 'candidate') came++;
-      else if (e.type === 'ask') brought++;
+      else if (e.type === 'ask') { brought++; if (!cand.has(e.id)) came++; }
       else if (e.type === 'decided') decided++;
       if (e.mode === 'craft') craft++;
       else if (e.mode === 'stamp') stamp++;

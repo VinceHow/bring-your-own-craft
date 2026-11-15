@@ -171,5 +171,19 @@ studio) · **open**.
 | 16 | A replay asks the live server for the original run's sketches (`/api/run/run-…-y22q/sketches`, a 404 in the console). | `replay` | — | all | BUILD | open, low |
 | 15 | On load nothing is focused, so typing before clicking the name tag fires the shortcuts (R, S, B…). The name is prefilled "Priya". Kept on purpose: autofocusing her field would swallow R at the start, the demo's fallback. The presenter clicks her field first. | `character-card` · asking | — | all | BUILD | won't fix: "click her name field first" goes in docs/REHEARSAL.md (lead's call) |
 
-Still to sweep, after the P0: the rest of the real run on painted (Focus 2, the unblock, Team go with each
-teammate's pad, the build and her page), then a re-sweep once painted is the default (~02:30).
+### Sweep 1b · one real run on fal (`MODEL_BACKEND=fal`), painted, build/questions 48d8f09 + main 23efe3a, 00:12 Sun
+
+Whole flow, no model failures: Focus 1 asked at 42 s, then the unblock and Focus 2 (first, u-engineering-1, feel),
+team done 194 s, her page 231 s. Her idea input is focused after the reveal and typed for real (fix #1 holds).
+
+| # | What | Where (component · state) | Screenshot | Size | Owner | Status |
+|---|---|---|---|---|---|---|
+| 17 | The meter read "0 decisions came up · 3 brought to you" when the team started: the three asks are raised before any candidate, and came up counted candidates only. | `tally` · counter | `jank/meter-0-came-3-brought-1440.jpg` | all | BUILD | **fixed**: came = candidates + asks raised without one (lib/tally.js and the client tally; test) |
+| 18 | Team-space cards (Ines, Mika) sit on the idea sheet from Focus 1 to the end: they cover the journey pills and the team-status line ("The team has done its fir…"). | `team-space` · cards over `her-sheet` | `jank/ts-over-idea-sheet-1440.jpg` | 1440, 1280 | DESIGN | sent |
+| 19 | A pin reply shows "Noor" with the ":" on its own line. | `pin-reply` · shown, `who` slot | `jank/pin-who-colon-1440.jpg` | all | DESIGN | sent |
+| 20 | Focus 2's takeaways panel shows its labels and Keep with no text while the team reads (an empty box). | `focus-doc` · replying, `fd-brief` | `jank/takeaways-empty-box-1440.jpg` | all | DESIGN (b-polish's reading state) | sent |
+| 21 | The live step ("The team is choosing what to bring you · taking a while · R replays the rehearsal") is cut by the frame's bottom edge. | `live-step` | `jank/live-step-clipped-1440.jpg` | 1440 | DESIGN | sent |
+| 22 | "No app yet · Bo starts once you agree the page" sits on the focus document's bottom-right corner; "v1 · no reason asked to cancel…" overlaps her page's sheet. | `app-pill`; `page-sheet` | `jank/takeaways-empty-box-1440.jpg`, `jank/her-page-live-1440.jpg` | all | DESIGN | sent |
+| 23 | Works: the unblock (Yes → "Bo: Got it: 8pm the night before. Carrying on."), Focus 2's word diff on Mika's steps, the five sketchpads, her workspace, her page after the build. | — | `jank/unblock-answered-1440.jpg`, `jank/her-page-live-1440.jpg` | — | — | clean |
+
+Next: a re-sweep once painted is the default (~02:30), with R on b3's new rehearsal.
