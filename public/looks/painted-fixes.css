@@ -315,3 +315,12 @@ html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="draw
    side (at least 20px on screen at every size), and grows to hold its Keep button. */
 html body #room [data-component="focus-doc"] [data-component="takeaways"] { padding: 24px 28px 26px !important; height: auto !important; min-height: 0 !important; box-sizing: border-box; }
 html body #room [data-component="focus-doc"] [data-component="takeaways"] :is([data-slot="believe"], [data-slot="guidance"]) { padding-right: 4px; }
+/* ---- AUDIT #4: Bo's full pad shows all its calls, no inner scroll ----
+   His pad (four calls, each a question, his answer and a why) needed 585px of list in a 290px window. It's now wider
+   (fewer wrapped lines) and taller: it still ends above the corner's Fake run label and "No app yet" chip, and starts
+   below the inbox tray, so nothing at the right edge is covered. Rows sit a little closer. */
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] {
+  width: 600px !important; max-width: none; left: auto !important; right: calc(40px + var(--crop-x, 0px)) !important;
+  top: calc(124px + var(--crop-y, 0px)) !important; bottom: auto !important; max-height: calc(100% - 296px - 2 * var(--crop-y, 0px)) !important; height: auto !important; margin: 0 !important; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] { gap: 10px !important; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] > li { padding-top: 10px !important; padding-bottom: 10px !important; margin: 0 !important; }
