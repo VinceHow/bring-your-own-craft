@@ -10,12 +10,11 @@ One line per key. The same list is on the room's help card (press `?`; hidden in
 | `Shift+N` | Start over: a new studio, after one confirm; this run is kept in `runs/`. A refresh otherwise picks up her run. |
 | `S` | Stage mode: body text 20px and up, no chrome, no help card. |
 | `R` | Replay the rehearsal run (`runs/rehearsal`), labelled REPLAY. In the close: the yoga run's check-in. |
-| `C` | Replay the yoga run (`runs/yoga`, the judge's-idea fallback), labelled REPLAY. In the close: its check-in. |
-| `J` | The close: type a judge's idea. |
+| `C` | Replay the yoga run (`runs/yoga`), labelled REPLAY. |
 | `B` | Build her page (the same as moving on to the build beat). |
 | `F` | Play the fake fixture run, labelled FAKE (for building the room only). |
 | `V` · `` ` `` | Speak into the open field. Hold to talk and release to send, or tap to start and tap again to stop (for a long answer). `Esc` cancels; the mic shows "listening · tap to stop" while a tap is recording. A recording stops at 2 minutes and says so; it never stops silently. `V` only when no field is focused; `` ` `` anywhere. |
-| `Enter` | Back to her input (or the judge's idea, in the close). |
+| `Enter` | Back to her input. |
 | `Esc` | Leave the input, so the keys work again. |
 | `?` | Toggle the help card (never in stage mode). |
 

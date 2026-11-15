@@ -727,7 +727,8 @@ test('5. fallbacks: a slow or failing call shows its step and offers R', async t
   await waitFor(() => /stopped/.test(document.getElementById('live-step').textContent), 4000, 'the failure', null, p);
   assert.match(await p.textContent('#live-step'), /R replays the rehearsal/);
   assert.strictEqual(await p.locator('.spinner, [class*="spin"], progress').count(), 0, 'never a spinner');
-  // Back in the room, R swaps in the rehearsal (recorded in step 4).
+  // Back in the room, R swaps in the rehearsal (recorded in step 4). Esc first: her input still holds her words.
+  await p.keyboard.press('Escape');
   await p.keyboard.press('Home');
   await p.keyboard.press('r');
   await waitFor(() => BYOC.replay && /rehearsal/.test(document.getElementById('replay-label').textContent), 5000, 'the rehearsal replay', null, p);
