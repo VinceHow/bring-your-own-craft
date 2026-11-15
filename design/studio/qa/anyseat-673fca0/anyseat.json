@@ -1,0 +1,658 @@
+[
+ {
+  "size": "1920x1130",
+  "seat": "product",
+  "fails": [],
+  "notes": [],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Product",
+   "herCraft": null,
+   "theirs": null,
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1920x1130",
+  "seat": "design",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "design"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Design",
+   "herCraft": "design",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1920x1130",
+  "seat": "data",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "data",
+   "flex": {
+    "name": "Operations",
+    "focus": "the morning bake",
+    "stance": "what the counter can really do",
+    "loves": "A bake list that adds up.",
+    "brings": "the morning bake: what is ready, and when"
+   }
+  },
+  "room": {
+   "cards": 6,
+   "her": "Data",
+   "herCraft": "data",
+   "theirs": "Operations",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1920x1130",
+  "seat": "research",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "research"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Research",
+   "herCraft": "research",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1920x1130",
+  "seat": "engineering",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "engineering"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Engineering",
+   "herCraft": "engineering",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1920x1130",
+  "seat": "strategy",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    496,
+    142,
+    880,
+    877
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    496,
+    142,
+    880,
+    876
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    1
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "strategy"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Strategy",
+   "herCraft": "strategy",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "product",
+  "fails": [],
+  "notes": [],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Product",
+   "herCraft": null,
+   "theirs": null,
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "design",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "design"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Design",
+   "herCraft": "design",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "data",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "data",
+   "flex": {
+    "name": "Operations",
+    "focus": "the morning bake",
+    "stance": "what the counter can really do",
+    "loves": "A bake list that adds up.",
+    "brings": "the morning bake: what is ready, and when"
+   }
+  },
+  "room": {
+   "cards": 6,
+   "her": "Data",
+   "herCraft": "data",
+   "theirs": "Operations",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "research",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "research"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Research",
+   "herCraft": "research",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "engineering",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "engineering"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Engineering",
+   "herCraft": "engineering",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ },
+ {
+  "size": "1440x900",
+  "seat": "strategy",
+  "fails": [],
+  "notes": [
+   "no \"steps aside\" text visible"
+  ],
+  "chips": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "rows": 2,
+   "out": [],
+   "off": false,
+   "ov": [],
+   "over": [],
+   "minFs": 17
+  },
+  "tag": {
+   "paper": [
+    353,
+    118,
+    696,
+    693
+   ],
+   "state": "shown",
+   "text": "Name tag Meet your team Priya, the Journey Mapper problem detective user obsessed solution builder In your words “I love talking to customers and turning what they say into what we build” tap any piec"
+  },
+  "jump": {
+   "enter": 0,
+   "tag": 0,
+   "size": [
+    0,
+    0
+   ]
+  },
+  "runBody": {
+   "idea": "A website for my friend's bakery where regulars can order their bread ahead",
+   "stagePath": true,
+   "intro": "I love talking to customers and turning what they say into what we build",
+   "craft": "strategy"
+  },
+  "room": {
+   "cards": 6,
+   "her": "Strategy",
+   "herCraft": "strategy",
+   "theirs": "Product",
+   "aside": [],
+   "late": []
+  }
+ }
+]
