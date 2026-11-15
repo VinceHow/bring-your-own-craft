@@ -58,12 +58,9 @@ for (const look of ['painted', 'plain']) {
     await p.waitForFunction(() => { const i = document.querySelector('[data-component="qr-card"] img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 3000 });
     const img = await p.locator('[data-component="qr-card"] img').boundingBox();
     assert.ok(img.height >= 480, `the card is large: at least 480px tall on the 1600x900 stage (${img.height})`);
-    // never covers the app button, which stays clickable above it
-    const btn = await p.locator('#app-button .app-open').boundingBox(), c = await card.boundingBox();
-    const overlap = !(btn.x > c.x + c.width || btn.x + btn.width < c.x || btn.y > c.y + c.height || btn.y + btn.height < c.y);
-    assert.ok(!overlap, 'the card does not cover the app button');
-    assert.ok(await p.evaluate(() => { const a = document.querySelector('#app-button'), w = document.querySelector('[data-component="qr-card"]').parentElement;
-      return a.parentElement === w.parentElement && +getComputedStyle(a).zIndex > +getComputedStyle(w).zIndex; }), 'the app button stacks above the card (same layer, higher z)');
+    // during the demo the QR is the whole screen (Vincent, Sun 10:30): an opaque cream layer over everything, the app button included
+    assert.ok(await p.evaluate(() => { const w = document.querySelector('[data-component="qr-card"]').parentElement, r = w.getBoundingClientRect(), a = document.querySelector('#app-button');
+      return r.width >= innerWidth - 1 && r.height >= innerHeight - 1 && getComputedStyle(w).backgroundColor === 'rgb(251, 246, 236)' && +getComputedStyle(w).zIndex > +getComputedStyle(a).zIndex; }), 'the QR fills the screen on its cream, above everything');
     await p.keyboard.press('Escape'); assert.ok(await card.isHidden(), 'Esc closes it');
     await p.click('#app-button .app-open'); await card.waitFor({ state: 'visible' });
     await p.click('[data-component="qr-card"] [data-slot="close"]'); assert.ok(await card.isHidden(), '× closes it');
