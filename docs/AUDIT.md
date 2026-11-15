@@ -746,6 +746,19 @@ served (`/slides/talk.html`):
   only the live lighting touches are lost.
 - So: serve the deck for the talk, and keep the double-click as the fallback.
 
+### d76c82d..561ef9d (talk deck c084de5: slide 1 rebalanced, no sponsor named): PASS
+
+Verified by stub only.
+
+**Slides only:** `public/slides/talk.html`, `public/slides/talk.css` and evidence PNGs under `design/`.
+
+**No external URL** in the deck files.
+
+**Served walk of all 8 slides at 1920×1080:** 0 page errors, 0 4xx, 0 external requests. The only console errors are
+the known harmless `<rect> -1` lines.
+
+**`file://` walk:** all 8 slides, 0 page errors, 0 external requests.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
