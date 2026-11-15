@@ -26,7 +26,7 @@ judge impact × how much of `VISION.md` it makes real. Costs: pending from the b
 | # | Candidate | What judges see | Vision it makes real | In the 3 min? | Cost / risk |
 |---|---|---|---|---|---|
 | 1 | Judges become customers: QR → Priya's built page on their phones; their order lands live in the room | They order bread from the product she built minutes ago | "You actually get it built" | Yes (page or close) | TBD (tunnel, venue wifi) |
-| 2 | Live research: Noor finds and cites a real source live (Linkup) | A real link appears as the journey draws | An honest team; no "prepared" label | Yes (first journey) | TBD |
+| 2 | Live research: Wren finds and cites a real source live (Linkup) | A real link appears as the journey draws | An honest team; no "prepared" label | Yes (first journey) | TBD |
 | 3 | "Your own craft" as a real second path: a judge picks their own craft; a recorded baker-as-owner run | Their own character card and questions | Bring your own craft, literally | Close + off-script | TBD |
 | 4 | Live brand image from her takeaways (fal) | Her page's photo matches what she said | Design's craft made visible | Yes (page) | TBD |
 | 5 | "Talk this through" for real: debate a team-space decision | She pushes back and the team responds | A two-way team dynamic | Off-script | TBD |

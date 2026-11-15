@@ -37,7 +37,7 @@ she's the expert, they build on what she said, it's all of ours.
 | **0:10–0:22** Meet the team | Five teammates one by one, up close: face, name · role, one line in their voice, what they bring (true); small "agent" mark; no pronouns; the flex teammate last. | live |
 | **0:22–0:30** The reveal | First sight of the living studio, everyone already seated; she takes her seat. | live |
 | **0:30–0:35** The idea | **"What's the idea?"** One spoken sentence; it lands as a sheet in the middle of the table. | live |
-| **0:35–0:45** Team gets going | Noor + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared bakery sketch, PREPARED. | live |
+| **0:35–0:45** Team gets going | Wren + Mika's rough journey (users + stages, no screens) draws in (~4 s measured). Fallback: prepared bakery sketch, PREPARED. | live |
 | **0:45–1:05** Focus moment 1 | The journey large + one open, big question. She talks; her words land on it; 1–2 teammates react with what they'll do; the journey redraws. | live |
 | **1:05–1:15** Room + team space | Sketchpads show each seat's own decisions; joint decisions are talked out (a real multi-teammate exchange, shown as chatter) and land as one-line cards in the team space (who talked it out, tap for the exchange); caption "N handled by your team · 3 for you". | live |
 | **1:15–1:35** Focus moment 2 | From her tray at a pause: one piece of work + one big question; she talks; reactions; the work updates. | live |
@@ -68,7 +68,7 @@ real run.
 4. **Leaning in:** a teammate card nudges toward her work on a real event (a candidate attached to a node she touched).
 5. **No gem (Vincent):** the gem is a metaphor only. No gem, bars or progress object; the idea is a sheet in the
    middle that the symphony's parts slide into.
-6. **Names:** copy only; names on cards, check-ins as "Noor (Research): …", a small "agent" mark, never pronouns.
+6. **Names:** copy only; names on cards, check-ins as "Wren (Research): …", a small "agent" mark, never pronouns.
 7. **"Your own craft" seat (DIY, in scope; Vincent rates it easy):** a seventh dashed seat. She says a few words; one
    fast call turns them into a fun name tag in her words (craft, good at, loves), each word editable. The tag text goes
    to every teammate and the selector's "in her seat" test. The page build is limited to the two templates. Cut line:

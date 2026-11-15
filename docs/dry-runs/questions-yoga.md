@@ -24,7 +24,7 @@
   - on: journey (n4) · settles: c10, c19, c3 · valid Ask: true
   - from c10: Whether customers pay online when booking or at the desk (team's recommendation if she skips it: Pay online at booking)
   - why (logged only): changes the product; draws on what you know; your file says nothing on it.
-- **Noor:** "How should it feel for someone who wanted a class and found it full?" (her domain: customer problem)
+- **Wren:** "How should it feel for someone who wanted a class and found it full?" (her domain: customer problem)
   - on: finding (https://www.activemonash.vic.gov.au/News/Update-to-Group-Fitness-Waitlist) · settles: c2, c6, c18 · valid Ask: true
   - from c2: What happens when a class is full (team's recommendation if she skips it: Join a waitlist with auto-promotion)
   - why (logged only): changes the product; draws on what you know best; your file says nothing on it; backed by A public leisure centre runs a waitlist on full group-fitness classes.

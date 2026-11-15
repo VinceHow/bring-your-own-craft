@@ -70,13 +70,13 @@ MODEL_BACKEND=fal
 # TIDY_MODEL=sonnet
 ```
 
-Live research: with `LINKUP_API_KEY` set next to `FAL_KEY`, Noor's Focus 1 finding is found live with Linkup ("found just now with Linkup") when doctor shows `live research: on`; with `off (prepared finding)` she shows the finding researched before the demo.
+Live research: with `LINKUP_API_KEY` set next to `FAL_KEY`, Wren's Focus 1 finding is found live with Linkup ("found just now with Linkup") when doctor shows `live research: on`; with `off (prepared finding)` she shows the finding researched before the demo.
 
 ## Run sheet
 - **The default path is the cut order** (in effect from Sun 05:22, the lead): in Focus 2 she reads Mika's journey, then
   presses **End meeting** at once (no Send round); her page is up for **5 s**, then on to the proof.
 - **Talk over the wait after "Team, go"** (about 30 s while the team works and the selector runs). The room shows who's
-  doing what; say what they're doing ("Mika's laying out the page, Noor is checking the claim, Bo's building it") rather
+  doing what; say what they're doing ("Mika's laying out the page, Wren is checking the claim, Bo's building it") rather
   than waiting in silence.
 - **Starting the build after "Team, go"** (b3's fix, 61ab4d9): on painted (the default), when the team is done the pill
   reads **"Press → and Bo builds the page"**: one → starts the build. On the **`?look=plain` fallback** it's still

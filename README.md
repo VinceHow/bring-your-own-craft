@@ -12,12 +12,12 @@ questions that need you.
 ## The 30-second story
 Priya is a product manager. Her friend runs a small bakery and wants customers to order bread ahead.
 
-Priya says her idea in one rough sentence. She meets her team: Mika (Design), Noor (Research), Theo (Data), Ines
+Priya says her idea in one rough sentence. She meets her team: Mika (Design), Wren (Research), Theo (Data), Ines
 (Strategy) and Bo (Engineering). Then she sits down, and they get to work.
 
 Nobody asks her about databases, logins or fonts. The team settles all of that itself. On the demo path we set which
 three moments reach her: who the bakery is really for, when orders should close, and how ordering ahead should feel
-for a regular. Everything inside them is live: Noor's research, the team's replies, her takeaways, the decisions
+for a regular. Everything inside them is live: Wren's research, the team's replies, her takeaways, the decisions
 they unlock, and the build. In our audited run the team made 14 decisions that cite her file, plus others on its
 own defaults. Then one press, and her ordering page is filled live from her answers.
 
@@ -37,7 +37,7 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 - **Her words, kept.** Say it out loud, ums and all. A gentle pen strikes the filler and keeps her sentence, in her
   voice.
 - **Honest labels.** Every number about her run is counted from its log; the baseline's numbers are a hand count,
-  linked. Anything made ahead is labelled where it's shown as hers: Noor's research says "found just now with
+  linked. Anything made ahead is labelled where it's shown as hers: Wren's research says "found just now with
   Linkup" (or "researched before the demo" when the prepared finding stands in), and recorded runs say REPLAY.
 
 ## See it
@@ -58,7 +58,7 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 
 **A focus moment: she answers, and the team builds on her.**
 
-![Noor's question, with Priya's answer and her teammates' replies](docs/readme/meeting.jpg)
+![Wren's question, with Priya's answer and her teammates' replies](docs/readme/meeting.jpg)
 
 **The live bakery the judges order from:**
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
@@ -70,7 +70,7 @@ bakery: no real bread, nothing to pay, first name only.
   build (symbol only; the name is real text). The demo's chat runs on Claude through fal's
   OpenRouter router.
 - **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk.
-- **[Linkup](https://www.linkup.so):** Noor's live research: she looks it up during the run and quotes her source,
+- **[Linkup](https://www.linkup.so):** Wren's live research: she looks it up during the run and quotes her source,
   only when the quote checks out against the page.
 - **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design as editable frames and tokens
   (they show the early look, before the painted one).

@@ -33,16 +33,16 @@ Decisions it settles: What leads the browse screen: today's available loaves or 
 *Mapped:* What leads the browse screen: today's available loaves or the full menu → Today's available loaves first; Whether customers pay online when ordering or at pickup → Pay online to confirm · first line 771 ms · 3 turns · all done 13122 ms
 
 
-## finding: Noor asks "Small bakeries end up guessing how much to bake. When the loaf someone wants is gone, what should happen?"
+## finding: Wren asks "Small bakeries end up guessing how much to bake. When the loaf someone wants is gone, what should happen?"
 
 Decisions it settles: What happens when a loaf sells out (Show sold out and stop orders / Let people join a notify list / Offer a similar loaf instead); What happens when two people order the last loaf (Reserve stock at checkout and show sold out instantly / Accept the order and the bakery confirms or refunds later / Show a daily limit per loaf and stop orders at it)
 
 
 **Her answer 1:** "Show what's still warm instead. Something else fresh beats an apology."
 
-- **Noor** (research, 1051 ms): Since it's a pre-order, I'll write up what's still warm as the sold-out fallback.
-- **Bo** (engineering, 2843 ms): Noor, yes, and the swap rule goes right on the sold-out screen.
-- **Ines** (strategy, 4713 ms): Noor, the swap screen needs real prices, so I'll pull the warm list.
+- **Wren** (research, 1051 ms): Since it's a pre-order, I'll write up what's still warm as the sold-out fallback.
+- **Bo** (engineering, 2843 ms): Wren, yes, and the swap rule goes right on the sold-out screen.
+- **Ines** (strategy, 4713 ms): Wren, the swap screen needs real prices, so I'll pull the warm list.
 
 *Takeaways:* what I believe: "When a loaf is gone, the best answer is something else fresh and warm, not an apology." · guidance: "When a customer's loaf sells out, show what's still fresh from the oven as an alternative rather than a dead-end sold-out message. Keep it warm and personal, and leave the last-loaf ordering mechanics for the team to settle."
 *Mapped:* What happens when a loaf sells out → Offer a similar loaf instead · first line 1051 ms · 3 turns · all done 11025 ms
@@ -50,8 +50,8 @@ Decisions it settles: What happens when a loaf sells out (Show sold out and stop
 
 **Her answer 2:** "Regulars should be able to reserve a standing weekly loaf so it never runs out for them."
 
-- **Noor** (research, 883 ms): Since regulars can reserve, I'll write the standing-order study up first, with sources.
-- **Bo** (engineering, 1945 ms): Noor, a standing weekly order means I'll need a reserved-stock field tied to each regular.
+- **Wren** (research, 883 ms): Since regulars can reserve, I'll write the standing-order study up first, with sources.
+- **Bo** (engineering, 1945 ms): Wren, a standing weekly order means I'll need a reserved-stock field tied to each regular.
 - **Ines** (strategy, 2945 ms): Bo, a reserved-stock field works, and I'll set the standing-order price to match the shop.
 
 *Takeaways:* what I believe: "I believe the loaves that matter most should never run out for our regulars, so a standing weekly reserve comes first." · guidance: "Let regulars reserve a standing weekly loaf, and hold that stock back from the daily limit so it is never given away. Take everyone else's orders only up to the remaining limit. I haven't said what to show when a loaf sells out, so the team decides that."
@@ -78,6 +78,6 @@ Decisions it settles: What happens when two people order the last loaf (Reserve 
   actually said (her answer, the question, the thread), so nobody drifts to a pet topic (Bo no longer reaches for
   waitlists); the prompt forbids raising a topic nobody raised; turn 2 always answers turn 1 by name, checked in
   code and retried once.
-- Still weak: Noor (Research) can promise a write-up "with sources" that she wasn't given; Ines leans on "pricing"
+- Still weak: Wren (Research) can promise a write-up "with sources" that she wasn't given; Ines leans on "pricing"
   whatever comes up. Not seen: a question to her, a line over 15 words, a service message.
 - Earlier rounds: 15 bakery answers at 2203949, 15 yoga answers at f56eebf (git history of this file).

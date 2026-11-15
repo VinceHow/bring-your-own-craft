@@ -25,11 +25,11 @@ so you stay in what you love and actually reach the end.
 ## What it does
 You start with your idea, rough as you'd say it, on a blank sheet: "What do you want to build today?" Then your name
 tag: your craft (today that's Product; "Your own craft" lets anyone bring theirs) and, in your own words, what you
-love. Then you meet your team up close, each with a line tailored to your idea: Mika (Design), Noor (Research), Theo
+love. Then you meet your team up close, each with a line tailored to your idea: Mika (Design), Wren (Research), Theo
 (Data), Ines (Strategy) and Bo (Engineering), each an agent with its own craft and tools. The door opens on a
 hand-painted studio, everyone already round the table, and your stool waiting.
 
-In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. As she sits down, Noor
+In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. As she sits down, Wren
 and Mika put a rough journey on her idea sheet: who the users are and the stages they go through, no screens. Then
 the team gets going on its own: every small decision (accounts, cut-off rules, sold-out states) is theirs, joint ones
 are talked out between them and land in a shared team space. Nothing pings her.
@@ -37,7 +37,7 @@ are talked out between them and land in a shared team space. Nothing pings her.
 On stage, the demo fixes which three moments reach her; everything inside them (research, replies, takeaways, the
 decisions, the build) is live. Off-stage, the team's selector decides what's big enough to bring her. The three, each
 a different way a team needs its product person:
-1. **Focus: who it's for.** Noor looks up who buys from neighbourhood bakeries, live with Linkup, and quotes her
+1. **Focus: who it's for.** Wren looks up who buys from neighbourhood bakeries, live with Linkup, and quotes her
    source; the finding is labelled "found just now with Linkup". She reacts ("it's really for the regulars"), and that one answer
    unlocks a run of the team's decisions.
 2. **A quick unblock.** A scripted unblock card, fixed for the demo: "Bo's blocked: when do orders close? We suggest
@@ -78,7 +78,7 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she speaks her idea, her intro and her answers (ElevenLabs speech-to-text, live).
-- Research: Noor searches live with Linkup and quotes a finding only when the quote verifies against the source page;
+- Research: Wren searches live with Linkup and quotes a finding only when the quote verifies against the source page;
   otherwise she shows a prepared finding, labelled "researched before the demo".
 - Two model routes behind one function: fal (Claude through fal's OpenRouter router, `MODEL_BACKEND=fal`) is what runs
   in the demo; Claude Code headless is the fallback. fal was tested 9/9 schema-valid against Claude Code on 3
@@ -137,7 +137,7 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
 Node.js (`node:sqlite`), JavaScript, HTML, CSS, server-sent events, Railway, Claude (via fal's OpenRouter router in the
 demo, and Claude Code headless as the fallback), Anthropic product-management plugin (`write-spec`),
 taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for her page's emblem, live, and
-the live bakery's photos and logo, made ahead; the painted cast, clips and music), Linkup (Noor's live research), motion,
+the live bakery's photos and logo, made ahead; the painted cast, clips and music), Linkup (Wren's live research), motion,
 Playwright.
 
 ## Try it

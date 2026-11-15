@@ -22,7 +22,7 @@ from `docs/DECISIONS.md`.
    meeting". The room became a cozy studio, and the point became the team dynamic: they're good, they handle their
    own work, and everyone builds your rough idea up together. The gem stays a metaphor; credits go; a calm tray and
    "nothing breaks her focus" settle what reaches her.
-4. **An autonomous team** (14:24–14:41). Teammates get names (Mika, Noor, Theo, Ines, Bo), anyone can build their own
+4. **An autonomous team** (14:24–14:41). Teammates get names (Mika, Wren, Theo, Ines, Bo), anyone can build their own
    seat ("Your own craft"), and the team assumes, fills gaps and keeps moving from a private picture of you it keeps
    updating.
 5. **Questions became focus moments** (14:41–15:13). Options and branches went. A question reaches you only if it's

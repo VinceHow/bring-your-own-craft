@@ -11,7 +11,7 @@ The room stays hidden until the reveal (`public/room.js`, "the setup"):
   she loves and brings. The sentence goes through the shared speech tidy (`BYOC.tidy`, `lib/tidy.js`), then one fast
   call gives the team's own fun read (a playful title, two or three traits), every word editable. Her words become
   her intro.
-- **Meet the team**, one by one, up close: Mika (Design), Noor (Research), Theo (Data), Ines (Strategy) and Bo
+- **Meet the team**, one by one, up close: Mika (Design), Wren (Research), Theo (Data), Ines (Strategy) and Bo
   (Engineering), each with a line in its own voice and what it brings (the clicker's forward goes to the next).
 - **The reveal**: the studio appears for the first time, everyone already seated, and she takes her seat. Replays
   jump straight past the setup.
@@ -62,7 +62,7 @@ the selector's grant is refused, decided and logged; only `lib/policy.js` writes
 
 ## 4. Focus moments
 When a question is ready, a note waits in her tray (`public/room.js`). She opens it when she's ready, and the room
-goes quiet: one document (`public/focus-doc.js`) with the work the question sits on (her journey, Noor's finding or
+goes quiet: one document (`public/focus-doc.js`) with the work the question sits on (her journey, Wren's finding or
 Mika's wireframes) and one open question.
 - **Capture** (`lib/tidy.js`, `routes/tidy.js`). She speaks (or types) her answer in pieces. Each piece shows raw at
   once, then a quick tidy (one small background call per piece) turns it into her own composed note, with "See what
