@@ -560,8 +560,9 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   await p.close();
 });
 
-test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async () => {
-  assert.ok(RUN, 'needs step 2');
+test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async t => {
+  // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   await page.keyboard.press('Escape');
   await page.keyboard.press('j');
   await waitFor(() => document.activeElement && document.activeElement.id === 'close-input', 3000, 'the idea input');
@@ -611,8 +612,9 @@ test('3. the close: a real judge idea; contrast first, then the capped questions
   assert.ok(!(await page.isVisible('#replay-label')), 'nothing replayed, no label');
 });
 
-test('4. replays: record-run, R in stage mode, the yoga fallback in the close; REPLAY shows throughout', async () => {
-  assert.ok(RUN, 'needs step 2');
+test('4. replays: record-run, R in stage mode, the yoga fallback in the close; REPLAY shows throughout', async t => {
+  // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const out = execFileSync('node', ['scripts/record-run.mjs', 'rehearsal', RUN], { cwd: ROOT, env: { ...process.env, RUNS_DIR: RUNS } }).toString();
   assert.match(out, /recorded/);
   assert.deepStrictEqual(readLog('rehearsal'), readLog(RUN), 'the recording is the run’s log');
