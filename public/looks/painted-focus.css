@@ -222,3 +222,39 @@ html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot=
 @keyframes pfd-listen { 0%, 100% { box-shadow: 0 0 0 0 rgba(210,122,141,.45); } 50% { box-shadow: 0 0 0 7px rgba(210,122,141,.18); } }
 @keyframes pfd-breathe { 0%, 100% { scale: 1; opacity: .75; } 50% { scale: 1.08; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { html #room [data-component="focus-doc"] * { animation: none !important; transition: none !important; } }
+
+/* ---------- her right column: ONE painted scroll (painted.js gathers its parts into [data-pfd="column"]) ----------
+   Placed absolutely in the document's grid area, so its content never sizes the grid; nothing inside scrolls on its own,
+   cards grow to fit their words, and there is no browser scrollbar (a soft fade at the foot says there is more). */
+html #room [data-component="focus-doc"] > [data-pfd="column"] { position: absolute; grid-column: 2; grid-row: 3 / -1; inset: 0 auto 0 0; width: 440px; box-sizing: border-box; z-index: 1;
+  display: flex; flex-direction: column; gap: 14px; padding: 46px 22px 28px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -webkit-mask: linear-gradient(transparent, #000 14px, #000 calc(100% - 26px), transparent); mask: linear-gradient(transparent, #000 14px, #000 calc(100% - 26px), transparent); }
+@media (max-width: 1500px) { html #room [data-component="focus-doc"] > [data-pfd="column"] { width: 380px; } }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="input"] { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form { width: 100%; box-sizing: border-box; }
+html #room [data-component="focus-doc"] > [data-pfd="column"]::-webkit-scrollbar { display: none; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] > * { grid-row: auto !important; grid-column: auto !important; margin: 0 !important; flex: none;
+  max-height: none !important; overflow: visible !important; min-width: 0; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] > [hidden] { display: none !important; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] > [data-component="her-answer"]:empty { display: none; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] > [data-component="pieces"]:empty { display: none; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] [data-slot="chimes"] { max-height: none !important; overflow: visible !important; padding: 2px 6px 4px 0; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] [data-component="takeaways"] { max-height: none !important; overflow: visible !important; margin: 6px 6px 8px 0 !important; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] [data-component="takeaways"] [data-slot="keep"] { margin-top: 4px; }
+/* while she captures, the conversation side stays out of view (focus-doc.js hides its aside; the parts now live here) */
+html #room [data-component="focus-doc"][data-capture="on"] > [data-pfd="column"] > [data-pfd-from="side"] { display: none !important; }
+/* "New replies ↓": a small ink pill at the column's foot when she has scrolled up and a reply lands */
+html #room [data-component="focus-doc"] [data-pfd="newer"] { position: sticky; bottom: 4px; align-self: center; z-index: 3; margin-top: auto !important;
+  font: 500 15px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 9px 16px; cursor: pointer;
+  border-radius: 20px 18px 21px 17px / 18px 21px 17px 20px; box-shadow: 2px 3px 0 -1px rgba(210,122,141,.85); }
+html #room [data-component="focus-doc"] [data-pfd="newer"][hidden] { display: none !important; }
+/* her form in the column: the field full width, then the mic, Add this and Send on one row that wraps if it must */
+html #room [data-component="focus-doc"] > [data-pfd="column"] form { display: flex !important; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > * { flex: none; grid-column: auto !important; grid-row: auto !important; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="input"] { flex: 1 0 100%; order: 0; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-field] { order: 1; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="add-piece"] { order: 2; }
+html #room [data-component="focus-doc"] > [data-pfd="column"] form > [data-slot="send"] { order: 3; margin-left: auto; }
+/* a reply note: the name on its own line already says who, so the ": " separator between name and words isn't drawn
+   (it read as a lone colon on a line of its own) */
+html #room [data-component="focus-doc"] [data-component="pin-reply"] { font-size: 0; }
