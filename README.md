@@ -64,6 +64,8 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
 bakery: no real bread, nothing to pay, first name only.
 
+<img src="docs/readme/delivered.webp" alt="On a phone: she puts her name down for a sourdough, it proves in the oven, then flips to Delivered: your sourdough is here" width="30%">
+
 ## Built with our sponsors
 - **[fal](https://fal.ai):** the painted cast, the room's living clips and its record-player music (ElevenLabs Music
   via fal), the live bakery site's photos (made ahead with flux), and the emblem on her page, painted live with flux during the
