@@ -126,3 +126,24 @@ footer { padding: 32px 16px 0; color: var(--muted); font-size: 16px; text-align:
 /* builder hand edit 3: "Reserving as <name> · not you?" */
 .as { margin: 0; font-size: 17px; color: var(--crust, #5A3B22); }
 .not-you { background: none; border: 0; padding: 4px 2px; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
+
+/* builder hand edit 4: the delivered moment, the sold-out aside, the usual, the regulars' corner, the credit */
+.bag { position: relative; }
+.bag.delivered { background: #E9C48C; box-shadow: 0 0 0 3px #F3DDB4 inset; }
+.bag.landing { animation: reveal .6s ease-out both; }
+@keyframes reveal { 0% { transform: scale(.97); filter: brightness(.92); } 60% { transform: scale(1.015); } 100% { transform: none; filter: none; } }
+.bag .stamp { font-family: var(--hand); font-size: 26px; letter-spacing: 0; text-transform: none; transform: rotate(-7deg); }
+.cheer { margin: 6px 0 0; font-size: 17px; color: var(--crust, #5A3B22); }
+.flour { position: absolute; left: 50%; top: 45%; width: 0; height: 0; pointer-events: none; }
+.flour i { position: absolute; width: var(--s); height: var(--s); border-radius: 50%; background: #FFFBF4; opacity: 0;
+  box-shadow: 0 0 0 1px rgba(90,59,34,.18), 0 0 8px rgba(255,251,244,.95); animation: dust 1.2s ease-out forwards; }
+@keyframes dust { 0% { transform: translate(0,0) scale(.4); opacity: .95; } 100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } }
+.hand-wrap .aside { margin: 2px 0 0; font-size: 17px; color: var(--crust, #5A3B22); }
+.usual { margin: 6px 0 0; font: 600 24px/1 var(--hand); color: var(--accent); }
+.regulars { margin: 40px 16px 0; padding: 20px; border: 2px dashed #CDB79A; border-radius: 14px; }
+.regulars p { margin: 0; font-size: 17px; line-height: 1.6; }
+.credit { margin-top: 8px; font-size: 15px; opacity: .85; }
+@media (prefers-reduced-motion: reduce) {
+  .bag.landing { animation: none; }
+  .flour { display: none; }
+}

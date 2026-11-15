@@ -1,4 +1,9 @@
-# Built by the team: Priya's
+# Built by the team: Proof of Concept
+
+> **What Bo did not write.** Bo built this app in one attempt (15 Nov, 00:16–00:23 UTC). Our builders then made four
+> listed hand edits (`deploy/README.md`): a CSS fix so "Sold out" shows only when sold out; the admin login form and
+> session cookie; asking a device for its first name once; and a polish pass (the name "Proof of Concept", which was
+> "Priya's"; the delivered celebration; playful copy; the Regulars' corner; the credit line). Bo wrote none of those.
 
 Built by Bo from the team's run (decisions recorded 2026-11-15) and the brief. Plain Node 22 with `node:sqlite`, no dependencies.
 "Demo bakery for a hackathon: no real bread, nothing to pay."

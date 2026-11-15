@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>Priya's: the baker's view</title>
+<title>Proof of Concept: the baker's view</title>
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #F4EEE4; }
@@ -66,12 +66,12 @@
 <div id="stage">
   <div class="wire">
     <header>
-      <h1>Priya's</h1><span class="demo">Demo bakery, no real bread</span>
+      <h1>Proof of Concept</h1><span class="demo">Demo bakery, no real bread</span>
       <div class="quiet"><button class="pill" id="restock" type="button">Restock</button><button class="pill" id="reset" type="button">Reset demo</button></div>
     </header>
     <section class="orders"><h2>Orders, newest first</h2><div id="orders"></div></section>
     <section class="stock"><h2>On the shelf</h2><div id="stock"></div></section>
-    <button class="deliver" id="deliver" type="button" aria-disabled="true">Nothing to deliver</button>
+    <button class="deliver" id="deliver" type="button" aria-disabled="true">Nothing in the oven</button>
     <div class="hold"><span>Held until the end of the talk</span><button class="a" id="open-settings" type="button" style="all:unset;cursor:pointer;font:400 22px/1 system-ui,sans-serif;color:#5E4E3F;margin-left:auto;text-decoration:underline">settings</button></div>
   </div>
   <div id="settings">
@@ -113,7 +113,7 @@
     if (sig !== sigOrders) {
       sigOrders = sig;
       const box = $('#orders'); box.replaceChildren();
-      if (!orders.length) box.appendChild(el('p', 'empty', 'No orders yet.'));
+      if (!orders.length) box.appendChild(el('p', 'empty', 'No orders yet. The oven’s warm.'));
       for (const o of orders.slice(0, 5)) {
         const row = el('div', `row ${o.status}`);
         row.append(el('span', 'who', o.first_name), el('span', 'loaf', loafNames[o.loaf_id] || o.loaf_id), el('span', 't', clock(o.at)),
@@ -126,7 +126,7 @@
     if (n !== reservedCount) {
       reservedCount = n;
       const b = $('#deliver');
-      b.textContent = n ? `Deliver all ${n} reserved` : 'Nothing to deliver';
+      b.textContent = n ? `Deliver all ${n} reserved` : 'Nothing in the oven';
       b.setAttribute('aria-disabled', n ? 'false' : 'true');
     }
   }

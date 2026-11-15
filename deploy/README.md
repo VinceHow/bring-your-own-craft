@@ -31,6 +31,18 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
    it. The reservation API is unchanged. Checked by `deploy/acceptance/name-once.acceptance.js` (HTTP) and
    `deploy/acceptance/name-once.browser.mjs` (phone browser).
 
+4. A polish pass by builder 6 (the tech lead's creative brief, 15 Nov), using the vendored taste-skill's rules for a
+   place (photographs and flat colour, one dealt moment, no effects, rest under reduced motion, no exclamation marks):
+   the name **Proof of Concept** (was "Priya's") in `public/index.html`, `views/admin.html` and Bo's page test; the
+   delivered moment in `public/app.js` + `style.css` (a warm reveal, a short flour puff, a hand-lettered "Fresh out of
+   the oven" stamp, "Still warm. Worth the wait."; the scripted "Delivered: your sourdough is here" stays the headline;
+   no sound; under reduced motion only the static stamp); copy (sold out: "The regulars got here first. Back next
+   bake."; "Proving nicely" while it bakes; admin empty states); a "Your usual, <name>?" hint on a loaf this device had
+   delivered in an earlier bake; a Regulars' corner that matches this run's decision `u-engineering-1` (no closing
+   time: reserve while the bake lasts; restock for the next); the credit line "Built by Bo, the team's engineer.
+   Polished by our builders." Bo wrote none of this pass. Checked by `deploy/acceptance/delivered.browser.mjs`
+   (headline within 1 s, the celebration, reduced motion rests).
+
 Run the acceptance files one at a time (`node --test --test-concurrency=1 …`): each starts with Reset demo on the same app.
 
 ## Hand edits (deploy plumbing only)

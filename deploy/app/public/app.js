@@ -37,7 +37,8 @@
     const nameRow = el('div', 'name-row'); const name = el('h3', 'name', l.name); const count = el('span', 'count');
     nameRow.append(name, count);
     const desc = el('p', 'desc', l.description);
-    const hand = el('p', 'hand', 'Sold out for today'); hand.hidden = true;
+    const hand = el('div', 'hand-wrap'); hand.append(el('p', 'hand', 'Sold out for today'), el('p', 'aside', 'The regulars got here first. Back next bake.')); hand.hidden = true;
+    const usual = el('p', 'usual'); usual.hidden = true;
     const open = el('button', 'btn', 'Put my name down'); open.type = 'button'; open.setAttribute('aria-expanded', 'false');
 
     const form = el('form', 'reserve'); form.hidden = true; form.noValidate = true;
@@ -56,8 +57,8 @@
     notYou.addEventListener('click', () => { const c = cards.get(l.id); c.changing = true; input.value = ''; refreshAs(); input.focus(); });
     form.addEventListener('submit', (e) => { e.preventDefault(); reserve(l.id, input, go, note); });
 
-    li.append(fig, nameRow, desc, hand, open, form);
-    cards.set(l.id, { li, name, count, hand, open, form, input, note, scribble: null, as, asName, lab, changing: false });
+    li.append(fig, nameRow, desc, usual, hand, open, form);
+    cards.set(l.id, { li, name, count, hand, usual, open, form, input, note, scribble: null, as, asName, lab, changing: false });
     loafListEl.appendChild(li);
     refreshAs();
   }
@@ -75,6 +76,10 @@
       c.open.hidden = l.sold_out || !!mine;
       if ((l.sold_out || mine) && !c.form.hidden) c.form.hidden = true;
       if (mine && !l.sold_out) c.count.textContent = `${l.label}, one is yours`;
+      // A returning device: the loaf it had in an earlier bake is its usual (builder hand edit 4).
+      const before = bags.some((b) => b.loaf_id === l.id && b.drop !== currentDrop && b.status === 'delivered');
+      c.usual.hidden = !(myName && before && !mine && !l.sold_out);
+      if (!c.usual.hidden) c.usual.textContent = `Your usual, ${myName}?`;
     }
   }
 
@@ -140,9 +145,22 @@
     top.append(img, el('p', 'sticker', b.message));
     node.appendChild(top);
     if (b.status === 'reserved') {
-      node.append(ovenSvg(), el('p', 'keep', 'On its way. Keep this page open and it will tell you the moment it is here.'));
+      node.append(ovenSvg(), el('p', 'keep', 'Proving nicely. Keep this page open and it will tell you the moment it is here.'));
     } else if (b.status === 'delivered') {
-      const w = el('div', 'stamp-wrap'); w.appendChild(el('span', 'stamp', 'Delivered')); node.appendChild(w);
+      // The delivered moment (builder hand edit 4): the scripted line stays the headline (the sticker); around it a
+      // hand-lettered stamp, a short line, and on arrival a puff of flour. Under reduced motion it all simply rests.
+      const w = el('div', 'stamp-wrap'); w.appendChild(el('span', 'stamp', 'Fresh out of the oven')); node.appendChild(w);
+      node.appendChild(el('p', 'cheer', 'Still warm. Worth the wait.'));
+      if (landing) {
+        const puff = el('div', 'flour'); puff.setAttribute('aria-hidden', 'true');
+        for (let i = 0; i < 18; i++) {
+          const d = el('i'); const a = (i / 18) * Math.PI * 2 + Math.random() * 0.3; const r = 50 + Math.random() * 70;
+          d.style.setProperty('--x', `${Math.cos(a) * r}px`); d.style.setProperty('--y', `${Math.sin(a) * r * 0.7 - 20}px`);
+          d.style.setProperty('--s', `${4 + Math.random() * 6}px`); d.style.animationDelay = `${Math.random() * 120}ms`;
+          puff.appendChild(d);
+        }
+        node.appendChild(puff); setTimeout(() => puff.remove(), 1600);
+      }
     }
   }
 

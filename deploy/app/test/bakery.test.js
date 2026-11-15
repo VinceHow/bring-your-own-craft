@@ -299,7 +299,7 @@ test('[brief · cut] the collection is not built', async () => {
 test('[brief · look] the honest banner, the real-text name and the icon-only logo are on the storefront', async () => {
   const html = await (await fetch(app.base + '/')).text();
   assert.match(html, /Demo bakery for a hackathon: no real bread, nothing to pay\./);
-  assert.match(html, /<h1>Priya's<\/h1>/); assert.match(html, /src="\/img\/logo\.jpg"/);
+  assert.match(html, /<h1>Proof of Concept<\/h1>/); assert.match(html, /src="\/img\/logo\.jpg"/);
   assert.doesNotMatch(html + await (await fetch(app.base + '/app.js')).text(), /[\u{1F300}-\u{1FAFF}]/u, 'no emoji');
 });
 
