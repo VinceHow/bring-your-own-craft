@@ -70,3 +70,12 @@ test('fillPage: a slow logo never holds the fill; the page keeps its usual mark'
   const off = await fillPage(args(tmp(), { call: fakeFill(10), paint: null }));
   assert.equal(off.logo, 'usual'); assert.equal(off.logoWhy, 'off');
 });
+
+test('fillPage: a later version reuses this run\'s logo, no second call', async () => {
+  const dir = tmp(); let calls = 0;
+  const paint = async ({ outDir }) => { calls++; fs.mkdirSync(outDir, { recursive: true }); fs.writeFileSync(path.join(outDir, 'logo.jpg'), Buffer.alloc(600)); return { ok: true, file: 'logo.jpg' }; };
+  assert.equal((await fillPage(args(dir, { call: fakeFill(60), paint }))).logo, 'live');
+  const v2 = await fillPage(args(dir, { call: fakeFill(10), paint }));
+  assert.equal(v2.logo, 'live'); assert.equal(calls, 1, 'one image per run');
+  assert.match(fs.readFileSync(path.join(dir, 'index.html'), 'utf8'), /src="logo\.jpg"/);
+});
