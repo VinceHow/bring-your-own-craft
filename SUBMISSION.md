@@ -3,7 +3,7 @@
 Paste each section into the matching Devpost field. Anything marked **TBD** is not measured yet: fill it from a real run
 or delete it before submitting. Source of truth for the product: `VISION.md`.
 
-**Track:** Autonomous Agents.
+**Track:** Autonomous Agents (Imperial AI hackathon).
 
 **Tagline:** Bring your own craft: do the part you love, and a team of agents gets your idea built.
 
@@ -22,28 +22,40 @@ We wanted the opposite: a team that handles everything it can, and brings you on
 so you stay in what you love and actually reach the end.
 
 ## What it does
-You walk into a hand-painted studio and take the seat of the craft you love. Today that's Product; "Your own craft"
-lets anyone bring theirs (a baker, a designer). You say what you love in one sentence, and the team turns it into a
-playful character card. Then your team takes its seats: Mika (Design), Noor (Research), Theo (Data), Ines (Strategy)
-and Bo (Engineering), each an agent with its own craft and tools.
+You start with your idea, rough as you'd say it, on a blank sheet: "What do you want to build today?" Then your name
+tag: your craft (today that's Product; "Your own craft" lets anyone bring theirs) and, in your own words, what you
+love. Then you meet your team up close, each with a line tailored to your idea: Mika (Design), Noor (Research), Theo
+(Data), Ines (Strategy) and Bo (Engineering), each an agent with its own craft and tools. The door opens on a
+hand-painted studio, everyone already round the table, and your stool waiting.
 
-In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. She says the idea in one
-sentence, and within seconds Noor and Mika put a rough journey on the table: who the users are and the stages they go
-through, no screens. She reacts in plain words ("it's really for the regulars"), and the journey redraws.
+In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. As she sits down, Noor
+and Mika put a rough journey on her idea sheet: who the users are and the stages they go through, no screens. Then
+the team gets going on its own: every small decision (accounts, cut-off rules, sold-out states) is theirs, joint ones
+are talked out between them and land in a shared team space. Nothing pings her.
 
-Then the team goes to work on its own. Teammates settle every small decision themselves (accounts, cut-off rules,
-sold-out states), talk the joint ones out with each other, and land agreements on a shared team space. Nothing pings
-her.
+Exactly three things reach her, each a different way a team needs its product person:
+1. **Focus: who it's for.** Noor brings a real finding about who buys from neighbourhood bakeries, with its source,
+   researched before the demo and labelled so. She reacts ("it's really for the regulars"), and that one answer
+   unlocks a run of the team's decisions.
+2. **A quick unblock.** An action card: "Bo's blocked: when do orders close? We suggest 8pm the night before." One
+   tap on Yes, and Bo carries on.
+3. **Focus: the customer experience.** Mika's rough journey in words for a regular's morning, and one question: what
+   should this feel like for a regular?
 
-When something truly needs her (a big question that draws on what she knows best), a note waits in her tray. She opens
-it when she's ready, and the room goes quiet: one document with the work to review, and one thoughtful question, such
-as "Who walks into your friend's bakery most often, and what are they hoping to walk out with?" She says her piece. The
-moment she submits, her teammates chime in, building on her and on each other, and the meeting's takeaways sum up what
-she believes and her guidance to the team. Behind the scenes, the team keeps a private picture of her (her customers,
-her taste, her philosophy) and decides everything else her way.
+Each focus moment is a short meeting with three modes: **Compose** (she speaks in pieces), **Send** (a round of live
+team discussion, teammates building on her and on each other; only the relevant ones chime in), and **End meeting**
+(the takeaways: what she believes, and her guidance to the team). Behind the scenes the team keeps a private picture
+of her (her customers, her taste, her philosophy) and decides everything else her way.
 
-One press, and the bakery's ordering page appears, built from her answers: "Your loaf, held at the counter with your
-name on it." Then a judge gives us an idea live, and the team sketches it and asks its first question in seconds.
+One press, and her bakery's ordering page builds from her answers: regulars first, their usual loaf one tap away,
+reserve by first name, no account, no payment, an 8pm cut-off. Every line traces to her or her team.
+
+**The proof: the judges are the regulars.** Before the talk, the judges scan a QR code and reserve a loaf, by first
+name only, from a live bakery deployed on Railway: three tiers (a rare drop of 3, 8 of a medium loaf, 40 of a
+plentiful one), one of each per person. That bakery was built earlier by the same team of agents from a differently
+worded brief, and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
+and taps **Deliver**, and every judge's open page flips at once to "Delivered: your sourdough is here." Real software
+with a real database, rules and tests, not a page generator. (Demo bread: nothing real is delivered or paid.)
 
 ## How we built it
 - One Node 22 server, one HTML page, vanilla JavaScript, no build step.
@@ -57,12 +69,21 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
   on the page), and code, not the model, enforces a hard ceiling of three questions, with tests.
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
-- Voice: she can speak her intro, her idea and her answers (ElevenLabs speech-to-text).
+- Voice: she speaks her idea, her intro and her answers (ElevenLabs speech-to-text, live).
+- Research: Noor's finding was searched and cited with Linkup before the demo, and is labelled "researched before the
+  demo" on screen; there is no live search on stage.
 - Two model routes behind one function: fal (Claude through fal's OpenRouter router, `MODEL_BACKEND=fal`) is what runs
   in the demo; Claude Code headless is the alternative route. fal was tested 9/9 schema-valid against Claude Code on 3
   real calls per step, and it runs the demo because on the demo laptop Claude Code's fast model, through a company
   gateway, took over 25 s a call while fal answered in about 1 s.
-- Brand images for the bakery site: planned with fal flux/schnell (timed at a median 2.2 s, about 0.3¢ an image).
+- The live bakery (`deploy/app/`): Bo's agent wrote it from the brief and a recorded run's decisions; our builders
+  fixed what failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`), so its credit reads "Built by Bo, the
+  team's engineer. Polished by our builders." Plain Node 22 with `node:sqlite` on a Railway volume, server-sent events
+  for the Deliver flip, stock that can't go below zero, one of each per device per drop, a 15-minute hold, and an
+  admin page locked behind a token. Its photos and logo were made ahead with fal flux/schnell
+  (`deploy/make-images.mjs`; median 2.2 s, about 0.3¢ an image).
+- The room's art: fal made the painted cast, the living-painting clips and the record-player music (ElevenLabs Music
+  via fal); the ledger is in `design/FAL-SPEND.md`.
 - One event log per run; every number on screen comes from it. Anything prepared ahead is labelled PREPARED or REPLAY.
 - We built it the same way. Vincent sat in the Product seat; a product-owner agent shaped the experience with him; a
   lead agent split the work across up to eight builder agents in parallel; every change was reviewed by an agent that
@@ -76,16 +97,19 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
   room as a cozy studio with two states: a busy room, and a quiet focus moment that's just her and one document.
 - **Making the team's talk real.** Teammates reacting to each other only counts if each one actually reads the others'
   lines, so every turn is its own call.
-- **Speed.** The first journey draws in about 2.5 s, the first teammate replies about 1 s after she submits, the team's
-  work plus selection takes about 18–20 s, and the page builds in about 22 s.
+- **Speed.** On the audit fal run 05:00 (15 Nov, run `run-2026-11-15T05-06-42-808Z-xhzk`, the full
+  stage path, counted from its log): her name tag is read in 2.1 s, the first
+  teammate replies 2.2 s after she sends, takeaways land in 3–4 s, the team's work plus selection takes 33 s (we
+  planned for 20, so we cut a discussion round from the second focus moment to keep the talk inside 3 minutes), and
+  her page builds in 22 s.
 - **An honest baseline.** We re-ran the default agent on the exact bakery prompt and counted every guess by hand.
 
 ## Accomplishments that we're proud of
-- One spoken sentence to a working ordering page, with three thoughtful questions in between. Full run: **TBD** s.
+- One spoken sentence to a working ordering page, with three thoughtful questions in between. Full run, idea to her page: **TBD (Vincent's own timed run)**.
 - The questions are about her craft, never about the stack.
 - Teammates that genuinely build on her and on each other, in short, human lines.
-- A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, **TBD** decided by the team, 0 approvals.
-- A judge's own idea gets a journey and its first question in about 11 s.
+- A default agent: 0 asked, 24 guessed, 20 approvals. Her team: 3 asked, 14 decided by the team, 0 approvals (audit fal run 05:00).
+- A judge's own idea gets a rough journey in 2 s and its first check-in in 23 s (audit fal run 05:00).
 
 ## What we learned
 - The useful line is between craft and stamping, not between asking and not asking.
@@ -99,9 +123,11 @@ name on it." Then a judge gives us an idea live, and the team sketches it and as
 - Builds that go beyond a prepared template.
 
 ## Built with
-Node.js, JavaScript, HTML, CSS, Claude (via fal's OpenRouter router in the demo, and Claude Code headless as the alternative route), Anthropic product-management plugin (`write-spec`),
-taste-skill, ElevenLabs (speech-to-text), fal (Claude via OpenRouter, the model backend that runs in the demo; flux/schnell
-planned for the bakery's brand images), motion, Playwright.
+Node.js (`node:sqlite`), JavaScript, HTML, CSS, server-sent events, Railway, Claude (via fal's OpenRouter router in the
+demo, and Claude Code headless as the alternative route), Anthropic product-management plugin (`write-spec`),
+taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for the live bakery's photos
+and logo, made ahead; the painted cast, clips and music), Linkup (Noor's research, before the demo), motion,
+Playwright.
 
 ## Try it
 Repo: **TBD** (public repo URL). Run `npm start`, open http://localhost:3000. Tests: `npm test`, `npm run e2e`.
