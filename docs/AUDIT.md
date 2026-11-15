@@ -531,6 +531,18 @@ meet line is asked for as Product (`lib/meet.js` `meetSystem(wearing)`; `routes/
 On fal, a logo timeout still leaves Mika's card having said "painted live on fal". A minimal fix is to reword the
 chip as an intent ("Paints the page's emblem live on fal, if it can") or drop it.
 
+**Greps on d361a1a:**
+- `git grep -il noor` finds only the known binary `docs/screens/page-bakery-390.png`.
+- The key grep finds only the test sentinels and canaries (`test/leak.test.js`, `e2e/studio.e2e.js`,
+  `e2e/yoga.e2e.js`, `test/env-local.test.js`).
+- No key-shaped string appears in any file the diff touches.
+
+**Line verdict:**
+- (1) Cards follow the worn role: PASS.
+- (2) N2: **FAIL**. The diff doesn't touch `lib/kit.js:85,89`.
+- (3) The Product stage path is unchanged: PASS.
+- (4) The greps: PASS.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
