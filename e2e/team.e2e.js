@@ -76,13 +76,16 @@ test('the team talks out its joint decisions, and the agreements land in the tea
   }
   assert.ok(!evs.some(e => e.type === 'stamp'), 'nothing stamped on her');
   // The cards: all of them, headlines only, marks of who talked it out, the label; tap shows the real exchange.
-  const cards = page.locator('.team-space .ts-card');
+  const cards = page.locator('.team-space .ts-card:not([data-kind])');
   assert.strictEqual(await cards.count(), agreed.length, 'one card per agreement');
+  // and every call a teammate settled on their own gets its own card too, so the decisions her inbox counts are there to read
+  const own = evs.filter(e => e.type === 'decided' && e.choice && !e.unblock && e.round !== 'first' && !e.refused && !e.revisited
+    && !agreed.some(a => a.candidateId === e.id));
+  assert.strictEqual(await page.locator('.team-space .ts-card[data-kind="decided"]').count(), new Set(own.map(e => e.id)).size, 'one card per decision settled alone');
   const first = cards.first();
-  // The cards fold behind a "Team notes · N" tab, closed by default (cd16dc3, 15 Nov): she taps it to see them.
-  const notes = page.locator('.team-space [data-component="team-notes"]');
-  if (await notes.getAttribute('data-state') !== 'open') await notes.click();
-  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
+  // The cards live in her inbox's Team notes (Vincent, 15 Nov): she opens her inbox to see them.
+  await page.evaluate(() => BYOC.inbox.expand(true));
+  assert.strictEqual(await page.locator('#inbox [data-part="team-notes"] .ts-card:not([data-kind])').count(), agreed.length, 'in her inbox, under Team notes');
   assert.ok(await first.isVisible(), 'the card shows');
   assert.strictEqual(await first.locator('.ts-headline').innerText(), agreed[0].headline);
   assert.strictEqual(await first.locator('.ts-mark').count(), agreed[0].seats.length);

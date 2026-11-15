@@ -82,7 +82,7 @@ test('empty at the top right: "Nothing needs you yet", one clickable; open, it t
   const full = await rect('#inbox');
   assert.ok(full.w > full.vw * 0.9 && full.h > full.vh * 0.9, `open, it takes over the whole screen: ${JSON.stringify(full)}`);
   const parts = await page.locator('#inbox .inbox-part').evaluateAll(ps => ps.map(p => [p.dataset.part, p.querySelector('.inbox-part-title').textContent]));
-  assert.deepStrictEqual(parts, [['needs', 'Needs you'], ['only-you', 'Things only you can do'], ['meetings', 'Past meetings']]);
+  assert.deepStrictEqual(parts, [['needs', 'Needs you'], ['team-notes', 'Team notes'], ['only-you', 'Things only you can do'], ['meetings', 'Past meetings']]);
   assert.strictEqual((await page.locator('#inbox [data-part="only-you"] .inbox-empty').innerText()).trim(), 'Nothing only you can do');
   assert.strictEqual(await page.getAttribute('#inbox [data-part="meetings"] .inbox-part-body', 'data-state'), 'stub');
   assert.strictEqual((await page.locator('#inbox [data-part="needs"] [data-slot="hint"]').innerText()).trim(), 'When a teammate needs a call from you, it lands here.');

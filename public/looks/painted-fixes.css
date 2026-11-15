@@ -216,7 +216,7 @@ html body #room #inbox [data-component="inbox-action"] [data-rank="secondary"] {
   border: 0; border-radius: 6px; background: none; color: var(--ink-2, #4E3A2B); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; }
 /* while the inbox is open, nothing in the room shows through it: the app tag and team notes step back */
 body:has(#inbox[data-state="open"]) [data-component="app-button"] { display: none !important; }
-html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { visibility: hidden; }
+html body #room:has(#inbox[data-state="open"]) > [data-component="team-space"] { visibility: hidden; }   /* the table's copy only: in the inbox, Team notes is what she opened */
 /* the close, asking: the sheet hugs its one column (the idea, the mic, Build it) instead of a 1130 px sheet with a
    blank band either side; centred in the room, and on Build it the sheet opens out to make room for the contrast */
 html body #room [data-component="close-view"] { transition: left 460ms cubic-bezier(.2,.8,.2,1), width 460ms cubic-bezier(.2,.8,.2,1); }

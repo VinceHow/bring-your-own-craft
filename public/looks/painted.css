@@ -1240,7 +1240,7 @@ html #room [data-component="inbox"] [data-slot="now"][data-pt-told] > * { displa
 html #room [data-component="inbox"] [data-slot="now"][data-pt-told]::before { content: attr(data-pt-told); display: block; font: italic 400 18px/1.3 var(--display); color: var(--product-t); }
 html #room [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] { align-content: start; height: auto; }
 /* one thing at a time: while her inbox is open over the kitchen wall, the team's pinned sheet steps back */
-html #room:has([data-component="inbox"][data-state="expanded"]) [data-component="team-space"] { visibility: hidden; }
+html #room:has([data-component="inbox"][data-state="expanded"]) > [data-component="team-space"] { visibility: hidden; }
 /* a swap: the row never replays its entrance (it vanished for 1.25 s, Vincent); only the piece she tapped re-inks, quickly */
 html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"] { animation: none; }
 html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"][data-state="new"] { animation: pt-reink .35s ease-out both; }
@@ -1594,3 +1594,17 @@ html #room [data-component="meet-card"] [data-slot="back"][hidden] { display: no
 @media (prefers-reduced-motion: reduce) { html #room [data-component="meet-card"] [data-slot="dot"] { transition: none; } }
 /* the fixed 16:9 stage's letterbox: the room's own dark, not the paper */
 html.painted-on body, html.painted-on #viewport { background: #1F1813; }
+
+/* ---------- Team notes in her inbox (Vincent, 15 Nov: "put the team notes into the main inbox"; "show their decisions
+   when I open it"). The team space moved into the inbox's Team notes: here every card shows, laid out wide, none folded
+   into "+N more" and none pinned by the window (those rules are the table's). ---------- */
+html body #room #inbox [data-component="team-space"] { position: static; left: auto; top: auto; width: auto; margin: 6px 0 10px; }
+html body #room #inbox [data-component="team-space"] [data-slot="cards"] { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px 18px; align-items: start; }
+html body #room #inbox [data-component="team-space"] [data-slot="cards"]::after { content: none; }
+html body #room #inbox [data-component="team-space"] [data-slot="cards"] > [data-component="decision-card"]:nth-child(n) {
+  position: relative; visibility: visible; pointer-events: auto; width: auto !important; margin: 0; rotate: none; }
+html body #room #inbox [data-component="team-space"] [data-component="decision-card"]:nth-child(3n+1) { rotate: -.6deg; }
+html body #room #inbox [data-component="team-space"] [data-component="decision-card"]:nth-child(3n+2) { rotate: .5deg; }
+html body #room #inbox [data-component="team-space"] [data-component="decision-card"][data-state="open"] { width: auto !important; grid-column: span 2; rotate: none; }
+html body #room #inbox [data-component="team-space"] .ts-card :is(.ts-label, .ts-takeaways) { display: block; }
+html body #room #inbox [data-component="team-space"] .ts-headline { font: 500 19px/1.3 var(--display); }

@@ -26,6 +26,11 @@ html body #room #inbox { position: absolute; left: auto; right: 18px; top: 16px;
 html body #room #inbox[data-state="open"] { left: 40px; right: 40px; top: 20px; bottom: 20px; width: auto; z-index: 60; overflow: auto; overscroll-behavior: contain; background: var(--sheet, #fff); padding: 22px 28px; }
 html body #room #inbox[data-state="open"] .inbox-drawer { max-height: none; overflow: visible; }
 .inbox[hidden], .inbox [hidden] { display: none !important; }
+/* Team notes: the team space sits in the drawer, in the flow, its cards always unfolded (the room's "Team notes · N" tab is gone) */
+html body #room #inbox .team-space { position: static; display: flex; pointer-events: auto; }
+html body #room #inbox .team-space[hidden] { display: none !important; }
+html body #room #inbox .team-space :is([data-component="team-notes"], .ts-title) { display: none; }
+html body #room #inbox .team-space[data-notes] .ts-cards { display: flex; }
 .inbox .inbox-now, .inbox .inbox-toggle, .inbox .inbox-item { display: block; width: 100%; text-align: left; font: inherit; cursor: pointer; }
 .inbox .inbox-all { font: inherit; background: none; border: 0; padding: 4px 0; margin-left: 18px; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 html body #room #inbox[data-state="open"] .inbox-now { display: none; }
@@ -69,6 +74,11 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     drawer.appendChild(s); return body;
   };
   const needsBody = part('needs', 'Needs you');
+  // Team notes (Vincent, 15 Nov: "put the team notes into the main inbox"): every decision the team settled, the cards
+  // team-space.js draws, now kept here instead of a tab on the table. team-space.js mounts its .team-space into this body.
+  const notesBody = part('team-notes', 'Team notes');
+  const notesEmpty = slot(h('p', 'inbox-empty', 'The team’s decisions land here as they make them.'), 'empty');
+  notesBody.appendChild(notesEmpty);
   const onlyBody = part('only-you', 'Things only you can do');
   const pastBody = part('meetings', 'Past meetings');
   // One clickable when closed (POLISH §1, the PO's call): the line. It opens the waiting item, or the inbox when nothing
@@ -330,6 +340,10 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     B.on('stage', () => render());
     B.on('reset', () => { tasks.clear(); shown = []; seenIds.clear(); clearTimeout(arriveTimer); expand(false); paint(); box.hidden = true; });
   }
-  B.inbox = { render, openTop, expand, showUnblock, get shown() { return shown.slice(); }, tasks: () => [...tasks.values()].map(t => ({ id: t.id, title: t.title, steps: t.steps.slice(), done: [...t.done] })) };
+  // the team space lives in Team notes; its cards show here, unfolded (no tab), and the empty line when there are none
+  const adopt = ts => { if (!ts || ts.parentNode === notesBody) return; notesBody.appendChild(ts);
+    const sync = () => { notesEmpty.hidden = !ts.hidden; }; sync(); new MutationObserver(sync).observe(ts, { attributes: true, attributeFilter: ['hidden'] }); };
+  adopt(room.querySelector(':scope > .team-space'));
+  B.inbox = { render, openTop, expand, showUnblock, adopt, notes: notesBody, get shown() { return shown.slice(); }, tasks: () => [...tasks.values()].map(t => ({ id: t.id, title: t.title, steps: t.steps.slice(), done: [...t.done] })) };
   paint();
 })();

@@ -142,12 +142,10 @@ for (const look of ['', 'look=painted']) test(`team space${look ? ' (painted)' :
     d({ type: 'joint.start', jointId: 'j1', id: 'c1', decision: 'What leads the page', seats: ['design', 'data'] });
     d({ type: 'joint.agreed', pane: 'room', id: 'j1', candidateId: 'c1', headline: 'Their usual class goes first', seats: ['design', 'data'],
       turns: [{ seat: 'design', text: 'Usual class first.' }, { seat: 'data', text: 'We count rebooks.' }, { seat: 'design', text: 'Agreed.' }] }); });
-  const notes = p.locator('.team-space [data-component="team-notes"]');
   await p.waitForFunction(() => document.querySelectorAll('.team-space .ts-card').length === 1);
-  assert.strictEqual(await notes.getAttribute('data-state'), 'closed', 'folded by default');
-  assert.match((await notes.innerText()).trim(), /^Team notes · 1$/);
-  await notes.click();
-  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
+  // the team's notes live in her inbox (Vincent, 15 Nov): open it to see them
+  assert.strictEqual(await p.locator('#inbox [data-part="team-notes"] .ts-card').count(), 1, 'in her inbox, under Team notes');
+  await p.evaluate(() => BYOC.inbox.expand(true));
   const first = p.locator('.team-space .ts-card').first();
   assert.ok(await first.isVisible(), 'the card shows');
   assert.strictEqual(await first.locator('.ts-headline').innerText(), 'Their usual class goes first');

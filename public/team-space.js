@@ -64,7 +64,9 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
       const c = e.target.closest('.ts-card');
       if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); toggle(c); }
     });
-    room.appendChild(box);
+    // Its home is the inbox's Team notes (Vincent, 15 Nov); without an inbox, the table as before.
+    if (B.inbox && typeof B.inbox.adopt === 'function') { room.appendChild(box); B.inbox.adopt(box); }
+    else room.appendChild(box);
     return box;
   }
   function setNotes(open) {
@@ -89,6 +91,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     li.append(marks, slot(h('span', 'ts-headline', a.headline), 'headline'));
     if (a.withTakeaways === true) li.appendChild(slot(h('span', 'ts-takeaways', 'with your takeaways in mind'), 'takeaways-note'));
     if (a.first) { li.dataset.kind = 'first'; li.dataset.seat = (a.seats || [])[0] || ''; }
+    else if (a.own) { li.dataset.kind = 'decided'; li.dataset.seat = a.seat || ''; }
     else if (a.unblock) { li.dataset.kind = 'unblock'; li.dataset.seat = a.seat || ''; if (a.yours) { li.dataset.her = ''; li.appendChild(slot(h('span', 'ts-yours', 'your call'), 'yours')); } }
     else li.appendChild(slot(h('span', 'ts-label', 'Talk this through: coming'), 'label'));
     const ex = slot(h('ol', 'ts-exchange'), 'exchange');
@@ -116,6 +119,14 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
       { const yours = /^her /.test(d.cites || '');
         agreed.push({ id: 'ub-' + d.id, seat: d.seat, seats: yours ? ['product', d.seat] : [d.seat], unblock: true, yours,
           headline: d.headline || `${String(d.decision || '').replace(/[.?]+$/, '')}: ${d.choice}` }); }
+    // Every other call a teammate settled on their own (Vincent, 15 Nov: "it says X decisions but nothing is there when I
+    // open"): one card each, owned by its seat, so her inbox shows the decisions the count is about. Not the ones a
+    // joint card already carries, not refused or revisited rows, not the first-decision or unblock rows above.
+    const jointCands = new Set(evs.filter(e => e.type === 'joint.agreed').map(e => e.candidateId).filter(Boolean));
+    for (const d of new Map(evs.filter(e => e.type === 'decided' && e.choice && !e.unblock && e.round !== 'first' && !e.refused && !e.revisited
+      && !jointCands.has(e.id)).map(e => [e.id, e])).values())
+      agreed.push({ id: 'd-' + d.id, seat: d.seat, seats: [d.seat], own: true,
+        headline: d.decision ? `${String(d.decision).replace(/[.?]+$/, '')}: ${d.choice}` : String(d.choice) });
     for (const c of [...list.children]) {
       const a = agreed.find(x => x.id === c.dataset.joint);
       if (!a || (a.revised && c.dataset.revised !== '1')) c.remove();
@@ -158,6 +169,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
   }
   function flyFrom(li, a, i, seat, room, land) {
     const k = room.getBoundingClientRect().width / (room.offsetWidth || 1600) || 1; // the room is scaled to fit
+    if (!li.getClientRects().length) return flyToInbox(li, i, seat, room, k, land);
     const s = seat.getBoundingClientRect(), c = li.getBoundingClientRect();
     const dx = (s.left + s.width / 2 - (c.left + c.width / 2)) / k, dy = (s.top + s.height / 2 - (c.top + c.height / 2)) / k;
     const anim = li.animate([
@@ -166,6 +178,31 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
       { transform: 'none', opacity: 1 },
     ], { duration: 1000, delay: i * 150, easing: 'ease-in-out', fill: 'backwards' });
     anim.finished.then(land, land);
+  }
+  // The card lives in the closed inbox: a copy of it flies from its owner's seat into the inbox and is gone. No cue on
+  // the inbox: a note isn't something that needs her. Same arc and timing as the table's flight.
+  function flyToInbox(li, i, seat, room, k, land) {
+    const inbox = document.getElementById('inbox');
+    if (!inbox || inbox.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return land();
+    const r = room.getBoundingClientRect(), s = seat.getBoundingClientRect(), t = inbox.getBoundingClientRect();
+    const ghost = li.cloneNode(true); ghost.removeAttribute('tabindex'); ghost.setAttribute('aria-hidden', 'true');
+    ghost.dataset.state = 'flying'; ghost.classList.add('ts-ghost');
+    const wrap = h('div', 'team-space ts-flight'); wrap.dataset.component = 'team-flight'; wrap.setAttribute('aria-hidden', 'true');
+    wrap.style.cssText = 'position:absolute;left:0;top:0;right:auto;bottom:auto;z-index:20;pointer-events:none;';
+    ghost.style.cssText = 'position:absolute;margin:0;';
+    wrap.appendChild(ghost); room.appendChild(wrap);
+    const x0 = (s.left + s.width / 2 - r.left) / k, y0 = (s.top + s.height / 2 - r.top) / k;
+    const x1 = (t.left + t.width / 2 - r.left) / k, y1 = (t.top + t.height / 2 - r.top) / k;
+    const w = ghost.offsetWidth || 330, hh = ghost.offsetHeight || 80;
+    ghost.style.left = (x0 - w / 2) + 'px'; ghost.style.top = (y0 - hh / 2) + 'px';
+    const dx = x1 - x0, dy = y1 - y0;
+    const anim = ghost.animate([
+      { transform: 'scale(.6)', opacity: 0 },
+      { transform: `translate(${dx / 2}px, ${dy / 2 - 80}px) scale(.85)`, opacity: 1, offset: 0.45 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.2)`, opacity: 0 },
+    ], { duration: 1000, delay: i * 150, easing: 'ease-in-out', fill: 'both' });
+    const done = () => { wrap.remove(); land(); };
+    anim.finished.then(done, done);
   }
   B.teamSpace = { render, count: 0 };
   if (typeof B.on === 'function') {
