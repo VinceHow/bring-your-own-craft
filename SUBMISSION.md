@@ -26,8 +26,8 @@ so you stay in what you love and actually reach the end.
 You start with your idea, rough as you'd say it, on a blank sheet: "What do you want to build today?" Then your name
 tag: your craft (today that's Product; "Your own craft" lets anyone bring theirs) and, in your own words, what you
 love. Then you meet your team up close, each with a line tailored to your idea: Mika (Design), Noor (Research), Theo
-(Data), Ines (Strategy) and Bo (Engineering), each a teammate with its own craft and voice (our code gives
-them live tools: Linkup search for Noor, fal images for her page's emblem). The door opens on a
+(Data), Ines (Strategy) and Bo (Engineering), each an agent with its own craft and tools (Noor: Linkup search;
+Mika: taste-skill and fal images; Bo: the build). The door opens on a
 hand-painted studio, everyone already round the table, and your stool waiting.
 
 In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. As she sits down, Noor
