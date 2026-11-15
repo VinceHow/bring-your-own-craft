@@ -73,16 +73,17 @@
     }
     const u = url();
     if (!u || root.dataset.state === 'none') return;
+    if (gated()) { showQr(); return; } // on stage with the live deploy: the QR card only, over the room; no new tab
     window.open(u, '_blank', 'noopener');
-    showQr();
   });
-  // The QR card (Vincent, 15 Nov): when the app opens, the room tab also shows a card the audience scans to reach the
-  // live bakery. Only when /api/health says the deploy is the Railway site that public/qr-live-site.svg encodes.
+  // The QR card (Vincent, 15 Nov): on stage with the live deploy, "Open the app" shows only this card, at once, over the
+  // room, for the audience to scan; no new tab. Only when /api/health says the deploy is the Railway site the QR encodes.
   const QR_URL = 'https://bring-your-own-craft-production.up.railway.app';
   let deployUrl = '', qr = null;
   function hideQr() { if (qr) { qr.dataset.state = 'closed'; qr.hidden = true; } }
+  const gated = () => deployUrl.replace(/\/+$/, '') === QR_URL;
   function showQr() {
-    if (deployUrl.replace(/\/+$/, '') !== QR_URL) return;
+    if (!gated()) return;
     if (!qr) {
       qr = document.createElement('div');
       qr.className = 'qr-card-wrap'; qr.dataset.slot = 'qr-backdrop';

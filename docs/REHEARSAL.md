@@ -112,4 +112,4 @@ Live research: with `LINKUP_API_KEY` set next to `FAL_KEY`, Wren's Focus 1 findi
   spec passes. With the PO's Focus 2 line, Build's decide on fal cited her newest line 8, 12 and 7 times out of 24 candidates.
 
 ## The QR card (live bakery)
-Start the room with `DEPLOY_URL=https://bring-your-own-craft-production.up.railway.app`. Then pressing "Open the app" also shows the QR card in the room tab, which the audience scans to reach the live site. Close it with ×, Esc or a click outside. Without that exact DEPLOY_URL there is no card; the app still opens in a new tab.
+Start the room with `DEPLOY_URL=https://bring-your-own-craft-production.up.railway.app`. Then pressing "Open the app" shows only the QR card, at once, over the room (no new tab), for the audience to scan for the live site. Close it with ×, Esc or a click outside and you are back in the room. Without that exact DEPLOY_URL there is no card, and the app opens in a new tab as before.
