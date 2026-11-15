@@ -1,8 +1,8 @@
 // End-to-end: the keyboard-driven demo, walk-in to the close, in stage mode, with real model calls.
 // Run: npm run e2e (or node --test e2e/beats.e2e.js). Owned by build/beats.
 //   1. stage mode: body >= 20px, no chrome, no help card; the live path to the three asks at 1280x720, from a clicker
-//   2. the close with a real judge's idea: contrast before the questions land, <= 3 questions, M from the run's log
-//   3. replays: record-run, R in stage mode, the close's yoga fallback, the REPLAY label throughout
+//   2. the judge's-idea close is unhooked (Vincent, 15 Nov): J opens nothing, the beats end at her page
+//   3. replays: record-run, R in stage mode, the REPLAY label throughout
 //   4. fallbacks: a slow or failing call shows its step (never a spinner) and offers R
 import { test, before, after } from 'node:test';
 import assert from 'node:assert';
@@ -672,59 +672,21 @@ test('2f. Noor\'s live finding (stubbed): verified -> "found just now with Linku
   await p.close();
 });
 
-test('3. the close: a real judge idea; contrast first, then the questions that reached her, then her M from the log, then the last line', async t => {
-  // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
+test('3. the judge’s-idea close is unhooked (Vincent, 15 Nov): J opens nothing, the beats end at her page, no J in the keys', async t => {
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   await page.keyboard.press('Escape');
   await page.keyboard.press('j');
-  await waitFor(() => document.activeElement && document.activeElement.id === 'close-input', 3000, 'the idea input');
-  assert.strictEqual(await page.evaluate(() => document.querySelector('.close-left').classList.contains('on')), false, 'no contrast before the idea');
-  await page.keyboard.type(JUDGE_IDEA);
-  await page.keyboard.press('Enter');
-  // While the team works: the contrast is up and no question has landed yet.
-  await waitFor(() => document.querySelector('.close-left').classList.contains('on'), 3000, 'the contrast');
-  assert.strictEqual(await page.locator('#close-asks li').count(), 0, 'the contrast shows before the questions land');
-  assert.strictEqual(await page.textContent('#close-b-guessed'), '24', 'guessed, counted from docs/baseline/run-3-bakery/GUESSES.md');
-  assert.ok(!/\b22\b/.test(await page.evaluate(() => document.body.innerText)), 'the old yoga count (22) appears nowhere');
-  assert.match(await page.textContent('#close-step'), /Design is sketching it|The team is on it/);
-  // Design's first sketch of their idea draws in while the contrast shows.
-  await waitFor(() => document.querySelectorAll('#close-sketch .fs-box').length > 0, 30000, 'Design’s sketch of the judge’s idea');
-  assert.strictEqual(await page.locator('#close-asks li').count(), 0, 'the sketch draws before the check-in lands');
-  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0 || /stopped/.test(document.getElementById('close-step').textContent), 90000, 'the first check-in');
-  const n = await page.locator('#close-asks li').count();
-  assert.strictEqual(n, 1, 'one check-in at a time: the first lands');
-  const tm = await page.evaluate(() => BYOC.timings);
-  assert.ok(tm.contrastAt < tm.asksAt, 'contrast before the check-in');
-  // The judge's run was logged with the sketch's stages as its flow, capped, and the check-in shown is its first ask.
-  const judgeLog = readLog(tm.closeRun);
-  assert.ok(judgeLog.some(e => e.type === 'run.start' && e.idea === JUDGE_IDEA), 'the judge’s run is logged with the idea');
-  assert.ok(judgeLog.filter(e => e.type === 'flow.line').length >= 2, 'the sketch’s stages went in as her flow');
-  const jAsks = judgeLog.filter(e => e.type === 'ask');
-  assert.ok(jAsks.length >= 1 && jAsks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks (the cap in lib/policy.js), got ${jAsks.length}`);
-  assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), jAsks[0].id, 'the first check-in is the run’s first ask');
-  const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for you/);
-  assert.ok(cm, 'the caption'); assert.strictEqual(+cm[2], jAsks.length, '"for her" is the run’s asks');
-  assert.strictEqual(+cm[1], judgeLog.filter(e => e.type === 'candidate').length - jAsks.length, '"handled" is the rest, from the log');
-  // Her line, from her run's log.
-  await waitFor(() => !document.getElementById('close-built').hidden, 8000, 'the built-this-way line');
-  const want = countFromLog(readLog(RUN));
-  if (want.fromFile > 0) {
-    assert.ok(await page.isVisible('#close-her'), 'her line shows');
-    // her log can still grow for a few seconds (a revisit against her line): the close keeps up with it
-    let shown = '', now = want;
-    for (let i = 0; i < 40; i++) { now = countFromLog(readLog(RUN)); shown = await page.textContent('#close-decided'); if (shown === String(now.fromFile)) break; await new Promise(r => setTimeout(r, 500)); }
-    assert.strictEqual(shown, String(now.fromFile), 'M is counted from her run’s log');
-    assert.strictEqual(await page.textContent('#close-asked'), String(want.asked), 'asked is her run’s asks');
-  } else {
-    assert.ok(!(await page.isVisible('#close-her')), 'M = 0: her line is not shown');
-  }
-  console.log(`close: sketch in ${(tm.closeSketchMs / 1000).toFixed(1)} s, first check-in at ${(tm.closeMs / 1000).toFixed(1)} s (${jAsks.length} asks); her ${want.asked} asked, ${want.fromFile} decided from her file`);
-  assert.match(await page.textContent('#close-built'), /built the same way\. Tomorrow, the engineer at this table is a person/);
-  assert.ok(await onScreen('#close-asks li, #close-built, #close-her:not([hidden])'), 'the close fits the screen at 1280x720');
-  assert.ok(!(await page.isVisible('#replay-label')), 'nothing replayed, no label');
+  await page.waitForTimeout(400);
+  assert.ok(!(await page.evaluate(() => BYOC.close && BYOC.close.isOpen && BYOC.close.isOpen())), 'J opens nothing');
+  assert.strictEqual(await page.evaluate(() => BYOC.stage(99, { instant: true })), 9, 'the last beat is her page (9)');
+  await page.keyboard.press('PageDown'); await page.waitForTimeout(300);
+  assert.strictEqual(await page.evaluate(() => BYOC.beat), 9, 'forward from her page goes nowhere');
+  assert.ok(!(await page.evaluate(() => BYOC.close && BYOC.close.isOpen && BYOC.close.isOpen())), 'and never opens the close');
+  assert.doesNotMatch(await page.evaluate(() => document.querySelector('.chrome-keys')?.textContent || ''), /judge/i, 'not on the presenter bar');
+  assert.doesNotMatch(await page.evaluate(() => document.getElementById('help-card')?.textContent || document.body.innerHTML), /judge/i, 'not in the ? keys');
 });
 
-test('4. replays: record-run, R in stage mode, the yoga fallback in the close; REPLAY shows throughout', async t => {
+test('4. replays: record-run, R in stage mode; REPLAY shows throughout', async t => {
   // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const out = execFileSync('node', ['scripts/record-run.mjs', 'rehearsal', RUN], { cwd: ROOT, env: { ...process.env, RUNS_DIR: RUNS } }).toString();
@@ -739,27 +701,12 @@ test('4. replays: record-run, R in stage mode, the yoga fallback in the close; R
   await waitFor(() => BYOC.events().some(e => e.type === 'ask'), 120000, 'the replay reaches the asks');
   assert.ok(await page.isVisible('#replay-label'), 'REPLAY on screen during the replay');
   assert.ok(await page.evaluate(() => document.getElementById('live-step').hidden), 'no live step during a replay');
-  // The close, while the rehearsal is on screen: the yoga fallback, labelled.
-  await page.keyboard.press('j');
-  await page.keyboard.press('Escape');
-  assert.ok(await page.isVisible('#replay-label'), 'REPLAY still on screen in the close');
-  await page.keyboard.press('c');
-  await waitFor(() => /yoga/.test(document.getElementById('replay-label').textContent), 3000, 'the yoga label');
-  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0, 10000, 'the yoga check-in');
-  assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), readLog('yoga').find(e => e.type === 'ask').id, 'the yoga run’s first ask');
-  assert.match(await page.inputValue('#close-input'), /yoga/i);
-  await waitFor(() => !document.getElementById('close-built').hidden, 8000, 'the last line');
-  const want = countFromLog(readLog('rehearsal'));
-  if (want.fromFile > 0) {
-    assert.strictEqual(await page.textContent('#close-decided'), String(want.fromFile), 'M from the rehearsal log');
-    assert.match(await page.textContent('#close-her-src'), /REPLAY/);
-  }
-  assert.ok(await page.isVisible('#replay-label'), 'REPLAY on screen at the end of the close');
+  assert.ok(await page.isVisible('#replay-label'), 'REPLAY on screen');
   await page.keyboard.press('Home');
   assert.ok(!(await page.isVisible('#replay-label')), 'reset clears the label');
 });
 
-test('5. fallbacks: a slow or failing call shows its step and offers R; the close says so too', async t => {
+test('5. fallbacks: a slow or failing call shows its step and offers R', async t => {
   // Serial: R swaps in the rehearsal recorded in step 4 from step 2's run. Run alone, or after step 2 failed, it skips.
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
@@ -782,16 +729,6 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   await waitFor(() => /stopped/.test(document.getElementById('live-step').textContent), 4000, 'the failure', null, p);
   assert.match(await p.textContent('#live-step'), /R replays the rehearsal/);
   assert.strictEqual(await p.locator('.spinner, [class*="spin"], progress').count(), 0, 'never a spinner');
-  // The close: slow, then stopped, then R brings in the yoga run.
-  await p.keyboard.press('Escape');
-  await p.keyboard.press('j');
-  await p.keyboard.type('A page for a bike repair pop-up.');
-  await p.keyboard.press('Enter');
-  await waitFor(() => /slow: R replays the yoga run/.test(document.getElementById('close-step').textContent), 3000, 'the close’s slow note', null, p);
-  await waitFor(() => /stopped/.test(document.getElementById('close-step').textContent), 4000, 'the close’s failure', null, p);
-  await p.keyboard.press('r');
-  await waitFor(() => document.querySelectorAll('#close-asks li').length > 0, 10000, 'the yoga check-in', null, p);
-  assert.ok(await p.isVisible('#replay-label'), 'labelled REPLAY');
   // Back in the room, R swaps in the rehearsal (recorded in step 4).
   await p.keyboard.press('Home');
   await p.keyboard.press('r');

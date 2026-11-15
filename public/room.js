@@ -34,7 +34,7 @@
     strategy: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 12V3.3A8.7 8.7 0 0 1 20.7 12z" fill="currentColor"/></svg>',
   };
   const BEATS = ['her name tag', 'meet the team', 'the reveal', 'first move', 'her journey', 'team works', 'her three',
-    'her taste', 'build', 'her page', 'not scripted', 'close'];
+    'her taste', 'build', 'her page']; // the stage path ends at her page: the judge's-idea close is unhooked (Vincent, 15 Nov)
 
   const $ = (s, el = document) => el.querySelector(s);
   const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };

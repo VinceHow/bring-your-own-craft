@@ -146,7 +146,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', 'look=painted']]) tes
 
   // 7. The close.
   ({ page, errors } = await fresh(look));
-  await page.evaluate(() => { BYOC.stage(11, { instant: true }); });
+  await page.evaluate(() => { BYOC.close.open(); /* the close is unhooked from the beats (Vincent, 15 Nov); its input is still tested directly */ });
   await page.waitForFunction(() => BYOC.close && BYOC.close.isOpen(), null, { timeout: 4000 });
   await page.fill('#close-input', 'um so a, a website for my bakery'); await page.press('#close-input', 'Enter');
   await played(page, '#close-input', 'um so a, a website for my bakery', 'cut', 'the close');
