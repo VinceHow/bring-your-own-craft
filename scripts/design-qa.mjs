@@ -289,6 +289,63 @@ for (const [w, h] of SIZES) for (const mode of MODES) {
   await ctx.close();
 }
 
+// ---- day / night modes (design/daynight): Cycle -> Day -> Night pill, at each size ----
+// Pass: the label matches the mode; within 1 s exactly one video.room is at opacity 1 and playing; every visible patch
+// video advances; the mode survives a reload; the same after 4 quick clicks during a live replay. The painting's own
+// markup (video.room, .patch) is the studio's comp, probed through its iframe.
+const MODE_LABEL = { cycle: /Cycle\s*·?\s*tap for day/i, day: /Day\s*·?\s*tap for night/i, night: /Night\s*·?\s*tap for cycle/i };
+const PILL = 'button[aria-label^="Time of day follows"], button[aria-label^="Always day"], button[aria-label^="Always night"]';
+const modeOf = aria => /^Time of day follows/.test(aria) ? 'cycle' : /^Always day/.test(aria) ? 'day' : /^Always night/.test(aria) ? 'night' : '?';
+async function probeLiving(p) {
+  const f = p.frames().find(fr => fr.url().includes('cast-living'));
+  if (!f) return { err: 'no living iframe' };
+  const a = await f.evaluate(() => {
+    const rooms = [...document.querySelectorAll('video.room')].map(v => ({ t: v.dataset.t, op: +getComputedStyle(v).opacity, paused: v.paused }));
+    const pv = [...document.querySelectorAll('.patch video')].filter(v => +getComputedStyle(v).opacity > 0.5 && getComputedStyle(v.closest('.patch')).display !== 'none');
+    window.__qaPv = pv; return { rooms, times: pv.map(v => v.currentTime), who: pv.map(v => (v.closest('.patch') || {}).dataset?.who || '?') };
+  });
+  await wait(700);
+  const t2 = await f.evaluate(() => (window.__qaPv || []).map(v => v.currentTime));
+  const on = a.rooms.filter(r => r.op > 0.99);
+  const frozen = a.who.filter((w, i) => !(t2[i] > a.times[i] || t2[i] < a.times[i] - 0.5)); // looping back counts as moving
+  return { on: on.map(r => r.t + (r.paused ? ' (paused)' : '')), playingOn: on.filter(r => !r.paused).length, onCount: on.length, frozen, patches: a.who.length };
+}
+if (!ONLY || ONLY.test('daynight')) for (const [w, h] of SIZES) {
+  const tag = `${w}x${h}`; const dir = path.join(OUT, `${tag}-daynight`); fs.mkdirSync(dir, { recursive: true });
+  const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode: 'daynight', state: 'day/night modes' });
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+  const p = await ctx.newPage();
+  try {
+    const open = async () => { await p.goto(BASE + '/?look=painted&stage=1'); await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500); };
+    await open();
+    if (!(await p.locator(PILL).count())) { rec('not on main yet', 'day/night pill', 'no Cycle / Day / Night pill on this build (design/daynight not merged)'); throw null; }
+    const check = async (label, expectMode) => {
+      const pill = p.locator(PILL).first(); const aria = await pill.getAttribute('aria-label'); const text = (await pill.innerText()).replace(/\s+/g, ' ').trim();
+      const m = modeOf(aria); const shot = path.join(dir, `${label}.jpg`);
+      await wait(1000); const pr = await probeLiving(p); await p.screenshot({ path: shot, type: 'jpeg', quality: 72 });
+      if (expectMode && m !== expectMode) rec('day/night', 'pill', `${label}: expected ${expectMode}, pill says ${m} (“${text}”)`, shot);
+      if (!MODE_LABEL[m] || !MODE_LABEL[m].test(text)) rec('day/night', 'pill label', `${label}: label “${text}” does not read as ${m}`, shot);
+      if (pr.err) rec('day/night', 'iframe.painted-living', `${label}: ${pr.err}`, shot);
+      else {
+        if (pr.onCount !== 1 || pr.playingOn !== 1) rec('day/night', 'video.room', `${label}: ${pr.onCount} room videos at opacity 1 (${pr.on.join(', ') || 'none'}), ${pr.playingOn} playing; want exactly 1 playing`, shot);
+        if (pr.frozen.length) rec('day/night', '.patch video', `${label}: frozen teammates: ${pr.frozen.join(', ')} (of ${pr.patches} visible patches)`, shot);
+      }
+      process.stdout.write(`${tag} daynight ${label}: ${m} “${text}” rooms on [${pr.on || ''}] frozen [${pr.frozen || ''}]\n`);
+      return m;
+    };
+    let m = await check('0-start', null);
+    for (let i = 1; i <= 3; i++) { const want = { cycle: 'day', day: 'night', night: 'cycle' }[m]; await p.locator(PILL).first().click({ force: true }); m = await check(`${i}-click`, want); }
+    // survives a reload: step off the default first, so the reload proves memory
+    await p.locator(PILL).first().click({ force: true }); m = await check('4a-before-reload', { cycle: 'day', day: 'night', night: 'cycle' }[m]);
+    const before = m; await open(); const after = await check('4b-reload', before);
+    // during a live replay: R, then 4 quick clicks (net: one step on from where it was)
+    await p.keyboard.press('r'); await wait(3000);
+    for (let i = 0; i < 4; i++) { await p.locator(PILL).first().click({ force: true }); await wait(120); }
+    await check('5-replay-4-clicks', { cycle: 'day', day: 'night', night: 'cycle' }[after]);
+  } catch (e) { if (e) rec('walk', 'daynight', 'daynight error: ' + String(e.message || e).split('\n')[0]); }
+  await ctx.close();
+}
+
 // ---- extras at the demo size (Vincent's Mac): room coverage, art at 1:1, toy clicks as frame strips, app button, cursor ----
 // Crops are fractions of the room (#room's box on screen). Toy spots come from playful-ink.js (button[data-spot]).
 const ART = { mika: [.19, .34, .2, .46], noor: [.36, .29, .15, .34], theo: [.47, .33, .12, .26], ines: [.55, .27, .15, .36], bo: [.65, .39, .19, .4],
