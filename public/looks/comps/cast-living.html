@@ -202,7 +202,7 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
 
   const XFADE = .18;
   let held = false;                                     // focus: no new moods
-  async function play(id, mood, cut = XFADE) {
+  async function play(id, mood, cut = XFADE, from = 0) {
     const p = P[id];
     const asked = mood;
     if (mood && STANDIN[id] && STANDIN[id][mood]) mood = STANDIN[id][mood];
@@ -210,11 +210,20 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
     if (!v && mood !== 'idle') { v = clip(id, 'idle'); mood = 'idle'; }
     if (!v) return;
     const prev = p.cur; p.cur = v; p.mood = mood;
-    v.currentTime = 0; v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
+    // A clip that faded out earlier can still carry the fade's end value (opacity 0, written after the fade finished):
+    // coming back to that mood, it played invisibly and the teammate looked frozen. Clear it before it shows again.
+    if (v.getAnimations) for (const a of v.getAnimations()) a.cancel();
+    v.style.opacity = '';
+    v.currentTime = from; v.style.zIndex = 2; if (prev && prev !== v) prev.style.zIndex = 1;
     try { await v.play(); } catch (e) { if (p.cur === v) p.cur = prev; return; }
+    if (p.cur !== v) { v.pause(); return; }                // another mood took over while this one was starting
     v.classList.add('on');
     if (!p.live) { p.live = true; p.el.style.opacity = 1; }
-    if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => { prev.classList.remove('on'); prev.style.opacity = ''; prev.pause(); });
+    if (prev && prev !== v) animate(prev, { opacity: [1, 0] }, { duration: cut }).finished.then(() => {
+      if (p.cur === prev) return;                          // it came back while fading: leave it showing
+      prev.classList.remove('on'); prev.pause();
+      requestAnimationFrame(() => { if (p.cur !== prev) prev.style.opacity = ''; });   // after the fade has written its end value
+    });
     if (p.onStart) { const f = p.onStart; p.onStart = null; f(asked); }
     const next = () => (held ? 'idle' : (p.queue[0] || p.base));
     const tick = () => {
@@ -278,7 +287,9 @@ body { color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing
       case 'idle':  want(id, 'idle'); break;
       case 'delighted': if (P[id]) {                      // she said Yes to its ask (painted-living.js: action.yes)
         P[id].queue = P[id].queue.filter(m => m !== 'delighted');
-        play(id, 'delighted', .35).then(() => {               // at once; the clip smiles from ~1.5 s to ~3.5 s:
+        // the clip holds still for its first 1.7 s (under 1.2% of pixels move), then smiles: start it 1.2 s in, so the
+        // smile lands ~0.6 s after her Yes instead of ~1.8 s
+        play(id, 'delighted', .35, 1.2).then(() => {          // the smile peaks around 2.4 s into the clip:
           const v = P[id].cur; if (!v || P[id].mood !== 'delighted') return;   // hold the top of the smile 1.5 s more (~2.75 s in all)
           const peak = () => { if (P[id].cur !== v) return; if (v.currentTime >= 2.4) { v.pause(); setTimeout(() => { if (P[id].cur === v) v.play().catch(() => {}); }, 1500); } else requestAnimationFrame(peak); };
           requestAnimationFrame(peak);
