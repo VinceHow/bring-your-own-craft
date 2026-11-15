@@ -28,10 +28,12 @@
       <h2 class="fd-question" data-slot="question"></h2>
       <div class="fd-said" data-component="her-answer" data-state="speaking"></div>
       <ol class="fd-pieces" data-component="pieces"></ol>
+      <p class="fd-ack" data-slot="ack" data-state="hidden" role="status" aria-live="polite" hidden></p>
       <form class="fd-form" autocomplete="off">
         <textarea class="fd-input" data-slot="input" rows="3" spellcheck="false" data-voice placeholder="Say it or type it. Take your time; send when you’re ready."></textarea>
         <button type="button" class="fd-add" data-slot="add-piece">Add this</button>
-        <button type="submit" class="fd-send" data-slot="send">Send</button>
+        <button type="submit" class="fd-send" data-slot="send" data-state="idle">Send</button>
+        <p class="fd-help" data-slot="help">Add this keeps a thought · Send when you’re ready, and the team replies</p>
       </form>
     </div>
     <aside class="fd-side">
@@ -192,6 +194,7 @@
     // Who asked shows only when it's a named teammate (Noor · Research); otherwise no "by" at all.
     const seat = ask.seat, named = AGENT(seat), name = named && (!ask.by || ask.by === named) ? named : null;
     $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : '';
+    listener = name || 'The team'; ack(false);
     const proposers = (ask.artifact && Array.isArray(ask.artifact.by) && ask.artifact.by.length) ? ask.artifact.by : null;
     $('.fd-by').textContent = proposers ? `proposed by ${proposers.join(' and ')}` : '';
     $('.fd-question').textContent = ask.question || ask.decision || '';
@@ -308,7 +311,7 @@
   function dropPiece(p) {
     pieces = pieces.filter(x => x !== p); p.li.remove();
     if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
-    if (!pieces.length) capturing(false);
+    if (!pieces.length) { capturing(false); ack(false); }
   }
   function addPiece(text) {
     text = String(text || '').trim();
@@ -332,7 +335,22 @@
     capturing(true);
     if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
     pieceApi({ askId: cur.id, pieceId: p.id, text }).catch(() => {}); // a failed post still sends raw at Send
+    ack(true);
   }
+  // After "Add this" (or a spoken piece): a quiet line under her pieces says who's listening and that replies come on
+  // Send, and Send pulses once (data-state="nudge", then "idle"). Vincent: added a thought, nothing reacted.
+  let listener = 'The team', nudgeT = null;
+  function ack(on) {
+    const a = $('.fd-ack'), send = $('.fd-send');
+    a.hidden = !on; a.dataset.state = on ? 'shown' : 'hidden';
+    a.textContent = on ? `${listener} is listening · Send when you’re done and the team will reply` : '';
+    clearTimeout(nudgeT);
+    if (!on) { send.dataset.state = 'idle'; return; }
+    send.dataset.state = 'nudge';
+    if (M) M.animate(send, { scale: [1, 1.08, 1] }, { duration: 0.6 });
+    nudgeT = setTimeout(() => { send.dataset.state = 'idle'; }, 1200);
+  }
+  $('.fd-form').addEventListener('submit', () => ack(false));
   B.on('answer.piece.tidy', ev => {
     const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
     if (!p || sent || ev.raw !== p.raw || !ev.text) return;
