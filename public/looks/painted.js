@@ -369,7 +369,7 @@
     ov.dataset.component = 'tidy-moment'; ov.dataset.tidy = el.dataset.tidy || 'cut'; ov.setAttribute('aria-hidden', 'true');
     for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing', 'color', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'textAlign'])
       ov.style[k] = cs[k];
-    Object.assign(ov.style, { left: el.offsetLeft + 'px', top: el.offsetTop + 'px', width: el.offsetWidth + 'px', minHeight: el.offsetHeight + 'px' });
+    Object.assign(ov.style, { left: el.offsetLeft + 'px', top: el.offsetTop + 'px', width: el.offsetWidth + 'px', height: el.offsetHeight + 'px', overflow: 'hidden' });   // never past her words' own box (P0: the raw line ran over the form)
     if (el.tagName === 'INPUT') Object.assign(ov.style, { height: el.offsetHeight + 'px', whiteSpace: 'nowrap', overflow: 'hidden', display: 'flex', alignItems: 'center' });   // one line, like the field
     const rw = words(raw);
     if (ov.dataset.tidy === 'cut') {
