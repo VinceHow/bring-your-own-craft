@@ -502,6 +502,15 @@ body.stage .chatter-line { font-size: 15px; }
 .setup[hidden] { display: none; }
 .setup-stage { position: relative; width: 760px; }
 .setup .big-card.nt-paper { position: relative; left: auto; top: auto; width: 100%; padding: 28px 32px; display: flex; flex-direction: column; gap: 16px; }
+/* her idea, the first paper (setup step "idea"): placed like the name tag, centred on the setup, the same width.
+   Its look here is the plain look's only (html:not(.painted-on)); painted styles it itself. (AUDIT final F2) */
+.setup .big-card.idea-card { position: relative; left: auto; top: auto; width: 100%; padding: 28px 32px; display: flex; flex-direction: column; gap: 14px; }
+html:not(.painted-on) .idea-card .idea-row { display: flex; flex-direction: column; gap: 10px; }
+html:not(.painted-on) .idea-card .idea-q { font-size: 30px; line-height: 1.15; }
+html:not(.painted-on) .idea-card .idea-input { font: inherit; font-size: 22px; line-height: 1.4; padding: 10px 12px; min-height: 96px; resize: none; border: var(--line); border-radius: var(--r); background: #fff; }
+html:not(.painted-on) .idea-card .idea-hint { font-size: 15px; opacity: .75; }
+html:not(.painted-on) .idea-card .idea-actions { display: flex; justify-content: flex-end; }
+html:not(.painted-on) .idea-card .idea-make { font: inherit; font-size: 18px; padding: 10px 22px; cursor: pointer; border: var(--line); border-radius: var(--r); background: var(--ink); color: var(--sheet); }
 .nt-row { display: flex; flex-direction: column; gap: 6px; }
 .nt-label { font-size: 18px; }
 .nt-name { font: inherit; font-size: 30px; padding: 4px 8px; }
