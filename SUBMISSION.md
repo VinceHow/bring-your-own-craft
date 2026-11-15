@@ -57,9 +57,10 @@ first, their usual loaf one tap away, reserve by first name, no account, no paym
 writes code; other ideas get the yoga layout. Every filled slot traces to her or her team; the layout is prepared.
 The page's emblem is painted live with fal during the build (symbol only; the name is real text).
 
-**The proof: the judges are the regulars.** Before the talk, the judges scan a QR code and reserve a loaf, by first
-name only, from a live bakery deployed on Railway: three tiers (a rare drop of 3, 8 of a medium loaf, 40 of a
-plentiful one), one of each per person. That bakery was drafted earlier by Bo's agent, from a differently worded brief, and
+**The proof: the judges are the regulars.** When she presses **Open the app** on stage, a QR card appears for The
+Usual, a live bakery deployed on Railway. The judges scan it and reserve a real loaf, by first name only: three tiers
+(a rare drop of 3, 8 of a medium loaf, 40 of a plentiful one), one of each per phone. The Usual was built ahead,
+not in the room: drafted earlier by Bo's agent, from a differently worded brief, and
 finished by our builders to pass the acceptance suite in `deploy/ACCEPTANCE.md`; its source is in `deploy/app/`,
 and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
 and taps **Deliver**, and every judge's open page flips at once to "Delivered: your sourdough is here." Real software
@@ -85,9 +86,9 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
   in the demo; Claude Code headless is the fallback. fal was tested 9/9 schema-valid against Claude Code on 3
   real calls per step, and it runs the demo because, in our tests on the demo laptop, Claude Code's fast model through a
   company gateway took over 25 s a call while fal answered in about 1 s.
-- The live bakery (`deploy/app/`, with Bo's own account in `deploy/app/BUILT.md`): Bo's agent drafted it from the
+- The live bakery, The Usual (`deploy/app/`, with Bo's own account in `deploy/app/BUILT.md`): Bo's agent drafted it from the
   brief and a recorded run's decisions (`deploy/run/`; his prompt is `deploy/bo/PROMPT.md`); our builders finished what
-  failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
+  failed its 13-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
   team's engineer. Polished by our builders." Plain Node 22 with `node:sqlite` on a Railway volume, server-sent events
   for the Deliver flip, stock that can't go below zero, one of each per device per drop, a 15-minute hold, and an
   admin page locked behind a token. Its photos and logo were made ahead with fal flux/schnell
@@ -142,5 +143,7 @@ the live bakery's photos and logo, made ahead; the painted cast, clips and music
 Playwright.
 
 ## Try it
-Repo: **TBD** (public repo URL). Run `npm start`, open http://localhost:3000. Tests: `npm test`, `npm run e2e`.
+Repo: **TBD** (public repo URL). Node 22, nothing to install: put `FAL_KEY` and `MODEL_BACKEND=fal` in `.env.local`,
+run `npm run local` and open the address it prints (port 3000–3010). Tests: `npm test`; `npm run e2e` also needs
+Playwright (`npm i -g playwright && npx playwright install chromium`).
 Demo video: **TBD**.

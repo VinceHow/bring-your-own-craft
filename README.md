@@ -21,9 +21,10 @@ for a regular. Everything inside them is live: Wren's research, the team's repli
 they unlock, and the build. In our audited run the team made 14 decisions that cite her file, plus others on its
 own defaults. Then one press, and her ordering page is filled live from her answers.
 
-At the end of the talk, the judges are the bakery's regulars. Before we started, they ordered a loaf from a live
-bakery site that Bo's agent drafted earlier and our builders finished; its source and acceptance tests are in
-[`deploy/`](deploy/README.md). We tap **Deliver**, and every judge's phone flips at once:
+At the end of the talk, the judges are the bakery's regulars. When she presses **Open the app**, a QR card appears
+for The Usual, a live bakery that Bo's agent drafted earlier and our builders finished (built ahead, not in the
+room; its source and acceptance tests are in [`deploy/`](deploy/README.md)). The judges scan it and reserve a real
+loaf. We tap **Deliver**, and every judge's phone flips at once:
 *"Delivered: your sourdough is here."*
 
 ## Why it's different
@@ -65,7 +66,7 @@ bakery site that Bo's agent drafted earlier and our builders finished; its sourc
 
 <img src="docs/readme/unblock.webp" alt="Bo is blocked on when orders close; she taps Yes to the suggested 8pm, and the room carries on" width="80%">
 
-**The live bakery the judges order from:**
+**The Usual, the live bakery the judges order from:**
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
 bakery: no real bread, nothing to pay, first name only.
 
@@ -95,8 +96,9 @@ You need Node 22. There is nothing to install.
 2. `npm run doctor` checks the machine is ready.
 3. `npm run local` starts the studio and prints its address.
 
-Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser). The full
-guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
+Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser; it needs
+Playwright: `npm i -g playwright && npx playwright install chromium`). The room listens on this machine only (loopback);
+`HOST=0.0.0.0` opens it to the network on purpose. The full guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
 
 ## How it was built
 The same way it works. Vincent sat in the Product seat; agents did the rest overnight. A product-owner agent shaped
