@@ -234,6 +234,9 @@
     const live = new Set([...ib.querySelectorAll('[data-action]')].map(e => e.dataset.action));
     for (const id of [...told.keys()]) if (!live.has(id)) told.delete(id);
     ib.querySelectorAll('[data-component="inbox-action"][data-action]').forEach(c => {
+      // a Yes that didn't go through: inbox.js puts the card back to asking ("Not sent. Try again."), so the receipt
+      // steps aside and she sees the card, her words and its Yes again, never a "Told Bo" that wasn't told
+      if (told.has(c.dataset.action) && c.dataset.state !== 'yes') told.delete(c.dataset.action);
       const t = told.get(c.dataset.action);
       if (!t) { delete c.dataset.ptTold; c.querySelector(':scope > [data-pt-receipt]')?.remove(); return; }
       c.dataset.ptTold = '';
@@ -248,7 +251,7 @@
     told.set(String(ev.id), `Told ${name}: ${few(ev.choice || 'yes', 10)}`); receipt();
   });
   B.on('reset', () => { told.clear(); receipt(); });
-  { const ib = document.getElementById('inbox'); if (ib) new MutationObserver(() => { if (told.size || ib.querySelector('[data-pt-told]')) receipt(); }).observe(ib, { childList: true, subtree: true }); }
+  { const ib = document.getElementById('inbox'); if (ib) new MutationObserver(() => { if (told.size || ib.querySelector('[data-pt-told]')) receipt(); }).observe(ib, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-state'] }); }
 
   // ---- a new note for her arrives (port of the her-inbox comp, ?st=arrive): the teammate holds up its note in the
   // painting (painted-living plays 'found' on ask), it drifts across the tabletop on a soft paper arc, below every
@@ -395,6 +398,19 @@
 
   // ---- 4a. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----
   css('painted-room.css');
+
+  // ---- a build that stopped can be tried again from where it says so (POLISH §4: a failure says so, with Retry) ----
+  // room.js shows "Engineering is building: stopped" on its live step; BYOC.build() is the room's own one press, which
+  // starts the build again (and replaces this line with the live one). Look-owned: one button in the room's step.
+  { const stepEl = document.getElementById('live-step');
+    if (stepEl) new MutationObserver(() => {
+      if (stepEl.dataset.state !== 'failed' || stepEl.querySelector('[data-slot="retry"]')) return;
+      const label = stepEl.querySelector('[data-slot="label"]');
+      if (!label || !/^Engineering is building/.test(label.textContent) || !B.build) return;
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.slot = 'retry'; b.textContent = 'Try again';
+      b.addEventListener('click', () => { b.disabled = true; B.build(); });
+      stepEl.appendChild(b);
+    }).observe(stepEl, { childList: true, attributes: true, attributeFilter: ['data-state'] }); }
 
   // ---- 4b. bug fixes from testing, last so they win over painted.css and painted-room.css (selectors on data-* only) ----
   css('painted-fixes.css');

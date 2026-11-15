@@ -58,3 +58,25 @@ html body #room [data-component="chatter-line"][data-seat="engineering"] { trans
    idea sheet doesn't repeat it ("Noor has a question for you" over "Noor asks…"). The strip stays for a failure or a
    slow team, and comes back if the inbox has no ask on show (while a new note is still flying in, the strip keeps it). */
 html body #room[data-team="question"]:has([data-component="inbox"]:not([data-pt-awaiting]) > [data-slot="now"][data-ask]) [data-component="team-status"] { display: none !important; }
+
+/* ---- 5. never lost, never stuck (POLISH §4): a wait or a failure always reads in ink and paper ----
+   The room's live step (room.js #live-step: a slow call, or a call that stopped) was a square yellow box hanging off
+   the room's left edge. Now it is the same small ink strip as the team line, inside the room's bottom-left corner. */
+html body #room [data-component="live-step"]:not([hidden]) { left: calc(40px + var(--crop-x, 0px)); top: auto; bottom: calc(28px + var(--crop-y, 0px)); max-width: 560px; box-sizing: border-box;
+  padding: 8px 16px 9px; border: 0; border-radius: 20px 16px 22px 14px / 16px 22px 14px 20px; isolation: isolate;
+  background: var(--sheet) var(--tooth); box-shadow: var(--paper-shadow-hi); outline: 2px solid transparent;
+  font: italic 400 16px/1.35 var(--display); color: var(--ink); white-space: normal; }
+html body #room [data-component="live-step"] [data-slot="label"] { font-weight: 500; font-style: normal; color: var(--ink); }
+html body #room [data-component="live-step"] em { margin-left: 10px; padding: 0; border: 0; background: none; font: 500 13px/1.35 var(--ui); color: var(--ink-2); }
+html body #room [data-component="live-step"][data-state="failed"] [data-slot="label"] { color: var(--product-t); }
+/* when the team line under her sheet already says the team couldn't start (with its Retry), the corner doesn't repeat it */
+html body #room[data-team="failed"] [data-component="live-step"] { display: none !important; }
+/* the team couldn't start: the pills stop showing "at work" dots (only the role stays), so nobody looks busy who isn't */
+html body #room[data-team="failed"] [data-component="place-card"] [data-slot="agent-mark"] {
+  position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; overflow: hidden !important; clip-path: inset(50%) !important; }
+/* a Yes on a teammate's card that didn't go through: inbox.js's own line ("Not sent. Try again.") in her ink, so it reads */
+html body #room [data-component="inbox-action"] [data-slot="note"]:not(:empty) { display: block; margin-top: 8px; font: italic 400 17px/1.35 var(--display); color: var(--product-t); }
+html body #room [data-component="live-step"] [data-slot="retry"] { all: unset; cursor: pointer; margin-left: 12px; padding: 3px 12px 4px; border-radius: 999px;
+  background: var(--sheet); box-shadow: inset 0 0 0 1.5px var(--ink); font: 500 13px/1.3 var(--ui); font-style: normal; color: var(--ink); }
+html body #room [data-component="live-step"] [data-slot="retry"]:hover { transform: translateY(-1px); }
+html body #room [data-component="live-step"] [data-slot="retry"]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
