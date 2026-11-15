@@ -1,5 +1,7 @@
 # Final audit: main @ 1f6e56c
 
+Evidence (screenshots, the fal run video, logs) lives on branch audit/final, not on main.
+
 Independent final auditor (built none of tonight's work), Sun 15 Nov, 05:02–05:40 UTC. Branch `audit/final`.
 Evidence: `docs/audit/final/` (`fal/` = the one paid run, `vpath/` = Vincent's path, `fallbacks/` = fallbacks + live
 bakery, `stub-tests.txt` = npm test + stubbed e2e).
