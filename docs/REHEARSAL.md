@@ -6,7 +6,7 @@ they've run. Until then, this is the run sheet: things the presenter does that t
 ## 07:00 · Step 1 on Vincent's Mac (before any polish judging)
 The lead's and the tech lead's run, in this order, on his Mac:
 1. `npm run local`, then read the route line: it must say **fal**.
-2. `npm run doctor`: the route on its first line, and **2c under 10 s**.
+2. `npm run doctor`: the route on its first line, and the line **"A Send-shaped burst (4 calls at once, fal): … s wall"** under 10 s.
 3. One full stage-path run: idea → name tag → meet the team → Focus 1 (2 rounds + End meeting) → Bo's unblock →
    Focus 2 → Team, go → her page.
 4. One refresh mid-room: it must **resume** her run (no REPLAY label, nothing asked twice).
@@ -16,9 +16,10 @@ His rehearsal and stage fal spend is separate from the $10 test cap. "Check the 
 
 ### The 3-minute look check (the design lead's), on his own Chrome, painted, at his normal window size
 1. Open `/` and confirm the painted room shows (not plain). In Activity Monitor, note Chrome's CPU at idle.
-2. The door: the plaque reads "Bring your own craft", then the doors open into the studio.
-3. The idea paper: type "I want to build a checkout website for a bakery" and press Enter. "I want to build" is struck,
-   fades and closes up; the paper moves on.
+2. The idea paper, first, over the closed door: type "I want to build a checkout website for a bakery" and press Enter.
+   "I want to build" is struck, fades and closes up; the paper moves on.
+3. After his name tag and the team: the door. The plaque reads "Bring your own craft", then the doors open into the
+   studio.
 4. The cursor: the pink paper triangle; the fold over buttons; an I-beam in the box.
 5. In the room: tap the time pill 5× (Cycle → Day → Night …). The painting keeps moving at night and the light stays in
    step. CPU stays under ~60% while it runs.
@@ -46,7 +47,7 @@ automatic switch from fal to Claude Code: it's this one manual step.
 The first line it prints is the route. On fal it reads `route: fal`; after the switch it reads
 `route: claude-code (company gateway: haiku roles → sonnet)`. A `WARN` line under it means fal is on together with
 sonnet overrides, which slows fal down: comment the six lines out again. To check the fallback before the talk, run
-`npm run doctor` with the switch made and read 2c, the Send-shaped burst: under about 10 s is fine.
+`npm run doctor` with the switch made and read the line "A Send-shaped burst (4 calls at once, …): … s wall": under about 10 s is fine.
 
 The `.env.local` Vincent keeps (values are placeholders here; the real file is never committed):
 

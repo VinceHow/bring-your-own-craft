@@ -29,6 +29,7 @@ before(async () => {
   browser = await chromium.launch();
   page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   page.on('pageerror', e => errors.push(String(e)));
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } })); // the tidy answers at once: no model
   await page.route('**/api/run/*/answer', async r => { const body = r.request().postDataJSON(); answers.push(body); await onAnswer(r, body); });
   await page.goto(BASE + '/?stage=1&meeting=0');
   await page.waitForFunction(() => window.BYOC && BYOC.focusDoc && BYOC.stage);
