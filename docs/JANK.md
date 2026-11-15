@@ -198,11 +198,13 @@ up · 3 brought, builder 7), #1 and #2 (the idea input and the name tag hold in 
 
 | # | What | Where (component · state) | Screenshot | Size | Owner | Status |
 |---|---|---|---|---|---|---|
-| 24 | **P0.** Her focus document overprints under the meeting model on painted. Once she adds a piece or a round runs, the work (finding, or Mika's steps) slides over the kicker and the question; her pieces and "Round 2" land on the source line; the reply card covers the work; the right "Your thoughts" box stays empty. painted.css still targets the old `.fd-side`/`.fd-read`. | `focus-doc` · composing/discussing/ended; `meeting` column | `jank/focus-meeting-overprint-1440.jpg`, `jank/focus2-meeting-overprint-1440.jpg`, `jank/focus-meeting-takeaways-1440.jpg` | all | DESIGN | sent (P0) |
-| 25 | "End meeting" is a default grey button. | `end-meeting` | same | all | DESIGN | sent |
+| 24 | **P0.** Her focus document overprints under the meeting model on painted. Once she adds a piece or a round runs, the work (finding, or Mika's steps) slides over the kicker and the question; her pieces and "Round 2" land on the source line; the reply card covers the work; the right "Your thoughts" box stays empty. painted.css still targets the old `.fd-side`/`.fd-read`. | `focus-doc` · composing/discussing/ended; `meeting` column | `jank/focus-meeting-overprint-1440.jpg`, `jank/focus2-meeting-overprint-1440.jpg`, `jank/focus-meeting-takeaways-1440.jpg` | all | DESIGN | **fixed** on main 126c271 (9fc778f + dc43dbd): stub re-check, 2 rounds + End in Focus 1 and Focus 2 at 1920/1440/1280: 0 overlaps; `jank/focus-meeting-fixed-1440.jpg`, `jank/focus2-meeting-fixed-1920.jpg` |
+| 25 | "End meeting" is a default grey button. | `end-meeting` | same | all | DESIGN | **fixed** (outlined pill) |
 | 26 | Plain look, meeting layout: the form sits in the narrow side column, so her textarea is about 40 px wide. My helper line inside the form made it worse. | `focus-doc` form (plain) | — | all | BUILD (b3's layout) | helper line **fixed** (858fb60, now under the form); layout told to b3 |
 | 27 | The inbox drawer for Focus 2: the "Needs you" card is blank and Mika's note floats beside it. | `inbox` · expanded, `inbox-item` | `jank/inbox-drawer-empty-needs-1440.jpg` | 1440 | DESIGN | sent |
 | 28 | Chatter bubbles land on the teammates' pills (Mika's, Ines's) after Team go. | `chatter-line` | `jank/room-after-team-go-1440.jpg` | 1440 | DESIGN | sent |
 | 29 | The team-status line under the idea card is cut by her place card ("…team has done its first pass."). | `team-status` · done | `jank/status-line-clipped-1440.jpg` | 1440 | DESIGN | sent |
 
-Next: a re-check of #24 once the design studio pushes the meeting-layout fix (stubbed, no cost), then the clean bill by 05:00.
+| 30 | After End meeting at 1440 and 1280, the takeaways card's Keep button and the help line sit 12–15 px past the column's visible bottom; the column scrolls, so they're reachable, but Keep is half cut at first sight. | `takeaways` · shown; `help` | `jank/focus-meeting-end-1280.jpg` | 1440, 1280 | DESIGN | sent (minor) |
+
+Next: #27–30 from the design studio, then the clean bill by 05:00.
