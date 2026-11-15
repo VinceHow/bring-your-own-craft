@@ -21,7 +21,9 @@
   // Meet the team waits for her (Vincent, Sun 01:31: he talks over each card): no auto-advance unless ?hold=<ms> is
   // given (the tests and unattended walks use it).
   const HOLD_PARAM = Number(new URLSearchParams(location.search).get('hold'));
-  const HOLD_MS = HOLD_PARAM > 0 ? HOLD_PARAM : Infinity;
+  // Meet the team is hers to pace (Vincent, 15 Nov): a person's browser never auto-advances. ?hold= is a test hook
+  // only, honoured under browser automation (navigator.webdriver), so the timed specs keep working.
+  const HOLD_MS = HOLD_PARAM > 0 && navigator.webdriver ? HOLD_PARAM : Infinity;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -280,6 +282,95 @@
     }
   }
 
+  // ---- any seat is hers (lib/cast.js, design/studio/SEATS.md) ----------------------------------------
+  // She takes any seat on her name tag. The five teammates keep their names, faces and seats; the one whose craft she
+  // took steps aside from it and wears the role the table needs (Product, or a flex role written for her idea), so the
+  // rest of the team works around her. INFO is the card text per seat: the base copy on the Product path, the role's
+  // text when she took another seat. Product (the default, the stage path, R) changes nothing: no cast, no call.
+  const BASE_INFO = JSON.parse(JSON.stringify(INFO));
+  const PRODUCT_TEAMMATE = { name: 'Product', stance: 'what we build, and for whom', loves: 'A journey that solves a real problem.',
+    brings: 'write-spec’s product method: the journey and the calls that shape it' };
+  const CRAFT_LABEL = { product: 'Product', design: 'Design', research: 'Research', engineering: 'Engineering', data: 'Data', strategy: 'Strategy' };
+  BYOC.cast = null; BYOC.flexSeat = null; BYOC.flexState = null;
+  function applyCast(cast) {
+    for (const k of Object.keys(BASE_INFO)) INFO[k] = { ...BASE_INFO[k] };
+    BYOC.cast = cast || null;
+    if (!cast) { delete document.body.dataset.herCraft; return; }
+    document.body.dataset.herCraft = cast.craft;
+    for (const s of TEAM) {
+      const role = cast.roles && cast.roles[s];
+      if (!role || role === s) continue;
+      const src = role === 'product' ? PRODUCT_TEAMMATE : role === 'flex' && cast.flex ? cast.flex : BASE_INFO[role];
+      if (!src) continue;
+      INFO[s] = { ...BASE_INFO[s], name: src.name, stance: src.stance, loves: src.loves, brings: src.brings, role };
+    }
+    if (cast.craft !== 'diy' && CRAFT_LABEL[cast.craft]) INFO.product = { ...BASE_INFO.product, name: CRAFT_LABEL[cast.craft],
+      brings: `${CRAFT_LABEL[cast.craft].toLowerCase()}: your craft, and the calls that shape it` };
+  }
+  BYOC.applyCast = applyCast;
+  // The flex teammate's card is written while she finishes her tag (BYOC.flexP). No fallback (SEATS.md): if it isn't
+  // back when the team is met, that chair gets a plain note and the flow goes on; the teammate comes in when it lands.
+  let castAsk = 0; // the latest pick wins: a reply for an earlier pick (or after she went back to Product) is dropped
+  async function castFor(craft) {
+    const mine = ++castAsk;
+    let r = null;
+    try { r = await BYOC.api('/api/cast', { craft }, { step: false }); } catch { r = null; }
+    if (mine !== castAsk) return;
+    const roles = r && r.roles ? r.roles : null;
+    if (!roles) { applyCast(null); return; }
+    applyCast({ craft, roles });
+    BYOC.flexSeat = r.flexSeat || null;
+    BYOC.flexState = r.flexSeat ? 'writing' : null;
+    if (!r.flexSeat) return;
+    const asked = BYOC.cast;
+    BYOC.flexP = BYOC.api('/api/cast/flex', { craft, ...(BYOC.herTag ? { tag: BYOC.herTag } : {}) }, { step: false }).catch(() => null);
+    BYOC.flexP.then(f => {
+      if (mine !== castAsk || BYOC.cast !== asked) return; // she picked again, or started over
+      if (f && f.role === 'flex' && f.flex) flexArrive(f.flex, 'here'); else flexLost();
+    });
+  }
+  function clearCast() { castAsk++; if (BYOC.cast) applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; el.room.querySelectorAll('.late-note').forEach(n => n.remove()); }
+  BYOC.castFor = castFor;
+  const flexAway = s => !!(BYOC.cast && s === BYOC.flexSeat && !BYOC.cast.flex);
+  const DOMAINS = [
+    [/bak|bread|pastr|loaf|croissant/i, 'morning bake lists'], [/yoga|pilates|studio|class/i, 'class timetables'],
+    [/caf[eé]|coffee|espresso/i, 'the morning rush'], [/restaurant|kitchen|chef|menu|food/i, 'a busy kitchen'],
+    [/flor|flower|garden|plant/i, 'what’s in bloom'], [/shop|store|boutique|retail|market/i, 'stock on the shelves'],
+  ];
+  function lateNote() {
+    const name = INFO[BYOC.flexSeat]?.agent || 'Theo';
+    const said = `${el.herIdea?.textContent || ''} ${BYOC.pendingIdea || ''}`;
+    const d = DOMAINS.find(([re]) => re.test(said));
+    return `${name}’s running a little late: we’re finding you someone who knows ${d ? d[1] : 'your kind of work'}.`;
+  }
+  function showLate(seat, text) {
+    const s = el.seat[seat]; if (!s || s.querySelector('.card')) return;
+    let n = s.querySelector('.late-note');
+    if (!n) { n = h('p', 'late-note'); n.dataset.component = 'late-note'; n.dataset.seat = seat; s.appendChild(n); }
+    n.textContent = text; s.dataset.state = 'late';
+  }
+  function flexArrive(flex, how) {
+    if (!BYOC.cast || BYOC.cast.flex) return;
+    const seat = BYOC.flexSeat || 'data';
+    applyCast({ ...BYOC.cast, roles: { ...BYOC.cast.roles, [seat]: 'flex' }, flex });
+    BYOC.flexState = how;
+    const s = el.seat[seat];
+    if (s && s.querySelector('.late-note')) { s.querySelector('.late-note').remove(); seatCard(seat, !instantMode && !BYOC.replay); }
+    if (BYOC.run && !String(BYOC.run).startsWith('local-') && !BYOC.replay && how === 'here') postArrive();
+    emit('seat.came', { seat, name: flex.name });
+  }
+  function postArrive() {
+    if (!BYOC.cast || !BYOC.cast.flex || BYOC.arrivePosted === BYOC.run) return;
+    BYOC.arrivePosted = BYOC.run;
+    BYOC.api(`/api/run/${BYOC.run}/arrive`, { flex: BYOC.cast.flex }, { step: false }).catch(() => {});
+  }
+  function flexLost() {
+    if (!BYOC.cast || BYOC.cast.flex) return;
+    BYOC.flexState = 'lost';
+    if (el.seat[BYOC.flexSeat]?.querySelector('.late-note')) showLate(BYOC.flexSeat, 'Still on the way.');
+  }
+  const seatOrLate = (s, animate) => { if (flexAway(s)) showLate(s, BYOC.flexState === 'lost' ? 'Still on the way.' : lateNote()); else seatCard(s, animate); };
+
   // ---- her role on her paper name tag: Product, or her own craft ------------------------------------
   // Product is prefilled (the stage path). "Your own craft" is only a seat choice on this same paper: her "I love…"
   // words carry her craft (the name tag's background call names it), and she sits in her own-craft seat. The old
@@ -288,7 +379,11 @@
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
-    pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
+    pc.querySelectorAll('.pick-option').forEach(b => { const on = b.dataset.pick === what; b.setAttribute('aria-pressed', String(on)); b.dataset.state = on ? 'picked' : 'idle'; b.dataset.selected = String(on); });
+    pc.dataset.seat = CRAFT_LABEL[what] ? what : 'craft';
+    // Any seat is hers: a seat other than Product recasts the table now (the team works around her); Product and her own
+    // craft change nothing here.
+    if (CRAFT_LABEL[what] && what !== 'product') castFor(what); else clearCast();
     emit('pick.done', { pick: what });
     $('#intro-input', introCard)?.focus();
   }
@@ -547,7 +642,9 @@
     stage(4);
     if (BYOC.firstSketch && BYOC.firstSketch.soon) BYOC.firstSketch.soon(); // Design's line shows now, not when the run answers
     try {
-      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
+      // Any seat is hers: a seat other than Product travels with the run, with its flex card (Product sends nothing new).
+      const castBody = BYOC.cast && BYOC.herSeat !== 'diy' ? { craft: BYOC.cast.craft, ...(BYOC.cast.flex ? { flex: BYOC.cast.flex } : {}) } : {};
+      const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}), ...castBody }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
       remember(r.run);
       status(`run ${r.run}`);
@@ -1073,6 +1170,11 @@
     switch (ev.type) {
       case 'run.start':
         if (ev.intro) BYOC.intro = ev.intro;
+        if (ev.cast && source !== 'live' && !BYOC.cast) { // a replay of a run in another seat: its teammates wear its roles
+          applyCast(ev.cast);
+          BYOC.flexSeat = Object.keys(ev.cast.roles || {}).find(t => ev.cast.roles[t] === 'flex') || null;
+          for (const t of [...TEAM, 'product']) { const c = el.seat[t].querySelector('.card'); if (!c) continue; c.remove(); el.seat[t].classList.remove('filled'); seatOrLate(t, false); }
+        }
         if (ev.seat === 'diy' && !el.seat.product.querySelector('.card')) { // a replay of a run in her own craft
           BYOC.herSeat = 'diy'; if (ev.tag) BYOC.herTag = ev.tag;
           el.seat.product.querySelector('.card')?.remove(); el.seat.product.classList.remove('filled');
@@ -1081,6 +1183,9 @@
         setIdea(ev.idea);
         if (BYOC.beat < 3) stage(3);
         if (BYOC.beat < 4) stage(4);
+        break;
+      case 'seat.arrived': // the flex teammate's card landed mid-run
+        if (ev.flex && BYOC.cast && !BYOC.cast.flex) { BYOC.flexSeat = ev.seat || BYOC.flexSeat; flexArrive(ev.flex, 'logged'); }
         break;
       case 'flow.line':
         if (BYOC.beat < 4) stage(4);
@@ -1233,7 +1338,7 @@
   // tidied, then the team's fun spin). Beat 1: each teammate met up close, one by one (forward: the next). Beat 2: the
   // studio appears with everyone seated, and she takes her seat. Replays jump past it to beat 3, so they reveal at once.
   const setup = $('#setup');
-  let introCard = null, meeting = false, meetSkip = false, meetAdvance = false;
+  let introCard = null, meeting = false, meetSkip = false, meetAdvance = false, meetBackReq = false;
   const herName = () => (BYOC.herName || 'Priya');
   const herNameField = () => (introCard && $('.nt-name', introCard)?.value.trim()) || herName();
   function setSetup(step) { if (!setup) return; setup.dataset.step = step; setup.dataset.state = step; setup.hidden = step === 'off'; el.room.dataset.setup = step; }
@@ -1342,8 +1447,9 @@
       <div class="pick-card nt-row" data-component="pick-card" data-state="open" data-pick="product">
         <span class="pick-q nt-label" data-slot="question">What do you bring to the table?</span>
         <div class="pick-options" data-slot="options">
-          <button type="button" class="pick-option" data-pick="product" data-slot="option" data-state="picked" aria-pressed="true">Product</button>
-          <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
+          <button type="button" class="pick-option" data-pick="product" data-seat="product" data-slot="option" data-state="picked" data-selected="true" aria-pressed="true">Product</button>
+          ${['design', 'data', 'research', 'engineering', 'strategy'].map(s => `<button type="button" class="pick-option" data-pick="${s}" data-seat="${s}" data-slot="option" data-state="idle" data-selected="false" aria-pressed="false">${CRAFT_LABEL[s]}</button>`).join('\n          ')}
+          <button type="button" class="pick-option" data-pick="craft" data-seat="craft" data-slot="option" data-state="idle" data-selected="false" aria-pressed="false">Your own craft</button>
         </div>
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
@@ -1422,7 +1528,7 @@
   }
   async function makeCharacter(c, said) {
     // Her rough card, at once: she can meet the team now.
-    const cur = { craft: 'Product', title: '', traits: [], superpower: '', loves: said, alternates: { titles: [], traits: [], superpowers: [] } };
+    const cur = { craft: INFO.product.name, title: '', traits: [], superpower: '', loves: said, alternates: { titles: [], traits: [], superpowers: [] } };
     c._char = cur;
     drawCharacter(c, cur);
     c.dataset.state = 'rough';
@@ -1498,7 +1604,7 @@
   // Meet the team: each teammate up close, one at a time (name · role, a line in its own voice, what it brings, the
   // agent mark, an empty face slot for the studio's art). Today's order; the teammate fitted to the idea comes last
   // once builder 8's roster lands. Each holds HOLD_MS (?hold=); forward moves to the next at once.
-  function meetCard(seat, i) {
+  function meetCard(seat, i, n = TEAM.length) {
     const t = INFO[seat];
     const c = h('div', 'meet-card'); c.dataset.component = 'meet-card'; c.dataset.seat = seat;
     // Her idea's own line for this teammate when the call landed and passed the rules; else today's static line.
@@ -1507,9 +1613,13 @@
     c.innerHTML = `<span class="meet-face" data-slot="face"></span>
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
       ${meetBody(seat, tailored, t)}
-      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
-      <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
+      <span class="meet-count" data-slot="count">${i + 1} of ${n}</span>
+      <div class="meet-dots" data-slot="dots" data-step="${i + 1}" data-total="${n}" aria-hidden="true">${Array.from({ length: n }, (_, k) => `<span class="meet-dot" data-slot="dot" data-state="${k < i ? 'done' : k === i ? 'current' : 'todo'}"></span>`).join('')}</div>
+      <div class="meet-nav" data-slot="nav"><button type="button" class="meet-back" data-slot="back"${i === 0 ? ' hidden' : ''}>Back</button>
+      <button type="button" class="meet-next" data-slot="next" data-state="${i === n - 1 ? 'last' : 'next'}">${i === n - 1 ? 'Into the studio' : 'Next'}</button></div>`;
+    c.dataset.step = String(i + 1); c.dataset.total = String(n);
     $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
+    $('.meet-back', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetBack(); });
     return c;
   }
   // The card's body (the PO's copy, Sun 08:58): a standing intro, her idea's tailored line (or the loves line), the
@@ -1534,35 +1644,41 @@
       ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
       ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}`;
   }
-  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; } // ms may be Infinity: her click, →, Enter or the clicker
+  // Waits for her: forward (Next, →, Enter, PageDown) or back (Back, ←, PageUp). Returns 'back' or 'next'.
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance && !meetBackReq) await wait(50); const r = meetBackReq ? 'back' : 'next'; meetAdvance = false; meetBackReq = false; return r; } // ms is Infinity for a person
   async function meetTeam(animate, tok) {
     if (!setup || !animate || BYOC.replay) return;
     setSetup('team');
     const st = $('#setup-stage');
-    meeting = true; meetSkip = false; meetAdvance = false;
+    meeting = true; meetSkip = false; meetAdvance = false; meetBackReq = false;
     if (!BYOC.kit) { if (!BYOC.kitReq) loadKit(''); await Promise.race([BYOC.kitReq, wait(800)]); } // never more than a beat
     try {
-      for (let i = 0; i < TEAM.length; i++) {
+      // Any seat: the flex teammate is met last, and not at all while its card is still being written (a note in its chair).
+      const order = BYOC.flexSeat && BYOC.cast ? [...TEAM.filter(x => x !== BYOC.flexSeat), BYOC.flexSeat] : TEAM;
+      const met = order.filter(s => !flexAway(s));
+      for (let i = 0; i < met.length;) {
         if (tok !== walkToken || meetSkip) return;
-        const c = meetCard(TEAM[i], i);
+        const c = meetCard(met[i], i, met.length);
         st.replaceChildren(c);
         // Dealt, not sprung (design lead, POLISH §3): ~380 ms ease-out, no overshoot; reduced motion: a fade only.
         const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
         place(c, still ? { opacity: [0, 1] } : { x: [40, 0], opacity: [0, 1] }, true,
           { type: 'tween', duration: 0.38, ease: [0.22, 0.61, 0.36, 1], opacity: { duration: still ? 0.2 : 0.3, ease: 'easeOut' } });
-        emit('meet', { seat: TEAM[i], index: i });
-        await holdFor(HOLD_MS);
+        emit('meet', { seat: met[i], index: i });
+        i = (await holdFor(HOLD_MS)) === 'back' ? Math.max(0, i - 1) : i + 1;
       }
     } finally { meeting = false; }
     if (tok === walkToken && BYOC.beat === 1 && !meetSkip) stage(2);
   }
   // The clicker's forward during "meet the team": the next teammate (after the last: the reveal).
   BYOC.meetNext = () => { if (meeting) meetAdvance = true; else if (BYOC.beat === 1) stage(2); };
+  // Back: the previous teammate (on the first, she stays). True while meeting, so ← / PageUp never leave the cards.
+  BYOC.meetBack = () => { if (!meeting) return false; meetBackReq = true; return true; };
   // The reveal: the studio, everyone already seated; then she takes her seat.
   async function reveal(animate, tok) {
     meetSkip = true;
     setSetup('off');
-    for (const s of TEAM) seatCard(s, false);
+    for (const s of TEAM) seatOrLate(s, false);
     if (BYOC.herSeat === 'diy') seatDiy(animate); else seatCard('product', animate);
     const prod = el.seat.product.querySelector('.card'); if (prod) drawHerCharacter(prod);
     emit('reveal', { animate: !!animate });   // animate: the walked reveal (the door may open); false for jumps and replays
@@ -1657,7 +1773,7 @@
     BYOC.run = null; BYOC.replay = false; BYOC.replayKind = null; BYOC.beat = 0;
     firstAskedFor = null; firstSettled = 0;
     BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
-    delete el.room.dataset.herSeat; BYOC.herSeat = null;
+    delete el.room.dataset.herSeat; BYOC.herSeat = null; clearCast();
     chatter.innerHTML = ''; asks.clear(); answeredIds.clear();  pendingLive = null; thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
