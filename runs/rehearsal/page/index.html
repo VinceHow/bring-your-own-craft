@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Order ahead: bread baked overnight for regulars</title>
+<title>Order ahead for the bakery</title>
 <meta name="description" content="Sourdough, rye and the morning bake, ordered the evening before and collected warm from the bakery.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Order ahead: bread baked overnight for regulars">
+<meta property="og:title" content="Order ahead for the bakery">
 <meta property="og:description" content="Order tonight, collect your bread warm tomorrow morning.">
 <meta property="og:image" content="share.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -91,9 +91,9 @@
       <div class="nav__item"><a class="nav__link" href="#regulars">Your usual</a></div>
       <div class="nav__item"><a class="nav__link" href="#visit">Visit</a></div>
     </nav>
-    <a class="nav__logo" href="#top"><span class="mark" data-mark="dots" aria-hidden="true"></span><span>Hearth</span></a>
+    <a class="nav__logo" href="#top"><span class="mark" data-mark="dots" aria-hidden="true"></span><span>The Bakery</span></a>
     <div class="nav__actions">
-      <a class="btn btn--primary" href="#confirm">Order bread</a>
+      <a class="btn btn--primary" href="#confirm">Reserve bread</a>
     </div>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
   </div>
@@ -104,10 +104,10 @@
     <picture class="hero__bg" data-phone-fill><source media="(max-width: 639px)" srcset="img/photo-m33603672-780x975.webp 780w" sizes="100vw"><img src="img/photo-m33603672-1800.webp" srcset="img/photo-m33603672-1200.webp 1200w, img/photo-m33603672-1800.webp 1800w, img/photo-m33603672-2400.webp 2400w" sizes="100vw" width="1800" height="1192" alt="Seeded loaves on the stone floor of an open oven, iron doors either side" fetchpriority="high" decoding="async" data-source="library-057" data-subject="oven" style="object-position: 50% 60%"></picture>
     <div class="wrap"><div class="hero-text">
       <div class="hero__text">
-        <h1 id="hero-h">Your usual loaf, held for you tomorrow</h1>
-        <p class="hero__lead" data-assumed>Order by eight tonight, collect it warm in the morning, Tuesday to Sunday.</p>
+        <h1 id="hero-h">Reserve your loaf for tomorrow morning</h1>
+        <p class="hero__lead" data-assumed>Order by eight tonight, collect it warm when the doors open.</p>
         <p class="hero__cutoff" data-switch="cutoff">Order by 20:00 for the next morning&#39;s bake.</p>
-        <div class="btn-row"><a class="btn btn--primary" href="#confirm">Order bread</a></div>
+        <div class="btn-row"><a class="btn btn--primary" href="#confirm">Reserve bread</a></div>
       </div>
     </div></div>
   </section>
@@ -116,26 +116,26 @@
     <div class="wrap grid grid--top split">
       <div class="span-6">
       <div class="section-head">
-        <h2 id="regulars-h">Your usual</h2>
-        <p>The loaf you ordered last time, ready to send again for tomorrow morning.</p>
+        <h2 id="regulars-h">Reserve your usual</h2>
+        <p>We remember what you had last time, so one tap holds it for tomorrow.</p>
       </div>
         <div class="order-panel">
           <ul class="rows">
-            <li><span class="rows__name">Your usual</span><span class="rows__value">One country sourdough</span></li>
-            <li><span class="rows__name">Collect</span><span class="rows__value" data-assumed>Tomorrow at 07:30</span></li>
+            <li><span class="rows__name">Your usual</span><span class="rows__value">One sourdough loaf</span></li>
+            <li><span class="rows__name">Collect</span><span class="rows__value" data-assumed>Tomorrow morning</span></li>
             <li><span class="rows__name">Total</span><span class="rows__value" data-assumed>£5.80</span></li>
             
           </ul>
-          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your usual is ordered. Confirmation email on its way." novalidate>
+          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your usual loaf is reserved. A text is on its way." novalidate>
             <input type="hidden" name="page" value="bakery">
-            <input type="hidden" name="run" value="run-2026-11-15T01-04-17-211Z-wg2b">
+            <input type="hidden" name="run" value="run-2026-11-15T02-49-17-034Z-vf5r">
             <input type="hidden" name="order" value="usual">
             <input type="hidden" name="bread" value="country-sourdough|07:30">
             <input type="hidden" name="quantity" value="1">
-            <div class="btn-row"><button class="btn btn--secondary" type="submit">Order my usual</button></div>
+            <div class="btn-row"><button class="btn btn--secondary" type="submit">Reserve my usual</button></div>
             <p class="form__status" role="status" data-form-status></p>
           </form>
-          <p>We remember your device. Your usual waits here each evening after your first order.</p>
+          <p>Once you order, your usual waits here every evening.</p>
         </div>
       </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1.3333"><img src="img/photo-m11317510-1200.webp" srcset="img/photo-m11317510-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="800" alt="Black iron oven door with a long wooden peel resting in the opening" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 50% 50%"></figure>
@@ -145,8 +145,8 @@
     <div class="wrap grid grid--top split">
       <div class="span-6">
       <div class="section-head">
-        <h2 id="bread-h">Tomorrow&#39;s bread</h2>
-        <p>Baked overnight, out by half six; the counts drop as orders come in.</p>
+        <h2 id="bread-h">Browse breads</h2>
+        <p>What we&#39;re baking tonight for tomorrow morning. Counts drop as orders come in.</p>
         <p class="t-label" data-switch="cutoff">Order by 20:00 for the next morning&#39;s bake.</p>
       </div>
       <div class="grid grid--top groups">
@@ -172,20 +172,20 @@
 <section class="section statement" id="loaf" data-step="loaf" data-moment="word-highlight" aria-label="Country sourdough">
     <div class="wrap">
       <p class="t-label">Country sourdough</p>
-      <p class="mo-wh__text" data-assumed>Flour, water, salt and a starter older than the shop, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out.</p>
+      <p class="mo-wh__text" data-assumed>Flour, water, salt and a starter we&#39;ve kept going for years, proved slowly overnight and baked on stone. The crust cracks when you tear it.</p>
     </div>
   </section>
 <section class="section g2m" id="confirm" data-step="confirm" aria-labelledby="confirm-h">
     <div class="wrap grid grid--top split">
       <div class="span-6">
       <div class="section-head">
-        <h2 id="confirm-h">Order for tomorrow</h2>
-        <p>Your loaf is held at the counter under your phone number.</p>
+        <h2 id="confirm-h">Reserve for tomorrow</h2>
+        <p>We hold your loaf under your name. Pay when you collect.</p>
       </div>
         <div class="order-panel">
-          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your bread is ordered. Confirmation email on its way." novalidate>
+          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your loaf is reserved. A text is on its way." novalidate>
             <input type="hidden" name="page" value="bakery">
-            <input type="hidden" name="run" value="run-2026-11-15T01-04-17-211Z-wg2b">
+            <input type="hidden" name="run" value="run-2026-11-15T02-49-17-034Z-vf5r">
             <div class="field"><label for="f-name">Name</label>
               <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err">
               <p class="field__error" id="f-name-err" hidden>Write the name to put on the loaf.</p></div>
@@ -219,7 +219,7 @@
               <input id="f-remember" name="remember" type="checkbox" value="1">
               <label for="f-remember">Remember me on this device</label></div>
             
-            <div class="btn-row"><button class="btn btn--primary" type="submit">Order bread</button></div>
+            <div class="btn-row"><button class="btn btn--primary" type="submit">Reserve bread</button></div>
             <p class="form__status" role="status" data-form-status></p>
           </form>
         </div>
@@ -231,13 +231,13 @@
     <div class="wrap grid grid--top split">
         <div class="span-6">
           <div class="section-head">
-            <h2 id="ordered-h">After you order</h2>
-            <p>The confirmation email arrives once the order goes through. Pay at the counter when you collect.</p>
+            <h2 id="ordered-h">What happens next</h2>
+            <p>A text arrives once your loaf is reserved, and we hold it at the counter until your pickup time.</p>
           </div>
           <ul class="rows">
             <li><span class="rows__name">Confirmation</span><p>An email with your bread, the collection time and a cancel link.</p></li>
             <li><span class="rows__name">Collection</span><p>Your loaf waits at the counter under your name, still warm.</p></li>
-            <li><span class="rows__name">Cancelling</span><p data-switch="cancel">Cancel in one tap from your confirmation email, any time before eight tonight.</p></li>
+            <li><span class="rows__name">Cancelling</span><p data-switch="cancel">Cancel from the link in your text.</p></li>
           </ul>
         </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1"><img src="img/photo-m33603672-1200.webp" srcset="img/photo-m33603672-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="795" alt="Seeded loaves on the stone floor of an open oven, iron doors either side" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 30% 70%"></figure>
@@ -260,12 +260,12 @@
         <p>Six choices the team made for this page.</p>
       </div>
           <ul class="rows decided">
-        <li data-decided="c12" data-cites="L4" data-seat="product">Shows your order history with one-click reorder</li>
-        <li data-decided="c17" data-cites="L4" data-seat="strategy">Pay when you collect at the bakery</li>
-        <li data-decided="c3" data-cites="L4" data-seat="research">Whether customers create accounts or order as guests: Account required for all orders</li>
-        <li data-decided="c1" data-cites="L3" data-seat="research">Built first for customers disappointed by sell-outs</li>
-        <li data-decided="c16" data-cites="L2" data-seat="engineering">Phone number only, no password needed</li>
-        <li data-decided="c15" data-cites="team default" data-seat="engineering">Change or cancel until the eight o&#39;clock cutoff</li>
+        <li data-decided="c1" data-cites="L4" data-seat="engineering">Regulars can save their usual order and reserve it in one tap</li>
+        <li data-decided="c4" data-cites="L4" data-seat="engineering">We remember your name, phone, usual order and pickup preference after your first order</li>
+        <li data-decided="c6" data-cites="L4" data-seat="research">Whether to let customers reserve their usual loaf without browsing: Add a Reserve usual loaf path from the start</li>
+        <li data-decided="c9" data-cites="team default" data-seat="strategy">You pay at the counter when you collect, not online</li>
+        <li data-decided="c18" data-cites="L3" data-seat="product">Your usual loaf is held even if general stock runs out</li>
+        <li data-decided="c20" data-cites="L2" data-seat="product">You can only order for the next day, not further ahead</li>
       </ul>
         </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1.3333"><img src="img/photo-m11317510-1200.webp" srcset="img/photo-m11317510-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="800" alt="Black iron oven door with a long wooden peel resting in the opening" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 50% 50%"></figure>
@@ -301,15 +301,15 @@
   <div class="wrap">
     <div class="closing__cta close--word">
       <div class="section-head--split">
-        <div><h2 id="close-h">Tomorrow&#39;s bread, ordered tonight</h2><p class="t-lead" data-switch="cutoff">Order by 20:00 for the next morning&#39;s bake.</p></div>
-        <a class="btn btn--primary" href="#confirm">Order bread<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+        <div><h2 id="close-h">Browse breads, ordered tonight</h2><p class="t-lead" data-switch="cutoff">Order by 20:00 for the next morning&#39;s bake.</p></div>
+        <a class="btn btn--primary" href="#confirm">Reserve bread<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
       </div>
-      <p class="close__word" aria-hidden="true">Hearth</p>
+      <p class="close__word" aria-hidden="true">The Bakery</p>
     </div>
     <div class="closing__links">
       <div class="grid">
         <div class="span-4 stack-4">
-          <a class="nav__logo" href="#top"><span class="mark" data-mark="dots" aria-hidden="true"></span><span>Hearth</span></a>
+          <a class="nav__logo" href="#top"><span class="mark" data-mark="dots" aria-hidden="true"></span><span>The Bakery</span></a>
           <p class="footer__lede">A small neighbourhood bakery in Walkley, Sheffield.</p>
         </div>
         <div class="span-2 footer__col"><h3>Bread</h3><ul><li><a href="#bread">Tomorrow's bake</a></li><li><a href="#loaf">Country sourdough</a></li></ul></div>
@@ -318,7 +318,7 @@
         <div class="span-2 footer__col"><h3>Contact</h3><ul><li><a href="mailto:hello@hearth.example">Email the bakery</a></li></ul></div>
       </div>
       <div class="footer__legal">
-        <span>&copy; 2026 Hearth</span>
+        <span>&copy; 2026 The Bakery</span>
         <div class="socials"></div>
         <a class="credits" href="credits.html">Photographs via Wikimedia Commons</a>
       </div>
@@ -327,7 +327,7 @@
 </footer>
 
 <nav class="actionbar" aria-label="Quick actions">
-  <a class="btn btn--primary" href="#confirm">Order bread</a>
+  <a class="btn btn--primary" href="#confirm">Reserve bread</a>
 </nav>
 
 <script type="module" src="assets/system.js"></script>

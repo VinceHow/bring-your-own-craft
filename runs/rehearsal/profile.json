@@ -1,49 +1,49 @@
 {
   "business": {
-    "text": "A pre-order website for a small bakery where regular customers can reserve their usual bread ahead of time.",
+    "text": "A pre-order website for a small bakery that lets regular customers reserve their usual bread so it's held for them.",
     "confidence": "high"
   },
   "positioning": {
-    "text": "Solves the problem of favourite loaves selling out by letting regulars guarantee their usual order, while helping the bakery plan baking quantities.",
-    "confidence": "high"
+    "text": "Gives a small bakery the same online ordering that bigger chains have, making it easier for loyal customers to get what they want.",
+    "confidence": "medium"
   },
   "customers": {
-    "text": "The bakery's regular customers who come every morning and have their usual loaves, especially those frustrated when their favourites like sourdough sell out by nine.",
+    "text": "Regular morning customers who come every day and are frustrated when their preferred bread, especially the sourdough, sells out by nine.",
     "confidence": "high"
   },
   "whatSells": {
-    "text": "The guarantee that regulars can hold their usual loaf and never face the disappointment of it being sold out.",
+    "text": "The guarantee that their usual loaf will be waiting for them, no matter what time they arrive.",
     "confidence": "high"
   },
   "brandFeel": {
-    "text": "Familiar and effortless, like the baker already knows you; no unnecessary questions.",
+    "text": "As personal as the baker who already knows you—don't ask what you already know.",
     "confidence": "high"
   },
   "strengths": {
-    "text": "She excels at talking with customers and translating what they say into product decisions. She loves this direct customer connection and building from real needs.",
+    "text": "She excels at customer conversations and translating what she hears into product decisions.",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "She works best when she can stay close to customers and use their voice to guide what gets built.",
+    "text": "She prefers to stay close to customers and use their feedback to guide what gets built.",
     "confidence": "medium"
   },
   "domains": [
-    "target customer",
     "customer problem",
+    "user journey",
     "what success looks like",
-    "user journey"
+    "who pays and why"
   ],
   "philosophy": [
     {
       "id": "L3",
-      "believe": "Our first users are the regulars who come every morning and get frustrated when their favourite bread sells out.",
-      "guidance": "Focus the first version on letting regulars reserve their usual loaf so they're guaranteed to get it. Build for this morning rush problem first, then expand from there.",
+      "believe": "We build first for the regulars who come in every morning and lose out when the sourdough is gone by nine.",
+      "guidance": "Design the first version around a regular reserving their usual loaf, sourdough above all, so it's held for them at pickup. Recruit a few morning regulars to test it before adding anything for other customers.",
       "askId": "first"
     },
     {
       "id": "L4",
-      "believe": "The experience should feel like walking into a shop where they know your name and your usual order.",
-      "guidance": "Don't make regulars fill in details the bakery already has. Pre-fill their usual order, their name, their pickup time. Make ordering feel like a nod to someone who knows you.",
+      "believe": "For a regular, ordering should feel like being recognized at the counter: the bakery already knows you, so the site should too.",
+      "guidance": "Never ask a regular for anything we already know, like their name, their usual loaf or their usual pickup time. Make the 'Reserve usual loaf' path start pre-filled so it's a single confirm, not a form.",
       "askId": "feel"
     }
   ],
