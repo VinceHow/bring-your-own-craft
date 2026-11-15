@@ -1523,7 +1523,7 @@ html.painted-on [data-turn="her"]:has(:is([data-tidy="cut"], [data-tidy="reorder
    struck word; this is how it looks. Everything stays inside her words' own box. ---------- */
 html.painted-on [data-component="tidy-moment"][data-state="go"] [data-slot="word"][data-state="cut"] { background-size: 0 1.5px; opacity: 1; }
 html.painted-on [data-component="tidy-moment"] [data-slot="word"][data-state="cut"] { transition: background-size 100ms linear, max-width .38s cubic-bezier(.3,.7,.2,1) .14s, opacity .16s ease; }
-html.painted-on [data-component="tidy-moment"] [data-slot="word"][data-state="cut"][data-struck] { background-size: 100% 1.5px; color: color-mix(in srgb, currentColor 70%, transparent); }
+html.painted-on [data-component="tidy-moment"] [data-slot="word"][data-state="cut"][data-struck] { background-size: calc(100% - .32em) 1.5px;   /* its own word only, never the space after it */ color: color-mix(in srgb, currentColor 70%, transparent); }
 html.painted-on [data-component="tidy-moment"][data-state="close"] [data-slot="word"][data-state="cut"] { opacity: 0; }
 html.painted-on [data-component="tidy-moment"] [data-slot="word"]:not([data-state="cut"]) { transition: none; }
 html.painted-on [data-component="tidy-moment"] > [data-slot="pen"] { position: absolute; left: 0; top: 0; width: 26px; height: 26px; pointer-events: none; z-index: 2;

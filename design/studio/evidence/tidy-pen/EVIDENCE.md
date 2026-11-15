@@ -1,6 +1,6 @@
 # Evidence: design/tidy-pen (the magical tidy)
 
-What she sees: her ink pen, the same pen that writes her name tag, strikes the cut words in turn, left to right
+What she sees (each strike runs only under its own word, never into the next kept one): her ink pen, the same pen that writes her name tag, strikes the cut words in turn, left to right
 (~150 ms each, at most 5 in view; any others are struck together). The pen lifts, the kept words close up, the first
 word takes its capital, and a short pink underline signs the clean line. On her meeting turn the underline stays.
 - It fits the 1.7 s the room keeps her paper up after a tidy (room.js TIDY_PAUSE_MS).

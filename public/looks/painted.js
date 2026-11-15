@@ -389,7 +389,7 @@
     const at = (x, y) => { pen.style.left = x + 'px'; pen.style.top = (y - 26) + 'px'; };
     const rel = w => {                                                 // in the overlay's own px (the room is scaled to the window)
       const o = ov.getBoundingClientRect(), k = o.width / ov.offsetWidth || 1, r = w.getBoundingClientRect();
-      return { x0: (r.left - o.left) / k, x1: (r.right - o.left) / k - 6, y: (r.top - o.top + r.height * .6) / k, h: r.height / k, vis: r.bottom > o.top && r.top < o.bottom }; };
+      return { x0: (r.left - o.left) / k, x1: (r.right - o.left) / k - parseFloat(cs.fontSize) * .32 - 4, y: (r.top - o.top + r.height * .6) / k, h: r.height / k, vis: r.bottom > o.top && r.top < o.bottom }; };
     const cuts = [...ov.querySelectorAll('[data-slot="word"][data-state="cut"]')];
     const shown = cuts.filter(w => rel(w).vis).slice(0, 5);         // the pen strikes the first few in view; the rest go with the last
     // it all fits the 1.7 s the room keeps her paper up after a tidy (room.js TIDY_PAUSE_MS)
