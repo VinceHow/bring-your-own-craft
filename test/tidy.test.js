@@ -207,3 +207,10 @@ test('a lead-in like "I want to build" is cuttable: the idea can start at its no
   assert.equal(T.checkTidy(raw, 'A checkout website for a bakery'), 'A checkout website for a bakery');
   assert.equal(T.alreadyClean('I want to make a booking page'), false);
 });
+
+test('a lower-case start stays lower case, but the pronoun I keeps its capital', async () => {
+  const frag = await T.tidyText({ text: 'getting the journey right, um, before anyone draws a screen', field: 'intro', callModel: async () => ({ text: 'Getting the journey right before anyone draws a screen.' }) });
+  assert.equal(frag.text, 'getting the journey right before anyone draws a screen.');
+  const i = await T.tidyText({ text: 'i love, um, baking sourdough for the regulars', field: 'intro', callModel: async () => ({ text: 'I love baking sourdough for the regulars.' }) });
+  assert.equal(i.text, 'I love baking sourdough for the regulars.');
+});
