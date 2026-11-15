@@ -45,7 +45,7 @@ You say your idea in one rough sentence and meet your team. They get to know you
 
 In the demo, a product manager gets a bakery ordering site, and the audience reserves a real loaf on the live site from their own phones.
 
-In the demo, Priya, a product manager, wants an ordering site for her friend's bakery. She says her idea in one rough
+In more detail: Priya, a product manager, wants an ordering site for her friend's bakery. She says her idea in one rough
 sentence, gets a name tag, meets her team and sits down. Nobody asks her about databases or logins. Three moments
 reach her, each about what she knows best: who the bakery is really for (Wren's research, found live), when orders
 should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. You can sit in any seat: pick
@@ -145,11 +145,26 @@ frame by frame: [`design/FIGMA.md`](design/FIGMA.md). The frames show the room's
 fal, ElevenLabs, Linkup, Figma and Anthropic, as above. Built 14–15 Nov 2026 at the Imperial AI hackathon, Autonomous
 Agents track.
 
-## What I learned
-AI will outdo us at a lot of work, and that means **we get to choose** what we do. The part we keep is **judgement**: taste, expertise, craft. The way we work has to change so that judgement is what we spend our time on.
-
 ## What's next
-**A new way of working.** A lot of work will stop being economically productive for people to do. I want to build a way of working with AI agents that preserves our craft and imagination, and lets us spend more than 90% of our time doing what we love.
+*Where I'm heading, not what's built yet.*
+
+**A new way of working.** A lot of work will stop being economically productive for people to do. I want to build a
+way of working with AI agents that preserves our craft and imagination, and lets us spend more than 90% of our time
+doing what we love.
+
+AI will outdo us at a lot of work, and that means we get to choose what we do. What we bring is our judgement, and
+the joy of doing the part we love.
+
+**A team that keeps what it learns about you.** Every tool today starts from zero, so you explain yourself again on
+every project. Your team should keep its own picture of you: your customers, your taste, your philosophy as it
+emerges from what you say. It uses that to decide the way you would, and asks you less as it gets to know you.
+
+**Every craft gets a seat.** I'm starting with product managers like Priya, because they know customers and journeys
+inside out and have more ideas than people to build them. The same shape fits a designer, a researcher, or a baker
+with a business idea: you take the seat of your craft, and the team fills the rest.
+
+**A table with room for everyone.** Next, real people join the table: invite a real engineer to the Engineering seat,
+and they bring their own team of agents. People and agents side by side, everyone doing what they're best at.
 
 ## Run it yourself
 You need Node 22. There is nothing to install.
