@@ -1,0 +1,16 @@
+idea[300w]: vis=true input 626x124 scrollH=891 ovf=auto card 696x391 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+idea[para]: vis=true input 626x124 scrollH=215 ovf=auto card 696x391 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+  empty: primary "Next" disabled=false opacity=0.437765 cursor=default
+nametag[300w]: vis=true input 626x97 scrollH=792 ovf=auto card 696x635 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+nametag[para]: vis=true input 626x97 scrollH=207 ovf=auto card 696x635 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+  empty: primary "Make my tag" disabled=false opacity=0.437727 cursor=default
+her-form hidden? false
+her-input[300w]: vis=true input 304x36 scrollH=37 ovf=clip card 445x218 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=no mic pageScroll=0,0
+her-input[para]: vis=true input 304x36 scrollH=37 ovf=clip card 445x218 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=no mic pageScroll=0,0
+  empty: no primary button
+focus[300w]: vis=true input 325x116 scrollH=1515 ovf=auto card 1401x764 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+focus[para]: vis=true input 325x116 scrollH=263 ovf=auto card 1401x764 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=false pageScroll=0,0
+  empty: primary "Send" disabled=false opacity=0.42 cursor=default
+close[300w]: vis=true input 696x59 scrollH=55 ovf=clip card 1094x188 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=no mic pageScroll=0,0
+close[para]: vis=true input 696x59 scrollH=55 ovf=clip card 1094x188 cardInView=true ctrlsOff=0 outOfCard=[] micInBox=no mic pageScroll=0,0
+  empty: no primary button
