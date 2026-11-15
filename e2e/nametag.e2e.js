@@ -166,3 +166,30 @@ for (const [lookName, look] of LOOKS) test(`${lookName}: after the team, her ide
   assert.ok(await page.evaluate(() => !BYOC.replay && !document.body.classList.contains('stage')), 'no shortcut fired');
   await page.close();
 });
+
+for (const [lookName, look] of LOOKS) test(`${lookName}: "Your own craft" is a seat choice on the same paper: one name tag, both labels, and she sits in her own craft`, async () => {
+  const { page } = await card(async r => r.fulfill({ status: 200, json: { ...TAG, craft: 'Tattoo artist', goodAt: 'fine lines', loves: 'flowers' } }), { look });
+  const oneTag = () => page.evaluate(() => [...document.querySelectorAll('.name-tag, .nt-paper, [data-component="character-card"]')]
+    .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; }).length);
+  const labels = () => page.evaluate(() => [...document.querySelectorAll('.nt-paper .pick-option')].map(b => {
+    const r = b.getBoundingClientRect(), cs = getComputedStyle(b);
+    return r.width > 0 && cs.visibility !== 'hidden' && cs.color !== cs.backgroundColor && +cs.opacity > 0 ? b.innerText.trim() : '';
+  }));
+  for (const seat of ['craft', 'product', 'craft']) {
+    await page.click(`.nt-paper .pick-option[data-pick="${seat}"]`);
+    await page.waitForTimeout(150);
+    assert.equal(await oneTag(), 1, `exactly one name tag after picking ${seat}`);
+    assert.deepEqual(await labels(), ['Product', 'Your own craft'], `both seat labels show after picking ${seat}`);
+    assert.equal(await page.getAttribute(`.nt-paper .pick-option[data-pick="${seat}"]`, 'aria-pressed'), 'true');
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'intro-input', 'her words are next');
+  }
+  await page.fill('#intro-input', 'I do fine-line tattoos and I love flowers');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
+  await page.waitForFunction(() => window.__profile, null, { timeout: 5000 });
+  assert.equal(await oneTag(), 1, 'still one name tag');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => BYOC.beat === 1, null, { timeout: 3000 });
+  assert.deepEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft, BYOC.herTag.title]), ['diy', 'Tattoo artist', 'the Journey Mapper']);
+  await page.close();
+});
