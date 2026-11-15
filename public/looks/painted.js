@@ -4,6 +4,7 @@
 //   1. painted-living.js (+ .css): the living painting as the room's backdrop, teammates' moods from run events.
 //   2. playful-ink.js (+ .css): the record player, cat, coffee, lights and the day / night pill.
 //   3. painted.css: the room's own components as ink and paper (already linked by the room's ?look loader).
+//   4. painted-fixes.css: bug fixes from Vincent's testing, loaded last.
 // Shared document events: 'studio:focus' { open } when her focus document opens or closes, 'studio:time' { time }.
 // Z-order inside #room, bottom to top: painting (fallback image), living backdrop (z 0), playful layer (z 2), the room's
 // UI (pills, sheet, notes: z 5-9), panels (55), the focus document (60). The Replay label stays on top of everything.
@@ -14,6 +15,19 @@
   if (!B || !room) return;
   const base = '/looks/';
   const css = href => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + href; document.head.appendChild(l); };
+  css('painted-focus.css');   // her focus document as her review page (look only; after painted.css so it wins)
+  // Her thoughts sit on one sheet of her pink paper: a decorative layer behind her column (aria-hidden, no events,
+  // nothing reads it). focus-doc.js keeps its markup; painted-focus.css places these layers in the document's grid.
+  // Her pin is a second such layer: it lands on the work's corner once her words are in (painted-focus.css, by data-state).
+  const fdoc = document.querySelector('[data-component="focus-doc"]');
+  const layer = (name, text) => {
+    if (!fdoc || fdoc.querySelector(`:scope > [data-pfd="${name}"]`)) return;
+    const el = document.createElement('div');
+    el.dataset.pfd = name; el.setAttribute('aria-hidden', 'true'); if (text) el.textContent = text;
+    fdoc.appendChild(el);
+  };
+  layer('sheet', 'Your thoughts');
+  layer('her-pin');
   const js = src => new Promise(res => { const s = document.createElement('script'); s.src = base + src; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); }; document.body.appendChild(s); });
 
   // ---- focus: one event for every layer (the living painting holds still, the music ducks) ----
@@ -154,9 +168,11 @@
       M.animate(n, { opacity: [0, 1] }, { duration: .3 });
       M.animate(n, { x: [x0, mx, x1], y: [y0, my, y1], rotate: [-8, 4, -1], scale: [.8, .9, .7] }, { duration: 1.9, ease: [.45, .05, .3, 1], times: [0, .5, 1] }).finished.then(() => {
         n.remove(); delete inbox.dataset.ptAwaiting;
-        M.animate(inbox, { y: [0, -8, 0] }, { duration: 1.1, ease: [.33, 0, .2, 1] });
+        inbox.dataset.ptLanded = ''; setTimeout(() => { delete inbox.dataset.ptLanded; }, 2600);   // the inbox pulse's rise + ink redraw, now
       });
     }, 1400);                                                  // the note is up in their hand first
     setTimeout(() => { delete inbox.dataset.ptAwaiting; }, 6000);   // never leave it hidden
   });
+  // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
+  css('painted-fixes.css');
 })();

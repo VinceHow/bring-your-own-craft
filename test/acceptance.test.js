@@ -48,7 +48,7 @@ test('the acceptance suite passes against a stub that keeps the contract (all 12
     const r = await runSuite(base, { log });
     assert.equal(r.code, 0, r.out.slice(-4000));
     assert.match(r.out, /# pass 12/);
-    assert.match(r.out, /# skipped 0/);
+    assert.match(r.out, /# skipped 1/); // 3b, the collection: cut for usage
   });
 });
 
@@ -68,7 +68,7 @@ test('with no ADMIN_TOKEN anywhere, only "admin locked" runs, and passes; the re
     const r = await runSuite(base, { token: '' });
     assert.equal(r.code, 0, r.out.slice(-3000));
     assert.match(r.out, /# pass 1\b/);
-    assert.match(r.out, /# skipped 11/);
+    assert.match(r.out, /# skipped 12/); // 11 need the token, plus 3b (cut for usage)
   }, { token: '' });
 });
 
@@ -86,19 +86,14 @@ test('without BASE_URL the suite refuses to run, instead of passing by accident'
   assert.notEqual(code, 0);
 });
 
-test('the slim gate (BAKERY_SLIM=1) passes a bakery without the collection, and still checks one-per-drop', async () => {
+test('the collection is cut: a bakery without it passes, and 3b is skipped "cut for usage"; one-per-drop is still checked', async () => {
   await withStub('nocollection', async (base, log) => {
-    const full = await runSuite(base, { log });
-    assert.ok(full.failed.includes('3'), 'the full gate needs the collection');
-    const slim = await new Promise(resolve => {
-      const c = spawn(process.execPath, ['--test', '--test-reporter=tap', SUITE], { env: cleanEnv({ BASE_URL: base, ADMIN_TOKEN: TOKEN, APP_LOG: log, BAKERY_SLIM: '1' }) });
-      let out = ''; c.stdout.on('data', d => (out += d)); c.stderr.on('data', d => (out += d));
-      c.on('close', code => resolve({ code, out }));
-    });
-    assert.equal(slim.code, 0, slim.out.slice(-3000));
+    const r = await runSuite(base, { log });
+    assert.equal(r.code, 0, r.out.slice(-3000));
+    assert.match(r.out, /^ok \d+ - 3b\. .*# SKIP cut for usage/m);
   });
   await withStub('twice', async (base, log) => {
-    const c = spawn(process.execPath, ['--test', SUITE], { env: cleanEnv({ BASE_URL: base, ADMIN_TOKEN: TOKEN, APP_LOG: log, BAKERY_SLIM: '1' }) });
-    assert.notEqual(await new Promise(r => c.on('close', r)), 0, 'slim still catches a second of the same item');
+    const r = await runSuite(base, { log });
+    assert.ok(r.failed.includes('3'), 'still catches a second of the same item');
   });
 });

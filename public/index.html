@@ -18,6 +18,12 @@
 <div id="replay-label" class="replay-label" data-component="replay-label" data-state="hidden" hidden></div>
 
 <div id="viewport">
+<!-- The app button (public/app-button.js): always visible, opens the app this run built, live, in a new tab -->
+<aside id="app-button" class="app-button" data-component="app-button" data-state="none" aria-live="polite">
+  <button type="button" class="app-open" data-slot="open" disabled><span class="app-label" data-slot="label">No app yet</span><span class="app-hint" data-slot="hint">Bo starts once you agree the page</span></button>
+  <p class="app-change" data-slot="change" hidden></p>
+  <a class="app-live" data-slot="live" target="_blank" rel="noopener" hidden>Open the live site</a>
+</aside>
 <main id="room" aria-label="The room, seen from above">
   <div class="table" id="table"></div>
 
@@ -88,6 +94,7 @@
 <script src="replay.js"></script>
 <script src="close.js"></script>
 <script src="word-diff.js"></script>
+<script src="fd-cards.js"></script>
 <script src="focus-doc.js"></script>
 <script src="voice.js"></script>
 <script src="flow.js"></script>
@@ -96,6 +103,7 @@
 <script src="idea-sheet.js"></script>
 <script src="team-space.js"></script>
 <script src="name-tag.js"></script>
+<script src="app-button.js"></script>
 <script>/* polish.css loads last, after any stylesheet the scripts inject */(function(){var l=document.createElement("link");l.rel="stylesheet";l.href="/polish.css";document.head.appendChild(l);
 /* ?look=<name> layers public/looks/<name>.css on top (design studio); no ?look, no change */
 var k=(new URLSearchParams(location.search).get("look")||"").toLowerCase();if(/^[a-z0-9-]{1,40}$/.test(k)){var m=document.createElement("link");m.rel="stylesheet";m.href="/looks/"+k+".css";document.head.appendChild(m);document.documentElement.setAttribute("data-look",k);/* and looks/<name>.js when the look has one; none is fine */var j=document.createElement("script");j.src="/looks/"+k+".js";j.onerror=function(){j.remove();};document.body.appendChild(j);}})();</script>

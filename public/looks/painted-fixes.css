@@ -1,0 +1,31 @@
+/* The painted look: bug fixes from Vincent's testing, layered after painted.css (painted.js loads this file last).
+   Selectors on data-component, data-slot and data-state only, never class names (builders rename classes).
+   Owned by the voice/bug-fix designer; tell them before changing a rule here. */
+
+/* ---- Bug 1: a teammate's sketchpad, opened from its pill ----
+   The panel was a scroll box (room.css: overflow auto) and its own painted crayon layer sits 8px past its edge, so
+   every seat's panel overflowed both ways: grey browser scrollbars (Mac, scrollbars shown), the painted frame clipped,
+   and Bo's list cut off. Now the panel never scrolls and its frame shows whole; only the list scrolls, and only when it
+   truly overflows, with a thin scrollbar in the teammate's crayon. The room is a fixed 1600 x 900 stage scaled to the
+   window, so the panels' positions in painted.css fit at 1440 x 900 and 1280 x 800 alike. */
+html body #room [data-component="sketchpad-open"][data-seat] { overflow: visible; display: flex; flex-direction: column; }
+html body #room [data-component="sketchpad-open"] [data-slot="head"] { flex: none; }
+html body #room [data-component="sketchpad-open"] [data-slot="items"] {
+  flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  margin: 0 -10px 0 0; padding: 0 10px 0 0;
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cc, #C49A62) 75%, transparent) transparent;
+  /* a soft fade at the foot, so a list that runs on reads as "there's more", never as a hard cut */
+  padding-bottom: 16px; -webkit-mask: linear-gradient(#000 calc(100% - 18px), transparent); mask: linear-gradient(#000 calc(100% - 18px), transparent); }
+/* Bo's pad ends above the Replay / Fake run label in the corner instead of running under it */
+html body #room [data-component="sketchpad-open"][data-seat="engineering"]:not([hidden]) { top: auto; bottom: 84px; max-height: 420px; }
+
+/* While a teammate's sketchpad is open, its pill steps back: the panel's title already names them, and the pill no
+   longer floats above and away from it. */
+html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="design"]:not([hidden])) [data-component="place-card"][data-seat="design"],
+html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="research"]:not([hidden])) [data-component="place-card"][data-seat="research"],
+html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="data"]:not([hidden])) [data-component="place-card"][data-seat="data"],
+html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="strategy"]:not([hidden])) [data-component="place-card"][data-seat="strategy"],
+html body #room:has([data-component="sketchpad-open"][data-state="open"][data-seat="engineering"]:not([hidden])) [data-component="place-card"][data-seat="engineering"] {
+  opacity: 0; pointer-events: none; }
+/* Mika's pad: below the day / night pill instead of over it, with 30px more room so its list fits without a scrollbar */
+html body #room [data-component="sketchpad-open"][data-seat="design"]:not([hidden]) { top: 96px; max-height: 500px; }
