@@ -1,0 +1,38 @@
+Re-check of fixes: tests (main at 0095d1a, worktree /tmp/claude-0/rc). Verified by stub only.
+No code changed. MODEL_BACKEND and NODE_USE_ENV_PROXY were not set (the backend was the default, claude-code). No server was started by hand: the e2e specs start their own on random ports (pad-status 4600-4689, beats 4100-4179).
+
+1. Unit tests: PASS (verified by stub only)
+   - npm test: 286 tests, 285 pass, 0 fail, 1 skipped. The skipped one is "LIVE: a different idea changes the picks (real model, fast path)", which only runs with LIVE=1.
+   - node --test test/leak.test.js: 1/1 pass, 0 fail.
+   - Cap tests (select, stagepath, unblock, policy, meeting): 42 tests, 41 pass, 0 fail, 1 skipped (the same LIVE test).
+   - test/meeting.test.js line 58 still has "five rounds on one ask are still one ask: rounds never touch the policy or the cap", and it passes (ok 2).
+   - Failures: none.
+
+2. Key grep: PASS
+   Matches, all expected:
+   - test/leak.test.js:11 SENTINEL 'fal-SENTINEL-8f3a1c9e2b7d4f60:...' (the leak test's own).
+   - e2e/studio.e2e.js:15 and e2e/yoga.e2e.js:16 build random 'fal-sentinel-...-DO-NOT-LEAK' sentinels.
+   - test/env-local.test.js:14,21,45,87 write FAL_KEY=abc:def and FAL_KEY=${CANARY}, where CANARY = 'canary-ENVLOCAL-7c1e5a9d3f20b864'. These are test fixtures, not keys.
+   No real key-shaped string found.
+
+3. F12 tidy guard (commit 60da476): PASS (verified by stub only)
+   - The guard: onlyHerWords() in lib/tidy.js, called from keepsHerWords(), checkTidy() and tidyText(). routes/tidy.js uses tidyText, and public/voice.js posts to /api/tidy. Every word of the tidy must be one of hers, or an inflection of one. Only a, an, the and and may be added.
+   - Its unit test, "the guard (audit F12): a swapped function word is refused...", passes (1/1).
+   - Direct call, raw "I want to build a website for a small bakery, so customers can order bread ahead.":
+       checkTidy(raw, "A website for a small bakery where customers can order bread ahead.") -> null (refused); onlyHerWords -> false
+       tidyText with a stubbed model returning that line -> {text: <her raw words, unchanged>, tidied:false, reason:"changed words"}
+       Control: the same line with ", so" -> accepted, tidied:true.
+   - pad-status: E2E_LOOK=painted passed 3/3 runs (2/2 tests each). E2E_LOOK=plain passed 3/3 runs (2/2 tests each).
+   - pad-status now stubs /api/tidy on both pages it opens (lines 31 and 97). It also stubs /api/run/** and, in the workspace test, /api/run, so it never reaches a model.
+
+4. Beats 1 to 2e (1, 1b, 1c, 1d, 1e, 2, 2b, 2c, 2d, 2e): PASS in both looks
+   - E2E_LOOK=painted: 10/10 pass, 0 fail.
+   - E2E_LOOK=plain: 10/10 pass, 0 fail.
+   - Model calls:
+     - Test 2 (the bakery, live path) is not stubbed. It makes a real run on the server with the default claude-code backend: /api/run, then it waits for sketch.done. It took 63s painted and 59s plain, which fits real CLI calls. It passed both times, with no timeouts.
+     - 1 and 1b use the shared page with no route stubs, so they may have called the server's model routes (1b took about 10-12s). I did not inspect the server log to confirm.
+     - 1c stubs /api/name-tag.
+     - 1d, 1e, 2b, 2c, 2d and 2e are stubbed (stub-run dispatch and route fulfils).
+   - No failures, so there was no model or timeout failure to sort from a code failure.
+
+Not tested: the fal backend (deliberately), and the beats after 2e (3, 4, 5).
