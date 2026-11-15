@@ -121,7 +121,6 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
 - Teammates that genuinely build on her and on each other, in short, human lines.
 - A default agent: 0 asked, 24 guessed, 20 approvals. Her team (demo path, three set moments): 3 asked, 14 decisions citing her file (her own lines plus one
   prepared seed line), 0 approvals (audit fal run 05:00).
-- A judge's own idea gets a rough journey in 2 s and its first check-in in 23 s (audit fal run 05:00).
 
 ## What we learned
 - The useful line is between craft and stamping, not between asking and not asking.
