@@ -426,6 +426,14 @@
     room.dataset.fill = 'cover';
     const sky = playful(); if (sky && !sky.dataset.component) sky.dataset.component = 'time-pill'; // a data hook for painted-fixes.css
   }
+  // the tally's "to you" count, as data-brought on #counter (painted-fixes.css hides "0 to you"): read from the roller's
+  // own digit columns, the number room.js rolls to
+  const brought = () => { const c = document.getElementById('counter'), b = document.getElementById('brought'); if (!c || !b) return;
+    const cols = [...b.children].filter(k => '_v' in k); const v = cols.length ? cols.map(k => k._v).join('') : (b.textContent.trim() === '' ? '0' : '');
+    if (c.dataset.brought !== v) c.dataset.brought = v; };
+  const watchBrought = () => { const b = document.getElementById('brought'); if (!b) return false;
+    new MutationObserver(brought).observe(b, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] }); brought(); return true; };
+  if (!watchBrought()) { const t = setInterval(() => { if (watchBrought()) clearInterval(t); }, 500); setTimeout(() => clearInterval(t), 30000); }
   window.addEventListener('resize', cover);                              // after stage.js's own fit, so cover wins
   new MutationObserver(() => { if (room.style.transform !== want) cover(); }).observe(room, { attributes: true, attributeFilter: ['style'] });
   cover(); setTimeout(cover, 600);                                       // and once the playful layer has mounted

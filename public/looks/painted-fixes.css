@@ -182,3 +182,38 @@ html body #room #inbox #counter #brought { margin: 0 3px; color: var(--product-t
 html body #room #inbox #counter > span > span:last-child { font-size: 0 !important; line-height: 0; }
 html body #room #inbox #counter > span:first-child > span:last-child::after { content: 'decisions'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
 html body #room #inbox #counter > span:last-child > span:last-child::after { content: 'to you'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
+/* ---- The calm room (Vincent: "the screen is so busy"). While the team works and nothing needs her, the room is the
+   painting, the name pills, a small idea glance and, only when something needs her, one quiet inbox note. ---- */
+/* 1. the team space folds to b3's "Team notes · N" tab (team-space.js owns the fold and its click: data-component
+   team-notes, data-state closed | open). Here it's a small ink-paper pill, not a mono box. */
+html body #room [data-component="team-notes"] {
+  display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer; pointer-events: auto;
+  font: 500 15px/1 var(--ui, system-ui, sans-serif); letter-spacing: 0; text-transform: none; color: var(--ink-2, #4E3A2B);
+  background: #FCF5E8; box-shadow: inset 0 0 0 1.2px rgba(74, 48, 32, .55), 2px 3px 0 rgba(196, 154, 98, .6); }
+html body #room [data-component="team-notes"]:hover { color: var(--ink, #2B1E14); }
+html body #room [data-component="team-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 3px; }
+/* 2. (the old bottom inbox note and the tally's own line are b3's inbox now: see the inbox section) */
+/* 3. "who's doing what" under the idea card: one line, never two clipped half-sentences */
+html body #room [data-component="team-doing"] {
+  display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; max-height: 1.5em; }
+/* 4. chatter: one bubble at a time (the newest), 14px, at most two lines, fading after about three seconds */
+html body #room [data-component="chatter-line"] {
+  max-width: 260px !important; font-size: 14px !important; line-height: 1.35 !important; color: var(--ink-2, #4E3A2B) !important; opacity: .92;
+  animation: pf-chatter-out 3.6s ease-in forwards; }
+html body #room [data-component="chatter-line"] [data-slot="text"] {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+html body #room [data-component="chatter-line"]::after { box-shadow: none !important; }
+html body #room [data-component="chatter-line"]:nth-last-of-type(n+2) { display: none !important; }
+html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 165px -44px !important; }
+@keyframes pf-chatter-out { 0%, 80% { opacity: .92; } 100% { opacity: 0; visibility: hidden; } }
+/* while nothing is brought to her, the tray says only "25 decisions": a pink 0 draws the eye to nothing (painted.js
+   mirrors the brought count on #counter as data-brought) */
+html body #room #inbox #counter[data-brought="0"] > span:last-child { display: none !important; }
+/* b3's "All notes" (the unblock page and the focus doc's header): a quiet underlined ink link, never a button */
+html body #room [data-slot="all-notes"] {
+  appearance: none; margin: 0; padding: 4px 2px; border: 0 !important; border-radius: 6px; background: none !important; box-shadow: none !important; cursor: pointer;
+  font: 500 15px/1.2 var(--ui, system-ui, sans-serif) !important; color: var(--ink-2, #4E3A2B) !important;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; text-transform: none; letter-spacing: 0; }
+html body #room [data-slot="all-notes"]::before, html body #room [data-slot="all-notes"]::after { display: none !important; }
+html body #room [data-slot="all-notes"]:hover { color: var(--ink, #2B1E14) !important; }
+html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(--ink, #2B1E14); outline-offset: 2px; }
