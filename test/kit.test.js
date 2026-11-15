@@ -57,7 +57,7 @@ test('the meet cards (the PO copy): every teammate has an intro, loves, live and
   }
   assert.ok(!cards.research.live.some(x => /Linkup/.test(x)), 'no Linkup chip without a key (liveResearchOn, b3)');
   const k = process.env.LINKUP_API_KEY; process.env.LINKUP_API_KEY = 'test-only-not-a-key';
-  assert.ok(cardsFor(bakery, { start: null }).cards.research.live.includes('Linkup web search, live'), 'Linkup live with a key, on a bakery idea');
+  assert.ok(cardsFor(bakery, { start: null }).cards.research.live.includes('Looks for a live finding with Linkup'), 'Linkup live with a key, on a bakery idea');
   assert.ok(!cardsFor('A sign-up page for a tool library', { start: null }).cards.research.live.some(x => /Linkup/.test(x)), 'never claimed where it does not run');
   const off = process.env.LIVE_FINDING; process.env.LIVE_FINDING = '0';
   assert.ok(!cardsFor(bakery, { start: null }).cards.research.live.some(x => /Linkup/.test(x)), 'nor when live finding is off'); 
@@ -69,7 +69,7 @@ test('the meet cards (the PO copy): every teammate has an intro, loves, live and
   assert.ok(!cardsFor(bakery).cards.design.live.some(x => /emblem/.test(x)), 'the live emblem only when the logo is on (fal)');
   assert.match(cardsFor(bakery).room.at(-1).text, /Claude Code/);
   process.env.MODEL_BACKEND = 'fal';
-  assert.ok(cardsFor(bakery, { start: null }).cards.design.live.some(x => /emblem, painted live on fal/.test(x)));
+  assert.ok(cardsFor(bakery, { start: null }).cards.design.live.some(x => /^Paints the page’s emblem live on fal$/.test(x)));
   assert.equal(cardsFor(bakery).room.at(-1).text, 'thinking through fal');
   process.env.JOINT_MODEL = 'sonnet'; assert.match(cardsFor(bakery).room[0].text, /Claude Sonnet/, 'a Fallback B override shows as it runs'); delete process.env.JOINT_MODEL;
   if (b === undefined) delete process.env.MODEL_BACKEND; else process.env.MODEL_BACKEND = b;
