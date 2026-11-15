@@ -41,7 +41,8 @@ function parseCookies(req) {
   return out;
 }
 
-const isHttps = (req) => req.headers['x-forwarded-proto'] === 'https';
+// Behind Railway's proxy the scheme arrives as x-forwarded-proto (possibly a list); trust its first value.
+const isHttps = (req) => String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase() === 'https';
 function addCookie(res, cookie) {
   const prev = res.getHeader('Set-Cookie');
   res.setHeader('Set-Cookie', prev ? [].concat(prev, cookie) : cookie);
@@ -61,13 +62,20 @@ function tokenMatches(candidate) {
   if (!ADMIN_TOKEN || typeof candidate !== 'string' || !candidate) return false;
   return crypto.timingSafeEqual(sha(candidate), sha(ADMIN_TOKEN)); // equal-length digests, constant time
 }
+// The admin cookie holds a value derived from the token, never the token itself, so a cookie dump can't reveal it.
+const SESSION = ADMIN_TOKEN ? crypto.createHmac('sha256', ADMIN_TOKEN).update('admin-session').digest('hex') : '';
+function sessionMatches(candidate) {
+  if (!SESSION || typeof candidate !== 'string' || !candidate) return false;
+  return crypto.timingSafeEqual(sha(candidate), sha(SESSION));
+}
+function setSessionCookie(req, res) {
+  addCookie(res, `admin=${SESSION}; Path=/; Max-Age=43200; HttpOnly; SameSite=Strict${isHttps(req) ? '; Secure' : ''}`);
+}
 function isAdmin(req) {
   if (!ADMIN_TOKEN) return false;
   const m = /^Bearer\s+(.+)$/i.exec(req.headers.authorization || '');
   if (m && tokenMatches(m[1].trim())) return true;
-  const c = parseCookies(req).admin;
-  if (c) { try { return tokenMatches(decodeURIComponent(c)); } catch { return false; } }
-  return false;
+  return sessionMatches(parseCookies(req).admin);
 }
 
 /** "Now" for this request. Only a valid admin token can move the clock. */
@@ -146,7 +154,20 @@ async function postReservation(req, res, device) {
 }
 
 // ---------- admin ----------
-const lockedPage = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Locked</title><body style="font:24px Georgia,serif;background:#F4EEE4;color:#241A12;padding:15vh 10vw"><h1>Locked</h1><p>This is the baker\'s page.</p>';
+// The login page: a password field, posted to /admin/login. The passphrase is never echoed back.
+const loginPage = (wrong) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The baker's page</title>
+<body style="font:24px Georgia,serif;background:#F4EEE4;color:#241A12;padding:12vh 10vw">
+<h1 style="font-size:44px;margin:0 0 24px">The baker's page</h1>
+<form method="post" action="/admin/login" style="display:grid;gap:16px;max-width:520px">
+<label for="passphrase">Passphrase</label>
+<input id="passphrase" name="passphrase" type="password" autocomplete="current-password" required autofocus style="font:24px system-ui;padding:12px 14px;border:2px solid #5A3B22;border-radius:10px;background:#FFFBF4">
+${wrong ? '<p style="color:#B5462F;margin:0">That\'s not it. Try again.</p>' : ''}
+<button type="submit" style="font:600 24px system-ui;padding:14px;border:0;border-radius:12px;background:#4A3A2C;color:#F4EEE4">Open</button>
+</form>`;
+function sendLogin(res, wrong) {
+  res.writeHead(401, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-store' });
+  res.end(loginPage(wrong));
+}
 
 function sendAdminPage(res) {
   const html = fs.readFileSync(path.join(here, 'views', 'admin.html'));
@@ -225,17 +246,29 @@ async function handle(req, res) {
     return sendJson(res, 200, { ok: true, demo: DEMO, volume: volumeOk(), mount: process.env.RAILWAY_VOLUME_MOUNT_PATH || null, volumeError, uid: process.getuid?.() ?? null });
   }
 
+  // The login form posts here: right passphrase -> session cookie and 303 to a clean /admin; wrong -> 401, no cookie.
+  if (p === '/admin/login') {
+    if (req.method !== 'POST') return sendJson(res, 405, { error: 'method_not_allowed' });
+    let text = '';
+    try { text = await readBody(req, 2048); } catch { return sendLogin(res, true); }
+    const given = new URLSearchParams(text).get('passphrase') || '';
+    if (!tokenMatches(given)) return sendLogin(res, true);
+    setSessionCookie(req, res);
+    res.writeHead(303, { Location: '/admin', 'Cache-Control': 'no-store' });
+    return res.end();
+  }
+
   // The baker's side: everything here is locked unless the token is right.
   if (p === '/admin' || p.startsWith('/api/admin/')) {
     if (p === '/admin' && req.method === 'GET' && url.searchParams.has('t')) {
       // One-time link: swap the token for an HttpOnly cookie, then land on a clean address.
-      if (!tokenMatches(url.searchParams.get('t'))) { res.writeHead(401, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-store' }); return res.end(lockedPage); }
-      addCookie(res, `admin=${encodeURIComponent(ADMIN_TOKEN)}; Path=/; Max-Age=43200; HttpOnly; SameSite=Strict${isHttps(req) ? '; Secure' : ''}`);
+      if (!tokenMatches(url.searchParams.get('t'))) return sendLogin(res, true);
+      setSessionCookie(req, res);
       res.writeHead(302, { Location: '/admin', 'Cache-Control': 'no-store' });
       return res.end();
     }
     if (!isAdmin(req)) {
-      if (p === '/admin') { res.writeHead(401, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-store' }); return res.end(lockedPage); }
+      if (p === '/admin') return sendLogin(res, false);
       return sendJson(res, 401, { error: 'locked' });
     }
     const now = nowFor(req, true);

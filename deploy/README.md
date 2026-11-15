@@ -18,7 +18,12 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
 
 ## Hand edits to Bo's app (each one listed)
 1. `app/public/style.css`, line 1: `[hidden] { display: none !important; }`. Bo's `.hand { display: inline-block }` beat the `hidden`
-   attribute, so "Sold out for today" showed on every loaf. Found by a browser check (Bo's tests are HTTP-only). No other change.
+   attribute, so "Sold out for today" showed on every loaf. Found by a browser check (Bo's tests are HTTP-only).
+2. `app/server.js`, the admin login (Vincent's security P0, 15 Nov: a passphrase typed into the URL bar shows on the projector):
+   a POST login form at `/admin` (`/admin/login`, a password field with `autocomplete="current-password"`; right -> 303 to a
+   clean `/admin`, wrong -> 401 and no cookie); the session cookie holds HMAC-SHA256(ADMIN_TOKEN, "admin-session"), not the
+   token, compared in constant time (for both the form and the `?t=` phone link); `Secure` set when `x-forwarded-proto`'s
+   first value is https (Railway). Checked by `deploy/acceptance/admin-login.acceptance.js` (5 tests, builder 6).
 
 ## Hand edits (deploy plumbing only)
 - `app/package.json`, `app/server.js`, `app/config.js`: placeholder with /health and the defaults above.
