@@ -514,8 +514,9 @@ html:not(.painted-on) .idea-card .idea-make { font: inherit; font-size: 18px; pa
 .nt-row { display: flex; flex-direction: column; gap: 6px; }
 .nt-label { font-size: 18px; }
 .nt-name { font: inherit; font-size: 30px; padding: 4px 8px; }
-.pick-options { display: flex; gap: 12px; }
-.pick-option { flex: 1; font: inherit; font-size: 20px; padding: 10px; cursor: pointer; }
+.pick-options { display: flex; flex-wrap: wrap; gap: 8px; } /* any seat: one compact chip row, Product preselected */
+.pick-option { flex: 0 0 auto; font: inherit; font-size: 17px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; cursor: pointer; }
+.pick-option[data-seat="craft"] { margin-left: 4px; border-style: dashed !important; } /* "something else", not a seventh seat (design lead) */
 .pick-option[aria-pressed="true"] { outline: 3px solid currentColor; }
 .nt-love { width: 100%; }
 .nt-hint { font-size: 16px; }
@@ -606,3 +607,11 @@ html:not(.painted-on) body #room #inbox [data-component="inbox-action"] [data-sl
   appearance: none; margin: 0; padding: 8px 4px; cursor: pointer; font: 600 16px/1 var(--ui); color: var(--ink); background: none; border: 0;
   text-decoration: underline; text-underline-offset: 4px; }
 html:not(.painted-on) body #room #inbox [data-component="inbox-action"] :is([data-slot="yes"], [data-slot="say"]):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* Meet the team, hers to pace: Back + Next, and small progress dots (the design lead styles them). */
+.meet-nav { display: flex; gap: 10px; align-items: center; }
+.meet-dots { display: flex; gap: 6px; }
+.meet-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; opacity: .5; }
+.meet-dot[data-state="done"] { background: currentColor; opacity: .5; }
+.meet-dot[data-state="current"] { background: currentColor; opacity: 1; }
+.meet-back[hidden] { display: none; }
