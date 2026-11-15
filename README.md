@@ -5,8 +5,9 @@
 ![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.jpg)
 <sub>The studio mid-run: five agent teammates at work round the table, her stool in front (here on a test idea, a yoga booking page).</sub>
 
-You take the seat of the craft you love. A team of AI agents fills every other seat, handles everything it can, and
-brings you only the few big questions that truly need you.
+You spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You take the seat of
+your craft; a team of AI agents fills every other seat, handles its own work, and brings you only the few big
+questions that need you.
 
 ## The 30-second story
 Priya is a product manager. Her friend runs a small bakery and wants customers to order bread ahead.
@@ -14,20 +15,19 @@ Priya is a product manager. Her friend runs a small bakery and wants customers t
 Priya says her idea in one rough sentence. She meets her team: Mika (Design), Noor (Research), Theo (Data), Ines
 (Strategy) and Bo (Engineering). Then she sits down, and they get to work.
 
-Nobody asks her about databases, logins or fonts. The team settles all of that itself. Only **three things** reach
-her, and each one is about what she knows best: who the bakery is really for, when orders should close, and how
-ordering ahead should feel for a regular. The team decides everything else her way (14 decisions on our audited
-run). Then one press, and her ordering page is built from her answers.
+Nobody asks her about databases, logins or fonts. The team settles all of that itself, and brings her only the big
+questions that need her craft. In our audited run she was asked 3 things: who the bakery is really for, when orders
+should close, and how ordering ahead should feel for a regular. The team decided 14 others itself, her way. Then one press, and her ordering page is built from her answers.
 
 At the end of the talk, the judges are the bakery's regulars. Before we started, they ordered a loaf from a real
 bakery site this same team built earlier. We tap **Deliver**, and every judge's phone flips at once:
 *"Delivered: your sourdough is here."*
 
 ## Why it's different
-- **Three questions, at most, enforced in code.** A model picks which questions matter; code, with tests, makes sure
-  a fourth can never reach her. Everything small is the team's call. For contrast, a default coding agent given the
-  same bakery prompt asked 0 questions, guessed 24 things that were the owner's call, and stopped for 20 approvals
-  ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
+- **Only the big questions that need her craft.** A question reaches her only if it changes the shape of the product
+  and draws on what she's best at or loves. Everything else, the team assumes and keeps moving. For contrast, a
+  default coding agent given the same bakery prompt asked 0 questions, guessed 24 things that were the owner's call,
+  and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
 - **A real meeting, not a form.** Each big question opens a quiet focus moment. She speaks in pieces; **Send** starts
   a round of live discussion, where only the teammates her words touch reply, building on her and on each other;
   **End meeting** gives the takeaways: what she believes, and her guidance to the team.
