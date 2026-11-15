@@ -1,0 +1,157 @@
+AUDIT B: final main bbb49aa (worktree /tmp/claude-0/sa). Run 10:01 to 10:10 UTC, Sun 15 Nov.
+EVERYTHING HERE WAS VERIFIED BY STUB ONLY. There was no fal spend and no Linkup spend. Every server ran with
+HTTPS_PROXY/HTTP_PROXY (both cases), NODE_USE_ENV_PROXY, LINKUP_API_KEY, FAL_KEY, MODEL_BACKEND and
+ELEVENLABS_API_KEY removed, on ports 5200-5299. The existing e2e specs were run from temporary copies with only the
+PORT line changed; the copies were deleted afterwards. No code was changed, and nothing was committed.
+
+============================================================
+STAGE-VISIBLE FAILS
+============================================================
+None found on the stage path.
+
+Stage-visible notes (not FAILs, for the lead to know):
+ N1. In the painted look, the "v2 · <what changed>" note is hidden whenever her page or the focus sheet is open:
+     public/looks/painted.css:1135
+       html body:is(.focus-open, :has(#her-sheet[data-open="true"])) [data-component="app-button"] [data-slot="change"] { display: none !important; }
+     The comment there says this is on purpose. Measured in painted at beat 9 with the page open: .app-change has
+     rect 0x0, while the button reads "Open the app · v2 / just now". In plain at beat 9 it is visible
+     ("v2 · same calls, fresh words", rect 1224,786,198x29). DEMO.md never mentions the line, so this is not a FAIL.
+     If Vincent wants the audience to see it at the press, the minimal fix is to drop the `.focus-open` /
+     `#her-sheet` condition for [data-slot="change"] at painted.css:1135, or to scope it to `.focus-open` only.
+     Shots: B5-v2-painted-0.jpg (room, note visible) and B5-v2-painted-3000.jpg (page open, note gone).
+ N2. The meet cards' "live" chips (lib/kit.js:85, :89) depend on the CONFIG (a Linkup key or LIVE_FINDING=1;
+     logoOn()), not on whether that run's search or logo actually succeeded. They are shown before the build, so they
+     describe what is wired up, and the research card always carries "Prepared finding if nothing verifies
+     (labelled)". This is acceptable, but on a fal backend whose logo call times out, Mika's card will still have said
+     "The page's emblem, painted live on fal".
+
+============================================================
+ITEM 2: Live logo: PASS (verified by stub only)
+============================================================
+- Unit tests: test/logo.test.js passes (part of a 26/26 run with live-finding, app-button, kit and meet).
+- e2e/logo.e2e.js (painted, port 5200) passes 2/2: the live logo lands as the local logo.jpg, credited, with no fal URL;
+  on a timeout the page keeps its usual mark and says nothing.
+- In-process, with a stub fetch passed to paintLogo, so no network:
+    success  -> {"ok":true,"file":"logo.jpg"}; 400-byte file written; the URL called was https://fal.run/fal-ai/flux/schnell (stubbed)
+    timeout  -> {"ok":false,"why":"timeout after 300 ms"}
+- Symbol only: logoPrompt() =
+  "Single painted emblem, symbol only, no text, no letters: a wordless pictorial icon for a small bakery business (...) ...
+   Absolutely no text, no letters, no words, no numbers, no typography, no signature, no badge or banner, palette #aa3300."
+  (lib/logo.js:20-26). This proves the prompt only. Whether flux actually draws no letters needs a live run, which I
+  did not do.
+- Built index.html grep (fillPage with a stub paint, bakery template):
+    live    : fal.media|fal.run|v3.fal = 0 hits, "painted live with fal" = true,  img.mark--live x2
+    timeout : fal.media|fal.run|v3.fal = 0 hits, "painted live with fal" = false, img.mark--live x0
+- Label only when live: confirmed above.
+
+============================================================
+ITEM 3: Live Linkup research: PASS (verified by stub only)
+============================================================
+- test/live-finding.test.js passes (verified, unverifiable, timeout and never-waits paths, plus key-never-in-log).
+- In-process searchFinding with a stub fetchImpl:
+    verified     -> ref { quote: "Our survey of 400 shoppers found that 38% of bakery customers buy bread every week
+                    from the same shop.", site "example.org", fetched "2026-11-15", label "found just now with Linkup" }
+    unverifiable -> {"why":"no quotable line about customers in the results"}
+    tampered     -> verified() with the quote plus " x" = false
+    timeout      -> {"why":"timeout"} after 300 ms (timeoutMs 300)
+    Linkup 500   -> {"why":"linkup 500"}
+- Browser labels: e2e/beats.e2e.js test "2f" (port 5270) passes. A verified result shows "found just now with
+  Linkup" on Focus 1; finding.none or a timeout shows "researched before the demo" with the prepared quote; a live
+  finding that arrives after she opens the card does not swap it under her.
+- Doctor, with no Linkup key and the proxy env removed (`node scripts/doctor.mjs --only keys`). No network call is
+  made, because tryKey() is false without a key or proxy:
+    "NOTE  LINKUP_API_KEY: missing"
+    "NOTE  live research: off (prepared finding)"
+  Minor, not stage-visible: the doctor ignores LIVE_FINDING=1 (scripts/doctor.mjs:167), while lib/live-finding.js:20
+  honours it. With LIVE_FINDING=1 and no key, the doctor says "off" but the room searches.
+
+============================================================
+ITEM 4: Any seat: PASS (verified by stub only)
+============================================================
+- e2e/anyseat.e2e.js (port 5210) passes 12/12, for 6 seats x plain and painted. Caveat: that spec lets /api/run
+  through to the real server (r.continue()) and checks only pageerror, not console errors.
+- My own walk stubs /api/name-tag, /api/tidy, /api/meet-lines, /api/run, /api/run/stub-run/** and /api/cast/flex.
+  It covers all 7 chips x 2 looks, capturing both page and console errors:
+    chips (default): product=true design=false data=false research=false engineering=false strategy=false craft=false
+    -> Product is the default.
+    Every chip reaches the room with 0 page errors. The only console errors were 2x 404 on /api/taste/stub-run: the
+    fake run id from my stub, not a product bug. With that route stubbed too, there were 0 console errors.
+    Her card shows Product / Design / Data / Research / Engineering / Strategy / "Your own craft".
+- Off the stage path, low confidence: with "Your own craft", her card read "Product" in one run and "Your own craft"
+  in another, in different looks each time. BYOC.herTag.craft became "Product" when the name-tag reply landed after
+  introDone. My script forced BYOC.introDone() while the tag was still 'rough', which is not how she presses on stage.
+  It looks like a race between makeCharacter and introDone (public/room.js:1599-1601). Not reproduced through the
+  normal Enter path, and I did not chase it further.
+- Shots: B4-seat-chips-painted.jpg, B4-room-craft-painted.jpg, B4-room-craft-plain.jpg.
+
+============================================================
+ITEM 5: App button: PASS (verified by stub only; BUILD_STUB=1 server, LIVE_LOGO=0)
+============================================================
+- test/app-button.test.js passes: what changed, a queued build with no 409, and APP_V1=0.
+- e2e/app-first.e2e.js (port 5220) passes 3/3: plain and painted, Team, go builds v1 then the press builds v2 with
+  what changed; a press while v1 is building queues v2 and both land, never two at once.
+- e2e/app.e2e.js (port 5230) passes 2/2.
+- My own run (painted, BUILD_STUB_MS=4000):
+    after Team, go +2.5 s : state=building, "Building your app…"
+    press during v1       : -> "Open the app · v2", change "v2 · no standing order"; /build codes [200, 200], 0 page errors
+  APP_V1=0 server (port 5292):
+    after Team, go +5.5 s : state=none, "No app yet" (no background v1)
+    press                 : -> "Open the app · v1", "v1 · the template as the team agreed it"; codes [200, 200]
+- The "Open your app" sign was not expected and not checked.
+- See N1 for the painted look hiding the change note while her page is open.
+- Shots: B5-app-v2-changed.jpg, B5-app-v1off.jpg, B5-v2-painted-0.jpg, B5-v2-painted-3000.jpg, B5-v2-plain-*.jpg.
+
+============================================================
+ITEM 6: Chatter: PASS
+============================================================
+- lib/chatter.js:18 sets CHATTER_WORDS = 12, and chatterLine refuses longer lines. Warm variants are at :31-48. There
+  is no "Name:" prefix: `by` is carried on the event (:91).
+- test/interpret.test.js passes 14/14, including the room-chatter test, which asserts no /^[A-Z][a-z]+:/ prefix.
+- Sample lineFor() outputs:
+    research    "Ooh, found a good piece on full classes at small studios."   11 words
+    design      "Found a lovely reference on warm bakery colour palettes."   9 words
+    engineering "Name and email, no account, done. One less thing to worry about."   12 words
+    strategy    "Pickup only on Saturdays, easiest to run day to day."   10 words
+    data        "One sheet per week, that's the cleanest."   7 words
+    research, long title -> null (not said: over 12 words)
+- Nits:
+  (a) The comment at lib/chatter.js:15 still says "at most 15 words"; the code says 12.
+  (b) If she takes a non-Product seat, NAMES.product = 'Product' can chatter as "Product". lineFor gave "X y, done."
+      for the product seat. Her own seat is excluded (:86-87), but the product seat itself is not, when it isn't hers.
+
+============================================================
+ITEM 7: Meet cards say "live" only when live: PASS (by configuration; see N2)
+============================================================
+cardsFor('A website for my bakery'), lib/kit.js:80-98:
+  NOT LIVE (no keys)        research.live = ["Prepared finding if nothing verifies (labelled)","Claude Sonnet"]
+                            design.live   = ["taste-skill's design rules","Claude Sonnet"]
+  LIVE (LINKUP key, LIVE_LOGO=1)
+                            research.live = ["Linkup web search, live","Quotes checked word-for-word against the page",
+                                             "Prepared finding if nothing verifies (labelled)","Claude Sonnet"]
+                            design.live   = ["taste-skill's design rules","The page's emblem, painted live on fal","Claude Sonnet"]
+  madeFor: not live -> ["Researched with Linkup, before the demo"]; live -> [] (so the "before the demo" chip is not
+  shown when live)
+  kitFor:  not live -> ["Linkup finding: Bakery Business, 14 Nov", ...]; live -> ["Linkup web search, live", ...]
+In the browser with no keys (meet walk), Wren's card shows "Prepared finding if nothing verifies (labelled)" and no
+"live" Linkup chip, and Mika's card has no emblem chip.
+
+============================================================
+ITEM 8: User-paced meet: PASS (verified by stub only; painted and plain, 1440x900)
+============================================================
+- e2e/meet-paced.e2e.js (port 5240) passes 2/2. e2e/reorder.e2e.js (port 5250) passes 10/10, including "meet the
+  team waits for her (no ?hold=)".
+- My own walk on the stage order (idea -> name tag -> team, no ?hold=), each look:
+    start       step 1/5 (Mika), dots current,todo,todo,todo,todo, Back hidden, "Next"
+    +12 s idle  still step 1, beat 1
+    PageDown    -> 2; ArrowRight -> 3 (dots done,done,current,todo,todo; Back shown)
+    PageUp      -> 2; ArrowLeft -> 1
+    click Next  -> 2; click Back -> 1
+    4x PageDown -> 5/5 (Bo), dots done,done,done,done,current, button "Into the studio"
+    +3 s idle   still on 5
+    click "Into the studio" -> beat 2
+    page and console errors: [] in both looks
+- Shots: B8-meet-1-{painted,plain}.jpg, B8-meet-3-{painted,plain}.jpg, B8-meet-last-{painted,plain}.jpg.
+  B8-meet-last-painted.jpg shows the 5 dots (the last one long), "← Back" and "Into the studio →".
+
+Not tested: any live fal or Linkup call; the real flux image (whether it contains letters); the Claude-backed model
+routes (all stubbed).
