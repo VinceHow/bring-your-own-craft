@@ -1149,3 +1149,17 @@ html.painted-on [data-component="mic"][data-field][data-state="typed"] { backgro
   font: italic 400 14px/1 'Newsreader', Georgia, serif; color: var(--ink-3); }
 html.painted-on [data-component="mic"][data-field] svg { opacity: .85; }
 @media (prefers-reduced-motion: reduce) { html.painted-on [data-component="mic"][data-field][data-state="listening"]::after { animation: none; } }
+
+/* ---- QA #6: after her Yes on an unblock, never a blank drawer. The card folds to a one-line receipt in her ink
+   ("Told Bo: 8pm the night before", painted.js) and the inbox's own line says it too, until the server takes the item
+   away and the inbox reads "Nothing needs you right now". The drawer is only as tall as what it holds. ---- */
+html #room [data-component="inbox-action"][data-pt-told] { animation: none !important; opacity: 1 !important; transform: none !important; pointer-events: none; padding: 12px 18px 13px; }
+html #room [data-component="inbox-action"][data-pt-told] > :not([data-pt-receipt]) { display: none !important; }
+html #room [data-component="inbox-action"] > [data-pt-receipt] { margin: 0; font: italic 400 19px/1.35 var(--display); color: var(--product-t); animation: pfd-fade-in .5s ease both; }
+html #room [data-component="inbox-action"] > [data-pt-receipt]::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 9px; border-radius: 50%; background: var(--product); vertical-align: 2px; }
+@keyframes pfd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+html #room [data-component="inbox"] [data-slot="now"][data-pt-told] > * { display: none !important; }
+html #room [data-component="inbox"] [data-slot="now"][data-pt-told]::before { content: attr(data-pt-told); display: block; font: italic 400 18px/1.3 var(--display); color: var(--product-t); }
+html #room [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] { align-content: start; height: auto; }
+/* one thing at a time: while her inbox is open over the kitchen wall, the team's pinned sheet steps back */
+html #room:has([data-component="inbox"][data-state="expanded"]) [data-component="team-space"] { visibility: hidden; }
