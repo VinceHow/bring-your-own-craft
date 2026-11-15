@@ -22,7 +22,7 @@
 | 4 | Bo's full pad: its items list scrolls (477 in 290) and is not the intended scroll column | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/07-engineering-full.jpg` | room.js · looks/painted.css | bug fixer |
 | 6c | The room offers 8+ clickables at once: the time pill, each journey chip as a button, the tally counter, the inbox | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | idea-sheet.js, flow.js · looks/painted.css | bug fixer |
 | 7 | Bo's smile on Yes is flat: a large blank sheet flashes before the room returns (the smile's size at room scale is a scale limit and is accepted) | 1920 | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | inbox.js · looks/painted.js | bug fixer (the flash only) |
-| 8 | At 1440 and 1280, her page sheet (idea-layer / page-frame) runs 26px off the left edge, cutting its border and the "page" label | 1440, 1280; day and night | `design/studio/qa/audit-0430/painted/1440x900-day/13-her-page-open.jpg` | room.js · looks/painted.css | (to route) |
+| 8 | At 1440 and 1280, her page sheet (idea-layer / page-frame) runs 26px off the left edge, cutting its border and the "page" label | 1440, 1280; day and night | `design/studio/qa/audit-0430/painted/1440x900-day/13-her-page-open.jpg` | room.js · looks/painted.css | painted-UI designer · **FIXED** on 1922da3 (re-walked 1440/1280/1920: 0 off-screen; the sheet keeps its border and "Your page" label; `design/studio/qa/audit-0430/recheck/page-edge-1922da3.jpg`, old main bottom right) |
 
 **WON'T FIX, by design** (the design lead, 05:00):
 - **#5, the close is mostly empty:** it is deliberately one field, one mic and one Build it, snug and centred. It's the one-thing screen.
