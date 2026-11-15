@@ -207,7 +207,8 @@
       body: JSON.stringify({ text: raw, run: BYOC.run || undefined, ...(opts.field ? { field: String(opts.field) } : {}) }) })
       .then(r => r.ok ? r.json() : null).then(j => (j && typeof j.text === 'string' && j.text.trim()) ? j.text : raw)
       // Her card's "I love …" line is a fragment: begun in lower case, it stays so ("I love getting…", never "Getting").
-      .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
+      // ...but the pronoun I stays a capital ("uh i love…" tidies to "I love…", never "i love…").
+      .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) && !/^\s*I(\b|[’'])/.test(t) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
       .catch(() => raw).finally(() => clearTimeout(timer));
   };
 
