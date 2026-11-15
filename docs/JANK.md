@@ -140,3 +140,26 @@ No model calls and no fal spend.
     - Hooks: `[data-component="replay-label"]`, `[data-component="inbox"]`, and all room text
     - Fix: the cover scale from finding 17 also fixes the bands. Keep the labels inside the room's safe box; set a floor of `font-size: max(13px, …)` (or `calc(13px / var(--scale))`) on the painted look's small labels.
 26. [checked, clean] **No contrast below 4.5 on paper, at any size, day or night.** The only machine flags were false positives: text on the slides' textured cards and on the yellow replay label, where the check can't see the background image. Text that sits straight on the painting is always on a paper pill (checked by eye).
+
+<!-- PASS-2 -->
+### Pass 2 · main 3fd9fbc · 14 Nov 23:52 UTC (after the look merges: team at work, cat tail, her idea on the glance card)
+
+The pixel diff shows 245 shots changed, as expected after the look merges and with the living video moving. The pass-1 findings above all still stand. Of the 549 new flags, most come from the two checks added since pass 1 (overflow measured numerically, and clipped frames), and they confirm findings 23 and 24. Genuinely new:
+
+27. [design] **The inbox drawer scrolls sideways and cuts its own text.** In the unblock card's speaking state, focusing her words scrolls the 13–24px-too-wide drawer to the right. Every line loses its first letters ("eeds you", "ings only you can do", "ur meeting notes…"), and the card's frame is cut by 18px. This is finding 23's overflow, now visible on stage.
+    - Shot: `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-speaking.jpg`
+    - Where: all three sizes, day and night
+    - Hooks: `[data-component="inbox"] [data-slot="drawer"]`, `[data-component="inbox-action"][data-state="speaking"]`
+    - Fix: `overflow-x: hidden` on the drawer, and find the child that's wider than 268px (most likely the speaking card with its frame offset, or the field at `width:100%` plus padding).
+28. [design] **Every teammate pad scrolls sideways, even when empty.** `[data-component="sketchpad-open"]` has 432 wide in 420 in all 12 pad states (5 teammates + hers, empty and full), at every size and mode. A Mac shows a horizontal bar under "Nothing on the pad yet."
+    - Shot: `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-design-empty.jpg`
+    - Where: every size and mode
+    - Hook: `[data-component="sketchpad-open"]`
+    - Fix: as in finding 23: `overflow-x: hidden`, or remove the 12px of extra width.
+29. [design] **The new mic pill on the glance card has a hard black outline.** It reads as a different kit from the soft paper pills, and at 1440 and 1280 it sits on the card's right edge.
+    - Shot: `design/studio/qa/2026-11-14-23-52/1440x900-day/03.jpg`
+    - Where: 1440x900 and 1280x800 (on the edge); 1920 (the look)
+    - Hook: `[data-component="her-idea"]` mic (the "tap or hold to speak" button)
+    - Fix: use the name tag's mic pill (pink, no black frame), with at least 12px of right padding.
+
+Checked, fine: "the team is visibly at work" (`design/studio/qa/2026-11-14-23-52/1920x1130-day/06.jpg`): the captions read well and sit on paper. The name tag frame flags as cut by 24px at `#room`, but by eye the paper and its pink edge are whole, so it's left as is.

@@ -1,0 +1,98 @@
+# Design QA 2026-11-14-23-52 UTC · 3fd9fbc
+
+2303 flags (small text 1282, clipped frame 370, contrast 186, text on edge 170, weight 144, scrollbar 90, default control 36, off-screen 13, mostly empty 6, not on main yet 4, room coverage 2).
+
+Against pass 1 (2026-11-14-23-36, full set kept locally): 549 new flags, 21 gone, 245 shots changed (≥1.5% of pixels).
+
+## New flags
+- clipped frame · [data-component="setup"][data-state="nametag"] · ::before frame cut by 24px at #room overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/01.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-sheet"][data-state="sketched"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/04.jpg` (1920x1130 day)
+- clipped frame · [data-component="team-status"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/04.jpg` (1920x1130 day)
+- scrollbar · [data-component="sketchpad-open"][data-state="open"] · scrolls on a Mac: 432x161 of content in 420x147 (overflow auto/auto) · `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-design-empty.jpg` (1920x1130 day)
+- clipped frame · [data-component="sketchpad-open"][data-state="open"] · ::before frame cut by 2px at its own overflow:auto/auto · `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-design-empty.jpg` (1920x1130 day)
+- scrollbar · [data-component="workspace"][data-state="open"] · scrolls on a Mac: 1438x821 of content in 1420x796 (overflow auto/auto) · `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-hers-empty.jpg` (1920x1130 day)
+- clipped frame · [data-component="workspace"][data-state="open"] · ::before frame cut by 2px at its own overflow:auto/auto · `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-hers-empty.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-sheet"][data-state="page"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-hers-full.jpg` (1920x1130 day)
+- clipped frame · [data-component="focus-doc"][data-state="asking"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/09-focus1.jpg` (1920x1130 day)
+- clipped frame · [data-component="focus-doc"][data-state="asking"] [data-slot="work"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/09-focus1.jpg` (1920x1130 day)
+- clipped frame · [data-component="focus-doc"][data-state="speaking"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/09-focus1-typed.jpg` (1920x1130 day)
+- clipped frame · [data-component="focus-doc"][data-state="speaking"] [data-slot="work"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/09-focus1-typed.jpg` (1920x1130 day)
+- scrollbar · [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] · scrolls on a Mac: 281x594 of content in 268x594 (overflow auto/auto) · `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-asking.jpg` (1920x1130 day)
+- clipped frame · [data-component="inbox-action"][data-state="asking"] · ::before frame cut by 2px at [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] overflow:auto/auto · `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-asking.jpg` (1920x1130 day)
+- clipped frame · [data-component="inbox-action"][data-state="speaking"] · ::before frame cut by 18px at [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] overflow:auto/auto · `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-speaking.jpg` (1920x1130 day)
+- off-screen · [data-component="chatter"] · box -7,25 → 1913,1105 in 1920x1130 · `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-speaking.jpg` (1920x1130 day)
+- clipped frame · [data-component="idea-layer"][data-state="on"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/13-her-page-open.jpg` (1920x1130 day)
+- clipped frame · [data-component="close-view"][data-state="asking"] · ::before frame cut by 2px at its own overflow:hidden/hidden · `design/studio/qa/2026-11-14-23-52/1920x1130-day/14-close.jpg` (1920x1130 day)
+- text on edge · [data-component="her-idea"][data-state="asking"] · 2.3px from its box: “tap or hold to speak” · `design/studio/qa/2026-11-14-23-52/1440x900-day/03.jpg` (1440x900 day)
+- small text · [data-component="place-card"][data-state="idle"] [data-slot="agent-mark"] · 12.5px on screen: “agent” · `design/studio/qa/2026-11-14-23-52/1440x900-day/04.jpg` (1440x900 day)
+- small text · [data-component="idea-sheet"][data-state="sketched"] · 11.4px on screen: “What’s the idea?” · `design/studio/qa/2026-11-14-23-52/1440x900-day/04.jpg` (1440x900 day)
+- small text · [data-component="chatter-line"][data-state="in"] [data-slot="who"] · 11.7px on screen: “Noor:” · `design/studio/qa/2026-11-14-23-52/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- small text · [data-component="chatter-line"][data-state="in"] [data-slot="who"] · 11.7px on screen: “Ines:” · `design/studio/qa/2026-11-14-23-52/1440x900-day/13-her-page-open.jpg` (1440x900 day)
+- small text · [data-component="her-idea"][data-state="asking"] · 12.0px on screen: “tap or hold to speak” · `design/studio/qa/2026-11-14-23-52/1280x800-day/03.jpg` (1280x800 day)
+- small text · [data-component="chatter-line"][data-state="in"] [data-slot="text"] · 12.1px on screen: “Ines, cutoff and pickup window go on the” · `design/studio/qa/2026-11-14-23-52/1280x800-night/13-her-page-open.jpg` (1280x800 night)
+- small text · [data-component="chatter-line"][data-state="in"] [data-slot="text"] · 12.1px on screen: “Bo's right, so the release time goes on ” · `design/studio/qa/2026-11-14-23-52/1280x800-night/13-her-page-open.jpg` (1280x800 night)
+- room coverage · #room · the room leaves bands: top 25px, bottom 25px, left 0px, right 0px · `` (1920x1130 day)
+- not on main yet · [data-component="app-button"] · no app button on this build: states no app / building / ready / new-version not checked · `` (1920x1130 day)
+- not on main yet · cursor · no custom cursor yet (computed: auto, pointer, text) · `` (1920x1130 day)
+
+## Changed shots (look at these)
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/12-decision-open.jpg` 30.52%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-speaking.jpg` 28.72%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/11-unblock-speaking.jpg` 28.31%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/11-unblock-speaking.jpg` 26.57%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/11-unblock-yes.jpg` 25.34%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/11-unblock-speaking.jpg` 18.99%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/11-unblock-speaking.jpg` 18.57%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/11-unblock-speaking.jpg` 17.49%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/11-unblock-yes.jpg` 16.07%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/13-her-page.jpg` 7.72%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/13-her-page.jpg` 7.49%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/13-her-page.jpg` 7.28%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/13-her-page.jpg` 7.26%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/13-her-page.jpg` 7.03%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/13-her-page.jpg` 6.93%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/07-hers-full.jpg` 4.62%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/07-hers-full.jpg` 4.53%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-hers-full.jpg` 4.45%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/07-hers-full.jpg` 4.43%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/07-hers-full.jpg` 4.41%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/07-hers-full.jpg` 4.34%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/12-team-space.jpg` 3.99%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/04.jpg` 3.61%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/04.jpg` 3.23%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/04.jpg` 3.11%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/04.jpg` 2.95%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/04.jpg` 2.94%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/04.jpg` 2.93%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/05.jpg` 2.9%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/05.jpg` 2.86%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/05.jpg` 2.81%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/12-team-space.jpg` 2.79%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/12-decision-open.jpg` 2.76%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/07-design-empty.jpg` 2.69%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-research-empty.jpg` 2.65%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/05.jpg` 2.6%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/03.jpg` 2.59%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-strategy-empty.jpg` 2.59%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/05.jpg` 2.58%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/07-research-empty.jpg` 2.56%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/03.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/07-research-empty.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/07-data-empty.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/07-design-empty.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-night/07-strategy-empty.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-design-empty.jpg` 2.55%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-engineering-full.jpg` 2.54%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/05.jpg` 2.53%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/07-strategy-full.jpg` 2.49%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/07-engineering-full.jpg` 2.49%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/07-design-empty.jpg` 2.45%
+- `design/studio/qa/2026-11-14-23-52/1920x1130-day/08-new.jpg` 2.44%
+- `design/studio/qa/2026-11-14-23-52/1280x800-day/03.jpg` 2.44%
+- `design/studio/qa/2026-11-14-23-52/1440x900-day/07-research-empty.jpg` 2.44%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/03.jpg` 2.42%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/07-research-empty.jpg` 2.42%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/07-data-empty.jpg` 2.42%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/07-design-empty.jpg` 2.42%
+- `design/studio/qa/2026-11-14-23-52/1440x900-night/07-strategy-empty.jpg` 2.42%
+- `design/studio/qa/2026-11-14-23-52/1280x800-night/03.jpg` 2.41%
