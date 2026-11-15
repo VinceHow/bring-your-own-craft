@@ -46,3 +46,45 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) fo
   assert.deepStrictEqual(errors, []);
   await page.close();
 });
+
+// The tidy on a pause (Vincent, Sun 09:08): ~1.2 s with no keystroke and at least 4 words tidies in place, before
+// Enter. His exact sentence typed, then a 1.5 s wait: the pen strikes "So," and "um,". Typing on through the pause
+// never loses a character (the tidy is slow here, and she keeps typing while it runs).
+for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) test(`${lookName}: typed, then a pause: the tidy plays in place, before Enter`, async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e)));
+  await page.route('**/api/meet-lines', r => r.fulfill({ json: { lines: {} } }));
+  await page.goto(BASE + '/' + look);
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen(), null, { timeout: 8000 });
+  await page.evaluate(() => { window.__strikes = null; new MutationObserver(() => { const ov = document.querySelector('[data-component="tidy-moment"]'); if (ov && !window.__strikes) window.__strikes = [...ov.querySelectorAll('[data-state="cut"]')].map(w => w.textContent.trim()); }).observe(document.body, { childList: true, subtree: true }); });
+  await page.click('#idea-input'); await page.keyboard.type(SAID, { delay: 20 });
+  await page.waitForTimeout(1500);
+  await page.waitForFunction(() => document.getElementById('idea-input').dataset.state === 'tidied', null, { timeout: 4000 });
+  assert.equal(await page.inputValue('#idea-input'), 'I wanna build a bakery shop');
+  assert.equal(await page.getAttribute('#idea-input', 'data-tidy'), 'cut');
+  assert.ok(await page.evaluate(() => BYOC.ideaOpen()), 'still on the card: the pause tidies, it never moves on');
+  if (look) assert.deepStrictEqual(await page.evaluate(() => window.__strikes), ['So,', 'um,'], 'the pen strikes her fillers');
+  // Enter now doesn't tidy again: her idea is the tidied line
+  await page.press('#idea-input', 'Enter');
+  await page.waitForFunction(() => window.BYOC.pendingIdea, null, { timeout: 8000 });
+  assert.equal(await page.evaluate(() => BYOC.pendingIdea), 'I wanna build a bakery shop');
+  assert.deepStrictEqual(errors, []);
+  await page.close();
+});
+
+test('typing on through a pause tidy never loses a character', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/meet-lines', r => r.fulfill({ json: { lines: {} } }));
+  await page.route('**/api/tidy', async r => { const { text } = JSON.parse(r.request().postData()); await new Promise(f => setTimeout(f, 900)); r.fulfill({ json: { text: text.replace(/^So, um, /, ''), tidied: true } }); });
+  await page.goto(BASE + '/?tidypause=600');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen(), null, { timeout: 8000 });
+  await page.click('#idea-input'); await page.keyboard.type(SAID, { delay: 10 });
+  await page.waitForFunction(() => document.getElementById('idea-input').dataset.state === 'tidying', null, { timeout: 3000 });
+  const more = ' with a counter for the regulars';
+  await page.keyboard.type(more, { delay: 15 }); // while the tidy runs
+  await page.waitForTimeout(1200);
+  const v = await page.inputValue('#idea-input');
+  assert.ok(v === SAID + more || v.endsWith(more), `every character she typed is there (${v})`);
+  assert.ok(!v.startsWith('I wanna') || v === 'I wanna build a bakery shop' + more, 'never a half-overwritten line');
+  await page.close();
+});

@@ -266,7 +266,7 @@
     if ($('close-input').readOnly) return;
     const raw = $('close-input').value.trim();
     if (!raw) { $('close-input').focus(); return; } // nothing typed: the button stays 'off', the caret waits in the box
-    if ($('close-input').dataset.state === 'tidying' || $('close-make')?.dataset.state === 'working') return; // one at a time
+    if ($('close-make')?.dataset.state === 'working') return; // one at a time (a pause tidy in flight is joined below, not dropped)
     make('working'); // pressed: it answers at once, before the tidy
     // her idea, tidied in place first (cut, never reworded; at most 2.5 s, else her raw words)
     const idea = typeof BYOC.tidyInto === 'function' ? await BYOC.tidyInto($('close-input'), raw) : raw;
