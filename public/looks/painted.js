@@ -363,7 +363,7 @@
   }
   function tidyMoment(el) {
     const raw = el.dataset.raw || '', clean = ('value' in el ? el.value : el.textContent) || '';
-    if (!raw || raw.trim() === clean.trim() || !el.offsetParent || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (el.dataset.tidy === 'skipped' || !raw || raw.trim() === clean.trim() || !el.offsetParent || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const cs = getComputedStyle(el), ov = document.createElement('div');
     ov.dataset.component = 'tidy-moment'; ov.dataset.tidy = el.dataset.tidy || 'cut'; ov.setAttribute('aria-hidden', 'true');
     for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing', 'color', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'textAlign'])

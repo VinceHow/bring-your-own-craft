@@ -1372,3 +1372,18 @@ html.painted-on [data-component="tidy-moment"][data-leave] { opacity: 0; }
 
 /* the name tag's first moment of joy: her sentence stays on the paper while it's tidied ('thinking'), then the form steps away */
 html #room [data-component="character-card"][data-state="thinking"] [data-slot="status"] { font-size: 17px; color: var(--ink-2); margin-top: 12px; }
+/* meet the team, with her pace and their loadout (builder 7's hooks: [data-slot="next"] next|last, [data-slot="kit-label"],
+   [data-slot="kit"] > [data-slot="kit-item"]). "Loaded with" reads like "Brings": a small label in their colour, then 2-3 quiet
+   lines, each with a short ink dash. The way on is the one dark pill, bottom right; the count moves to the bottom left. */
+html #room [data-component="meet-card"] [data-slot="kit-label"] { display: block; margin: 16px 0 4px; font: 500 13px/1 var(--ui); color: var(--mt, var(--ink)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="meet-card"] [data-slot="kit"] { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+html #room [data-component="meet-card"] [data-slot="kit-item"] { position: relative; padding-left: 16px; font: 400 15px/1.35 var(--ui); color: var(--ink-2); }
+html #room [data-component="meet-card"] [data-slot="kit-item"]::before { content: ''; position: absolute; left: 0; top: .68em; width: 9px; height: 1.6px; border-radius: 2px; background: var(--mc, var(--ink)); }
+html #room [data-component="meet-card"] [data-slot="next"] { position: absolute; right: 30px; bottom: 22px; appearance: none; border: 0; height: 50px; padding: 0 26px; border-radius: 999px; cursor: pointer;
+  background: #33261C; color: #FBF5EA; font: 500 17px/1 var(--ui); box-shadow: 4px 4px 0 0 var(--mc, var(--product)); transition: translate .25s cubic-bezier(.2,.7,.2,1); }
+html #room [data-component="meet-card"] [data-slot="next"]::after { content: '→'; display: inline-block; margin-left: 10px; transition: translate .25s cubic-bezier(.2,.7,.2,1); }
+html #room [data-component="meet-card"] [data-slot="next"]:hover { translate: 0 -2px; }
+html #room [data-component="meet-card"] [data-slot="next"]:hover::after { translate: 3px 0; }
+html #room [data-component="meet-card"] [data-slot="next"]:focus-visible { outline: none; box-shadow: 4px 4px 0 0 var(--mc, var(--product)), 0 0 0 3px #FBF5EA, 0 0 0 5px #33261C; }
+html #room [data-component="meet-card"]:has([data-slot="next"]) { padding-bottom: 96px; }
+html #room [data-component="meet-card"]:has([data-slot="next"]) [data-slot="count"] { right: auto; left: calc(var(--fw) + var(--gap) + 34px); bottom: 38px; }
