@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+const L = u => process.env.E2E_LOOK && !/[?&]look=/.test(u) ? u + (u.includes('?') ? '&' : '?') + 'look=' + process.env.E2E_LOOK : u; // E2E_LOOK=plain|painted
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
@@ -28,7 +29,7 @@ before(async () => {
   page.on('pageerror', e => errors.push(String(e)));
   await page.route('**/api/run/**', r => r.fulfill({ status: 200, json: { ok: true } })); // nothing reaches a model
   await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } })); // the tidy answers at once: no model, no flake
-  await page.goto(`http://localhost:${PORT}/?stage=1`);
+  await page.goto(L(`http://localhost:${PORT}/?stage=1`));
   await page.waitForFunction(() => window.BYOC && BYOC.openSketchpad && BYOC.stage);
   await page.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run'; });
 });
@@ -94,7 +95,7 @@ test('her workspace: empty parts say what happens next; a live run with her idea
   await p.route('**/api/run', r => r.fulfill({ status: 200, json: { run: 'live-run' } })); // her run, as the server makes it
   await p.route('**/api/run/**', r => r.fulfill({ status: 200, json: { ok: true } }));
   await p.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } })); // no model
-  await p.goto(`http://localhost:${PORT}/?stage=1`);
+  await p.goto(L(`http://localhost:${PORT}/?stage=1`));
   await p.waitForFunction(() => window.BYOC && BYOC.openWorkspace && BYOC.stage);
   await p.evaluate(() => BYOC.stage(3, { instant: true }));
   await p.evaluate(() => BYOC.openWorkspace());
