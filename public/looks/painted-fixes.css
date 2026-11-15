@@ -292,3 +292,13 @@ html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(-
    beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
 html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+
+/* ---- AUDIT #4: Bo's full pad shows all its calls, no inner scroll ----
+   His pad (four calls, each a question, his answer and a why) needed 585px of list in a 290px window. It's now wider
+   (fewer wrapped lines) and taller: it still ends above the corner's Fake run label and "No app yet" chip, and starts
+   below the inbox tray, so nothing at the right edge is covered. Rows sit a little closer. */
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] {
+  width: 600px !important; max-width: none; left: auto !important; right: calc(40px + var(--crop-x, 0px)) !important;
+  top: calc(124px + var(--crop-y, 0px)) !important; bottom: auto !important; max-height: calc(100% - 296px - 2 * var(--crop-y, 0px)) !important; height: auto !important; margin: 0 !important; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] { gap: 10px !important; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] > li { padding-top: 10px !important; padding-bottom: 10px !important; margin: 0 !important; }
