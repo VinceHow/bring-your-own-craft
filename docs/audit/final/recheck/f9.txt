@@ -1,0 +1,15 @@
+model switches as recorded: {"regulars":true,"regularsFirst":true,"standingOrder":false,"cutoff":true,"phone":false,"remember":true,"oneTapCancel":true,"cancelReason":false}
+used switches: {"regulars":true,"regularsFirst":true,"standingOrder":false,"cutoff":true,"phone":false,"remember":true,"oneTapCancel":true,"cancelReason":false,"email":false,"quantity":false}
+{
+ "visibleFormLabels": [
+  "First name",
+  "Bread and collection time",
+  "Remember me on this device"
+ ],
+ "email": true,
+ "howMany": false,
+ "phone": false,
+ "aText": false,
+ "decidedForYou": false,
+ "sectionOrder": "hero,regulars,bread,loaf,confirm,ordered,visit"
+}
