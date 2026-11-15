@@ -18,7 +18,7 @@ personality, and wears whichever role the table needs. No new art is needed.
 The teammate whose craft she takes moves to **Product**. If she takes a flex seat or brings her own craft, **Ines moves to
 Product**: the explorer with the map reads naturally as product discovery.
 
-| She takes | Mika | Noor | Bo | Theo | Ines |
+| She takes | Mika | Wren | Bo | Theo | Ines |
 |---|---|---|---|---|---|
 | Product (default, the demo) | Design | Research | Engineering | Data | Strategy |
 | Design | **Product** | Research | Engineering | Data | Strategy |
@@ -31,7 +31,7 @@ Product**: the explorer with the map reads naturally as product discovery.
 *flex* = the generated role that fits the idea. Theo keeps his little card with one bar, which reads well for operations,
 measurement or any "keeps track" role.
 
-Props still read: Mika's sketchbook works for product journeys, Noor's tabbed book for customer notes, Bo's laptop for
+Props still read: Mika's sketchbook works for product journeys, Wren's tabbed book for customer notes, Bo's laptop for
 specs, Ines's map for discovery. The mood clips are craft-neutral (working, thinking, talking, a note, delighted, celebrating).
 
 ## The trick that makes it feel real
