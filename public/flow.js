@@ -510,9 +510,18 @@
       ta.addEventListener('keydown', e => {
         e.stopPropagation(); // keep the room's beat keys away while she types
         if (e.key === 'Escape') finish(null);
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish(ta.value.trim() || null); }
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); keep(); }
       });
-      ta.addEventListener('blur', () => setTimeout(() => finish(ta.value.trim() || null), 0));
+      // Her note is tidied in place before it's pinned (data-raw / data-state / data-tidy on the note's textarea).
+      const keep = async () => {
+        if (done) return;
+        const raw = ta.value.trim();
+        if (!raw || typeof B.tidyInto !== 'function') return finish(raw || null);
+        if (ta.dataset.state === 'tidying') return;
+        await B.tidyInto(ta, raw);
+        finish(ta.value.trim() || raw);
+      };
+      ta.addEventListener('blur', () => setTimeout(() => { if (ta.dataset.state !== 'tidying') keep(); }, 0));
     });
   }
 
