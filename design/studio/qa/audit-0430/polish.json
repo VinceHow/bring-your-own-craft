@@ -1,0 +1,796 @@
+{
+ "at": "2026-11-15T04:44:02.248Z",
+ "base": "http://localhost:4481",
+ "results": [
+  {
+   "sec": 2,
+   "item": "the idea paper: 300 words",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-idea-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: has the mic",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "mic in the card",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-idea-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: pasted paragraph",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-idea-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: shortcuts never fire while typing",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "S R J ? typed into the field, nothing fired",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: Shift+Enter makes a new line",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "new line kept",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-idea-shift-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: Esc leaves the field",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "focus left the field",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: empty input",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "primary stays “Next” (enabled); Enter on empty did nothing",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-idea-empty-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: the tidy in place",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-idea-03.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: 300 words",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-nametag-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: has the mic",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "mic in the card",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-nametag-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: pasted paragraph",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-nametag-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: shortcuts never fire while typing",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "S R J ? typed into the field, nothing fired",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: Shift+Enter makes a new line",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "new line kept",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-nametag-shift-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: Esc leaves the field",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "focus left the field",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: empty input",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "primary stays “Make my tag” (enabled); Enter on empty did nothing",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-nametag-empty-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: the tidy in place",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "tidied: tidied/cut: “the regulars, want their usual loaf”; layout shift 0px over 10 frames",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-nametag-03.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): 300 words",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-focus-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): has the mic",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "mic in the card",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-focus-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): pasted paragraph",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-focus-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): shortcuts never fire while typing",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "S R J ? typed into the field, nothing fired",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): Shift+Enter makes a new line",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "new line kept",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-focus-shift-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): Esc leaves the field",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "focus left the field",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): empty input",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "primary stays “Send” (enabled); Enter on empty did nothing",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-focus-empty-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): the tidy in place",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-focus-03.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): 300 words",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-unblock-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): has the mic",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "mic in the card",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-unblock-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): pasted paragraph",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field grows; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-unblock-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): shortcuts never fire while typing",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "S R J ? typed into the field, nothing fired",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): Shift+Enter makes a new line",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "new line kept",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-unblock-shift-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): Esc leaves the field",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "focus left the field",
+   "evidence": "",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): empty input",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "primary stays “Yes” (enabled); Enter on empty did nothing",
+   "evidence": "design/studio/qa/audit-0430/polish/1920-unblock-empty-enter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): the tidy in place",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "tidied: tidied/cut: “The regulars, want their usual loaf”; layout shift 0px over 10 frames",
+   "evidence": "design/studio/qa/audit-0430/polish/tidy-unblock-03.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: 300 words",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-idea-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: pasted paragraph",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-idea-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: 300 words",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-nametag-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: pasted paragraph",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-nametag-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): 300 words",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-focus-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): pasted paragraph",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-focus-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): 300 words",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-unblock-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): pasted paragraph",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field grows; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-unblock-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: 300 words",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-idea-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the idea paper: pasted paragraph",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-idea-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: 300 words",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-nametag-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "her name tag: pasted paragraph",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-nametag-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): 300 words",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-focus-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "Focus 1 (her answer): pasted paragraph",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-focus-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): 300 words",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field scrolls inside itself; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-unblock-300-words.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 2,
+   "item": "the unblock card (say something else): pasted paragraph",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "fits (field grows; primary on screen)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-unblock-pasted-paragraph.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "prefers-reduced-motion gets static versions",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "door layer skipped; 1 running animations right after the reveal",
+   "evidence": "design/studio/qa/audit-0430/polish/reduced-motion-reveal.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: the door plaque",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (10 × 350 ms), layout shift 0px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-the-door-plaque-05.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: each meet card entrance",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (8 × 120 ms), layout shift 0px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-each-meet-card-entrance-04.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: the team getting to work",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (8 × 300 ms), layout shift 0px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-04.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: a teammate reply arriving",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (8 × 150 ms), layout shift 0px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-04.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: End meeting → takeaways",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (10 × 250 ms), layout shift 1px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-05.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 3,
+   "item": "magic moment: Bo’s smile on Yes",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "frame strip (10 × 250 ms), layout shift 0px; scored by eye in the audit",
+   "evidence": "design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-05.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "within 300 ms she sees who is doing what (Send)",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "reading: “The team is reading what you said…”",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-send-300ms.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the meeting: “New replies ↓” when scrolled up",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "pill shows",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-new-replies.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "chatter: ≤8 words, at most 2 at a time",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "1 at once at most; longest 6 words (“then remember them on the device”)",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the inbox has one home (top right)",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "centre at 1699,63 in 1920x1130",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "no question previews in the room",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "none",
+   "evidence": "design/studio/qa/audit-0430/polish/1920x1130-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "within 300 ms she sees who is doing what (Send)",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "reading: “The team is reading what you said…”",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-send-300ms.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the meeting: “New replies ↓” when scrolled up",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "pill shows",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-new-replies.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "chatter: ≤8 words, at most 2 at a time",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "1 at once at most; longest 6 words (“then remember them on the device”)",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the inbox has one home (top right)",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "centre at 1262,50 in 1440x900",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "no question previews in the room",
+   "size": "1440x900",
+   "mode": "",
+   "result": "PASS",
+   "note": "none",
+   "evidence": "design/studio/qa/audit-0430/polish/1440x900-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "within 300 ms she sees who is doing what (Send)",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "reading: “The team is reading what you said…”",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-send-300ms.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the meeting: “New replies ↓” when scrolled up",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "pill shows",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-new-replies.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "chatter: ≤8 words, at most 2 at a time",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "1 at once at most; longest 6 words (“then remember them on the device”)",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "the inbox has one home (top right)",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "centre at 1121,44 in 1280x800",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 4,
+   "item": "no question previews in the room",
+   "size": "1280x800",
+   "mode": "",
+   "result": "PASS",
+   "note": "none",
+   "evidence": "design/studio/qa/audit-0430/polish/1280x800-chatter.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 5,
+   "item": "the cursor family (day)",
+   "size": "1920x1130",
+   "mode": "day",
+   "result": "PASS",
+   "note": "everyday url(\"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/20…612; over a button folded (differs); input own; window hidden by day",
+   "evidence": "design/studio/qa/audit-0430/polish/cursor-day.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 5,
+   "item": "the cursor family (night)",
+   "size": "1920x1130",
+   "mode": "night",
+   "result": "PASS",
+   "note": "everyday url(\"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/20…612; over a button folded (differs); input own; window paw",
+   "evidence": "design/studio/qa/audit-0430/polish/cursor-night.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 6,
+   "item": "meet cards: “Loaded with” / “Made with” only true tools",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "NOTE",
+   "note": "design: loaded [taste-skill’s design rules (MIT), Claude, sketching journeys and screens] made [Studio, clips, music painted on fal, The room’s frames, laid out in Figma] · data: loaded [Claude: one measure per step, Keeps only data decisions use] made [] · research: loaded [Linkup finding: Bakery Business, 14 Nov, Claude, citing only what it read] made [Researched with Linkup, before the demo] · strategy: loaded [Claude: price and payment calls, Says who pays, and why now] made [] · engineering: loaded [The bakery page template, Schema-checked fill, built live, Claude (Sonnet), through fal] made [This app, built with Claude Code] — notes: design: “taste-skill’s design rules (MIT)” is under Loaded with; POLISH lists taste-skill under Made with; data: “Keeps only data decisions use” names no tool; research: Made with “Researched with Linkup, before the demo” is outside POLISH's list (fal, Figma, taste-skill): check it is true; strategy: “Says who pays, and why now” names no tool; engineering: “The bakery page template” names no tool; engineering: “Schema-checked fill, built live” names no tool; engineering: Made with “This app, built with Claude Code” is outside POLISH's list (fal, Figma, taste-skill): check it is true",
+   "evidence": "design/studio/qa/audit-0430/polish/meet-kit.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 6,
+   "item": "prepared things are labelled: Noor’s finding",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "“researched before the demo” shows",
+   "evidence": "design/studio/qa/audit-0430/polish/label-finding.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 6,
+   "item": "prepared things are labelled: the replay",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "label: “Replay recorded run “rehearsal” · Sun 02:49 AM”",
+   "evidence": "design/studio/qa/audit-0430/polish/label-replay.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 7,
+   "item": "fallback ?setup=classic",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "opens on setup step “nametag” (classic: the name tag first)",
+   "evidence": "design/studio/qa/audit-0430/polish/fallback-setup-classic.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 7,
+   "item": "fallback ?meeting=0 (one Send, no rounds)",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "single Send, no End meeting",
+   "evidence": "design/studio/qa/audit-0430/polish/fallback-meeting-0.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 7,
+   "item": "fallback ?look=plain",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "{\"iframe\":false,\"on\":false}",
+   "evidence": "design/studio/qa/audit-0430/polish/fallback-plain.jpg",
+   "owner": ""
+  },
+  {
+   "sec": 7,
+   "item": "fallback R replay",
+   "size": "1920x1130",
+   "mode": "",
+   "result": "PASS",
+   "note": "{\"replay\":true,\"name\":\"rehearsal\",\"beat\":4}",
+   "evidence": "design/studio/qa/audit-0430/polish/fallback-replay.jpg",
+   "owner": ""
+  }
+ ]
+}
