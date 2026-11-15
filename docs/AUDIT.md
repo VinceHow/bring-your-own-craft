@@ -294,6 +294,19 @@ WON'T FIX rows, by the lead's call: the focus meetings (6b), the app tag, time p
 | app button, new version pulse | PASS | controls 2: “Open the app v2, just now”, “Cycle tap for day” · competing 0:  · guidance 1: “v2, just now” |  |
 | /slides/ | PASS | controls 0:  · competing 0:  · guidance 0:  |  |
 
+### The plain look (\`?look=plain\`, the fallback), 1920/1440/1280, day and night
+
+The room, the idea sheet and journey, the team working, her page and the setup pages work. The plain look keeps its own bold sticker style: weight 600 throughout, no night grade. The fallback is not held to the painted taste rules, so its weights and grey buttons are counted, not failed. These break its use:
+
+| # | FAIL | Evidence | Owning files | Owner |
+|---|---|---|---|---|
+| P1 | **The meeting is stuck in plain.** After her first Send, the right column loses the field, Send, End meeting and the conversation; only the help line stays. The team's replies land as raw lines inside the research card, with a stray count ("2", "6"). She cannot see how to send another round or end the meeting. (The takeaways do show once End meeting is triggered.) | \`design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1.jpg\` (before Send, fine), \`design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r1.jpg\`, \`design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r3.jpg\`, \`design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1-takeaways.jpg\` | focus-doc.js · room.css / polish.css (the meeting column has no plain styles) | (to route) |
+| P2 | **The unblock card is unstyled in plain.** It's a full white sheet with a grey browser-default "Back to the room" bar, run-together text ("Bo's blockedSetting up ordering") and tiny default Yes / Say something else buttons | \`design/studio/qa/audit-0430/plain/1920x1130-day-11-unblock-asking.jpg\` | inbox.js · room.css / polish.css | (to route) |
+| P3 | **The inbox drawer is unstyled in plain.** It covers the room as a blank white sheet, with grey default bars ("Close your inbox", the item), a native ▶ and native checkboxes | \`design/studio/qa/audit-0430/plain/1920x1130-day-08-drawer.jpg\` | inbox.js · room.css / polish.css | (to route) |
+| P4 | The collapsed inbox's "Nothing needs you yet" is a grey ButtonFace button in the room (minor) | \`design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg\` | inbox.js · room.css | (to route) |
+
+Plain passes: the room (\`design/studio/qa/audit-0430/plain/1920x1130-day-03.jpg\`), the team working (\`design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg\`), her page at 1280 (\`design/studio/qa/audit-0430/plain/1280x800-day-13-her-page-open.jpg\`), and no painted layers loaded.
+
 **Also passing, by size** (no hard flag; evidence under `design/studio/qa/audit-0430/painted/<size>-daynight/`, `<size>-<mode>-nametag/`, `1920x1130-<mode>/extras/`):
 - **Day / night, all 3 sizes:**
   - The pill label matches the mode (Cycle, Day, Night).
