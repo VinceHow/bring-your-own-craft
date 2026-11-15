@@ -270,3 +270,12 @@ html body #room #inbox #counter #brought { margin: 0 3px; color: var(--product-t
 html body #room #inbox #counter > span > span:last-child { font-size: 0 !important; line-height: 0; }
 html body #room #inbox #counter > span:first-child > span:last-child::after { content: 'decisions'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
 html body #room #inbox #counter > span:last-child > span:last-child::after { content: 'to you'; font: 400 14px/1.2 var(--ui, system-ui, sans-serif); color: var(--ink-2, #4E3A2B); }
+/* ---- JANK 16: at night the setup pages are night too (TASTE: night is really night) ----
+   The idea paper, the name tag and meeting the team sat on the bright, blurred day door while the room behind was the
+   rainy night. There's no night door painting (and no new art tonight), so the same door is graded to dusk: darker,
+   cooler, under a deep blue wash. The papers stay cream, lamp-lit against it. */
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"]) { background: #1E2236; }
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"])::before {
+  filter: blur(9px) brightness(.42) saturate(.7) hue-rotate(-12deg) !important; }
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"])::after {
+  background: radial-gradient(70% 70% at 50% 45%, rgba(255, 196, 120, .10), rgba(16, 20, 44, .55)) !important; }
