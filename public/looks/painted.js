@@ -312,6 +312,21 @@
     off = B.on('reset', () => finish(false)); layer.addEventListener('transitionend', off, { once: true });
   });
 
+  // ---- her cursor over clickable things: the folded paper-cut triangle (painted.css sets the everyday one) ----
+  const CLICKABLE = 'a[href], button:not(:disabled), [role="button"], label, select, summary';
+  let HOVER_CURSOR = '';
+  document.addEventListener('mouseover', e => {
+    HOVER_CURSOR = HOVER_CURSOR || getComputedStyle(document.documentElement).getPropertyValue('--pt-cursor-hover').trim();
+    if (!HOVER_CURSOR) return;
+    for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
+      if (el.dataset.ptCursor) return;
+      const c = getComputedStyle(el).cursor;
+      if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
+      if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
+      if (c !== 'auto' && !c.startsWith('url(') ) return;   // text, default, the window's paw: theirs
+    }
+  }, true);
+
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');
   // ---- 5. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----
