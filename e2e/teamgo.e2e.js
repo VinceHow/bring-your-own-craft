@@ -29,6 +29,7 @@ async function atTheIdea(propose, query = '') {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = []; page.on('pageerror', e => errors.push(String(e)));
   const calls = { propose: 0, line: 0, reshape: 0 };
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } })); // the tidy answers at once: no model
   await page.route(/\/api\/run$/, r => r.fulfill({ status: 200, json: { run: 'stub-run' } }));
   await page.route('**/api/run/*/sketch', r => r.fulfill({ status: 202, json: { started: true } }));
   await page.route('**/api/run/*/line', r => { calls.line++; return r.fulfill({ status: 200, json: { ok: true } }); });

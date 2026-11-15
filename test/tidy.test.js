@@ -178,6 +178,15 @@ test('the guard: reorders, merges and inflections pass; a new content word or a 
   assert.equal(checkTidy('three point five stars, 3.5 stars', 'It has 35 stars.'), null, '3.5 -> 35: punctuation inside a number never merges it');
   assert.equal(checkTidy(raw, ''), null);
 });
+test('the guard (audit F12): a swapped function word is refused; only a, an, the, and may be added', () => {
+  const { checkTidy } = T;
+  const raw = "an ordering website for my friend's small bakery so customers can order bread ahead";
+  assert.equal(checkTidy(raw, "An ordering website for my friend's small bakery, where customers can order bread ahead."), null, 'so -> where: not her word');
+  assert.ok(checkTidy(raw, "An ordering website for my friend's small bakery, so customers can order bread ahead."), 'her words, punctuated');
+  assert.equal(checkTidy('customers order bread ahead', 'Customers can order bread ahead.'), null, 'an added "can"');
+  assert.ok(checkTidy('um website for bakery and you order ahead', 'A website for the bakery, and you order ahead.'), 'articles and "and" may be added');
+  assert.ok(checkTidy('browse the menu', 'Browsing the menu.'), 'an inflection still passes');
+});
 
 test('lead-ins are dropped: a short line with "The idea is:" still goes to the tidy, and the cut passes', async () => {
   const { alreadyClean, tidyText } = T;
