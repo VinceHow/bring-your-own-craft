@@ -151,7 +151,7 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
         hers = slot(h('p', 'ia-hers'), 'hers'); hers.contentEditable = 'true'; hers.spellcheck = false; hers.dataset.voice = 'unblock';
         hers.setAttribute('aria-label', 'Your answer');
         hers.addEventListener('input', () => { const t = hers.textContent.trim(); if (t) { sayLabel.textContent = 'Say it again'; B.emit && B.emit('action.say', { id: n.id, text: t }); } });
-        hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); yes.click(); } if (e.key === 'Escape') hers.blur(); });
+        hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); if (hers.textContent.trim()) yes.click(); else note.textContent = 'Say or type your answer, then Enter'; } if (e.key === 'Escape') hers.blur(); }); // empty: never sends the struck suggestion
         // Her spoken answer is tidied in place (her words, clearer order; data-raw / data-state / data-tidy on .ia-hers).
         hers.addEventListener('byoc:voice', e => { tidyHers(e.detail && e.detail.text); });
         sug.append(h('span', 'k', 'You said'), hers, slot(h('span', 'ia-was', sugText), 'was'));

@@ -59,7 +59,7 @@ test('the app button: there from the first frame, never covered, a sensible stat
   assert.ok(await p.isDisabled('.app-open'), 'nothing to open yet');
   assert.ok(await onTop(p), 'on top of the setup');
   // through the setup and the reveal, into the room (beat 4)
-  await p.focus('#intro-input'); await p.keyboard.press('Enter');
+  await p.evaluate(() => BYOC.introDone()); // past her name tag with no words (an empty Enter now asks for them instead)
   await p.waitForFunction(() => document.querySelectorAll('.seat .card[data-component="place-card"]').length >= 5, null, { timeout: 30000 });
   assert.equal(await state(), 'none'); assert.ok(await onTop(p), 'on top of the room');
   // the live site link (DEPLOY_URL is set for this server)
