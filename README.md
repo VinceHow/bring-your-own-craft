@@ -13,40 +13,37 @@ I'm a builder at heart, and I love the craft: understanding people, deciding wha
 This is the story I tell on stage, one slide at a time.
 
 ![Slide 2, the problem: coding agents ask about everything; AI app builders assume everything](docs/readme/slides/02-the-problem.jpg)
-I love building, but building with AI today keeps pulling me away from the part I'm good at. Coding agents ask about
-everything, so I spend my time stamping approvals instead of thinking. AI app builders go the other way and assume
-everything, so my own craft and judgement never make it into what they build. Either way, the thing I actually bring
-gets lost.
+Building with AI today pulls me away from my craft. Coding agents ask about everything, so the busywork lands on
+me: approvals, "continue?", questions nobody signed up for. AI app builders assume everything, so my judgement never
+gets in. Both get it backwards: they hand me the busywork and take away the judgement.
 
 ![Slide 3, the shift: AI will outdo us, so we get to choose](docs/readme/slides/03-the-shift.jpg)
-AI is going to be more productive than us at a lot of work. Built the right way, it takes away the busywork we
-dislike: the approvals, the boilerplate, the questions nobody signed up for. That's what frees us to choose what we
-love, and the way we work has to change so that choice is really ours.
+It doesn't have to be that way. AI will be more productive than us at much of the work. Built the right way, it
+takes the busywork we dislike and leaves the judgement with us.
 
 ![Slide 4, our answer: your judgement, your joy](docs/readme/slides/04-our-answer.jpg)
-So what do we keep? Our judgement: taste, expertise, craft. And our joy, the part of the work we'd do even if nobody
-asked. Those are what I want a person to bring to the table, and what the rest of the team should protect.
+And once the busywork is gone, we get to choose. We can spend our time on what we love. What we keep is our
+judgement (taste, expertise, craft) and our joy, the part of the work we'd do even if nobody asked.
 
 ![Slide 5, the vision: 90% of your time on the craft you love, over the painted studio](docs/readme/slides/05-the-vision.jpg)
-That's the vision: spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You
-take the seat of your craft, and a team of agents fills every other seat, handles its own work and brings you only
-the few big questions that need you. I built it as a hand-painted studio, because feeling settled is what lets you
-think.
+So I built a team that works that way. You take the seat of your craft; agents take every other seat, do their own
+work, and bring you only the few big questions that are in your craft. The result is what I wanted all along: 90% of
+your time on the craft you love, in flow.
 
 ![Slide 6, how it feels: four real clips of the product](docs/readme/slides/06-how-it-feels.jpg)
-These are real clips from the product. You bring your best self, and the team gets to know you. When you speak, your
-words are kept and the team builds on them. You only see the decisions that matter, and when one reaches you, the
-room goes quiet: a safe place to think out loud.
+Here's how that feels, in real clips from the product. The team gets to know you. When you speak, your words are
+kept and the team builds on them. You only see the decisions that matter, and when one reaches you, the room goes
+quiet: just you and the question.
 
 ![Slide 7, built the way it works: one human with an idea, a team of agents](docs/readme/slides/07-built-the-way-it-works.jpg)
-I built it the same way it works. I acted as product owner and stuck to the decisions I'm good at; a team of agents
-did the rest, as builders, designers, reviewers and a merger, each on its own branch. That's over 1,000 commits in
-about 23 hours.
+The proof: I built it the same way. One human with an idea and a team of agents: I stuck to the
+decisions I'm good at, and agents did the rest, as builders, designers, reviewers and a merger. That's over 1,000
+commits in about 23 hours.
 
 ![Slide 8, the future: a table with room for everyone, people and agents side by side](docs/readme/slides/08-the-future.jpg)
-Where this goes next is a table with room for everyone. Today the other seats are agents; next, a real engineer can
-take the Engineering seat and bring their own team of agents. People and agents side by side, everyone doing what
-they're best at.
+Next, the table gets bigger. Today the other seats are agents; next, real people join them: a real engineer takes
+the Engineering seat and brings their own team of agents. A table with room for everyone, each doing what they're
+best at.
 
 Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `talk.html` at the repo root).
 
@@ -166,9 +163,6 @@ Agents track.
 **A new way of working.** A lot of work will stop being economically productive for people to do. I want to build a
 way of working with AI agents that preserves our craft and imagination, and lets us spend more than 90% of our time
 doing what we love.
-
-AI will be more productive at a lot of work. Built right, it takes the busywork we dislike off our hands, and that's what lets us choose to spend our time on what we love. What we bring is our judgement, and
-the joy of doing the part we love.
 
 **A team that keeps what it learns about you.** Every tool today starts from zero, so you explain yourself again on
 every project. Your team should keep its own picture of you: your customers, your taste, your philosophy as it
