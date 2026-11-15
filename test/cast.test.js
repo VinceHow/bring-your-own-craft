@@ -16,7 +16,7 @@ const castRoutes = (await import('../routes/cast.js')).default;
 
 // Call a route handler and read back the JSON it sent.
 async function call(routes, p, body) {
-  const r = routes.find(x => x.path === p);
+  const r = routes.find(x => x.path === p) || routes.find(x => x.method === 'POST' && x.match?.(new URL('http://x' + p)));
   let code = 0, out = '';
   const res = { writeHead: c => { code = c; }, setHeader() {}, end: s => { out = s; } };
   await r.handler({ method: 'POST' }, res, { body, url: new URL('http://x' + p) });
@@ -40,7 +40,7 @@ test('the table: whose craft she takes moves to Product; a flex seat or her own 
   }
 });
 
-test('the flex teammate: one fast call writes the card; slow, failed or unusable -> the default role', async () => {
+test('the flex teammate: one fast call writes the card; slow, failed or unusable -> no role (no fallback)', async () => {
   const good = await C.writeFlex('diy', { tag: { craft: 'Baker' }, callModel: async a => {
     assert.equal(a.model, 'haiku');
     assert.match(a.system, /her own craft: Baker/);
@@ -48,25 +48,25 @@ test('the flex teammate: one fast call writes the card; slow, failed or unusable
   } });
   assert.deepEqual([good.role, good.flex.name, good.flex.brings], ['flex', 'Operations', 'the morning bake list and pickup calls for this page']);
   const slow = await C.writeFlex('diy', { limitMs: 30, callModel: () => new Promise(r => setTimeout(() => r({ name: 'Ops', focus: 'x' }), 200)) });
-  assert.deepEqual([slow.role, /over 30 ms/.test(slow.fallback)], ['data', true]);
+  assert.deepEqual([slow.role, /over 30 ms/.test(slow.failed)], [null, true]);
   const failed = await C.writeFlex('data', { callModel: async () => { throw new Error('boom'); } });
-  assert.equal(failed.role, 'strategy', 'she took Data: the open flex seat defaults to Strategy');
+  assert.deepEqual([failed.role, failed.failed], [null, 'boom']);
   const taken = await C.writeFlex('diy', { callModel: async () => ({ name: 'Design', focus: 'x', stance: 'y', loves: 'z' }) });
-  assert.equal(taken.role, 'data', 'a fixed craft name is not a flex role');
+  assert.equal(taken.role, null, 'a fixed craft name is not a flex role');
   assert.deepEqual(await C.writeFlex('design'), { role: null, ms: 0 }, 'no flex seat to write');
 });
 
 test('Product path: run.start is exactly what it was (no cast, no new fields)', async () => {
   const r = await call(runRoutes, '/api/run', { idea: IDEA, intro: 'I love the customer journey.' });
   const start = readEvents(r.body.run).find(e => e.type === 'run.start');
-  assert.deepEqual(Object.keys(start).sort(), ['idea', 'intro', 'mode', 'pane', 'run', 'seat', 't', 'type']);
+  assert.deepEqual(Object.keys(start).sort(), ['idea', 'intro', 'mode', 'pane', 'run', 'seat', 'stagePath', 't', 'type']);
   assert.equal(start.seat, 'product');
   // a stray craft "product" or a flex card changes nothing either
   const r2 = await call(runRoutes, '/api/run', { idea: IDEA, craft: 'product', flex: { name: 'Ops', focus: 'x' } });
   assert.ok(!('cast' in readEvents(r2.body.run).find(e => e.type === 'run.start')));
 });
 
-test('another craft: run.start records the cast; the flex card is re-cleaned; a bad one falls back to the default', async () => {
+test('another craft: run.start records the cast; the flex card is re-cleaned; a bad one leaves that teammate away', async () => {
   const r = await call(runRoutes, '/api/run', { idea: IDEA, craft: 'design' });
   const start = readEvents(r.body.run).find(e => e.type === 'run.start');
   assert.equal(start.seat, 'product', 'her seat id stays');
@@ -77,12 +77,13 @@ test('another craft: run.start records the cast; the flex card is re-cleaned; a 
   assert.equal(ds.cast.roles.data, 'flex');
   assert.equal(ds.cast.flex.focus, 'the bbake/b list');
   const bad = await call(runRoutes, '/api/run', { idea: IDEA, craft: 'data', flex: { name: 'Strategy', focus: 'x' } });
-  assert.equal(readEvents(bad.body.run).find(e => e.type === 'run.start').cast.roles.data, 'strategy');
+  const badCast = readEvents(bad.body.run).find(e => e.type === 'run.start').cast;
+  assert.deepEqual([badCast.roles.data, 'flex' in badCast, C.awaySeats(badCast)], ['flex', false, ['data']]);
 });
 
-test('/api/cast gives the table at once; the flex seat shows its default until the card is written', async () => {
+test('/api/cast gives the table at once; the flex seat stays empty until the card is written', async () => {
   const r = await call(castRoutes, '/api/cast', { craft: 'diy' });
-  assert.deepEqual([r.code, r.body.roles.strategy, r.body.roles.data, r.body.flexSeat], [200, 'product', 'data', 'data']);
+  assert.deepEqual([r.code, r.body.roles.strategy, r.body.roles.data, r.body.flexSeat], [200, 'product', 'flex', 'data']);
   assert.equal((await call(castRoutes, '/api/cast', { craft: 'pirate' })).code, 400);
 });
 
@@ -108,4 +109,49 @@ test('prompts speak in the role each seat wears; her seat speaks her craft; Prod
   await T.propose({ run: fr.body.run, idea: IDEA, flow: { nodes: [], edges: [] }, taste: [], herSeat: 'diy',
     callModel: async a => { seen.push(a.system.match(/You are the (\w+) teammate/)[1]); return { note: '', candidates: [] }; } });
   assert.deepEqual(seen.sort(), ['Design', 'Engineering', 'Operations', 'Product', 'Research']);
+});
+test('flex call never resolves: the run completes with four teammates; a late card joins from the next round only', async () => {
+  const { proposeAndSelect } = await import('../lib/select.js');
+  const { runJoint } = await import('../lib/joint.js');
+  const { speakers } = await import('../lib/thread.js');
+  const never = new Promise(() => {}); // the flex call: never settles, and nothing below awaits it
+  let settled = false; never.then(() => (settled = true));
+  const r = await call(runRoutes, '/api/run', { idea: IDEA, seat: 'diy', tag: { craft: 'Baker' } });
+  const run = r.body.run;
+  assert.deepEqual(C.awaySeats(C.castOf(run)), ['data']);
+  const seen = [];
+  const fake = async a => {
+    if (a.schema?.required?.includes('candidates')) {
+      const role = a.system.match(/You are the (\w+) teammate/)[1];
+      seen.push(role);
+      return { note: '', candidates: [{ decision: `${role} call about the order page and the data`, options: ['A', 'B'], recommendation: 'A',
+        reason: 'r', cost: 'high', undoable: false, attachTo: null, seats: ['design', 'data', 'engineering', 'research'] }] };
+    }
+    if (a.schema?.required?.includes('scores')) return { scores: [] };
+    if (a.schema?.required?.includes('decisions')) return { decisions: [] };
+    return { line: 'Fine by me.', text: 'Fine by me.', settled: 'A' };
+  };
+  const out = await proposeAndSelect({ run, idea: IDEA, flow: { nodes: [], edges: [] }, taste: [], herSeat: 'diy', callModel: fake });
+  assert.ok(out, 'the round finished without the flex teammate');
+  assert.deepEqual(seen.sort(), ['Design', 'Engineering', 'Product', 'Research'], 'four teammates proposed; Theo is away');
+  let evs = readEvents(run);
+  assert.ok(!evs.some(e => e.type === 'candidate' && e.seat === 'data'), 'no candidate from the away seat');
+  await runJoint(run, { callModel: fake });
+  evs = readEvents(run);
+  assert.ok(!evs.some(e => (e.type === 'chatter' || e.type === 'joint.start') && (e.seat === 'data' || (e.seats || []).includes('data'))), 'the away seat never talks');
+  assert.ok(!speakers({ seat: 'design', decisionIds: [] }, evs, 'diy').includes('data'));
+  assert.equal(settled, false, 'nothing waited on the flex call');
+  // The card lands mid-run: seat.arrived, Theo joins the next round with the role; nothing earlier is backfilled.
+  const before = evs.filter(e => e.type === 'candidate').length;
+  const a = await call(runRoutes, `/api/run/${run}/arrive`, { flex: { name: 'Operations', focus: 'the morning bake list', stance: 'nothing wasted', loves: 'x' } });
+  assert.deepEqual([a.code, a.body.seat, a.body.flex.name], [200, 'data', 'Operations']);
+  assert.equal((await call(runRoutes, `/api/run/${run}/arrive`, { flex: { name: 'Ops', focus: 'y' } })).code, 409, 'arrives once');
+  evs = readEvents(run);
+  assert.equal(evs.filter(e => e.type === 'candidate').length, before, 'no backfill');
+  assert.deepEqual(C.awaySeats(C.castOf(run)), []);
+  assert.match(T.systemFor('data', { run, idea: IDEA, flow: { nodes: [], edges: [] }, taste: [], herSeat: 'diy' }), /You are the Operations teammate/);
+  // Product path: nothing is away, and there's no one to arrive
+  const pr = await call(runRoutes, '/api/run', { idea: IDEA });
+  assert.deepEqual(C.awaySeats(C.castOf(pr.body.run)), []);
+  assert.equal((await call(runRoutes, `/api/run/${pr.body.run}/arrive`, { flex: { name: 'Ops', focus: 'y' } })).code, 409);
 });
