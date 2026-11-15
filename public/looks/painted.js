@@ -145,7 +145,7 @@
     const seats = [...doing.keys()].filter(s => WHO[s]);
     if (!seats.length || focusOpen) { line.hidden = true; return; }
     const two = [seats[turn % seats.length], seats[(turn + 1) % seats.length]].filter((s, i, a) => a.indexOf(s) === i);
-    const next = two.map(s => `${WHO[s]} is ${doing.get(s)}`).join('\n');
+    const next = two.map(s => { const w = doing.get(s); return w.startsWith('· ') ? `${WHO[s]} ${w}` : `${WHO[s]} is ${w}`; }).join('\n');
     if (next !== line.textContent) { line.dataset.state = ''; void line.offsetWidth; line.textContent = next; line.dataset.state = 'in'; }
     line.hidden = false;
   }
@@ -165,7 +165,8 @@
   B.on('chatter', ev => {
     if (!ev.seat || !WHO[ev.seat]) return;
     const t = String(ev.text || '');
-    if (/^[A-Z][a-z]+:/.test(t)) set(ev.seat, 'settling ' + topic(t.replace(/^[A-Z][a-z]+:\s*/, '')));
+    // a settled call reads as their own short note: "Noor · found a source on a third of…" (never "is settling found…")
+    if (/^[A-Z][a-z]+:/.test(t)) set(ev.seat, '· ' + few(lower(t.replace(/^[A-Z][a-z]+:\s*/, '').replace(/[.]+$/, '')), 7));
     else set(ev.seat, 'talking it through with the team');
   });
   // a teammate that's done keeps its last line until the room goes quiet (its chatter can still follow)
