@@ -1,2 +1,0 @@
-1920x1130: pill before = "Press → and Bo builds the page"; one PageDown -> beat 8, POST /build x1, app button building "Building v1…"; page errors 0
-1440x900: pill before = "Press → and Bo builds the page"; one PageDown -> beat 8, POST /build x1, app button building "Building v1…"; page errors 0
