@@ -163,3 +163,25 @@ test('her idea line is tidied in place (BYOC.tidyInto) and the clean line is the
   assert.deepEqual(posted.meet, [{ idea: IDEA }]);
   await page.close();
 });
+
+test('never "undefined" on screen: an ask with no teammate name (her own seat, no `by`) reads "the team’s question" in her workspace and on the pads', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/run/stub-run/**', r => r.fulfill({ json: { ok: true } }));
+  await page.goto(BASE + '/?look=painted');
+  await page.waitForFunction(() => window.BYOC && BYOC.dispatch && BYOC.openWorkspace);
+  await page.evaluate(() => {
+    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.dispatch({ run: 'stub-run', type: 'run.start', idea: 'A bakery page', stagePath: true }, 'live');
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q-anon', seat: 'product', question: 'Who is this for first?' }, 'live');
+  });
+  const texts = [];
+  await page.evaluate(() => BYOC.openWorkspace()); await page.waitForTimeout(400);
+  texts.push(await page.evaluate(() => document.body.innerText));
+  for (const s of ['design', 'research', 'data', 'strategy', 'engineering']) {
+    await page.evaluate(s => BYOC.openSketchpad(s), s); await page.waitForTimeout(200);
+    texts.push(await page.evaluate(() => document.body.innerText));
+  }
+  for (const t of texts) assert.doesNotMatch(t, /\bundefined\b/, 'no "undefined" anywhere on screen');
+  assert.ok(texts.some(t => /the team’s question/.test(t)), 'the safe fallback shows');
+  await page.close();
+});
