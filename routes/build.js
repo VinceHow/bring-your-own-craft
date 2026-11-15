@@ -158,6 +158,8 @@ export default [{ method: 'GET', match: url => url.pathname.startsWith('/runs/')
     if (start?.seat === 'diy' && start.template === null) return sendJson(res, 409, { error: 'no page template for this idea', noTemplate: true });
     const background = body?.background === true;
     const b = building.get(run);
+    // APP_V1=0 (the kill switch, docs/REHEARSAL.md): no background v1; her press at beat 8 builds v1, as before.
+    if (background && process.env.APP_V1 === '0') return sendJson(res, 200, { skipped: 'APP_V1=0' });
     // The background v1 only ever builds first: once anything is built or building, it has nothing to add.
     if (background && (b || events.some(e => e.type === 'build.done'))) return sendJson(res, 200, { skipped: 'already built or building' });
     const go = () => buildImpl(run, { background }).catch(e => {

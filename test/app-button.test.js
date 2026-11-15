@@ -41,3 +41,21 @@ test('builds queue: background v1, then a press during it becomes the next build
     assert.equal((await post({ background: true })).body.skipped, 'already built or building', 'a late background v1 adds nothing');
   } finally { _setBuild(null); }
 });
+
+test('APP_V1=0: the background v1 is skipped; the press still builds', async () => {
+  const { default: routes, _setBuild } = await import('../routes/build.js');
+  const { logEvent } = await import('../lib/events.js');
+  const route = routes.find(r => r.method === 'POST');
+  const run = 'run-2026-11-15T09-10-00-000Z-kill';
+  fs.mkdirSync(path.join(process.env.RUNS_DIR, run), { recursive: true });
+  logEvent(run, 'run.start', { idea: 'A website for a small bakery', seat: 'product' });
+  let n = 0; _setBuild(async () => ({ version: ++n }));
+  const post = body => new Promise(resolve => { const res = { writeHead(c) { this.code = c; }, end(b) { resolve({ code: this.code, body: JSON.parse(b || '{}') }); }, setHeader() {} };
+    route.handler({}, res, { url: new URL(`http://x/api/run/${run}/build`), body }); });
+  process.env.APP_V1 = '0';
+  try {
+    assert.equal((await post({ background: true })).body.skipped, 'APP_V1=0');
+    assert.equal(n, 0, 'nothing built');
+    assert.equal((await post({})).body.version, 1, 'the press builds v1');
+  } finally { delete process.env.APP_V1; _setBuild(null); }
+});
