@@ -26,7 +26,8 @@ His rehearsal and stage fal spend is separate from the $10 test cap. "Check the 
    step. CPU stays under ~60% while it runs.
 6. Refresh mid-run: the room comes back where he was.
 
-If any step fails, note which, and open `?look=plain` as the fallback.
+If any step fails, note which, and open `?look=plain` as the fallback (there, after "Team, go", it takes three →
+presses to reach the build, not one).
 
 ## Pre-talk checklist
 - **The demo runs on fal** (lead's call, Sun 00:56: on the demo Mac, haiku via Claude Code took over 25 s; fal answers
@@ -73,6 +74,9 @@ MODEL_BACKEND=fal
 - **Talk over the wait after "Team, go"** (about 30 s while the team works and the selector runs). The room shows who's
   doing what; say what they're doing ("Mika's laying out the page, Noor is checking the claim, Bo's building it") rather
   than waiting in silence.
+- **Starting the build after "Team, go"** (b3's fix, 61ab4d9): on painted (the default), when the team is done the pill
+  reads **"Press → and Bo builds the page"**: one → starts the build. On the **`?look=plain` fallback** it's still
+  **three → presses**, because beats 6 and 7 draw there first.
 - **A refresh picks up where she was** (her run is kept in this browser and in the URL's `?run=`): the room, her idea,
   journey, inbox and a build in progress come back at once, with no model call. To begin again on purpose: **Start
   over** in the top bar, or **Shift+N** (asks once; the old run stays in `runs/`). **Home** also starts fresh.
