@@ -27,6 +27,13 @@ html body #room[data-sketching~="research"] [data-component="place-card"][data-s
   position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; }
 /* working: just the dots after the role, no second divider */
 html body #room [data-component="place-card"] [data-slot="agent-mark"] { border-left: 0 !important; padding: 0 !important; min-width: 22px !important; }
+/* thinking / working: ONLY the dots. A later 14px font rule had brought the word "agent" back next to them (44px), so a
+   working pill grew ~72px and Noor's ran 27x13px under Theo's (audit #1). The word stays in the text for screen readers.
+   One attribute more than painted-fixes.css's cover-mode font rule ([data-fill="cover"] ... 14px !important), which loads later. */
+html body #room:is([data-fill], :not([data-fill])) [data-component="place-card"]:is([data-state="thinking"], [data-state="working"]) [data-slot="agent-mark"],
+html body #room[data-sketching~="design"]:is([data-fill], :not([data-fill])) [data-component="place-card"][data-seat="design"] [data-slot="agent-mark"],
+html body #room[data-sketching~="research"]:is([data-fill], :not([data-fill])) [data-component="place-card"][data-seat="research"] [data-slot="agent-mark"] {
+  font-size: 0 !important; letter-spacing: 0 !important; }
 
 /* ---- 2. her pill on the stool never reaches the idea sheet or the strip under it (JANK #29) ----
    The sheet and its team strip start at x 838. Her pill starts at 596 and is at most 230 wide (right edge 826), so a
