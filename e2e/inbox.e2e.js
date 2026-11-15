@@ -207,3 +207,35 @@ test('her own words instead of the suggestion; the cap still counts the unblock'
   assert.strictEqual(fourth.status, 409, 'the fourth is refused by the policy');
   assert.deepStrictEqual(errors, []);
 });
+
+test('her spoken answer is tidied in place (data-raw / data-state / data-tidy on .ia-hers), and Yes sends the tidy', async () => {
+  const RAW = 'Uh, orders close, uh, at, so 10:00 PM the day before';
+  const CLEAN = 'Orders close at 10:00 PM the day before';
+  let tidyBody = null;
+  await page.route('**/api/tidy', async r => { tidyBody = r.request().postDataJSON(); await new Promise(ok => setTimeout(ok, 300)); r.fulfill({ status: 200, json: { text: CLEAN } }); });
+  try {
+    await page.evaluate(() => { BYOC.reset(); });
+    const run = await newRun();
+    await page.evaluate(run => { BYOC.stage(5, { instant: true }); BYOC.run = run; }, run);
+    assert.strictEqual((await raise(run, BO)).status, 200);
+    await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'the unblock');
+    await page.click('#inbox .inbox-now');
+    const card = page.locator('#inbox article.inbox-action');
+    await card.locator('[data-slot="say"]').click();
+    // What voice.js does with a spoken take on a data-voice field.
+    await page.evaluate(raw => { const el = document.querySelector('.ia-hers'); el.textContent = raw;
+      el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new CustomEvent('byoc:voice', { detail: { text: raw } })); }, RAW);
+    const own = card.locator('.ia-hers');
+    assert.strictEqual(await own.getAttribute('data-state'), 'tidying', 'her raw words show while it tidies');
+    assert.strictEqual(await own.getAttribute('data-raw'), RAW);
+    await waitFor(() => document.querySelector('.ia-hers').dataset.state === 'tidied', 'tidied');
+    assert.strictEqual((await own.innerText()).trim(), CLEAN);
+    assert.strictEqual(await own.getAttribute('data-tidy'), 'cut');
+    assert.strictEqual(tidyBody.text, RAW);
+    await card.locator('[data-slot="yes"]').click();
+    await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 'her answer in the team space');
+    const ev = await page.evaluate(() => BYOC.events().filter(e => e.type === 'decided' && e.unblock).pop());
+    assert.strictEqual(ev.choice, CLEAN, 'Yes sends the tidied line, tidied once');
+  } finally { await page.unroute('**/api/tidy'); }
+  assert.deepStrictEqual(errors, []);
+});

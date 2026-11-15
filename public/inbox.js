@@ -134,7 +134,14 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     const say = slot(h('button', 'ia-say'), 'say'); say.type = 'button';
     const sayLabel = h('span', 'ia-say-label', 'Say something else'); say.appendChild(sayLabel);
     const note = slot(h('span', 'ia-note'), 'note');
-    let hers = null;
+    let hers = null, tidying = null, tidied = '', sending = false;
+    // Tidy her answer once per line: a spoken take as it lands, a typed one when she says Yes. Falls back to her raw words.
+    const tidyHers = text => {
+      const raw = String(text ?? (hers ? hers.textContent : '')).trim();
+      if (!hers || !raw || !B.tidyInto) return Promise.resolve(raw);
+      tidying = B.tidyInto(hers, raw).then(t => { tidied = hers.textContent.trim(); if (tidied && B.emit) B.emit('action.say', { id: n.id, text: tidied }); return t; });
+      return tidying;
+    };
     // "Say something else": the suggestion box becomes hers; voice opens on it (tap the button again to stop), or she types.
     say.addEventListener('click', () => {
       if (c.dataset.state === 'yes') return;
@@ -145,6 +152,8 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
         hers.setAttribute('aria-label', 'Your answer');
         hers.addEventListener('input', () => { const t = hers.textContent.trim(); if (t) { sayLabel.textContent = 'Say it again'; B.emit && B.emit('action.say', { id: n.id, text: t }); } });
         hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); yes.click(); } if (e.key === 'Escape') hers.blur(); });
+        // Her spoken answer is tidied in place (her words, clearer order; data-raw / data-state / data-tidy on .ia-hers).
+        hers.addEventListener('byoc:voice', e => { tidyHers(e.detail && e.detail.text); });
         sug.append(h('span', 'k', 'You said'), hers, slot(h('span', 'ia-was', sugText), 'was'));
       }
       c.dataset.state = 'speaking'; sayLabel.textContent = 'Listening…';
@@ -152,8 +161,14 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
       if (B.voice && B.voice.available) B.voice.start(); else sayLabel.textContent = 'Type it, then Yes';
     });
     yes.addEventListener('click', async () => {
-      if (c.dataset.state === 'yes') return;
+      if (c.dataset.state === 'yes' || sending) return;
       if (B.voice && B.voice.state === 'listening') B.voice.stop();
+      sending = true;
+      try {
+        if (hers && hers.dataset.state === 'tidying') await tidying;
+        const typed = hers ? hers.textContent.trim() : '';
+        if (typed && typed !== tidied) await tidyHers(typed); // typed (or edited after the tidy): tidy that line now
+      } catch {} finally { sending = false; }
       const words = hers ? hers.textContent.trim() : '';
       const body = words ? { text: words } : { yes: true };
       const prev = c.dataset.state; c.dataset.state = 'yes'; note.textContent = '';
