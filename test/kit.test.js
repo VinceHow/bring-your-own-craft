@@ -1,7 +1,7 @@
 // "Loaded with" on the meet cards (lib/kit.js): computed from what this server really has, never invented.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { kitFor } from '../lib/kit.js';
+import { kitFor, madeFor } from '../lib/kit.js';
 import { findingFor } from '../lib/teammates.js';
 
 test('the bakery: Noor names the verified finding that fits (its site and the date read), Bo the bakery template', () => {
@@ -27,7 +27,7 @@ test('nothing aspirational: no fal images, no MCP, no tools the code does not ru
 });
 
 test('"Made with" (prepared ahead): each item only on its evidence; Linkup only when the cited finding was found with it', async () => {
-  const { madeFor } = await import('../lib/kit.js');
+  // (madeFor imported above)
   const m = madeFor("An ordering website for my friend's small bakery");
   assert.deepEqual(m.research, ['Researched with Linkup, before the demo']);
   assert.deepEqual(m.design, ['Studio, clips, music painted on fal', 'The room’s frames, laid out in Figma'], 'fal for what it made; Figma for the frames (design/FIGMA.md)');
@@ -42,4 +42,21 @@ test('Bo thinks with what this server really runs on', async () => {
   process.env.MODEL_BACKEND = 'fal'; assert.equal(kitFor('A bakery').engineering.at(-1), 'Claude (Sonnet), through fal');
   delete process.env.MODEL_BACKEND; assert.equal(kitFor('A bakery').engineering.at(-1), 'Claude, through Claude Code');
   if (old !== undefined) process.env.MODEL_BACKEND = old;
+});
+
+test('live research on (a Linkup key): Noor is loaded with a live web search, and "before the demo" is not claimed', () => {
+  const was = { k: process.env.LINKUP_API_KEY, l: process.env.LIVE_FINDING };
+  try {
+    process.env.LINKUP_API_KEY = 'test-only-not-a-key'; delete process.env.LIVE_FINDING;
+    const idea = "An ordering website for my friend's small bakery";
+    assert.equal(kitFor(idea).research[0], 'Linkup web search, live');
+    assert.deepEqual(madeFor(idea).research, [], 'the prepared finding is only the fallback: no "before the demo" line');
+    assert.notEqual(kitFor('A sign-up page for a tool library').research[0], 'Linkup web search, live', 'only ideas that search');
+    process.env.LIVE_FINDING = '0';
+    assert.match(kitFor(idea).research[0], /^Linkup finding: /, 'off: the prepared finding, as before');
+    assert.deepEqual(madeFor(idea).research, ['Researched with Linkup, before the demo']);
+  } finally {
+    if (was.k === undefined) delete process.env.LINKUP_API_KEY; else process.env.LINKUP_API_KEY = was.k;
+    if (was.l === undefined) delete process.env.LIVE_FINDING; else process.env.LIVE_FINDING = was.l;
+  }
 });

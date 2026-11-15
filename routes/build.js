@@ -72,7 +72,7 @@ export async function buildRun(run, { call } = {}) {
   const switches = r.slots?.switches || {};
   const version = events.filter(e => e.type === 'build.done').length + 1;
   const changes = whatChanged(switches, prev?.switches || loadTemplate(r.template).defaults.switches, r.slots?.words || {}, !!prev);
-  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template, version, switches, changes });
+  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template, version, switches, changes, logo: r.logo });
   return { url, ms, decideMs, fillMs: r.modelMs, template: r.template, decided };
 }
 

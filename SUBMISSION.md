@@ -36,8 +36,8 @@ are talked out between them and land in a shared team space. Nothing pings her.
 
 The team brings her only the big questions that need her craft. In this run, three things reached her, each a
 different way a team needs its product person:
-1. **Focus: who it's for.** Noor brings a real finding about who buys from neighbourhood bakeries, with its source,
-   researched before the demo and labelled so. She reacts ("it's really for the regulars"), and that one answer
+1. **Focus: who it's for.** Noor looks up who buys from neighbourhood bakeries, live with Linkup, and quotes her
+   source; the finding is labelled "found just now with Linkup". She reacts ("it's really for the regulars"), and that one answer
    unlocks a run of the team's decisions.
 2. **A quick unblock.** An action card: "Bo's blocked: when do orders close? We suggest 8pm the night before." One
    tap on Yes, and Bo carries on.
@@ -72,8 +72,8 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 - A private profile, deduced from her one-sentence intro and her idea and updated after each answer, lets the team
   assume and keep moving.
 - Voice: she speaks her idea, her intro and her answers (ElevenLabs speech-to-text, live).
-- Research: Noor's finding was searched and cited with Linkup before the demo, and is labelled "researched before the
-  demo" on screen; there is no live search on stage.
+- Research: Noor searches live with Linkup and quotes a finding only when the quote verifies against the source page;
+  otherwise she shows a prepared finding, labelled "researched before the demo".
 - Two model routes behind one function: fal (Claude through fal's OpenRouter router, `MODEL_BACKEND=fal`) is what runs
   in the demo; Claude Code headless is the alternative route. fal was tested 9/9 schema-valid against Claude Code on 3
   real calls per step, and it runs the demo because on the demo laptop Claude Code's fast model, through a company
@@ -129,7 +129,7 @@ with a real database, rules and tests, not a page generator. (Demo bread: nothin
 Node.js (`node:sqlite`), JavaScript, HTML, CSS, server-sent events, Railway, Claude (via fal's OpenRouter router in the
 demo, and Claude Code headless as the alternative route), Anthropic product-management plugin (`write-spec`),
 taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for the live bakery's photos
-and logo, made ahead; the painted cast, clips and music), Linkup (Noor's research, before the demo), motion,
+and logo, made ahead; the painted cast, clips and music), Linkup (Noor's live research), motion,
 Playwright.
 
 ## Try it

@@ -6,7 +6,7 @@
 // Collapsed: the one item that needs her now, or "Nothing needs you right now". Expanded: a drawer with three parts:
 //   Needs you: one item at a time, the next ones folded. The tray's arrival rules, moved here unchanged: an item
 //     slides in only at a natural pause (about 1 s after it), never while she's typing or speaking; no numbers, no red,
-//     no pulse. The ceiling of three questions is the server's and is unchanged.
+//     no pulse. Which questions reach her is the server's (the selector's bar; a hidden ceiling).
 //   A quick unblock (ask.unblock, granted by lib/policy.js) is a Needs-you item answered right here: Yes, or her words.
 //   Things only you can do: fed only by `owner.task` events { id, title, steps[] }, shown as plain steps she ticks.
 //     There is no key or secret input of any kind here (a key field is Milestone 2, server-side only).

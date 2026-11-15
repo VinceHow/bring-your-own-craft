@@ -34,7 +34,7 @@ bakery site this same team built earlier. We tap **Deliver**, and every judge's 
 - **Her words, kept.** Say it out loud, ums and all. A gentle pen strikes the filler and keeps her sentence, in her
   voice.
 - **Honest labels.** Every number on screen is counted from the run's own log. Anything made ahead says so on screen:
-  Noor's research is "researched before the demo", and recorded fallbacks say REPLAY.
+  Noor's research says "found just now with Linkup", and recorded fallbacks say REPLAY.
 
 ## See it
 **The door opens on the studio.**
@@ -65,7 +65,8 @@ bakery: no real bread, nothing to pay, first name only.
   via fal), and the live bakery's photos and logo (made ahead with flux). The demo's chat runs on Claude through fal's
   OpenRouter router.
 - **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk.
-- **[Linkup](https://www.linkup.so):** Noor's research finding, found and cited before the demo, and labelled that way.
+- **[Linkup](https://www.linkup.so):** Noor's live research: she looks it up during the run and quotes her source,
+  only when the quote checks out against the page.
 - **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design as editable frames and tokens
   (they show the early look, before the painted one).
 - **[Anthropic](https://www.anthropic.com):** Claude, Claude Code (the agents that built this) and the

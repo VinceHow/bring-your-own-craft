@@ -44,18 +44,18 @@ open question in the asking teammate's voice. Then **code** applies the rules (`
 - a question must be natural (open, one sentence, one breath, no options offered), else it is refused;
 - duplicates are asked once; picks spread across her work (one per box, one per finding, never the same question in
   other words);
-- the result is cut to `MAX_ASKS`, whatever `max` a caller passes.
+- the result is cut to the hidden ceiling (`MAX_ASKS`), whatever `max` a caller passes: a safety net, not a target.
 
-**The ceiling of three** (`lib/policy.js`). The only code that writes an `ask` event. It opens only with a grant the
+**The hidden safety ceiling** (`lib/policy.js`). What reaches her is decided by the bar above; this is only a backstop. The only code that writes an `ask` event. It opens only with a grant the
 selector made (the selector claims the grantor once, as it loads, and a grant refuses more than 3 ids), and before
-letting an ask through it re-counts the run's log, so a fourth is refused even if a caller gets the cap wrong.
-`MAX_ASKS = 3` lives here. Anything else that tries to ask is refused (`ask.refused`, with the reason) and decided, so
+letting an ask through it re-counts the run's log, so nothing past the ceiling gets through even if a caller gets it wrong.
+`MAX_ASKS` lives here (a safety net, never shown or promised). Anything else that tries to ask is refused (`ask.refused`, with the reason) and decided, so
 nothing is dropped. No number is promised on screen: the ceiling is hidden.
 
 **Everything else is decided by the team** (`decideCore`, `decideRest`), in the background, without waiting on her.
 What she settles in a focus moment is never re-decided.
 
-**Tests** (`npm test`, offline, fake models): `test/select.test.js` (a fourth never gets through, with 10 strong
+**Tests** (`npm test`, offline, fake models): `test/select.test.js` (the safety ceiling holds, with 10 strong
 candidates, with any `max`, over random scores and across two selector runs on the same run; granular is never asked;
 an unnatural question is never asked; a different idea changes the picks) and `test/policy.test.js` (an ask without
 the selector's grant is refused, decided and logged; only `lib/policy.js` writes `ask` events).

@@ -920,6 +920,12 @@
   // her and that one document (public/focus-doc.js). Nothing dims or freezes; nothing opens by itself; nobody waits.
   BYOC.focus = { open: null, waiting: [] };
   const asks = new Map(); // id -> ask, in the order the team suggests them
+  let pendingLive = null; // a verified live finding for Focus 1 (finding.live), applied while Focus 1 waits
+  function liveFinding(a) {
+    if (!pendingLive || !a || !a.first || !a.artifact || a.artifact.kind !== 'finding' || answeredIds.has(a.id)) return a;
+    if (BYOC.focusDoc && BYOC.focusDoc.openId && BYOC.focusDoc.openId() === a.id) return a; // she is reading it: no swap
+    return { ...a, artifact: { ...a.artifact, ref: { ...pendingLive, users: (a.artifact.ref && a.artifact.ref.users) || [] } } };
+  }
   const answeredIds = new Set();
   const askText = a => a.question || a.decision || '';
   const who = a => { const i = INFO[a.seat] || { name: a.seat }; return (a.by || i.agent) ? `${a.by || i.agent} · ${i.name}` : i.name; };
@@ -1107,13 +1113,21 @@
         clearTimeout(teamSlowTimer); if (!['idle', 'question'].includes(teamStatusEl.dataset.state)) teamStatus('done', 'The team has done its first pass.');
         refreshTally();
         break;
+      // Noor's finding, found live with Linkup and verified on the server (lib/live-finding.js): it takes the prepared
+      // one's place on Focus 1 while Focus 1 still waits. Never under her: not once she opened or answered it.
+      case 'finding.live': {
+        pendingLive = ev.ref || null;
+        const a = asks.get(ev.askId || 'first');
+        if (a) asks.set(a.id, liveFinding(a));
+        break;
+      }
       case 'ask': {
         // The first decision (0:38) and a quick unblock wait in her inbox where she is: neither moves the beat.
         if (BYOC.beat < 6 && !ev.first && !ev.unblock && !ev.feel) stage(6); // Act 2's three wait in her inbox where she is
         // An empty input she isn't using shouldn't hold them back (the inbox waits while she types).
         if ((ev.first || ev.unblock || ev.feel) && document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur();
         const it = findItem(ev.id); if (it) it.classList.add('brought');
-        asks.set(ev.id, ev); syncFocus(); // it waits in her tray until she opens it
+        asks.set(ev.id, liveFinding(ev)); syncFocus(); // it waits in her tray until she opens it
         refreshTally();
         break;
       }
@@ -1625,7 +1639,7 @@
     firstAskedFor = null; firstSettled = 0;
     BYOC.intro = null; BYOC.introRaw = null; BYOC.herName = null; herStance = ''; meetSkip = true; introCard = null; leanQueue = [];
     delete el.room.dataset.herSeat; BYOC.herSeat = null;
-    chatter.innerHTML = ''; asks.clear(); answeredIds.clear(); thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
+    chatter.innerHTML = ''; asks.clear(); answeredIds.clear();  pendingLive = null; thinking.clear(); if (BYOC.focusDoc) BYOC.focusDoc.close(true); BYOC.focus = { open: null, waiting: [] };
     el.room.querySelectorAll('.big-card').forEach(c => c.remove());
     seen = []; pending = []; serverTally = null; teamStep = null; buildStep = null; stepClear();
     clearTimeout(teamSlowTimer); teamStatus('idle', '');
