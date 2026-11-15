@@ -102,8 +102,17 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.join(ROOT, 'server.js')) {
-  server.listen(PORT, () => {
-    console.log(`room on http://localhost:${PORT}`);
+  // Local only by default (the judge probe, Sun): on venue wifi anyone could otherwise call the API and spend the keys.
+  // HOST=0.0.0.0 (or an address) opens it on purpose. By default it listens on both loopback forms, so "localhost"
+  // works whichever one the browser resolves first (127.0.0.1 or ::1), and on nothing else.
+  const HOST = process.env.HOST || '127.0.0.1';
+  if (!process.env.HOST) {
+    const six = http.createServer(server.listeners('request')[0]);
+    six.on('error', () => {}); // no IPv6 on this machine: 127.0.0.1 alone is fine
+    six.listen(PORT, '::1');
+  }
+  server.listen(PORT, HOST, () => {
+    console.log(`room on http://localhost:${PORT}${process.env.HOST ? ` (listening on ${HOST})` : ''}`);
     // claude-code backend: the CLI's version, and one tiny call so the first live call isn't cold (lib/model.js).
     // Not under node --test (unit and e2e servers): no extra model call there.
     if (process.env.WARM_UP !== '0' && !process.env.NODE_TEST_CONTEXT) warmUp({ model: TAG_MODEL, effort: TAG_EFFORT }).catch(() => {});
