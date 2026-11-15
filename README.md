@@ -10,7 +10,7 @@ I'm a builder at heart, and I love the craft: understanding people, deciding wha
 <sub>The baseline: a default coding agent on one bakery prompt asked 0 questions, guessed 24 things that were the owner's call, and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).</sub>
 
 ## How I got here
-This is the story I tell on stage, one slide at a time.
+Here's the story, one slide at a time.
 
 ![Slide 2, the problem: coding agents ask about everything; AI app builders assume everything](docs/readme/slides/02-the-problem.jpg)
 Building with AI today pulls me away from my craft. Coding agents ask about everything, so the busywork lands on
@@ -45,10 +45,10 @@ Next, the table gets bigger. Today the other seats are agents; next, real people
 the Engineering seat and brings their own team of agents. A table with room for everyone, each doing what they're
 best at.
 
-Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `talk.html` at the repo root).
+See the deck: `npm run local` → `/slides/talk.html` (or double-click `talk.html` at the repo root).
 
 ![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.webp)
-<sub>The studio mid-run: five agent teammates at work round the table, her stool in front (the bakery run, replayed from its recording).</sub>
+<sub>The studio mid-run: five agent teammates at work round the table, her stool in front.</sub>
 
 ## What I built
 **Bring Your Own Craft** is a hand-painted studio where you take the seat of your craft, and a team of AI agents fills every other seat: **Mika** (Design), **Wren** (Research), **Theo** (Data), **Ines** (Strategy) and **Bo** (Engineering).
@@ -62,7 +62,6 @@ What it feels like:
 - **Your words are kept.** Say it out loud, ums and all; the team tidies it without changing what you meant, and
   builds on it.
 - **You watch your app take shape**, a new version each time you decide something.
-- **In the demo, the audience reserves a real loaf from their phones**, on a live bakery site this same team built.
 
 ## How it works
 In short: a team of agents works on its own, a selector decides what's big enough to bring you, and your answers
@@ -72,21 +71,20 @@ shape the app.
 <summary>The details</summary>
 
 - **Only the big questions.** The team proposes decisions as it works. A selector ranks every one and brings you only
-  what's big and about what you love (your craft is part of that); the team settles the rest itself and says why, citing what it knows about you. On
-  stage the three moments are set so the talk fits three minutes (who the bakery is for, when orders close, how it
-  should feel); everything inside them is live, including Wren's research, found live with Linkup.
+  what's big and about what you love (your craft is part of that); the team settles the rest itself and says why, citing what it knows about you.
+  Wren's research is found live with Linkup.
 - **A real meeting.** You speak in pieces, and a careful tidy removes the ums but keeps your words. **Send** starts a
   round where the teammates your words touch reply live; **End meeting** writes your takeaways.
 - **Your app builds as you decide.** It starts on "Team, go", and each later decision builds the next version with a
   line on what changed. It fills one of three designed templates (bakery, café, yoga); the model never writes code.
   Its emblem is painted live with fal.
 - **Any seat.** Pick your craft on the name tag, and the teammate who held that seat steps aside.
-- **The live bakery.** Pressing **Open the app** shows a QR card for The Usual, a live bakery Bo's agent drafted
-  earlier and our builders finished (built ahead, not in the room; source in [`deploy/`](deploy/README.md)). The
-  audience reserves a loaf; **Deliver** flips every phone at once to *"Delivered: your sourdough is here."*
+- **The live bakery.** Pressing **Open the app** shows a QR card for The Usual, a live bakery Bo's agent drafted and
+  our builders finished (source in [`deploy/`](deploy/README.md)). Customers reserve a loaf from their phones;
+  **Deliver** flips every phone at once to *"Delivered: your sourdough is here."*
 - **One model function.** Every call goes through `callModel` (`lib/model.js`) and returns JSON checked against a
   schema. Each teammate is its own call; in a discussion each turn reads the thread so far.
-- **Honest labels.** Every number about a run is counted from its event log; anything made ahead says so on screen.
+- **Honest labels.** Every number about a run is counted from its event log.
 
 </details>
 
@@ -124,20 +122,20 @@ shape the app.
 
 <img src="docs/readme/unblock.webp" alt="Bo is blocked on when orders close; she taps Yes to the suggested 8pm, and the room carries on" width="80%">
 
-**The Usual, the live bakery the judges order from:**
-[bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
-bakery: no real bread, nothing to pay, first name only.
+**The Usual, the live bakery:**
+[bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). No real
+bread and nothing to pay: just your first name.
 
 <img src="docs/readme/delivered.webp" alt="On a phone: she puts her name down for a sourdough, it proves in the oven, then flips to Delivered: your sourdough is here" width="30%">
 
 ## APIs, models and datasets used
-- **fal**, OpenRouter router: the models behind the demo. Claude Sonnet 4.5 for the teammates, the selector, her
+- **fal**, OpenRouter router: the models behind the room. Claude Sonnet 4.5 for the teammates, the selector, her
   profile, the sketch and the page fill; Claude Haiku 4.5 for the fast calls (the tidy, her name tag, the team's
   replies and discussion); Claude Opus for her takeaways and revisiting decisions (`lib/model.js`, `FAL_MODELS` and
   each `*_MODEL` default).
-- **fal**, flux/schnell: her page's emblem, painted live; the live bakery's photos, made ahead. The studio's painted
-  cast, clips and music were made ahead on fal.
-- **Claude via Claude Code**, headless: the fallback route for the same calls (`MODEL_BACKEND=claude-code`).
+- **fal**, flux/schnell: her page's emblem, painted live; the live bakery's photos. The studio's painted cast, clips
+  and music were made on fal.
+- **Claude via Claude Code**, headless: the alternative route for the same calls (`MODEL_BACKEND=claude-code`).
 - **ElevenLabs**: Scribe speech-to-text, live, for her voice; ElevenLabs Music (through fal) for the record player's
   soundtrack.
 - **Linkup**: Wren's live web search.
@@ -193,7 +191,7 @@ You need Node 22. There is nothing to install.
 2. `npm run doctor` checks the machine is ready.
 3. `npm run local` starts the studio and prints its address.
 
-Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser; it needs
+Tests: `npm test` (offline, no model calls) and `npm run e2e` (the whole journey, walked through in a real browser; it needs
 Playwright: `npm i -g playwright && npx playwright install chromium`). The room listens on this machine only (loopback);
 `HOST=0.0.0.0` opens it to the network on purpose. The full guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
 
@@ -209,7 +207,7 @@ Playwright: `npm i -g playwright && npx playwright install chromium`). The room 
 
 | What | Used for | Licence |
 |---|---|---|
-| Claude Code, headless (`claude -p`) | the fallback model route (fal runs the demo): teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
+| Claude Code, headless (`claude -p`) | the alternative model route (fal is the default): teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
 | [ElevenLabs](https://elevenlabs.io) speech-to-text and ElevenLabs Music | her spoken intro, idea and answers; the record player's soundtrack (made through fal) | ElevenLabs terms; API only |
 | [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | the Design teammate and the built page: Design deals the page's palette and type live when the skill's scripts are installed on the machine (otherwise the template's own type stays); its rules guide the studio's look. Vendored in `vendor/taste-skill/` with its licence; never installed as a plugin in this repo | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
@@ -220,7 +218,7 @@ Playwright: `npm i -g playwright && npx playwright install chromium`). The room 
 | Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
-| [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); flux/schnell for her page's emblem (live) and the live bakery site's photos (made ahead); the cast portraits, room clips and music | fal terms; API only |
+| [fal](https://fal.ai) | the default model backend (Claude via OpenRouter); flux/schnell for her page's emblem (live) and the live bakery site's photos; the cast portraits, room clips and music | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
 </details>
