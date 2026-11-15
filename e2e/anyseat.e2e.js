@@ -67,6 +67,10 @@ async function walk(seat, look) {
     assert.equal(sent.cast, 0, 'Product: no cast call');
     assert.equal(await page.evaluate(() => document.body.dataset.herCraft), undefined);
   }
+  // the app pill names Bo only while someone wears Engineering (she took it: role-neutral copy)
+  const pill = await page.evaluate(() => document.querySelector('#app-button .app-hint')?.textContent || '');
+  if (seat === 'engineering') assert.ok(!/\bBo\b/.test(pill) && /page/.test(pill), 'Engineering: the pill names no builder: ' + pill);
+  else assert.match(pill, /\bBo\b/, `${seat}: Bo builds, the pill says so`);
   // the run: Product sends nothing new; another seat carries its craft
   await page.waitForSelector('#her-input', { state: 'visible', timeout: 8000 }).catch(() => {});
   if (!sent.run) { await page.fill('#her-input', 'A website for my bakery').catch(() => {}); await page.press('#her-input', 'Enter').catch(() => {}); }

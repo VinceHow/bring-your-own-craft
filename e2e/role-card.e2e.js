@@ -101,3 +101,45 @@ test('Product (the stage path): Bo keeps his engineering card, and nothing is as
   assert.ok(asked.every(b => !('wearing' in b)), 'no worn-role ask on the Product path');
   await page.close();
 });
+
+test('Data: Theo’s meet card is his flex role (built from the cast’s flex card), never the Data card', async () => {
+  const FLEX = { role: 'flex', flex: { name: 'Operations', focus: 'the morning bake', stance: 'what the counter can really do', loves: 'A bake list that adds up.', brings: 'the morning bake calls for this page' } };
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e)));
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData()).text, tidied: false } }));
+  await page.route('**/api/name-tag', r => r.fulfill({ status: 200, json: { title: 'the Journey Mapper', traits: ['ships it'], superpower: 'sees the path' } }));
+  await page.route('**/api/meet-lines', r => { const b = JSON.parse(r.request().postData());
+    r.fulfill({ json: { lines: b.wearing ? { [b.wearing]: AS_PRODUCT } : { data: 'I’ll count repeat orders a month.' } } }); });
+  await page.route('**/api/cast/flex', r => r.fulfill({ json: FLEX }));
+  await page.goto(BASE + '/');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen(), null, { timeout: 8000 });
+  await page.fill('#idea-input', 'A website for my bakery'); await page.press('#idea-input', 'Enter');
+  await page.waitForFunction(() => BYOC.introOpen && BYOC.introOpen(), null, { timeout: 10000 });
+  await page.click('.pick-option[data-seat="data"]');
+  await page.fill('#nt-name', 'Priya');
+  await page.fill('#intro-input', 'I love getting the details right'); await page.press('#intro-input', 'Enter');
+  await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
+  await page.waitForFunction(() => BYOC.cast && BYOC.cast.flex, null, { timeout: 8000 });
+  await page.keyboard.press('Enter');
+  const seen = {};
+  for (let i = 0; i < 8 && Object.keys(seen).length < 5; i++) {
+    await page.waitForSelector('#setup .meet-card', { timeout: 10000 });
+    const c = await page.evaluate(() => { const c = document.querySelector('#setup .meet-card'); const t = s => [...c.querySelectorAll(s)].map(x => x.textContent.trim());
+      return { seat: c.dataset.seat, role: t('.meet-role')[0], intro: t('.meet-intro')[0], line: t('.meet-line')[0], chips: t('.meet-chip') }; });
+    seen[c.seat] = c;
+    await page.evaluate(() => BYOC.meetNext()); await page.waitForTimeout(500);
+  }
+  const theo = seen.data;
+  assert.ok(theo, 'met Theo');
+  assert.equal(theo.role, 'Operations');
+  assert.equal(theo.intro, 'I’m Theo. Today I’m Operations: the morning bake.');
+  assert.equal(theo.line, '“A bake list that adds up.”', 'the flex loves line, not the Data line');
+  assert.ok(theo.chips.includes('Operations calls, box by box'));
+  for (const c of Object.values(seen)) {
+    assert.doesNotMatch(c.intro || '', /One number that says it worked/, `${c.seat}: no Data card`);
+    assert.ok(!c.chips.includes('One measure per step'), `${c.seat}: no Data chip`);
+  }
+  assert.equal(seen.strategy.intro, 'I’m Ines. Today I hold the product: what we build, and for whom.');
+  assert.deepStrictEqual(errors, []);
+  await page.close();
+});
