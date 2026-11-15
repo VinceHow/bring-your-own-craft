@@ -3,6 +3,7 @@
 // patch video advance, and how much of the screen actually moves (from real screenshots).
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
+const TMP = require('os').tmpdir() + '/';
 const W = +(process.argv[2] || 1440), H = +(process.argv[3] || 900);
 const BASE = 'http://localhost:' + (process.env.PORT || 5177) + '/?look=painted&stage=1';
 let fails = 0;
@@ -20,9 +21,9 @@ let fails = 0;
       patches: [...document.querySelectorAll('.patch')].filter(p => +getComputedStyle(p).opacity > .01).map(p => ({ who: p.dataset.who, ct: [...p.querySelectorAll('video.on')].map(v => v.currentTime), paused: [...p.querySelectorAll('video.on')].map(v => v.paused) })),
       time: window.living && window.living.time }));
     const a = await snap();
-    await page.screenshot({ path: 's0.png' }); await page.waitForTimeout(800); await page.screenshot({ path: 's1.png' });
+    await page.screenshot({ path: TMP + 's0.png' }); await page.waitForTimeout(800); await page.screenshot({ path: TMP + 's1.png' });
     const c = await snap();
-    const mv = execFileSync('python3', ['-c', "import numpy as np;from PIL import Image as I;a,b=[np.asarray(I.open(f).convert('RGB')).astype(int) for f in ('s0.png','s1.png')];print('%.2f'%((np.abs(a-b).sum(2)>12).mean()*100))"]).toString().trim();
+    const mv = execFileSync('python3', ['-c', "import sys,numpy as np;from PIL import Image as I;a,b=[np.asarray(I.open(f).convert('RGB')).astype(int) for f in (sys.argv[1],sys.argv[2])];print('%.2f'%((np.abs(a-b).sum(2)>12).mean()*100))", TMP + 's0.png', TMP + 's1.png']).toString().trim();
     const r0 = a.room[0], r1 = c.room.find(r => r.t === (r0 && r0.t));
     const roomOk = r0 && r1 && !r1.paused && r1.ct !== r0.ct;
     const stuck = c.patches.filter(p => { const o = a.patches.find(x => x.who === p.who); return o && p.ct.length && o.ct.length && p.ct[0] === o.ct[0]; }).map(p => p.who);
@@ -48,7 +49,7 @@ let fails = 0;
   await page.waitForTimeout(60000); await check('night, after 60 s');
   await page.keyboard.press('r'); await page.waitForTimeout(8000); await check('night, replay R +8 s');
   await page.waitForTimeout(20000); await check('night, replay R +28 s');
-  await page.screenshot({ path: `suite-night-${W}.png` });
+  await page.screenshot({ path: TMP + `suite-night-${W}.png` });
   console.log(fails ? `${fails} FAILED` : 'all passed');
   await b.close();
 })();
