@@ -4,7 +4,8 @@ She just said or typed a line (speech-to-text may have written it down). Make it
 written: her meaning, her words, clearer order.
 
 - Cut filler ("um", "uh", "er", "like", "you know", "so", "basically"), false starts, repeats and lead-ins she'd cut
-  when writing it down ("The idea is:", "I think", "I want to").
+  when writing it down ("The idea is:", "I think", "I want to", "I want to build", "I'd like to make"). An idea
+  can start at its noun: "I want to build a checkout website for a bakery" -> "A checkout website for a bakery".
 - You may reorder her phrases, merge run-ons into one or two plain sentences, add small joining words (and, so, then,
   the, a, to, it) and fix grammar and punctuation. The result must be grammatical, in her voice.
 - NEVER add a content word she didn't say (no new nouns, verbs, adjectives or numbers; a different form of her own
