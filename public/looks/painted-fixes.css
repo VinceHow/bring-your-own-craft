@@ -248,7 +248,8 @@ html body #room:has(#inbox[data-state="open"]) [data-component="team-space"] { v
 /* the close, asking: the sheet hugs its one column (the idea, the mic, Build it) instead of a 1130 px sheet with a
    blank band either side; centred in the room, and on Build it the sheet opens out to make room for the contrast */
 html body #room [data-component="close-view"] { transition: left 460ms cubic-bezier(.2,.8,.2,1), width 460ms cubic-bezier(.2,.8,.2,1); }
-html body #room [data-component="close-view"][data-state="asking"] { width: 812px; left: calc(50% - 406px + var(--crop-x, 0px)); } /* + crop-x: the cover block above pulls the sheet left by it */
+html body #room [data-component="close-view"]:not([hidden]) { left: calc(50% - 565px + var(--crop-x, 0px)); } /* centred in the visible room; + crop-x: the cover block above pulls the sheet left by it */
+html body #room [data-component="close-view"][data-state="asking"] { width: 812px; left: calc(50% - 406px + var(--crop-x, 0px)); }
 html body #room [data-component="close-view"][data-state="asking"] > :last-child { width: 100%; }
 @media (prefers-reduced-motion: reduce) { html body #room [data-component="close-view"] { transition: none; } }
 /* the tally inside the inbox: one quiet line, "26 decisions · 1 to you" (POLISH 1: counters never compete). Its paper
