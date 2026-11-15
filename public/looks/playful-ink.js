@@ -6,13 +6,13 @@
      cast/music/rain.mp3 when present, else made in code. Ducks while a focus document is open: api.duck(true), or a
      `studio:focus` event with detail { open: true }.
    - Owns every playful object in the painted look; the living layer owns the backdrop and moods. They share the time of
-     day through a `studio:time` event { time } (either side may fire it), or api.setNight(on). A click on the record
+     day through `studio:time`: this layer sends { mode }, the living layer answers with { time }. api.setMode(m). A click on the record
      player, cat or coffee machine also fires `studio:poke` { obj: 'record'|'cat'|'coffee' }, so the painted layer plays
      that object's clip while this layer draws the ink and plays the sound.
    - Cat: two ink-drawn hearts rise when you pet it.
    - Coffee machine: a click sends up inked steam; on its own, only a tiny curl now and then.
    - String lights: a click toggles a soft glow (on by default at night).
-   - Day / night: a small inked sun or moon pill, top left, crossfades to the rainy night.
+   - Time pill, top left: Cycle (the run drives the time, default) -> Day -> Night, remembered per viewer.
    - These are Easter eggs: nothing shows on approach (only the pointer cursor), and nothing appears unprompted except a
      tiny, rare curl of coffee steam. Everything else answers a click. */
 (function () {
@@ -47,6 +47,7 @@
   const ICON = {
     sun: '<circle cx="9" cy="9" r="3.6"/><path d="M9 1.5v2M9 14.5v2M1.5 9h2M14.5 9h2M3.7 3.7l1.4 1.4M12.9 12.9l1.4 1.4M3.7 14.3l1.4-1.4M12.9 5.1l1.4-1.4"/>',
     moon: '<path d="M13.5 11.6A6 6 0 0 1 6.4 4.5 6 6 0 1 0 13.5 11.6Z"/>',
+    cycle: '<circle cx="9" cy="9" r="6.4"/><path d="M9 2.6a6.4 6.4 0 0 1 0 12.8Z" fill="currentColor" stroke="none"/>',
     disc: '<circle cx="9" cy="9" r="7"/><circle cx="9" cy="9" r="1.6"/><path d="M9 4.2a4.8 4.8 0 0 1 4.8 4.8"/>',
   };
 
@@ -189,30 +190,51 @@
     // ---------- day / night ----------
     const sky = el('button', 'pi-pill pi-sky', L);
     sky.style.left = '1.6%'; sky.style.top = '2.4%';
-    function setNight(on, fromEvent) {
-      state.night = on; plate.classList.toggle('on', on); L.classList.toggle('night', on);
-      sky.innerHTML = on ? `<svg class="ic" viewBox="0 0 18 18">${ICON.moon}</svg>Night<span class="pi-sub">rain on the window</span>`
-                         : `<svg class="ic" viewBox="0 0 18 18">${ICON.sun}</svg>Afternoon<span class="pi-sub">tap for night</span>`;
-      sky.setAttribute('aria-label', on ? 'Switch to afternoon' : 'Switch to night');
-      inkPill(sky); setLights(on); syncAmbient();
-      // tell the living layer (backdrop and moods) so both stay on the same time of day
-      if (!fromEvent) document.dispatchEvent(new CustomEvent('studio:time', { detail: { time: on ? 'night' : 'afternoon', from: 'playful-ink' } }));
+    // The pill shows the MODE and a click moves it on: Cycle -> Day -> Night -> Cycle. Cycle lets the run drive the
+    // time (the living layer owns that); Day and Night hold one scene. The lamp-lit look (plate, lights, rain music)
+    // follows the scene actually showing, which the living layer reports back as 'studio:time' { time }.
+    const MODES = {
+      cycle: { icon: 'cycle', name: 'Cycle', sub: 'tap for day',   next: 'day',   aria: 'Time of day follows the run. Switch to always day' },
+      day:   { icon: 'sun',   name: 'Day',   sub: 'tap for night', next: 'night', aria: 'Always day. Switch to always night' },
+      night: { icon: 'moon',  name: 'Night', sub: 'tap for cycle', next: 'cycle', aria: 'Always night. Switch to follow the run' },
+    };
+    const qs = new URLSearchParams(location.search);
+    let mode = o.time === 'night' ? 'night' : 'cycle';
+    try { const m = localStorage.getItem('byoc.timeMode'); if (MODES[m]) mode = m; } catch (e) { /* no storage */ }
+    if (qs.get('night') === '1') mode = 'night'; else if (qs.get('night') === '0' && mode === 'night') mode = 'day';
+    function drawPill() {
+      const m = MODES[mode];
+      sky.innerHTML = `<svg class="ic" viewBox="0 0 18 18">${ICON[m.icon]}</svg>${m.name}<span class="pi-sub">${m.sub}</span>`;
+      sky.setAttribute('aria-label', m.aria); sky.dataset.mode = mode;
+      inkPill(sky);
     }
-    sky.addEventListener('click', () => setNight(!state.night));
+    function setNight(on) {
+      if (on === state.night) return;
+      state.night = on; plate.classList.toggle('on', on); L.classList.toggle('night', on);
+      setLights(on); syncAmbient();
+    }
+    function setMode(m) {
+      if (!MODES[m]) return;
+      mode = m; drawPill();
+      try { localStorage.setItem('byoc.timeMode', m); } catch (e) { /* no storage: the choice lasts this visit */ }
+      if (m !== 'cycle') setNight(m === 'night');                      // answer the click at once; the scene follows
+      document.dispatchEvent(new CustomEvent('studio:time', { detail: { mode: m, from: 'playful-ink' } }));
+    }
+    sky.addEventListener('click', () => setMode(MODES[mode].next));
 
     // ---------- ducking during focus ----------
     document.addEventListener('studio:focus', e => api.duck(!!(e.detail && e.detail.open)));
-    // the living layer can set the time too: night is the only time with its own painting here, every other time is day
-    document.addEventListener('studio:time', e => { const d = e.detail || {}; if (d.from === 'playful-ink') return; const n = d.time === 'night'; if (n !== state.night) setNight(n, true); });
+    // the living layer reports the scene it shows: night is the only time with its own lamp-lit look, every other is day
+    document.addEventListener('studio:time', e => { const d = e.detail || {}; if (d.from === 'playful-ink' || !d.time) return; setNight(d.time === 'night'); });
 
     const api = {
       el: L, state,
       duck(on) { state.duck = on; setVolume(); },
-      setNight, setLights, play, hearts,
+      setNight, setMode, mode: () => mode, setLights, play, hearts,
       showTrack: flashTrack,
       destroy() { stopAll(); if (ambient) ambient.end(); L.remove(); },
     };
-    setNight(o.time === 'night', true);
+    state.night = null; drawPill(); setNight(mode === 'night' || o.time === 'night');
     window.PlayfulInk.current = api;
     return api;
   }
