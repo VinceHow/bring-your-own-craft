@@ -339,12 +339,59 @@
     if (!HOVER_CURSOR) return;
     for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
       if (el.dataset.ptCursor) return;
+      if (el.matches(':disabled, [aria-disabled="true"], [aria-busy="true"], [data-state="tidying"], [data-state="busy"]')) return;   // their own cursor (not now / working)
       const c = getComputedStyle(el).cursor;
       if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
       if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
       if (c !== 'auto' && !c.startsWith('url(') ) return;   // text, default, the window's paw: theirs
     }
   }, true);
+
+
+  // ---- her words, tidied in place (builder 8's BYOC.tidyInto: data-raw, data-state tidying → tidied, data-tidy cut | reordered).
+  // A look-owned overlay over the field shows the moment: cut words get an ink strike, fade and close up; a reordered line
+  // dissolves into the clean one. The field holds the clean line all along; the overlay is decoration (aria-hidden) and goes.
+  const TIDY_FIELDS = '[data-raw]';                    // any element showing her words that the tidy marks (fields or not)
+  const words = s => String(s || '').trim().split(/\s+/).filter(Boolean);
+  const norm = w => w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '');
+  function keptMask(raw, clean) {                       // LCS over normalised words: which raw words survive
+    const a = raw.map(norm), b = clean.map(norm), n = a.length, m = b.length;
+    const L = Array.from({ length: n + 1 }, () => new Int16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    const keep = new Array(n).fill(false);
+    for (let i = 0, j = 0; i < n && j < m;) { if (a[i] === b[j]) { keep[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
+    return keep;
+  }
+  function tidyMoment(el) {
+    const raw = el.dataset.raw || '', clean = ('value' in el ? el.value : el.textContent) || '';
+    if (el.dataset.tidy === 'skipped' || !raw || raw.trim() === clean.trim() || !el.offsetParent || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cs = getComputedStyle(el), ov = document.createElement('div');
+    ov.dataset.component = 'tidy-moment'; ov.dataset.tidy = el.dataset.tidy || 'cut'; ov.setAttribute('aria-hidden', 'true');
+    for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing', 'color', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'textAlign'])
+      ov.style[k] = cs[k];
+    Object.assign(ov.style, { left: el.offsetLeft + 'px', top: el.offsetTop + 'px', width: el.offsetWidth + 'px', minHeight: el.offsetHeight + 'px' });
+    if (el.tagName === 'INPUT') Object.assign(ov.style, { height: el.offsetHeight + 'px', whiteSpace: 'nowrap', overflow: 'hidden', display: 'flex', alignItems: 'center' });   // one line, like the field
+    const rw = words(raw);
+    if (ov.dataset.tidy === 'cut') {
+      const keep = keptMask(rw, words(clean));
+      ov.innerHTML = rw.map((w, i) => `<span data-slot="word"${keep[i] ? '' : ' data-state="cut"'}>${w.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])} </span>`).join('');
+    } else {
+      ov.textContent = raw;
+    }
+    el.offsetParent.appendChild(ov);
+    ov.querySelectorAll('[data-slot="word"]').forEach(w => { w.style.maxWidth = w.offsetWidth + 'px'; });   // so the close-up is real
+    el.dataset.ptTidy = 'hold';                                    // the field's clean text waits under the overlay
+    requestAnimationFrame(() => requestAnimationFrame(() => { ov.dataset.state = 'go';
+      ov.querySelectorAll('[data-slot="word"][data-state="cut"]').forEach(w => { w.style.maxWidth = '0px'; });
+      // the first word left standing takes the clean line's capital as the others close up
+      const first = ov.querySelector('[data-slot="word"]:not([data-state="cut"])');
+      if (first && /^[A-Z]/.test(clean.trim()) && /^[a-z]/.test(first.textContent)) setTimeout(() => { first.style.maxWidth = 'none'; first.textContent = first.textContent[0].toUpperCase() + first.textContent.slice(1); }, 800); }));
+    const total = ov.dataset.tidy === 'cut' ? 1650 : 1000;
+    setTimeout(() => { el.dataset.ptTidy = 'show'; ov.dataset.leave = 'yes'; }, total - 350);
+    setTimeout(() => { ov.remove(); delete el.dataset.ptTidy; }, total + 100);
+  }
+  new MutationObserver(ms => { for (const m of ms) { const el = m.target; if (el.matches && el.matches(TIDY_FIELDS) && el.dataset.state === 'tidied' && m.oldValue === 'tidying') tidyMoment(el); } })
+    .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-state'], attributeOldValue: true });
 
   // ---- 4a. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----
   css('painted-room.css');

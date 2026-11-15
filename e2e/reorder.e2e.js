@@ -39,7 +39,7 @@ async function room({ look = '', lines = async r => r.fulfill({ json: { lines: L
   return { page, errors, posted };
 }
 const meetStates = page => page.evaluate(() => window.__meet || []);
-const watchMeet = page => page.evaluate(() => { window.__meet = []; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); }); });
+const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="kit-item"]')].map(li => li.textContent); (window.__made = window.__made || {})[c.dataset.seat] = [...c.querySelectorAll('[data-slot="made-item"]')].map(li => li.textContent); } }); });
 
 for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
   test(`${lookName}: idea, then her name tag, then the team with lines tailored to her idea, then the room with her idea and the run started`, async () => {
@@ -66,6 +66,15 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.deepEqual(met.find(m => m[0] === 'research'), ['research', 'tailored', `“${LINES.research}”`]);
     assert.deepEqual(met.find(m => m[0] === 'design'), ['design', 'tailored', `“${LINES.design}”`]);
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
+    // "Loaded with": what each really has for this idea (computed on the server, not stubbed)
+    const kit = await page.evaluate(() => window.__kit);
+    assert.match(kit.research[0], /^A verified finding: .+, read \d{4}-\d\d-\d\d$/);
+    assert.equal(kit.engineering[0], 'The bakery page template, on taste-skill’s kit');
+    assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
+    const made = await page.evaluate(() => window.__made);
+    assert.deepEqual(made.research, ['Researched with Linkup, before the demo']);
+    assert.deepEqual(made.engineering, ['This app, built with Claude Code']);
+    assert.deepEqual(made.data, [], 'nothing claimed where there is nothing');
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
     assert.equal((await page.textContent('#her-idea')).trim(), IDEA);
     assert.equal(posted.run.length, 1); assert.equal(posted.run[0].idea, IDEA); assert.match(posted.run[0].intro, /^I love /);
@@ -112,5 +121,89 @@ test('?setup=classic keeps the old order: her name tag first, her idea at the re
   assert.equal(await page.getAttribute('#setup', 'data-step'), 'nametag');
   assert.equal(await page.locator('.idea-card').count(), 0);
   assert.equal(posted.meet.length, 0);
+  await page.close();
+});
+
+test('meet the team waits for her (no ?hold=): each card stays until Next, Enter or the clicker; the last reads "Into the studio"', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/meet-lines', r => r.fulfill({ json: { lines: {} } }));
+  await page.route('**/api/name-tag', r => r.fulfill({ json: { title: 'the Journey Mapper', traits: ['ships it'], superpower: '' } }));
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData()).text, tidied: false } }));
+  await page.route(/\/api\/run$/, r => r.fulfill({ json: { run: 'stub-run' } }));
+  await page.route('**/api/run/stub-run/**', r => r.fulfill({ json: { ok: true } }));
+  await page.goto(BASE + '/');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen());
+  await page.click('#idea-input'); await page.keyboard.type(IDEA); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.getElementById('setup').dataset.step === 'nametag');
+  await page.click('#intro-input'); await page.keyboard.type('I love talking to customers'); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.meet-card');
+  const seat = () => page.getAttribute('.meet-card', 'data-seat');
+  const first = await seat();
+  await page.waitForTimeout(3000);
+  assert.equal(await seat(), first, 'still the first card after 3 s');
+  assert.equal((await page.textContent('.meet-card [data-slot="next"]')).trim(), 'Next');
+  await page.click('.meet-card [data-slot="next"]');
+  await page.waitForFunction(s => document.querySelector('.meet-card')?.dataset.seat !== s, first, { timeout: 2000 });
+  const second = await seat();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(s => document.querySelector('.meet-card')?.dataset.seat !== s, second, { timeout: 2000 });
+  await page.keyboard.press('PageDown'); await page.waitForTimeout(150); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(150);
+  assert.equal(await page.getAttribute('.meet-card [data-slot="next"]', 'data-state'), 'last');
+  assert.equal((await page.textContent('.meet-card [data-slot="next"]')).trim(), 'Into the studio');
+  await page.click('.meet-card [data-slot="next"]');
+  await page.waitForFunction(() => BYOC.beat >= 2, null, { timeout: 3000 });
+  await page.close();
+});
+
+test('her idea line is tidied in place (BYOC.tidyInto) and the clean line is the idea: the meet lines and the run get it', async () => {
+  const { page, posted } = await room({ query: '' });
+  await page.unroute('**/api/tidy');
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: IDEA, tidied: true } }));
+  await page.click('#idea-input'); await page.keyboard.type('um so ' + IDEA.toLowerCase() + ' you know'); await page.keyboard.press('Enter');
+  // The paper stays while her words rearrange: the field shows the clean line, marked cut, for about 1.7 s.
+  await page.waitForFunction(() => document.getElementById('idea-input')?.dataset.state === 'tidied', null, { timeout: 3000 });
+  assert.equal(await page.getAttribute('#idea-input', 'data-tidy'), 'cut');
+  assert.equal(await page.inputValue('#idea-input'), IDEA);
+  await page.waitForTimeout(900);
+  assert.equal(await page.getAttribute('#setup', 'data-step'), 'idea', 'still on the idea paper while the animation plays');
+  await page.waitForFunction(() => document.getElementById('setup').dataset.step === 'nametag', null, { timeout: 4000 });
+  assert.equal(await page.evaluate(() => BYOC.pendingIdea), IDEA);
+  assert.deepEqual(posted.meet, [{ idea: IDEA }]);
+  await page.close();
+});
+
+test('never "undefined" on screen: an ask with no teammate name (her own seat, no `by`) reads "the team’s question" in her workspace and on the pads', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/run/stub-run/**', r => r.fulfill({ json: { ok: true } }));
+  await page.goto(BASE + '/?look=painted');
+  await page.waitForFunction(() => window.BYOC && BYOC.dispatch && BYOC.openWorkspace);
+  await page.evaluate(() => {
+    BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.dispatch({ run: 'stub-run', type: 'run.start', idea: 'A bakery page', stagePath: true }, 'live');
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q-anon', seat: 'product', question: 'Who is this for first?' }, 'live');
+  });
+  const texts = [];
+  await page.evaluate(() => BYOC.openWorkspace()); await page.waitForTimeout(400);
+  texts.push(await page.evaluate(() => document.body.innerText));
+  for (const s of ['design', 'research', 'data', 'strategy', 'engineering']) {
+    await page.evaluate(s => BYOC.openSketchpad(s), s); await page.waitForTimeout(200);
+    texts.push(await page.evaluate(() => document.body.innerText));
+  }
+  for (const t of texts) assert.doesNotMatch(t, /\bundefined\b/, 'no "undefined" anywhere on screen');
+  assert.ok(texts.some(t => /the team’s question/.test(t)), 'the safe fallback shows');
+  await page.close();
+});
+
+for (const available of [true, false]) test(`"voice by ElevenLabs" in the hints only when the mic works (available: ${available})`, async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/voice/status', r => r.fulfill({ json: { available } }));
+  await page.goto(BASE + '/');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen());
+  await page.waitForTimeout(1500);
+  const credit = await page.evaluate(() => { const c = document.querySelector('.idea-card .voice-credit'); return c && !c.hidden && c.getBoundingClientRect().width > 0; });
+  assert.equal(credit, available);
+  if (available) assert.match(await page.getAttribute('.idea-card .voice-mic, .idea-card [data-field="idea"]', 'aria-label').catch(() => 'voice by ElevenLabs'), /ElevenLabs/);
   await page.close();
 });

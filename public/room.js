@@ -18,7 +18,10 @@
     engineering: { name: 'Engineering', agent: 'Bo', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
   // How long each teammate's big card holds mid-table (DEMO 0:06-0:26: about 2 s). ?hold=<ms> for tests.
-  const HOLD_MS = Number(new URLSearchParams(location.search).get('hold')) || 2000;
+  // Meet the team waits for her (Vincent, Sun 01:31: he talks over each card): no auto-advance unless ?hold=<ms> is
+  // given (the tests and unattended walks use it).
+  const HOLD_PARAM = Number(new URLSearchParams(location.search).get('hold'));
+  const HOLD_MS = HOLD_PARAM > 0 ? HOLD_PARAM : Infinity;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -369,7 +372,7 @@
     const mine = open.findLast(a => a.seat === seat);
     if (mine) return { state: 'waiting', text: mine.type === 'ask.unblock' ? `${A} is blocked until you answer: “${quote(mine.question)}”` : `${A} is waiting on your answer: “${quote(mine.question || mine.decision)}”` };
     const other = open.findLast(a => INFO[a.seat]);
-    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${INFO[other.seat].agent}'s question.` };
+    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${(other.by || (INFO[other.seat] && INFO[other.seat].agent)) ? `${other.by || INFO[other.seat].agent}'s` : 'the team’s'} question.` };
     if (joints.length) return { state: 'waiting', text: `${A} starts once the team has agreed “${quote(joints.at(-1).decision)}”.` };
     if (!ev.some(e => e.type === 'teammate.start')) return { state: 'empty', text: `${A} joins once the team gets going.` };
     return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
@@ -415,12 +418,14 @@
       : teamStarted ? 'What the team agrees lands here as they work.' : 'The team gets going once you’ve said your idea; what they agree lands here.'));
     ts.appendChild(tl);
     // her takeaways so far (the latest per question; what she kept wins)
+    // Who asked, possessive, never "undefined's": the ask's own name, else its seat's teammate, else the team.
+    const askerOf = a => { const n = (a && (a.by || (INFO[a.seat] && INFO[a.seat].agent))) || ''; return n ? `${n}’s` : 'the team’s'; };
     const tk = part('takeaways', 'Your takeaways so far');
     const byAsk = new Map();
     for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
     const kl = h('ul', 'ws-list');
     for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
-    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${INFO[openAsk.seat].agent}’s question.` : 'They come from your answers to the team’s questions.'));
+    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${askerOf(openAsk)} question.` : 'They come from your answers to the team’s questions.'));
     tk.appendChild(kl);
     if (refresh) { const old = panel.querySelector('.ws-body'); if (old) old.replaceWith(body); return; }
     openPanel('workspace', null, 'Your workspace', body);
@@ -619,8 +624,10 @@
     'lets build this', 'build this', 'sounds good', 'sounds great', 'sounds right', 'looks good', 'looks great', 'looks right', 'good',
     'great', 'perfect', 'nice', 'cool', 'love it', 'yes', 'yep', 'yeah', 'yup', 'ok', 'okay', 'sure', 'ship it', 'lets ship it',
     'do it', 'lets do it', 'lets do this', 'thats it', 'thats right', 'all good', 'go on', 'start', 'lets start', 'onwards', 'done']);
+  // Fillers don't count ("um, sounds good" is go): the tidy's filler list (lib/tidy.js FILLER), no model call.
+  const GO_FILLER = /\b(um+|uh+|er+|erm|hmm+|like|you know|i mean|sort of|kind of|basically|actually)\b/g;
   function isGo(text) {
-    const t = String(text || '').toLowerCase().replace(/[’']/g, '');
+    const t = String(text || '').toLowerCase().replace(/[’']/g, '').replace(GO_FILLER, ' ');
     if (!t.trim() || t.split(/\s+/).filter(Boolean).length > 8) return false;
     const parts = t.split(/[.,!?;:\n]+|\s+(?:and|then|so)\s+/).map(p => p.replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
     return parts.length > 0 && parts.every(p => GO.has(p) || GO.has(p.replace(/^(ok|okay|yes|yeah|great|perfect|right|alright|so|now)\s+/, '').replace(/\s+(now|please|then|team)$/, '')));
@@ -640,13 +647,14 @@
     if (inputMode === 'idea') {
       if (!raw) return;
       submitting = true;
-      try { const idea = await tidyLine(el.herInput, raw); el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
+      try { const idea = await tidyLine(el.herInput, raw); if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
     } else if (inputMode === 'line') {
       if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
       submitting = true;
       let text = raw;
       try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
-      el.herInput.value = '';
+      // she typed on while it tidied: her new words stay in the box; this line goes as she sent it
+      if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = '';
       if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
@@ -1190,10 +1198,11 @@
     const c = h('div', 'big-card idea-card'); c.dataset.component = 'idea-card'; c.dataset.state = 'asking';
     c.innerHTML = `<label class="idea-row"><span class="idea-q" data-slot="question">What do you want to build today?</span>
         <textarea class="idea-input" id="idea-input" data-slot="input" data-voice="idea" rows="2" spellcheck="false" maxlength="300" placeholder="One sentence is plenty" aria-label="What you want to build today"></textarea></label>
-      <div class="idea-hint" data-slot="hint">Say it or type it · Enter: next, your name tag</div>
+      <div class="idea-hint" data-slot="hint">Say it or type it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter: next, your name tag</div>
       <div class="idea-actions" data-slot="actions"><button type="button" class="idea-make" data-slot="make" data-state="make">Next</button></div>`;
     st.appendChild(c);
     ideaCard = c;
+    voiceCredit(c);
     $('#idea-input', c).addEventListener('keydown', ev => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); ev.stopPropagation(); ideaDone(); }
     });
@@ -1201,9 +1210,26 @@
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
-  function ideaDone() {
-    const c = ideaCard; if (!c || BYOC.beat !== 0) return;
-    const text = $('#idea-input', c).value.trim();
+  // After a tidy that changed her line (data-tidy cut|reordered on the field), hold ~1.7 s so design's animation plays:
+  // the cut words strike and fade, the line closes up, the clean line settles. No hold when it's unchanged or skipped.
+  const TIDY_PAUSE_MS = Number(new URLSearchParams(location.search).get('tidypause') ?? 1700);
+  async function tidyPause(el, raw, clean) {
+    if (instantMode || !el || clean === raw || !['cut', 'reordered'].includes(el.dataset.tidy)) return;
+    await wait(TIDY_PAUSE_MS);
+  }
+  async function ideaDone() {
+    const c = ideaCard; if (!c || BYOC.beat !== 0 || c.dataset.state === 'tidying') return;
+    const inp = $('#idea-input', c);
+    const raw = inp.value.trim();
+    // Her line, tidied in place first (BYOC.tidyInto, builder 8: cut, never reworded; her raw words if slow or refused).
+    let text = raw;
+    if (raw && typeof BYOC.tidyInto === 'function' && !BYOC.replay) {
+      c.dataset.state = 'tidying';
+      try { text = String(await BYOC.tidyInto(inp, raw) || raw).trim() || raw; } catch { text = raw; }
+      if (ideaCard !== c || BYOC.beat !== 0) return;
+      await tidyPause(inp, raw, text); // the paper stays while her words rearrange (Vincent: "the very first screen")
+      if (ideaCard !== c || BYOC.beat !== 0) return;
+    }
     c.dataset.state = 'done';
     ideaCard = null;
     BYOC.pendingIdea = text || null;
@@ -1215,8 +1241,23 @@
         new Promise(res => setTimeout(() => res({}), MEET_LIMIT_MS)),
       ]).catch(() => ({})).then(lines => { if (tok === walkToken) BYOC.meetLines = lines; emit('meet.lines', { tailored: Object.keys(lines).length }); return lines; });
     }
+    loadKit(text);
     emit('idea.paper', { idea: text });
     openPaper();
+  }
+  // "Loaded with": what each teammate really has for this idea (GET /api/kit, lib/kit.js: computed from the files and the
+  // finding this server has). Asked for with her idea; without one (classic order), as she meets the team.
+  function loadKit(idea) {
+    const tok = walkToken;
+    BYOC.kit = null;
+    BYOC.kitReq = BYOC.api('/api/kit?idea=' + encodeURIComponent(idea || ''), undefined, { step: false })
+      .then(k => { if (tok === walkToken) BYOC.kit = k || {}; return k; }).catch(() => null);
+    return BYOC.kitReq;
+  }
+  // "voice by ElevenLabs" in the hints, only when the mic really works here (BYOC.voice.available, known a beat after load).
+  function voiceCredit(c) {
+    const show = () => { const on = !!(BYOC.voice && BYOC.voice.available); c.querySelectorAll('.voice-credit').forEach(x => { x.hidden = !on; }); return on; };
+    if (!show()) [300, 1200, 3000].forEach(ms => setTimeout(show, ms));
   }
   BYOC.ideaOpen = () => !!ideaCard && BYOC.beat === 0;
   BYOC.ideaDone = ideaDone;
@@ -1240,11 +1281,12 @@
       </div>
       <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Type it or say it · Enter, and the team writes your tag</div>
+      <div class="nt-hint" data-slot="hint">Type it or say it<span class="voice-credit" data-slot="voice-credit" hidden> · voice by ElevenLabs</span> · Enter, and the team writes your tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
       <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
     introCard = c;
+    voiceCredit(c);
     $('.pick-card', c).addEventListener('click', e => { const b = e.target.closest('.pick-option'); if (b) pick(b.dataset.pick); });
     $('.nt-name', c).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); $('#intro-input', c).focus(); } });
     $('#intro-input', c).addEventListener('keydown', ev => {
@@ -1359,7 +1401,10 @@
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
       tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (typeof BYOC.tidyInto === 'function') { try { said = String(await BYOC.tidyInto(inp, raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      else if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      if (introCard !== c) return;
+      await tidyPause(inp, raw, said); // her words rearrange on the paper, then her tag
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
@@ -1395,15 +1440,20 @@
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
       <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
       <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
-      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>`;
+      ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
+      <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
+    $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
     return c;
   }
-  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; }
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; } // ms may be Infinity: her click, →, Enter or the clicker
   async function meetTeam(animate, tok) {
     if (!setup || !animate || BYOC.replay) return;
     setSetup('team');
     const st = $('#setup-stage');
     meeting = true; meetSkip = false; meetAdvance = false;
+    if (!BYOC.kit) { if (!BYOC.kitReq) loadKit(''); await Promise.race([BYOC.kitReq, wait(800)]); } // never more than a beat
     try {
       for (let i = 0; i < TEAM.length; i++) {
         if (tok !== walkToken || meetSkip) return;
@@ -1539,7 +1589,7 @@
     document.body.dataset.beat = '0';
     status('');
     emit('reset', {});
-    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; ideaCard = null;
+    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; BYOC.kit = null; BYOC.kitReq = null; ideaCard = null;
     if (CLASSIC) openPaper(); else openIdea(); // the room hides again: her idea first (classic: her name tag)
   }
   BYOC.reset = reset;

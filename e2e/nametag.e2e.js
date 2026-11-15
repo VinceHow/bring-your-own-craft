@@ -56,12 +56,20 @@ for (const [lookName, look] of LOOKS) {
   test(`${lookName}: Enter in her love/bring field: progress within 300 ms, her rough card at once, then the team's read in place`, async () => {
     const { page, errors, calls } = await card(ok(1500), { tidyMs: 800, look });
     for (const sel of ['#nt-name', '#intro-input', '.nt-make']) assert.ok(await shown(page, sel), `${sel} on screen (${lookName})`);
-    const t0 = Date.now();
+    // The status line's history, recorded in the page (a busy machine can't miss a short state by polling).
+    await page.evaluate(() => {
+      const st = document.querySelector('.nt-status'); window.__st = [];
+      const rec = () => { const r = st.getBoundingClientRect(), cs = getComputedStyle(st);
+        window.__st.push({ state: st.dataset.state, text: st.textContent, t: performance.now() - window.__t0, seen: r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' }); };
+      new MutationObserver(rec).observe(st, { attributes: true, attributeFilter: ['data-state'], childList: true, characterData: true, subtree: true });
+      document.addEventListener('keydown', e => { if (e.key === 'Enter') window.__t0 = performance.now(); }, { capture: true, once: true });
+    });
     await page.keyboard.press('Enter');
-    await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
-    assert.ok(Date.now() - t0 <= 300 + 150, `progress shown in ${Date.now() - t0} ms`);
-    assert.match((await status(page)).text, /writing your tag/i);
-    assert.ok(await visible(page), 'the progress line is on screen');
+    await page.waitForFunction(() => (window.__st || []).some(x => x.state === 'thinking'), null, { timeout: 3000 });
+    const th = await page.evaluate(() => window.__st.find(x => x.state === 'thinking' && /writing your tag/i.test(x.text)) || window.__st.find(x => x.state === 'thinking'));
+    assert.ok(th.t <= 300, `progress shown in ${Math.round(th.t)} ms`);
+    assert.match(th.text, /writing your tag/i);
+    assert.ok(th.seen, 'the progress line is on screen');
     // The tidy (800 ms) done, her rough card is up before the team answers (1.5 s), Meet your team ready.
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'rough', null, { timeout: 2000 });
     assert.equal((await status(page)).state, 'polishing');

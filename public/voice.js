@@ -50,8 +50,8 @@
   function mark(field, el) {
     const b = document.createElement('span');
     b._field = el; b.className = 'voice-mic'; b.dataset.field = field; b.dataset.component = 'mic';
-    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak');
-    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V)';
+    b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak (voice by ElevenLabs)');
+    b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V) · voice by ElevenLabs speech-to-text';
     b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak</span>';
     b.addEventListener('pointerdown', e => {
       if (state === 'listening' && toggled) { e.preventDefault(); stop(); return; } // the second tap
@@ -227,6 +227,8 @@
     if (el) { el.dataset.raw = raw; el.dataset.state = 'tidying'; if (isField) el.value = raw; else el.textContent = raw; }
     let clean = raw;
     try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
+    // She typed (or spoke) on while it tidied: what she has now is never overwritten, and this line goes untidied.
+    if (el && isField && el.value !== raw) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
     if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
     return clean;
   };
