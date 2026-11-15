@@ -135,11 +135,12 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     const sayLabel = h('span', 'ia-say-label', 'Say something else'); say.appendChild(sayLabel);
     const note = slot(h('span', 'ia-note'), 'note');
     let hers = null, tidying = null, tidied = '', sending = false;
+    const caretEnd = el => { const r = document.createRange(), sel = getSelection(); r.selectNodeContents(el); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); };
     // Tidy her answer once per line: a spoken take as it lands, a typed one when she says Yes. Falls back to her raw words.
     const tidyHers = text => {
       const raw = String(text ?? (hers ? hers.textContent : '')).trim();
       if (!hers || !raw || !B.tidyInto) return Promise.resolve(raw);
-      tidying = B.tidyInto(hers, raw).then(t => { tidied = hers.textContent.trim(); if (tidied && B.emit) B.emit('action.say', { id: n.id, text: tidied }); return t; });
+      tidying = B.tidyInto(hers, raw).then(t => { if (document.activeElement === hers) caretEnd(hers); tidied = hers.textContent.trim(); if (tidied && B.emit) B.emit('action.say', { id: n.id, text: tidied }); return t; });
       return tidying;
     };
     // "Say something else": the suggestion box becomes hers; voice opens on it (tap the button again to stop), or she types.
@@ -151,13 +152,14 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
         hers = slot(h('p', 'ia-hers'), 'hers'); hers.contentEditable = 'true'; hers.spellcheck = false; hers.dataset.voice = 'unblock';
         hers.setAttribute('aria-label', 'Your answer');
         hers.addEventListener('input', () => { const t = hers.textContent.trim(); if (t) { sayLabel.textContent = 'Say it again'; B.emit && B.emit('action.say', { id: n.id, text: t }); } });
-        hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); if (hers.textContent.trim()) yes.click(); else note.textContent = 'Say or type your answer, then Enter'; } if (e.key === 'Escape') hers.blur(); }); // empty: never sends the struck suggestion
+        // Enter sends; Shift+Enter is a new line (the browser's own); an IME composition never sends
+        hers.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (hers.textContent.trim()) yes.click(); else note.textContent = 'Say or type your answer, then Enter'; } if (e.key === 'Escape') hers.blur(); }); // empty: never sends the struck suggestion
         // Her spoken answer is tidied in place (her words, clearer order; data-raw / data-state / data-tidy on .ia-hers).
         hers.addEventListener('byoc:voice', e => { tidyHers(e.detail && e.detail.text); });
         sug.append(h('span', 'k', 'You said'), hers, slot(h('span', 'ia-was', sugText), 'was'));
       }
       c.dataset.state = 'speaking'; sayLabel.textContent = 'Listening…';
-      hers.focus();
+      hers.focus(); caretEnd(hers);   // her next words go after the ones already there
       if (B.voice && B.voice.available) B.voice.start(); else sayLabel.textContent = 'Type it, then Yes';
     });
     yes.addEventListener('click', async () => {

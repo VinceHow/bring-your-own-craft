@@ -210,6 +210,30 @@ test('her own words instead of the suggestion; the cap still counts the unblock'
   assert.deepStrictEqual(errors, []);
 });
 
+test('her own words on the unblock card: Shift+Enter is a new line, Enter sends, and her next words go after the ones there', async () => {
+  await page.evaluate(() => { BYOC.reset(); });
+  const run = await newRun();
+  await page.evaluate(run => { BYOC.stage(5, { instant: true }); BYOC.run = run; }, run);
+  assert.strictEqual((await raise(run, BO)).status, 200);
+  await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'the unblock');
+  await page.click('#inbox .inbox-now');
+  const card = page.locator('#inbox article.inbox-action');
+  await card.locator('[data-slot="say"]').click();
+  const own = card.locator('.ia-hers');
+  await own.fill('Orders close at 8pm');
+  await page.evaluate(() => { const el = document.querySelector('#inbox .ia-hers'); el.focus();   // the caret at the START, as after a re-render
+    const r = document.createRange(); r.selectNodeContents(el); r.collapse(true); getSelection().removeAllRanges(); getSelection().addRange(r); });
+  await card.locator('[data-slot="say"]').click().catch(() => {});   // reopening it puts her caret back at the end
+  await page.keyboard.press('Shift+Enter');
+  assert.strictEqual(await card.getAttribute('data-state'), 'speaking', 'Shift+Enter does not send');
+  await page.keyboard.type('except Sundays');
+  const text = await own.evaluate(el => el.innerText);
+  assert.ok(/^Orders close at 8pm\s*\n\s*except Sundays\s*$/.test(text), `a new line, her words after the ones there: ${JSON.stringify(text)}`);
+  await page.keyboard.press('Enter');
+  await waitFor(() => document.querySelector('#inbox article.inbox-action')?.dataset.state === 'yes' || !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 'Enter sends');
+  assert.deepStrictEqual(errors, []);
+});
+
 test('her spoken answer is tidied in place (data-raw / data-state / data-tidy on .ia-hers), and Yes sends the tidy', async () => {
   const RAW = 'Uh, orders close, uh, at, so 10:00 PM the day before';
   const CLEAN = 'Orders close at 10:00 PM the day before';
