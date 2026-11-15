@@ -1506,14 +1506,33 @@
     c.dataset.state = tailored ? 'tailored' : 'static';
     c.innerHTML = `<span class="meet-face" data-slot="face"></span>
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
-      <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
-      <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
-      ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
-      ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      ${meetBody(seat, tailored, t)}
       <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
       <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
     $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
     return c;
+  }
+  // The card's body (the PO's copy, Sun 08:58): a standing intro, her idea's tailored line (or the loves line), the
+  // loves line under a tailored one, then what it brings as chips: "Live in this room" (only what runs here, from
+  // GET /api/kit cards) and "Built with" (prepared ahead), and the whole team's shared line. Without cards (an old
+  // server), the earlier "Brings / Loaded with / Made with" lists.
+  function meetBody(seat, tailored, t) {
+    const card = BYOC.kit && BYOC.kit.cards && BYOC.kit.cards[seat];
+    const chips = (slot, label, items) => items && items.length ? `<div class="meet-chips" data-slot="${slot}"><span class="meet-label" data-slot="${slot}-label">${label}</span><ul class="meet-chip-row">${items.map(x => `<li class="meet-chip" data-slot="${slot}-item">${esc(x)}</li>`).join('')}</ul></div>` : '';
+    if (card) {
+      const voiceOn = !!(BYOC.voice && BYOC.voice.available);
+      const room = (BYOC.kit.room || []).filter(r => r.kind !== 'mic' || voiceOn).map(r => r.text);
+      return `<p class="meet-intro" data-slot="intro">${esc(card.intro)}</p>
+      <p class="meet-line" data-slot="line">“${esc(tailored || card.loves)}”</p>
+      ${tailored ? `<p class="meet-loves" data-slot="loves"><span class="meet-label">Loves</span> ${esc(card.loves)}</p>` : ''}
+      ${chips('live', 'Live in this room', card.live)}
+      ${chips('built', 'Built with', card.built)}
+      ${room.length ? `<p class="meet-room" data-slot="room">${esc(room.join(' · '))}</p>` : ''}`;
+    }
+    return `<p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
+      <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
+      ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      ${(BYOC.kit && BYOC.kit.made && Array.isArray(BYOC.kit.made[seat]) && BYOC.kit.made[seat].length) ? `<div class="meet-made-wrap"><span class="meet-label" data-slot="made-label">Made with</span><ul class="meet-made" data-slot="made">${BYOC.kit.made[seat].slice(0, 2).map(k => `<li class="meet-made-item" data-slot="made-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}`;
   }
   async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; } // ms may be Infinity: her click, →, Enter or the clicker
   async function meetTeam(animate, tok) {

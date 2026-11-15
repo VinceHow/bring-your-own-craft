@@ -39,7 +39,7 @@ async function room({ look = '', lines = async r => r.fulfill({ json: { lines: L
   return { page, errors, posted };
 }
 const meetStates = page => page.evaluate(() => window.__meet || []);
-const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="kit-item"]')].map(li => li.textContent); (window.__made = window.__made || {})[c.dataset.seat] = [...c.querySelectorAll('[data-slot="made-item"]')].map(li => li.textContent); } }); });
+const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="live-item"]')].map(li => li.textContent); (window.__made = window.__made || {})[c.dataset.seat] = [...c.querySelectorAll('[data-slot="built-item"]')].map(li => li.textContent); (window.__intro = window.__intro || {})[c.dataset.seat] = c.querySelector('[data-slot="intro"]')?.textContent; } }); });
 
 for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
   test(`${lookName}: idea, then her name tag, then the team with lines tailored to her idea, then the room with her idea and the run started`, async () => {
@@ -66,18 +66,17 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.deepEqual(met.find(m => m[0] === 'research'), ['research', 'tailored', `“${LINES.research}”`]);
     assert.deepEqual(met.find(m => m[0] === 'design'), ['design', 'tailored', `“${LINES.design}”`]);
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
-    // "Loaded with": what each really has for this idea (computed on the server, not stubbed)
-    const kit = await page.evaluate(() => window.__kit);
-    assert.match(kit.research[0], /^Linkup finding: /, 'Noor: Linkup');
-    assert.equal(kit.engineering[0], 'The bakery page template');
-    for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /\bClaude\b/.test(x)), `${seat}'s card names Claude`);
-    for (const x of Object.values(kit).flat()) assert.ok(x.split(/\s+/).length <= 6, `at most 6 words: ${x}`);
-    assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
-    const made = await page.evaluate(() => window.__made);
-    assert.deepEqual(made.research, ['Researched with Linkup, before the demo']);
-    assert.deepEqual(made.design, ['Studio, clips, music painted on fal', 'The room’s frames, laid out in Figma'], 'Mika: fal, and Figma for the frames (design/FIGMA.md)');
-    assert.deepEqual(made.engineering, ['This app, built with Claude Code']);
-    assert.deepEqual(made.data, [], 'nothing claimed where there is nothing');
+    // The cards (the PO's copy): an intro, then "Live in this room" (computed on the server, not stubbed) and "Built with"
+    const kit = await page.evaluate(() => window.__kit), made = await page.evaluate(() => window.__made), intro = await page.evaluate(() => window.__intro);
+    assert.match(intro.research, /^I’m Noor\./); assert.match(intro.engineering, /^I’m Bo\./);
+    assert.ok(kit.research.includes('Linkup web search, live'), 'Noor: Linkup live on a bakery idea');
+    assert.ok(kit.engineering.includes('Builds her page from her decisions') && kit.engineering.includes('Schema-checked template fill'));
+    for (const [seat, l] of Object.entries(kit)) assert.ok(l.some(x => /^Claude/.test(x)), `${seat}'s card names the Claude it thinks with`);
+    assert.ok(!kit.design.some(x => /emblem/.test(x)), 'no live emblem off fal');
+    assert.ok(made.design.includes('The room’s frames in Figma') && made.design.includes('taste-skill (MIT)'));
+    assert.deepEqual(made.research, ['Linkup']);
+    assert.ok(made.engineering.includes('Claude Code'));
+    assert.deepEqual(made.data, ['Claude Code']);
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
     assert.equal((await page.textContent('#her-idea')).trim(), IDEA);
     assert.equal(posted.run.length, 1); assert.equal(posted.run[0].idea, IDEA); assert.match(posted.run[0].intro, /^I love /);

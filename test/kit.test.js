@@ -43,3 +43,33 @@ test('Bo thinks with what this server really runs on', async () => {
   delete process.env.MODEL_BACKEND; assert.equal(kitFor('A bakery').engineering.at(-1), 'Claude, through Claude Code');
   if (old !== undefined) process.env.MODEL_BACKEND = old;
 });
+
+test('the meet cards (the PO copy): every teammate has an intro, loves, live and built chips; live chips only under their switches', async () => {
+  const { cardsFor } = await import('../lib/kit.js');
+  const bakery = "An ordering website for my friend's small bakery";
+  const { cards, room } = cardsFor(bakery, { start: null });
+  for (const seat of ['research', 'design', 'engineering', 'strategy', 'data']) {
+    const c = cards[seat];
+    assert.ok(c.intro && c.loves, `${seat}: intro and loves`);
+    assert.ok(c.live.length >= 2 && c.live.some(x => /^Claude (Sonnet|Haiku|Opus)$|^Claude$/.test(x)), `${seat}: live chips, with the model it thinks with`);
+    assert.ok(c.built.length >= 1, `${seat}: built with`);
+    assert.doesNotMatch([c.intro, c.loves, ...c.live, ...c.built].join(' '), /\?|MCP|ECC/);
+  }
+  assert.ok(cards.research.live.includes('Linkup web search, live'), 'Linkup live on a bakery idea (live-finding runs there)');
+  assert.ok(!cardsFor('A sign-up page for a tool library', { start: null }).cards.research.live.some(x => /Linkup/.test(x)), 'never claimed where it does not run');
+  const off = process.env.LIVE_FINDING; process.env.LIVE_FINDING = '0';
+  assert.ok(!cardsFor(bakery, { start: null }).cards.research.live.some(x => /Linkup/.test(x)), 'nor when live finding is off'); 
+  if (off === undefined) delete process.env.LIVE_FINDING; else process.env.LIVE_FINDING = off;
+  assert.ok(!cards.design.live.some(x => /dealt live/.test(x)), 'no live palette without the scripts');
+  assert.ok(cardsFor(bakery, { start: '/x' }).cards.design.live.some(x => /dealt live/.test(x)), 'listed when they are there');
+  const b = process.env.MODEL_BACKEND; delete process.env.MODEL_BACKEND; delete process.env.LIVE_LOGO;
+  assert.ok(!cardsFor(bakery).cards.design.live.some(x => /emblem/.test(x)), 'the live emblem only when the logo is on (fal)');
+  assert.match(cardsFor(bakery).room.at(-1).text, /Claude Code/);
+  process.env.MODEL_BACKEND = 'fal';
+  assert.ok(cardsFor(bakery, { start: null }).cards.design.live.some(x => /emblem, painted live on fal/.test(x)));
+  assert.equal(cardsFor(bakery).room.at(-1).text, 'thinking through fal');
+  process.env.JOINT_MODEL = 'sonnet'; assert.match(cardsFor(bakery).room[0].text, /Claude Sonnet/, 'a Fallback B override shows as it runs'); delete process.env.JOINT_MODEL;
+  if (b === undefined) delete process.env.MODEL_BACKEND; else process.env.MODEL_BACKEND = b;
+  assert.equal(room.find(r => r.kind === 'mic').text, 'her mic on ElevenLabs speech-to-text', 'the mic item, shown only when voice works (room.js)');
+  assert.deepEqual(cards.strategy.built, ['Claude Code']); assert.deepEqual(cards.data.built, ['Claude Code']);
+});

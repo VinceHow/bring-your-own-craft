@@ -525,6 +525,14 @@ html:not(.painted-on) .idea-card .idea-make { font: inherit; font-size: 18px; pa
 .meet-line { margin: 0; font-size: 30px; font-style: italic; }
 .meet-brings { margin: 0; font-size: 20px; }
 .meet-count { font-size: 16px; align-self: flex-end; }
+.meet-intro { margin: 0; font-size: 22px; }
+.meet-loves { margin: 0; font-size: 18px; }
+.meet-loves .meet-label, .meet-chips .meet-label { font-size: 14px; font-weight: 700; margin-right: 6px; }
+.meet-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.meet-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.meet-chip { padding: 3px 10px; border: 2px solid var(--ink); font-size: 15px; }
+.meet-chips[data-slot="built"] .meet-chip { border-style: dashed; }
+.meet-room { margin: 0; font-size: 14px; font-style: italic; }
 /* The app button (public/app-button.js): fixed over everything at the window's bottom right, beside her seat, where
    no card sits; above the REPLAY label when that shows. Layout only: the look is the studio's. */
 .app-button { position: fixed; z-index: 45; bottom: 14px; right: 18px; display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 6px; max-width: 380px; }
