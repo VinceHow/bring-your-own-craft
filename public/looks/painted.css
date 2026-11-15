@@ -1478,3 +1478,31 @@ html #room [data-component="focus-doc"] [data-component="meeting"] [data-compone
    reaching past its right edge (a tidy overlay, a wide note) scrolled #room 24 px sideways, so her document's title read
    "Vho should we build…". overflow: clip cannot be scrolled at all. */
 html body #room { overflow: clip !important; }
+
+
+/* ---------- the magic moments, lifted (design lead: one motif, her ink pen; 300–700 ms; simplify) ---------- */
+/* meet the team: each card is dealt onto the table, a slight turn settling flat (rotate only: the room's spring keeps the lift) */
+html #room [data-component="setup"] [data-component="meet-card"] { animation: pt-deal .42s cubic-bezier(.2,.7,.2,1) both !important; }
+@keyframes pt-deal { from { rotate: -1.8deg; } to { rotate: 0deg; } }
+/* a reply arriving: a little paper note in their crayon, tilted a degree, settling as it lands */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"] { animation: pt-note-land .5s cubic-bezier(.2,.7,.2,1) both; transform-origin: 0 50%; }
+@keyframes pt-note-land { from { opacity: 0; translate: 0 8px; rotate: 1.2deg; } 60% { opacity: 1; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+/* End meeting → takeaways: the pen writes the "believe" line; the guidance fades in under it; Keep arrives last */
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="believe"] { position: relative; animation: pt-write 1.1s cubic-bezier(.45,.1,.55,.95) .15s both !important; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] div:has(> [data-slot="believe"]) { position: relative; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] div:has(> [data-slot="believe"])::after { content: ''; position: absolute; left: 0; bottom: 0; width: 30px; height: 30px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg stroke='%2333261C' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 27 L6 19 L22 3 L27 8 L11 24 Z' fill='%23FFF8EE'/%3E%3Cpath d='M18 7 L23 12' fill='none'/%3E%3Cpath d='M3 27 L6 19 L11 24 Z' fill='%2333261C'/%3E%3C/g%3E%3C/svg%3E") 0 0 / contain no-repeat; opacity: 0; animation: pt-pen-line 1.25s cubic-bezier(.45,.1,.55,.95) .15s both; }
+@keyframes pt-pen-line { 0% { left: 0; opacity: 0; } 10% { opacity: 1; } 88% { left: calc(100% - 30px); opacity: 1; } 100% { left: calc(100% - 20px); opacity: 0; translate: 6px -10px; } }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="guidance"] { animation: pfd-fade-in .6s ease 1.05s both !important; clip-path: none; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="guidance"] ~ *, html #room [data-component="focus-doc"] [data-component="takeaways"] div:has(> [data-slot="guidance"]) > [data-slot="label"] { animation: pfd-fade-in .5s ease .95s both; }
+html #room [data-component="focus-doc"] [data-component="takeaways"] [data-slot="keep"] { animation: pfd-fade-in .45s ease 1.6s both; }
+@keyframes pfd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+/* the tidy: once the clean line settles, a short pink crayon underline is drawn under it (0.4 s), her signature */
+html.painted-on [data-turn="her"]:has([data-pt-tidy="show"])::after { content: ''; display: block; height: 2px; margin-top: 6px; border-radius: 2px;
+  background: rgba(212,114,136,.8); width: 72px; animation: pt-underline .45s cubic-bezier(.3,.7,.2,1) .25s both; }
+@keyframes pt-underline { from { width: 0; } to { width: 72px; } }
+@media (prefers-reduced-motion: reduce) {
+  html #room [data-component="setup"] [data-component="meet-card"], html #room [data-component="focus-doc"] [data-component="meeting"] [data-turn="team"],
+  html #room [data-component="focus-doc"] [data-component="takeaways"] *, html #room [data-component="focus-doc"] [data-component="takeaways"] *::after { animation: none !important; }
+  html #room [data-component="focus-doc"] [data-component="takeaways"] div:has(> [data-slot="believe"])::after { display: none; }
+}
