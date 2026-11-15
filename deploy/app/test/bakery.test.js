@@ -102,7 +102,7 @@ test('[first-d3 · Ines] sold out is said warmly, not as an error', async () => 
   assert.match(js, /Sold out for today/);
 });
 
-test('[first-d4 · Noor] no login: a customer reserves with no account or token', async () => {
+test('[first-d4 · Wren] no login: a customer reserves with no account or token', async () => {
   await reset();
   const r = await (await device()).reserve('brioche', 'Ana');
   assert.equal(r.status, 201); assert.equal(r.body.status, 'reserved');
@@ -117,7 +117,7 @@ test('[first-d5 · Theo, c6 · Theo] the stored record is first name, loaf, time
   assert.deepEqual(cols, ['created_at', 'device', 'drop_no', 'first_name', 'id', 'loaf_id', 'status']);
 });
 
-test('[c15 · Mika, c18 · Noor] sold-out loaves stay on the page, marked sold out (stock reads 0, label says so)', async () => {
+test('[c15 · Mika, c18 · Wren] sold-out loaves stay on the page, marked sold out (stock reads 0, label says so)', async () => {
   await reset();
   for (let i = 0; i < 3; i++) await (await device()).reserve('sourdough', `P${i}`);
   const sour = (await loaves()).find((l) => l.id === 'sourdough');
