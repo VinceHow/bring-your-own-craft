@@ -658,6 +658,47 @@ or `deploy/`.
 and QA shots; slides only, "slides-only exception"). That diff only adds slide files and doesn't touch the room;
 I haven't audited it.
 
+### Last batch 260bcc0..f388b2d (studio-live 03ad27b + talk-deck f716529/e0a453d), the public-push SHA: PASS
+
+Verified by stub only.
+
+**Slides only: PASS.** `git diff --name-only 260bcc0 f388b2d` touches only `public/slides/`, `design/` and `docs/`.
+No app, room, lib, route or test code changed.
+
+**calm-room.jpg is absent and unreferenced: PASS.**
+- It is not in `public/slides/img/`.
+- `git grep calm-room` finds no reference in code or slides.
+- Older `design/studio/shots/calm-*` design shots exist, but nothing in the deck or app links them, and they predate
+  this batch.
+
+**No "noor" text, and no keys: PASS.**
+- `git grep -il noor` finds only the known `docs/screens/page-bakery-390.png`.
+- The key grep finds only the test sentinels and canaries.
+
+**Every slide image is free of "Noor" in its pixels: PASS, by looking.**
+- Stills: `backdrop.jpg`, `multiplayer.jpg`, `poster-key.jpg` and `night-room.jpg`.
+- Animated webps, rendered in Chromium and looked at around 0.3, 3, 7 and 12 s: `meeting.webp` (shows "Wren ·
+  Research"), `nametag.webp`, `tidy.webp` and `unblock.webp` (shows "Wren").
+- The cast portraits the deck uses (`looks/cast/{wren,mika,bo,ines,theo}.webp`).
+- None shows "Noor".
+- Caveat: for the animated clips I looked at sample frames, not every frame. The clips are the README webps that were
+  re-recorded with Wren.
+- Sample grids: `docs/audit/final/slides/g-*.jpg`.
+
+**0 external requests and 0 4xx on all slide pages at 1920×1080: PASS.** Covers `index.html`, `studio.html` and
+`talk.html`, stepping through 25 slides with →. There were 0 page errors.
+
+**Console errors: 4 on `talk.html`, identified as harmless.**
+- All four are `<rect> attribute width/height: A negative value is not valid ("-1")` from `public/looks/playful-ink.js:48`.
+- `inkPill()` (`:44-49`) draws a pill's inked outline at `offsetWidth - 1`. When the deck mounts the room's toys while
+  their pills are still hidden (`public/slides/talk.js:11-25`), `offsetWidth` is 0, so the rect gets -1 and isn't drawn.
+- The same pills are re-inked whenever they're shown (`playful-ink.js:159,164,170,180,281`), so nothing visible is
+  lost.
+- The room itself shows 0 console errors (the e2e runs above).
+- Cosmetic fix if wanted: `if (!w || !h) return;` at the top of `inkPill`.
+
+Shots: `docs/audit/final/slides/{index,studio,talk}-1920.jpg`.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
