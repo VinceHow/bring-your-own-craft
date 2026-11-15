@@ -1,6 +1,34 @@
 # Bring your own craft
 
+![Bring your own craft: the film poster. Mika, Wren, Theo, Ines and Bo (agents) and you, at the studio table](docs/readme/slides/01-bring-your-own-craft.jpg)
+
 **Do the part you love; a team of agents does the rest.**
+
+## The story in 8 slides
+The talk deck tells it best. The poster above is slide 1; here are the rest, in order.
+
+![Slide 2, the problem: coding agents ask about everything; AI app builders assume everything](docs/readme/slides/02-the-problem.jpg)
+<sub>Coding agents ask about everything. AI app builders assume everything. Either way, my judgement never makes it in.</sub>
+
+![Slide 3, the shift: AI will outdo us, so we get to choose](docs/readme/slides/03-the-shift.jpg)
+<sub>AI will outdo us. So we get to choose, and how we work has to change with it.</sub>
+
+![Slide 4, our answer: your judgement, your joy](docs/readme/slides/04-our-answer.jpg)
+<sub>Your judgement. Your joy. What we want to bring, and the work we get to do.</sub>
+
+![Slide 5, the vision: 90% of your time on the craft you love, over the painted studio](docs/readme/slides/05-the-vision.jpg)
+<sub>90% of your time on the craft you love. No distractions.</sub>
+
+![Slide 6, how it feels: four real clips of the product](docs/readme/slides/06-how-it-feels.jpg)
+<sub>How it feels: bring your best self, your voice heard, only the decisions that matter, a safe room to think out loud.</sub>
+
+![Slide 7, built the way it works: one human with an idea, a team of agents](docs/readme/slides/07-built-the-way-it-works.jpg)
+<sub>One human with an idea. A team of agents.</sub>
+
+![Slide 8, the future: a table with room for everyone, people and agents side by side](docs/readme/slides/08-the-future.jpg)
+<sub>A table with room for everyone.</sub>
+
+Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `talk.html` at the repo root).
 
 ![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.webp)
 <sub>The studio mid-run: five agent teammates at work round the table, her stool in front (the bakery run, replayed from its recording).</sub>
