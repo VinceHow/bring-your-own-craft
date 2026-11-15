@@ -8,6 +8,6 @@ Measured (a probe on the live page, every 1.5 s), at 1920, 1440 and 1280:
 - her idea form open: overlap with her sheet false, overlap with her input false, inside the window;
 - while she's typing: hidden;
 - 7 s after the last line: hidden;
-- in the rehearsal the strip shows from 3 s to 11 s (Noor picturing, Mika drawing), then hides. Before, a line stayed ~2 minutes.
+- in the rehearsal the strip shows from 3 s to 11 s (Wren picturing, Mika drawing), then hides. Before, a line stayed ~2 minutes.
 Kept: b3's copy and the bug fixer's CSS (unchanged).
 Tests: npm 282/0; E2E_LOOK=painted beats 1a–1e/2b–2d 7/0; teamgo 5/0.
