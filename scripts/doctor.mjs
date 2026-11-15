@@ -162,6 +162,8 @@ if (tryKey('LINKUP_API_KEY')) await call('Linkup (search)', async () => {
   const t = await r.text();
   return r.ok ? true : `HTTP ${r.status} ${short(t, 100)}`;
 }, 'check LINKUP_API_KEY in .env.local; Research falls back to its prepared finding without it');
+// Noor's Focus 1 finding found live (lib/live-finding.js) when Linkup answers; otherwise the prepared one. Never the key.
+console.log(`NOTE  live research: ${tryKey('LINKUP_API_KEY') && results.at(-1) === true ? 'on' : 'off (prepared finding)'}`);
 
 }
 
