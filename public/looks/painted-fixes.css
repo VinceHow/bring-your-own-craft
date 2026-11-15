@@ -309,3 +309,9 @@ html body #room #inbox[data-state="open"][data-view="action"]:has([data-componen
    long. On Bo's page the card is all there is, so its slot never scrolls (the card's own shadow made it 15px "long"). */
 html body #room #inbox[data-state="open"] { overflow: clip !important; overflow-clip-margin: 24px; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { overflow: visible !important; }
+/* ---- AUDIT #3: her takeaways breathe inside their card ----
+   The card had 16px of padding in the room's 1600-wide drawing, so 15px on a 1440 screen, and its italic serif lines
+   lean past their own boxes: the text sat right on the card's edge (QA measured 0px). The card now keeps 24px on every
+   side (at least 20px on screen at every size), and grows to hold its Keep button. */
+html body #room [data-component="focus-doc"] [data-component="takeaways"] { padding: 24px 28px 26px !important; height: auto !important; min-height: 0 !important; box-sizing: border-box; }
+html body #room [data-component="focus-doc"] [data-component="takeaways"] :is([data-slot="believe"], [data-slot="guidance"]) { padding-right: 4px; }
