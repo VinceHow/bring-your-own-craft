@@ -211,6 +211,22 @@
       .catch(() => raw).finally(() => clearTimeout(timer));
   };
 
+  // BYOC.tidyInto(el, raw, opts) -> Promise<string>: one line she typed or spoke, cleaned in place, never reworded
+  // (lib/tidy.js only lets the tidy cut words and fix capitals and punctuation). On the element: data-raw keeps her
+  // raw words, data-state goes "tidying" then "tidied" (design animates the fillers fading); an input's value, or an
+  // element's text, becomes the cleaned line. Resolves to the cleaned line, or her raw words when slow or refused
+  // (opts.timeoutMs, 2.5 s by default), so it never blocks for long.
+  BYOC.tidyInto = async function (el, text, opts = {}) {
+    const raw = String(text ?? '').trim();
+    if (!raw) return raw;
+    const isField = el && ('value' in el) && /^(INPUT|TEXTAREA)$/.test(el.tagName);
+    if (el) { el.dataset.raw = raw; el.dataset.state = 'tidying'; if (isField) el.value = raw; else el.textContent = raw; }
+    let clean = raw;
+    try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
+    if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.state = 'tidied'; }
+    return clean;
+  };
+
   // ---- is voice there? -------------------------------------------------------------------------
   BYOC.voice = { get available() { return available; }, get state() { return state; }, get toggled() { return toggled; }, start: () => start(currentTarget()), stop, cancel };
   if (available !== false) {
