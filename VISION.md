@@ -83,7 +83,7 @@ One 3-minute journey, polished: Priya, a product manager, in the Product seat, b
 | Her page | 2:20–2:34 | The page they built, clean: the product is just the product |
 | Close | 2:34–3:00 | A judge's idea: its journey + first big question; the default agent's 0 asked, N guessed (re-run on the bakery prompt) |
 
-**Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted; the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
+**Real (must be built):** every teammate's work comes from a live run on her idea; the rough journey is a live call; the questions are chosen live, never scripted (on the demo path we set the three moments so the talk fits three minutes); the team's chime-ins and the takeaways come from what she actually said; her answers change the page; voice is real speech-to-text (ElevenLabs); the counts come from the run's log.
 
 **Smoke and mirrors (labelled where it shows):** only the documents she reviews have real depth; the room's chatter is light; the motion; the page template, prepared ahead; a prepared bakery journey if the live one is slow (PREPARED); recorded runs as fallbacks (REPLAY).
 

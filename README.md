@@ -69,7 +69,8 @@ bakery: no real bread, nothing to pay, first name only.
   via fal), the live bakery site's photos (made ahead with flux), and the emblem on her page, painted live with flux during the
   build (symbol only; the name is real text). The demo's chat runs on Claude through fal's
   OpenRouter router.
-- **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk.
+- **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk, and the studio's soundtrack on
+  the record player (ElevenLabs Music, generated through fal).
 - **[Linkup](https://www.linkup.so):** Wren's live research: she looks it up during the run and quotes her source,
   only when the quote checks out against the page.
 - **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design as editable frames and tokens
@@ -114,7 +115,7 @@ The product picture: [`VISION.md`](VISION.md).
 | What | Used for | Licence |
 |---|---|---|
 | Claude Code, headless (`claude -p`) | the fallback model route (fal runs the demo): teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
-| [ElevenLabs](https://elevenlabs.io) speech-to-text | her spoken intro, idea and answers | ElevenLabs terms; API only |
+| [ElevenLabs](https://elevenlabs.io) speech-to-text and ElevenLabs Music | her spoken intro, idea and answers; the record player's soundtrack (made through fal) | ElevenLabs terms; API only |
 | [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | the Design teammate and the built page: Design deals the page's palette and type live when the skill's scripts are installed on the machine (otherwise the template's own type stays); its rules guide the studio's look. Vendored in `vendor/taste-skill/` with its licence; never installed as a plugin in this repo | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
 | [`motion`](https://motion.dev) 14.14.0 | springs for the studio's animation; copied to `public/vendor/motion/` for offline use | MIT |
