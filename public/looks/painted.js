@@ -339,6 +339,7 @@
     if (!HOVER_CURSOR) return;
     for (let el = e.target, i = 0; el && el.nodeType === 1 && i < 4; el = el.parentElement, i++) {
       if (el.dataset.ptCursor) return;
+      if (el.matches(':disabled, [aria-disabled="true"], [aria-busy="true"], [data-state="tidying"], [data-state="busy"]')) return;   // their own cursor (not now / working)
       const c = getComputedStyle(el).cursor;
       if (c.startsWith('url(') && !c.includes('D47288')) return;      // someone else's cursor (the window's paw): leave it
       if (c === 'pointer' || el.matches(CLICKABLE)) { el.style.cursor = HOVER_CURSOR; el.dataset.ptCursor = '1'; return; }
