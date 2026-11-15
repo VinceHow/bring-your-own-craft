@@ -31,3 +31,14 @@ test('slow or failing: static, never waits past the limit, never throws', async 
   assert.equal(f.body.static, true);
   assert.equal((await meetLines('')).code, 400);
 });
+test('the line for the teammate wearing Product is asked as Product; without `wearing` the call is as before', async () => {
+  const { meetSystem } = await import('../lib/meet.js');
+  const { prompt } = await import('../lib/teammates.js');
+  assert.equal(meetSystem(), prompt('meet-lines'), 'the Product path: the same system prompt');
+  assert.equal(meetSystem('nonsense'), prompt('meet-lines'));
+  let seen;
+  await meetLines('A bakery page', { wearing: 'engineering', callModel: async a => { seen = a; return {}; } });
+  assert.match(seen.system, /Bo \(the "engineering" key\) holds Product/);
+  await meetLines('A bakery page', { callModel: async a => { seen = a; return {}; } });
+  assert.equal(seen.system, prompt('meet-lines'));
+});

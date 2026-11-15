@@ -7,7 +7,7 @@ import { meetLines } from '../lib/meet.js';
 export default [
   {
     method: 'POST', path: '/api/meet-lines', handler: async (req, res, { body }) => {
-      try { const r = await meetLines(body?.idea); return sendJson(res, r.code, r.body); }
+      try { const r = await meetLines(body?.idea, body?.wearing ? { wearing: String(body.wearing) } : {}); return sendJson(res, r.code, r.body); }
       catch (e) { console.error(scrub(e.message)); return sendJson(res, 200, { lines: {}, static: true }); }
     },
   },

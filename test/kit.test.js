@@ -93,3 +93,28 @@ test('live research on (a Linkup key): Wren is loaded with a live web search, an
     if (was.l === undefined) delete process.env.LIVE_FINDING; else process.env.LIVE_FINDING = was.l;
   }
 });
+
+test('the card follows the role worn: the teammate holding Product shows the product card, in its own name', async () => {
+  const { cardsFor, cardFor } = await import('../lib/kit.js');
+  const { rolesFor } = await import('../lib/cast.js');
+  const { cards } = cardsFor("An ordering website for my friend's small bakery", { start: null });
+  const p = cards.product;
+  assert.ok(p.loves && p.live.length >= 2 && p.built.length >= 1, 'product: loves, live and built chips');
+  assert.ok(p.live.some(x => /^Claude (Sonnet|Haiku|Opus)$|^Claude$/.test(x)), 'names the team model');
+  assert.doesNotMatch([p.loves, ...p.live, ...p.built].join(' '), /builds her page|Schema|template|Playwright|Railway|\?/i, 'no engineering chips');
+  for (const [craft, seat, name] of [['engineering', 'engineering', 'Bo'], ['design', 'design', 'Mika'], ['research', 'research', 'Wren'], ['strategy', 'strategy', 'Ines'], ['data', 'strategy', 'Ines']]) {
+    const roles = rolesFor(craft);
+    const c = cardFor(cards, seat, roles);
+    assert.equal(c.intro, `I’m ${name}. Today I hold the product: what we build, and for whom.`, `${craft}: ${name} wears Product`);
+    assert.deepEqual(c.live, p.live);
+    assert.notEqual(c.intro, cards[seat].intro, `${craft}: not ${name}'s home card`);
+    for (const other of ['design', 'research', 'data', 'strategy', 'engineering'].filter(s => roles[s] !== 'product'))
+      assert.equal(cardFor(cards, other, roles), cards[other], `${craft}: ${other} keeps its home card (the flex role too)`);
+    // She is that craft: no teammate shows its card (on the data path the flex teammate keeps Theo's card, as today).
+    if (craft !== 'data') assert.ok(['design', 'research', 'data', 'strategy', 'engineering'].every(s => cardFor(cards, s, roles) !== cards[craft]),
+      `${craft}: nobody shows the ${craft} card`);
+  }
+  assert.match(cardFor(cards, 'engineering', rolesFor('engineering')).intro, /^I’m Bo\./);
+  assert.doesNotMatch(cardFor(cards, 'engineering', rolesFor('engineering')).intro, /Boring, correct/);
+  for (const s of ['design', 'research', 'data', 'strategy', 'engineering']) assert.equal(cardFor(cards, s, null), cards[s], 'the Product path: home cards');
+});
