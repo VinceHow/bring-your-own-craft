@@ -121,7 +121,9 @@
     const bg = room.querySelector(':scope > iframe.painted-living'); room.insertBefore(box, bg ? bg.nextSibling : room.firstChild);
     const night = new URLSearchParams(location.search).get('night') === '1';
     room.dataset.time = night ? 'night' : 'day';
-    try { window.PlayfulInk.mount(box, { night: base + 'cast/living/painting-night.jpg', music: base + 'cast/music', time: night ? 'night' : 'day' }); }
+    // No still night plate here: it sat over the living backdrop and froze the room at night (Vincent: "if I turn back to
+    // Night, the painting stops moving completely"). The backdrop's own night video is the night look.
+    try { window.PlayfulInk.mount(box, { music: base + 'cast/music', time: night ? 'night' : 'day' }); }
     catch (err) { console.warn('playful-ink', err); box.remove(); }
   });
 
