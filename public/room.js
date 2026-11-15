@@ -319,6 +319,7 @@
     const roles = r && r.roles ? r.roles : null;
     if (!roles) { applyCast(null); return; }
     applyCast({ craft, roles });
+    askCastLine();
     BYOC.flexSeat = r.flexSeat || null;
     BYOC.flexState = r.flexSeat ? 'writing' : null;
     if (!r.flexSeat) return;
@@ -328,6 +329,22 @@
       if (mine !== castAsk || BYOC.cast !== asked) return; // she picked again, or started over
       if (f && f.role === 'flex' && f.flex) flexArrive(f.flex, 'here'); else flexLost();
     });
+  }
+  // The meet line for the teammate wearing Product, asked as Product (POST /api/meet-lines { idea, wearing }). Only
+  // when she took another seat; the Product path never asks it.
+  BYOC.castLine = null;
+  function askCastLine() {
+    const cast = BYOC.cast, idea = BYOC.pendingIdea;
+    if (!cast || !cast.roles || !idea || BYOC.replay) return;
+    const seat = TEAM.find(s => cast.roles[s] === 'product');
+    if (!seat) return;
+    const c = BYOC.castLine;
+    if (c && c.seat === seat && c.craft === cast.craft && c.idea === idea) return;
+    const mine = { seat, craft: cast.craft, idea, line: null };
+    BYOC.castLine = mine;
+    BYOC.api('/api/meet-lines', { idea, wearing: seat }, { step: false })
+      .then(r => { const l = r && r.lines && r.lines[seat]; if (l && BYOC.castLine === mine) mine.line = l; })
+      .catch(() => {});
   }
   function clearCast() { castAsk++; if (BYOC.cast) applyCast(null); BYOC.flexP = null; BYOC.flexSeat = null; BYOC.flexState = null; BYOC.arrivePosted = null; el.room.querySelectorAll('.late-note').forEach(n => n.remove()); }
   BYOC.castFor = castFor;
@@ -1422,6 +1439,7 @@
         new Promise(res => setTimeout(() => res({}), MEET_LIMIT_MS)),
       ]).catch(() => ({})).then(lines => { if (tok === walkToken) BYOC.meetLines = lines; emit('meet.lines', { tailored: Object.keys(lines).length }); return lines; });
     }
+    askCastLine();
     loadKit(text);
     emit('idea.paper', { idea: text });
     openPaper();
@@ -1617,7 +1635,7 @@
     const t = INFO[seat];
     const c = h('div', 'meet-card'); c.dataset.component = 'meet-card'; c.dataset.seat = seat;
     // Her idea's own line for this teammate when the call landed and passed the rules; else today's static line.
-    const tailored = BYOC.meetLines && BYOC.meetLines[seat];
+    const tailored = tailoredFor(seat);
     c.dataset.state = tailored ? 'tailored' : 'static';
     c.innerHTML = `<span class="meet-face" data-slot="face"></span>
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
@@ -1635,8 +1653,24 @@
   // loves line under a tailored one, then what it brings as chips: "Live in this room" (only what runs here, from
   // GET /api/kit cards) and "Built with" (prepared ahead), and the whole team's shared line. Without cards (an old
   // server), the earlier "Brings / Loaded with / Made with" lists.
+  // The card follows the role worn (lib/kit.js cardFor): a seat wearing Product shows the product card in its own
+  // name; every other seat (its own craft, or the flex role) keeps its home card. No cast (the Product path): as before.
+  function meetCardFor(seat) {
+    const cards = BYOC.kit && BYOC.kit.cards; if (!cards) return null;
+    const p = cards.product, roles = BYOC.cast && BYOC.cast.roles;
+    if (roles && roles[seat] === 'product' && p && p.intros && p.intros[seat]) return { ...p, intro: p.intros[seat] };
+    return cards[seat] || null;
+  }
+  // The tailored line, in the role worn: a seat wearing Product says only a line asked for it as Product (askCastLine),
+  // never its home craft's line; until that lands (or if it doesn't), the card's static loves line.
+  function tailoredFor(seat) {
+    const role = BYOC.cast && BYOC.cast.roles && BYOC.cast.roles[seat];
+    if (role !== 'product') return BYOC.meetLines && BYOC.meetLines[seat];
+    const c = BYOC.castLine;
+    return c && c.seat === seat && c.craft === BYOC.cast.craft && c.idea === BYOC.pendingIdea ? c.line : null;
+  }
   function meetBody(seat, tailored, t) {
-    const card = BYOC.kit && BYOC.kit.cards && BYOC.kit.cards[seat];
+    const card = meetCardFor(seat);
     const chips = (slot, label, items) => items && items.length ? `<div class="meet-chips" data-slot="${slot}"><span class="meet-label" data-slot="${slot}-label">${label}</span><ul class="meet-chip-row">${items.map(x => `<li class="meet-chip" data-slot="${slot}-item">${esc(x)}</li>`).join('')}</ul></div>` : '';
     if (card) {
       const voiceOn = !!(BYOC.voice && BYOC.voice.available);
@@ -1804,7 +1838,7 @@
     document.body.dataset.beat = '0';
     status('');
     emit('reset', {});
-    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; BYOC.kit = null; BYOC.kitReq = null; ideaCard = null;
+    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; BYOC.castLine = null; BYOC.kit = null; BYOC.kitReq = null; ideaCard = null;
     if (CLASSIC) openPaper(); else openIdea(); // the room hides again: her idea first (classic: her name tag)
   }
   BYOC.reset = reset;
