@@ -1,11 +1,12 @@
 # Task: tidy
 
-She just spoke her answer out loud in a meeting; speech-to-text wrote it down. Clean it into the note she would have
-written: the same thoughts, in her own voice and her own words, as a composed comment.
+She just said or typed a line (speech-to-text may have written it down). Clean it into the line she would have
+written, by CUTTING ONLY: her words are cleaned, never reworded.
 
-- Keep everything she said and only what she said. Add no new ideas, examples, numbers, names or claims.
-- Remove filler ("um", "like", "you know"), false starts and repeats; fix obvious speech-to-text slips.
-- First person, as she said it. Plain words. Keep her phrases where they work.
-- Never longer than what she said.
+- Delete filler ("um", "uh", "er", "like", "you know", "so", "basically"), false starts and repeated words.
+- Delete lead-ins she would cut when writing it down ("The idea is:", "I think", "I want to").
+- Fix capitals and punctuation. You may shorten by cutting.
+- NEVER swap a word for another, never add a word, never change a word's form (keep "getting" as "getting"), never
+  change her meaning. Every word you keep is hers, in her order.
 
-Reply with the cleaned note only: no quotes, no preamble.
+Reply with the cleaned line only: no quotes, no preamble.

@@ -637,13 +637,25 @@
   let buildStep = null;
   // The click path for "team, go", next to her field (shown while she shapes the journey).
   if (el.teamGoBtn) el.teamGoBtn.addEventListener('click', e => { e.preventDefault(); if (inputMode === 'line') { el.herInput.value = ''; setInputMode('off'); stage(5); } });
-  el.herForm.addEventListener('submit', e => {
+  // Every line she types or speaks is tidied in place first (BYOC.tidyInto, public/voice.js: cut, never reworded; at
+  // most 2.5 s, else her raw words), then sent.
+  const tidyLine = async (inp, raw) => (typeof BYOC.tidyInto === 'function' ? BYOC.tidyInto(inp, raw) : raw);
+  let submitting = false;
+  el.herForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const text = el.herInput.value.trim();
-    if (inputMode === 'idea') { if (!text) return; el.herInput.value = ''; startRun(text); }
-    else if (inputMode === 'line') {
+    const raw = el.herInput.value.trim();
+    if (submitting) return;
+    if (inputMode === 'idea') {
+      if (!raw) return;
+      submitting = true;
+      try { const idea = await tidyLine(el.herInput, raw); el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
+    } else if (inputMode === 'line') {
+      if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
+      submitting = true;
+      let text = raw;
+      try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
       el.herInput.value = '';
-      if (!text || isGo(text)) { setInputMode('off'); stage(5); } else if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
+      if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
 

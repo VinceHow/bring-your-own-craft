@@ -251,11 +251,14 @@
     landAsks({ came: evs.filter(e => e.type === 'candidate').length, brought: asks.length, asks }, my);
   }
 
-  $('close-form').addEventListener('submit', e => {
+  $('close-form').addEventListener('submit', async e => {
     e.preventDefault();
     if ($('close-input').readOnly) return;
-    const idea = $('close-input').value.trim();
-    if (idea) { $('close-input').blur(); run(idea); }
+    const raw = $('close-input').value.trim();
+    if (!raw || $('close-input').dataset.state === 'tidying') return; // one Enter at a time while it tidies
+    // her idea, tidied in place first (cut, never reworded; at most 2.5 s, else her raw words)
+    const idea = typeof BYOC.tidyInto === 'function' ? await BYOC.tidyInto($('close-input'), raw) : raw;
+    $('close-input').blur(); run(idea);
   });
 
   // Beat 11 opens it. Only the presenter closes it (PageUp / Left, or Home); a replay moving beats never does.
