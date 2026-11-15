@@ -1,0 +1,64 @@
+/* The talk deck (skeleton). The studio's ink-and-paper system (looks/ink-paper.css) on a fixed 1600×900 stage,
+   scaled to fit and letterboxed in the room's #1F1813. Positions and sizes only; the surfaces come from ink-paper. */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #1F1813; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform-origin: 0 0; overflow: hidden; }
+.slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity .2s linear, visibility 0s linear .2s; }
+.slide.on { opacity: 1; visibility: visible; transition: opacity .2s linear; }
+@media (prefers-reduced-motion: reduce) { .slide, .slide.on { transition: none; } }
+
+/* the painted room, soft, behind every slide (the close deck's baked backdrop) */
+.room { position: absolute; inset: 0; background: #F2E7D3 url(img/backdrop.jpg) center / cover; }
+
+.slide .abs, .ink-paper .slide .abs.pane { position: absolute; }
+.ink-paper .card.big { padding: 52px 64px; border-radius: 40px; --cx: 10px; --cy: 10px; --crot: .6deg; }
+.ink-paper .card { padding: 32px 40px; border-radius: 32px; }
+.label { font: 500 24px/1 var(--ip-sans); color: color-mix(in srgb, var(--t, var(--ip-ink-2)) 70%, #1A100A); letter-spacing: .01em; margin: 0 0 20px; }
+h1 { margin: 0; font: 400 92px/1.04 var(--ip-serif); letter-spacing: -.018em; color: var(--ip-ink); text-wrap: balance; }
+h2 { margin: 0; font: 400 52px/1.1 var(--ip-serif); color: var(--ip-ink); }
+.tbd { margin: 24px 0 0; font: 500 26px/1.35 var(--ip-sans); color: #8A7A6C; }   /* placeholder grey: the story is still being written */
+
+/* 1 · one big statement, centred */
+.layout-statement .statement { left: 0; right: 0; margin-inline: auto; top: 50%; translate: 0 -50%; width: 1240px; text-align: center; }
+.layout-statement h1 { font-size: 150px; }
+
+/* 3, 5, 7 · a plain headline card */
+.layout-plain .plain { left: 110px; top: 50%; translate: 0 -50%; width: 1100px; }
+
+/* 2 · two columns, compared */
+.layout-compare .head { left: 100px; top: 70px; width: fit-content; max-width: 1400px; padding: 40px 56px; }
+.layout-compare .head h1 { font-size: 80px; }
+.layout-compare .cols { left: 100px; right: 100px; bottom: 70px; display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.layout-compare .col { min-height: 330px; }
+
+/* 4 · an image and its caption */
+.layout-image .lead { left: 80px; top: 50%; translate: 0 -50%; width: 520px; }
+.layout-image .lead h1 { font-size: 80px; }
+.layout-image .art { right: 80px; top: 50%; translate: 0 -50%; width: 880px; margin: 0; padding: 16px 16px 18px; border-radius: 36px; }
+.layout-image .art img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 24px; position: relative; }
+.layout-image .art figcaption { position: relative; margin: 14px 10px 0; font-size: 22px; }
+
+/* 6 · the numbers */
+.layout-numbers .head { left: 100px; top: 70px; width: fit-content; padding: 40px 56px; }
+.layout-numbers .head h1 { font-size: 80px; white-space: nowrap; }
+.layout-numbers .figs { left: 100px; right: 100px; bottom: 130px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.layout-numbers .fig { display: flex; flex-direction: column; padding: 36px 44px; }
+.layout-numbers .fig b { position: relative; font: 400 140px/1 var(--ip-serif); color: var(--ip-ink); letter-spacing: -.02em; }
+.layout-numbers .fig span { position: relative; margin-top: 10px; }
+.layout-numbers .src { left: 104px; bottom: 60px; margin: 0; font-size: 20px; }
+
+/* the slide counter: small, bottom right, off the stage so it never covers a slide */
+.counter { position: fixed; right: 14px; bottom: 12px; padding: 6px 11px; border-radius: 999px; background: rgba(31, 24, 19, .72); font: 500 14px/1 'Hanken Grotesk', system-ui, sans-serif; color: #F2E7D3; letter-spacing: .04em; z-index: 5; }
+
+/* print / PDF: every slide, one per 1600×900 page */
+@page { size: 1600px 900px; margin: 0; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  .stage { position: static; transform: none !important; width: 1600px; height: auto; overflow: visible; }
+  .slide { position: relative; width: 1600px; height: 900px; opacity: 1 !important; visibility: visible !important; transition: none; break-after: page; }
+  .counter { display: none; }
+}
+body.print { overflow: visible; height: auto; background: none; }
+body.print .stage { position: static; transform: none !important; height: auto; overflow: visible; }
+body.print .slide { position: relative; width: 1600px; height: 900px; opacity: 1; visibility: visible; transition: none; break-after: page; }
+body.print .counter { display: none; }
