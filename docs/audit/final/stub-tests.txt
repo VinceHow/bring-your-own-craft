@@ -1,0 +1,47 @@
+Stub test run — commit 1f6e56c (audit/final), 15 Nov. Verified by stub only (no fal; default claude-code backend).
+MODEL_BACKEND and NODE_USE_ENV_PROXY unset for every run.
+
+npm test (node --test, test/**/*.test.js): pass 282, fail 0, cancelled 0, skipped 1, ~27 s
+  skipped: "LIVE: a different idea changes the picks (real model, fast path)" (needs LIVE=1)
+  3-question cap tests, all ok:
+    test/select.test.js:39,51,64   "a fourth never gets through" (x3)
+    test/stagepath.test.js:62      Focus 1 + unblock + Focus 2 = three grants; a fourth is refused
+    test/unblock.test.js           "the cap holds..." / "mixed: 2 selector asks + 1 unblock spend the cap..."
+    test/policy.test.js:75         only lib/policy.js writes ask events
+    test/meeting.test.js:58        "five rounds on one ask are still one ask" (askCount==1, 5 answer.round, 0 refused; q2,q3 ok, q4 null)
+
+test/leak.test.js alone: pass 1, fail 0  ("the fal key appears nowhere: runs/, console, HTTP responses, SSE")
+
+e2e (node --test --test-concurrency=1 e2e/<spec>.e2e.js), pass/fail per look
+Only inbox and inputs read E2E_LOOK. focus-ack, inbox-layout, nametag, page, reorder, resume, tidy-all, tidy
+ignore it and loop over plain + ?look=painted internally. app, focus-wait, pad-status, teamgo, voice ignore it
+and run the default (plain) look only. For all of those the two columns are the same run twice.
+spec          E2E_LOOK=painted  E2E_LOOK=plain
+app           2/0               2/0
+focus-ack     2/0               2/0
+focus-wait    4/0               4/0
+inbox-layout  5/0               5/0
+inbox         8/0               8/0
+inputs        8/0               8/0
+nametag       14/0              14/0
+pad-status    2/0               1/1  (reran twice: 2/0, 2/0 -> flaky)
+page          2/0               2/0
+reorder       10/0              10/0
+resume        8/0               8/0
+teamgo        5/0               5/0
+tidy-all      3/0               3/0
+tidy          5/0               5/0
+voice         9/0               9/0   (NO_PROXY=api.elevenlabs.io)
+
+Failure: pad-status "her workspace: empty parts say what happens next; a live run with her idea shows it..."
+  e2e/pad-status.e2e.js:113 deepStrictEqual idea:
+    actual   'A website for a small bakery where regulars can order bread ahead.'
+    expected 'A website for a small bakery, so regulars can order bread ahead.'
+  Cause: the spec stubs /api/run and /api/run/** but not /api/tidy. Submitting the idea goes through
+  BYOC.tidyInto (public/room.js:1276-1280 -> public/voice.js:207 POST /api/tidy), which calls the real model
+  (a `claude -p ... # Task: tidy` process with this exact idea was observed). When the model answers inside the
+  2.5 s window it rewords ", so" -> " where" and the verbatim assertion fails; when slow, raw words come back and it passes.
+  Not a stub-only test in practice; also the tidy reworded her words although room.js says "cut, never reworded".
+
+Note: "stubbed" specs still make real claude CLI calls for /api/tidy and server warm-ups (e.g. focus-wait,
+teamgo, pad-status tidy prompts seen). Port note: pad-status picks 4600-4689; a parallel fal server was on 4600.

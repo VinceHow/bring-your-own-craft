@@ -1,0 +1,502 @@
+[
+  {
+    "step": "door",
+    "t": 2.8,
+    "shot": "01-door.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "idea-paper",
+    "t": 3.8,
+    "shot": "02-idea-paper.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "question": "What do you want to build today?"
+  },
+  {
+    "step": "idea-typed",
+    "t": 5.6,
+    "shot": "03-idea-typed.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "idea-entered",
+    "t": 18.1,
+    "shot": "04-idea-entered.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "sketchingLineMs": null,
+    "sketchingLineText": null
+  },
+  {
+    "step": "nametag",
+    "t": 18.9,
+    "shot": "05-nametag.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "nametag-shown",
+    "t": 24.4,
+    "shot": "06-nametag-shown.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "tag": "Name tag\nMeet your team\nPriya,\nthe Journey Mapper\nproblem detective\nuser obsessed\nsolution builder\n\nSUPERPOWER turns customer frustration into feature requests\n\nIn your words\n“I love working on the customer journey, understanding the problems customers face, and building products that solve them.”\n\ntap any piece to swap it",
+    "tagMs": 3352
+  },
+  {
+    "step": "meet-design",
+    "t": 25.4,
+    "shot": "07-meet-design.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": {
+      "seat": "design",
+      "state": "tailored",
+      "text": "Mika · Design agent “I'll make ordering and pickup feel warm and easy.” Brings taste-skill’s design rules: type, colour, spacing Loaded with taste-skill’s design rules (MIT) Claude, sketching journeys and screens Made with Studio, clips, music painted on fal The room’s frames, laid out in Figma 1 of 5 Next"
+    }
+  },
+  {
+    "step": "meet-data",
+    "t": 27.4,
+    "shot": "08-meet-data.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": {
+      "seat": "data",
+      "state": "tailored",
+      "text": "Theo · Data agent “I'll track how many orders arrive before opening day.” Brings what to measure at each step Loaded with Claude: one measure per step Keeps only data decisions use 2 of 5 Next"
+    }
+  },
+  {
+    "step": "meet-research",
+    "t": 29.3,
+    "shot": "09-meet-research.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": {
+      "seat": "research",
+      "state": "tailored",
+      "text": "Noor · Research agent “I'll learn who bakes bread at home or buys weekly.” Brings a real finding with its link, researched before the demo Loaded with Linkup finding: Bakery Business, 14 Nov Claude, citing only what it read Made with Researched with Linkup, before the demo 3 of 5 Next"
+    }
+  },
+  {
+    "step": "meet-strategy",
+    "t": 31.4,
+    "shot": "10-meet-strategy.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": {
+      "seat": "strategy",
+      "state": "tailored",
+      "text": "Ines · Strategy agent “I'll show the bakery how pre-orders build loyal customers.” Brings pricing and payment calls Loaded with Claude: price and payment calls Says who pays, and why now 4 of 5 Next"
+    }
+  },
+  {
+    "step": "meet-engineering",
+    "t": 33.7,
+    "shot": "11-meet-engineering.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": {
+      "seat": "engineering",
+      "state": "tailored",
+      "text": "Bo · Engineering agent “I'll build a simple order form that works on phones.” Brings the page template and the live build Loaded with The bakery page template Schema-checked fill, built live Claude (Sonnet), through fal Made with This app, built with Claude Code 5 of 5 Into the studio"
+    }
+  },
+  {
+    "step": "reveal-room",
+    "t": 68.6,
+    "shot": "12-reveal-room.jpg",
+    "console": [
+      "error: Failed to load resource: the server responded with a status of 409 (Conflict)"
+    ],
+    "failed": [
+      "HTTP 409 POST /api/run/run-2026-11-15T05-06-42-808Z-xhzk/first"
+    ],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      409,
+      242
+    ]
+  },
+  {
+    "step": "team-gets-going",
+    "t": 69.7,
+    "shot": "13-team-gets-going.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "inbox-focus1",
+    "t": 110.7,
+    "shot": "14-inbox-focus1.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus1-open",
+    "t": 142.1,
+    "shot": "15-focus1-open.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "doc": "Noor · Research\nAll notes\nBack to the room\nresearched before the demo\nA third (33%) of UK adults who visit artisan bakeries now buy bread there at least once a week, while sourdough is nearly as popular as the traditional white loaf, new research from Marriage’s has revealed.\n\nDesign's first sketch: Regular customers · First-time visitors · Bakery staff\n\n—\nA third of artisan-bakery visitors buy bread there every week\n·\nBakery Business · read 2026-11-14\nWho should we build this for first?\ntap or hold to speak · ElevenLabs\nAdd this\nSend\n\nAdd this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways\n\nYour thoughts"
+  },
+  {
+    "step": "focus1-composed",
+    "t": 147.4,
+    "shot": "16-focus1-composed.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus1-r1-first-reply",
+    "t": 150.5,
+    "shot": "17-focus1-r1-first-reply.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "firstReplyMs": 2165
+  },
+  {
+    "step": "focus1-r1-done",
+    "t": 151.3,
+    "shot": "18-focus1-r1-done.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus1-r2-done",
+    "t": 157,
+    "shot": "19-focus1-r2-done.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus1-ending",
+    "t": 158.1,
+    "shot": "20-focus1-ending.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus1-takeaways",
+    "t": 162.1,
+    "shot": "21-focus1-takeaways.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      848
+    ],
+    "brief": "Takeaways\nWhat I believe about this\n\nWe build first for the regulars who come every morning and lose out when the sourdough is gone by nine; reserving their loaf has to take zero effort.\n\nGuidance to the team\n\nDesign the first version around a morning regular securing their sourdough before it sells out, end to end from browse to collect. No logins and no forms: they should never have to fill anything in.\n\nKeep"
+  },
+  {
+    "step": "room-after-focus1",
+    "t": 171.7,
+    "shot": "22-room-after-focus1.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "inbox-unblock",
+    "t": 173.4,
+    "shot": "23-inbox-unblock.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "unblock-card",
+    "t": 176.6,
+    "shot": "24-unblock-card.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "card": "Bo's blocked\nSetting up ordering\n\nWhen do orders close?\n\nWe suggest\n\n8pm the night before\n\nYes\nSay something else"
+  },
+  {
+    "step": "unblock-yes",
+    "t": 181.1,
+    "shot": "25-unblock-yes.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      206,
+      488
+    ]
+  },
+  {
+    "step": "inbox-focus2",
+    "t": 183.6,
+    "shot": "26-inbox-focus2.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus2-open",
+    "t": 186,
+    "shot": "27-focus2-open.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      278
+    ],
+    "doc": "Mika · Design\nAll notes\nBack to the room\n7:10\nSam wakes and thinks about fresh bread for breakfast.\n7:15\nSam opens the bakery website on a phone.\n7:18\nSam taps the usual loaf, ready to order immediately.\n7:20\nSam selects a pickup time between now and ten.\n7:22\nSam completes the order without entering any personal details.\n8:45\nSam collects the warm loaf from the bakery collection point.\nWhat should this feel like for a regular?\ntap or hold to speak · ElevenLabs\nAdd this\nSend\n\nAdd this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways\n\nYour thoughts"
+  },
+  {
+    "step": "focus2-r1-done",
+    "t": 193.1,
+    "shot": "28-focus2-r1-done.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": []
+  },
+  {
+    "step": "focus2-takeaways",
+    "t": 198.1,
+    "shot": "29-focus2-takeaways.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "brief": "Takeaways\nWhat I believe about this\n\nFor a regular, ordering ahead should feel like the baker already knows you: your usual loaf is set aside the moment you say your first name.\n\nGuidance to the team\n\nDesign 'Book your usual' so a regular reserves their loaf with just their first name: no account, no payment, no form fields. Anything that makes them fill something in is out.\n\nKeep",
+    "steps": [
+      "draft: 7:10 Sam wakes and thinks about fresh bread for breakfast.",
+      "rewritten: 7:15 Sam opens the bakery website on a phone. Sam heads to the bakery, the baker already expecting Sam.",
+      "rewritten: 7:18 Sam taps the usual loaf, ready to order immediately. Sam says Sam's name, reserves Sam's usual loaf instantly.",
+      "rewritten: 7:20 Sam selects a pickup time between now and ten. Sam chooses a pickup time between now and ten.",
+      "rewritten: 7:22 Sam completes the order without entering any personal details. Sam leaves with nothing to fill in, no payment needed.",
+      "draft: 8:45 Sam collects the warm loaf from the bakery collection point."
+    ]
+  },
+  {
+    "step": "room-after-focus2",
+    "t": 206.8,
+    "shot": "30-room-after-focus2.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "teamGo": {
+      "visible": true,
+      "text": "Team, go →"
+    }
+  },
+  {
+    "step": "team-go",
+    "t": 209.9,
+    "shot": "31-team-go.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      241,
+      252
+    ]
+  },
+  {
+    "step": "team-done",
+    "t": 244.8,
+    "shot": "32-team-done.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      257
+    ],
+    "asks": [
+      "first",
+      "u-engineering-1",
+      "feel"
+    ]
+  },
+  {
+    "step": "building",
+    "t": 264.7,
+    "shot": "33-building.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      236,
+      257
+    ],
+    "buildTrigger": "PageDown x3"
+  },
+  {
+    "step": "her-page",
+    "t": 287.1,
+    "shot": "34-her-page.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      247
+    ]
+  },
+  {
+    "step": "refresh-resume",
+    "t": 293.7,
+    "shot": "35-refresh-resume.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      438
+    ],
+    "replayLabel": false,
+    "postsAfterReload": []
+  },
+  {
+    "step": "close-empty",
+    "t": 294.7,
+    "shot": "36-close-empty.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "make": {
+      "text": "Build it →",
+      "state": "off",
+      "aria": "true",
+      "visible": true
+    }
+  },
+  {
+    "step": "close-typed",
+    "t": 296.4,
+    "shot": "37-close-typed.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "make": {
+      "text": "Build it →",
+      "state": "ready",
+      "aria": "false",
+      "visible": true
+    }
+  },
+  {
+    "step": "close-working",
+    "t": 297.2,
+    "shot": "38-close-working.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [],
+    "make": {
+      "text": "Building…",
+      "state": "working",
+      "aria": "true",
+      "visible": true
+    }
+  },
+  {
+    "step": "close-done",
+    "t": 323.3,
+    "shot": "39-close-done.jpg",
+    "console": [],
+    "failed": [],
+    "pageerrors": [],
+    "badText": [],
+    "longTasks": [
+      206,
+      252
+    ],
+    "make": {
+      "text": "Build it →",
+      "state": "ready",
+      "aria": "false",
+      "visible": true
+    },
+    "close": "Bring your own craft\n→ next beat S stage mode R replay rehearsal J judge's idea ? all keys\npicked up run run-2026-11-15T05-06-42-808Z-xhzk where you left off\nStart over\nOpen the app\nv1, just now\n\nv1 · no reason asked to cancel, no standing order, the bread first\n\nRecord player\ntap to play\nNight\ntap for cycle\nA default coding agent\n0 asked · 24 guessed\nplain coding agent, the bakery prompt, 14 Nov · docs/baseline/run-3-bakery\nIn the Product seat\n3 asked · the rest handled by the team\ncounted from this run’s log: 14 decided from the file\n\nThis project was built the same way. Tomorrow, the engineer at this table is a person, with their own team.\n\nA judge’s idea\ntap or hold to speak · ElevenLabs\nBuild it →\n22.2 s · live run judge-4zu0-2026-11-15T05-11-07-671Z-q6o0\nWho\nNeighbours\nLibrary organi"
+  }
+]

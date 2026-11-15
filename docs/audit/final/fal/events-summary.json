@@ -1,0 +1,87 @@
+{
+  "run": "run-2026-11-15T05-06-42-808Z-xhzk",
+  "asks": [
+    {
+      "id": "first",
+      "by": "Noor",
+      "q": "Who should we build this for first?"
+    },
+    {
+      "id": "u-engineering-1",
+      "by": "Bo",
+      "q": "When do orders close?"
+    },
+    {
+      "id": "feel",
+      "by": "Mika",
+      "q": "What should this feel like for a regular?"
+    }
+  ],
+  "rounds": 3,
+  "decidedCitingL": [
+    "c1:L4",
+    "c2:L2",
+    "c3:L2",
+    "c4:L2",
+    "c5:L4",
+    "c6:L2",
+    "c7:L4",
+    "c9:L3",
+    "c10:L2",
+    "c11:L4",
+    "c12:L3",
+    "c13:L2",
+    "c14:L2",
+    "c15:L2",
+    "c16:L2",
+    "c18:L4",
+    "c19:L2",
+    "c20:L2",
+    "c21:L4",
+    "c8:L4",
+    "c1:L4",
+    "c2:L2",
+    "c5:L4",
+    "c6:L2",
+    "c7:L4",
+    "c9:L3",
+    "c10:L2",
+    "c11:L4",
+    "c12:L3",
+    "c14:L2",
+    "c15:L3",
+    "c18:L4",
+    "c21:L4"
+  ],
+  "taste": [
+    "L3 We build first for the regulars who come every morning and lose out when the sourdough is gone by nine; reserving their ",
+    "L4 For a regular, ordering ahead should feel like the baker already knows you: your usual loaf is set aside the moment you "
+  ],
+  "buildDone": {
+    "t": 1794719449763,
+    "run": "run-2026-11-15T05-06-42-808Z-xhzk",
+    "type": "build.done",
+    "url": "/runs/run-2026-11-15T05-06-42-808Z-xhzk/page/",
+    "ms": 22099,
+    "decideMs": 10830,
+    "fillMs": 11249,
+    "template": "bakery",
+    "version": 1,
+    "switches": {
+      "regulars": true,
+      "regularsFirst": false,
+      "standingOrder": false,
+      "cutoff": true,
+      "phone": false,
+      "remember": true,
+      "oneTapCancel": true,
+      "cancelReason": false
+    },
+    "changes": [
+      "no reason asked to cancel",
+      "no standing order",
+      "the bread first"
+    ]
+  },
+  "errors": []
+}

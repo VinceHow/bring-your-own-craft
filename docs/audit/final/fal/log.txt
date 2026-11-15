@@ -1,0 +1,64 @@
+[1.1s] loaded
+[2.8s] SNAP door {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[3.8s] SNAP idea-paper {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[5.6s] SNAP idea-typed {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[17.6s] Design is sketching line:  ms null
+[18.1s] SNAP idea-entered {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[18.9s] SNAP nametag {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[23.0s] name tag shown in 2144 ms
+[24.4s] SNAP nametag-shown {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[25.4s] SNAP meet-design {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[27.4s] SNAP meet-data {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[29.3s] SNAP meet-research {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[31.4s] SNAP meet-strategy {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[33.7s] SNAP meet-engineering {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[68.6s] SNAP reveal-room {"c":1,"f":1,"pe":0,"bad":0,"long":[409,242]}
+[68.6s] sketch.done after room 3 ms
+[69.7s] SNAP team-gets-going {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[109.8s] TIMEOUT waiting for Focus 1 in inbox
+[110.7s] SNAP inbox-focus1 {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[142.1s] SNAP focus1-open {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[147.4s] SNAP focus1-composed {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[149.6s] Focus 1 round 1 first reply visible 2165 ms
+[150.5s] SNAP focus1-r1-first-reply {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[151.3s] SNAP focus1-r1-done {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[156.1s] Focus 1 round 2 done in 1348 ms
+[157.0s] SNAP focus1-r2-done {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[158.1s] SNAP focus1-ending {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[160.8s] Focus 1 takeaways in 3717 ms
+[162.1s] SNAP focus1-takeaways {"c":0,"f":0,"pe":0,"bad":0,"long":[848]}
+[162.7s] Keep clicked
+[167.7s] TIMEOUT waiting for back in room
+[171.7s] SNAP room-after-focus1 {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[171.7s] unblock arrived after 31 ms
+[173.4s] SNAP inbox-unblock {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[176.6s] SNAP unblock-card {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[181.1s] SNAP unblock-yes {"c":0,"f":0,"pe":0,"bad":0,"long":[206,488]}
+[182.0s] Focus 2 arrived after 864 ms
+[183.6s] SNAP inbox-focus2 {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[186.0s] SNAP focus2-open {"c":0,"f":0,"pe":0,"bad":0,"long":[278]}
+[191.9s] Focus 2 round done in 1099 ms
+[193.1s] SNAP focus2-r1-done {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[196.1s] Focus 2 takeaways in 2974 ms
+[198.1s] SNAP focus2-takeaways {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[203.3s] TIMEOUT waiting for back in room 2
+[206.8s] SNAP room-after-focus2 {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[207.8s] clicked Team, go
+[209.9s] SNAP team-go {"c":0,"f":0,"pe":0,"bad":0,"long":[241,252]}
+[241.1s] team works (select.done) in 33300 ms
+[244.8s] SNAP team-done {"c":0,"f":0,"pe":0,"bad":0,"long":[257]}
+[251.0s] TIMEOUT waiting for auto build
+[251.3s] app button: {"state":"none","text":"No app yet\nBo starts once you agree the page"}
+[255.7s] TIMEOUT waiting for build after PageDown
+[260.3s] TIMEOUT waiting for build after PageDown
+[260.8s] build started by PageDown x3
+[264.7s] SNAP building {"c":0,"f":0,"pe":0,"bad":0,"long":[236,257]}
+[282.7s] build done in 37889 ms
+[287.1s] SNAP her-page {"c":0,"f":0,"pe":0,"bad":0,"long":[247]}
+[293.7s] SNAP refresh-resume {"c":0,"f":0,"pe":0,"bad":0,"long":[438]}
+[294.7s] SNAP close-empty {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[296.4s] SNAP close-typed {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[297.2s] SNAP close-working {"c":0,"f":0,"pe":0,"bad":0,"long":[]}
+[319.6s] close first check-in in 23194 ms
+[323.3s] SNAP close-done {"c":0,"f":0,"pe":0,"bad":0,"long":[206,252]}
+[323.9s] done

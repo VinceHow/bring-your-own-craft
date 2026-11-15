@@ -46,3 +46,6 @@ Running total after these rows: about **$4.1–4.6 of $10** (the 00:44 row's "�
 | 15 Nov, reported 03:24 (builder 3) | One fal smoke: a single meeting round | not metered | not metered | ≈$0.15 (the per-builder smoke allowance) | ≈$7.4–7.9 | first reply 1.8 s |
 
 Running total at 02:48 UTC: about **$6.8–7.3 of $10** (the tech lead's count: about $7). FAL FREEZE from 02:44: only two more fal runs, builder 7's R re-record (~$0.4) and the auditor's one full suite (~$1.2). $10 is a hard stop.
+| 15 Nov 05:06–05:12 (final auditor) | the one audit run: full stage path on fal, painted, night, 1280×800, recorded (idea → name tag → meet → room → Focus 1 in 2 rounds + End → unblock Yes → Focus 2 in 1 round + End → Team, go → build → her page), then a refresh (resume, no model call) and one judge's idea in the close (`Build it →`), main 1f6e56c | not metered (the server prints no per-call lines); server log: no `[model] … failed`, no 401/402 | not metered | ≈$0.45–0.60 (estimate: the 01:04/02:49 full flows at ≈$0.30–0.45, plus one close run) | ≈$7.9–8.5 | whole path ran; her page built in 22.1 s; close's first check-in 23.2 s; evidence in docs/audit/final/fal/ |
+
+Running total after the final audit run: about **$7.9–8.5 of $10**. No further fal runs are planned.

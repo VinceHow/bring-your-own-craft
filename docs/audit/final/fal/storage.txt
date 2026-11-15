@@ -1,0 +1,11 @@
+{
+ "local": {
+  "byoc.run": "run-2026-11-15T05-06-42-808Z-xhzk",
+  "byoc.me": "{\"name\":null,\"tag\":null,\"seat\":null,\"intro\":\"I love working on the customer journey, understanding the problems customers face, and building products that solve them.\"}"
+ },
+ "session": {},
+ "cookie": "",
+ "cookies": [],
+ "posts": []
+}
+key-shaped in storage/DOM: []

@@ -1,0 +1,52 @@
+{
+ "1920x1130-day": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [],
+  "bad": [],
+  "posts": 0
+ },
+ "1920x1130-night": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [],
+  "bad": [],
+  "posts": 0
+ },
+ "1440x900-day": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [
+   "pi-sub: tap to play"
+  ],
+  "bad": [],
+  "posts": 0
+ },
+ "1440x900-night": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [
+   "pi-sub: tap to play"
+  ],
+  "bad": [],
+  "posts": 0
+ },
+ "1280x800-day": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [
+   "pi-sub: tap to play"
+  ],
+  "bad": [],
+  "posts": 0
+ },
+ "1280x800-night": {
+  "pageScrollX": false,
+  "pageScrollY": false,
+  "textOffscreen": [
+   "pi-sub: tap to play"
+  ],
+  "bad": [],
+  "posts": 0
+ }
+}
