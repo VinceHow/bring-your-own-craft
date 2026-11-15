@@ -220,6 +220,7 @@
   // "reordered" (anything else the tidy may do: reorder, merge, small joining words, grammar).
   const tidyWords = t => String(t || '').toLowerCase().split(/\s+/).map(w => w.replace(/[^\p{L}\p{N}']+/gu, '')).filter(Boolean);
   const isCut = (raw, clean) => { const a = tidyWords(raw), b = tidyWords(clean); let i = 0; for (const w of b) { while (i < a.length && a[i] !== w) i++; if (i++ >= a.length) return false; } return true; };
+  BYOC.tidyKind = (raw, clean) => (isCut(raw, clean) ? 'cut' : 'reordered');
   BYOC.tidyInto = async function (el, text, opts = {}) {
     const raw = String(text ?? '').trim();
     if (!raw) return raw;

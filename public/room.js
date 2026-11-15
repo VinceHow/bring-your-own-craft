@@ -739,8 +739,10 @@
         if (ev.key === 'Escape') { words.blur(); return; }
         if (ev.key !== 'Enter') return;
         ev.preventDefault();
-        const t = words.textContent.trim();
-        if (!t) return;
+        let t = words.textContent.trim();
+        if (!t || words.dataset.state === 'tidying') return;
+        // Her rewording is tidied in place (data-raw / data-state / data-tidy on the words); the team's own line is kept as is.
+        if (t !== text && typeof BYOC.tidyInto === 'function') t = String(await BYOC.tidyInto(words, t) || t).trim() || t;
         words.contentEditable = 'false'; hint.textContent = 'writing it into your file';
         try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
         catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }

@@ -473,32 +473,56 @@
     if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'PageDown') { e.preventDefault(); send(); }
   });
   $('.fd-form').addEventListener('submit', e => { e.preventDefault(); send(); });
+  // Her "You" turn is tidied in place on its words (.fd-her-words: data-raw / data-state tidying → tidied / data-tidy).
+  // Pieces already tidied keep their tidy and cost nothing; words still in the field, or a piece whose tidy hasn't
+  // landed, are tidied here (2.5 s cap, her raw words on a miss). The team hears what the turn shows.
+  async function tidyTurn(li, mine, text) {
+    const span = li && li.querySelector('.fd-her-words');
+    const raw = [...mine.map(p => p.raw), text].filter(Boolean).join(' ');
+    const shown = [...mine.map(shownText), text].filter(Boolean).join(' ');
+    if (!span || typeof B.tidyInto !== 'function') return { words: shown, text };
+    if (!text && mine.every(p => p.tidy || p.use === 'mine')) { // nothing left to tidy: the hooks, no call
+      span.dataset.raw = raw; span.textContent = shown; span.dataset.tidy = B.tidyKind ? B.tidyKind(raw, shown) : 'cut'; span.dataset.state = 'tidied';
+      return { words: shown, text };
+    }
+    const fieldTidy = mine.length && text && B.tidy ? B.tidy(text, { timeoutMs: 2500 }).catch(() => text) : null;
+    const words = String(await B.tidyInto(span, shown) || shown).trim() || shown;
+    if (span.dataset.raw !== raw) span.dataset.raw = raw; // her words as she said them, pieces included
+    return { words, text: mine.length ? (fieldTidy ? String(await fieldTidy || text).trim() || text : text) : words };
+  }
   async function send() {
-    const text = $('.fd-input').value.trim();
+    let text = $('.fd-input').value.trim();
     if ((!text && !pieces.length) || !cur || sent || ended) return;
     sent = true;
     const ask = cur, mine = pieces.filter(p => p.askId === ask.id);
-    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
-    const body = mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text } : { askId: ask.id, text };
-    const words = [...mine.map(shownText), text].filter(Boolean).join(' ');
+    let words = [...mine.map(shownText), text].filter(Boolean).join(' ');
     $('.fd-input').value = ''; $('.fd-input').blur();
     $('.fd-said').classList.remove('speaking');
     pieces = []; $('.fd-pieces').innerHTML = ''; capturing(false);
+    // No pieces: exactly { askId, text }, as always. With pieces: their ids, plus any words still in the field.
+    const bodyFor = t => (mine.length ? { askId: ask.id, pieces: mine.map(p => p.id), text: t } : { askId: ask.id, text: t });
     if (MEETING) { // one round of discussion: the team replies live; no takeaways until she ends the meeting
-      rounds += 1; addTurn('her', words, rounds); landSaid(words, true);
+      rounds += 1; const li = addTurn('her', words, rounds); landSaid(words, true);
       followBottom = true; setMode('discussing'); follow();
-      hearing = { ask, body, timer: null, heard: false, readers: null, path: 'round' };
-      reading();
-      await postAnswer(hearing, body);
+      hearing = { ask, body: bodyFor(text), timer: null, heard: false, readers: null, path: 'round' };
+      const w = hearing; reading();
+      ({ words, text } = await tidyTurn(li, mine, text));
+      if (hearing !== w || cur !== ask) return; // she left while it tidied
+      const body = bodyFor(text); w.body = body;
+      await postAnswer(w, body);
       if (cur === ask) sent = false; // she can say more and Send again
       return;
     }
-    landSaid(words); addTurn('her', words, 1); $('.fd-form').hidden = true;
+    landSaid(words); const li = addTurn('her', words, 1); $('.fd-form').hidden = true;
     rounds = 1; setMode('discussing');
     // Every ask, Focus 1 and Focus 2 included, is a meeting through /answer; the stage path follows it on the server (lib/first.js).
-    hearing = { ask, body, timer: null, heard: false, readers: null };
-    reading(); // at once, before the request leaves
-    await postAnswer(hearing, body);
+    hearing = { ask, body: bodyFor(text), timer: null, heard: false, readers: null };
+    const w = hearing; reading(); // at once, before the request leaves
+    ({ words, text } = await tidyTurn(li, mine, text));
+    if (hearing !== w || cur !== ask) return; // she left while it tidied
+    const q = $('.fd-said .fd-words'); if (q) q.textContent = words;
+    const body = bodyFor(text); w.body = body;
+    await postAnswer(w, body);
   }
   // End meeting: the takeaways over all her rounds, appended at the bottom of the conversation.
   async function endMeeting() {
