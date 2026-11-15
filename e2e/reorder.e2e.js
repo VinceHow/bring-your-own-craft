@@ -39,7 +39,7 @@ async function room({ look = '', lines = async r => r.fulfill({ json: { lines: L
   return { page, errors, posted };
 }
 const meetStates = page => page.evaluate(() => window.__meet || []);
-const watchMeet = page => page.evaluate(() => { window.__meet = []; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); }); });
+const watchMeet = page => page.evaluate(() => { window.__meet = []; window.__kit = {}; BYOC.on('meet', () => { const c = document.querySelector('.meet-card'); if (c) { window.__meet.push([c.dataset.seat, c.dataset.state, c.querySelector('[data-slot="line"]').textContent]); window.__kit[c.dataset.seat] = [...c.querySelectorAll('[data-slot="kit-item"]')].map(li => li.textContent); } }); });
 
 for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
   test(`${lookName}: idea, then her name tag, then the team with lines tailored to her idea, then the room with her idea and the run started`, async () => {
@@ -66,6 +66,11 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.deepEqual(met.find(m => m[0] === 'research'), ['research', 'tailored', `“${LINES.research}”`]);
     assert.deepEqual(met.find(m => m[0] === 'design'), ['design', 'tailored', `“${LINES.design}”`]);
     assert.equal(met.find(m => m[0] === 'data')[1], 'static');
+    // "Loaded with": what each really has for this idea (computed on the server, not stubbed)
+    const kit = await page.evaluate(() => window.__kit);
+    assert.match(kit.research[0], /^A verified finding: .+, read \d{4}-\d\d-\d\d$/);
+    assert.equal(kit.engineering[0], 'The bakery page template, on taste-skill’s kit');
+    assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
     assert.equal((await page.textContent('#her-idea')).trim(), IDEA);
     assert.equal(posted.run.length, 1); assert.equal(posted.run[0].idea, IDEA); assert.match(posted.run[0].intro, /^I love /);
@@ -112,5 +117,38 @@ test('?setup=classic keeps the old order: her name tag first, her idea at the re
   assert.equal(await page.getAttribute('#setup', 'data-step'), 'nametag');
   assert.equal(await page.locator('.idea-card').count(), 0);
   assert.equal(posted.meet.length, 0);
+  await page.close();
+});
+
+test('meet the team waits for her (no ?hold=): each card stays until Next, Enter or the clicker; the last reads "Into the studio"', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route('**/api/meet-lines', r => r.fulfill({ json: { lines: {} } }));
+  await page.route('**/api/name-tag', r => r.fulfill({ json: { title: 'the Journey Mapper', traits: ['ships it'], superpower: '' } }));
+  await page.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData()).text, tidied: false } }));
+  await page.route(/\/api\/run$/, r => r.fulfill({ json: { run: 'stub-run' } }));
+  await page.route('**/api/run/stub-run/**', r => r.fulfill({ json: { ok: true } }));
+  await page.goto(BASE + '/');
+  await page.waitForFunction(() => window.BYOC && BYOC.ideaOpen && BYOC.ideaOpen());
+  await page.click('#idea-input'); await page.keyboard.type(IDEA); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.getElementById('setup').dataset.step === 'nametag');
+  await page.click('#intro-input'); await page.keyboard.type('I love talking to customers'); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.meet-card');
+  const seat = () => page.getAttribute('.meet-card', 'data-seat');
+  const first = await seat();
+  await page.waitForTimeout(3000);
+  assert.equal(await seat(), first, 'still the first card after 3 s');
+  assert.equal((await page.textContent('.meet-card [data-slot="next"]')).trim(), 'Next');
+  await page.click('.meet-card [data-slot="next"]');
+  await page.waitForFunction(s => document.querySelector('.meet-card')?.dataset.seat !== s, first, { timeout: 2000 });
+  const second = await seat();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(s => document.querySelector('.meet-card')?.dataset.seat !== s, second, { timeout: 2000 });
+  await page.keyboard.press('PageDown'); await page.waitForTimeout(150); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(150);
+  assert.equal(await page.getAttribute('.meet-card [data-slot="next"]', 'data-state'), 'last');
+  assert.equal((await page.textContent('.meet-card [data-slot="next"]')).trim(), 'Into the studio');
+  await page.click('.meet-card [data-slot="next"]');
+  await page.waitForFunction(() => BYOC.beat >= 2, null, { timeout: 3000 });
   await page.close();
 });

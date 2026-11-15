@@ -98,7 +98,7 @@
     else if (k === 'j' || k === 'J') BYOC.close?.open();
     else if (k === 'b' || k === 'B') { if (BYOC.beat < 8) BYOC.stage(8); else BYOC.build?.(); }
     else if (k === '?') toggleHelp();
-    else if (k === 'Enter') { if (BYOC.introShown && BYOC.introShown()) BYOC.introDone(); else focusInput(); }
+    else if (k === 'Enter') { if (BYOC.introShown && BYOC.introShown()) BYOC.introDone(); else if (BYOC.beat === 1 && BYOC.meetNext) BYOC.meetNext(); else focusInput(); }
     else handled = false;
     if (handled) e.preventDefault();
   });
