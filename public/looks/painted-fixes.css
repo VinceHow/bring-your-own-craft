@@ -20,9 +20,9 @@ html body #room #room-panel[data-state="open"] > :not([data-slot="head"]) {
   /* a soft fade at the foot, so a list that runs on reads as "there's more", never as a hard cut */
   -webkit-mask: linear-gradient(#000 calc(100% - 18px), transparent); mask: linear-gradient(#000 calc(100% - 18px), transparent); }
 
-/* a teammate's pad: Bo's ends above the Replay / Fake run label in the corner instead of running under it; Mika's sits
+/* a teammate's pad: Bo's ends above the corner's Fake run label and "No app yet" chip (both pinned to the window) instead of running under them; Mika's sits
    below the day / night pill instead of over it, with room enough that its list fits without a scrollbar */
-html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] { top: auto; bottom: 84px; max-height: 420px; }
+html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] { top: auto; bottom: 172px; max-height: 390px; }
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="design"][data-state="open"] { top: 96px; max-height: 500px; }
 
 /* While a teammate's pad is open, its pill steps back: the panel's title already names them, and the pill no longer
