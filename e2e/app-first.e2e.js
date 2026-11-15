@@ -18,7 +18,7 @@ const BASE = `http://localhost:${PORT}`;
 const RUNS = fs.mkdtempSync('/tmp/byoc-app-first-e2e-');
 let srv, logs = '', browser;
 before(async () => {
-  srv = spawn('node', ['server.js'], { cwd: ROOT, env: { ...process.env, PORT: String(PORT), RUNS_DIR: RUNS, THREAD_WARM: '0', BUILD_STUB: '1', BUILD_STUB_MS: '1500' } });
+  srv = spawn('node', ['server.js'], { cwd: ROOT, env: { ...process.env, PORT: String(PORT), RUNS_DIR: RUNS, THREAD_WARM: '0', BUILD_STUB: '1', BUILD_STUB_MS: '1500', LIVE_LOGO: '0' } });
   srv.stdout.on('data', d => (logs += d)); srv.stderr.on('data', d => (logs += d));
   for (let i = 0; i < 100 && !logs.includes('room on'); i++) await new Promise(r => setTimeout(r, 100));
   browser = await chromium.launch();
