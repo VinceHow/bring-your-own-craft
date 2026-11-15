@@ -141,16 +141,32 @@
   // "Who the first customers are: weekly regulars or …" -> "weighing who the first customers are"
   const topic = d => few(lower(String(d || '').split(/[:?(]/)[0].replace(/[.]+$/, '')), 7);
   let turn = 0, timer = null;
+  // (AUDIT final F4) each line is fresh for ~6 s, then it fades; nothing fresh, no strip. The strip hangs just under her
+  // sheet's actual bottom edge (her sheet grows while she types her idea), so it never sits on her input line, and it
+  // steps aside while she's typing in it.
+  const FRESH_MS = 6000, when = new Map();                       // seat -> when its line was last set
+  const sheetEl = document.getElementById('her-sheet');
+  const place = () => {
+    if (!sheetEl || sheetEl.hidden) return;
+    const r = room.getBoundingClientRect(), k = r.width / room.offsetWidth || 1, sr = sheetEl.getBoundingClientRect();
+    line.style.left = Math.round((sr.left - r.left) / k) + 'px'; line.style.top = Math.round((sr.bottom - r.top) / k + 10) + 'px';
+  };
   function show() {
+    const now = Date.now();
+    for (const [s, t] of when) if (now - t > FRESH_MS) { when.delete(s); doing.delete(s); }
     const seats = [...doing.keys()].filter(s => WHO[s]);
-    if (!seats.length || focusOpen) { line.hidden = true; return; }
+    const typing = !!(sheetEl && sheetEl.contains(document.activeElement) && document.activeElement.matches('input, textarea, [contenteditable="true"]'));
+    if (!seats.length || focusOpen || typing) { line.hidden = true; if (!seats.length) { clearInterval(timer); timer = null; } return; }
     const two = [seats[turn % seats.length], seats[(turn + 1) % seats.length]].filter((s, i, a) => a.indexOf(s) === i);
     const next = two.map(s => { const w = doing.get(s); return w.startsWith('· ') ? `${WHO[s]} ${w}` : `${WHO[s]} is ${w}`; }).join('\n');
     if (next !== line.textContent) { line.dataset.state = ''; void line.offsetWidth; line.textContent = next; line.dataset.state = 'in'; }
-    line.hidden = false;
+    place(); line.hidden = false;
   }
-  function tick() { turn += 2; show(); }
-  const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); show(); if (!timer) timer = setInterval(tick, 4500); };
+  let ticks = 0;
+  function tick() { if (++ticks % 4 === 0) turn += 2; show(); }       // freshness checked every second; the pair turns every 4 s
+  const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); when.set(seat, Date.now()); show(); if (!timer) timer = setInterval(tick, 1000); };
+  document.addEventListener('focusin', show); document.addEventListener('focusout', () => setTimeout(show, 0));
+  addEventListener('resize', () => { if (!line.hidden) place(); });
   // before the team starts, Noor and Mika are already sketching her rough journey (sketch.user / flow.line events)
   // (#room[data-sketching] marks their pills as at work: the room's place-cards stay idle until the team starts)
   const sketching = new Set(), sketchMark = () => { if (sketching.size) room.dataset.sketching = [...sketching].join(' '); else delete room.dataset.sketching; };
@@ -173,7 +189,7 @@
   let quiet = null;
   const anyEvent = () => { clearTimeout(quiet); quiet = setTimeout(() => { doing.clear(); show(); }, 15000); };
   ['teammate.start', 'candidate', 'chatter', 'decided', 'flow.line', 'sketch.user', 'joint.start', 'joint.agreed'].forEach(t => B.on(t, anyEvent));
-  B.on('reset', () => { doing.clear(); clearInterval(timer); timer = null; line.hidden = true; });
+  B.on('reset', () => { doing.clear(); when.clear(); clearInterval(timer); timer = null; line.hidden = true; });
   document.addEventListener('studio:focus', show);
   // the room's chatter: at most 15 words a line
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
