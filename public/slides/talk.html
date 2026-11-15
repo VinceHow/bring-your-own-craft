@@ -22,6 +22,7 @@
     .stat                 a big number with its label:  <div class="paper stat"><b>23 hours</b><span>first commit to now</span></div>
   Layouts (on the section):
     .duo     words left, artifact right          .split   two dark halves, each with its own words and paper
+    .live    the real studio, alive (moving painting, clickable toys, no UI), with your words over it in .overlay
     .center  everything centred, stacked         .poster  the film one-sheet: a full-bleed <img class="bleed-img">, billing, title, tagline, credits
     .clips   a 2×2 grid of product clips (<figure class="paper clip"><img src="img/….webp"><figcaption class="sticky">…</figcaption>)
     .row     (a div) papers side by side, any number; they share the width
@@ -45,17 +46,13 @@
   <section class="slide split" data-title="Two ways to build today">
     <div class="room"></div>
     <p class="kicker over">01 — Two ways to build today</p>
-    <div class="half">
-      <div class="paper tilt-l" style="--cr: var(--cr-design)">
-        <p class="paper-label">Coding agents</p>
-        <h2 class="paper-big">Asks about <em class="accent">everything.</em></h2>
-      </div>
+    <div class="half cool">
+      <p class="label">Coding agents</p>
+      <h1 class="headline">Asks about <em class="accent">everything.</em></h1>
     </div>
-    <div class="half">
-      <div class="paper tilt-r" style="--cr: var(--cr-research)">
-        <p class="paper-label">Lovable</p>
-        <h2 class="paper-big">Assumes <em class="accent">everything.</em></h2>
-      </div>
+    <div class="half warm">
+      <p class="label">Lovable</p>
+      <h1 class="headline">Assumes <em class="accent">everything.</em></h1>
     </div>
   </section>
 
@@ -161,18 +158,22 @@
     <p class="caption small">I love mapping user journeys. I can’t interview a thousand users. My team can.</p>
   </section>
 
-  <!-- 06 · the vision -->
-  <section class="slide center" data-title="The vision">
-    <div class="room"></div>
-    <p class="kicker">06 — The vision</p>
-    <p class="giant"><em class="accent">90%</em></p>
-    <p class="line">of your time on the craft you love.</p>
-    <p class="line quiet">No distractions.</p>
+  <!-- 06 · the vision, LIVE: the real studio, the painting moving and every toy clickable (record player, cat, coffee,
+       string lights, the window at night). No app UI. Click the toys while you talk; the arrow keys still move on.
+       data-time on the section: morning · afternoon · evening · night -->
+  <section class="slide live" data-title="The vision" data-time="afternoon">
+    <div class="overlay">
+      <p class="kicker">06 — The vision</p>
+      <p class="giant"><em class="accent">90%</em></p>
+      <p class="line">of your time on the craft you love.</p>
+      <p class="line quiet">No distractions.</p>
+    </div>
   </section>
 
-  <!-- the poster: the product reveal, right before the live demo (the presenter switches to the app after it) -->
-  <section class="slide poster" data-title="Bring your own craft">
-    <img class="bleed-img" src="img/studio.webp" alt="The studio: the team at the table">
+  <!-- the poster: the product reveal, right before the live demo (the presenter switches to the app after it).
+       The key art is the real studio, alive (as on the vision slide); img/poster-key.jpg is its still, for print. -->
+  <section class="slide poster" data-title="Bring your own craft" data-time="afternoon">
+    <img class="bleed-img" src="img/poster-key.jpg" alt="The studio: the team at the table">
     <p class="billing">Mika · Wren · Theo · Ines · Bo · and you</p>
     <div class="laurel"><p>Official selection</p><p class="laurel-event">Imperial AI Hackathon 2026</p></div>
     <div class="poster-title">
@@ -203,7 +204,7 @@
     <p class="kicker">08 — Built the way it works</p>
     <h1 class="headline">One human with <em class="accent">judgement.</em> A team of agents.</h1>
     <div class="row">
-      <div class="paper stat tilt-l" style="--cr: var(--cr-design)"><b>1,014</b><span>commits</span></div>
+      <div class="paper stat tilt-l" style="--cr: var(--cr-design)"><b>1,000+</b><span>commits</span></div>
       <div class="paper stat tilt-r" style="--cr: var(--cr-data)"><b>23 hours</b><span>first commit to now</span></div>
       <div class="paper stat tilt-l" style="--cr: var(--cr-product)"><b>1</b><span>product owner</span></div>
     </div>
@@ -211,24 +212,28 @@
     <p class="foot">Counted from this repo’s git history (main), 15 Nov.</p>
   </section>
 
-  <!-- 09 · what's next -->
-  <section class="slide duo" data-title="What's next">
+  <!-- 09 · the future: one big table, humans and agents side by side, and an empty seat for you.
+       A seat: <div class="seat" style="--a: 40deg; --cr: var(--cr-design)"> (a teammate: an <img>; a person: .seat.human with
+       <span class="face">V</span>; the open seat: .seat.empty). --a is the seat's angle round the table, -90deg is the top. -->
+  <section class="slide duo future" data-title="The future">
     <div class="room"></div>
     <div class="words">
-      <p class="kicker">09 — What’s next</p>
-      <h1 class="headline">More people at the <em class="accent">table.</em></h1>
-      <p class="caption">Every seat, human or agent, doing what it’s best at.</p>
+      <p class="kicker">09 — The future</p>
+      <h1 class="headline">Not replaced. A seat at the <em class="accent">table.</em></h1>
+      <p class="caption">Humans and AI, side by side. Everyone on the craft they love, their expertise in the work.</p>
     </div>
     <div class="art">
-      <div class="table">
+      <div class="table big">
         <div class="table-top"></div>
-        <div class="seat" style="--a: -90deg; --cr: var(--cr-product)"><span class="you">P</span><b>Priya</b></div>
-        <div class="seat" style="--a: -38deg; --cr: var(--cr-design)"><img src="../looks/cast/mika.webp" alt=""><b>Mika</b></div>
-        <div class="seat" style="--a: 14deg; --cr: var(--cr-strategy)"><img src="../looks/cast/theo.webp" alt=""><b>Theo</b></div>
-        <div class="seat" style="--a: 66deg; --cr: var(--cr-research)"><img src="../looks/cast/wren.webp" alt=""><b>Wren</b></div>
-        <div class="seat" style="--a: 118deg; --cr: var(--cr-engineering)"><img src="../looks/cast/bo.webp" alt=""><b>Bo</b></div>
-        <div class="seat" style="--a: 170deg; --cr: var(--cr-data)"><img src="../looks/cast/ines.webp" alt=""><b>Ines</b></div>
-        <div class="seat empty" style="--a: 222deg"><span class="plus">+</span><b>invite a real engineer</b></div>
+        <div class="seat human" style="--a: -90deg; --cr: var(--cr-product)"><span class="face">P</span><b>Priya</b><small>Human</small></div>
+        <div class="seat human" style="--a: -50deg; --cr: var(--cr-product)"><span class="face">V</span><b>Vincent</b><small>Human</small></div>
+        <div class="seat" style="--a: -10deg; --cr: var(--cr-engineering)"><img src="../looks/cast/bo.webp" alt=""><b>Bo</b><small>Agent</small></div>
+        <div class="seat" style="--a: 30deg; --cr: var(--cr-strategy)"><img src="../looks/cast/ines.webp" alt=""><b>Ines</b><small>Agent</small></div>
+        <div class="seat" style="--a: 70deg; --cr: var(--cr-data)"><img src="../looks/cast/theo.webp" alt=""><b>Theo</b><small>Agent</small></div>
+        <div class="seat human" style="--a: 110deg; --cr: var(--cr-research)"><span class="face">M</span><b>Mike</b><small>Human</small></div>
+        <div class="seat" style="--a: 150deg; --cr: var(--cr-research)"><img src="../looks/cast/wren.webp" alt=""><b>Wren</b><small>Agent</small></div>
+        <div class="seat" style="--a: 190deg; --cr: var(--cr-design)"><img src="../looks/cast/mika.webp" alt=""><b>Mika</b><small>Agent</small></div>
+        <div class="seat empty" style="--a: 230deg"><span class="face">?</span><b>You</b></div>
       </div>
     </div>
   </section>
