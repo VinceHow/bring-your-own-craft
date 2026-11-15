@@ -35,7 +35,7 @@ async function card(tag, { tidyMs = 0, look = '' } = {}) {
   const calls = { tag: 0, tidy: 0, parts: [] };
   await page.route('**/api/tidy', async r => { calls.tidy++; await new Promise(f => setTimeout(f, tidyMs)); await r.fulfill({ status: 200, json: { text: JSON.parse(r.request().postData()).text, tidied: false } }); });
   await page.route('**/api/name-tag', async r => { calls.tag++; calls.parts.push(JSON.parse(r.request().postData() || '{}').part || 'full'); await tag(r, calls.tag); });
-  await page.goto(BASE + '/' + look);
+  await page.goto(BASE + '/' + (look ? look + '&' : '?') + 'setup=classic'); // the name tag itself (the new order: e2e/reorder.e2e.js)
   await page.evaluate(() => BYOC.on('tag.profile', () => { window.__profile = { after: document.querySelector('.nt-paper')?.dataset.state === 'shown' || !!(BYOC.herTag && BYOC.herTag.title) }; }));
   await page.waitForFunction(() => window.BYOC && BYOC.introOpen && BYOC.introOpen(), null, { timeout: 8000 });
   await page.fill('#nt-name', 'Priya');

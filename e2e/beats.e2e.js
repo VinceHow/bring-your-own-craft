@@ -57,7 +57,7 @@ const onScreen = sel => page.evaluate(sel => [...document.querySelectorAll(sel)]
 }), sel);
 
 test('1. stage mode: body >= 20px, no chrome, no help card', async () => {
-  await page.goto(BASE + '/?hold=300');
+  await page.goto(BASE + '/?hold=300&setup=classic');
   await page.waitForTimeout(400);
   await page.keyboard.press('?');
   assert.ok(await page.isVisible('#help-card'), 'the help card toggles with ?');
@@ -79,7 +79,7 @@ test('1b. "Your own craft" on her paper name tag: a seat choice on the one tag, 
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const runs = []; p.on('request', r => r.url().endsWith('/api/run') && r.method() === 'POST' && runs.push(JSON.parse(r.postData())));
-  await p.goto(BASE + '/?stage=1&hold=300');
+  await p.goto(BASE + '/?stage=1&hold=300&setup=classic');
   await p.waitForTimeout(400);
   assert.strictEqual(await p.locator('.seat-diy').count(), 0, 'no seventh seat');
   // Her paper name tag: the role choice is on it (Product prefilled).
@@ -118,7 +118,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.route('**/api/name-tag', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
     craft: 'Product', title: 'the Customer Whisperer', traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: 'hears the problem behind the request',
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
-  await p.goto(BASE + '/?stage=1&hold=200');
+  await p.goto(BASE + '/?stage=1&hold=200&setup=classic');
   await p.waitForTimeout(300);
   // The setup: no room yet; her name tag on paper (name, role, what she loves and brings).
   assert.ok(await p.isVisible('#setup'), 'the room is hidden');

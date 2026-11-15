@@ -50,7 +50,7 @@ test('the app button: there from the first frame, never covered, a sensible stat
   // the build's events are dispatched under a stub run the server doesn't know, and no run call reaches the server:
   // nothing here can start a real build or a model call
   await p.route('**/api/run/**', r => r.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"stubbed"}' }));
-  await p.goto(BASE + '/?hold=200');
+  await p.goto(BASE + '/?hold=200&setup=classic');
   const state = () => p.getAttribute('[data-component="app-button"]', 'data-state');
   // first frame, her name tag on paper (beat 0)
   assert.equal(await state(), 'none');
