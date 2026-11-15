@@ -130,8 +130,8 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     const sug = slot(h('div', 'ia-sug'), 'suggestion');
     const sugText = String(n.suggestion || '').replace(/[.]$/, '');
     sug.append(h('span', 'k', 'We suggest'), slot(h('p', 'ia-sug-text', sugText), 'suggestion-text'));
-    const yes = slot(h('button', 'ia-yes', 'Yes'), 'yes'); yes.type = 'button';
-    const say = slot(h('button', 'ia-say'), 'say'); say.type = 'button';
+    const yes = slot(h('button', 'ia-yes', 'Yes'), 'yes'); yes.type = 'button'; yes.dataset.rank = 'primary'; // the one primary action on the page
+    const say = slot(h('button', 'ia-say'), 'say'); say.type = 'button'; say.dataset.rank = 'secondary';
     const sayLabel = h('span', 'ia-say-label', 'Say something else'); say.appendChild(sayLabel);
     const note = slot(h('span', 'ia-note'), 'note');
     let hers = null, tidying = null, tidied = '', sending = false;
@@ -174,7 +174,9 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
       const prev = c.dataset.state; c.dataset.state = 'yes'; note.textContent = '';
       B.emit && B.emit('action.yes', { id: n.id, choice: words || sugText });
       try { if (!B.replay) await B.api(`/api/run/${encodeURIComponent(B.run)}/unblock/answer`, { askId: n.id, ...body }, { step: false }); }
-      catch (e) { c.dataset.state = prev; note.textContent = 'Not sent. Try again.'; }
+      catch (e) { c.dataset.state = prev; note.textContent = 'Not sent. Try again.'; return; }
+      // Answered: after the card's short fold, the page goes back to the room on its own, even before the server's event.
+      setTimeout(() => { if (box.dataset.view === 'action' && box.dataset.actionId === n.id) expand(false); }, 700);
     });
     c.append(whoEl, q, sug, yes, say, note);
     return c;
@@ -272,13 +274,18 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   pastBody.appendChild(slot(h('p', 'inbox-empty', 'Your meeting notes will be here after your first meeting.'), 'empty'));
 
   // ---- open and close ----------------------------------------------------------------------------------
+  // Calm motion (docs/POLISH.md §3): the open inbox fades and rises in (~220 ms, eased); still under reduced motion.
+  const settle = () => { if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof box.animate !== 'function') return;
+    box.animate([{ opacity: 0, transform: 'translateY(10px) scale(.99)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2,.7,.2,1)' }); };
   function expand(open, view = 'list', actionId = '') {
+    const was = box.dataset.state === 'open';
     box.dataset.state = open ? 'open' : shown[0] ? 'new' : 'empty';
     box.dataset.view = open ? view : 'list'; if (open && actionId) box.dataset.actionId = actionId; else delete box.dataset.actionId;
     drawer.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
     toggle.textContent = !open ? 'Open your inbox' : view === 'action' ? 'Back to the room' : 'Close your inbox';
     keepInView();
+    if (open && !was) settle();
   }
   toggle.addEventListener('click', () => expand(box.dataset.state !== 'open'));
   addEventListener('keydown', e => { if (e.key === 'Escape' && box.dataset.state === 'open') { e.stopPropagation(); expand(false); } }, true);

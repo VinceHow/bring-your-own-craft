@@ -59,7 +59,17 @@
     </div>`;
   room.appendChild(doc);
   const $ = sel => doc.querySelector(sel);
-  $('.fd-column').addEventListener('scroll', () => { followBottom = nearBottom(); if (followBottom) $('.fd-newer').hidden = true; });
+  // Calm motion: the column glides to the newest item (instant under prefers-reduced-motion). While it glides, its own
+  // scroll events don't count as her scrolling up.
+  const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let gliding = 0;
+  const glide = top => { const c = $('.fd-column'); gliding = Date.now(); c.scrollTo({ top, behavior: still() ? 'auto' : 'smooth' }); };
+  let lastTop = 0;
+  $('.fd-column').addEventListener('scroll', () => {
+    const c = $('.fd-column'), down = c.scrollTop >= lastTop; lastTop = c.scrollTop;
+    if (down && Date.now() - gliding < 700) return; // our own glide toward the newest; any move up is hers
+    followBottom = nearBottom(); if (followBottom) $('.fd-newer').hidden = true;
+  });
 
   let cur = null;          // the open ask
   // ---- the meeting (Vincent, 15 Nov): compose → Send = one round of discussion → … → End meeting = takeaways ----------
@@ -70,6 +80,8 @@
   const MEETING = new URLSearchParams(location.search).get('meeting') !== '0';
   let rounds = 0, ended = false, earlierOpen = false, followBottom = true;
   if (MEETING) $('.fd-help').textContent += ' · End meeting for the takeaways';
+  // One thing per screen (docs/POLISH.md §1): Send is the one primary action; End meeting is secondary, quieter.
+  $('.fd-send').dataset.rank = 'primary'; $('.fd-end').dataset.rank = 'secondary';
   const column = () => $('.fd-column');
   function setMode(m) {
     const c = column(); c.dataset.state = m; doc.dataset.meeting = m;
@@ -84,7 +96,7 @@
   const nearBottom = () => { const c = column(); return c.scrollHeight - c.scrollTop - c.clientHeight < 40; };
   function follow() { // keep the newest reply in view unless she scrolled up herself
     const c = column();
-    if (followBottom) { c.scrollTop = c.scrollHeight; $('.fd-newer').hidden = true; } else $('.fd-newer').hidden = false;
+    if (followBottom) { glide(c.scrollHeight); $('.fd-newer').hidden = true; } else $('.fd-newer').hidden = false;
   }
   function addTurn(who, text, n, extra = {}) {
     const list = $('.fd-conversation');
@@ -152,9 +164,19 @@
       if (hearing !== w) return;
       if (r && r.pending) return reading(); // a resend while the first is still being heard: keep waiting
     } catch (e) {
+      if (hearing === w && e.status === 409 && w.path === 'round') return busy(w); // the team is still replying to the last round
       if (hearing !== w || e.status === 409) return; // 409: the team already heard her
       failed(e.status ? String(e.status) : 'no connection');
     }
+  }
+  // Sent while the team was still replying: nothing is lost. Her turn comes back off the conversation, her words back
+  // into the box, and one plain line says when to send.
+  function busy(w) {
+    clearTimeout(w.timer); hearing = null; rounds = Math.max(0, rounds - 1);
+    if (w.li) { const sep = w.li.previousElementSibling; w.li.remove(); if (sep && sep.dataset.slot === 'round-separator' && !sep.nextElementSibling) sep.remove(); }
+    const box = $('.fd-input'); box.value = [box.value, ...(w.mine || []).map(shownText), w.words].filter(Boolean).join(' ');
+    sent = false; setMode('composing');
+    status('The team is still replying. Send again once they’re done; your words are back in the box.', 'idle');
   }
   $('.fd-retry').addEventListener('click', () => { if (!hearing || hearing.heard || cur !== hearing.ask) return; reading(); postAnswer(hearing, { ...hearing.body, retry: true }); });
 
@@ -245,6 +267,20 @@
   }
 
   // ---- open and close -------------------------------------------------------------------------
+  // Never cut off (docs/POLISH.md §5): a look that scales and crops the room can push the document past the window's
+  // edge; pull each side back inside (in the room's own scaled pixels). On open and on resize.
+  function fit() {
+    for (const k of ['left', 'top', 'right', 'bottom']) doc.style[k] = '';
+    if (doc.hidden) return;
+    // From layout offsets, not the box on screen: the opening animation scales it for a moment.
+    const rr = room.getBoundingClientRect(); if (!doc.offsetWidth || !rr.width) return;
+    const k = rr.width / (room.offsetWidth || rr.width) || 1, M = 8, cs = getComputedStyle(doc);
+    const r = { left: rr.left + doc.offsetLeft * k, top: rr.top + doc.offsetTop * k };
+    r.right = r.left + doc.offsetWidth * k; r.bottom = r.top + doc.offsetHeight * k;
+    const need = { left: M - r.left, top: M - r.top, right: r.right - (innerWidth - M), bottom: r.bottom - (innerHeight - M) };
+    for (const side of Object.keys(need)) if (need[side] > 0 && cs[side] !== 'auto') doc.style[side] = (parseFloat(cs[side]) + need[side] / k).toFixed(1) + 'px';
+  }
+  addEventListener('resize', () => requestAnimationFrame(fit));
   function open(ask) {
     if (!ask) return;
     if (cur && cur.id === ask.id && !doc.hidden) return;
@@ -272,6 +308,7 @@
     doc.hidden = false;
     document.body.classList.add('focus-open');
     renderWork();
+    fit();
     if (M) M.animate(doc, { y: [18, 0], scale: [0.985, 1] }, SPRING);
     if (!B.replay) setTimeout(() => { if (cur === ask && !doc.hidden) $('.fd-input').focus(); }, 40); // only if she's still in this document
     B.syncFocus && B.syncFocus();
@@ -355,8 +392,20 @@
   const wait = ms => new Promise(r => setTimeout(r, ms));
   // The swap: removed words leave (data-state leaving, then gone), changed words take their new spelling, added
   // words arrive, and the kept ones slide together. Identical raw and tidy: no animation, just the tidy state.
+  // The tidy hooks on her piece's words, as on every input (public/voice.js tidyInto): data-raw (what she said),
+  // data-state tidying -> tidied, data-tidy cut | reordered | skipped. No tidy within PIECE_TIDY_MS: her raw words stand
+  // (skipped) and a late tidy doesn't swap in, so nothing flickers.
+  const PIECE_TIDY_MS = 2500;
+  function pieceHooks(p, state) {
+    const w = p.words; clearTimeout(p.tidyT);
+    w.dataset.raw = p.raw;
+    if (state === 'tidying') { w.dataset.state = 'tidying'; delete w.dataset.tidy; p.tidyT = setTimeout(() => { if (w.dataset.state === 'tidying') pieceHooks(p, 'skipped'); }, PIECE_TIDY_MS); return; }
+    w.dataset.state = 'tidied';
+    w.dataset.tidy = state === 'skipped' || !p.tidy || p.tidy === p.raw ? 'skipped' : (B.tidyKind ? B.tidyKind(p.raw, p.tidy) : 'cut');
+  }
   async function landPieceTidy(p, tidy) {
     p.tidy = tidy;
+    pieceHooks(p, 'tidied');
     p.diff = B.wordDiff ? B.wordDiff(p.raw, tidy) : null;
     if (!p.diff || p.diff.same || p.showRaw || p.use === 'mine') { p.li.dataset.anim = 'none'; return pieceState(p); }
     p.animating = true; p.li.dataset.state = 'tidying'; p.li.dataset.anim = 'swapping';
@@ -381,6 +430,7 @@
     pieceState(p);
   }
   function dropPiece(p) {
+    clearTimeout(p.tidyT);
     pieces = pieces.filter(x => x !== p); p.li.remove();
     if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
     if (!pieces.length) { capturing(false); ack(false); }
@@ -406,6 +456,7 @@
     rm.addEventListener('click', () => dropPiece(p));
     p.li.append(p.words, p.see, p.mine, redo, rm);
     $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
+    pieceHooks(p, o.post === false ? 'restored' : 'tidying'); // restored from the log: its tidy (or none) is already in
     capturing(true);
     if (o.post === false) return p;
     if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
@@ -446,6 +497,7 @@
   B.on('answer.piece.tidy', ev => {
     const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
     if (!p || sent || ev.raw !== p.raw || !ev.text) return;
+    if (p.words.dataset.state !== 'tidying') return; // skipped after PIECE_TIDY_MS: her raw words stay, no late swap
     landPieceTidy(p, ev.text);
   });
   $('.fd-add').addEventListener('click', () => {
@@ -505,7 +557,7 @@
       rounds += 1; const li = addTurn('her', words, rounds); landSaid(words, true);
       followBottom = true; setMode('discussing'); follow();
       const body = bodyFor(text);
-      hearing = { ask, body, timer: null, heard: false, readers: null, path: 'round' };
+      hearing = { ask, body, timer: null, heard: false, readers: null, path: 'round', words: text, li, mine };
       reading();
       tidyTurn(li, mine, text); // on her turn, alongside: the post never waits for it
       await postAnswer(hearing, body);
@@ -628,7 +680,7 @@
     }
     box.hidden = false; box.dataset.state = 'shown'; doc.dataset.state = 'takeaways';
     ended = true; $('.fd-form').hidden = true; earlierOpen = true; setMode('ended');
-    requestAnimationFrame(() => { const c = column(); c.scrollTop = box.offsetTop - 12; }); // she lands on them; everything said is above
+    requestAnimationFrame(() => glide(box.offsetTop - 12)); // she lands on them; everything said is above
     $('.fd-keep').hidden = !!B.replay;
     if (M) M.animate(box, { y: [16, 0] }, SPRING);
     if (B.replay) { clearTimeout(replayClose); replayClose = setTimeout(() => close(true), 3500); }
