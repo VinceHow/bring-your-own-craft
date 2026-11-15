@@ -184,6 +184,31 @@
     addEventListener('resize', soon); setInterval(fit, 1500); soon();
   }
 
+  // ---- after her Yes on an unblock (QA #6): the card becomes a one-line receipt, "Told Bo: 8pm the night before", and
+  // the inbox's own line says the same, until the server takes the item away ("Nothing needs you right now" then).
+  // Look-owned attributes only (data-pt-told); the card, its state and the inbox stay inbox.js's. ----
+  const told = new Map();                                       // ask id -> receipt line
+  const receipt = () => {
+    const ib = document.getElementById('inbox'); if (!ib) return;
+    const live = new Set([...ib.querySelectorAll('[data-action]')].map(e => e.dataset.action));
+    for (const id of [...told.keys()]) if (!live.has(id)) told.delete(id);
+    ib.querySelectorAll('[data-component="inbox-action"][data-action]').forEach(c => {
+      const t = told.get(c.dataset.action);
+      if (!t) { delete c.dataset.ptTold; c.querySelector(':scope > [data-pt-receipt]')?.remove(); return; }
+      c.dataset.ptTold = '';
+      if (!c.querySelector(':scope > [data-pt-receipt]')) { const r = document.createElement('p'); r.dataset.ptReceipt = ''; r.textContent = t; c.appendChild(r); }
+    });
+    const now = ib.querySelector('[data-slot="now"]');
+    if (now) { const t = now.dataset.action && told.get(now.dataset.action); if (t) now.dataset.ptTold = t; else delete now.dataset.ptTold; }
+  };
+  B.on('action.yes', ev => {
+    const c = document.querySelector(`[data-component="inbox-action"][data-action="${CSS.escape(String(ev.id))}"]`);
+    const name = WHO[c && c.dataset.seat] || 'the team';
+    told.set(String(ev.id), `Told ${name}: ${few(ev.choice || 'yes', 10)}`); receipt();
+  });
+  B.on('reset', () => { told.clear(); receipt(); });
+  { const ib = document.getElementById('inbox'); if (ib) new MutationObserver(() => { if (told.size || ib.querySelector('[data-pt-told]')) receipt(); }).observe(ib, { childList: true, subtree: true }); }
+
   // ---- a new note for her arrives (port of the her-inbox comp, ?st=arrive): the teammate holds up its note in the
   // painting (painted-living plays 'found' on ask), it drifts across the tabletop on a soft paper arc, below every
   // face, and tucks into her inbox, which rises a touch to take it. Nothing flies while she's in focus.
