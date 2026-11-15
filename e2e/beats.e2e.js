@@ -611,6 +611,31 @@ test('2d. never stuck in a meeting (stubbed): one primary (Send), End meeting se
   await p.close();
 });
 
+test('2e. the build press (stubbed, audit F1): painted, one forward from the working room starts the build and the pill says so; plain steps on as before', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  const built = [];
+  await p.route('**/api/run/stub-run/**', async r => { const u = new URL(r.request().url()).pathname; if (/\/build$/.test(u)) built.push(u); await r.fulfill({ status: 202, json: { ok: true } }); });
+  await p.route('**/api/sketch*', r => r.fulfill({ status: 202, json: { ok: true } }));
+  await p.goto(L(BASE + '/?stage=1'));
+  await p.waitForTimeout(300);
+  await p.evaluate(() => { BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run'; });
+  await p.waitForTimeout(200);
+  const painted = /look=painted/.test(await p.evaluate(() => location.search));
+  if (painted) assert.match(await p.textContent('.app-hint'), /Press → and Bo builds the page/, 'the pill tells the presenter what → does');
+  await p.keyboard.press('PageDown');
+  await p.waitForTimeout(400);
+  if (painted) {
+    assert.strictEqual(await p.evaluate(() => BYOC.beat), 8, 'one press: the build beat');
+    assert.strictEqual(built.length, 1, 'the build started');
+  } else {
+    assert.strictEqual(await p.evaluate(() => BYOC.beat), 6, 'plain: the big sheet, as before');
+    assert.strictEqual(built.length, 0);
+  }
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
 test('3. the close: a real judge idea; contrast first, then the capped questions, then her M from the log, then the last line', async t => {
   // Serial: this goes on in step 2's page and run. Run alone (a name filter) or after step 2 failed, it skips and says so.
   if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');

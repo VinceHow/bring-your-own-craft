@@ -126,6 +126,9 @@
     if (b === 3 && !idea) return focusInput();
     if (b >= 11 || inClose()) return;
     if (BYOC.openTopNote && BYOC.openTopNote()) return; // her tray is out: forward opens the team's suggested note
+    // Audit F1: in the painted look, beats 6 (her sheet large) and 7 (Design's sketches) draw nothing she can see, so one
+    // forward from the working room is the build press (DEMO: one press). Live only; replays and the plain look step on.
+    if (b >= 5 && b <= 7 && !BYOC.replay && new URLSearchParams(location.search).get('look') === 'painted') return BYOC.stage(8);
     BYOC.stage(b + 1);
   }
 })();
