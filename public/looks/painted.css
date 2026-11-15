@@ -1221,3 +1221,21 @@ html #room [data-component="character-card"]:not([data-state="asking"]) > [data-
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: 0; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }
+/* ---- QA #6: after her Yes on an unblock, never a blank drawer. The card folds to a one-line receipt in her ink
+   ("Told Bo: 8pm the night before", painted.js) and the inbox's own line says it too, until the server takes the item
+   away and the inbox reads "Nothing needs you right now". The drawer is only as tall as what it holds. ---- */
+html #room [data-component="inbox-action"][data-pt-told] { animation: none !important; opacity: 1 !important; transform: none !important; pointer-events: none; padding: 12px 18px 13px; }
+html #room [data-component="inbox-action"][data-pt-told] > :not([data-pt-receipt]) { display: none !important; }
+html #room [data-component="inbox-action"] > [data-pt-receipt] { margin: 0; font: italic 400 19px/1.35 var(--display); color: var(--product-t); animation: pfd-fade-in .5s ease both; }
+html #room [data-component="inbox-action"] > [data-pt-receipt]::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 9px; border-radius: 50%; background: var(--product); vertical-align: 2px; }
+@keyframes pfd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+html #room [data-component="inbox"] [data-slot="now"][data-pt-told] > * { display: none !important; }
+html #room [data-component="inbox"] [data-slot="now"][data-pt-told]::before { content: attr(data-pt-told); display: block; font: italic 400 18px/1.3 var(--display); color: var(--product-t); }
+html #room [data-component="inbox"][data-state="expanded"] [data-slot="drawer"] { align-content: start; height: auto; }
+/* one thing at a time: while her inbox is open over the kitchen wall, the team's pinned sheet steps back */
+html #room:has([data-component="inbox"][data-state="expanded"]) [data-component="team-space"] { visibility: hidden; }
+/* a swap: the row never replays its entrance (it vanished for 1.25 s, Vincent); only the piece she tapped re-inks, quickly */
+html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"] { animation: none; }
+html #room [data-component="character-card"] [data-slot="traits"][data-state="swapped"] [data-slot="trait"][data-state="new"] { animation: pt-reink .35s ease-out both; }
+html #room [data-component="character-card"] :is([data-slot="title"], [data-slot="superpower"]):active { opacity: .55; }
+@keyframes pt-reink { from { opacity: .25; translate: 0 2px; } }

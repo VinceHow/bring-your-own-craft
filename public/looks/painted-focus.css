@@ -321,3 +321,5 @@ html #room [data-component="focus-doc"] [data-slot="send"][data-state="nudge"] {
 html #room [data-component="focus-doc"] [data-slot="side"] form > :is([data-slot="help"], [data-slot="ack"]),
 html #room [data-component="focus-doc"] [data-slot="side"] [data-slot="ack"] { flex: 1 1 100%; width: 100%; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
 html #room [data-component="focus-doc"]:has([data-component="pieces"] > *, [data-slot="conversation"] > *, [data-component="her-answer"]:not(:empty)) > [data-pfd="sheet"] { color: transparent; }
+/* in the meeting her words live in the conversation as her turn; the older "You said" block would say them twice */
+html #room [data-component="focus-doc"] [data-component="meeting"]:has([data-turn="her"]) > [data-component="her-answer"] { display: none !important; }
