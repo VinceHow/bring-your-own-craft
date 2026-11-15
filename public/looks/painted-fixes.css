@@ -292,3 +292,11 @@ html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(-
    beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
 html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+
+/* ---- AUDIT #2: the open inbox never shows a scrollbar ----
+   The open sheet is a scroll box (inbox.js) and its painted crayon frame sits past its edges, so at every size it
+   "overflowed" by its own frame (1536x884 in 1520x860) and a Mac showed scrollbars. The sheet clips instead, with a
+   margin wide enough for the frame; its list (the drawer) is the one place that scrolls, and only when it truly runs
+   long. On Bo's page the card is all there is, so its slot never scrolls (the card's own shadow made it 15px "long"). */
+html body #room #inbox[data-state="open"] { overflow: clip !important; overflow-clip-margin: 24px; }
+html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="drawer"] { overflow: visible !important; }
