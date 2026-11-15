@@ -1387,3 +1387,9 @@ html #room [data-component="meet-card"] [data-slot="next"]:hover::after { transl
 html #room [data-component="meet-card"] [data-slot="next"]:focus-visible { outline: none; box-shadow: 4px 4px 0 0 var(--mc, var(--product)), 0 0 0 3px #FBF5EA, 0 0 0 5px #33261C; }
 html #room [data-component="meet-card"]:has([data-slot="next"]) { padding-bottom: 96px; }
 html #room [data-component="meet-card"]:has([data-slot="next"]) [data-slot="count"] { right: auto; left: calc(var(--fw) + var(--gap) + 34px); bottom: 38px; }
+/* "Made with" (the sponsors, prepared ahead) reads like "Loaded with", one step quieter: a dotted mark instead of a dash */
+html #room [data-component="meet-card"] [data-slot="made-label"] { display: block; margin: 12px 0 4px; font: 500 13px/1 var(--ui); color: var(--mt, var(--ink)); text-transform: none; letter-spacing: 0; }
+html #room [data-component="meet-card"] [data-slot="made"] { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+html #room [data-component="meet-card"] [data-slot="made-item"] { position: relative; padding-left: 16px; font: italic 400 15px/1.35 var(--display); color: var(--ink-2); }
+html #room [data-component="meet-card"] [data-slot="made-item"]::before { content: ''; position: absolute; left: 1px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--mc, var(--ink)); opacity: .8; }
+html #room [data-slot="voice-credit"] { color: var(--ink-3); }
