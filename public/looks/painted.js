@@ -298,9 +298,11 @@
     let done = false, off = null;
     const finish = fade => { if (done) return; done = true; clearTimeout(guard);
       if (!fade) { layer.remove(); off && off(); return; }
-      layer.dataset.state = 'leaving'; setTimeout(() => layer.remove(), 700); };
+      layer.dataset.state = 'leaving'; setTimeout(() => layer.remove(), 1100); };
     const guard = setTimeout(() => { if (v.currentTime === 0) finish(false); }, 1500);
     v.addEventListener('ended', () => finish(true), { once: true });
+    // the clip's interior isn't our studio: fade into the real room while the doors are still swinging open (~1.7 s)
+    v.addEventListener('timeupdate', () => { if (v.currentTime >= 1.7) finish(true); });
     v.addEventListener('error', () => finish(false), { once: true });
     layer.addEventListener('click', () => finish(true));
     v.currentTime = 0;
