@@ -53,7 +53,7 @@ clip path, or command output). Nothing is called done without evidence.
   for Noor, ElevenLabs on the mic, Claude for everyone, Claude Code for Bo only where it's literally true) and **"Made
   with"** (prepared ahead: fal for the painted studio, clips and music; Figma for the room's frames, taken from code into
   Figma per `design/FIGMA.md`; taste-skill).
-- Only big questions in her craft reach her, no number promised (rounds don't count as asks; a hidden safety ceiling holds), and the fal key never appears in the browser, logs or `runs/`.
+- Only big questions in her craft reach her, no number promised (rounds don't count as asks), and the fal key never appears in the browser, logs or `runs/`.
 
 ## 7. Vincent's own path works first time
 - `docs/RUN-LOCALLY.md` and `docs/REHEARSAL.md` are followed command by command on a clean checkout, and the outputs

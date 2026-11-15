@@ -10,7 +10,7 @@ process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-meeting-'));
 process.env.THREAD_WARM = '0'; process.env.TURN_GAP_MS = '0';
 const { round, end, roundText } = await import('../lib/meeting.js');
 const { askOne } = await import('../lib/select.js');
-const { askCount, MAX_ASKS } = await import('../lib/policy.js');
+const { askCount } = await import('../lib/policy.js');
 const { raiseUnblock } = await import('../lib/unblock.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste } = await import('../lib/taste.js');
@@ -55,18 +55,13 @@ test('two rounds of discussion, no takeaways until End meeting; End reads all he
   assert.equal((await end({ run, askId: 'q1', callModel: fake })).code, 409, 'End once');
 });
 
-test('five rounds on one ask are still one ask: rounds never touch the policy or its safety ceiling', async () => {
+test('meeting rounds never raise an ask: five rounds and End on one ask are still that one ask', async () => {
   const { run } = newRun();
   for (let i = 1; i <= 5; i++) assert.equal((await round({ run, askId: 'q1', text: `Round ${i} words.`, callModel: fake, wait: true })).code, 200);
   await end({ run, askId: 'q1', callModel: fake });
   assert.equal(askCount(run), 1);
   assert.equal(types(run, 'ask.refused').length, 0);
   assert.equal(types(run, 'answer.round').length, 5);
-  // The cap is untouched: two more asks are allowed, a fourth is refused.
-  assert.ok(askOne(run, { id: 'q2', seat: 'data', question: 'Two?' }, { source: 'test' }));
-  assert.ok(askOne(run, { id: 'q3', seat: 'data', question: 'Three?' }, { source: 'test' }));
-  assert.equal(askOne(run, { id: 'q4', seat: 'data', question: 'Four?' }, { source: 'test' }), null);
-  assert.equal(askCount(run), MAX_ASKS);
 });
 
 test('the quick unblock is not a meeting; an empty round is refused; End needs a round', async () => {

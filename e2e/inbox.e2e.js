@@ -197,7 +197,7 @@ test('a quick unblock: "Bo\'s blocked", Yes takes the suggestion, it lands in th
   assert.ok(evs.some(e => e.startsWith('chatter')), 'Bo carries on');
 });
 
-test('her own words instead of the suggestion; the unblock still counts toward the safety ceiling', async () => {
+test('her own words instead of the suggestion: it lands in the team space as hers', async () => {
   await page.evaluate(() => { BYOC.reset(); });
   const run = await newRun();
   await page.evaluate(run => { BYOC.stage(5, { instant: true }); BYOC.run = run; }, run);
@@ -215,11 +215,6 @@ test('her own words instead of the suggestion; the unblock still counts toward t
   await card.locator('[data-slot="yes"]').click();
   await waitFor(() => !!document.querySelector('.team-space .ts-card[data-kind="unblock"]'), 'her answer in the team space');
   assert.strictEqual((await page.locator('.team-space .ts-card[data-kind="unblock"] .ts-headline').innerText()).trim(), 'Orders close 7pm the night before');
-  // Two more raises reach the hidden safety ceiling; the next is refused and decided on the suggestion, never asked.
-  assert.strictEqual((await raise(run, { ...BO, seat: 'design', question: 'Which loaf leads the page?', suggestion: 'Sourdough', kind: 'call' })).status, 200);
-  assert.strictEqual((await raise(run, { ...BO, seat: 'strategy', question: 'What does a loaf cost?', suggestion: '£4.50', kind: 'fact' })).status, 200);
-  const fourth = await raise(run, { ...BO, seat: 'data', question: 'What counts as a regular?', suggestion: 'Twice a month', kind: 'fact' });
-  assert.strictEqual(fourth.status, 409, 'the fourth is refused by the policy');
   assert.deepStrictEqual(errors, []);
 });
 

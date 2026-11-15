@@ -54,7 +54,7 @@ real run.
    she opens a tray note, the view becomes just her and that one document (no dimming, no spotlight); no timers,
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
-   if the answer changes the build and needs her expertise. No number is promised (a hidden ceiling stays in code).
+   if the answer changes the build and needs her expertise. No number is promised.
    **Her inbox (Vincent, 14 Nov evening):** the tray becomes one component by her seat: collapsed = the one item
    that needs her now or "Nothing needs you right now"; expanded = a drawer with Needs you (one at a time, next ones
    folded), Things only you can do, and Past meetings (editable "Meeting notes"). It replaces the reviewed cards on the
@@ -92,7 +92,7 @@ real run.
    the team.
    **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
    sentence + profile), natural, page can show it. Granular candidates are always decided. No number is
-   promised; the hidden ceiling and its test are unchanged.
+   promised.
 10. **Private profile:** one call after her sentence + idea deduces business, positioning, customers, what sells, brand
    feel, strengths, ways of working, each with confidence; updated after each answer; read by every teammate and the
    selector; never shown unless she asks. The team assumes and moves on; it never waits on her.
@@ -191,7 +191,7 @@ from a real source, kept with its URL, shown as **"researched before the demo"**
 lines labelled "prepared for the demo".
 
 **Real and tested** (say so plainly if asked): the selector's ranking and threshold (tests: a low-stakes candidate is never
-asked; a different idea changes the picks; a cheap out-of-seat pick is refused; a hidden safety ceiling holds); nothing else can ask her; counter, reasons and
+asked; a different idea changes the picks; a cheap out-of-seat pick is refused); nothing else can ask her; counter, reasons and
 meter from the log; the file write; the live build citing her new line; the key never leaving server memory; the
 baseline count, transcript kept. On stage, say whichever backend actually ran: **"models run through fal with your own key"** only if `MODEL_BACKEND=fal` on the day.
 **Prepared, labelled where shown:** the templates and booking logic, her file's first two lines, Research's finding, the

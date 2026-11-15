@@ -108,7 +108,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     const revised = new Map(evs.filter(e => e.type === 'joint.revised').map(e => [e.id, e]));
     let agreed = [...new Map(evs.filter(e => e.type === 'joint.agreed' && e.headline).map(e => [e.id, e])).values()]
       .map(a => (revised.has(a.id) ? { ...a, headline: revised.get(a.id).headline || a.headline, withTakeaways: true, revised: true } : a));
-    // A quick unblock she answered (or the team decided, once the hidden ceiling was reached) lands here too, owned by its seat.
+    // A quick unblock she answered (or the team decided it on the suggestion) lands here too, owned by its seat.
     // Her first decision's run of decisions (lib/first.js, DEMO 0:38): each its own card, owned by its teammate.
     for (const d of new Map(evs.filter(e => e.type === 'decided' && e.round === 'first' && e.choice).map(e => [e.id, e])).values())
       agreed.push({ id: 'fd-' + d.id, seats: [d.seat], headline: d.choice, first: true });

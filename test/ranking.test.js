@@ -1,6 +1,6 @@
 // What reaches her is decided by the selector's ranking and threshold (VISION: the question bar), never by a number.
 // Only big questions in her craft get through; everything granular or low-stakes is the team's call; zero is a fine
-// answer; and what she is asked follows the idea. (The hidden safety ceiling has its own tests in select.test.js.)
+// answer; and what she is asked follows the idea.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { pickAsks } from '../lib/select.js';

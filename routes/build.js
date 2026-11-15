@@ -47,7 +47,7 @@ export async function buildRun(run, { call } = {}) {
   const t0 = Date.now();
   const dir = path.join(RUNS_DIR, run);
   const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering' });
-  step('Reading her flow, her three answers and her file');
+  step('Reading her flow, her answers and her file');
   // A joint talk still going when she pressed Build finishes first, so its agreement is revisited against her file.
   await jointSettled(run);
   const events = readEvents(run);

@@ -1,4 +1,4 @@
-// The selector, and its hidden safety ceiling (a backstop, never a promise). Offline: a fake model is injected; nothing here touches the network except the one
+// The selector: its ranking and threshold decide what reaches her. Offline: a fake model is injected; nothing here touches the network except the one
 // test marked LIVE, which runs only with LIVE=1.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,7 +8,7 @@ import path from 'node:path';
 
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-select-'));
 const { pickAsks, select, decideRest, checkCitation, proposeAndSelect, selectForIdea, loadRest } = await import('../lib/select.js');
-const { MAX_ASKS, claimGrantor } = await import('../lib/policy.js');
+const { claimGrantor } = await import('../lib/policy.js');
 const { readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, writeLine, readTaste } = await import('../lib/taste.js');
 
@@ -35,42 +35,6 @@ function fakeModel({ score, decide, team, soundsLike } = {}) {
 }
 // newRunId is millisecond-based; two in the same ms collide, so tests add a random part.
 const newRun = () => { const r = newRunId(`t-${Math.random().toString(36).slice(2, 10)}`); initTaste(r); return r; };
-
-test('safety ceiling: even with 10 strong candidates, the hidden ceiling holds', async () => {
-  const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
-  const run = newRun();
-  const r = await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs, callModel: fakeModel() });
-  assert.equal(MAX_ASKS, 3);
-  assert.equal(r.asks.length, 3);
-  assert.equal(readEvents(run).filter(e => e.type === 'ask').length, 3);
-  assert.equal(readEvents(run).filter(e => e.type === 'decided').length, 7); // the rest are decided, none dropped
-  const done = readEvents(run).find(e => e.type === 'select.done');
-  assert.deepEqual([done.came, done.brought], [10, 3]);
-});
-
-test('safety ceiling: holds whatever max is passed, and over random scores', () => {
-  const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
-  const scores = new Map(strongScores(cs).scores.map(s => [s.id, s]));
-  for (const max of [3, 4, 10, Infinity, NaN, undefined]) assert.ok(pickAsks(cs, scores, { max, flow }).picks.length <= 3, `max=${max}`);
-  for (let k = 0; k < 500; k++) {
-    const n = 1 + Math.floor(Math.random() * 30);
-    const many = Array.from({ length: n }, (_, i) => cand(i + 1, { cost: Math.random() < 0.5 ? 'low' : 'high', undoable: Math.random() < 0.5 }));
-    const sc = new Map(many.map(c => [c.id, { id: c.id, inSeat: Math.random() < 0.5, changes: Math.floor(Math.random() * 4),
-      silent: Math.floor(Math.random() * 4), dupOf: Math.random() < 0.2 ? `c${1 + Math.floor(Math.random() * n)}` : null, kind: 'fork' }]));
-    assert.ok(pickAsks(many, sc, { max: 99, flow }).picks.length <= 3);
-  }
-});
-
-test('safety ceiling: the door re-counts the log, across selector runs on the same run', async () => {
-  const run = newRun();
-  const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1));
-  await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs.slice(0, 5), callModel: fakeModel() });
-  await select({ run, idea: 'x', flow, taste: readTaste(run), candidates: cs.slice(5), callModel: fakeModel() });
-  const evs = readEvents(run);
-  assert.equal(evs.filter(e => e.type === 'ask').length, 3);
-  assert.equal(evs.filter(e => e.type === 'ask.refused' && /cap of 3/.test(e.reason)).length, 3);
-  assert.throws(() => claimGrantor(), /belongs to the selector/); // nobody else can mint a grant
-});
 
 test('the bar replaces the seat rule: a big question from any teammate can reach her; a small one cannot', async () => {
   const run = newRun();

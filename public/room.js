@@ -31,7 +31,7 @@
     engineering: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
     strategy: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 12V3.3A8.7 8.7 0 0 1 20.7 12z" fill="currentColor"/></svg>',
   };
-  const BEATS = ['her name tag', 'meet the team', 'the reveal', 'first move', 'her journey', 'team works', 'her three',
+  const BEATS = ['her name tag', 'meet the team', 'the reveal', 'first move', 'her journey', 'team works', 'her questions',
     'her taste', 'build', 'her page', 'not scripted', 'close'];
 
   const $ = (s, el = document) => el.querySelector(s);

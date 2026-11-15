@@ -1,6 +1,6 @@
 // The stage path end to end with a fake model (DEMO stage flow): the stage path raises exactly its three moments, each
 // through the ask policy: the first decision ("Who is this really for?", from Design's fast sketch), the quick unblock,
-// and one focus moment. Past them the hidden safety ceiling refuses. Offline.
+// and one focus moment; the selector brings nothing else there. Offline.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -12,7 +12,7 @@ const { proposeAndSelect, askOne } = await import('../lib/select.js');
 const { noPronouns, regularsFinding, firstAsk, firstAnswer, followFirst, feelAsk, rewriteFeel, installStagePath, selectorMax, cleanFirst, addsContact, FIRST_SCHEMA, STEPS_SCHEMA } = await import('../lib/first.js');
 const { answerUnblock } = await import('../lib/unblock.js');
 const { firstSketch } = await import('../lib/sketch.js');
-const { MAX_ASKS, askCount } = await import('../lib/policy.js');
+const { askCount } = await import('../lib/policy.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
 const { initTaste, readTaste } = await import('../lib/taste.js');
 const { parseFlow } = await import('../lib/flow.js');
@@ -59,7 +59,7 @@ const fake2 = async (o) => o.schema === STEPS_SCHEMA
   ? (/herWords/.test(o.user) ? { steps: STEPS.steps.map((x, i) => i === 1 ? { ...x, text: 'Sam does nothing: the usual is already held' } : x) } : STEPS)
   : fake(o);
 
-test('the stage path raises exactly its three moments, in order (Focus 1, the unblock, Focus 2); the selector brings none; the safety ceiling holds', async () => {
+test('the stage path raises exactly its moments, in order: Focus 1, the unblock, Focus 2; the selector brings none', async () => {
   const run = newRun(true);
   assert.equal((await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false })).code, 200);
   // 1. Focus 1: Noor asks who to build it for first, with the verified finding (quote, URL, date) in front of her.
@@ -96,18 +96,15 @@ test('the stage path raises exactly its three moments, in order (Focus 1, the un
   const rw = await rewriteFeel({ run, text: 'Like the baker already knows you.', callModel: fake2 });
   assert.equal(rw.code, 200);
   assert.deepEqual(rw.body.steps.map(x => !!x.new), [false, true, false, false], 'only the steps her words change are rewritten');
-  // The selector brings none on the stage path: the three are spent, in order.
+  // The selector brings none on the stage path: only its moments, in order.
   assert.equal(selectorMax(run), 0);
   const lines = readEvents(run).filter(e => e.type === 'flow.line').slice(-3).map(e => e.text);
   const sel = await proposeAndSelect({ run, idea: BAKERY, flow: parseFlow(lines), taste: readTaste(run), callModel: fake, max: selectorMax(run) });
   assert.equal(sel.asks.length, 0);
-  assert.equal(askCount(run), MAX_ASKS);
+  assert.equal(askCount(run), 3, 'Focus 1, the unblock and Focus 2: the stage path\'s moments, raised by the server');
   assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.id), [a1.body.id, ub[0].id, a2.body.id], 'Focus 1, unblock, Focus 2');
-  // 4. A fourth, by any door, is refused and decided for her.
-  assert.equal(askOne(run, { id: 'extra', seat: 'data', decision: 'One more', question: 'One more?' }, { source: 'test' }), null);
-  const refused = readEvents(run).filter(e => e.type === 'ask.refused' && e.id === 'extra');
-  assert.equal(refused.length, 1);
-  assert.match(refused[0].reason, /cap of 3/);
+  // 4. The same question twice is refused (each decision is settled by at most one ask).
+  assert.equal(askOne(run, { id: a2.body.id, seat: 'design', decision: 'again', question: 'Again?' }, { source: 'test' }), null);
   assert.equal(askCount(run), 3);
 });
 
@@ -130,10 +127,10 @@ test('her answers drive it: the installed listener follows Focus 1, raises Focus
   assert.deepEqual(readEvents(run).filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel']);
 });
 
-test('off the stage path the selector brings only what passes its bar (within the hidden ceiling), and nothing of Act 2 runs; with no verified finding Focus 1 makes no claim', async () => {
+test('off the stage path the selector brings only what passes its bar (no count), and nothing of Act 2 runs; with no verified finding Focus 1 makes no claim', async () => {
   const run = newRun(false);
   await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false });
-  assert.equal(selectorMax(run), 3);
+  assert.equal(selectorMax(run), undefined, 'no count off the stage path: the ranking and threshold decide');
   assert.equal((await feelAsk({ run, callModel: fake2 })).code, 409);
   assert.equal(selectorMax(newRun(true)), 0);
   const run2 = newRun(true); // no sketch yet, so the listener hasn't raised it
