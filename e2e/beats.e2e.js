@@ -515,6 +515,18 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.strictEqual(await p.locator('#focus-doc .fd-round-sep[data-round="2"]').count(), 1, 'a round separator');
   await reply(2, 'Mika', 'design', 'Then the form asks for nothing it already has.');
   await waitFor(() => document.querySelectorAll('#focus-doc .fd-conversation [data-turn="team"]').length === 3, 4000, 'round 2 reply', null, p);
+  // She scrolls up to reread: a new reply doesn't yank her down; the pill offers it.
+  assert.ok(await p.evaluate(s => { const c = document.querySelector(s); return c.scrollHeight > c.clientHeight + 100; }, side), 'the long answer makes the column scroll');
+  await p.evaluate(s => { const c = document.querySelector(s); c.scrollTop = 0; c.dispatchEvent(new Event('scroll')); }, side);
+  assert.ok(await p.locator('#focus-doc [data-slot="new-replies"]').isHidden(), 'no pill before a new reply');
+  await reply(2, 'Bo', 'engineering', 'We can prefill it from their last order.');
+  await waitFor(() => document.querySelectorAll('#focus-doc .fd-conversation [data-turn="team"]').length === 4, 4000, 'another round 2 reply', null, p);
+  assert.ok(await p.locator('#focus-doc [data-slot="new-replies"]').isVisible(), '"New replies ↓" while she has scrolled up');
+  assert.ok(await p.evaluate(s => document.querySelector(s).scrollTop < 50, side), 'her place is kept');
+  await p.click('#focus-doc [data-slot="new-replies"]');
+  await p.waitForTimeout(100);
+  assert.ok(await p.evaluate(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, side), 'the pill takes her to the newest reply');
+  assert.ok(await p.locator('#focus-doc [data-slot="new-replies"]').isHidden(), 'and goes away');
   assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'still no takeaways');
   // Leaving mid-meeting asks her plainly.
   await p.keyboard.press('Escape'); // (a second Esc means "come back later")
