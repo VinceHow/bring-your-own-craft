@@ -186,3 +186,24 @@ test('lead-ins are dropped: a short line with "The idea is:" still goes to the t
   const r = await tidyText({ text: 'The idea is: a bakery site for regulars', callModel: async () => ({ text: 'A bakery site for regulars.' }) });
   assert.deepEqual([r.tidied, r.text], [true, 'A bakery site for regulars.']);
 });
+
+// Her intro keeps the strict rule (tech lead, 15 Nov; voice.e2e on a real model): deletions, punctuation and case
+// only, every surviving word exactly hers. "getting" -> "get" is an inflection the line rule allows; the intro refuses it.
+test('intro mode: only cuts; an inflection change is refused there, allowed on a line', async () => {
+  const raw = 'I love getting the journey right before anyone draws a screen, always';
+  const got = 'I love get the journey right before anyone draws a screen, always.';
+  assert.equal(T.checkTidy(raw, got, 'intro'), null, 'refused in intro mode');
+  assert.ok(T.checkTidy(raw, got, 'line'), 'the line rule allows an inflection');
+  assert.equal(T.checkTidy('uh I love, like, getting the journey right', 'I love getting the journey right.', 'intro'), 'I love getting the journey right.');
+  assert.equal(T.checkTidy('I love getting the journey right', 'Getting the journey right, I love', 'intro'), null, 'no reordering in the intro');
+  const orig = console.error; console.error = () => {};
+  let r; try { r = await T.tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: got }) }); } finally { console.error = orig; }
+  assert.deepEqual([r.text, r.tidied, r.reason], [raw, false, 'changed words'], 'her raw words stand');
+});
+
+test('a lead-in like "I want to build" is cuttable: the idea can start at its noun', () => {
+  const raw = 'I want to build a checkout website for a bakery';
+  assert.equal(T.alreadyClean(raw), false, 'goes to the tidy');
+  assert.equal(T.checkTidy(raw, 'A checkout website for a bakery'), 'A checkout website for a bakery');
+  assert.equal(T.alreadyClean('I want to make a booking page'), false);
+});
