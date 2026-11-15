@@ -1,7 +1,6 @@
 # Audit
 
-> Evidence paths below (`design/studio/qa/...`) live on branch `design/qa` (commit c859d11); the screenshots were kept off `main`. This file was `docs/AUDIT.md` there.
-
+> Evidence paths below (`design/studio/qa/...`) live on branch `design/qa`; the screenshots were kept off `main`. This file is `docs/AUDIT.md` there (closed out 15 Nov 06:25 UTC).
 
 ## [design]
 
@@ -15,6 +14,22 @@
 
 **Evidence:** `design/studio/qa/audit-0430/painted/<size>-<mode>/<state>.jpg` (1440 and 1280 downscaled to 960 wide) and `design/studio/qa/audit-0430/polish/` (frame strips are `*-strip.jpg`). The raw flags are in `design/studio/qa/audit-0430/painted-findings.json` and `design/studio/qa/audit-0430/polish.json`.
 
+### Close-out (15 Nov 06:25 UTC, main ee38278)
+
+- **Painted look (the demo):** every routed FAIL is fixed on main and re-walked: #1, #2, #3, #4, #6c, #7, #8, and F2–F6. #5, #6a, #6b and #6d/e are WON'T FIX by design (reasons below).
+- **POLISH.md:** all items PASS at 1920/1440/1280. Magic moments: magical are the door, the tidy pen, the handwritten name tag and the team getting to work; fine are a meet card's entrance, a reply arriving, End meeting → takeaways, and Bo's Yes (now a fade with the receipt).
+- **Plain look (the fallback):**
+  - P2–P4 are FIXED.
+  - **P1 is still OPEN:** the plain meeting loses its field, Send and End meeting after the first Send. It is mitigated: REHEARSAL.md makes R, not plain, the meeting's fallback (69f0bfb).
+  - Minor residues: the plain drawer's grey item fill, and "Bo's blocked →" lingering after Yes.
+- **Not checked:**
+  - live model calls (stubs only; one live name tag was run by the design lead)
+  - Safari and Firefox
+  - Vincent's Mac GPU: the frame rate in a VM with software GL is ~15 fps by day and ~10 at night on painted; check with the FPS meter at 07:00
+  - RUN-LOCALLY.md and REHEARSAL.md command by command
+  - the full doctor
+  - Fallback B
+
 ### FAIL list, routed (status as of 05:15)
 
 | # | FAIL | Where | Evidence | Owning files | Owner |
@@ -24,10 +39,10 @@
 | 3 | The takeaways text sits 0px from its card edge (Focus 1 and Focus 2) | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/09-focus1-takeaways.jpg` | focus-doc.js · looks/painted-focus.css | bug fixer · **FIXED** on 1922da3 (by eye: ~30px of padding inside the card; the 0px reading is an inner background box; `design/studio/qa/audit-0430/recheck/takeaways-edge-1922da3.jpg`) |
 | 4 | Bo's full pad: its items list scrolls (477 in 290) and is not the intended scroll column | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/07-engineering-full.jpg` | room.js · looks/painted.css | bug fixer · **FIXED** on 1922da3 (re-walked: Bo's full pad no longer scrolls its list) |
 | 6c | The room offers 8+ clickables at once: the time pill, each journey chip as a button, the tally counter, the inbox | all sizes | `design/studio/qa/audit-0430/painted/1920x1130-day/06.jpg` | idea-sheet.js, flow.js · looks/painted.css | bug fixer · **FIXED** on c91602c (team working: the idea card is just the idea, clickables down from 8 to 3: the pill, the inbox, the tally; right after the first sketch the chips are the one thing on screen, by design (the lead, 05:39), and they fold away once the team starts; `design/studio/qa/audit-0430/recheck/6c-F2-c91602c.jpg`) |
-| 7 | Bo's smile on Yes is flat: a large blank sheet flashes before the room returns (the smile's size at room scale is a scale limit and is accepted) | 1920 | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | inbox.js · looks/painted.js | bug fixer (the flash only) |
+| 7 | Bo's smile on Yes is flat: a large blank sheet flashes before the room returns (the smile's size at room scale is a scale limit and is accepted) | 1920 | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | inbox.js · looks/painted.js | bug fixer (the flash only) · **FIXED** on 4afbc95 (measured per frame after Yes: the sheet keeps its receipt "Told Bo: 8pm the night before" and fades out over ~300 ms, the room is back by ~500 ms; no blank sheet; `design/studio/qa/audit-0430/recheck/bo-yes-4afbc95-strip.jpg`) |
 | 8 | At 1440 and 1280, her page sheet (idea-layer / page-frame) runs 26px off the left edge, cutting its border and the "page" label | 1440, 1280; day and night | `design/studio/qa/audit-0430/painted/1440x900-day/13-her-page-open.jpg` | room.js · looks/painted.css | painted-UI designer · **FIXED** on 1922da3 (re-walked 1440/1280/1920: 0 off-screen; the sheet keeps its border and "Your page" label; `design/studio/qa/audit-0430/recheck/page-edge-1922da3.jpg`, old main bottom right) |
 
-**Later items (the lead's final list):** F2 plain idea card: **FIXED** on c91602c (centred, styled like the name tag; same still). F3 her page edge: **FIXED** on c91602c (0 off-screen at 1440/1280; see #8).
+**Later items (the lead's final list):** F2 plain idea card: **FIXED** on c91602c (centred, styled like the name tag; same still). F3 her page edge: **FIXED** on c91602c (0 off-screen at 1440/1280; see #8). F4 the team-at-work strip: **FIXED** on f4a8ec4 (hangs 9-12px under her sheet's edge at all 3 sizes and is gone after 7 s; `design/studio/qa/audit-0430/recheck/F4-1920-0s-f4a8ec4.jpg`, `…-7s-…`; "hides while she types" not checked). F5 "1 decision": **FIXED** on f4a8ec4 (the tally reads "decision came up" after one decision, all 3 sizes). F6 Make my tag inside the paper while the team writes: **FIXED** on f4a8ec4 (the button's box sits inside the paper at all 3 sizes; `design/studio/qa/audit-0430/recheck/F6-1440-f4a8ec4.jpg`). F10 the bakery clip: on main (4afbc95), `/clips/bakery-order.mp4` serves (200, video/mp4, 14.6 s); the "Recorded earlier" label is REHEARSAL's to show (played outside the room), not checked here.
 
 **WON'T FIX, by design** (the design lead, 05:00):
 - **#5, the close is mostly empty:** it is deliberately one field, one mic and one Build it, snug and centred. It's the one-thing screen.
@@ -233,7 +248,7 @@
 | The team getting to work | magical | `design/studio/qa/audit-0430/polish/moment-the-team-getting-to-work-strip.jpg` | the light warms, sketches pin up on the shelf, "getting started" captions |
 | A teammate's reply arriving | fine | `design/studio/qa/audit-0430/polish/moment-a-teammate-reply-arriving-strip.jpg` | fades into the column and onto its pin |
 | End meeting → takeaways | fine | `design/studio/qa/audit-0430/polish/moment-end-meeting-takeaways-strip.jpg` | the guidance writes itself in, calmly |
-| Bo's smile on Yes | **flat** | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | a large blank sheet flashes first (FAIL #7); the smile is too small at room scale (accepted) |
+| Bo's smile on Yes | fine (re-scored on 4afbc95: the receipt fades out, no blank flash; the smile itself stays small at room scale, accepted) | `design/studio/qa/audit-0430/polish/moment-bo-s-smile-on-yes-strip.jpg` | a large blank sheet flashes first (FAIL #7); the smile is too small at room scale (accepted) |
 
 #### §1 One thing per screen (1920x1130 day; the same at every size)
 
@@ -303,10 +318,10 @@ The room, the idea sheet and journey, the team working, her page and the setup p
 
 | # | FAIL | Evidence | Owning files | Owner |
 |---|---|---|---|---|
-| P1 | **The meeting is stuck in plain.** After her first Send, the right column loses the field, Send, End meeting and the conversation; only the help line stays. The team's replies land as raw lines inside the research card, with a stray count ("2", "6"). She cannot see how to send another round or end the meeting. (The takeaways do show once End meeting is triggered.) | `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1.jpg` (before Send, fine), `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r1.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r3.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1-takeaways.jpg` | focus-doc.js · room.css / polish.css (the meeting column has no plain styles) | (to route) |
-| P2 | **The unblock card is unstyled in plain.** It's a full white sheet with a grey browser-default "Back to the room" bar, run-together text ("Bo's blockedSetting up ordering") and tiny default Yes / Say something else buttons | `design/studio/qa/audit-0430/plain/1920x1130-day-11-unblock-asking.jpg` | inbox.js · room.css / polish.css | (to route) |
-| P3 | **The inbox drawer is unstyled in plain.** It covers the room as a blank white sheet, with grey default bars ("Close your inbox", the item), a native ▶ and native checkboxes | `design/studio/qa/audit-0430/plain/1920x1130-day-08-drawer.jpg` | inbox.js · room.css / polish.css | (to route) |
-| P4 | The collapsed inbox's "Nothing needs you yet" is a grey ButtonFace button in the room (minor) | `design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg` | inbox.js · room.css | (to route) |
+| P1 | **The meeting is stuck in plain.** After her first Send, the right column loses the field, Send, End meeting and the conversation; only the help line stays. The team's replies land as raw lines inside the research card, with a stray count ("2", "6"). She cannot see how to send another round or end the meeting. (The takeaways do show once End meeting is triggered.) | `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1.jpg` (before Send, fine), `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r1.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-meeting-r3.jpg`, `design/studio/qa/audit-0430/plain/1920x1130-day-09-focus1-takeaways.jpg` | focus-doc.js · room.css / polish.css (the meeting column has no plain styles) | mitigated on 4afbc95: REHEARSAL.md now says the meeting's fallback is R, not plain (69f0bfb); the plain styling itself is still open |
+| P2 | **The unblock card is unstyled in plain.** It's a full white sheet with a grey browser-default "Back to the room" bar, run-together text ("Bo's blockedSetting up ordering") and tiny default Yes / Say something else buttons | `design/studio/qa/audit-0430/plain/1920x1130-day-11-unblock-asking.jpg` | inbox.js · room.css / polish.css | (to route) · **FIXED** on f5de3a1 (a styled card: "Bo's blocked · Setting up ordering", the question, "We suggest", an inked Yes and a "Say something else" link; Yes answers and the inbox collapses; `design/studio/qa/audit-0430/recheck/plain-P2-P4-f5de3a1.jpg`) |
+| P3 | **The inbox drawer is unstyled in plain.** It covers the room as a blank white sheet, with grey default bars ("Close your inbox", the item), a native ▶ and native checkboxes | `design/studio/qa/audit-0430/plain/1920x1130-day-08-drawer.jpg` | inbox.js · room.css / polish.css | (to route) · **FIXED** on f5de3a1 (section labels, inked checkboxes, a › for Next; residue: the inbox items keep a grey browser-default fill, rgb(239,239,239), minor) |
+| P4 | The collapsed inbox's "Nothing needs you yet" is a grey ButtonFace button in the room (minor) | `design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg` | inbox.js · room.css | (to route) · **FIXED** on f5de3a1 ("Nothing needs you yet" is a plain label now). Note: in plain, right after Yes the collapsed inbox still reads "Bo's blocked →" (painted clears it), minor |
 
 Plain passes: the room (`design/studio/qa/audit-0430/plain/1920x1130-day-03.jpg`), the team working (`design/studio/qa/audit-0430/plain/1920x1130-day-06.jpg`), her page at 1280 (`design/studio/qa/audit-0430/plain/1280x800-day-13-her-page-open.jpg`), and no painted layers loaded.
 
