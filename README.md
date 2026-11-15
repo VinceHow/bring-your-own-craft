@@ -56,7 +56,7 @@ Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `t
 You say your idea in one rough sentence and meet your team. They get to know you, handle their own work, and bring you **only the few big questions that need your expertise**. Your app builds as you decide.
 
 What it feels like:
-- **You stay in your craft.** Nobody asks you about databases, logins or fonts; the team settles those itself.
+- **You stay in your craft.** Whatever sits outside it, the team settles itself, so your time goes to what you care about.
 - **You're asked only what you're the expert on**, with the work in front of you, so you react instead of starting
   from a blank page.
 - **Your words are kept.** Say it out loud, ums and all; the team tidies it without changing what you meant, and
