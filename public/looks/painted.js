@@ -108,6 +108,12 @@
 
   // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
   css('painted-fixes.css');
+  // which teammate's pad is open, as an attribute painted-fixes.css can read cheaply (its pill steps back meanwhile)
+  const padOpen = seat => { if (seat) room.dataset.padOpen = seat; else delete room.dataset.padOpen; };
+  B.on('seat.open', ev => padOpen(ev && ev.seat));
+  B.on('workspace.open', () => padOpen(null));
+  B.on('panel.close', () => padOpen(null));
+  B.on('reset', () => padOpen(null));
 
   // ---- 5. the room fills the window: COVER, never letterbox ----
   // stage.js scales the 1600 x 900 stage to FIT, which leaves dark bars when the window isn't 16:9 (Vincent's

@@ -26,13 +26,13 @@ html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineer
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="design"][data-state="open"] { top: 96px; max-height: 500px; }
 
 /* While a teammate's pad is open, its pill steps back: the panel's title already names them, and the pill no longer
-   floats above and away from it. */
-html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="design"]) [data-component="place-card"][data-seat="design"],
-html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="research"]) [data-component="place-card"][data-seat="research"],
-html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="data"]) [data-component="place-card"][data-seat="data"],
-html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="strategy"]) [data-component="place-card"][data-seat="strategy"],
-html body #room:has(#room-panel[data-component="sketchpad-open"][data-state="open"][data-seat="engineering"]) [data-component="place-card"][data-seat="engineering"] {
-  opacity: 0; pointer-events: none; }
+   floats above and away from it. painted.js marks #room[data-pad-open] from the room's seat.open / panel.close events
+   (an attribute, not :has(), which re-checks the whole room on every change and made frames costlier). */
+html body #room[data-pad-open="design"] [data-component="place-card"][data-seat="design"],
+html body #room[data-pad-open="research"] [data-component="place-card"][data-seat="research"],
+html body #room[data-pad-open="data"] [data-component="place-card"][data-seat="data"],
+html body #room[data-pad-open="strategy"] [data-component="place-card"][data-seat="strategy"],
+html body #room[data-pad-open="engineering"] [data-component="place-card"][data-seat="engineering"] { opacity: 0; pointer-events: none; }
 
 /* her workspace: sized to its content and centred (no more 70% empty paper), the four parts as a 2 x 2 of paper cards.
    A filled part takes the space; an empty one stays small, its one status line in quiet italic ink. */
