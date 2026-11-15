@@ -51,7 +51,7 @@ her and to each other; she can Send again for more rounds); **End meeting** (the
 3 minutes. Rounds sit inside one ask: a meeting is one thing reaching her, however many rounds she takes. The old wireframe focus moment and the third are cut from the stage path (the feature stays; she can open
 more off-script). The proof is 20 s, the close 30 s on slides.
 **Timing matches the build (14 Nov, ~17:50 UTC, measured on live bakery runs):** first journey 2.7 s, redraw 2.7 s,
-team + selection 17.5–20 s, page build ~22 s, a judge's idea to its questions ~11 s. The order follows the build: her
+team + selection 17.5–20 s, page build ~22 s. The order follows the build: her
 reaction and the redraw come before the team's work, and her focus moments come after it, from her tray. The room
 beat got its real ~20 s; the time came from the team's walk-in, focus moments 2–3 and the page beat.
 Keyboard-driven. If a live beat fails, **R** swaps in the dress-rehearsal run, labelled **REPLAY** for as long as it's
@@ -70,7 +70,7 @@ on screen.
 | **1:30–2:05** Build it | Her one press, and **her page** builds from her answers (measured on the real fal run: idea → her page ~2:15 with a Send round; ~2:05 without). | It's being made. | "Now they build." | live |
 | **2:05–2:10** Her page | The bakery's ordering page, full size: regulars first, their usual loaf one tap away, no phone field, an 8pm cut-off, the logo Mika made (made ahead and labelled, now the live logo is on hold). **5 s only (cut order in effect).** Her page follows her Focus 2 line (first name only, one loaf, regulars first; on main since 8d3ecc7). | Pride. | "Every line traces to her or her team. Reserve by first name, no account, no payment: that's her sentence from two minutes ago, and the page follows it." | live |
 | **2:10–2:30** The proof: the judges are the regulars | **Before opening the admin page, Vincent says:** *"Here's one this same team built earlier, pre-built, from a different brief, so it won't match what you just saw. You're its regulars."* The slide carries the label **"Built earlier by this same team"**, and Vincent says it; the frozen bakery site does not carry it. Before 0:00 the judges scanned a QR and ordered under their **first name** (nothing else asked). Their pages say the loaf is reserved and on its way. Vincent opens the **baker's admin page**: who ordered what, the sourdough sold out. He taps **Deliver**, and every judge's phone flips at once to *"Delivered: your sourdough is here"* (demo bread, labelled; no real delivery). Restock happens between demos. Full spec: `docs/BAKERY-BRIEF.md`. **Vincent says it upfront** (14 Nov): it was pre-built earlier with our harness by the same team of agents, from a differently worded brief, so it can look different from what's built on stage, and that's fine. A small "Built by the team" strip: database, rules, tests. | **They were in it.** Real software, not a page. | "Not a page generator. A team that ships the whole thing." | live (built earlier, labelled) |
-| **2:30–3:00** The close | Slides from the design team: **why** (people with a craft get their idea built), **who it's for** (PMs like Priya first), the line *"Three things reached her. The team decided everything else."* against the baseline (0 asked, 24 guessed, 20 approvals), and **multiplayer next**. A judge's own idea moves to Q&A (Any seat is hers). | Clear, warm, ambitious. | "Bring your own craft." | slides |
+| **2:30–3:00** The close | Slides from the design team: **why** (people with a craft get their idea built), **who it's for** (PMs like Priya first), the line *"Three things reached her. The team decided everything else."* against the baseline (0 asked, 24 guessed, 20 approvals), and **multiplayer next**. | Clear, warm, ambitious. | "Bring your own craft." | slides |
 
 **The team cards** (0:05–0:22). "Brings" must stay true of what each teammate actually runs on; change the line, not
 the claim.
@@ -133,7 +133,7 @@ the claim.
      "Then no logins. I'll remember them."* *Ines: "Hmm, regulars might want a standing weekly order. Show that first?"*). Style:
      - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
-     - **never end in a question to her** ("what do you think?"): that would be a back door past the selector's bar.
+     - **never end in a question to her** ("what do you think?"): that would be a back door past the question bar.
        Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
@@ -271,13 +271,8 @@ explains itself with a hook, intro text or tutorial.
   *bakery* prompt, counted by hand like `docs/baseline/GUESSES.md`. The yoga count of 22 is not used on stage.
 - **Research's finding:** a new real, sourced finding about small bakeries (e.g. what sells out first, or why
   pre-orders matter), labelled "researched before the demo".
-- **Recordings:** the rehearsal run (R) and the PREPARED first sketch are re-recorded on the bakery idea. The yoga run
-  becomes the "different idea" fallback for the judge's idea (C), replacing the café run, so the fallback is a
-  genuinely different idea.
+- **Recordings:** the rehearsal run (R) and the PREPARED first sketch are re-recorded on the bakery idea.
 - **Tests:** the e2e script walks the bakery idea.
-
-**The yoga run is the fallback for the judge's idea, not a beat.** If the judge's idea is slow or weak, the recorded
-yoga run (a different idea: a booking page for a small yoga studio) comes in, labelled REPLAY, and the presenter says so.
 
 **If the build is slow:** the symphony holds, and at about 2:30 the rehearsal build comes
 in, labelled REPLAY, and the presenter says what was replayed.
@@ -296,7 +291,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 - **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
   decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
   answer **would change what gets built and needs her expertise**. No fixed number is promised: on stage, say the
-  real count ("her team asked 3").
+  real count ("her team asked 3"). There is no ceiling: only the selector's ranking and threshold decide.
   - **Candidates:** every teammate proposes decisions as it works.
   - **Ranking:** one model call ranks them by the question bar above: big? draws on what she's good at or loves
     (her words and profile)? can the page show the answer? Granular candidates are decided, never asked. The selector
@@ -324,7 +319,6 @@ in, labelled REPLAY, and the presenter says what was replayed.
 - the page template and its booking logic, which the build fills but doesn't rewrite;
 - the two lines in her file ("prepared for the demo");
 - the bakery first sketch, used only if the live one is slow (PREPARED);
-- the café idea, used only if the judge's idea fails (REPLAY of a real run);
 - the rehearsal run, used only as a fallback (REPLAY).
 
 **Cut:**
@@ -341,7 +335,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 **Build order:**
 1. event log and meter;
-2. the ranking, threshold and ask policy, with their tests;
+2. the ranking and ask policy, with their tests;
 3. the baseline run;
 4. the room and walk-in;
 5. lines → boxes;
