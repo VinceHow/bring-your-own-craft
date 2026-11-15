@@ -54,12 +54,16 @@ html body #room [data-component="her-place-card"] [data-slot="title"]:empty { di
      Wren: above her pill.   Theo: above, higher, over the bookshelf top (clear of Ines's pill).
      Ines: to the right of her pill, over the bookshelf (Theo's line keeps the space above).
      Bo:   below and right of his pill, over the record player (his face is below-left). */
-html body #room [data-component="chatter-line"] { margin: 0 !important; max-width: 290px; }
-html body #room [data-component="chatter-line"][data-seat="design"] { translate: calc(-100% - 24px) 18px; border-radius: var(--r-md) 6px var(--r-md) var(--r-md); }
-html body #room [data-component="chatter-line"][data-seat="research"] { translate: 0 calc(-100% - 48px); }
-html body #room [data-component="chatter-line"][data-seat="data"] { translate: 100px calc(-100% - 96px); }
-html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 210px -44px; max-width: 270px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
-html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 64px 18px; max-width: 250px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
+html body #room [data-component="chatter-line"] { margin: 0 !important; max-width: 220px !important; border-radius: var(--r-md) !important; text-align: left; }
+/* Vincent: the thought pills sit on top of their heads. Each line is centred over its speaker (between the face and the
+   name pill) and rests just above the pill, so it reads as that teammate thinking out loud. Offsets are from the pill's
+   left edge (room.js anchors the line at pill left + 12, pill bottom - 6). */
+html body #room [data-component="chatter-line"][data-seat] { translate: calc(var(--hx, 60px) - 50%) calc(-100% - 41px); }
+html body #room [data-component="chatter-line"][data-seat="design"] { --hx: 55px; }
+html body #room [data-component="chatter-line"][data-seat="research"] { --hx: 105px; }
+html body #room [data-component="chatter-line"][data-seat="data"] { --hx: 100px; }
+html body #room [data-component="chatter-line"][data-seat="strategy"] { --hx: 13px; }
+html body #room [data-component="chatter-line"][data-seat="engineering"] { --hx: 9px; }
 
 /* ---- 4. one place for her question: while the inbox card by her stool shows a teammate's ask, the strip under the
    idea sheet doesn't repeat it ("Wren has a question for you" over "Wren asks…"). The strip stays for a failure or a
@@ -67,8 +71,5 @@ html body #room [data-component="chatter-line"][data-seat="engineering"] { trans
 html body #room[data-team="question"]:has([data-component="inbox"]:not([data-pt-awaiting]) > [data-slot="now"][data-ask]) [data-component="team-status"] { display: none !important; }
 /* Bo's note sat right of his pill and ran off the window's right edge (the warmer lines are longer): it now sits above
    his pill, over the bookshelf, clear of his face, of Ines's pill and of the window edge at 1920, 1440 and 1280. */
-html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 0px calc(-100% - 42px); max-width: 230px !important; border-radius: var(--r-md) var(--r-md) 6px var(--r-md); }
 /* and the two outer notes stay 16px+ inside the window at 1440 and 1280 (the cover crop eats the room's edges):
    Mika's, left of her pill, and Ines's, right of hers, are a little narrower */
-html body #room [data-component="chatter-line"][data-seat="design"] { max-width: 220px !important; }
-html body #room [data-component="chatter-line"][data-seat="strategy"] { max-width: 245px !important; }

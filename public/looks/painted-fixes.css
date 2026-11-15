@@ -275,7 +275,6 @@ html body #room [data-component="chatter-line"] {
   animation: pf-chatter-out 3.6s ease-in forwards; }
 html body #room [data-component="chatter-line"]::after { box-shadow: none !important; }
 html body #room [data-component="chatter-line"]:nth-last-of-type(n+2) { display: none !important; }
-html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 165px -44px !important; }
 @keyframes pf-chatter-out { 0%, 80% { opacity: .92; } 100% { opacity: 0; visibility: hidden; } }
 /* while nothing is brought to her, the tray says only "25 decisions": a pink 0 draws the eye to nothing (painted.js
    mirrors the brought count on #counter as data-brought) */
