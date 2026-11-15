@@ -543,6 +543,42 @@ chip as an intent ("Paints the page's emblem live on fal, if it can") or drop it
 - (3) The Product stage path is unchanged: PASS.
 - (4) The greps: PASS.
 
+### d361a1a..859f330: role-card final 58a709b (N2 fix) and PO's po/final: PASS
+
+Verified by stub only, with no fal or Linkup spend.
+
+**(1) N2: PASS.** `git grep -n "painted live on fal\|search, live" -- lib public` on 859f330 is empty. The chips now
+state intent:
+- `lib/kit.js:89`: "Paints the page's emblem live on fal".
+- `lib/kit.js:33,85`: "Looks for a live finding with Linkup", next to "Prepared finding if nothing verifies
+  (labelled)".
+
+**(2) Theo's flex card and the Engineering pill: PASS, with no regression on the Product stage path.**
+- The flex card (`public/room.js` `meetCardFor`) applies only when `BYOC.cast.roles[seat] === 'flex'`, and the cast is
+  null on the Product path (`room.js:294-297`).
+- The pill copy (`public/app-button.js` `appCopy`) changes only when her craft is engineering. The Product path keeps
+  "Bo is on it" and "Press → and Bo builds the page".
+- `public/qr-live-site-card.png` and `public/qr-live-site.svg` are still on main after the merge. The branch had been
+  behind main, so its diff against main showed them as deleted.
+- Tests on 859f330:
+  - `npm test`: 312 tests, 311 pass, 0 fail, 1 skipped.
+  - role-card 3/0, anyseat 12/0, reorder 10/0, app 2/0, app-first 3/0, meet-paced 2/0.
+  - beats 1–2f: 11/0 painted and 11/0 plain.
+
+**(3) The PO's text against item 15: PASS, with 2 TBDs Vincent fills.**
+- (a) `npm run local` (README:122; SUBMISSION:196, "open the address it prints (port 3000–3010)").
+- (b) Playwright for e2e (README:125; SUBMISSION:196-197).
+- (c) "one of each per phone" (SUBMISSION:111).
+- (d) "its 13-test acceptance suite" (SUBMISSION:140).
+- (f) The loopback line: "The room listens on this machine only (loopback); `HOST=0.0.0.0` opens it to the network
+  on purpose" (README:125-126).
+- (e) The demo video TBD is resolved ("There is no demo video: we present live", SUBMISSION:4). Still TBD:
+  SUBMISSION:170 (the full-run time, Vincent's own timed run) and :195 (the repo URL).
+- The claims "Open the app shows a QR card for The Usual" (README:28; SUBMISSION:109) match item 12's card. Any seat
+  is described as taking "the seat of your craft"; "every seat polished" is listed as next (SUBMISSION:182), which
+  matches the code.
+- README:117 still says "There is nothing to install", but the Playwright line follows at :125, so that's fine.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
