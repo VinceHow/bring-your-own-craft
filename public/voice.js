@@ -52,7 +52,7 @@
     b._field = el; b.className = 'voice-mic'; b.dataset.field = field; b.dataset.component = 'mic';
     b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Tap or hold to speak (voice by ElevenLabs)');
     b.title = 'Tap to start and tap to stop, or hold to speak (keys: ` or V) · voice by ElevenLabs speech-to-text';
-    b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak</span>';
+    b.innerHTML = MIC + '<span class="voice-word">tap or hold to speak · ElevenLabs</span>';
     b.addEventListener('pointerdown', e => {
       if (state === 'listening' && toggled) { e.preventDefault(); stop(); return; } // the second tap
       if (!available || state !== 'idle') return;
@@ -84,7 +84,7 @@
       const mine = target && (m._field ? m._field === target : fieldFor(target) === m.dataset.field);
       const s = available === false ? 'typed' : mine && state !== 'idle' ? state : 'idle';
       const word = s === 'typed' ? 'typed' : s === 'listening' ? (toggled ? 'listening · tap to stop' : 'listening')
-        : s === 'writing' ? (limited ? 'that’s 2 minutes: writing it down' : 'writing it down') : 'tap or hold to speak';
+        : s === 'writing' ? (limited ? 'that’s 2 minutes: writing it down' : 'writing it down') : 'tap or hold to speak · ElevenLabs';
       const mode = mine && s === 'listening' && toggled ? 'toggle' : null;
       if ((m.dataset.mode || null) !== mode) { if (mode) m.dataset.mode = mode; else delete m.dataset.mode; }
       // Write only on a change: these writes are inside the observed room, and must not wake the observer forever.
