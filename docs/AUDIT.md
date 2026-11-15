@@ -699,6 +699,35 @@ No app, room, lib, route or test code changed.
 
 Shots: `docs/audit/final/slides/{index,studio,talk}-1920.jpg`.
 
+### Push SHA 78df47a (f388b2d..78df47a: root talk.html + 1 comment line + 4 evidence PNGs): PASS
+
+Verified by stub only.
+
+**Slides only.** The changes are the root `talk.html`, one comment line in `public/slides/talk.html` and 4 PNGs under
+`design/`.
+
+**No external URL.** The root `talk.html` only forwards: `<meta http-equiv="refresh" content="0;
+url=public/slides/talk.html">` plus `location.replace('public/slides/talk.html' + location.search)`.
+
+**The deck opens both ways at 1920×1080:**
+- `file:///…/talk.html`, the double-click, lands on `public/slides/talk.html?n=1`.
+- Served, `/slides/talk.html` does the same.
+- Same title and slide 1 in both, 0 external requests, 0 page errors.
+
+**Served:** 0 failed requests; only the known 4 harmless `<rect> -1` console errors (`playful-ink.js`).
+
+**From `file://`:**
+- Chromium blocks the living painting's `looks/cast/living/light.json` fetch and its `mask-*.png` canvas reads (16
+  failed requests and CORS console errors). That's normal for a page opened from disk.
+- The vision slide (6) and poster (7) look the same as served in a still frame (`docs/audit/final/slides/talk-n6-*.jpg`,
+  `talk-n7-*.jpg`). Only the live lighting and mask touches are missing.
+- For the talk itself, serve it (`npm run local`, then `/slides/talk.html`) to get the living painting. The
+  double-click is the fallback.
+
+**Earlier parts, unchanged and passing:** qr-inline and qr-clean, the cap text, the role-card tip, po/final, the
+studio-live and talk-deck slides (no "Noor" in text or pixels; `calm-room.jpg` gone), `npm test` 312/0, and beats 12/0
+in both looks.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
