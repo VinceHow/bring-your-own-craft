@@ -198,9 +198,9 @@ test('7. the wireframes and her page (one press, no staging) all land on the one
   await page.keyboard.press('ArrowRight'); // her build press: no staging, the page simply appears when built
   await page.waitForTimeout(300);
   assert.strictEqual(await page.evaluate(() => document.querySelectorAll('.symphony-slip').length), 0, 'no symphony slips');
-  await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 150000, 'build.done');
+  await waitFor(() => BYOC.events().some(e => (e.type === 'build.done' && !e.background) || (!e.background && /^Build failed/.test(e.step || ''))), 150000, 'build.done');
   lap('build');
-  const done = (await events()).find(e => e.type === 'build.done');
+  const done = (await events()).find(e => e.type === 'build.done' && !e.background);
   assert.ok(done, 'built');
   await waitFor(() => !!document.querySelector('#her-sheet > #page-sheet:not([hidden])'), 5000, 'her page on her sheet');
   assert.ok(await ideaShown(), 'her idea still on top');

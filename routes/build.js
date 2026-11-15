@@ -41,29 +41,52 @@ async function redecide(run, tasteMd, { idea, flow }) {
   return [...joint, ...(Array.isArray(out) ? out : (out?.decided || []))];
 }
 
-const building = new Set();
+// One build at a time per run; a request while one runs waits for it and then builds the next version (at most one
+// queued: a second request joins the queued one). Never a 409 for "already building": nothing is lost or doubled.
+const building = new Map(); // run -> { current: Promise, next: Promise | null }
 
-export async function buildRun(run, { call } = {}) {
+// The background v1 (the app button, on "Team, go"): her idea and the team's first proposals through the same fill and
+// template, with no re-decision, no joint wait and no design deal, so it lands in about a fill's time. Its events carry
+// background: true, so the room's beats never move for it; only the app button reads them.
+// Tests only (e2e/app-first.e2e.js): BUILD_STUB=1 fills from the template's defaults after BUILD_STUB_MS, with no model
+// call, no re-decision and no design deal. Never set on stage.
+const STUB = process.env.BUILD_STUB === '1';
+const stubCall = async ({ user }) => {
+  await new Promise(r => setTimeout(r, Number(process.env.BUILD_STUB_MS || 1500)));
+  const t = loadTemplate(/yoga|class/i.test(String(user || '')) ? 'yoga' : 'bakery').defaults;
+  // each later stub build flips one switch, so a v2 has something to say in "what changed"
+  const flip = ++stubN > 1 ? { standingOrder: !t.switches.standingOrder } : {};
+  return { words: t.words, steps: t.steps, switches: { ...t.switches, ...flip }, decidedShown: [] };
+};
+let stubN = 0;
+let buildImpl = (run, o) => buildRun(run, o);
+export function _setBuild(fn) { buildImpl = fn || ((run, o) => buildRun(run, o)); }
+
+export async function buildRun(run, { call = STUB ? stubCall : undefined, background = false } = {}) {
   const t0 = Date.now();
   const dir = path.join(RUNS_DIR, run);
-  const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering' });
-  step('Reading her flow, her three answers and her file');
+  const bg = background ? { background: true } : {};
+  const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering', ...bg });
+  step(background ? 'A first version from her idea and the team’s first proposals' : 'Reading her flow, her three answers and her file');
   // A joint talk still going when she pressed Build finishes first, so its agreement is revisited against her file.
-  await jointSettled(run);
+  if (!background && !STUB) await jointSettled(run);
   const events = readEvents(run);
   const tasteFile = path.join(dir, 'taste.md');
   const tasteMd = fs.readFileSync(fs.existsSync(tasteFile) ? tasteFile : SEED, 'utf8');
   const g = gatherRun(events, tasteMd);
-  step('Re-deciding the rest against her file');
-  const t1 = Date.now();
-  const decided = await redecide(run, tasteMd, g);
-  const decideMs = Date.now() - t1;
-  // Design deals the page's palette and type live through taste-skill (lib/design.js), alongside the re-decision's log.
-  step('Design picks the palette and type');
-  const design = await dealImpl({ template: pickTemplate(g.idea) });
-  if (design.skipped) logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', skipped: design.skipped });
-  else logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', trade: design.trade, palette: design.palette, typeId: design.type,
-    typeUsed: !design.typeFallback, faces: design.typeFallback ? design.wanted : design.faces, ms: design.ms });
+  let decided = [], decideMs = 0, design = { skipped: 'first version' };
+  if (!background && !STUB) {
+    step('Re-deciding the rest against her file');
+    const t1 = Date.now();
+    decided = await redecide(run, tasteMd, g);
+    decideMs = Date.now() - t1;
+    // Design deals the page's palette and type live through taste-skill (lib/design.js), alongside the re-decision's log.
+    step('Design picks the palette and type');
+    design = await dealImpl({ template: pickTemplate(g.idea) });
+    if (design.skipped) logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', skipped: design.skipped });
+    else logEvent(run, 'design.dealt', { pane: 'design', seat: 'design', trade: design.trade, palette: design.palette, typeId: design.type,
+      typeUsed: !design.typeFallback, faces: design.typeFallback ? design.wanted : design.faces, ms: design.ms });
+  }
   const r = await fillPage({ run, outDir: path.join(dir, 'page'), ...g, decided, call, design: design.skipped ? null : design, onStep: step });
   const url = `/runs/${run}/page/`;
   const ms = Date.now() - t0;
@@ -72,7 +95,7 @@ export async function buildRun(run, { call } = {}) {
   const switches = r.slots?.switches || {};
   const version = events.filter(e => e.type === 'build.done').length + 1;
   const changes = whatChanged(switches, prev?.switches || loadTemplate(r.template).defaults.switches, r.slots?.words || {}, !!prev);
-  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template, version, switches, changes, logo: r.logo });
+  logEvent(run, 'build.done', { url, ms, decideMs, fillMs: r.modelMs, template: r.template, version, switches, changes, logo: r.logo, ...bg });
   return { url, ms, decideMs, fillMs: r.modelMs, template: r.template, decided };
 }
 
@@ -126,19 +149,29 @@ function servePage(req, res, { url }) {
 const BUILD = /^\/api\/run\/([^/]+)\/build$/;
 export default [{ method: 'GET', match: url => url.pathname.startsWith('/runs/'), handler: servePage }, {
   method: 'POST', match: url => BUILD.test(url.pathname),
-  handler: async (req, res, { url }) => {
+  handler: async (req, res, { url, body }) => {
     const run = decodeURIComponent(url.pathname.match(BUILD)[1]);
     if (!RUN_ID.test(run) || !fs.existsSync(path.join(RUNS_DIR, run))) return sendJson(res, 404, { error: 'unknown run' });
-    if (building.has(run)) return sendJson(res, 409, { error: 'already building' });
     // "Your own craft" (known limit): two prepared templates; a DIY idea neither fits gets no page, never the wrong one.
-    const start = readEvents(run).find(e => e.type === 'run.start');
+    const events = readEvents(run);
+    const start = events.find(e => e.type === 'run.start');
     if (start?.seat === 'diy' && start.template === null) return sendJson(res, 409, { error: 'no page template for this idea', noTemplate: true });
-    building.add(run);
-    try {
-      sendJson(res, 200, await buildRun(run));
-    } catch (e) {
-      logEvent(run, 'build.step', { step: 'Build failed: ' + scrub(e.message).slice(0, 160), pane: 'engineering' });
-      sendJson(res, 500, { error: scrub(e.message) });
-    } finally { building.delete(run); }
+    const background = body?.background === true;
+    const b = building.get(run);
+    // APP_V1=0 (the kill switch, docs/REHEARSAL.md): no background v1; her press at beat 8 builds v1, as before.
+    if (background && process.env.APP_V1 === '0') return sendJson(res, 200, { skipped: 'APP_V1=0' });
+    // The background v1 only ever builds first: once anything is built or building, it has nothing to add.
+    if (background && (b || events.some(e => e.type === 'build.done'))) return sendJson(res, 200, { skipped: 'already built or building' });
+    const go = () => buildImpl(run, { background }).catch(e => {
+      logEvent(run, 'build.step', { step: 'Build failed: ' + scrub(e.message).slice(0, 160), pane: 'engineering', ...(background ? { background: true } : {}) });
+      throw e;
+    });
+    let p;
+    if (!b) { p = go(); building.set(run, { current: p, next: null }); }
+    else if (b.next) p = b.next;                       // a press while one is queued joins it
+    else { p = b.next = b.current.catch(() => {}).then(() => { const x = building.get(run); if (x) { x.current = x.next; x.next = null; } return go(); }); }
+    const settle = () => { const x = building.get(run); if (x && x.current === p && !x.next) building.delete(run); };
+    try { const r = await p; settle(); sendJson(res, 200, r); }
+    catch (e) { settle(); sendJson(res, 500, { error: scrub(e.message) }); }
   },
 }];

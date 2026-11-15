@@ -18,3 +18,44 @@ test('what changed: v1 against the defaults, v2 against v1; the cut-off says its
   const many = { phone: false, remember: false, cutoff: true, standingOrder: false };
   assert.equal(whatChanged(many, defaults).length, 3, 'at most three');
 });
+
+// The background v1 and the press (audit F1 reconciled): one build at a time per run, never a 409 for "already
+// building", a press during the v1 queues the next version, a second press joins the queued one, and a background v1
+// after anything is built is skipped.
+test('builds queue: background v1, then a press during it becomes the next build; no 409, nothing doubled', async () => {
+  const { default: routes, _setBuild } = await import('../routes/build.js');
+  const { logEvent } = await import('../lib/events.js');
+  const route = routes.find(r => r.method === 'POST');
+  const run = 'run-2026-11-15T09-00-00-000Z-qbld';
+  fs.mkdirSync(path.join(process.env.RUNS_DIR, run), { recursive: true });
+  logEvent(run, 'run.start', { idea: 'A website for a small bakery', seat: 'product' });
+  const log = []; let n = 0;
+  _setBuild(async (r, { background }) => { const v = ++n; log.push(`start v${v}${background ? ' bg' : ''}`); await new Promise(f => setTimeout(f, 80)); logEvent(r, 'build.done', { version: v, ...(background ? { background: true } : {}) }); log.push(`done v${v}`); return { version: v }; });
+  const post = body => new Promise(resolve => { const res = { writeHead(c) { this.code = c; }, end(b) { resolve({ code: this.code, body: JSON.parse(b || '{}') }); }, setHeader() {} };
+    route.handler({}, res, { url: new URL(`http://x/api/run/${run}/build`), body }); });
+  try {
+    const [bg, press1, press2] = await Promise.all([post({ background: true }), new Promise(r => setTimeout(r, 10)).then(() => post({})), new Promise(r => setTimeout(r, 20)).then(() => post({}))]);
+    assert.deepEqual([bg.code, press1.code, press2.code], [200, 200, 200], 'no 409');
+    assert.equal(bg.body.version, 1); assert.equal(press1.body.version, 2); assert.equal(press2.body.version, 2, 'the second press joins the queued build');
+    assert.deepEqual(log, ['start v1 bg', 'done v1', 'start v2', 'done v2'], 'one at a time, never overlapping');
+    assert.equal((await post({ background: true })).body.skipped, 'already built or building', 'a late background v1 adds nothing');
+  } finally { _setBuild(null); }
+});
+
+test('APP_V1=0: the background v1 is skipped; the press still builds', async () => {
+  const { default: routes, _setBuild } = await import('../routes/build.js');
+  const { logEvent } = await import('../lib/events.js');
+  const route = routes.find(r => r.method === 'POST');
+  const run = 'run-2026-11-15T09-10-00-000Z-kill';
+  fs.mkdirSync(path.join(process.env.RUNS_DIR, run), { recursive: true });
+  logEvent(run, 'run.start', { idea: 'A website for a small bakery', seat: 'product' });
+  let n = 0; _setBuild(async () => ({ version: ++n }));
+  const post = body => new Promise(resolve => { const res = { writeHead(c) { this.code = c; }, end(b) { resolve({ code: this.code, body: JSON.parse(b || '{}') }); }, setHeader() {} };
+    route.handler({}, res, { url: new URL(`http://x/api/run/${run}/build`), body }); });
+  process.env.APP_V1 = '0';
+  try {
+    assert.equal((await post({ background: true })).body.skipped, 'APP_V1=0');
+    assert.equal(n, 0, 'nothing built');
+    assert.equal((await post({})).body.version, 1, 'the press builds v1');
+  } finally { delete process.env.APP_V1; _setBuild(null); }
+});
