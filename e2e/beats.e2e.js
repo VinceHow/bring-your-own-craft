@@ -516,7 +516,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   await waitFor(() => document.querySelectorAll('#focus-doc .fd-conversation [data-turn="team"]').length === 2, 4000, 'two replies, live', null, p);
   assert.ok(await p.locator('#focus-doc .fd-conversation').isVisible(), 'replies visible while discussing (no "Read the conversation")');
   assert.strictEqual(await p.locator('#focus-doc .fd-read').count(), 0);
-  assert.ok(await p.evaluate(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, side), 'the column follows the newest reply');
+  await waitFor(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, 3000, 'the column glides to the newest reply', side, p); // a smooth glide (focus-doc.js), so wait for it
   assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'no takeaways after a round');
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'round.done', askId: 'q1', round: 1, replies: 2 }, 'live'));
   assert.ok(await p.locator('#focus-doc .fd-end').isVisible(), 'End meeting, once a round has happened');
@@ -562,7 +562,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.ok(await p.locator('#focus-doc .fd-form').isHidden(), 'no more rounds');
   assert.ok(await p.locator('#focus-doc .fd-conversation').isVisible(), 'everything said stays above');
   await p.waitForTimeout(300);
-  assert.ok(await p.evaluate(s => { const c = document.querySelector(s), b = c.querySelector('.fd-brief'); const cr = c.getBoundingClientRect(), br = b.getBoundingClientRect(); return br.top >= cr.top - 2 && br.top < cr.bottom; }, side), 'the column ends on the takeaways');
+  await waitFor(s => { const c = document.querySelector(s), b = c.querySelector('.fd-brief'); const cr = c.getBoundingClientRect(), br = b.getBoundingClientRect(); return br.top >= cr.top - 2 && br.top < cr.bottom; }, 3000, 'the column glides to the takeaways', side, p);
   const order = await p.evaluate(s => [...document.querySelector(s).children].filter(e => !e.hidden).map(e => e.className.split(' ')[0]), side);
   assert.ok(order.indexOf('fd-chimes') < order.indexOf('fd-brief'), `the takeaways come after the conversation: ${order}`);
   assert.deepStrictEqual(perrs, []);
