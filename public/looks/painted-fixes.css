@@ -37,7 +37,7 @@ html body #room[data-pad-open="engineering"] [data-component="place-card"][data-
 /* her workspace: sized to its content and centred (no more 70% empty paper), the four parts as a 2 x 2 of paper cards.
    A filled part takes the space; an empty one stays small, its one status line in quiet italic ink. */
 html body #room #room-panel[data-component="workspace"][data-state="open"] {
-  inset: auto; top: 64px; left: calc(50% - 480px); width: 960px; max-height: calc(100% - 128px); }
+  inset: auto; top: calc(128px + var(--crop-y, 0px)); left: calc(50% - 480px); width: 960px; max-height: calc(100% - 184px - 2 * var(--crop-y, 0px)); }
 html body #room #room-panel[data-component="workspace"] > :not([data-slot="head"]) {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; align-items: start; }
 html body #room #room-panel[data-component="workspace"] :is([data-slot="character"], [data-slot="idea"], [data-slot="team-space"], [data-slot="takeaways"]) {
