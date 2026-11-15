@@ -1036,3 +1036,7 @@ html body.focus-open #room .focus-doc { bottom: 96px; }
 html body.focus-open [data-component="app-button"] [data-slot="hint"] { display: none; }
 html body.focus-open [data-component="app-button"] [data-slot="open"] { padding: 8px 16px; }
 @media (prefers-reduced-motion: reduce) { html [data-component="app-button"] [data-slot="open"] { animation: none !important; } }
+/* the app tag and her big sheets share the window's bottom right: her sheet opened large and her page leave the same
+   foot strip as her focus document, and the tag drops its change note (label + hint only) while a big sheet is open */
+html body:has(#her-sheet[data-open="true"]) #room .her-sheet[data-open="true"] { height: 752px !important; }
+html body:is(.focus-open, :has(#her-sheet[data-open="true"])) [data-component="app-button"] [data-slot="change"] { display: none !important; }
