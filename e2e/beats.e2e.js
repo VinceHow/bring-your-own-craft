@@ -647,7 +647,9 @@ test('4. replays: record-run, R in stage mode, the yoga fallback in the close; R
   assert.ok(!(await page.isVisible('#replay-label')), 'reset clears the label');
 });
 
-test('5. fallbacks: a slow or failing call shows its step and offers R; the close says so too', async () => {
+test('5. fallbacks: a slow or failing call shows its step and offers R; the close says so too', async t => {
+  // Serial: R swaps in the rehearsal recorded in step 4 from step 2's run. Run alone, or after step 2 failed, it skips.
+  if (!RUN) return t.skip('needs step 2 in the same run (run the whole file; if step 2 failed, that failure is the one to read)');
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   // Opening her run hangs, then fails; the slow threshold is 1.5 s for the test (25 s on stage).
