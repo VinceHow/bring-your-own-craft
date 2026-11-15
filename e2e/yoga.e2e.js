@@ -172,13 +172,13 @@ test('6. Build -> page reflects her choices; a decision cites her new line', asy
   // Her one press. The room's own build key/button is piece 1's; until it exists, the same POST the button makes.
   const pressed = await page.evaluate(() => typeof BYOC.build === 'function' ? (BYOC.build(), 'room') : null);
   if (!pressed) await page.evaluate(run => BYOC.api(`/api/run/${run}/build`, {}), RUN);
-  await waitFor(() => BYOC.events().some(e => e.type === 'build.done' || /^Build failed/.test(e.step || '')), 120000, 'build.done');
+  await waitFor(() => BYOC.events().some(e => (e.type === 'build.done' && !e.background) || (!e.background && /^Build failed/.test(e.step || ''))), 120000, 'build.done');
   lap('2:05 build done');
   const evs = await events();
-  const steps = evs.filter(e => e.type === 'build.step').map(e => e.step);
+  const steps = evs.filter(e => e.type === 'build.step' && !e.background).map(e => e.step);
   assert.ok(!steps.some(s => /^Build failed/.test(s)), 'build ran: ' + steps.join(' / '));
   assert.ok(steps.length >= 3, 'the build shows its steps');
-  const done = evs.find(e => e.type === 'build.done');
+  const done = evs.find(e => e.type === 'build.done' && !e.background);
   assert.strictEqual(done.url, `/runs/${RUN}/page/`);
   // The build re-decided the rest against her updated file, and at least one decision cites her new line.
   // re-decided at Build, or a joint agreement revisited against her new line in code before it (round 'revisit')

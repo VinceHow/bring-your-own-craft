@@ -19,14 +19,15 @@
 
   function draw() {
     const next = done ? done.version || 1 : 1;
+    root.dataset.version = done ? String(next) : '0'; // hooks: data-state none|building|ready|failed, data-version, data-pulse
     if (building) {
       root.dataset.state = 'building'; btn.disabled = !done;
-      label.textContent = `Building v${done ? next + 1 : 1}…`;
+      label.textContent = done ? `Building v${next + 1}…` : 'Building your app…';
       hint.textContent = failed || hintNow || 'Bo is on it';
     } else if (done) {
       root.dataset.state = 'ready'; btn.disabled = false;
-      label.textContent = 'Open the app';
-      hint.textContent = failed || `v${next}, ${ago(done.t)}`;
+      label.textContent = `Open the app · v${next}`;
+      hint.textContent = failed || ago(done.t);
     } else if (failed) { // never stuck (docs/POLISH.md §4): a first build that stopped offers to try again
       root.dataset.state = 'failed'; btn.disabled = false;
       label.textContent = 'Build again';

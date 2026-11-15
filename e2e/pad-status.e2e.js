@@ -126,3 +126,31 @@ test('her workspace: empty parts say what happens next; a live run with her idea
   assert.deepStrictEqual(errs, []);
   await p.close();
 });
+
+// Stubbed twin of team.e2e's "the card shows" (which needs real models), so it sits in the regular gates: an agreement
+// lands as a card in the team space, folded behind "Team notes · N" (closed by default); the tab opens it, in both looks.
+for (const look of ['', 'look=painted']) test(`team space${look ? ' (painted)' : ''}: an agreement lands as a card; Team notes opens to show it`, async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 930 } });
+  const errs = []; p.on('pageerror', e => errs.push(String(e)));
+  await p.route('**/api/**', r => r.fulfill({ status: 200, json: { ok: true, run: 'stub-run' } }));
+  await p.goto(`http://localhost:${PORT}/?hold=300&path=full&setup=classic${look ? '&' + look : ''}`);
+  await p.waitForFunction(() => window.BYOC && BYOC.stage && BYOC.dispatch);
+  await p.evaluate(() => { BYOC.run = 'stub-run'; BYOC.stage(6, { instant: true });
+    const d = e => BYOC.dispatch({ run: 'stub-run', ...e }, 'live');
+    d({ type: 'run.start', idea: 'A booking page for a small yoga studio.', seat: 'product', mode: 'craft' });
+    d({ type: 'candidate', id: 'c1', seat: 'design', decision: 'What leads the page', options: ['a', 'b'], recommendation: 'a', reason: 'r' });
+    d({ type: 'joint.start', jointId: 'j1', id: 'c1', decision: 'What leads the page', seats: ['design', 'data'] });
+    d({ type: 'joint.agreed', pane: 'room', id: 'j1', candidateId: 'c1', headline: 'Their usual class goes first', seats: ['design', 'data'],
+      turns: [{ seat: 'design', text: 'Usual class first.' }, { seat: 'data', text: 'We count rebooks.' }, { seat: 'design', text: 'Agreed.' }] }); });
+  const notes = p.locator('.team-space [data-component="team-notes"]');
+  await p.waitForFunction(() => document.querySelectorAll('.team-space .ts-card').length === 1);
+  assert.strictEqual(await notes.getAttribute('data-state'), 'closed', 'folded by default');
+  assert.match((await notes.innerText()).trim(), /^Team notes · 1$/);
+  await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
+  const first = p.locator('.team-space .ts-card').first();
+  assert.ok(await first.isVisible(), 'the card shows');
+  assert.strictEqual(await first.locator('.ts-headline').innerText(), 'Their usual class goes first');
+  assert.deepStrictEqual(errs, []);
+  await p.close();
+});
