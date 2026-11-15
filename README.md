@@ -87,11 +87,13 @@ npm run e2e      # the demo walked through the real UI in Chromium (Playwright),
 
 `MODEL_BACKEND` picks where model calls go. Every call goes through one function, `callModel` in `lib/model.js`, and
 returns JSON validated against a schema.
-- `claude-code` (default, and what runs in the demo): Claude Code run headless (`claude -p`), with our own system
-  prompt, no tools and no project files loaded. It uses the machine's own Claude Code login, so no key is needed.
-- `fal` (the fallback): Claude through fal's OpenRouter router on your own key (`FAL_KEY`). Tested 9/9 schema-valid
-  against Claude Code on 3 real calls per step, and covered by the leak test. It's slower (the team works in about
-  33 s against about 20 s), so the demo's teammates stay on `claude-code`.
+- `fal` (what runs in the demo, `MODEL_BACKEND=fal`): Claude through fal's OpenRouter router on your own key
+  (`FAL_KEY`). Tested 9/9 schema-valid against Claude Code on 3 real calls per step, and covered by the leak test. It
+  runs the demo because on the demo laptop Claude Code's fast model, through a company gateway, took over 25 s a call
+  while fal answered in about 1 s.
+- `claude-code` (the alternative route, and the default when `MODEL_BACKEND` is unset): Claude Code run headless
+  (`claude -p`), with our own system prompt, no tools and no project files loaded. It uses the machine's own Claude
+  Code login, so no key is needed. `docs/REHEARSAL.md` has the one-step switch to it.
 
 Voice is ElevenLabs speech-to-text, on the server, with a key in `ELEVENLABS_API_KEY` (or injected by the cloud
 proxy). Without a key the mic hides and she types; everything still works.
@@ -132,7 +134,7 @@ Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-
 ## Built with: APIs, models and open-source
 | What | Used for | Licence |
 |---|---|---|
-| Claude Code, headless (`claude -p`) | the model backend that runs in the demo: teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
+| Claude Code, headless (`claude -p`) | the alternative model route: teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
 | [ElevenLabs](https://elevenlabs.io) speech-to-text | her spoken intro, idea and answers | ElevenLabs terms; API only |
 | [taste-skill](https://github.com/Leonxlnx/taste-skill) (© Leonxlnx) | the Design teammate and the built page: Design deals the page's palette and type live when the skill's scripts are installed on the machine (otherwise the template's own type stays); its rules guide the studio's look. Vendored in `vendor/taste-skill/` with its licence; never installed as a plugin in this repo | MIT |
 | Anthropic [product-management plugin](https://github.com/anthropics/knowledge-work-plugins), `write-spec` skill | the Product teammate's instructions. Vendored unchanged in `vendor/product-management/` (commit `e91a134`) with its licence | Apache-2.0 |
@@ -143,10 +145,10 @@ Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-
 | Bakery photographs (Wikimedia Commons) | the bakery page | CC BY / CC BY-SA, credited on the page's `credits.html` |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) skills: `verification-loop`, `e2e-testing`, `frontend-design-direction`, `ui-demo` | agent skills used while building; in `.claude/skills/`, unmodified | MIT (`.claude/skills/ECC-LICENSE`) |
 | [Playwright](https://playwright.dev) | end-to-end tests in Chromium | Apache-2.0 |
-| [fal](https://fal.ai) | the fallback model backend (Claude via OpenRouter); planned: flux/schnell brand images for the bakery site | fal terms; API only |
+| [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); planned: flux/schnell brand images for the bakery site | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-fal: Claude via fal's OpenRouter router is the fallback model backend (`MODEL_BACKEND=fal`); fal flux/schnell is
+fal: Claude via fal's OpenRouter router is the model backend that runs in the demo (`MODEL_BACKEND=fal`); fal flux/schnell is
 planned for the bakery site's brand images (timed at a median 2.2 s, about 0.3¢ an image). Paid APIs: the Claude Code
 login, ElevenLabs and fal.
 
