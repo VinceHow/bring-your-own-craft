@@ -329,7 +329,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   // 1. Focus 1 (DEMO 0:38): Noor asks who to build this for first, with the finding researched before the demo.
   await waitFor(() => BYOC.events().some(e => e.type === 'ask' && e.first), 8000, 'Focus 1 asked');
   await waitFor(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'first', 6000, 'Focus 1 in her inbox');
-  assert.strictEqual((await page.textContent('#inbox .inbox-now')).trim(), 'Noor has a question');
+  assert.strictEqual((await page.textContent('#inbox .inbox-now')).trim(), 'Noor has a question →');
   await page.keyboard.press('PageDown'); // the clicker opens it
   await waitFor(() => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === 'first', 3000, 'Focus 1 open');
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
@@ -423,7 +423,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
       artifact: { kind: 'finding', ref: { title: 'Small studios fill their popular classes', text: 'Regulars book the same slot each week.', url: 'https://example.org/finding' } } }, 'replay');
   });
   await waitFor(() => !document.getElementById('inbox').hidden && document.getElementById('inbox').dataset.needs === 'yes', 4000, 'the note', null, p);
-  assert.strictEqual((await p.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question', 'only who: no preview in the room');
+  assert.strictEqual((await p.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question →', 'only who: no preview in the room');
   // The room's chatter: the team talking about its work, under the speaker's card, never addressed to her.
   await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chatter', by: 'Noor', seat: 'research', text: 'Found a source on full classes.' }, 'replay'));
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
