@@ -292,3 +292,21 @@ html body #room [data-slot="all-notes"]:focus-visible { outline: 2px solid var(-
    beside "Close your inbox" on the list. Never a full-width row at the foot of the sheet. */
 html body #room #inbox[data-state="open"] > [data-slot="all-notes"] { grid-row: 1; grid-column: 1; justify-self: end; align-self: center; width: auto !important; }
 html body #room #inbox[data-state="open"][data-view="action"] > [data-slot="all-notes"] { justify-self: start; }
+
+/* ---- AUDIT #6c (BYOC lead): the calm room's idea card is just the idea ----
+   Once the team is at work (beat 5 on), the closed idea card drops its journey chips and "+N": the room has fewer
+   things that look clickable, and the card reads as one quiet line of what she's building. The chips come back on
+   hover, and in full when she opens the card. In the first sketch (beats 1-4) she reacts to the chips, so they stay.
+   The chips only fade out (flow.js measures them, so they keep their layout) and the card is clipped to its idea
+   line, with a margin so its painted frame still shows whole. */
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]):not(:hover) :is([data-component="journey"], [data-component="glance-more"]) {
+  opacity: 0 !important; pointer-events: none !important; }
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]):not(:hover) { max-height: 66px !important; min-height: 0 !important; overflow: clip !important; overflow-clip-margin: 14px; }
+/* the journey's holder keeps its own glance height (63px) while the card is clipped, so room.js's fit-to-sheet never
+   squeezes the chips to nothing (it only refits when the journey changes, not on hover) */
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]) :has(> [data-component="journey"]) { flex: none !important; min-height: 63px !important; }
+html body:is([data-beat="5"], [data-beat="6"], [data-beat="7"], [data-beat="8"], [data-beat="9"], [data-beat="10"], [data-beat="11"], [data-beat="12"])
+  #room [data-component="idea-sheet"]:not([data-open="true"]) > * { flex-shrink: 0 !important; }
