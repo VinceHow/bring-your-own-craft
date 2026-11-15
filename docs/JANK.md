@@ -197,3 +197,25 @@ New:
     - Where: every size; worst at 1440 and 1280, where the band is 40–45px
     - Hook: `[data-component="app-button"]`, plus `[data-slot="label"]`
     - Fix: anchor it inside the room's safe box (bottom ≥ 16px inside `#room`); label at weight 500. See also finding 32: hide it while a focus document is open.
+
+### Pass 4 · main 25c285f · 15 Nov 00:24 UTC (targeted: the app button's shop tag, the focus-doc strip, her page)
+
+A targeted pass: only the states the look change touches (the room, Focus 1 and 2, her page, the app button), at all sizes, day and night. Meeting modes are not on main as UI yet: that merge changed only DEMO.md and VISION.md.
+
+Fixed:
+- Finding 32: while a focus document is open, the app button now sits in a strip under it, compact.
+- The app button's label weight (finding 33, partly).
+
+Still open:
+- Finding 30, at 1280 and 1440: the guidance is still cut mid-line, and Keep is still inside the scroll box.
+  - Shot: `design/studio/qa/2026-11-15-00-24/1280x800-day-09-focus1-takeaways.jpg`
+- Finding 33, at 1440 and 1280: the tag still sits half on the band below the room.
+  - Shot: `design/studio/qa/2026-11-15-00-24/1440x900-night-16-app-ready.jpg`
+
+New:
+
+34. [design] **With her page open, the app tag and the Replay label sit on the page sheet's bottom-right corner.**
+    - Shot: `design/studio/qa/2026-11-15-00-24/1920x1130-day-13-her-page.jpg`
+    - Where: 1920x1130 day
+    - Hooks: `[data-component="app-button"]`, `[data-component="replay-label"]` over `[data-component="idea-layer"]` (`#page-sheet`)
+    - Fix: give the open sheet the same foot strip the focus document now has, or tuck the tag left of the Replay label inside it.
