@@ -324,3 +324,7 @@ html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineer
   top: calc(124px + var(--crop-y, 0px)) !important; bottom: auto !important; max-height: calc(100% - 296px - 2 * var(--crop-y, 0px)) !important; height: auto !important; margin: 0 !important; }
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] { gap: 10px !important; }
 html body #room #room-panel[data-component="sketchpad-open"][data-seat="engineering"][data-state="open"] [data-slot="items"] > li { padding-top: 10px !important; padding-bottom: 10px !important; margin: 0 !important; }
+
+/* the team-doing strip fades out when nothing is fresh (painted.js: each line lasts 6 s after its event; audit F4) */
+html body #room [data-component="team-doing"][data-state="out"] { opacity: 0; transition: opacity .5s ease; }
+@media (prefers-reduced-motion: reduce) { html body #room [data-component="team-doing"][data-state="out"] { transition: none; } }

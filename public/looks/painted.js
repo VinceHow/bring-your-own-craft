@@ -133,6 +133,8 @@
   // It shares its place with the room's #team-status: anything for her (a question, a failure) takes the strip. ----
   const WHO = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
   const doing = new Map();                                     // seat -> what it is on, in a few plain words
+  const doingAt = new Map();                                   // seat -> when its line last came from a real event
+  const FRESH = 6000;                                          // a line fades 6 s after its event (audit F4)
   const line = document.createElement('p');
   line.dataset.component = 'team-doing'; line.setAttribute('aria-live', 'polite'); line.hidden = true;
   room.appendChild(line);
@@ -141,16 +143,36 @@
   // "Who the first customers are: weekly regulars or …" -> "weighing who the first customers are"
   const topic = d => few(lower(String(d || '').split(/[:?(]/)[0].replace(/[.]+$/, '')), 7);
   let turn = 0, timer = null;
+  // the strip never sits on her idea sheet: while the sheet (or its input) is up where the strip would be, it waits
+  const sheetInTheWay = () => {
+    const sh = document.getElementById('her-sheet'), inp = document.getElementById('her-input');
+    if (inp && document.activeElement === inp) return true;
+    if (!sh || sh.hidden || getComputedStyle(sh).display === 'none' || getComputedStyle(sh).visibility === 'hidden') return false;
+    const wasHidden = line.hidden; line.hidden = false;
+    const a = line.getBoundingClientRect(), b = sh.getBoundingClientRect(); line.hidden = wasHidden;
+    return a.width > 0 && b.width > 0 && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  };
+  let fadeT = 0;
+  const hide = () => {
+    if (line.hidden || line.dataset.state === 'out') return;
+    line.dataset.state = 'out'; clearTimeout(fadeT);
+    fadeT = setTimeout(() => { if (line.dataset.state === 'out') line.hidden = true; }, 600);
+  };
   function show() {
+    const now = Date.now();
+    for (const s of [...doing.keys()]) if (now - (doingAt.get(s) || 0) > FRESH) { doing.delete(s); doingAt.delete(s); }
     const seats = [...doing.keys()].filter(s => WHO[s]);
-    if (!seats.length || focusOpen) { line.hidden = true; return; }
+    if (!seats.length || focusOpen) { hide(); return; }
+    if (sheetInTheWay()) { clearTimeout(fadeT); line.hidden = true; line.dataset.state = ''; return; }
+    clearTimeout(fadeT);
     const two = [seats[turn % seats.length], seats[(turn + 1) % seats.length]].filter((s, i, a) => a.indexOf(s) === i);
     const next = two.map(s => { const w = doing.get(s); return w.startsWith('· ') ? `${WHO[s]} ${w}` : `${WHO[s]} is ${w}`; }).join('\n');
     if (next !== line.textContent) { line.dataset.state = ''; void line.offsetWidth; line.textContent = next; line.dataset.state = 'in'; }
     line.hidden = false;
   }
-  function tick() { turn += 2; show(); }
-  const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); show(); if (!timer) timer = setInterval(tick, 4500); };
+  let ticks = 0;
+  function tick() { if (++ticks % 5 === 0) turn += 2; show(); if (!doing.size && line.hidden) { clearInterval(timer); timer = null; } }   // checks each 1 s, turns each 5 s
+  const set = (seat, what) => { if (!WHO[seat]) return; doing.set(seat, what); doingAt.set(seat, Date.now()); show(); if (!timer) timer = setInterval(tick, 1000); };
   // before the team starts, Noor and Mika are already sketching her rough journey (sketch.user / flow.line events)
   // (#room[data-sketching] marks their pills as at work: the room's place-cards stay idle until the team starts)
   const sketching = new Set(), sketchMark = () => { if (sketching.size) room.dataset.sketching = [...sketching].join(' '); else delete room.dataset.sketching; };
@@ -173,7 +195,7 @@
   let quiet = null;
   const anyEvent = () => { clearTimeout(quiet); quiet = setTimeout(() => { doing.clear(); show(); }, 15000); };
   ['teammate.start', 'candidate', 'chatter', 'decided', 'flow.line', 'sketch.user', 'joint.start', 'joint.agreed'].forEach(t => B.on(t, anyEvent));
-  B.on('reset', () => { doing.clear(); clearInterval(timer); timer = null; line.hidden = true; });
+  B.on('reset', () => { doing.clear(); doingAt.clear(); clearInterval(timer); timer = null; line.hidden = true; });
   document.addEventListener('studio:focus', show);
   // the room's chatter: at most 15 words a line
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
