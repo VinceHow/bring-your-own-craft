@@ -1,0 +1,12 @@
+Final audit, sa / A. Worktree /tmp/claude-0/sa at main bbb49aa. Verified by stub only unless noted.
+All runs with HTTPS_PROXY/HTTP_PROXY/https_proxy/http_proxy/NODE_USE_ENV_PROXY/LINKUP_API_KEY/FAL_KEY/MODEL_BACKEND unset.
+No fal and no Linkup spend. Model backend = claude CLI (default); real CLI calls are noted where they happened.
+
+=== STAGE-VISIBLE FAILS ===
+(filled in at the end)
+
+=== NON-STAGE FAILS / NOTES ===
+(filled in at the end)
+
+=== ITEMS ===
+(in progress)

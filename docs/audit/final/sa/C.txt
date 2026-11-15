@@ -1,0 +1,103 @@
+Final audit, part C (items 12-15). Worktree /tmp/claude-0/sa @ bbb49aa. Stubs only, no model or fal calls.
+Servers ran with the proxy, LINKUP_API_KEY, FAL_KEY and MODEL_BACKEND env removed, on ports 5311-5317.
+
+=== STAGE-VISIBLE FAILS ===
+None found in items 12-15.
+
+=== SUMMARY ===
+12 QR card ............ PASS (verified by stub only: Playwright, 1440x900, painted, stubbed build.done)
+13 deploy/ ............ PASS
+14 Noor -> Wren ........ PASS (only docs/screens/page-bakery-390.png, binary, known; not shown on stage)
+15 README/SUBMISSION ... FAIL (not on stage: submission text; 4 mismatches + 3 TBDs, listed below)
+
+=== 12. QR card: PASS (verified by stub only) ===
+Code: public/app-button.js:73-96 (QR_URL constant, showQr gate at :78), routes/health.js:6-9 (deployUrl = new URL(DEPLOY_URL).href,
+http(s) only). Images: public/qr-live-site.svg (segno) and public/qr-live-site-card.png (the card actually shown, 980x1240).
+Commits: a542b41, 62c24cb, f80e910, 79acac3, c300ce9, merge 9528890.
+
+The gate: health returns URL.href (adds a trailing "/"), and the client strips trailing slashes, then compares exactly.
+Real server per value, real /api/health (no route stubbing), build.done dispatched, "Open the app" clicked:
+  DEPLOY_URL                                                     health.deployUrl                                   card
+  https://bring-your-own-craft-production.up.railway.app         .../up.railway.app/                                SHOWN
+  (unset)                                                        null                                               hidden
+  https://example.com                                            https://example.com/                               hidden
+  http://bring-your-own-craft-production.up.railway.app          http://.../                                        hidden
+  https://bring-your-own-craft-production.up.railway.app/admin   .../admin                                          hidden
+  https://bring-your-own-craft-production.up.railway.app/        .../                                               SHOWN (same site; fine)
+  https://bring-your-own-craft-production.up.railway.app?x=1     .../?x=1                                           hidden
+In every case the new tab still opened (/runs/stub-run/page/), with 0 page errors.
+Side note: "Open the live site" (.app-live) is shown for ANY http(s) DEPLOY_URL, including http and /admin. That is by
+design (app-button.js:93) and not the QR, but set DEPLOY_URL to the bare https URL on stage.
+
+Decode (my own, jsQR 1.4.0 + pngjs, installed in the scratchpad only):
+  public/qr-live-site.svg, rendered to PNG by Playwright  => "https://bring-your-own-craft-production.up.railway.app"
+  public/qr-live-site-card.png                           => "https://bring-your-own-craft-production.up.railway.app"
+  screenshot of the card on the 1440x900 painted stage   => "https://bring-your-own-craft-production.up.railway.app"
+No /admin, no token, no query. This matches the tech lead's jsQR decode of the card PNG.
+Screenshots: docs/audit/final/sa/C-qr-exact-1440.png (card shown), C-qr-unset-1440.png (no card).
+
+=== 13. deploy/: PASS ===
+Present: deploy/{README.md, ACCEPTANCE.md, acceptance/ (5 files), app/ (server.js, bakery.js, config.js, package.json,
+BUILT.md, public/ with 4 jpgs, views/admin.html, test/bakery.test.js), bo/ (PROMPT.md, make-prompt.mjs, inputs/),
+clips/ (order.mp4, record-clip.mjs), run/ (RECORDED.json, events.jsonl), shots/ (6 png), make-images.mjs,
+record-bakery-run.mjs}.
+railway.json: none anywhere (not at root, not in deploy/; git ls-files | grep -i railway is empty).
+Secrets: no .env files tracked; no key-shaped strings (sk-, ghp_, 32+ hex). ADMIN_TOKEN values are only placeholders:
+"test-token" (deploy/bo/PROMPT.md:381-382, make-prompt.mjs:111-112), "…" (acceptance/admin-login.acceptance.js:3,
+delivered.browser.mjs:4), "<token>". make-images.mjs:13 reads process.env.FAL_KEY with a 'placeholder' fallback.
+Customer data: no db/sqlite/seed file tracked. deploy/run/events.jsonl names: Sam, Wren, Ines, Mika, Theo, Bo (demo cast).
+The only phone/email: deploy/acceptance/bakery.acceptance.js:106, "07700 900123" (Ofcom fictional range) and
+a***@example.org (reserved domain), inside a test that checks they're REJECTED. Fine.
+Personal email regex (gmail/outlook/...): 0 matches in deploy/.
+npm test: script is node --test "test/**/*.{js,mjs,cjs}", so deploy/app/test/bakery.test.js (the only deploy test file) is
+not picked up. Ran it: 308 tests, 307 pass, 0 fail, 1 skipped; "deploy" appears 0 times in the spec output.
+Note: test/acceptance.test.js deliberately runs deploy/acceptance/bakery.acceptance.js against test/fixtures/bakery-stub.mjs
+(an in-memory stub, not deploy/app). That is intended; it doesn't run the bakery app or its tests.
+
+=== 14. Noor -> Wren: PASS ===
+git grep -il noor          -> docs/screens/page-bakery-390.png
+git grep -il -I noor       -> (empty)   so the only match is the known binary.
+git grep -in -I noor       -> (empty)
+Untracked files too (grep -rilI, excluding node_modules/.git): none. runs/rehearsal/events.jsonl and runs/yoga use "Wren".
+docs/screens/page-bakery-390.png is a docs screenshot and isn't served on stage.
+
+=== 15. README.md and SUBMISSION.md vs code: FAIL (submission text, not stage) ===
+Checked and matching: every cited path exists (docs/readme/*.webp x8, deploy/README.md, deploy/ACCEPTANCE.md,
+deploy/app/BUILT.md, deploy/run/, deploy/bo/PROMPT.md, deploy/make-images.mjs, design/FAL-SPEND.md,
+docs/baseline/run-3-bakery/GUESSES.md, docs/RUN-LOCALLY.md, DECISIONS, AUDIT, HOW-IT-WORKS, HOW-THE-IDEA-EVOLVED,
+vendor/taste-skill, vendor/product-management, public/fonts licences, .claude/skills/ECC-LICENSE,
+data/research-finding-bakery.json). The team is Mika, Wren, Theo, Ines and Bo (public/room.js:16). Templates: 3 (templates/bakery, cafe, yoga;
+lib/fill.js:24 "else the yoga booking page"). Live logo: lib/logo.js (flux/schnell, on when backend is fal, :16),
+used by lib/fill.js:16. Live Linkup label "found just now with Linkup" (lib/live-finding.js:12), fallback "researched
+before the demo" (public/fd-cards.js:15). "Your own craft" (public/name-tag.js:53). Any seat (public/room.js:285).
+Timings 2.1 s / 2.2 s / 33 s / 22 s and "3 asked, 14 decided" match docs/AUDIT.md:14,54,58,64,78. Tiers 3/8/40
+(deploy/app/bakery.js:9-13). 15-min hold (bakery.js:53). node:sqlite (bakery.js:3). Credit line
+(deploy/app/public/index.html:46). flux/schnell, median 2.2 s, 0.3¢ (docs/DECISIONS.md:73). 9/9 (DECISIONS.md:71). motion
+14.14.0 (public/vendor/motion/VERSION). QR claim (SUBMISSION:60) matches item 12. Questions: neither file claims a hard
+cap; the stage path passes max 0 and raises its 3 moments in the server (lib/first.js:55-56), and off the stage path there is no count
+(lib/select.js:178-181). That matches README:30-31 and SUBMISSION:38-39.
+
+Mismatches:
+a) SUBMISSION.md:145 "Run `npm start`, open http://localhost:3000."
+   README.md:93-96 says to put the keys in .env.local and run `npm run local`. `npm start` is `node server.js`
+   (package.json), which never loads .env.local (no loadEnvLocal in server.js; only scripts/local.mjs:8 does). So it
+   runs on the claude-code route and needs the `claude` CLI (lib/model.js:110). Also `npm run local` picks a port from
+   3000-3010 (scripts/env-local.mjs:65), not always 3000.
+   Fix: "Run `npm run local` (see README) and open the address it prints."
+b) README.md:91 "There is nothing to install." plus README.md:98 / SUBMISSION.md:145 "`npm run e2e`".
+   e2e/*.e2e.js require('playwright') (e.g. e2e/qr-card.e2e.js:12). package.json has no dependencies, and
+   docs/RUN-LOCALLY.md never mentions Playwright. On a fresh clone `npm run e2e` fails.
+   Fix: "Node 22 runs the app; `npm run e2e` also needs Playwright (npm i -g playwright && npx playwright install chromium)."
+c) SUBMISSION.md:62 "one of each per person" vs SUBMISSION.md:92 "one of each per device per drop". The code limits per
+   device per drop (deploy/acceptance/bakery.acceptance.js:116 test 3; deploy/app/bakery.js rate/device logic).
+   Fix: say "per phone" at :62.
+d) SUBMISSION.md:90 "its 11-test acceptance suite". bakery.acceptance.js has 13 test() calls: tests 1-11, plus "3b"
+   (:137) and "+ rate limit" (:268). It's arguably fine as 11 numbered rules (deploy/ACCEPTANCE.md); just noting.
+e) Unfilled TBDs, due at 11:30: SUBMISSION.md:120 "Full run ... TBD", :145 "Repo: TBD", :146 "Demo video: TBD".
+   SUBMISSION.md:3 says to fill these or delete them before submitting.
+Not verifiable offline: README.md:127 vendor commit `e91a134` (upstream; no record in repo history).
+
+Outside scope (not stage-visible, but relevant to CLAUDE.md rule 3): the comment at lib/select.js:2 says "code applies the
+rules: at most 3 asks". pickAsks (lib/select.js:178-181) has no cap unless `max` is passed, and off the stage path
+routes/run.js:49 passes undefined (lib/first.js:56). No code anywhere enforces a cap of 3. The comment is stale. Docs
+don't claim a cap, but CLAUDE.md rule 3 still does.
