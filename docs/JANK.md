@@ -249,3 +249,30 @@ New:
     - Shots: `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-new.jpg` (600 ms), `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-drawer.jpg`
     - Hooks: `[data-component="inbox-item"][data-state="top"] [data-slot="text"]`, `[data-component="note-flight"]`
     - Fix: show who is asking at once ("Bo asks…"), and fade the question in as the flight lands; keep the flight at 1.5 s or less. In the drawer, show the item's text at once.
+
+### Pass 6 · main 92e5225 · 15 Nov 01:01 UTC (day/night, rain, the handwritten name tag; plus the meeting walk)
+
+Passing at all three sizes:
+- Day/night: the labels match each mode; within 1 s exactly one room video is playing; no patch is frozen; Day survives a reload; 4 quick clicks during a replay land right.
+- Sound: Day is silent and the window is hidden; at night, rain.mp3 plays; the record cycles piano → electronic → chiptune → off, with no rain track; the window toggles only the rain, and the music keeps playing; both choices survive a reload; `?stage=1` is silent until a tap.
+- The mic: idle, listening and writing are all ink-paper (fake microphone, stubbed speech-to-text).
+- The name tag, all but its height: after Enter the form is gone, the pen writes her name and then the title, and the fallback says plainly that the tag is in her own words.
+- `?look=plain` (checked on design/meetcard): no painted layers.
+- The meet cards (on design/meetcard, ahead of its merge): each wave plays, a tap plays the reaction and then the wave, and the frame is inked and rounded with a 34px radius, at all three sizes.
+
+Name tag height:
+- The card still gets shorter at Enter, by 147, 111 and 98px at 1920, 1440 and 1280. design/nametag-2 should fix this; re-check when it lands.
+
+New:
+
+36. [design, blocks the demo] **In the painted look, Focus 1 breaks as soon as she sends a round.** Walked with the real meeting flow: Send, the team's replies, three rounds, End meeting, then the takeaways.
+    - The question, the research quote and her answer print on top of each other.
+    - The replies spill over the work.
+    - The right column collapses to an empty pink bar.
+    - End meeting is a grey ButtonFace button, and "New replies ↓" is another.
+    - After End meeting, the takeaways card is a 32px strip, and its guidance sits below the window (top 1045px at 1920x1130).
+    - Cause: main has the meeting's code (focus-doc.js, `[data-component="meeting"]` composing · discussing · ended) but not its painted CSS.
+    - Shots: `design/studio/qa/2026-11-15-01-01/main-1920-09-meeting-r1.jpg`, `design/studio/qa/2026-11-15-01-01/main-1920-09-meeting-ended.jpg`, `design/studio/qa/2026-11-15-01-01/main-1280-09-meeting-ended.jpg`
+    - Hooks: `[data-component="focus-doc"]`, `[data-component="meeting"]`, `[data-component="end-meeting"]`, `[data-component="takeaways"]`
+    - Fix: merge design/meetcard (b3037ad). On that branch the same walk is clean: one conversation column, an inked End meeting, and full takeaways with Keep inside the card at 1920 and 1280. That also closes finding 30.
+      - Shots: `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-r3.jpg`, `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-ended.jpg`

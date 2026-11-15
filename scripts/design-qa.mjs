@@ -115,20 +115,38 @@ async function focusStub(p, ask) {
 }
 add('09-focus1', 'Focus 1 (Noor’s finding)', async p => { await focusStub(p, FOCUS1); });
 add('09-focus1-typed', 'Focus 1, her answer typed', async p => { await focusStub(p, FOCUS1); await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill('It’s really for the regulars.').catch(() => {}); await wait(300); });
-add('09-focus1-takeaways', 'Focus 1 after Send, long takeaways (~60 words)', async p => { await focusStub(p, FOCUS1);
-  await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill('It’s really for the regulars. Most of them want the same loaf every morning.').catch(() => {});
-  await p.keyboard.press('Enter'); await wait(400);
-  await p.evaluate(() => { const d = ev => BYOC.dispatch({ run: 'qa-stub-run', ...ev }, 'live');
-    d({ type: 'answer', askId: 'first', text: 'It’s really for the regulars. Most of them want the same loaf every morning.' });
-    d({ type: 'chime', askId: 'first', seat: 'research', by: 'Noor', text: 'That matches the finding: a third come back every week.' });
-    d({ type: 'chime', askId: 'first', seat: 'design', by: 'Mika', text: 'Then their usual loaf goes first, one tap away.' });
-    d({ type: 'takeaways', askId: 'first', believe: 'Regulars come first: the people who buy the same loaf every week and hate hunting for it.',
-      guidance: 'Put a regular’s usual loaf at the top of the page with one tap to reserve it for the next morning. Remember them on the device so they never fill in a form twice. New neighbours can browse below, but nothing should slow a regular down, and the cutoff time must be visible before they start, not at checkout.' }); });
+// Focus 1 as a meeting (focus-doc.js): she sends a round, the team replies live (discussing), up to three rounds, then
+// End meeting, then the takeaways (~60 words of guidance) at the bottom of the conversation.
+const ROUNDS = [
+  ['It’s really for the regulars. Most of them want the same loaf every morning.', [['research', 'Noor', 'That matches the finding: a third come back every week.'], ['design', 'Mika', 'Then their usual loaf goes first, one tap away.']]],
+  ['And the bakers need to know the count the night before.', [['engineering', 'Bo', 'Then orders close at 8pm, and the count goes to the bakers at 8:05.'], ['data', 'Theo', 'We can watch how many regulars reserve before 8.']]],
+  ['Keep it warm and personal, like a baker who knows your name.', [['strategy', 'Ines', 'That is the edge over the supermarket. I would lead with it.'], ['design', 'Mika', 'Their name on the reserve button, then.']]],
+];
+async function meetingRounds(p, n) {
+  await focusStub(p, FOCUS1);
+  for (let r = 0; r < n; r++) {
+    const [said, replies] = ROUNDS[r];
+    await p.locator('[data-component="focus-doc"] [data-slot="input"]').first().fill(said).catch(() => {});
+    await p.keyboard.press('Enter'); await wait(500);
+    await p.evaluate(rep => { const d = ev => BYOC.dispatch({ run: 'qa-stub-run', ...ev }, 'live');
+      d({ type: 'thread.start', askId: 'first', seats: rep.map(x => x[0]) });
+      for (const [seat, by, text] of rep) d({ type: 'chime', askId: 'first', seat, by, text });
+      d({ type: 'round.done', askId: 'first' }); }, replies);
+    await wait(3500);
+  }
+}
+add('09-meeting-r1', 'Focus 1 meeting: round 1 (discussing)', async p => { await meetingRounds(p, 1); });
+add('09-meeting-r3', 'Focus 1 meeting: three rounds', async p => { await meetingRounds(p, 3); });
+add('09-focus1-takeaways', 'Focus 1 meeting: End meeting, then long takeaways (~60 words)', async p => { await meetingRounds(p, 3);
+  const end = p.locator('[data-component="focus-doc"] [data-slot="end-meeting"]');
+  if (await end.count() && await end.isVisible()) await end.click(); else await p.evaluate(() => document.querySelector('[data-slot="end-meeting"]')?.click());
+  await wait(600);
+  await p.evaluate(() => BYOC.dispatch({ run: 'qa-stub-run', type: 'takeaways', askId: 'first', believe: 'Regulars come first: the people who buy the same loaf every week and hate hunting for it.',
+    guidance: 'Put a regular’s usual loaf at the top of the page with one tap to reserve it for the next morning. Remember them on the device so they never fill in a form twice. New neighbours can browse below, but nothing should slow a regular down, and the cutoff time must be visible before they start, not at checkout.' }, 'live'));
   await wait(6000);
-  // the guidance is long: say where it is, so a blank card is never mistaken for an animation
-  const g = await p.evaluate(() => { const e = document.querySelector('[data-component="takeaways"] [data-slot="guidance"]') || document.querySelector('.brief-guidance .brief-text'); if (!e) return 'no guidance slot';
-    const r = e.getBoundingClientRect(), box = e.closest('[data-component="takeaways"]').getBoundingClientRect(), cs = getComputedStyle(e);
-    return `guidance textContent ${e.textContent.length} chars, innerText ${e.innerText.length}, color ${cs.color}, -webkit-text-fill ${cs.webkitTextFillColor}, clip ${cs.clipPath}, opacity ${cs.opacity}, visibility ${cs.visibility}, top ${Math.round(r.top)} bottom ${Math.round(r.bottom)} in card ${Math.round(box.top)}-${Math.round(box.bottom)}`; });
+  const g = await p.evaluate(() => { const e = document.querySelector('[data-component="takeaways"] [data-slot="guidance"]'); const m = document.querySelector('[data-component="meeting"]');
+    if (!e) return `no guidance slot; meeting ${m && m.dataset.state}`; const r = e.getBoundingClientRect(), c = e.closest('[data-component="takeaways"]').getBoundingClientRect();
+    return `meeting ${m && m.dataset.state}; guidance ${e.textContent.length} chars, top ${Math.round(r.top)} bottom ${Math.round(r.bottom)} in card ${Math.round(c.top)}-${Math.round(c.bottom)}`; });
   console.log('  probe:', g); });
 add('10-focus2', 'Focus 2 (Mika’s journey in words)', async p => { await focusStub(p, FOCUS2); });
 async function unblock(p) {
@@ -581,7 +599,7 @@ for (const [w, h] of EXTRA) for (const mode of MODES) {
       await wait(1500);
     }
     // day/night pill (no data-component yet): the aria-label is the only stable handle
-    const sky = p.locator('button[aria-label^="Switch to"]');
+    const sky = p.locator('button[aria-label^="Switch to"], button[aria-label^="Time of day follows"], button[aria-label^="Always day"], button[aria-label^="Always night"]');
     if (await sky.count()) { await sky.first().click({ force: true }); await wait(2500); await p.screenshot({ path: path.join(dir, 'toggled-time.png') }); }
     else rec('toy missing', 'day/night pill', 'no day/night pill');
     // app button and custom cursor (announced as coming)
