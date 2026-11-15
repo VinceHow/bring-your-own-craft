@@ -197,17 +197,35 @@ body.print .counter { display: none; }
 .seat small { text-transform: uppercase; letter-spacing: .14em; font-weight: 700; font-size: 12px; }
 .seat.human small { color: var(--cr-product); }
 
-/* 01 · the problem: both halves, each label → headline → its card → caption, the card the one hero; the halves share a top line */
-.problem .half { justify-content: flex-start; gap: 14px; padding: 150px 64px 96px 110px; }
-.problem .half + .half { padding-left: 84px; padding-right: 80px; }
-.problem .headline { font-size: 84px; }
+/* 01 · the problem: a strict mirror on a shared grid. Each half, centred: label, headline, its card (both 520×290,
+   ±1.5°), caption; the two halves share every row. The kicker frames both, over the seam; the footnote spans the foot. */
+.problem .half { align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 96px 64px 96px; }
+.problem .half + .half { padding: 96px 64px 96px; }
+.problem .kicker.over { left: 0; right: 0; top: 96px; text-align: center; }
+.problem .label { margin-top: 40px; }
+.problem .headline { font-size: 76px; max-width: 520px; }
 .problem .caption { font-size: 30px; margin: 0; }
-.problem .art { position: relative; display: flex; justify-content: flex-start; margin: 14px 0 22px; }
-.problem .terminal { zoom: .8; margin-bottom: 0; padding-bottom: 30px; }
-.problem .site { zoom: .66; }
-.problem .site > .sticky { zoom: 1.2; }
-.problem .terminal .pills { left: calc(100% - 110px); top: calc(100% - 150px); width: 260px; height: 190px; }
-.problem .cool .art { margin-bottom: 52px; }
-.problem .foot { position: absolute !important; left: 110px; bottom: 34px; }
-.problem .site > .sticky { bottom: -12px; }
-.problem .warm .art { margin-bottom: 40px; }
+.problem .art { position: relative; display: flex; justify-content: center; margin: 22px 0 84px; }
+.problem .paper { width: 520px; height: 290px; zoom: 1; overflow: visible; text-align: left; }
+.problem .terminal { padding: 0; margin-bottom: 0; font-size: 20px; rotate: -1.5deg; }
+.problem .terminal .term-head { margin-bottom: 18px !important; }
+.problem .terminal .pills { left: -20px; top: calc(100% - 22px); width: 340px; height: 100px; }
+.problem .site { rotate: 1.5deg; display: flex; flex-direction: column; }
+.problem .site-nav { padding: 12px 22px; font-size: 14px; gap: 18px; } .problem .site-nav b { font-size: 16px; }
+.problem .site-hero { margin: 10px 12px; padding: 22px 24px 20px; flex: 1; }
+.problem .site-h { font-size: 34px; } .problem .site-sub { margin: 8px 0 14px; font-size: 14px; } .problem .site-btn { padding: 9px 18px; font-size: 13px; }
+.problem .site-tiles { padding: 0 12px 12px; gap: 10px; } .problem .site-tiles i { height: 34px; }
+.problem .site > .sticky { right: -26px; bottom: -20px; max-width: 220px; padding: 14px 16px 16px; font-size: 25px; zoom: 1; }
+.problem .foot { position: absolute !important; left: 0; right: 0; bottom: 40px; text-align: center; color: rgba(251, 244, 234, .5); }
+/* the AI app builder's chat: the terminal's mirror; its ticked list rhymes with the Approve pills */
+.chat { padding: 0; rotate: 1.5deg; font-family: var(--sans); }
+.chat .term-head { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; padding: 16px 22px; border-bottom: 2px solid rgba(51, 38, 28, .18); font: 600 18px/1 var(--sans); color: var(--ink-2); }
+.chat .term-head i { width: 13px; height: 13px; border-radius: 50%; background: rgba(51, 38, 28, .22); }
+.chat .term-head span { margin-left: 8px; letter-spacing: .04em; }
+.chat-msg { display: flex; gap: 14px; align-items: flex-start; padding: 0 30px; }
+.chat-msg .sparkle { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #F4E6D4; box-shadow: 0 0 0 1.5px rgba(51, 38, 28, .4); font-size: 20px; }
+.chat-msg p { margin: 0; font: 500 21px/1.38 var(--sans); color: var(--ink); }
+.chat-done { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0 30px 0 84px; }
+.chat-done span { padding: 6px 12px 7px; border-radius: 999px; background: #3A2A1F; color: #FFF8F2; font: 700 14px/1 var(--sans); box-shadow: 2px 3px 0 0 var(--cr-research); }
+.problem .chat > .sticky { position: absolute; right: -26px; bottom: -20px; max-width: 210px; padding: 14px 16px 16px; font-size: 23px; }
+.problem .half + .half::before { top: 168px; bottom: 96px; }   /* the seam stops short of the kicker and the footnote */
