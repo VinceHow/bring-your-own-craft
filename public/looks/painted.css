@@ -1427,3 +1427,59 @@ html.painted-on [data-component="start-over"] [data-slot="yes"] { appearance: no
 html.painted-on [data-component="start-over"] [data-slot="no"] { appearance: none; border: 0; background: none; padding: 4px 2px; font: 500 15px/1 var(--ui); color: var(--ink-2); justify-self: start;
   background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; }
 html.painted-on [data-component="start-over"] :is([data-slot="yes"], [data-slot="no"]):hover { translate: 0 -1px; }
+
+/* ---------- POLISH §2: every input is a good input (design) ----------
+   Long words (a ~300-word answer, a pasted paragraph) scroll inside the field, which keeps one height; the mic sits in
+   its own strip at the foot of the same box, so words never run under it; an empty field leaves its primary action
+   visibly unavailable. Hooks only. */
+/* the idea card and the name tag: the field is the top of the box, the label's ::after is the strip the mic sits in */
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"]) { position: relative; display: block; }
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"]) > [data-slot="input"] {
+  box-sizing: border-box; display: block; width: 100%; min-height: 0 !important; overflow-y: auto; resize: none; margin: 0;
+  padding: 14px 18px 8px !important; border-radius: 16px 16px 0 0 !important; box-shadow: none !important; background: #FFFBF3;
+  border: 1.5px solid rgba(212,114,136,.45); border-bottom: 0; scrollbar-width: thin; scrollbar-color: rgba(51,38,28,.3) transparent; }
+html #room [data-component="idea-card"] label:has(> [data-slot="input"]) > [data-slot="input"] { height: 128px; }
+html #room [data-component="character-card"] label:has(> [data-slot="input"]) > [data-slot="input"] { height: 100px; }
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"])::after { content: ''; display: block; height: 54px;
+  box-sizing: border-box; background: #FFFBF3; border: 1.5px solid rgba(212,114,136,.45); border-top: 0; border-radius: 0 0 16px 16px; }
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"]:focus) > [data-slot="input"],
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"]:focus)::after { border-color: rgba(147,55,79,.7); }
+html #room :is([data-component="idea-card"], [data-component="character-card"]) label:has(> [data-slot="input"]) > [data-field] { position: absolute; right: 9px; bottom: 7px; top: auto; margin: 0; }
+/* empty: the way on is visibly not ready yet */
+html #room [data-component="idea-card"]:has([data-slot="input"]:placeholder-shown) [data-slot="make"],
+html #room [data-component="character-card"][data-state="asking"]:has(label > [data-slot="input"]:placeholder-shown) [data-slot="make"] {
+  opacity: .42; box-shadow: none; cursor: default; translate: none !important; }
+/* her focus document: the field keeps one height and scrolls; the mic sits in a strip under it, inside the same box */
+html #room [data-component="focus-doc"] form { position: relative; }
+html #room [data-component="focus-doc"] form > [data-slot="input"] { order: -2; box-sizing: border-box; height: 120px !important; min-height: 0 !important; overflow-y: auto; margin: 0 !important;
+  border-radius: 16px 16px 0 0 !important; box-shadow: none !important; border: 1.3px solid rgba(51,38,28,.35); border-bottom: 0; background: rgba(255,253,248,.92);
+  scrollbar-width: thin; scrollbar-color: rgba(51,38,28,.3) transparent; }
+html #room [data-component="focus-doc"] form::before { content: ''; order: 1; flex: 1 0 100%; height: 52px; box-sizing: border-box; margin-top: -10px;
+  background: rgba(255,253,248,.92); border: 1.3px solid rgba(51,38,28,.35); border-top: 0; border-radius: 0 0 16px 16px; }
+html #room [data-component="focus-doc"] form:has(> [data-slot="input"]:focus) > [data-slot="input"],
+html #room [data-component="focus-doc"] form:has(> [data-slot="input"]:focus)::before { border-color: var(--product-t); }
+html #room [data-component="focus-doc"] form > [data-field] { position: absolute !important; top: 126px !important; right: 9px; left: auto !important; margin: 0 !important; height: 38px !important;
+  grid-row: auto !important; order: 0; }
+html #room [data-component="focus-doc"] form > [data-field] svg { padding: 6px !important; }
+html #room [data-component="focus-doc"]:not(:has([data-component="piece"])) form:has(> [data-slot="input"]:placeholder-shown) [data-slot="send"] {
+  opacity: .42; box-shadow: none; cursor: default; translate: none !important; }
+/* the unblock card's answer in her words: grows to a few lines, then scrolls inside its own box */
+html #room [data-component="inbox-action"] [data-slot="hers"] { max-height: min(220px, 26vh); overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: rgba(147,55,79,.35) transparent; }
+
+/* ---------- POLISH §3: calm, clean motion ----------
+   The setup's papers are placed by the room's own spring (opacity + lift). The old .big-card landing animation ran on
+   top of it, so the name tag faded in, dipped back to ~70% and faded in again. One motion only. */
+html #room [data-component="setup"] :is([data-component="idea-card"], [data-component="character-card"], [data-component="meet-card"]) { animation: none !important; }
+/* the name tag keeps its size as it turns into her tag (room.js stores its offsetHeight in --pt-nt-h): measured with its
+   padding, so the min-height must count the padding too, or the paper grows and jumps for a frame on Enter */
+html #room [data-component="character-card"][data-seat="product"] { box-sizing: border-box; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] { height: var(--pt-nt-h, auto); max-height: var(--pt-nt-h, none); overflow: hidden; }
+/* End meeting → takeaways: the card lands as soon as the column has scrolled to it (focus-doc.js lifts it 16px); a fade
+   from nothing on top left the column blank for a beat between "writing the takeaways…" and the card */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-component="takeaways"] { animation: none !important; }
+/* reduced motion: the setup's papers simply appear (the room's spring still sets an inline lift and fade) */
+@media (prefers-reduced-motion: reduce) {
+  html #room [data-component="setup"] :is([data-component="idea-card"], [data-component="character-card"], [data-component="meet-card"]) { transform: none !important; translate: none !important; opacity: 1 !important; }
+  html #room [data-component="note-flight"] { display: none !important; }
+}

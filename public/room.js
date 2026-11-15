@@ -675,7 +675,8 @@
       let text = raw;
       try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
       // she typed on while it tidied: her new words stay in the box; this line goes as she sent it
-      if (el.herInput.dataset.tidy !== 'skipped') holdLine(text);
+      const typedOn = el.herInput.value !== raw && el.herInput.value !== text;
+      if (!typedOn) { if (el.herInput.dataset.tidy === 'skipped') el.herInput.value = ''; else holdLine(text); } // unchanged: nothing to hold
       if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
