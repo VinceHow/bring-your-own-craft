@@ -394,6 +394,7 @@
 
   // ---- 4b. bug fixes from testing, last so they win over painted.css and painted-room.css (selectors on data-* only) ----
   css('painted-fixes.css');
+  js('painted-fixes.js');                                             // the team-notes tab's open and close
   // which teammate's pad is open, as an attribute painted-fixes.css can read cheaply (its pill steps back meanwhile)
   const padOpen = seat => { if (seat) room.dataset.padOpen = seat; else delete room.dataset.padOpen; };
   B.on('seat.open', ev => padOpen(ev && ev.seat));
