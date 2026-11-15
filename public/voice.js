@@ -239,17 +239,49 @@
   BYOC.tidyInto = async function (el, text, opts = {}) {
     const raw = String(text ?? '').trim();
     if (!raw) return raw;
+    // Already tidied by a pause (below): Enter / Next / Send don't tidy it again. One running for these words: join it.
+    if (el && el.dataset.tidyDone === raw) { el.dataset.tidy = 'skipped'; return raw; } // nothing new to play: no hold, no second pen
+    if (el && el.dataset.state === 'tidying' && el.dataset.raw === raw && el._tidyP) return el._tidyP;
     const isField = el && ('value' in el) && /^(INPUT|TEXTAREA)$/.test(el.tagName);
-    if (el) { el.dataset.raw = raw; el.dataset.state = 'tidying'; if (isField) el.value = raw; else el.textContent = raw; }
-    let clean = raw;
-    try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
-    // She typed (or spoke) on while it tidied: what she has now is never overwritten, and this line goes untidied.
-    // She typed while it tidied (a field, or a contenteditable answer): her edit wins.
-    if (el && (isField ? el.value !== raw : el.isContentEditable && el.textContent.trim() !== raw)) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
-    // Nothing changed (slow, failed, refused or already clean): 'skipped', so no tidy plays over her own words.
-    if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = clean === raw ? 'skipped' : isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
-    return clean;
+    const now = () => (isField ? el.value : el.textContent).trim();
+    if (el) { el.dataset.raw = raw; el.dataset.state = 'tidying'; if (now() !== raw) { if (isField) el.value = raw; else el.textContent = raw; } }
+    const p = (async () => {
+      let clean = raw;
+      try { clean = String(await BYOC.tidy(raw, { timeoutMs: 2500, ...opts }) || raw).trim() || raw; } catch { clean = raw; }
+      // She typed (or spoke) on while it tidied (a field, or a contenteditable answer): her edit wins, never overwritten.
+      if (el && (isField || el.isContentEditable) && now() !== raw) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
+      // Nothing changed (slow, failed, refused or already clean): 'skipped', so no tidy plays over her own words.
+      if (el) {
+        if (clean !== raw) {
+          if (isField) { el.value = clean; try { el.setSelectionRange(clean.length, clean.length); } catch {} }
+          else { el.textContent = clean; if (document.activeElement === el) { try { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch {} } } // caret back at the end
+        }
+        el.dataset.tidy = clean === raw ? 'skipped' : isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; el.dataset.tidyDone = clean;
+      }
+      return clean;
+    })();
+    if (el) el._tidyP = p;
+    try { return await p; } finally { if (el && el._tidyP === p) el._tidyP = null; }
   };
+
+  // ---- the tidy on a pause (Vincent, Sun): ~1.2 s with no keystroke and at least 4 words, every tidy-enabled input
+  // tidies in place (the pen plays on data-state tidying -> tidied). Typing on during it is never overwritten (above);
+  // text already tidy isn't tidied again; Enter / Next still tidy if no pause tidy ran. Voice: the transcript lands as an
+  // input event, so the same pause tidies it. ?tidypause=<ms> (0: off).
+  const PAUSE_MS = Number(new URLSearchParams(location.search).get('tidypause') ?? 1200);
+  const PAUSE_SEL = '#idea-input, #intro-input, #her-input, #close-input, .ia-hers';
+  const pauseT = new WeakMap();
+  document.addEventListener('input', e => {
+    const el = e.target && e.target.closest && e.target.closest(PAUSE_SEL);
+    if (!el || !PAUSE_MS || BYOC.replay) return;
+    clearTimeout(pauseT.get(el));
+    pauseT.set(el, setTimeout(() => {
+      if (!document.contains(el) || el.readOnly || el.dataset.state === 'tidying') return;
+      const text = ('value' in el && /^(INPUT|TEXTAREA)$/.test(el.tagName) ? el.value : el.textContent).trim();
+      if (text.split(/\s+/).filter(Boolean).length < 4 || el.dataset.tidyDone === text) return;
+      BYOC.tidyInto(el, text, el.id === 'intro-input' ? { field: 'intro' } : {});
+    }, PAUSE_MS));
+  }, true);
 
   // ---- is voice there? -------------------------------------------------------------------------
   BYOC.voice = { get available() { return available; }, get state() { return state; }, get toggled() { return toggled; }, start: () => start(currentTarget()), stop, cancel };
