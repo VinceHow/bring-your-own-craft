@@ -19,7 +19,7 @@ const asks = evs.filter(e => e.type === 'ask');
 const answers = new Map(evs.filter(e => e.type === 'answer').map(e => [e.askId, e.text]));
 const takeaways = evs.filter(e => e.type === 'takeaways');
 
-const NAMES = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo', product: 'Priya' };
+const NAMES = { design: 'Mika', research: 'Wren', data: 'Theo', strategy: 'Ines', engineering: 'Bo', product: 'Priya' };
 const lines = [];
 const P = s => lines.push(s);
 P(`# Build the bakery: Bo, the team's engineer`);

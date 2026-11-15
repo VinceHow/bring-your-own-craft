@@ -25,8 +25,8 @@ The shelf (given by the builders): Sourdough (rare, 3), Seeded rye (medium, 8), 
 |---|---|
 | Reserve with just a first name (1–30 characters); any other field is refused, not dropped | first-d1 · Mika, c3 · Bo, c6 · Theo, brief |
 | One of each loaf per device per drop, enforced by a unique index in the database; a new drop starts at each Restock | first-d2 · Bo, c23 · Priya (loosened by the brief to one of *each* item) |
-| Sold out reads "Sold out for today", warmly, with a hand-drawn line through the name | first-d3 · Ines, c15 · Mika, c18 · Noor, brief |
-| No login, no payment, no deposit | first-d4 · Noor, c9 · Ines, c10 · Ines |
+| Sold out reads "Sold out for today", warmly, with a hand-drawn line through the name | first-d3 · Ines, c15 · Mika, c18 · Wren, brief |
+| No login, no payment, no deposit | first-d4 · Wren, c9 · Ines, c10 · Ines |
 | Only a first name, a loaf and a time are kept (plus the device id the brief asks for) | first-d5 · Theo, c6 · Theo, brief |
 | Stock can never go below 0; two people racing for the last loaf: exactly one wins | c2 · Bo, brief |
 | A reservation is held 15 minutes (changeable on the admin page, 1–240), then released: stock returns, the customer's page says they can try again next bake, and Deliver skips it | c1 · Bo, c22 · Priya, c11 · Ines, brief |
@@ -48,9 +48,9 @@ The shelf (given by the builders): Sourdough (rare, 3), Seeded rye (medium, 8), 
 | first-d1 · Mika | Only a first name goes in; phone, email, last name and address are refused |
 | first-d2 · Bo | A second of the same loaf from one device is a kind 409; a different loaf is fine |
 | first-d3 · Ines | Sold out says "Sold out for today" and the booking is refused |
-| first-d4 · Noor | A customer reserves with no login or token, and gets the sticker message |
+| first-d4 · Wren | A customer reserves with no login or token, and gets the sticker message |
 | first-d5 / c6 · Theo | The reservation table has no personal column beyond first name, loaf, time, device id |
-| c15 · Mika, c18 · Noor | A sold-out loaf stays on the shelf, marked sold out, count 0 |
+| c15 · Mika, c18 · Wren | A sold-out loaf stays on the shelf, marked sold out, count 0 |
 | c9 / c10 · Ines | No payment or deposit step exists |
 | c11 · Ines, c22 · Priya | An unclaimed reservation is released with a "try again next bake" note |
 | c8 · Theo, c20 / c21 · Priya | Records stay until Reset; a first-time visitor can reserve (see below) |
@@ -72,11 +72,11 @@ The team's gate (`../acceptance/bakery.acceptance.js`): 12 pass, 1 skipped (3b, 
 |---|---|
 | c4 · Bo, c16 · Mika, c24 · Priya: text message when ready, with time ready, loaf and pickup deadline | No SMS or push. The open page updates itself when Vincent taps Deliver. The brief rules out anything that collects more than a first name. |
 | c9 · Ines: pay at collection | Nothing to pay. It's a demo with no real bread. |
-| c1 · Bo, c19 · Noor: 15 minutes from when they were notified | The hold runs from when the order was placed and ends at "the end of the talk". Customers see no countdown. |
+| c1 · Bo, c19 · Wren: 15 minutes from when they were notified | The hold runs from when the order was placed and ends at "the end of the talk". Customers see no countdown. |
 | c8 · Theo: delete a record immediately after pickup | Records stay on the baker's page until Reset demo, because Vincent shows "who ordered what". |
-| c5 · Theo, c17 · Noor: count regulars with two reservations a month | No analytics, and no month of history in a demo. |
+| c5 · Theo, c17 · Wren: count regulars with two reservations a month | No analytics, and no month of history in a demo. |
 | c3 · Bo: "device recognition" | Kept in the brief's form only: a random device id in a cookie, used for the one-per-drop rule. No account. |
-| c20 · Noor, c21 · Priya: visit in person once, regulars only | Every judge scans a QR and reserves on the spot, so anyone can reserve. |
+| c20 · Wren, c21 · Priya: visit in person once, regulars only | Every judge scans a QR and reserves on the spot, so anyone can reserve. |
 | c23 · Priya: one loaf in total per batch | One of *each* item per drop, so every judge gets something. |
 | c2 · Bo: lock a slot while someone is reserving | Reserving is one atomic step in the database, so two people can't take the same loaf and no lock is needed. |
 | c12 · Ines: different prices by loaf | No prices: nothing to pay. |
