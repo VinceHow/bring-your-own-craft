@@ -105,6 +105,7 @@
 
   function focusInput() {
     if (inClose()) { document.getElementById('close-input')?.focus(); return; }
+    if (BYOC.ideaOpen && BYOC.ideaOpen()) { document.getElementById('idea-input')?.focus(); return; }
     if (BYOC.introOpen && BYOC.introOpen()) { document.getElementById('intro-input')?.focus(); return; }
     const inp = document.getElementById('her-input');
     if (inp && !document.getElementById('her-form').hidden) inp.focus();
@@ -115,6 +116,7 @@
     const b = BYOC.beat;
     const idea = document.getElementById('her-idea').textContent;
     if (b === 0) { // her paper name tag: forward makes her name tag from her words, then moves on to the team
+      if (BYOC.ideaOpen && BYOC.ideaOpen()) return BYOC.ideaDone(); // her idea paper (first): forward keeps it, then her name tag
       if (BYOC.introOpen && BYOC.introOpen()) return BYOC.introDone();
       return BYOC.stage(1);
     }
