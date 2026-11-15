@@ -1,0 +1,51 @@
+{
+ "at": "2026-11-15T03:31:53.242Z",
+ "headed": true,
+ "secs": 30,
+ "results": {
+  "day": {
+   "fps": 14.9,
+   "frames": 446,
+   "p50ms": 66.7,
+   "p95ms": 100,
+   "p99ms": 100.1,
+   "maxms": 133.4,
+   "over33ms": 404,
+   "over50ms": 391,
+   "longTasks": 0,
+   "longestTaskMs": 0,
+   "cpuBusyPct": 4,
+   "scriptPct": 0,
+   "layoutPct": 0,
+   "stylePct": 1,
+   "layouts": 70,
+   "styleRecalcs": 249,
+   "heapMB": 4,
+   "videosInPage": 0,
+   "iframes": 2,
+   "livingVideosPlaying": 6
+  },
+  "night": {
+   "fps": 10.4,
+   "frames": 311,
+   "p50ms": 100,
+   "p95ms": 133.3,
+   "p99ms": 166.7,
+   "maxms": 199.9,
+   "over33ms": 309,
+   "over50ms": 303,
+   "longTasks": 0,
+   "longestTaskMs": 0,
+   "cpuBusyPct": 5,
+   "scriptPct": 0,
+   "layoutPct": 0,
+   "stylePct": 1,
+   "layouts": 75,
+   "styleRecalcs": 203,
+   "heapMB": 4,
+   "videosInPage": 0,
+   "iframes": 2,
+   "livingVideosPlaying": 6
+  }
+ }
+}
