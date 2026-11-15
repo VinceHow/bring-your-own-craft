@@ -1302,6 +1302,7 @@
     const inp = $('#intro-input', c);
     const raw = inp.value.trim();
     if (raw && c.dataset.state === 'asking') {
+      c.style.setProperty('--pt-nt-h', c.offsetHeight + 'px'); // the paper keeps its size as it turns into her tag (a look may use it)
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
       tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;

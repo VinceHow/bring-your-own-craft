@@ -1216,6 +1216,8 @@ html #room [data-component="character-card"][data-state="shown"] [data-slot="cha
 @media (prefers-reduced-motion: reduce) { html #room [data-component="character-card"] [data-slot="character"] *,
   html #room [data-component="character-card"] [data-slot="character"] > :first-child::after { animation: none !important; } }
 /* step 2 keeps one size from the first pen stroke to the last, so the tag never jumps when the team's read lands */
-html #room [data-component="character-card"][data-seat="product"]:not([data-state="asking"]) { min-height: 520px; }
+html #room [data-component="character-card"][data-seat="product"]:not([data-state="asking"]) { min-height: var(--pt-nt-h, 520px); }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="character"] { margin-block: auto; }
+html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: 0; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"] { margin-top: auto; padding-top: 16px; }
 html #room [data-component="character-card"]:not([data-state="asking"]) > [data-slot="status"]:empty + [data-slot="actions"] { margin-top: auto; }
