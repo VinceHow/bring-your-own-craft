@@ -129,3 +129,12 @@ html body #room [data-component="owner-task"] [data-slot="tick"]:checked {
   background: var(--ink, #2B1F17) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23FFF6EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 html body #room [data-component="owner-task"] [data-slot="tick"]:focus-visible { outline: 2px solid var(--ink-2, #4E3A2B); outline-offset: 2px; }
 html body #room [data-component="owner-task"] [data-slot="title"], html body .replay-label, html body .replay-label * { font-weight: 500 !important; }
+
+/* ---- JANK 2, the last bit: the research card's source link ----
+   Its title and site are inked, but the link itself kept the browser's blue (#0000EE), so the dash before it and the
+   dot between title and site showed as two blue marks on her focus document. The link is ink; its parts keep theirs. */
+html body #room [data-component="research-card"] [data-slot="source"] { color: var(--ink-3, #64503F); text-decoration: none; }
+html body #room [data-component="research-card"] [data-slot="source"]:hover [data-slot="source-title"] { text-decoration: underline; text-underline-offset: 3px; }
+/* while her focus document is open, the app chip ("No app yet") steps back: it sat on the document's bottom-right corner
+   at 1440 and 1280, the one thing over her focus. The Replay / Fake run label stays: it's the honesty label. */
+body:has([data-component="focus-doc"]:not([hidden])) [data-component="app-button"] { display: none !important; }
