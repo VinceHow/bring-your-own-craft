@@ -22,7 +22,8 @@ they unlock, and the build. In our audited run the team made 14 decisions that c
 own defaults. Then one press, and her ordering page is filled live from her answers.
 
 At the end of the talk, the judges are the bakery's regulars. Before we started, they ordered a loaf from a live
-bakery site that Bo's agent drafted earlier and our builders finished; its acceptance tests are in `deploy/`. We tap **Deliver**, and every judge's phone flips at once:
+bakery site that Bo's agent drafted earlier and our builders finished; its source and acceptance tests are in
+[`deploy/`](deploy/README.md). We tap **Deliver**, and every judge's phone flips at once:
 *"Delivered: your sourdough is here."*
 
 ## Why it's different
