@@ -3,6 +3,29 @@
 The 05:30 UTC rehearsals (timed full run on `MODEL_BACKEND=fal`, then the three fallbacks) are written up here once
 they've run. Until then, this is the run sheet: things the presenter does that the room can't do for them.
 
+## 07:00 · Step 1 on Vincent's Mac (before any polish judging)
+The lead's and the tech lead's run, in this order, on his Mac:
+1. `npm run local`, then read the route line: it must say **fal**.
+2. `npm run doctor`: the route on its first line, and **2c under 10 s**.
+3. One full stage-path run: idea → name tag → meet the team → Focus 1 (2 rounds + End meeting) → Bo's unblock →
+   Focus 2 → Team, go → her page.
+4. One refresh mid-room: it must **resume** her run (no REPLAY label, nothing asked twice).
+5. **Start over** (top right, or Shift+N): back to the idea paper.
+
+His rehearsal and stage fal spend is separate from the $10 test cap. "Check the fal balance" stays on the pre-talk list.
+
+### The 3-minute look check (the design lead's), on his own Chrome, painted, at his normal window size
+1. Open `/` and confirm the painted room shows (not plain). In Activity Monitor, note Chrome's CPU at idle.
+2. The door: the plaque reads "Bring your own craft", then the doors open into the studio.
+3. The idea paper: type "I want to build a checkout website for a bakery" and press Enter. "I want to build" is struck,
+   fades and closes up; the paper moves on.
+4. The cursor: the pink paper triangle; the fold over buttons; an I-beam in the box.
+5. In the room: tap the time pill 5× (Cycle → Day → Night …). The painting keeps moving at night and the light stays in
+   step. CPU stays under ~60% while it runs.
+6. Refresh mid-run: the room comes back where he was.
+
+If any step fails, note which, and open `?look=plain` as the fallback.
+
 ## Pre-talk checklist
 - **The demo runs on fal** (lead's call, Sun 00:56: on the demo Mac, haiku via Claude Code took over 25 s; fal answers
   in about 1 s). `.env.local` has `MODEL_BACKEND=fal` (and `FAL_KEY`); `npm run local` prints the backend it uses.

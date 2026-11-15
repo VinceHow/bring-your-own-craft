@@ -75,7 +75,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) {
     assert.ok(Object.values(kit).every(l => l.length >= 2 && l.length <= 3), '2-3 items on every card');
     const made = await page.evaluate(() => window.__made);
     assert.deepEqual(made.research, ['Researched with Linkup, before the demo']);
-    assert.deepEqual(made.design, ['Studio, clips, music painted on fal'], 'Mika: fal; no Figma in the room');
+    assert.deepEqual(made.design, ['Studio, clips, music painted on fal', 'The room’s frames, laid out in Figma'], 'Mika: fal, and Figma for the frames (design/FIGMA.md)');
     assert.deepEqual(made.engineering, ['This app, built with Claude Code']);
     assert.deepEqual(made.data, [], 'nothing claimed where there is nothing');
     // 4. the room: her idea on her sheet, the run started with it (never asked again), her journey input next
