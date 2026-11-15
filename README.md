@@ -1,151 +1,110 @@
 # Bring your own craft
 
-**Start with [VISION.md](VISION.md)**: the one-page picture of the product and this hackathon build.
+**Do the part you love; a team of agents does the rest.**
 
-**Do the part you love, and a team of agents gets your idea built.**
+![The studio: Priya's seat at a round table, her five agent teammates at work around her](docs/readme/studio.jpg)
+<sub>The studio mid-run: five agent teammates at work round the table, her stool in front (here on a test idea, a yoga booking page).</sub>
 
-You take the seat of the craft you love. A team of autonomous agents fills every other seat, handles everything it
-can, and brings you only the few big questions that need you. Hackathon build, 14–15 Nov 2026, Autonomous Agents
-track. Licence: [PolyForm Noncommercial 1.0.0](LICENSE). The Devpost write-up is [`SUBMISSION.md`](SUBMISSION.md);
-how we built it is [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md).
+You spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You take the seat of
+your craft; a team of AI agents fills every other seat, handles its own work, and brings you only the few big
+questions that need you.
+
+## The 30-second story
+Priya is a product manager. Her friend runs a small bakery and wants customers to order bread ahead.
+
+Priya says her idea in one rough sentence. She meets her team: Mika (Design), Noor (Research), Theo (Data), Ines
+(Strategy) and Bo (Engineering). Then she sits down, and they get to work.
+
+Nobody asks her about databases, logins or fonts. The team settles all of that itself, and brings her only the big
+questions that need her craft. In our audited run she was asked 3 things: who the bakery is really for, when orders
+should close, and how ordering ahead should feel for a regular. The team decided 14 others itself, her way. Then one press, and her ordering page is built from her answers.
+
+At the end of the talk, the judges are the bakery's regulars. Before we started, they ordered a loaf from a real
+bakery site this same team built earlier. We tap **Deliver**, and every judge's phone flips at once:
+*"Delivered: your sourdough is here."*
+
+## Why it's different
+- **Only the big questions that need her craft.** A question reaches her only if it changes the shape of the product
+  and draws on what she's best at or loves. Everything else, the team assumes and keeps moving. For contrast, a
+  default coding agent given the same bakery prompt asked 0 questions, guessed 24 things that were the owner's call,
+  and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
+- **A real meeting, not a form.** Each big question opens a quiet focus moment. She speaks in pieces; **Send** starts
+  a round of live discussion, where only the teammates her words touch reply, building on her and on each other;
+  **End meeting** gives the takeaways: what she believes, and her guidance to the team.
+- **Her words, kept.** Say it out loud, ums and all. A gentle pen strikes the filler and keeps her sentence, in her
+  voice.
+- **Honest labels.** Every number on screen is counted from the run's own log. Anything made ahead says so on screen:
+  Noor's research is "researched before the demo", and recorded fallbacks say REPLAY.
+
+## See it
+**The door opens on the studio.**
+
+![The studio door opening onto the room](docs/readme/door.jpg)
+
+**Her name tag, and meeting the team.**
+
+<p>
+<img src="docs/readme/nametag.jpg" alt="Priya's name tag: the Regular Maker" width="38%">
+<img src="docs/readme/meet.jpg" alt="Meeting Mika, the Design teammate" width="50%">
+</p>
+
+**The tidy: her spoken sentence, cleaned up in her own words.**
+
+<img src="docs/readme/tidy.jpg" alt="A pen strikes 'um so basically' from her spoken idea" width="45%">
+
+**A focus moment: she answers, and the team builds on her.**
+
+![Noor's question, with Priya's answer and her teammates' replies](docs/readme/meeting.jpg)
+
+**The live bakery the judges order from:**
+[bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
+bakery: no real bread, nothing to pay, first name only.
 
 ## Built with our sponsors
-- **[fal](https://fal.ai):** the painted cast, the room's clips and its record-player music (ElevenLabs Music via
-  fal), and the live bakery's photos and logo (flux, made ahead; ledger in [`design/FAL-SPEND.md`](design/FAL-SPEND.md)).
-  The demo's chat runs on Claude through fal's OpenRouter router.
-- **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she speaks her idea and her answers.
-- **[Linkup](https://www.linkup.so):** Noor's research finding was found and cited with Linkup before the demo, and is
-  labelled that way on screen (not a live search on stage).
-- **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design, exported code→Figma as editable
-  frames and tokens ([`design/FIGMA.md`](design/FIGMA.md)). The frames show the early look, not the final painted one.
-- **[Anthropic](https://www.anthropic.com):** Claude, Claude Code (the team's agents and how we built it) and the
+- **[fal](https://fal.ai):** the painted cast, the room's living clips and its record-player music (ElevenLabs Music
+  via fal), and the live bakery's photos and logo (made ahead with flux). The demo's chat runs on Claude through fal's
+  OpenRouter router.
+- **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk.
+- **[Linkup](https://www.linkup.so):** Noor's research finding, found and cited before the demo, and labelled that way.
+- **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design as editable frames and tokens
+  (they show the early look, before the painted one).
+- **[Anthropic](https://www.anthropic.com):** Claude, Claude Code (the agents that built this) and the
   product-management skills.
-- **Hackathon:** built 14–15 Nov 2026 for the Imperial AI hackathon, Autonomous Agents track.
 
-The teammates' "meet" cards list the same tools as "Loaded with", so what each agent says it brings is what it uses.
+Built 14–15 Nov 2026 at the Imperial AI hackathon, Autonomous Agents track.
 
-Most projects don't die from bad ideas. They die in the questions nobody signed up for. Prompt-to-app tools guess
-everything; coding agents ask about everything, or approve-and-continue you to death. Either way the person stops
-doing their own craft.
+## Run it yourself
+You need Node 22. There is nothing to install.
 
-We measured it before writing any code. We gave a default coding agent one prompt: "Build me an ordering website for
-a small bakery, so customers can order bread ahead." It asked **0 questions**, made **24 guesses** about the bakery
-(its name, opening hours, the whole menu and its prices, a 6 pm cut-off, pay at pickup…) and stopped for **20
-approvals**. Every guess, with evidence, is in
-[`docs/baseline/run-3-bakery/GUESSES.md`](docs/baseline/run-3-bakery/GUESSES.md); the earlier runs are kept in
-[`docs/baseline/`](docs/baseline/).
+1. Create `.env.local` with your fal key: `FAL_KEY=...` and `MODEL_BACKEND=fal`. Add `ELEVENLABS_API_KEY=...` for
+   voice; without it, she types and everything still works.
+2. `npm run doctor` checks the machine is ready.
+3. `npm run local` starts the studio and prints its address.
 
-## What we built
-A hand-painted studio with a round table and six seats: Product, Design, Research, Data, Strategy and Engineering,
-plus "Your own craft" for anyone else (a baker, a tattoo artist). In the demo, Priya, a product manager, takes the
-Product seat to build an ordering website for a friend's small bakery. Her teammates are agents with names, each with
-its own craft: Mika (Design), Noor (Research), Theo (Data), Ines (Strategy) and Bo (Engineering).
+Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser). The full
+guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
 
-1. **She introduces herself** in one sentence, spoken or typed, and the team turns it into a playful character card.
-2. **She says the idea** in one sentence. Within seconds Noor and Mika put a rough journey on the table: who the
-   users are and the stages they go through. She reacts in plain words, and it redraws.
-3. **The team works on its own.** Each teammate proposes the decisions its craft needs and settles every small one
-   itself. Joint decisions are talked out between teammates, each turn its own model call, and land as cards in a
-   team space. Nothing is addressed to her.
-4. **A few questions reach her**, only if they're big and draw on what she knows best. One waits in her tray; when
-   she opens it the room goes quiet: one document with the work, and one open question in plain words. Code enforces
-   a hidden ceiling of three.
-5. **She says her piece**, in pieces if she likes, and a quick tidy turns her spoken words into her own note. When
-   she sends, only the teammates her words touch reply, building on her and on each other, and the meeting's
-   takeaways sum up what she believes and her guidance to the team.
-6. **One press, and her page appears**, built from her answers.
+## How it was built
+The same way it works. Vincent sat in the Product seat; agents did the rest overnight. A product-owner agent shaped
+the experience with him, a lead agent split the work across up to eight builder agents working in parallel, and
+every change was reviewed by an agent that didn't write it, with an independent audit before the demo
+([`docs/AUDIT.md`](docs/AUDIT.md)).
 
-Behind the scenes the team keeps a private picture of her (her customers, her taste, her philosophy) and decides
-everything else her way.
+On that audited run, her page built in 22 seconds, and the team's own work, plus choosing what reaches her, took 33.
+The story of the build: [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md). The inner workings: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
+The product picture: [`VISION.md`](VISION.md).
 
-## How it works
-```
- her intro + idea (voice or typed)
-          |
-          v
- [1 First sketch]   Research's finding feeds Design's rough journey (live call; PREPARED fallback if slow)
-          |
-          v
- [2 Propose]        each teammate, in parallel, a model call -> candidate decisions in its craft
-          |
-          v
- [3 Select]         one model call scores every candidate; CODE applies the bar:
-          |         big, hers, in one of her domains, not granular -> at most 3 asks (lib/policy.js is the only door)
-     +----+--------------------------------+
-     v                                     v
- [4 Focus moment]                      the rest: decided by the team, joint ones talked out
-  one document, one question            in the team space (each turn its own call)
-     |
-     v
- [5 Her answer]     pieces -> tidy -> Send -> relevant teammates chime in -> takeaways -> her profile updates
-     |
-     v
- [6 Build]          the page, filled from her answers into a prepared template
-```
-Every step writes to one event log per run, `runs/<id>/events.jsonl`. Every number on screen (how many came up, how
-many reached her, how long things took) is computed from that log, never typed in.
+## Credits and licence
+- [taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx (MIT), vendored with its licence in
+  `vendor/taste-skill/`.
+- Anthropic's [product-management skills](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0),
+  vendored unchanged with their licence in `vendor/product-management/`.
+- All project code was written during the hackathon. The full list of APIs, libraries, fonts and photos is below.
+- Licence: [PolyForm Noncommercial 1.0.0](LICENSE).
 
-More detail on the ceiling, the ask policy and the key: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
+<details>
+<summary>Every API, model and open-source piece we used</summary>
 
-## Run it
-Needs Node 22 and, for the default backend, Claude Code installed and logged in on the machine. No `npm install`:
-there are no dependencies (Playwright is only needed for `npm run e2e`).
-
-```
-npm start        # the studio, at http://localhost:3000 (PORT to change)
-npm run local    # the same with .env.local keys, on the first free port from 3000 (it prints the URL)
-npm run doctor   # is this machine ready? (docs/RUN-LOCALLY.md)
-npm test         # unit tests, offline, fake models, no model calls (LIVE=1 adds one real-model test)
-npm run e2e      # the demo walked through the real UI in Chromium (Playwright), with real model calls
-```
-
-`MODEL_BACKEND` picks where model calls go. Every call goes through one function, `callModel` in `lib/model.js`, and
-returns JSON validated against a schema.
-- `fal` (what runs in the demo, `MODEL_BACKEND=fal`): Claude through fal's OpenRouter router on your own key
-  (`FAL_KEY`). Tested 9/9 schema-valid against Claude Code on 3 real calls per step, and covered by the leak test. It
-  runs the demo because on the demo laptop Claude Code's fast model, through a company gateway, took over 25 s a call
-  while fal answered in about 1 s.
-- `claude-code` (the alternative route, and the default when `MODEL_BACKEND` is unset): Claude Code run headless
-  (`claude -p`), with our own system prompt, no tools and no project files loaded. It uses the machine's own Claude
-  Code login, so no key is needed. `docs/REHEARSAL.md` has the one-step switch to it.
-
-Voice is ElevenLabs speech-to-text, on the server, with a key in `ELEVENLABS_API_KEY` (or injected by the cloud
-proxy). Without a key the mic hides and she types; everything still works.
-
-## What's real and what's prepared
-**Real, and tested:**
-- Every teammate's work comes from a live run on her idea; the rough journey is a live call.
-- The questions are chosen live, never scripted. The ceiling of three is enforced in code (`lib/policy.js` is the
-  only code that can ask her), with tests that a fourth never gets through; granular decisions never reach her.
-- The team's replies and the takeaways come from what she actually said; a reply never ends on a question to her.
-- Her answers change the page.
-- Voice is real speech-to-text.
-- The counts come from the run's log.
-- The fal key never leaves server memory (leak test).
-- The baseline, from a real default-agent run with its transcript kept.
-
-**Prepared, and labelled where it shows:**
-- The page templates (`templates/`): the build fills them, it doesn't write new code.
-- Research's finding, gathered before the demo from a real source (`data/research-finding-bakery.json`, labelled
-  "seen in search summaries").
-- A prepared bakery journey if the live one is slow (PREPARED), and recorded runs as fallbacks (REPLAY).
-- The room's light chatter and the motion.
-
-**Said, not built:** multiplayer (a real engineer in the Engineering seat); the team chiming in mid-sentence.
-
-## Timings (from real runs)
-| Moment | Time |
-|---|---|
-| The first rough journey draws in | about 2.5 s |
-| The first teammate replies after she sends | about 1 s |
-| The team's work plus choosing what reaches her | about 18–20 s |
-| The page builds | about 22 s |
-| A judge's own idea: journey and first question | about 11 s |
-| The whole demo run, one sentence to her page | **TBD** |
-
-Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-runs/).
-
-## Built with: APIs, models and open-source
 | What | Used for | Licence |
 |---|---|---|
 | Claude Code, headless (`claude -p`) | the alternative model route: teammates and the selector on Claude Sonnet (Claude Code's `sonnet` alias), the quick speech tidy on Claude Haiku (`haiku`) | Anthropic commercial terms; not redistributed |
@@ -162,21 +121,6 @@ Dry runs on other ideas, with their timings, are in [`docs/dry-runs/`](docs/dry-
 | [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); flux/schnell photos and logo for the live bakery site (made ahead); the cast portraits, room clips and music | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-fal: Claude via fal's OpenRouter router is the model backend that runs in the demo (`MODEL_BACKEND=fal`); fal flux/schnell made the live bakery
-site's photos and logo ahead of the demo (timed at a median 2.2 s, about 0.3¢ an image); the page the team builds in
-the room uses the credited Wikimedia Commons photos. Paid APIs: the Claude Code
-login, ElevenLabs and fal.
-
-Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
-
-All project code was written during the hackathon. The libraries above are credited open-source.
-
-## Where things are
-- `VISION.md`: the one-pager. `DEMO.md`: the 3-minute demo script. `BRIEF.md`: what we build and the schedule.
-  `CONTRACT.md`: the seams between the build pieces. `NEXT.md`: parked ideas.
-- `lib/`: model adapter, first sketch, teammates, selector, ask policy, her profile and file, the team's replies
-  (`thread.js`), the speech tidy, the team space (`joint.js`), the page fill.
-- `prompts/`: the system prompt for each teammate and each model call.
-- `public/`: the studio (vanilla JavaScript, no build step). `docs/COMPONENTS.md`: every component's hooks, for design.
-- `docs/baseline/`: the default-agent baseline. `docs/dry-runs/`: real runs on other ideas, with timings.
-- `docs/DECISIONS.md`: who decided what during the build. `docs/HOW-THE-IDEA-EVOLVED.md`: how the experience changed.
+The page the team builds in the room uses credited Wikimedia Commons photos; the live bakery's photos were made ahead
+with fal. Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
+</details>
