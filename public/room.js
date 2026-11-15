@@ -372,7 +372,7 @@
     const mine = open.findLast(a => a.seat === seat);
     if (mine) return { state: 'waiting', text: mine.type === 'ask.unblock' ? `${A} is blocked until you answer: “${quote(mine.question)}”` : `${A} is waiting on your answer: “${quote(mine.question || mine.decision)}”` };
     const other = open.findLast(a => INFO[a.seat]);
-    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${INFO[other.seat].agent}'s question.` };
+    if (other) return { state: 'waiting', text: `${A} carries on once you've answered ${(other.by || (INFO[other.seat] && INFO[other.seat].agent)) ? `${other.by || INFO[other.seat].agent}'s` : 'the team’s'} question.` };
     if (joints.length) return { state: 'waiting', text: `${A} starts once the team has agreed “${quote(joints.at(-1).decision)}”.` };
     if (!ev.some(e => e.type === 'teammate.start')) return { state: 'empty', text: `${A} joins once the team gets going.` };
     return { state: 'empty', text: `${A} has nothing for you yet; still listening.` };
@@ -418,12 +418,14 @@
       : teamStarted ? 'What the team agrees lands here as they work.' : 'The team gets going once you’ve said your idea; what they agree lands here.'));
     ts.appendChild(tl);
     // her takeaways so far (the latest per question; what she kept wins)
+    // Who asked, possessive, never "undefined's": the ask's own name, else its seat's teammate, else the team.
+    const askerOf = a => { const n = (a && (a.by || (INFO[a.seat] && INFO[a.seat].agent))) || ''; return n ? `${n}’s` : 'the team’s'; };
     const tk = part('takeaways', 'Your takeaways so far');
     const byAsk = new Map();
     for (const e of seen) if ((e.type === 'takeaways' || e.type === 'brief') && e.askId) byAsk.set(e.askId, { believe: e.believe, guidance: e.guidance });
     const kl = h('ul', 'ws-list');
     for (const [, k] of byAsk) { const li = h('li', 'ws-takeaway'); const b = h('span', 'ws-believe'); b.textContent = k.believe || ''; const g = h('span', 'ws-guidance'); g.textContent = k.guidance || ''; li.append(b, g); kl.appendChild(li); }
-    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${INFO[openAsk.seat].agent}’s question.` : 'They come from your answers to the team’s questions.'));
+    if (!byAsk.size) kl.appendChild(pending(tk, 'li', openAsk ? `Your first takeaway comes when you answer ${askerOf(openAsk)} question.` : 'They come from your answers to the team’s questions.'));
     tk.appendChild(kl);
     if (refresh) { const old = panel.querySelector('.ws-body'); if (old) old.replaceWith(body); return; }
     openPanel('workspace', null, 'Your workspace', body);
