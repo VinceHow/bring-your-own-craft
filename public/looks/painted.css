@@ -1533,3 +1533,10 @@ html.painted-on [data-component="tidy-moment"] > [data-slot="pen"][data-state="l
 html.painted-on [data-component="tidy-moment"] > [data-slot="underline"] { position: absolute; height: 2px; width: 72px; border-radius: 2px; background: rgba(212,114,136,.85);
   animation: pt-underline .4s cubic-bezier(.3,.7,.2,1) both; }
 html.painted-on [data-component="tidy-moment"][data-leave] { transition: opacity .4s ease-out; }
+/* audit F6: while the team writes her tag (thinking), the paper holds its asking height (--pt-nt-h) but the status line
+   appears and the button grew to its 60px "Meet" size, so "Make my tag" was cut by the paper's bottom edge. While
+   thinking the button keeps its asking size, and the status takes the hint's place, so it all fits the held height. */
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="make"] { height: 52px; padding: 0 28px; font-size: 17px; box-shadow: none; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="hint"] { display: none; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="status"] { position: relative; z-index: 1; max-width: 55%; margin-bottom: -44px; }
+html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] [data-slot="actions"] { margin-top: 0; }
