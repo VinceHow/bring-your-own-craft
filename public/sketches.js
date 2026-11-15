@@ -69,7 +69,7 @@
   }
 
   async function load(el) {
-    const data = await B.api('/api/run/' + B.run + '/sketches');
+    const data = await (B.getSketches ? B.getSketches() : B.api('/api/run/' + B.run + '/sketches'));
     return show(el, data);
   }
 

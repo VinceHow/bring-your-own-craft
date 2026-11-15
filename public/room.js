@@ -796,7 +796,9 @@
   const sk = { sheet: $('#sketch-sheet'), inner: $('#sketch-inner'), wait: $('#sketch-wait'), req: null };
   BYOC.el.sketchSheet = sk.sheet;
   BYOC.timings = {};
-  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
+  // In a replay the frames come from the recording's own folder (its cached sketches), never the original run's id,
+  // which this server may not have (a 404 in the console during R).
+  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.replay && BYOC.replayName ? BYOC.replayName : BYOC.run)}/sketches`; }
   // One request for Design's frames, shared by the sketch sheet and her focus document.
   BYOC.getSketches = () => sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false }).catch(e => { sk.req = null; throw e; }));
   // Her journey changed (a line, a reshape, her answer redrawing it): frames fetched for the old boxes are stale.
