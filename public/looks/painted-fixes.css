@@ -158,3 +158,8 @@ html body #room [data-component="chatter-line"]::after { box-shadow: none !impor
 html body #room [data-component="chatter-line"]:nth-last-of-type(n+3) { display: none !important; }
 html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 165px -44px !important; }
 @keyframes pf-chatter-out { 0%, 80% { opacity: .92; } 100% { opacity: 0; visibility: hidden; } }
+/* ---- POLISH 1: the setup pages are calm (her idea, the name tag, meeting the team: #room[data-setup] not off) ----
+   Only the setup paper and the painting behind it: the day / night pill, the toys (the cat, coffee, lights and record
+   player's tap spots, and the record player's pill) and the app tag step away until she's in the room. */
+html body:has(#room[data-setup]:not([data-setup="off"])) :is([data-component="time-pill"], [data-component="toy-track"], [data-spot], [data-component="app-button"]) {
+  visibility: hidden !important; pointer-events: none !important; }

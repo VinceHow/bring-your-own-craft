@@ -425,6 +425,7 @@
     room.style.setProperty('--crop-y', Math.max(0, (900 * s - vh) / 2 / s).toFixed(1) + 'px');
     room.dataset.fill = 'cover';
     const sky = playful(); if (sky && !sky.dataset.component) sky.dataset.component = 'time-pill'; // a data hook for painted-fixes.css
+    const track = room.querySelector('.painted-playful .pi-track'); if (track && !track.dataset.component) track.dataset.component = 'toy-track'; // the record player's pill
   }
   window.addEventListener('resize', cover);                              // after stage.js's own fit, so cover wins
   new MutationObserver(() => { if (room.style.transform !== want) cover(); }).observe(room, { attributes: true, attributeFilter: ['style'] });
