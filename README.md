@@ -9,29 +9,43 @@ I'm a builder at heart, and I love the craft: understanding people, deciding wha
 
 <sub>The baseline: a default coding agent on one bakery prompt asked 0 questions, guessed 24 things that were the owner's call, and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).</sub>
 
-## The story in 8 slides
-The talk deck tells it best. The poster above is slide 1; here are the rest, in order.
+## How I got here
+This is the story I tell on stage, one slide at a time.
 
 ![Slide 2, the problem: coding agents ask about everything; AI app builders assume everything](docs/readme/slides/02-the-problem.jpg)
-<sub>Coding agents ask about everything. AI app builders assume everything. Either way, my judgement never makes it in.</sub>
+I love building, but building with AI today keeps pulling me away from the part I'm good at. Coding agents ask about
+everything, so I spend my time stamping approvals instead of thinking. AI app builders go the other way and assume
+everything, so my own craft and judgement never make it into what they build. Either way, the thing I actually bring
+gets lost.
 
 ![Slide 3, the shift: AI will outdo us, so we get to choose](docs/readme/slides/03-the-shift.jpg)
-<sub>AI will outdo us. So we get to choose, and how we work has to change with it.</sub>
+AI will outdo us at a lot of work, and I don't think that's bad news. It means we get to choose what we spend our
+time on. But that only works if the way we work changes with it, so the choosing is ours and not the tool's.
 
 ![Slide 4, our answer: your judgement, your joy](docs/readme/slides/04-our-answer.jpg)
-<sub>Your judgement. Your joy. What we want to bring, and the work we get to do.</sub>
+So what do we keep? Our judgement: taste, expertise, craft. And our joy, the part of the work we'd do even if nobody
+asked. Those are what I want a person to bring to the table, and what the rest of the team should protect.
 
 ![Slide 5, the vision: 90% of your time on the craft you love, over the painted studio](docs/readme/slides/05-the-vision.jpg)
-<sub>90% of your time on the craft you love. No distractions.</sub>
+That's the vision: spend 90% of your time on the craft you love, in flow, with a team you'd love to work with. You
+take the seat of your craft, and a team of agents fills every other seat, handles its own work and brings you only
+the few big questions that need you. I built it as a hand-painted studio, because feeling settled is what lets you
+think.
 
 ![Slide 6, how it feels: four real clips of the product](docs/readme/slides/06-how-it-feels.jpg)
-<sub>How it feels: bring your best self, your voice heard, only the decisions that matter, a safe room to think out loud.</sub>
+These are real clips from the product. You bring your best self, and the team gets to know you. When you speak, your
+words are kept and the team builds on them. You only see the decisions that matter, and when one reaches you, the
+room goes quiet: a safe place to think out loud.
 
 ![Slide 7, built the way it works: one human with an idea, a team of agents](docs/readme/slides/07-built-the-way-it-works.jpg)
-<sub>One human with an idea. A team of agents.</sub>
+I built it the same way it works. I acted as product owner and stuck to the decisions I'm good at; a team of agents
+did the rest, as builders, designers, reviewers and a merger, each on its own branch. That's over 1,000 commits in
+about 23 hours.
 
 ![Slide 8, the future: a table with room for everyone, people and agents side by side](docs/readme/slides/08-the-future.jpg)
-<sub>A table with room for everyone.</sub>
+Where this goes next is a table with room for everyone. Today the other seats are agents; next, a real engineer can
+take the Engineering seat and bring their own team of agents. People and agents side by side, everyone doing what
+they're best at.
 
 Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `talk.html` at the repo root).
 
