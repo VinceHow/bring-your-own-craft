@@ -59,8 +59,8 @@ The page's emblem is painted live with fal during the build (symbol only; the na
 **The proof: the judges are the regulars.** Before the talk, the judges scan a QR code and reserve a loaf, by first
 name only, from a live bakery deployed on Railway: three tiers (a rare drop of 3, 8 of a medium loaf, 40 of a
 plentiful one), one of each per person. That bakery was drafted earlier by Bo's agent, from a differently worded brief, and
-finished by our builders to pass the acceptance suite in `deploy/ACCEPTANCE.md`; the app itself is deployed
-separately, and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
+finished by our builders to pass the acceptance suite in `deploy/ACCEPTANCE.md`; its source is in `deploy/app/`,
+and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
 and taps **Deliver**, and every judge's open page flips at once to "Delivered: your sourdough is here." Real software
 with a database, rules and tests. (Demo bread: nothing real is delivered or paid.)
 
@@ -84,12 +84,13 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
   in the demo; Claude Code headless is the fallback. fal was tested 9/9 schema-valid against Claude Code on 3
   real calls per step, and it runs the demo because, in our tests on the demo laptop, Claude Code's fast model through a
   company gateway took over 25 s a call while fal answered in about 1 s.
-- The live bakery: Bo's agent drafted it from the brief and a recorded run's decisions; our builders finished what
+- The live bakery (`deploy/app/`, with Bo's own account in `deploy/app/BUILT.md`): Bo's agent drafted it from the
+  brief and a recorded run's decisions (`deploy/run/`; his prompt is `deploy/bo/PROMPT.md`); our builders finished what
   failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
   team's engineer. Polished by our builders." Plain Node 22 with `node:sqlite` on a Railway volume, server-sent events
   for the Deliver flip, stock that can't go below zero, one of each per device per drop, a 15-minute hold, and an
   admin page locked behind a token. Its photos and logo were made ahead with fal flux/schnell
-  (median 2.2 s, about 0.3¢ an image). The app's source is deployed separately, not in this repo.
+  (`deploy/make-images.mjs`; median 2.2 s, about 0.3¢ an image).
 - The room's art: fal made the painted cast, the living-painting clips and the record-player music (ElevenLabs Music
   via fal); the ledger is in `design/FAL-SPEND.md`.
 - One event log per run; every number about her run comes from it (the baseline's are a hand count, linked). Anything
