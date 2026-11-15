@@ -31,6 +31,7 @@
     ['V · `', 'speak: hold to talk, or tap to start and tap to stop (Esc cancels)'],
     ['Enter', 'back to her input'],
     ['Esc', 'leave the input'],
+    ['Shift+N', 'start over: a new studio (asks once; this run is kept)'],
     ['?', 'this card (hidden in stage mode)'],
   ];
   const help = document.createElement('aside');
@@ -90,7 +91,8 @@
     let handled = true;
     if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') next();
     else if (k === 'ArrowLeft' || k === 'PageUp') { if (inClose()) { BYOC.close.close(); if (BYOC.beat === 11) BYOC.stage(10); } else BYOC.stage(BYOC.beat - 1); }
-    else if (k === 'Home' || k === '0') BYOC.reset();
+    else if (k === 'Home' || k === '0') { if (BYOC.forgetRun) BYOC.forgetRun(); BYOC.reset(); } // the presenter's reset: a refresh starts fresh too
+    else if (k === 'N' && e.shiftKey && BYOC.startOver) BYOC.startOver.ask(); // Start over (asks once)
     else if (k === 's' || k === 'S') setStageMode(!document.body.classList.contains('stage'));
     else if (k === 'r' || k === 'R') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.(q.get('replay') || 'rehearsal');
     else if (k === 'c' || k === 'C') inClose() ? BYOC.close?.replay('yoga') : BYOC.replayRun?.('yoga');
