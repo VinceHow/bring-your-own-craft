@@ -58,7 +58,7 @@ bakery site that Bo's agent drafted earlier and our builders finished; its accep
 
 **A focus moment: she answers, and the team builds on her.**
 
-![Noor's question, with Priya's answer and her teammates' replies](docs/readme/meeting.webp)
+![Wren's question, with Priya's answer and her teammates' replies](docs/readme/meeting.webp)
 
 **The live bakery the judges order from:**
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
