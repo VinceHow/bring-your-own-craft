@@ -24,6 +24,14 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
    clean `/admin`, wrong -> 401 and no cookie); the session cookie holds HMAC-SHA256(ADMIN_TOKEN, "admin-session"), not the
    token, compared in constant time (for both the form and the `?t=` phone link); `Secure` set when `x-forwarded-proto`'s
    first value is https (Railway). Checked by `deploy/acceptance/admin-login.acceptance.js` (5 tests, builder 6).
+3. Name asked once per device (Vincent on live, 15 Nov: every other loaf asked for his name again). `app/bakery.js`: a
+   `devices` table (device -> first name, migration v2), written on each reservation, cleared by Reset demo, read by a new
+   `GET /api/me` in `app/server.js`. `app/public/app.js` + `style.css`: after the first reservation the form shows
+   "Reserving as <name> · not you?" instead of the field (textContent only; never read from the URL); "not you?" reopens
+   it. The reservation API is unchanged. Checked by `deploy/acceptance/name-once.acceptance.js` (HTTP) and
+   `deploy/acceptance/name-once.browser.mjs` (phone browser).
+
+Run the acceptance files one at a time (`node --test --test-concurrency=1 …`): each starts with Reset demo on the same app.
 
 ## Hand edits (deploy plumbing only)
 - `app/package.json`, `app/server.js`, `app/config.js`: placeholder with /health and the defaults above.

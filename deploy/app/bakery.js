@@ -57,6 +57,11 @@ function migrate(db) {
     SHELF.forEach((l, i) => ins.run(l.id, l.name, l.tier, l.description, i, l.start, l.start, l.start));
     db.exec('PRAGMA user_version = 1');
   }
+  if (v < 2) {
+    // The first name a device last reserved under, so it is asked once (builder hand edit 3). Nothing else is kept.
+    db.exec(`CREATE TABLE IF NOT EXISTS devices (device TEXT PRIMARY KEY, first_name TEXT NOT NULL, updated_at INTEGER NOT NULL);
+      PRAGMA user_version = 2;`);
+  }
 }
 
 export function loafWord(name) { return name.toLowerCase(); }
@@ -84,6 +89,8 @@ function makeBakery(db) {
     giveBack: db.prepare('UPDATE loaves SET remaining = remaining + 1 WHERE id = ?'),
     deliver: db.prepare("UPDATE reservations SET status = 'delivered' WHERE status = 'reserved' RETURNING id"),
     allIds: db.prepare('SELECT id FROM reservations'),
+    rememberName: db.prepare('INSERT INTO devices (device, first_name, updated_at) VALUES (?,?,?) ON CONFLICT(device) DO UPDATE SET first_name = excluded.first_name, updated_at = excluded.updated_at'),
+    nameOf: db.prepare('SELECT first_name FROM devices WHERE device = ?'),
   };
 
   const setting = (k) => q.getSetting.get(k).value;
@@ -151,12 +158,16 @@ function makeBakery(db) {
         if (q.take.run(loafId).changes === 0) return { error: 'sold_out', loaf };
         const id = crypto.randomBytes(9).toString('base64url');
         q.insert.run(id, loafId, firstName, device, drop, 'reserved', now);
+        q.rememberName.run(device, firstName, now);
         const r = { id, loaf_id: loafId, first_name: firstName, status: 'reserved', drop };
         return { ok: true, reservation: { ...r, message: messageFor(r, loaf.name) }, loaf };
       });
     },
 
     loafExists: (id) => !!q.loaf.get(id),
+
+    /** The first name this device last reserved under, or null. */
+    nameFor: (device) => q.nameOf.get(device)?.first_name ?? null,
 
     reservation(id) {
       const r = q.byId.get(id);
@@ -211,7 +222,7 @@ function makeBakery(db) {
     reset() {
       const ids = q.allIds.all().map((r) => r.id);
       tx(() => {
-        db.exec('DELETE FROM reservations; UPDATE loaves SET start = next_start, remaining = next_start');
+        db.exec('DELETE FROM reservations; DELETE FROM devices; UPDATE loaves SET start = next_start, remaining = next_start');
         q.setSetting.run('drop', 1);
       });
       attempts.clear();

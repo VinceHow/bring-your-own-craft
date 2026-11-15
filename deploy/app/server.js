@@ -281,6 +281,7 @@ async function handle(req, res) {
   const admin = isAdmin(req);
   sweep(nowFor(req, admin));
 
+  if (p === '/api/me' && req.method === 'GET') return sendJson(res, 200, { first_name: bakery.nameFor(deviceOf(req, res)) });
   if (p === '/api/loaves' && req.method === 'GET') { deviceOf(req, res); return sendJson(res, 200, bakery.loaves()); }
   if (p === '/api/events' && req.method === 'GET') { openStream(req, res, shelfWatchers); send(res, { changed: true }); return; }
   if (p === '/api/reservations' && req.method === 'POST') return postReservation(req, res, deviceOf(req, res));

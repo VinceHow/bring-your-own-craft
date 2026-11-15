@@ -9,6 +9,12 @@
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(bags.slice(0, 8))); } catch { /* private mode: fine */ } };
   let bags = load(); // [{ id, loaf_id, drop, status, message }]
+  // The first name this device reserves under: asked once, then "Reserving as <name> · not you?" (builder hand edit 3).
+  // The server keeps it against the device cookie (GET /api/me); localStorage is only a hint. Never read from the URL.
+  const NAME_KEY = 'priyas-name';
+  let myName = (() => { try { return localStorage.getItem(NAME_KEY) || ''; } catch { return ''; } })();
+  const rememberName = (n) => { myName = n; try { localStorage.setItem(NAME_KEY, n); } catch { /* private mode */ } refreshAs(); };
+  function refreshAs() { for (const c of cards.values()) { c.asName.textContent = myName; c.as.hidden = !myName || c.changing; c.lab.hidden = c.input.hidden = !!myName && !c.changing; } }
   let currentDrop = 1;
   const streams = new Map();
 
@@ -39,17 +45,21 @@
     const input = el('input'); input.id = id; input.name = 'first_name'; input.type = 'text'; input.maxLength = 30; input.autocomplete = 'given-name'; input.autocapitalize = 'words'; input.enterKeyHint = 'go';
     const go = el('button', 'btn', 'Reserve'); go.type = 'submit';
     const note = el('p', 'note'); note.setAttribute('role', 'status');
-    form.append(lab, input, go, note);
+    const as = el('p', 'as'); const asName = el('strong'); const notYou = el('button', 'not-you', 'not you?'); notYou.type = 'button';
+    as.append('Reserving as ', asName, ' \u00b7 ', notYou);
+    form.append(as, lab, input, go, note);
 
     open.addEventListener('click', () => {
       const show = form.hidden; form.hidden = !show; open.setAttribute('aria-expanded', String(show));
-      if (show) { input.focus(); form.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+      if (show) { (input.hidden ? go : input).focus(); form.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
     });
+    notYou.addEventListener('click', () => { const c = cards.get(l.id); c.changing = true; input.value = ''; refreshAs(); input.focus(); });
     form.addEventListener('submit', (e) => { e.preventDefault(); reserve(l.id, input, go, note); });
 
     li.append(fig, nameRow, desc, hand, open, form);
-    cards.set(l.id, { li, name, count, hand, open, form, input, note, scribble: null });
+    cards.set(l.id, { li, name, count, hand, open, form, input, note, scribble: null, as, asName, lab, changing: false });
     loafListEl.appendChild(li);
+    refreshAs();
   }
 
   function renderShelf(loaves) {
@@ -79,7 +89,8 @@
 
   // ---------- reserving ----------
   async function reserve(loafId, input, go, note) {
-    const first = input.value.trim();
+    const c = cards.get(loafId);
+    const first = (input.hidden ? myName : input.value).trim();
     note.className = 'note';
     if (!first) { note.textContent = 'What shall I write on the bag? Just a first name.'; input.focus(); return; }
     go.disabled = true; note.textContent = 'Setting one aside...';
@@ -92,6 +103,7 @@
       if (r.status === 201) {
         const bag = { id: data.id, loaf_id: data.loaf_id, drop: data.drop, status: data.status, message: data.message };
         bags.unshift(bag); save(); input.value = ''; note.textContent = '';
+        c.changing = false; rememberName(first);
         renderBags(); watch(bag); fetchLoaves();
         $('#bags').scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (r.status === 409 && data.error === 'sold_out') {
@@ -182,6 +194,8 @@
   (async () => {
     renderBags();
     await fetchLoaves();
+    // The server's memory of this device's name wins over the local hint (after a Reset demo it forgets: ask again).
+    try { const me = await (await fetch('/api/me', { credentials: 'same-origin' })).json(); if (me.first_name) rememberName(me.first_name); else { myName = ''; try { localStorage.removeItem(NAME_KEY); } catch {} refreshAs(); } } catch { /* keep the hint */ }
     await poll();
     bags.forEach(watch);
     if ('EventSource' in window) {
