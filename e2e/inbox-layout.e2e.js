@@ -42,7 +42,7 @@ for (const look of ['', '?look=painted']) for (const [w, hgt] of [[1440, 900], [
     });
     await p.waitForFunction(() => document.querySelector('#inbox .inbox-now')?.dataset.ask === 'p1', null, { timeout: 4000 });
     const text = (await p.locator('#inbox .inbox-now').innerText()).trim();
-    assert.strictEqual(text, 'The team has a question');
+    assert.strictEqual(text, 'The team has a question →');
     assert.doesNotMatch(text, /teammate|· Product/);
     // A named teammate asks next.
     await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'n1', seat: 'research', by: 'Noor', question: 'What makes someone come back to a bakery week after week?', artifact: { kind: 'journey' } }, 'live'));
@@ -52,12 +52,15 @@ for (const look of ['', '?look=painted']) for (const [w, hgt] of [[1440, 900], [
     assert.notEqual(st.team, 'question');
     assert.doesNotMatch(st.line || '', /has a question/);
     assert.ok(['on', 'off'].includes(st.pulse), 'the pulse hook is set');
-    for (const sel of ['#inbox', '#inbox .inbox-now', '#inbox .inbox-toggle']) {
+    for (const sel of ['#inbox', '#inbox .inbox-now']) { // closed: the line is its one clickable
       const r = await p.evaluate(s => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; }, sel);
       assert.ok(inside(r, w, hgt), `${sel} inside ${w}x${hgt}: ${JSON.stringify(r)}`);
     }
     // Open, too (the whole screen).
-    await p.click('#inbox .inbox-toggle');
+    await p.click('#inbox .inbox-now'); // an item waits: the line opens it; "All notes" opens the whole inbox
+    await p.waitForFunction(() => BYOC.focusDoc.isOpen(), null, { timeout: 3000 });
+    await p.click('#focus-doc [data-slot="all-notes"]');
+    await p.waitForFunction(() => document.getElementById('inbox').dataset.state === 'open', null, { timeout: 3000 });
     const r = await p.evaluate(() => { const b = document.getElementById('inbox').getBoundingClientRect(); return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; });
     assert.ok(inside(r, w, hgt), `open inbox inside ${w}x${hgt}: ${JSON.stringify(r)}`);
     assert.deepStrictEqual(errors, []);

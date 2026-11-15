@@ -391,7 +391,7 @@ body.focus-open #room > :not(.focus-doc):not(.replay-label) { visibility: hidden
 .fd-head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 14px; }
 .fd-kicker { font: 600 15px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
 .fd-by { font: italic 400 16px var(--ui); }
-.fd-close { margin-left: auto; font: 500 14px var(--ui); padding: 6px 12px; background: var(--paper); border: var(--line); border-radius: 3px; cursor: pointer; }
+.fd-close { font: 500 14px var(--ui); padding: 6px 12px; background: var(--paper); border: var(--line); border-radius: 3px; cursor: pointer; }
 .fd-main { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: hidden; }
 .fd-work { flex: 0 1 auto; min-height: 120px; max-height: 360px; overflow: hidden; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
 .fd-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -520,3 +520,7 @@ body:has(.replay-label:not([hidden])) .app-button { bottom: 74px; }
 .app-change, .app-live { margin: 0; padding: 4px 10px; font: 400 14px/1.2 var(--ui, sans-serif); background: var(--sheet, #fff); border: var(--line, 2px solid #141414); border-radius: var(--r, 6px); }
 .app-button[data-pulse] .app-open { animation: app-pulse 1.6s ease-out 1; }
 @keyframes app-pulse { 0% { transform: scale(1); } 20% { transform: scale(1.08); } 100% { transform: scale(1); } }
+/* "All notes" in an opened item's header: a quiet link to her whole inbox (never a default browser button) */
+.fd-all { margin-left: auto; margin-right: 14px; font: 500 15px var(--ui); background: none; border: 0; padding: 4px 2px; color: inherit; opacity: .75; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.fd-all:hover { opacity: 1; }
+html body #room .fd-head .fd-all + .fd-close { margin-left: 0; } /* "All notes" takes the push to the right; Back to the room sits beside it */

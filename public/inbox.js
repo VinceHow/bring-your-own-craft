@@ -27,6 +27,7 @@ html body #room #inbox[data-state="open"] { left: 40px; right: 40px; top: 20px; 
 html body #room #inbox[data-state="open"] .inbox-drawer { max-height: none; overflow: visible; }
 .inbox[hidden], .inbox [hidden] { display: none !important; }
 .inbox .inbox-now, .inbox .inbox-toggle, .inbox .inbox-item { display: block; width: 100%; text-align: left; font: inherit; cursor: pointer; }
+.inbox .inbox-all { font: inherit; background: none; border: 0; padding: 4px 0; margin-left: 18px; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 html body #room #inbox[data-state="open"] .inbox-now { display: none; }
 html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* opened, it sits under the pointer: a hover lift would flicker */
 .inbox[data-view="action"] [data-part]:not([data-part="needs"]), .inbox[data-view="action"] .inbox-part-title, .inbox[data-view="action"] .inbox-next, .inbox[data-view="action"] .counter { display: none !important; }
@@ -51,7 +52,7 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   B.asker = asker;
   const who = n => `${asker(n)} asks`;
   // The closed inbox says only who: "Noor has a question", "Bo's blocked". Never the question (no preview in the room).
-  const line = n => n.unblock ? `${n.by || AGENT[n.seat] || 'The team'}'s blocked` : `${asker(n)} has a question`;
+  const line = n => (n.unblock ? `${n.by || AGENT[n.seat] || 'The team'}'s blocked` : `${asker(n)} has a question`) + ' →';
   const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
 
   // ---- the frame ----------------------------------------------------------------------------------
@@ -70,19 +71,26 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   const needsBody = part('needs', 'Needs you');
   const onlyBody = part('only-you', 'Things only you can do');
   const pastBody = part('meetings', 'Past meetings');
-  box.append(now, toggle, drawer);
+  // One clickable when closed (POLISH §1, the PO's call): the line. It opens the waiting item, or the inbox when nothing
+  // waits. The toggle shows only once open ("Close your inbox" / "Back to the room"). From an opened item, "All notes".
+  toggle.hidden = true;
+  const allNotes = slot(h('button', 'inbox-all', 'All notes'), 'all-notes'); allNotes.type = 'button'; allNotes.hidden = true;
+  allNotes.addEventListener('click', () => expand(true, 'list'));
+  box.append(now, toggle, allNotes, drawer);
   room.appendChild(box);
   // The tally's counters ("decisions came up · brought to you") live in the inbox now; the room's #tally keeps the meter.
   // The node moves (its ids and room.js's rollers with it); it shows when the tally does.
   const counter = document.getElementById('counter'), tallyEl = document.getElementById('tally');
   if (counter) {
     counter.dataset.slot = 'tally'; box.insertBefore(counter, toggle);
+    counter.tabIndex = -1; counter.style.pointerEvents = 'none'; counter.setAttribute('aria-disabled', 'true'); // numbers to read, not a second thing to click
     const sync = () => { counter.hidden = !tallyEl || tallyEl.hidden; };
     sync(); if (tallyEl) new MutationObserver(sync).observe(tallyEl, { attributes: true, attributeFilter: ['hidden'] });
   }
 
   // ---- state -------------------------------------------------------------------------------------
   let shown = [];           // the Needs-you items she can see (after the natural pause)
+  const seenIds = new Set(); // every item that has already arrived once
   let arriveTimer = null;
   const tasks = new Map();  // owner.task id -> { id, title, steps[], done:Set }
   const isTypingNow = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); };
@@ -98,6 +106,8 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     if (ids === shown.map(n => n.id).join(',')) return paint();
     const fewer = f.waiting.length < shown.length && f.waiting.every(n => shown.some(s => s.id === n.id));
     if (!f.waiting.length || fewer) { shown = f.waiting.slice(); return paint(); } // an answered one leaves at once
+    // One she has already seen (she opened it and came back): it is back at once, with no second arrival cue.
+    if (f.waiting.every(n => seenIds.has(n.id))) { shown = f.waiting.slice(); return paint(); }
     arriveTimer = setTimeout(function slideIn() {
       if (isTypingNow()) { arriveTimer = setTimeout(slideIn, 500); return; }
       if ((B.focus || {}).open) return;
@@ -191,8 +201,9 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   }
   function paint() {
     const top = shown[0];
+    for (const n of shown) seenIds.add(n.id);
     // Collapsed: the one item that needs her now, or nothing.
-    now.replaceChildren(top ? slot(h('span', 'inbox-who', line(top)), 'who') : slot(h('span', 'inbox-empty', 'Your inbox is empty'), 'empty'));
+    now.replaceChildren(top ? slot(h('span', 'inbox-who', line(top)), 'who') : slot(h('span', 'inbox-empty', 'Nothing needs you yet'), 'empty'));
     now.dataset.ask = top ? top.id : '';
     now.dataset.component = 'inbox-item'; if (now.dataset.state !== 'new' || !top) now.dataset.state = top ? 'top' : 'empty';
     if (box.dataset.state !== 'open') box.dataset.state = top ? 'new' : 'empty';
@@ -203,7 +214,8 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     box.dataset.needs = top ? 'yes' : 'no';
     // Needs you: one at a time; the next ones folded.
     needsBody.replaceChildren();
-    if (!top) needsBody.appendChild(slot(h('p', 'inbox-empty', 'Nothing needs you right now'), 'empty'));
+    if (!top) needsBody.append(slot(h('p', 'inbox-empty', 'Nothing needs you right now'), 'empty'),
+      slot(h('p', 'inbox-next-hint', 'When a teammate needs a call from you, it lands here.'), 'hint'));
     else {
       needsBody.appendChild(top.unblock ? actionCard({ ...top, ...((B.asks ? B.asks() : []).find(a => a.id === top.id) || {}) }) : item(top, 'top'));
       if (shown.length > 1) {
@@ -284,6 +296,7 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
     drawer.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
     toggle.textContent = !open ? 'Open your inbox' : view === 'action' ? 'Back to the room' : 'Close your inbox';
+    toggle.hidden = !open; allNotes.hidden = !(open && view === 'action');
     keepInView();
     if (open && !was) settle();
   }
@@ -313,7 +326,7 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   if (typeof B.on === 'function') {
     B.on('owner.task', addTask);
     B.on('stage', () => render());
-    B.on('reset', () => { tasks.clear(); shown = []; clearTimeout(arriveTimer); expand(false); paint(); box.hidden = true; });
+    B.on('reset', () => { tasks.clear(); shown = []; seenIds.clear(); clearTimeout(arriveTimer); expand(false); paint(); box.hidden = true; });
   }
   B.inbox = { render, openTop, expand, showUnblock, get shown() { return shown.slice(); }, tasks: () => [...tasks.values()].map(t => ({ id: t.id, title: t.title, steps: t.steps.slice(), done: [...t.done] })) };
   paint();
