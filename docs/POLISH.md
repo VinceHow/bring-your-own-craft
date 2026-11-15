@@ -42,13 +42,17 @@ clip path, or command output). Nothing is called done without evidence.
 - No browser scrollbars except the one intended scroll column; no white frames; no clipped painted frames; no default
   browser buttons; no text touching edges; no cut-off words; nothing floating detached.
 - Contrast is at least 4.5:1 for text, on day and night scenes.
-- The cursor is her pink paper triangle, a paw over clickables, a caret in inputs.
+- The cursor (Vincent's pick C): her pink paper-cut triangle; over clickables its corner folds (cream underside); an
+  inked I-beam in inputs; busy dots while waiting; a pale "not now" scrap when something isn't available. The paw is
+  only for the rain window at night.
 - Sound: the record player is music only; rain only at night, toggled by the window; stage mode starts muted.
 
 ## 6. True on screen
 - Everything prepared ahead is labelled ("researched before the demo", "Recorded earlier", "made ahead").
-- The meet cards' "Loaded with" lines name only tools really used: Linkup (Noor), fal (the painted studio), ElevenLabs
-  (the mic), Claude (everyone), Claude Code (Bo, only where it's true). No Figma in the room.
+- Sponsor credits on the meet cards come in two lists, and every line must be true: **"Loaded with"** (used live: Linkup
+  for Noor, ElevenLabs on the mic, Claude for everyone, Claude Code for Bo only where it's literally true) and **"Made
+  with"** (prepared ahead: fal for the painted studio, clips and music; Figma for the room's frames, taken from code into
+  Figma per `design/FIGMA.md`; taste-skill).
 - The 3-question cap holds (rounds don't count as asks), and the fal key never appears in the browser, logs or `runs/`.
 
 ## 7. Vincent's own path works first time
