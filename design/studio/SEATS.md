@@ -49,7 +49,7 @@ on with four teammates plus her; nothing pretends.
 - **"Brings" stays true.** A generated role may only promise what that teammate's prompt and tools really do. Change the line,
   never the claim.
 - **Questions follow her seat.** Her domains come from what she said, so a designer gets questions about the feel and the
-  flow, and an engineer about how it should behave, never about logins or fonts. The cap of 3 questions stands.
+  flow, and an engineer about how it should behave, never about logins or fonts. Only the big questions in her craft reach her; no number is promised.
 - **No pronouns**, names and the "agent" mark stay, and moods come only from real events.
 
 ## Design changes this implies (design studio)

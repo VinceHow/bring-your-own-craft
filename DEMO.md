@@ -48,7 +48,7 @@ green on main 4afbc95** (merger, 15 Nov): nothing reverted; this script matches 
 the tidy helper); **Send** (one round of live team discussion, a brainstorm or a light debate, the team reacting to
 her and to each other; she can Send again for more rounds); **End meeting** (the takeaways, "What I believe" /
 "Guidance to the team", then Keep). **On stage: one Send round plus End meeting per focus moment**, to protect the
-3 minutes. The cap is unchanged: rounds sit inside one ask, so it is still exactly three things reaching her. The old wireframe focus moment and the third are cut from the stage path (the feature stays; she can open
+3 minutes. Rounds sit inside one ask: a meeting is one thing reaching her, however many rounds she takes. The old wireframe focus moment and the third are cut from the stage path (the feature stays; she can open
 more off-script). The proof is 20 s, the close 30 s on slides.
 **Timing matches the build (14 Nov, ~17:50 UTC, measured on live bakery runs):** first journey 2.7 s, redraw 2.7 s,
 team + selection 17.5–20 s, page build ~22 s, a judge's idea to its questions ~11 s. The order follows the build: her
@@ -64,7 +64,7 @@ on screen.
 | **0:15–0:27** Meet the team | One by one, each teammate is **met up close**, personably: a close-up of their face, **name and role** (*Mika · Design*), **a line in their own voice, tailored to her idea** (e.g. Noor: *"Bakeries live on their regulars. I'll find out who they are."*; static lines if that call is cut or slow), and what they **bring** (true), with a small "agent" mark. The teammate fitted to this idea comes **last**. | **They're good.** A crew you'd want. | "She brought product. Here's who she gets for the rest." | live |
 | **0:27–0:31** The reveal | **The living studio**, for the first time: the painted room in 3/4 view, everyone already seated round the table, her pink stool, empty, waiting. **She takes her seat.** | The wow: a place, and a team, that's hers. | (silence) | live |
 | **0:31–0:45** The team gets going | Noor and Mika hash out a **rough journey** on the idea sheet, drawing in as it arrives (2.7 s measured on the bakery): **who the users are** (morning regulars, the weekend pastry crowd, the bakers) and **the stages they go through** (choose → order → pick up). No screens. The other teammates start on their parts. | Relief: she never starts from a blank page. | "While they get going, notice what isn't happening: nobody asks her about databases, logins or fonts. Five teammates are deciding all of that right now." (covers the ~33 s team start, measured on fal) | live |
-| **0:45–1:05** 1. Focus: who it's for | **A brainstorm that starts from something concrete, not a whiteboard** (Vincent, 14 Nov). The first big question opens as a focus moment: Noor's **research** on who buys from small neighbourhood bakeries (a real finding, gathered beforehand with its source and labelled "researched before the demo", or live if fast enough), with one question: *who do we build this for first?* **A meeting in three modes:** she composes, sends one round (the team reacts to her and to each other), then ends the meeting. She reacts to the research in her own words: *"The regulars. They come every morning, and they hate it when the sourdough's gone by nine."* On **Send**, one round of live discussion (Noor and Mika build on it, maybe a light push-back). On **End meeting**, the takeaways appear and she keeps them; the journey redraws around the regulars, and **a run of decisions unlocks** (usual loaf one tap away, held for them, no login, no phone field), each settling with the teammate who took it. | Her insight lands on real evidence and moves everything. | "She didn't start from a blank page. She reacted to research." | live (research prepared, labelled) |
+| **0:45–1:05** 1. Focus: who it's for | **A brainstorm that starts from something concrete, not a whiteboard** (Vincent, 14 Nov). The first big question opens as a focus moment: Noor's **research** on who buys from small neighbourhood bakeries (searched live with Linkup, so the finding can differ on each run; quoted only when the quote verifies against its source, labelled "found just now with Linkup"; otherwise the prepared finding, labelled "researched before the demo"), with one question: *who do we build this for first?* **A meeting in three modes:** she composes, sends one round (the team reacts to her and to each other), then ends the meeting. She reacts to the research in her own words: *"The regulars. They come every morning, and they hate it when the sourdough's gone by nine."* On **Send**, one round of live discussion (Noor and Mika build on it, maybe a light push-back). On **End meeting**, the takeaways appear and she keeps them; the journey redraws around the regulars, and **a run of decisions unlocks** (usual loaf one tap away, held for them, no login, no phone field), each settling with the teammate who took it. | Her insight lands on real evidence and moves everything. | "She didn't start from a blank page. Noor just looked it up, live, and quotes her source." (If the prepared label shows, say instead: "She reacted to research Noor did before the demo.") | live (research live via Linkup, labelled; prepared fallback labelled) |
 | **1:05–1:15** 2. A quick unblock | The room works and talks things out; joint decisions land in the team space. An **action card** arrives in her inbox: *"Bo's blocked: when do orders close? We suggest 8pm the night before."* One tap on **Yes** (or she says something else), and Bo carries on; the decision lands in the team space with her mark. Only for a fact or call that's hers, framed as unblocking a named teammate, never a generic approval. | Quick, light, she's the one who knows. | "When someone's stuck, she unblocks them in a second." | live |
 | **1:15–1:30** 3. Focus: the customer experience | The second big question, as a focus moment: Mika's **rough journey in words** for a regular's morning, no screens or wireframes yet (e.g. *"7:02, Ana opens it on the bus. Her usual sourdough is already there. One tap. At the counter, it's waiting with her name on it."*), with one question: *what should this feel like for a regular?* She composes (the team out of view and quiet): *"Like the baker already knows you. Regulars reserve their usual loaf with just their first name: no account, no payment, nothing to fill in."* **On stage she goes straight to End meeting (cut order in effect, 15 Nov ~05:20: no Send round).** Off stage she would **Send** one round: the relevant teammates react to her and to each other, briefly by the pins; the journey is rewritten in front of her. **End meeting**, and her **takeaways** appear in her voice, which she keeps: *"What I believe: ordering should feel like being known. Guidance: regulars reserve by first name only; no account, no payment, never ask for what we could remember."* | Recognition: "that *is* what I think." | "She shaped the experience in a paragraph. The team heard it." | live |
 | **1:30–2:05** Build it | Her one press, and **her page** builds from her answers (measured on the real fal run: idea → her page ~2:15 with a Send round; ~2:05 without). | It's being made. | "Now they build." | live |
@@ -78,7 +78,7 @@ the claim.
 | Seat (ink) | Name | Loves | Brings | Stance |
 |---|---|---|---|---|
 | Design (blue) | Mika | "A rough sketch in seconds. Polish at the very end." | taste-skill's design rules: type, colour, spacing | sketch first, polish last |
-| Research (orange) | Noor | "A source for every claim." | a real finding with its link, researched before the demo | what's known, with sources |
+| Research (orange) | Noor | "A source for every claim." | a real finding with its link, found live with Linkup | what's known, with sources |
 | Data (green) | Theo | "One number that says it worked." | what to measure at each step | only what we'll measure |
 | Strategy (gold) | Ines | "Knowing who pays before we build." | pricing and payment calls | who pays, and why now |
 | Engineering (yellow) | Bo | "Boring, correct, shipped." | the page template and the live build | boring and correct |
@@ -240,8 +240,8 @@ card isn't ready when the intro reaches it, the room is honest, with humour: a s
 (*"Theo's running a little late: we're finding you someone who knows morning bake lists."*). The flow never waits,
 with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
 fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
-stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and the
-hidden ceiling of 3 stands. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
+stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and no
+number is promised (the hidden ceiling stays in code). **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
 **Cut line:** if it isn't ready, the role choice stays Product · Your own craft.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
@@ -291,12 +291,12 @@ in, labelled REPLAY, and the presenter says what was replayed.
   Names (Vincent, 14 Nov, easy to change later): Mika (Design), Noor (Research), Theo (Data), Ines (Strategy), Bo
   (Engineering). Check-ins read *"Noor (Research): …"*.
 - **Strategy is a real teammate.** It proposes decisions like the others (price, pass or drop-in, pay online or at
-  the desk), and at least one choice visible on her page comes from it (e.g. a standing weekly order shown first). It reaches her three only if
+  the desk), and at least one choice visible on her page comes from it (e.g. a standing weekly order shown first). It reaches her only if
   the ranking picks it. The default agent guessed exactly these (prices, pay at the desk).
 - **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
   decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
   answer **would change what gets built and needs her expertise**. No fixed number is promised: on stage, say the
-  real count ("her team asked 3"). **A hard ceiling of 3 stays in code with its test**, as a safety net nobody sees.
+  real count ("her team asked 3"). A hidden ceiling stays in code with its test, as a safety net nobody sees; it is never a promise.
   - **Candidates:** every teammate proposes decisions as it works.
   - **Ranking:** one model call ranks them by the question bar above: big? draws on what she's good at or loves
     (her words and profile)? can the page show the answer? Granular candidates are decided, never asked. The selector
@@ -314,7 +314,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 ## 3. Real vs prepared
 **Real, and tested:**
-1. the ranking and the cap of 3 (tests: a fourth question never gets through; a different idea changes the picks);
+1. the ranking and its threshold (tests: a low-stakes candidate is never asked; a different idea changes the picks; a hidden safety ceiling holds);
 2. nothing else can ask her: refused questions are decided and logged;
 3. the counter and its reasons, and the meter, all from the log;
 4. the meeting takeaways and her rewording, and the hidden philosophy file updated from them;

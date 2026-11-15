@@ -54,7 +54,7 @@ real run.
    she opens a tray note, the view becomes just her and that one document (no dimming, no spotlight); no timers,
    no "urgent" exception. Waiting questions sit as a calm tray of notes at her seat (seat ink; no number, red or
    pulse), new ones only at natural pauses (~1 s after), she picks which to open. Selector bar: brings a question only
-   if the answer changes the build and needs her expertise; ceiling of 3 and its test unchanged.
+   if the answer changes the build and needs her expertise. No number is promised (a hidden ceiling stays in code).
    **Her inbox (Vincent, 14 Nov evening):** the tray becomes one component by her seat: collapsed = the one item
    that needs her now or "Nothing needs you right now"; expanded = a drawer with Needs you (one at a time, next ones
    folded), Things only you can do, and Past meetings (editable "Meeting notes"). It replaces the reviewed cards on the
@@ -91,8 +91,8 @@ real run.
    problem, the user journey. A question in one of her areas routes to her (if it's big); everything else stays with
    the team.
    **Question bar in the selector:** big (changes the product's shape), draws on what she's good at or loves (her
-   sentence + profile), natural, page can show it. Granular candidates are always decided. Ceiling of 3 and its test
-   unchanged.
+   sentence + profile), natural, page can show it. Granular candidates are always decided. No number is
+   promised; the hidden ceiling and its test are unchanged.
 10. **Private profile:** one call after her sentence + idea deduces business, positioning, customers, what sells, brand
    feel, strengths, ways of working, each with confidence; updated after each answer; read by every teammate and the
    selector; never shown unless she asks. The team assumes and moves on; it never waits on her.
@@ -190,8 +190,8 @@ switches (regulars first, waitlist, phone field, "remember me on this device", o
 from a real source, kept with its URL, shown as **"researched before the demo"**. Her file starts with two hand-written
 lines labelled "prepared for the demo".
 
-**Real and tested** (say so plainly if asked): the selector and cap (tests: a fourth never gets through; a
-different idea changes the picks; a cheap out-of-seat pick is refused); nothing else can ask her; counter, reasons and
+**Real and tested** (say so plainly if asked): the selector's ranking and threshold (tests: a low-stakes candidate is never
+asked; a different idea changes the picks; a cheap out-of-seat pick is refused; a hidden safety ceiling holds); nothing else can ask her; counter, reasons and
 meter from the log; the file write; the live build citing her new line; the key never leaving server memory; the
 baseline count, transcript kept. On stage, say whichever backend actually ran: **"models run through fal with your own key"** only if `MODEL_BACKEND=fal` on the day.
 **Prepared, labelled where shown:** the templates and booking logic, her file's first two lines, Research's finding, the
@@ -205,8 +205,8 @@ one inference, design checking on stage, a build that writes new code, any quest
 | By | What's done | Cut line if behind |
 |---|---|---|
 | **16:00** | Selector + cap + ask policy with tests; teammates; decide-with-citations; template built; flow parsing. Terminal run: idea + flow → candidates → 3 picks → the rest decided, cited. | Template not gate-passing → fill taste-skill's `starter.html` by hand. Teammates + select over 20 s → fewer candidates, faster model. |
-| **20:00** | **The whole demo runs roughly on `main`:** room → flow → three questions → frames → "Sounds like" → Build → page → close. I see it before leaving. | Walk-in motion → plain placement. Sketches → static images per node. |
-| **00:00** | **Core done.** Voice: ElevenLabs speech-to-text for her "I love…" line, her idea, her reaction to the first sketch and her answers, push-to-talk, editable text, typed fallback (core, Vincent's call; key `xi-api-key` for `api.elevenlabs.io` from Vincent). Live fill, reasons, counter and meter from the log, café run and rehearsal run recorded, the close with real baseline counts, the e2e check passing. Tag `demo-core`. | Café run → its three questions only, no page. Live build unreliable → build beat REPLAY. Voice key missing or speech unreliable → typed, said plainly. Never cut the cap, the file write or the live fill. |
+| **20:00** | **The whole demo runs roughly on `main`:** room → flow → her few big questions → frames → "Sounds like" → Build → page → close. I see it before leaving. | Walk-in motion → plain placement. Sketches → static images per node. |
+| **00:00** | **Core done.** Voice: ElevenLabs speech-to-text for her "I love…" line, her idea, her reaction to the first sketch and her answers, push-to-talk, editable text, typed fallback (core, Vincent's call; key `xi-api-key` for `api.elevenlabs.io` from Vincent). Live fill, reasons, counter and meter from the log, café run and rehearsal run recorded, the close with real baseline counts, the e2e check passing. Tag `demo-core`. | Café run → its questions only, no page. Live build unreliable → build beat REPLAY. Voice key missing or speech unreliable → typed, said plainly. Never cut the cap, the file write or the live fill. |
 | **00:00–03:00** | Sponsor layers (`docs/SPONSORS.md`, in order, each behind a flag), then reliability. | Any sponsor over budget → drop it. |
 | **03:00–07:00** | Polish: the look, motion, timings, every beat; the judge's-idea close rehearsed against 10+ varied ideas (fix the selector where picks are weak); `BUILT-THIS-WAY.md`; README and `SUBMISSION.md`; two recorded rehearsal runs; a backup video. Tag `demo-final`. | Judge's idea weak → café replay closes. |
 | **07:00** | Check-in: screenshots and a short list of polish choices for me. | |
@@ -224,7 +224,7 @@ plugin are credited open-source libraries.
 
 **One shot, no mistakes on the core.** Four builders work at once, so the seams are fixed in `CONTRACT.md` and only the
 lead changes them. Each piece ships with its own tests and passes them before review. `npm run e2e` (Playwright,
-`--trace off`) walks the bakery script through the real UI: room → flow → three asks arrive in her work (never more) →
+`--trace off`) walks the bakery script through the real UI: room → flow → her few big questions arrive in her work →
 focus moments → takeaways shown and her hidden file written → Build → page shows her choices and a decision citing her new line → counter
 and meter match the log → the key appears nowhere. The lead merges to `main` only with `npm test` and `npm run e2e`
 green, and re-runs e2e after every merge. A failure gets a diagnosis before a patch.

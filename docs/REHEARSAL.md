@@ -70,6 +70,8 @@ MODEL_BACKEND=fal
 # TIDY_MODEL=sonnet
 ```
 
+Live research: with `LINKUP_API_KEY` set next to `FAL_KEY`, Noor's Focus 1 finding is found live with Linkup ("found just now with Linkup") when doctor shows `live research: on`; with `off (prepared finding)` she shows the finding researched before the demo.
+
 ## Run sheet
 - **The default path is the cut order** (in effect from Sun 05:22, the lead): in Focus 2 she reads Mika's journey, then
   presses **End meeting** at once (no Send round); her page is up for **5 s**, then on to the proof.

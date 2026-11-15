@@ -11,7 +11,7 @@ person: write to him in plain English, recommendation first.
 2. **The fal key never leaks.** It's injected by the network proxy in cloud sessions, or read from `FAL_KEY` on the
    demo machine. Never write it to disk, logs, `runs/`, the browser, an HTTP response or the repo. The leak test in
    `BRIEF.md` must pass.
-3. **The 3-question cap is enforced in code, with its test.** The whole pitch rests on it.
+3. **Questions reach her only if they're big and in her craft.** The selector's ranking and threshold decide, with their tests. No number is promised; a hidden ceiling stays in code, with its test.
 
 ## How we work
 - The lead (Vincent's session) splits the work and starts the builders. Each builder works on its own branch

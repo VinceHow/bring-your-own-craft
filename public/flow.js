@@ -333,7 +333,7 @@
     return v;
   }
 
-  // One of her three: a fork off a box, or a note pinned on one.
+  // A question that reached her: a fork off a box, or a note pinned on one.
   function showAsk(ask) {
     if (!ask || !S.canvas) return null;
     if (S.items.some(i => i.ask && i.ask.id === ask.id)) return null;

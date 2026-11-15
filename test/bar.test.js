@@ -1,5 +1,5 @@
 // The question bar (DEMO.md): a question reaches her only if it is big, draws on what she's good at or loves, is
-// natural to ask and can be shown on the page. Granular decisions are always the team's. The ceiling of 3 holds.
+// natural to ask and can be shown on the page. Granular decisions are always the team's. No number is promised; the hidden safety ceiling holds.
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { pickAsks, clearsBar, isGranular } from '../lib/select.js';
@@ -44,7 +44,7 @@ test('fewer than three is fine: no fixed number is promised', () => {
   assert.strictEqual(picks.length, 1);
 });
 
-test('the ceiling of three still holds when every question passes the bar', () => {
+test('safety ceiling: the hidden ceiling still holds when every question passes the bar', () => {
   const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1, { attachTo: null, decision: `Topic ${'abcdefghij'[i]}xxxx` }));
   const { picks } = pickAsks(cs, scores(cs.map(c => ({ id: c.id, question: `What does ${'qwertyuiopasdf'[Number(c.id.slice(1))]}zzzzz mean to people?` }))), { flow, max: 99 });
   assert.strictEqual(picks.length, 3);

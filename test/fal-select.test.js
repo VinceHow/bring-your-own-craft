@@ -15,7 +15,7 @@ const M = await import('../lib/model.js');
 const { scoreCandidates, pickAsks } = await import('../lib/select.js');
 const { MAX_ASKS } = await import('../lib/policy.js');
 
-test('fal: a recorded select reply (changes 0 on every score) still brings 1 to 3 questions', async () => {
+test('fal: a recorded select reply (changes 0 on every score) still brings at least one question, within the safety ceiling', async () => {
   assert.ok(JSON.parse(REC.reply.choices[0].message.content.match(/\{[\s\S]*\}/)[0]).scores.every(s => s.changes === 0), 'the recording is the failing shape');
   M.setFalKey('test-key-not-real');
   const orig = globalThis.fetch;
