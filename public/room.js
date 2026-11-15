@@ -699,8 +699,10 @@
     'lets build this', 'build this', 'sounds good', 'sounds great', 'sounds right', 'looks good', 'looks great', 'looks right', 'good',
     'great', 'perfect', 'nice', 'cool', 'love it', 'yes', 'yep', 'yeah', 'yup', 'ok', 'okay', 'sure', 'ship it', 'lets ship it',
     'do it', 'lets do it', 'lets do this', 'thats it', 'thats right', 'all good', 'go on', 'start', 'lets start', 'onwards', 'done']);
+  // Fillers don't count ("um, sounds good" is go): the tidy's filler list (lib/tidy.js FILLER), no model call.
+  const GO_FILLER = /\b(um+|uh+|er+|erm|hmm+|like|you know|i mean|sort of|kind of|basically|actually)\b/g;
   function isGo(text) {
-    const t = String(text || '').toLowerCase().replace(/[’']/g, '');
+    const t = String(text || '').toLowerCase().replace(/[’']/g, '').replace(GO_FILLER, ' ');
     if (!t.trim() || t.split(/\s+/).filter(Boolean).length > 8) return false;
     const parts = t.split(/[.,!?;:\n]+|\s+(?:and|then|so)\s+/).map(p => p.replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
     return parts.length > 0 && parts.every(p => GO.has(p) || GO.has(p.replace(/^(ok|okay|yes|yeah|great|perfect|right|alright|so|now)\s+/, '').replace(/\s+(now|please|then|team)$/, '')));
@@ -720,13 +722,14 @@
     if (inputMode === 'idea') {
       if (!raw) return;
       submitting = true;
-      try { const idea = await tidyLine(el.herInput, raw); el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
+      try { const idea = await tidyLine(el.herInput, raw); if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
     } else if (inputMode === 'line') {
       if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
       submitting = true;
       let text = raw;
       try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
-      el.herInput.value = '';
+      // she typed on while it tidied: her new words stay in the box; this line goes as she sent it
+      if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = '';
       if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
