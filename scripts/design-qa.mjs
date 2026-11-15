@@ -29,6 +29,7 @@ let BASE = process.env.BASE || `http://localhost:${PORT}`;
 const SIZES = (process.env.QA_SIZES || '1920x1130,1440x900,1280x800').split(',').map(s => s.split('x').map(Number));
 const MODES = (process.env.QA_MODES || 'day,night').split(',');
 const ONLY = process.env.QA_ONLY ? new RegExp(process.env.QA_ONLY) : null;
+const LOOK = process.env.QA_LOOK || 'painted';   // QA_LOOK=plain walks the fallback look
 const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
 const OUT = path.resolve(ROOT, process.env.QA_OUT || `design/studio/qa/${stamp}`);
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -95,7 +96,7 @@ const toNameTag = async p => { const idea = p.locator('[data-component="idea-car
 add('01b', 'her name tag (setup, paper)', async p => { await p.evaluate(() => BYOC.reset()); await wait(700); await toNameTag(p); });
 add('02', 'meeting the team', async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(700); });
 for (const [id, ms] of [['02m-a', 120], ['02m-b', 350], ['02m-c', 700], ['02m-d', 1300]])
-  add(id, `meeting the team: the next card's entrance at ${ms} ms`, async p => { await p.goto(BASE + '/?look=painted&stage=1&hold=600000'); await wait(1500); await helpers(p);
+  add(id, `meeting the team: the next card's entrance at ${ms} ms`, async p => { await p.goto(BASE + `/?look=${LOOK}&stage=1&hold=600000`); await wait(1500); await helpers(p);
     await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(1500); await p.evaluate(() => BYOC.meetNext && BYOC.meetNext()); await wait(ms); });
 for (const [id, ms] of [['02r-a', 300], ['02r-b', 1200], ['02r-c', 2200], ['02r-d', 3200], ['02r-e', 4800]])
   add(id, `the reveal, ${ms} ms after the last teammate`, async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(800);
@@ -351,7 +352,7 @@ for (const [w, h] of SIZES) for (const mode of MODES) {
   for (const s of S) {
     if (ONLY && !ONLY.test(s.id + ' ' + s.name)) continue;
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 200)));
-    const url = BASE + (s.url || '/') + `?look=painted&stage=1&night=${mode === 'night' ? 1 : 0}`;
+    const url = BASE + (s.url || '/') + `?look=${LOOK}&stage=1&night=${mode === 'night' ? 1 : 0}`;
     let note = '';
     try {
       await p.goto(url, { waitUntil: 'load' }); await wait(1500);
@@ -386,7 +387,7 @@ if (!ONLY || ONLY.test('nametag')) for (const [w, h] of SIZES) for (const mode o
     await wait(1500); r.fulfill({ json: part === 'more' ? { goodAt: 'customer journeys', loves: 'shipping' } : { title: 'the Journey Mapper', traits: ['customer-obsessed', 'ships it'], superpower: 'sees the whole path' } }); });
   const p = await ctx.newPage();
   try {
-    await p.goto(BASE + `/?look=painted&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1800);
+    await p.goto(BASE + `/?look=${LOOK}&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1800);
     await toNameTag(p);
     const card = p.locator('[data-component="character-card"]').first();
     const input = p.locator('[data-component="character-card"] [data-slot="input"]').first();
@@ -443,7 +444,7 @@ if (!ONLY || ONLY.test('meetcard')) for (const [w, h] of SIZES) {
     process.stdout.write(`${tag} plain: ${JSON.stringify(plain)}\n`);
     if (plain.iframe || plain.on || plain.css.length) rec('plain', '?look=plain', `painted layers on the plain look: ${JSON.stringify(plain)}`, await (async () => { const f = path.join(dir, 'plain.jpg'); await p.screenshot({ path: f, type: 'jpeg', quality: 72 }); return f; })());
     // the meet cards
-    await p.goto(BASE + '/?look=painted&stage=1&hold=600000'); await wait(1800);   // hold: each card stays until we move on
+    await p.goto(BASE + `/?look=${LOOK}&stage=1&hold=600000`); await wait(1800);   // hold: each card stays until we move on
     await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(1200);
     for (let i = 0; i < 5; i++) {
       const card = p.locator('[data-component="meet-card"][data-state="in"]:visible').last();
@@ -498,7 +499,7 @@ if (!ONLY || ONLY.test('sound')) for (const [w, h] of SOUND_SIZES) {
   const log = (k, v) => process.stdout.write(`${tag} sound ${k}: ${typeof v === 'string' ? v : JSON.stringify(v)}\n`);
   const shot = async n => { const f = path.join(dir, `${n}.jpg`); await p.screenshot({ path: f, type: 'jpeg', quality: 72 }); return f; };
   const open = async (stage, mode) => {
-    await p.goto(BASE + '/?look=painted' + (stage ? '&stage=1' : ''));
+    await p.goto(BASE + `/?look=${LOOK}` + (stage ? '&stage=1' : ''));
     if (mode) { await p.evaluate(m => { try { localStorage.setItem('byoc.timeMode', m); } catch (e) {} }, mode); await p.reload(); }
     await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(3000);
   };
@@ -596,7 +597,7 @@ if (!ONLY || ONLY.test('daynight')) for (const [w, h] of SIZES) {
   await GUARD(ctx);
   const p = await ctx.newPage();
   try {
-    const open = async () => { await p.goto(BASE + '/?look=painted&stage=1'); await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500); };
+    const open = async () => { await p.goto(BASE + `/?look=${LOOK}&stage=1`); await wait(1500); await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500); };
     await open();
     if (!(await p.locator(PILL).count())) { rec('not on main yet', 'day/night pill', 'no Cycle / Day / Night pill on this build (design/daynight not merged)'); throw null; }
     const check = async (label, expectMode) => {
@@ -639,7 +640,7 @@ for (const [w, h] of EXTRA) for (const mode of MODES) {
   const p = await ctx.newPage(); const tag = `${w}x${h}`;
   const rec = (check, hook, note, shot) => all.push({ check, hook, note, shot: shot ? path.relative(ROOT, shot) : '', size: tag, mode, state: 'extras' });
   try {
-    await p.goto(BASE + `/?look=painted&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1500); await helpers(p);
+    await p.goto(BASE + `/?look=${LOOK}&stage=1&night=${mode === 'night' ? 1 : 0}`); await wait(1500); await helpers(p);
     await p.evaluate(() => { BYOC.reset(); BYOC.stage(2, { instant: true }); BYOC.stage(3, { instant: true }); }); await wait(2500);
     const room = await p.evaluate(() => { const r = document.getElementById('room').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
     const bands = { top: Math.round(room.y), bottom: Math.round(h - room.y - room.h), left: Math.round(room.x), right: Math.round(w - room.x - room.w) };
