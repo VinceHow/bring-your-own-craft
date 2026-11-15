@@ -19,8 +19,9 @@ everything, so my own craft and judgement never make it into what they build. Ei
 gets lost.
 
 ![Slide 3, the shift: AI will outdo us, so we get to choose](docs/readme/slides/03-the-shift.jpg)
-AI will outdo us at a lot of work, and I don't think that's bad news. It means we get to choose what we spend our
-time on. But that only works if the way we work changes with it, so the choosing is ours and not the tool's.
+AI is going to be more productive than us at a lot of work. Built the right way, it takes away the busywork we
+dislike: the approvals, the boilerplate, the questions nobody signed up for. That's what frees us to choose what we
+love, and the way we work has to change so that choice is really ours.
 
 ![Slide 4, our answer: your judgement, your joy](docs/readme/slides/04-our-answer.jpg)
 So what do we keep? Our judgement: taste, expertise, craft. And our joy, the part of the work we'd do even if nobody
@@ -166,7 +167,7 @@ Agents track.
 way of working with AI agents that preserves our craft and imagination, and lets us spend more than 90% of our time
 doing what we love.
 
-AI will outdo us at a lot of work, and that means we get to choose what we do. What we bring is our judgement, and
+AI will be more productive at a lot of work. Built right, it takes the busywork we dislike off our hands, and that's what lets us choose to spend our time on what we love. What we bring is our judgement, and
 the joy of doing the part we love.
 
 **A team that keeps what it learns about you.** Every tool today starts from zero, so you explain yourself again on
