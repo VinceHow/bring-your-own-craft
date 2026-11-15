@@ -636,6 +636,28 @@ DEMO drops the QR caveat now qr-inline is in. The SUBMISSION TBDs at :170 and :1
 - page e2e 2/0.
 - Noor grep: only the known PNG.
 
+### Extension to 260bcc0: design's qr-clean 799e513: PASS
+
+Verified by stub only. The diff is `public/room.css` (+9 lines), `e2e/qr-card.e2e.js` and one evidence PNG.
+
+**The QR still decodes when shown full-window.**
+- I screenshotted "Open the app" with `DEPLOY_URL` at the storefront, at 1920×1080 and 1280×800, painted and plain.
+- I decoded each PNG with jsQR (installed in my scratchpad only). All four read exactly
+  `https://bring-your-own-craft-production.up.railway.app`.
+- The cream wrap (`rgb(251, 246, 236)`) fills the window (1920×1080 and 1280×800 respectively).
+- `window.open` was called 0 times, and there were 0 page errors.
+- Shots: `docs/audit/final/qr-clean/qr-clean-{painted,plain}-{1920x1080,1280x800}.jpg`; `result.json`.
+
+**The CSS is room-only.** `.qr-card-wrap`, `.qr-img` and `.qr-close` appear only in `public/room.css` and
+`public/app-button.js`. `room.css` is linked only by `public/index.html` (the room), not by the slides, the templates
+or `deploy/`.
+
+**Tests on 260bcc0:** qr-card e2e 4/0, app 2/0, `npm test` 312/0.
+
+**Not covered:** main has since moved to 03ad27b (design/studio-live: `public/slides/studio.html`, a poster image
+and QA shots; slides only, "slides-only exception"). That diff only adds slide files and doesn't touch the room;
+I haven't audited it.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).

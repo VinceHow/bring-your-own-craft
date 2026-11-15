@@ -1,0 +1,42 @@
+{
+ "painted 1920x1080": {
+  "decoded": "https://bring-your-own-craft-production.up.railway.app",
+  "wrap": [
+   1920,
+   1080
+  ],
+  "bg": "rgb(251, 246, 236)",
+  "opened": 0,
+  "errors": []
+ },
+ "plain 1920x1080": {
+  "decoded": "https://bring-your-own-craft-production.up.railway.app",
+  "wrap": [
+   1920,
+   1080
+  ],
+  "bg": "rgb(251, 246, 236)",
+  "opened": 0,
+  "errors": []
+ },
+ "painted 1280x800": {
+  "decoded": "https://bring-your-own-craft-production.up.railway.app",
+  "wrap": [
+   1280,
+   800
+  ],
+  "bg": "rgb(251, 246, 236)",
+  "opened": 0,
+  "errors": []
+ },
+ "plain 1280x800": {
+  "decoded": "https://bring-your-own-craft-production.up.railway.app",
+  "wrap": [
+   1280,
+   800
+  ],
+  "bg": "rgb(251, 246, 236)",
+  "opened": 0,
+  "errors": []
+ }
+}
