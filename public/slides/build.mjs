@@ -43,7 +43,7 @@ if (approvals == null) fail('no "Approvals: N" line in GUESSES.md');
 
 const numbers = {
   builtAt: new Date().toISOString(),
-  reachedHer: { value: asks, source: `${RUN}/events.jsonl (ask events; the selector decides them)` },
+  reachedHer: { value: asks, source: `${RUN}/events.jsonl (ask events; asks raised by the selector's threshold)` },
   baseline: {
     asked: { value: questions, source: `${BASE}/transcript.jsonl (AskUserQuestion calls)` },
     guessed: { value: guesses, source: `${BASE}/GUESSES.md (one row per guess)` },

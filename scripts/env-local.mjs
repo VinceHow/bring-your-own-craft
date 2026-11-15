@@ -73,7 +73,8 @@ function canListen(port, host) {
     s.listen(port, host);
   });
 }
-// Free on every address the server listens on (all of them), and on localhost's two forms, which an app may hold alone.
+// The room listens on 127.0.0.1 only by default (plus ::1, localhost's other form); HOST overrides that on purpose. So check
+// the wildcard address too (a HOST run, or another app on 0.0.0.0) and both loopback forms, which an app may hold alone.
 export async function portFree(port) {
   for (const host of [undefined, '127.0.0.1', '::1']) if (!(await canListen(port, host))) return false;
   return true;
