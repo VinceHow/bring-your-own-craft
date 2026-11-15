@@ -55,30 +55,40 @@ Present it yourself: `npm run local` → `/slides/talk.html` (or double-click `t
 
 You say your idea in one rough sentence and meet your team. They get to know you, handle their own work, and bring you **only the few big questions that need your expertise**. Your app builds as you decide.
 
-In the demo, a product manager gets a bakery ordering site, and the audience reserves a real loaf on the live site from their own phones.
-
-In more detail: Priya, a product manager, wants an ordering site for her friend's bakery. She says her idea in one rough
-sentence, gets a name tag, meets her team and sits down. Nobody asks her about databases or logins. Three moments
-reach her, each about what she knows best: who the bakery is really for (Wren's research, found live), when orders
-should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. You can sit in any seat: pick
-your craft on the name tag, and the teammate who held it steps aside.
-
-At the end, pressing **Open the app** shows a QR card for The Usual, a live bakery Bo's agent drafted earlier and our
-builders finished (built ahead, not in the room; source in [`deploy/`](deploy/README.md)). The audience scans it and
-reserves a real loaf; I tap **Deliver**, and every phone flips at once to *"Delivered: your sourdough is here."*
+What it feels like:
+- **You stay in your craft.** Nobody asks you about databases, logins or fonts; the team settles those itself.
+- **You're asked only what you're the expert on**, with the work in front of you, so you react instead of starting
+  from a blank page.
+- **Your words are kept.** Say it out loud, ums and all; the team tidies it without changing what you meant, and
+  builds on it.
+- **You watch your app take shape**, a new version each time you decide something.
+- **In the demo, the audience reserves a real loaf from their phones**, on a live bakery site this same team built.
 
 ## How it works
+In short: a team of agents works on its own, a selector decides what's big enough to bring you, and your answers
+shape the app.
+
+<details>
+<summary>The details</summary>
+
 - **Only the big questions.** The team proposes decisions as it works. A selector ranks every one and brings you only
   what's big and in your craft; the team settles the rest itself and says why, citing what it knows about you. On
-  stage the three moments are set so the talk fits three minutes; everything inside them is live.
+  stage the three moments are set so the talk fits three minutes (who the bakery is for, when orders close, how it
+  should feel); everything inside them is live, including Wren's research, found live with Linkup.
 - **A real meeting.** You speak in pieces, and a careful tidy removes the ums but keeps your words. **Send** starts a
   round where the teammates your words touch reply live; **End meeting** writes your takeaways.
 - **Your app builds as you decide.** It starts on "Team, go", and each later decision builds the next version with a
   line on what changed. It fills one of three designed templates (bakery, café, yoga); the model never writes code.
   Its emblem is painted live with fal.
+- **Any seat.** Pick your craft on the name tag, and the teammate who held that seat steps aside.
+- **The live bakery.** Pressing **Open the app** shows a QR card for The Usual, a live bakery Bo's agent drafted
+  earlier and our builders finished (built ahead, not in the room; source in [`deploy/`](deploy/README.md)). The
+  audience reserves a loaf; **Deliver** flips every phone at once to *"Delivered: your sourdough is here."*
 - **One model function.** Every call goes through `callModel` (`lib/model.js`) and returns JSON checked against a
   schema. Each teammate is its own call; in a discussion each turn reads the thread so far.
 - **Honest labels.** Every number about a run is counted from its event log; anything made ahead says so on screen.
+
+</details>
 
 ## How I built it
 **One human with an idea and a team of agents.** I acted as product owner, and Claude Code agents worked as builders, designers, reviewers and a merger, each on its own branch, with every change reviewed before it reached `main`. That's over **1,000 commits in about 23 hours**.
