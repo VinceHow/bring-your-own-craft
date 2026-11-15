@@ -486,6 +486,8 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.strictEqual(await p.getAttribute(side, 'data-state'), 'composing');
   assert.strictEqual(await p.locator(`${side} .fd-input, ${side} .fd-conversation, ${side} .fd-brief, ${side} .fd-end`).count(), 4, 'one column holds the form, the conversation, the takeaways and End meeting');
   assert.ok(await p.locator('#focus-doc .fd-end').isHidden(), 'no End meeting before a round');
+  const wide = await p.evaluate(s => [document.querySelector(s + ' .fd-input').getBoundingClientRect().width, document.querySelector(s).clientWidth], side);
+  assert.ok(wide[0] >= wide[1] - 40, `her words get the column's whole width (${wide[0]} of ${wide[1]} px)`);
   assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways');
   // Round 1: a long answer (~300 words).
   const long = Array.from({ length: 30 }, (_, i) => `Regulars come in every morning, ${i + 1} of them know the sourdough sells out by nine.`).join(' ');
