@@ -442,6 +442,11 @@ body.stage .chatter-line { font-size: 15px; }
 .seat .agent-mark { padding: 0 3px; font-size: 9px; }
 .seat .card-agent-name { font-size: 13px; }
 .fd-form { display: flex; gap: 10px; align-items: flex-end; }
+.fd-form[hidden] + .fd-help { display: none; } /* the helper line goes with the form (ended meeting, replay) */
+/* in the meeting column the form wraps: her words get the whole width, the buttons go under them */
+.fd-side .fd-form { flex-wrap: wrap; align-items: center; }
+.fd-side .fd-input { flex: 1 0 100%; min-width: 0; }
+.fd-side .fd-help { flex: 1 0 100%; margin: 0; }
 .fd-send { flex: none; font: 600 16px var(--ui); padding: 10px 18px; border: var(--line); border-radius: 4px; background: var(--sheet); cursor: pointer; }
 .brief-head { font: 600 13px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
 .card-title { display: block; font: 600 14px/1.2 var(--ui); }

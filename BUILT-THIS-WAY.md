@@ -8,7 +8,7 @@ Claude Code agents, each in its own cloud session, talking to each other through
 drawn from `docs/DECISIONS.md` (who decided what, as it happened), `docs/HOW-THE-IDEA-EVOLVED.md` and the git history.
 Times are UTC, Saturday 14 November 2026.
 
-**Status: draft.** Numbers marked **TBD** are filled in after the final gate run; every number here comes from the
+**Status: draft.** Counts are as of 00:15 Sun and are refreshed at submission; every number here comes from the
 repo or a real run, never an estimate.
 
 ## The team
@@ -82,14 +82,14 @@ him.* In practice that meant:
 
 | | |
 |---|---|
-| Commits on `main` | **TBD** at submission (389 at 20:20 Sat) |
-| Merges to `main` | **TBD** (163 at 20:20 Sat) |
+| Commits on `main` | 575 at 00:15 Sun (389 at 20:20 Sat); final count at submission |
+| Merges to `main` | 231 at 00:15 Sun (163 at 20:20 Sat) |
 | Builder branches (`build/*`) | 12 |
-| Product-owner branches (`po/*`) | **TBD** (32 at 20:20 Sat) |
-| Design branches (`design/*`) | **TBD** (19 at 20:20 Sat) |
-| Unit tests (`npm test`, offline, no model calls) | **TBD** (189 passing at 20:20 Sat) |
-| End-to-end walk (Chromium, real model) | **TBD** at the final gate |
-| Decisions logged | **TBD** (59 rows in `docs/DECISIONS.md` at 20:20 Sat) |
+| Product-owner branches (`po/*`) | 36 at 00:15 Sun (32 at 20:20 Sat) |
+| Design branches (`design/*`) | 26 at 00:15 Sun (19 at 20:20 Sat) |
+| Unit tests (`npm test`, offline, no model calls) | 257 passing at the 00:00 gate on `main` b82212f (189 at 20:20 Sat) |
+| End-to-end walk (Chromium, real model) | 77 of 77 passing, 15 spec files, on Claude Code (00:02 Sun, `build/questions` 295506e with `main` merged in); final run at the last gate |
+| Decisions logged | 62 rows in `docs/DECISIONS.md` at 00:15 Sun (59 at 20:20 Sat) |
 
 ## What it taught us about the product
 

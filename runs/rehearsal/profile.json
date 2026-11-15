@@ -1,31 +1,31 @@
 {
   "business": {
-    "text": "She is building an ordering website for her friend's small bakery so customers can order bread ahead. It's a help-a-friend project; the bakery owner is someone else.",
+    "text": "She is building an online pre-order website for her friend's small bakery so customers can order bread ahead. It's a helper project for a friend's shop, not her own bakery.",
     "confidence": "high"
   },
   "positioning": {
-    "text": "The bakery's edge is fresh, local bread, with a site that makes regulars feel the baker already knows them and secures their loaf, especially sourdough, before it sells out. Against walk-in queues and phone orders, it wins by being effortless and personal for people who already come in.",
+    "text": "The bakery's own simple, direct way for regulars to get their usual loaf held, where it already knows them and never asks for what it knows. No marketplace or fees; anything beyond that should come from what customers say.",
     "confidence": "medium"
   },
   "customers": {
-    "text": "First, the morning regulars who come in every day and hate finding the sourdough gone by nine. Occasional buyers, commuters and families come later.",
+    "text": "Build first for the morning regulars, who come in every day and hate finding their usual sourdough gone by nine. Occasional buyers and other segments come later.",
     "confidence": "high"
   },
   "whatSells": {
-    "text": "Good fresh bread, sourdough above all, the certainty it will be waiting, and the feeling of being recognised. In her words, don't ask for what you already know, so reserving the usual loaf should be near-zero effort: remembered details, one tap, repeatable.",
+    "text": "The certainty that a regular's usual loaf is held for them with no effort, especially the sourdough that sells out early. Bread quality keeps them coming back; the site adds reliability and the feeling of being known.",
     "confidence": "medium"
   },
   "brandFeel": {
-    "text": "Personal and familiar, like the baker already knows you. Warm, simple, local, with no needless questions.",
+    "text": "Personal, familiar, effortless: like the baker already knows you. Warm neighborhood bakery, with no repeated questions.",
     "confidence": "high"
   },
   "strengths": {
-    "text": "She loves the customer journey, understanding customers' problems and building products that solve them, and she already knows her regulars' pain point. Questions for her should be about what customers struggle with and how ordering should flow, not technical or visual detail.",
+    "text": "She loves talking to customers and turning what they say into what gets built. She spots the real customer problem, like regulars missing their usual loaf, and has a strong instinct for removing friction (don't ask for what we already know).",
     "confidence": "high"
   },
   "waysOfWorking": {
-    "text": "Probably hands-on and customer-led, thinking in terms of principles and how it feels to the customer, and wanting to know why a choice helps them. The team should settle technical and visual details itself and bring only customer and journey questions. Still largely an assumption.",
-    "confidence": "low"
+    "text": "Customer-led and conversational. The team should decide routine build details itself, such as remembering usual orders and prefilling them, and bring her questions grounded in customer insight about regulars. Her preferences on pace and tools are unknown.",
+    "confidence": "medium"
   },
   "domains": [
     "target customer",
@@ -36,14 +36,14 @@
   "philosophy": [
     {
       "id": "L3",
-      "believe": "I believe we build first for the morning regulars, the people who come every day and hate it when the sourdough is gone by nine.",
-      "guidance": "Design the first version around a regular reserving their usual loaf, sourdough above all, ahead of time so it's waiting for them. Keep browsing, picking, pickup day and confirming as quick as possible for repeat customers, and leave anything for first-time visitors until we have evidence.",
+      "believe": "I believe we should build this first for the morning regulars, who hate finding their usual sourdough gone by nine.",
+      "guidance": "Design the smallest end-to-end version around a regular reserving their usual loaf ahead so it's held past nine. Keep reorder and usual-loaf in mind, and check this with a few regulars before adding anything else.",
       "askId": "first"
     },
     {
       "id": "L4",
-      "believe": "Ordering should feel like being known: never ask for anything you could remember or skip.",
-      "guidance": "Remember each regular's usual loaf, pickup day and details, and prefill or skip them so reserving takes as few taps as possible. Use a warm, familiar tone, and only ask for what we truly don't know yet.",
+      "believe": "For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.",
+      "guidance": "Design the regular's flow around recognition: remember their usual and details, prefill everything known, and ask only for what's new. Make holding their usual a one-tap action with a warm, personal tone.",
       "askId": "feel"
     }
   ],

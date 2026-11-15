@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hearth: your bread, reserved for the morning in Walkley</title>
+<title>Hearth: bread to order ahead in Walkley, Sheffield</title>
 <meta name="description" content="Sourdough, rye and the morning bake, ordered the evening before and collected warm from the bakery.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hearth: your bread, reserved for the morning in Walkley">
+<meta property="og:title" content="Hearth: bread to order ahead in Walkley, Sheffield">
 <meta property="og:description" content="Order tonight, collect your bread warm tomorrow morning.">
 <meta property="og:image" content="share.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -38,7 +38,7 @@
   --display-tracking: -0.03em;
 }
 </style>
-<style>:root { --p-bg: #efe9e0; --p-surface: #e2d9cb; --p-ink: #22261f; --p-accent: #8a5a2b; --p-action: #8a5a2b; }</style>
+<style>:root { --p-bg: #f5eee1; --p-surface: #eadfcb; --p-ink: #2b2118; --p-accent: #8a5a33; --p-action: #8a5a33; }</style>
 <script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
 <script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
 <link rel="modulepreload" href="assets/moments/moments.js">
@@ -93,7 +93,7 @@
     </nav>
     <a class="nav__logo" href="#top"><span class="mark" data-mark="dots" aria-hidden="true"></span><span>Hearth</span></a>
     <div class="nav__actions">
-      <a class="btn btn--primary" href="#confirm">Reserve my bread</a>
+      <a class="btn btn--primary" href="#confirm">Hold my usual</a>
     </div>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
   </div>
@@ -104,10 +104,10 @@
     <picture class="hero__bg" data-phone-fill><source media="(max-width: 639px)" srcset="img/photo-m33603672-780x975.webp 780w" sizes="100vw"><img src="img/photo-m33603672-1800.webp" srcset="img/photo-m33603672-1200.webp 1200w, img/photo-m33603672-1800.webp 1800w, img/photo-m33603672-2400.webp 2400w" sizes="100vw" width="1800" height="1192" alt="Seeded loaves on the stone floor of an open oven, iron doors either side" fetchpriority="high" decoding="async" data-source="library-057" data-subject="oven" style="object-position: 50% 60%"></picture>
     <div class="wrap"><div class="hero-text">
       <div class="hero__text">
-        <h1 id="hero-h">Your usual loaf, waiting for you in Walkley</h1>
-        <p class="hero__lead" data-assumed>Reserve tonight, collect it warm in the morning, Tuesday to Sunday. Pay at the counter.</p>
-        <p class="hero__cutoff" data-switch="cutoff">Order by 20:00 the night before.</p>
-        <div class="btn-row"><a class="btn btn--primary" href="#confirm">Reserve my bread</a></div>
+        <h1 id="hero-h">Your usual loaf, held for you in Walkley</h1>
+        <p class="hero__lead" data-assumed>Order tonight, collect it warm on your way to work, Tuesday to Sunday.</p>
+        <p class="hero__cutoff" data-switch="cutoff">Order by 20:00 the night before for the next morning’s bake.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="#confirm">Hold my usual</a></div>
       </div>
     </div></div>
   </section>
@@ -117,7 +117,7 @@
       <div class="span-6">
       <div class="section-head">
         <h2 id="regulars-h">Your usual loaf</h2>
-        <p>Remembered from your last order on this device. One tap and it is reserved for tomorrow.</p>
+        <p>Remembered on this device. One tap holds it for tomorrow morning.</p>
       </div>
         <div class="order-panel">
           <ul class="rows">
@@ -126,16 +126,16 @@
             <li><span class="rows__name">Total</span><span class="rows__value" data-assumed>£5.80</span></li>
             
           </ul>
-          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your usual is reserved. The confirmation email is on its way." novalidate>
+          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your usual is held. The confirmation is on its way." novalidate>
             <input type="hidden" name="page" value="bakery">
-            <input type="hidden" name="run" value="run-2026-11-14T22-34-40-507Z-62jn">
+            <input type="hidden" name="run" value="run-2026-11-15T00-48-57-892Z-t0s6">
             <input type="hidden" name="order" value="usual">
             <input type="hidden" name="bread" value="country-sourdough|07:30">
             <input type="hidden" name="quantity" value="1">
-            <div class="btn-row"><button class="btn btn--secondary" type="submit">Reserve my usual</button></div>
+            <div class="btn-row"><button class="btn btn--secondary" type="submit">Hold my usual</button></div>
             <p class="form__status" role="status" data-form-status></p>
           </form>
-          <p>Tick “Remember me on this device” when you order, and your usual waits here next time.</p>
+          <p>Tick “Remember me on this device” when you order, and your usual waits here the next evening.</p>
         </div>
       </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1.3333"><img src="img/photo-m11317510-1200.webp" srcset="img/photo-m11317510-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="800" alt="Black iron oven door with a long wooden peel resting in the opening" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 50% 50%"></figure>
@@ -146,8 +146,8 @@
       <div class="span-6">
       <div class="section-head">
         <h2 id="bread-h">Tomorrow’s bread</h2>
-        <p>Baked overnight, out of the oven by 06:30. Some sourdough is held back for regulars.</p>
-        <p class="t-label" data-switch="cutoff">Order by 20:00 the night before.</p>
+        <p>Baked overnight, out of the oven by 06:30. Sold-out loaves are greyed out with the next day to order.</p>
+        <p class="t-label" data-switch="cutoff">Order by 20:00 the night before for the next morning’s bake.</p>
       </div>
       <div class="grid grid--top groups">
         <div class="span-6">
@@ -179,13 +179,13 @@
     <div class="wrap grid grid--top split">
       <div class="span-6">
       <div class="section-head">
-        <h2 id="confirm-h">Reserve for tomorrow</h2>
-        <p>No account needed. Your loaf is held under your name. Pay at the counter when you collect.</p>
+        <h2 id="confirm-h">Order for tomorrow</h2>
+        <p>No account needed. Pay online at shelf prices, and your loaf is held at the counter under your name.</p>
       </div>
         <div class="order-panel">
-          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your bread is reserved. The confirmation email is on its way." novalidate>
+          <form class="form" action="/api/book" method="post" data-endpoint="/api/book" data-sent="Your bread is ordered. The confirmation is on its way." novalidate>
             <input type="hidden" name="page" value="bakery">
-            <input type="hidden" name="run" value="run-2026-11-14T22-34-40-507Z-62jn">
+            <input type="hidden" name="run" value="run-2026-11-15T00-48-57-892Z-t0s6">
             <div class="field"><label for="f-name">Name</label>
               <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err">
               <p class="field__error" id="f-name-err" hidden>Write the name to put on the loaf.</p></div>
@@ -214,12 +214,14 @@
             <div class="field"><label for="f-qty">How many</label>
               <input id="f-qty" name="quantity" type="text" inputmode="numeric" autocomplete="off" required aria-describedby="f-qty-err">
               <p class="field__error" id="f-qty-err" hidden>Write how many, as a number.</p></div>
-            
+            <div class="field" data-switch="phone"><label for="f-phone">Phone (optional)</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="f-phone-err">
+              <p class="field__error" id="f-phone-err" hidden>Write a phone number, or leave it empty.</p></div>
             <div class="field field--full field--check" data-switch="remember">
               <input id="f-remember" name="remember" type="checkbox" value="1">
               <label for="f-remember">Remember me on this device</label></div>
             
-            <div class="btn-row"><button class="btn btn--primary" type="submit">Reserve my bread</button></div>
+            <div class="btn-row"><button class="btn btn--primary" type="submit">Hold my usual</button></div>
             <p class="form__status" role="status" data-form-status></p>
           </form>
         </div>
@@ -231,13 +233,13 @@
     <div class="wrap grid grid--top split">
         <div class="span-6">
           <div class="section-head">
-            <h2 id="ordered-h">After you reserve</h2>
-            <p>The confirmation email arrives once the reservation is in. Change or cancel until the evening before.</p>
+            <h2 id="ordered-h">After you order</h2>
+            <p>The confirmation arrives once the order is in.</p>
           </div>
           <ul class="rows">
             <li><span class="rows__name">Confirmation</span><p>An email with your bread, the collection time and a cancel link.</p></li>
             <li><span class="rows__name">Collection</span><p>Your loaf waits at the counter under your name, still warm.</p></li>
-            <li><span class="rows__name">Cancelling</span><p data-switch="cancel">Cancel in one tap from your confirmation email.</p></li>
+            <li><span class="rows__name">Cancelling</span><p data-switch="cancel">Cancel in one tap from your confirmation.</p></li>
           </ul>
         </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1"><img src="img/photo-m33603672-1200.webp" srcset="img/photo-m33603672-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="795" alt="Seeded loaves on the stone floor of an open oven, iron doors either side" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 30% 70%"></figure>
@@ -260,12 +262,12 @@
         <p>Six choices the team made for this page.</p>
       </div>
           <ul class="rows decided">
-        <li data-decided="c10" data-cites="L4" data-seat="engineering">Your name, contact and last order remembered on this device, no account</li>
-        <li data-decided="c2" data-cites="L4" data-seat="data">What we measure at &#39;Reserve your usual&#39;: Count one-tap usual reservations per returning customer per week</li>
-        <li data-decided="c4" data-cites="L4" data-seat="data">What we keep about a customer&#39;s orders and for how long: Keep name, contact and usual loaf; delete after 12 months of inactivity</li>
-        <li data-decided="c24" data-cites="L2" data-seat="product">Reserve now, pay at the counter when collecting</li>
-        <li data-decided="c7" data-cites="team default" data-seat="strategy">Same price as in the shop</li>
-        <li data-decided="c22" data-cites="L3" data-seat="product">Some loaves held back for regulars only</li>
+        <li data-decided="c1" data-cites="L4" data-seat="engineering">Your usual is remembered on this device, one tap to order</li>
+        <li data-decided="c18" data-cites="L4" data-seat="design">Your usual loaf and pickup time come first, the menu below</li>
+        <li data-decided="c7" data-cites="L4" data-seat="research">How a regular holds their usual: one tap, or the normal ordering flow: Both, usual shown first</li>
+        <li data-decided="c9" data-cites="team default" data-seat="strategy">You pay online when you order</li>
+        <li data-decided="c12" data-cites="team default" data-seat="strategy">Same shelf prices as in the shop, no fees</li>
+        <li data-decided="c23" data-cites="L3" data-seat="product">Sold-out loaves show early with a close alternative</li>
       </ul>
         </div>
         <figure class="pl-photo pl-photo--end span-6" style="--pl-r: 1.3333"><img src="img/photo-m11317510-1200.webp" srcset="img/photo-m11317510-1200.webp 1200w" sizes="(max-width: 639px) 180vw, (max-width: 1023px) 150vw, 50vw" width="1200" height="800" alt="Black iron oven door with a long wooden peel resting in the opening" loading="lazy" decoding="async" data-source="library-057" data-subject="oven" style="--pos: 50% 50%"></figure>
@@ -301,8 +303,8 @@
   <div class="wrap">
     <div class="closing__cta close--word">
       <div class="section-head--split">
-        <div><h2 id="close-h">Tomorrow’s bread, ordered tonight</h2><p class="t-lead" data-switch="cutoff">Order by 20:00 the night before.</p></div>
-        <a class="btn btn--primary" href="#confirm">Reserve my bread<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+        <div><h2 id="close-h">Tomorrow’s bread, ordered tonight</h2><p class="t-lead" data-switch="cutoff">Order by 20:00 the night before for the next morning’s bake.</p></div>
+        <a class="btn btn--primary" href="#confirm">Hold my usual<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
       </div>
       <p class="close__word" aria-hidden="true">Hearth</p>
     </div>
@@ -327,7 +329,7 @@
 </footer>
 
 <nav class="actionbar" aria-label="Quick actions">
-  <a class="btn btn--primary" href="#confirm">Reserve my bread</a>
+  <a class="btn btn--primary" href="#confirm">Hold my usual</a>
 </nav>
 
 <script type="module" src="assets/system.js"></script>
