@@ -9,3 +9,9 @@ html body #room [data-component="door-open"][data-state="leaving"] { opacity: 0;
 /* the app button lives outside the room (fixed, z 45): it waits until the door has opened, then fades in with the room */
 html body:has(#room [data-component="door-open"]) [data-component="app-button"] { opacity: 0; pointer-events: none; transition: none; }
 html body:has(#room [data-component="door-open"][data-state="leaving"]) [data-component="app-button"] { opacity: 1; transition: opacity 1000ms ease-in-out; }
+/* "Bring your own craft" carved into the plaque (painted.js, in the clip's own frame): dark burnt ink multiplied into the
+   wood so the grain shows through, a light lower lip and a darker upper edge, like a cut. Only while the doors are shut. */
+html body #room [data-component="door-open"] > [data-slot="sign"] { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  opacity: 0; transition: opacity 400ms ease-in-out; }
+html body #room [data-component="door-open"][data-sign="on"] > [data-slot="sign"] { opacity: 1; transition: none; }
+html body #room [data-component="door-open"] > [data-slot="sign"] :is([data-slot="ink"], [data-slot="shade"]) { mix-blend-mode: multiply; }
