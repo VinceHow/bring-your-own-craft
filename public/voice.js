@@ -199,6 +199,18 @@
   // BYOC.tidy(text, { seat }) -> Promise<string>: her spoken words, tidied into her own note (POST /api/tidy,
   // lib/tidy.js). Never rejects: on a failure or after ~4 s it resolves to her raw words. (seat: reserved; the
   // tidy is the same for every seat.)
+  // Her fillers, cut by code when the tidy can't answer in time (the same rules as lib/tidy.js cutFillers: only ever
+  // deletions; "like" / "you know" / "I mean" only set off by commas). So the first screen's tidy always plays.
+  const cutFillers = raw => {
+    let s = ' ' + String(raw || '').replace(/\s+/g, ' ').trim() + ' ';
+    s = s.replace(/[\s,]+\b(?:u+m+|u+h+|e+r+m*|hm+)\b[,.]?(?=\s)/gi, ' ');
+    s = s.replace(/,\s*(?:like|you know|i mean)\s*,/gi, ',').replace(/^\s*(?:like|you know|i mean)\s*,/i, ' ');
+    for (let i = 0; i < 3; i++) s = s.replace(/^\s*(?:so|okay|ok|well|basically|right)\b\s*[,.]?\s*/i, ' ');
+    s = s.replace(/\s+([,.!?])/g, '$1').replace(/,\s*,/g, ',').replace(/^[\s,.;:]+/, '').replace(/\s+/g, ' ').trim();
+    if (!s || s.toLowerCase() === String(raw || '').replace(/\s+/g, ' ').trim().toLowerCase()) return String(raw || ''); // nothing cut: her words as they were
+    return s[0].toUpperCase() + s.slice(1);
+  };
+  BYOC.cutFillers = cutFillers;
   BYOC.tidy = function (text, opts = {}) {
     const raw = String(text || '');
     if (!raw.trim()) return Promise.resolve(raw);
@@ -210,7 +222,7 @@
       // Her card's "I love …" line is a fragment: begun in lower case, it stays so ("I love getting…", never "Getting").
       // ...but the pronoun I stays a capital ("uh i love…" tidies to "I love…", never "i love…").
       .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) && !/^\s*I(\b|[’'])/.test(t) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
-      .catch(() => raw).finally(() => clearTimeout(timer));
+      .catch(() => (opts.field === 'intro' && /^[a-z]/.test(raw.trim()) ? raw : cutFillers(raw))).finally(() => clearTimeout(timer)); // slow or failed: her fillers still go
   };
 
   // BYOC.tidyInto(el, raw, opts) -> Promise<string>: one line she typed or spoke, cleaned in place, never reworded

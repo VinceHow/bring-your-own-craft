@@ -8,6 +8,7 @@ import path from 'node:path';
 process.env.RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'byoc-tidy-'));
 process.env.THREAD_WARM = '0';
 const T = await import('../lib/tidy.js');
+const { cutFillers } = T;
 const { addPiece, removePiece, choosePiece, gatherPieces, checkTidy, alreadyClean, tidyText } = T;
 const { interpret } = await import('../lib/interpret.js');
 const { logEvent, readEvents, newRunId } = await import('../lib/events.js');
@@ -80,7 +81,7 @@ test('a removed or redone piece ignores its pending tidy', async () => {
   assert.equal(g.text, 'Regulars come every morning before work.');
 });
 
-test('slow (over the limit) or failed: her raw words stay, silently; the skip is only in the log', async () => {
+test('slow (over the limit), failed or refused: her own words, with only her fillers cut by code (never a model\'s word)', async () => {
   const run = newRun();
   const t0 = Date.now();
   await addPiece({ run, askId: 'a1', pieceId: 'p1', text: RAW, limitMs: 200, callModel: async () => { await sleep(1500); return { text: TIDY }; } }).tidy;
@@ -88,9 +89,10 @@ test('slow (over the limit) or failed: her raw words stay, silently; the skip is
   await addPiece({ run, askId: 'a1', pieceId: 'p2', text: RAW, callModel: async () => { throw new Error('down'); } }).tidy;
   await addPiece({ run, askId: 'a1', pieceId: 'p3', text: RAW, callModel: async () => ({ text: 'Something else entirely about croissants and coffee prices today.' }) }).tidy;
   const evs = readEvents(run);
-  assert.ok(!evs.some(e => e.type === 'answer.piece.tidy'));
-  assert.equal(evs.filter(e => e.type === 'answer.piece.tidy.skipped').length, 3);
-  assert.deepEqual(gatherPieces(evs, 'a1', ['p1', 'p2', 'p3']).pieces.map(p => p.used), ['raw', 'raw', 'raw']);
+  const tidies = evs.filter(e => e.type === 'answer.piece.tidy');
+  assert.deepEqual(tidies.map(e => e.text), [cutFillers(RAW), cutFillers(RAW), cutFillers(RAW)], 'the filler cut, by code');
+  assert.ok(!/croissant/i.test(tidies.map(e => e.text).join(' ')), 'never the model\'s words');
+  assert.deepEqual(gatherPieces(evs, 'a1', ['p1', 'p2', 'p3']).pieces.map(p => p.used), ['tidy', 'tidy', 'tidy']);
 });
 
 test('Send: one gathered comment is the answer; only it reaches the chimes and takeaways; the room is quiet before', async () => {
@@ -123,9 +125,9 @@ test('tidyText, shared (her name-tag sentence): the tidy, or her raw words on an
   const t0 = Date.now();
   const slow = await tidyText({ text: RAW, limitMs: 200, callModel: async () => { await sleep(1500); return { text: TIDY }; } });
   assert.ok(Date.now() - t0 < 1000);
-  assert.equal(slow.text, RAW); assert.equal(slow.tidied, false);
-  assert.equal((await tidyText({ text: RAW, callModel: async () => { throw new Error('down'); } })).text, RAW);
-  assert.equal((await tidyText({ text: RAW, callModel: async () => ({ text: 'Croissants and coffee prices today, nothing she said.' }) })).text, RAW);
+  assert.equal(slow.text, cutFillers(RAW)); assert.equal(slow.fallback, 'cut');
+  assert.equal((await tidyText({ text: RAW, callModel: async () => { throw new Error('down'); } })).text, cutFillers(RAW));
+  assert.equal((await tidyText({ text: RAW, callModel: async () => ({ text: 'Croissants and coffee prices today, nothing she said.' }) })).text, cutFillers(RAW));
   const short = 'I love bread.';
   assert.equal((await tidyText({ text: short, callModel: async () => { throw new Error('never called'); } })).text, short);
 });
@@ -151,13 +153,14 @@ test('a tidy that brings in a word she didn\'t say keeps her raw words, on any l
   let r;
   try { r = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love perfecting the journey before anyone draws a screen, before the first box.' }) }); }
   finally { console.error = orig; }
-  assert.deepEqual([r.text, r.tidied, r.reason], [raw, false, 'changed words']);
+  // refused: her words stand, with only "you know" cut by code
+  assert.deepEqual([r.text, r.tidied, r.fallback], ['I love getting the journey right before anyone draws a screen, before the first box', true, 'cut']);
   assert.deepEqual(errs, ['[model] tidy changed words, kept raw'], 'one line, none of her words');
   const ok = await tidyText({ text: raw, field: 'intro', callModel: async () => ({ text: 'I love getting the journey right before anyone draws a screen, before the first box.' }) });
   assert.equal(ok.tidied, true, 'dropping "you know" is a clean tidy');
   // every surface now (an answer piece too): a changed word is refused
   const piece = await tidyText({ text: raw, callModel: async () => ({ text: 'I love perfecting the journey before anyone draws a screen, before the first box.' }) });
-  assert.equal(piece.tidied, false);
+  assert.ok(!/perfecting/.test(piece.text), 'the model\'s word never lands');
 });
 
 // Her meaning, her words, clearer order (Vincent, 15 Nov): cut, reorder, merge, small function words, grammar; never a
@@ -222,4 +225,21 @@ test('a lower-case start stays lower case, but the pronoun I keeps its capital',
   assert.equal(frag.text, 'getting the journey right before anyone draws a screen.');
   const i = await T.tidyText({ text: 'i love, um, baking sourdough for the regulars', field: 'intro', callModel: async () => ({ text: 'I love baking sourdough for the regulars.' }) });
   assert.equal(i.text, 'I love baking sourdough for the regulars.');
+});
+
+// Vincent's Mac (Sun 09:07): "So, um, I wanna build a bakery shop" on the idea card didn't tidy: the model wrote
+// "want to" for her "wanna" and the guard refused it, so nothing played. "wanna" is hers in full now; and any refused
+// tidy still cuts her fillers by code.
+test('"So, um, I wanna build a bakery shop": "want to" is hers; a refused tidy still cuts the fillers; a real swap is refused', async () => {
+  const raw = 'So, um, I wanna build a bakery shop';
+  assert.equal(T.checkTidy(raw, 'I want to build a bakery shop'), 'I want to build a bakery shop', 'wanna -> want to is hers');
+  assert.equal(T.checkTidy('I am gonna bake', 'I am going to bake'), 'I am going to bake');
+  assert.equal(T.checkTidy(raw, 'Where to build a bakery shop'), null, 'a real swap is still refused');
+  assert.equal(T.cutFillers(raw), 'I wanna build a bakery shop');
+  assert.equal(T.cutFillers('I like bread, a lot'), 'I like bread, a lot', 'like as a verb stays');
+  const orig = console.error; console.error = () => {};
+  let r; try { r = await T.tidyText({ text: raw, callModel: async () => ({ text: 'Where we build a bakery shop' }) }); } finally { console.error = orig; }
+  assert.deepEqual([r.text, r.tidied, r.fallback], ['I wanna build a bakery shop', true, 'cut']);
+  const ok = await T.tidyText({ text: raw, callModel: async () => ({ text: 'I want to build a bakery shop' }) });
+  assert.deepEqual([ok.text, ok.tidied], ['I want to build a bakery shop', true]);
 });
