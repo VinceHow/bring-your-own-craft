@@ -137,10 +137,13 @@ test('room chatter: from real events, by name, never to her, never a question, c
   logEvent(run, 'decided', { id: 'c5', seat: 'strategy', decision: 'Whether regulars get a class pass', choice: 'Class pass shown first', cites: 'team default' });
   for (let i = 0; i < 5; i++) logEvent(run, 'decided', { id: `d${i}`, seat: 'design', decision: `Layout ${i}`, choice: `Option ${i}`, cites: 'team default' });
   const chatter = readEvents(run).filter(e => e.type === 'chatter');
-  assert.deepEqual(chatter.slice(0, 2).map(c => c.text), ['Noor: found a source on full classes at small studios.', 'Ines: class pass shown first.']);
+  assert.deepEqual(chatter.slice(0, 2).map(c => [c.by, c.text]), [['Noor', 'found a source on full classes at small studios.'], ['Ines', 'class pass shown first.']]);
+  assert.ok(!chatter.some(c => /^[A-Z][a-z]+:/.test(c.text)), 'no "Name:" prefix: the room shows the speaker');
   assert.ok(!chatter.some(c => c.from === 'teammate.done'), 'a work note is a log, never chatter');
   assert.ok(chatter.every(c => c.text.split(' ').length <= 15 && !/…/.test(c.text)), 'short, never cut');
-  assert.equal(lineFor({ type: 'decided', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' }), 'Bo: name and email, no account.');
+  assert.equal(lineFor({ type: 'decided', seat: 'engineering', decision: 'x', choice: 'Name and email, no account', cites: 'team default' }), 'name and email, no account.');
+  const ev = { type: 'decided', id: 'd7', seat: 'design', decision: 'x', choice: 'Usual loaf first', cites: 'team default' };
+  assert.equal(lineFor(ev), lineFor({ ...ev }), 'the same event says the same line (R replays it)');
   assert.ok(!chatterLine('Ines: pricing and payment decisions for a single-bakery pre-order site: when customers pay…'), 'a log line is not chatter');
   assert.ok(chatter.every(c => okLine(c.text)));
   assert.ok(!chatter.some(c => c.seat === 'product'), 'her seat never chatters');
