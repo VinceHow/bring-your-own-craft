@@ -227,7 +227,7 @@
     card.appendChild(src);
     w.appendChild(card);
   }
-  // Noor's finding for Focus 1 (lib/first.js): researched before the demo, quoted exactly, with its source and date.
+  // Wren's finding for Focus 1 (lib/first.js): researched before the demo, quoted exactly, with its source and date.
   function renderResearch(w, f) { w.appendChild(B.fdCards.research(document, f)); } // public/fd-cards.js
   // Mika's rough morning journey in words for Focus 2 (lib/first.js): 4-6 steps; after her answer the ones her words
   // change are struck (draft -> struck) and rewritten (.jw-new, her pink).
@@ -288,7 +288,7 @@
     if (cur) close(true);
     clearWait();
     cur = ask; kept = false; sent = false; briefPending = null; chimeQ = []; clearTimeout(chimeTimer); chimeTimer = null; clearTimeout(replayClose);
-    // Who asked shows only when it's a named teammate (Noor · Research); otherwise no "by" at all.
+    // Who asked shows only when it's a named teammate (Wren · Research); otherwise no "by" at all.
     const seat = ask.seat, named = AGENT(seat), name = named && (!ask.by || ask.by === named) ? named : null;
     $('.fd-kicker').textContent = name ? `${name} · ${SEAT_NAME(seat)}` : '';
     listener = name || 'The team'; ack(false);
@@ -649,7 +649,7 @@
     const r = h('div', 'pin-reply'); r.dataset.component = 'pin-reply'; r.dataset.seat = ev.seat || ''; r.dataset.pin = pin.dataset.pin;
     const w = h('span', 'pin-reply-who', ev.by || AGENT(ev.seat) || SEAT_NAME(ev.seat)); w.dataset.slot = 'who';
     const t = h('span', 'pin-reply-text', ev.text || ''); t.dataset.slot = 'text';
-    r.append(w, document.createTextNode(': '), t); r._pin = pin; r._text = ev.text; // "Noor: Warm bread…"
+    r.append(w, document.createTextNode(': '), t); r._pin = pin; r._text = ev.text; // "Wren: Warm bread…"
     pin.querySelector('.fd-pin-replies').appendChild(r);
     showReply(r);
     if (M) M.animate(r, { y: [6, 0] }, SPRING);

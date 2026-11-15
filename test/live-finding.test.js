@@ -1,4 +1,4 @@
-// Noor's live finding (lib/live-finding.js): searched with Linkup in the background, shown only when VERIFIED (a quoted
+// Wren's live finding (lib/live-finding.js): searched with Linkup in the background, shown only when VERIFIED (a quoted
 // line that is an exact substring of the returned source, its URL, site and the date read), labelled "found just now
 // with Linkup"; otherwise the prepared finding stays. Never awaited by Focus 1. Offline: a fake fetch.
 import { test } from 'node:test';

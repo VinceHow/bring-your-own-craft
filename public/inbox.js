@@ -1,6 +1,6 @@
 // Her inbox (DEMO "Her inbox", Vincent 14 Nov evening; ONE home at the top right, Vincent 15 Nov 02:00: "my inbox should
 // live at the top right, saying it's empty until something comes in… when I open it, it takes over my whole screen. No
-// stupid preview"). data-state empty | new | open. Empty: "Your inbox is empty". New: only who ("Noor has a question"),
+// stupid preview"). data-state empty | new | open. Empty: "Your inbox is empty". New: only who ("Wren has a question"),
 // never the question itself: the room's one attention cue. Open: the whole screen. The tally's counters live in it.
 // A quick unblock opens as its own full-screen page (data-view="action"), like her focus document.
 // Collapsed: the one item that needs her now, or "Nothing needs you right now". Expanded: a drawer with three parts:
@@ -41,8 +41,8 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const slot = (e, name) => { e.dataset.slot = name; return e; };
   const NAME = { design: 'Design', data: 'Data', research: 'Research', strategy: 'Strategy', engineering: 'Engineering', product: 'Product' };
-  const AGENT = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
-  // Who asks: the teammate's own name ("Noor asks"), from `by`, else the seat's agent; never "<her seat>'s teammate"
+  const AGENT = { design: 'Mika', research: 'Wren', data: 'Theo', strategy: 'Ines', engineering: 'Bo' };
+  // Who asks: the teammate's own name ("Wren asks"), from `by`, else the seat's agent; never "<her seat>'s teammate"
   // (her own seat's engine has no name of its own: then "The team asks").
   const asker = n => {
     const by = String(n.by || '').trim();
@@ -51,7 +51,7 @@ html body #room #inbox[data-state="open"] .inbox-toggle { transform: none; } /* 
   };
   B.asker = asker;
   const who = n => `${asker(n)} asks`;
-  // The closed inbox says only who: "Noor has a question", "Bo's blocked". Never the question (no preview in the room).
+  // The closed inbox says only who: "Wren has a question", "Bo's blocked". Never the question (no preview in the room).
   const line = n => (n.unblock ? `${n.by || AGENT[n.seat] || 'The team'}'s blocked` : `${asker(n)} has a question`) + ' →';
   const fewWords = t => { const w = String(t || '').replace(/[?.!]+\s*$/, '').split(/\s+/); return (w.length > 6 ? w.slice(0, 6).join(' ') + '…' : w.join(' ')) + '?'; };
 

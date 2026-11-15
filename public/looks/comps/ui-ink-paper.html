@@ -16,9 +16,9 @@
 :root {
   --ink: #281C14; --ink-2: #4E3A2B; --ink-3: #64503F;
   /* crayon inks, a touch richer than the paint so they read in a thin sliver */
-  --mika: #3D5A92; --noor: #C95E38; --theo: #6E9877; --ines: #C08A32; --bo: #E2B83A; --her: #D47288; --kraft: #C49A62;
+  --mika: #3D5A92; --wren: #C95E38; --theo: #6E9877; --ines: #C08A32; --bo: #E2B83A; --her: #D47288; --kraft: #C49A62;
   /* text versions of each ink, dark enough for 4.5:1 on the frost */
-  --mika-t: #2D4775; --noor-t: #8E3F22; --theo-t: #3E5E3F; --ines-t: #6F4A12; --bo-t: #634A08; --her-t: #93374F;
+  --mika-t: #2D4775; --wren-t: #8E3F22; --theo-t: #3E5E3F; --ines-t: #6F4A12; --bo-t: #634A08; --her-t: #93374F;
   --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
   --r-sm: 16px; --r-md: 24px; --r-lg: 32px;
   /* the glass: clear and bright at the rim, a denser frost where the words are */
@@ -39,7 +39,7 @@ html, body { margin: 0; background: #2B1F17; }
 .painting { position: absolute; inset: 0; background: url(her-seat/painting.jpg) center top / 1600px 893px no-repeat, #6E4B33; }
 .view { position: absolute; inset: 0; }
 .at { position: absolute; }
-[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-who="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-who="wren"] { --c: var(--wren); --t: var(--wren-t); }
 [data-who="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-who="ines"] { --c: var(--ines); --t: var(--ines-t); }
 [data-who="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-who="her"] { --c: var(--her); --t: var(--her-t); }
 .lab { font: 500 13px/1.2 var(--sans); color: var(--ink-3); }
@@ -131,7 +131,7 @@ html, body { margin: 0; background: #2B1F17; }
 .tag.replay small { font: 400 13px/1 var(--sans); }
 
 /* ---------- the room ---------- */
-/* two nudges from the shared positions: Mika's pill sits by Mika's head (Noor's popover covered it), and her sheet
+/* two nudges from the shared positions: Mika's pill sits by Mika's head (Wren's popover covered it), and her sheet
    moves right off Mika's pencil arm */
 .at:has(> .pill[data-who="mika"]) { left: 404px !important; top: 304px !important; }
 .at.a-sheet { left: 622px !important; }

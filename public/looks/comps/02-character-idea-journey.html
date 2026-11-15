@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="journey.css">
 <style>
 /* Moments 3, 4 and 5. Her sentence becomes her character card, which settles into her seat; her idea lands on a
-   blank sheet as a rough scrap; the scrap becomes the sheet's title and Noor and Mika draw the rough journey under it. */
+   blank sheet as a rough scrap; the scrap becomes the sheet's title and Wren and Mika draw the rough journey under it. */
 
 /* marks here never go under 13px */
 .mark { width: 24px; height: 24px; font-size: 13px; }
@@ -155,7 +155,7 @@
   <!-- the team, in their seats -->
   <div class="place paper p-design" data-seat="design" id="mika">
     <div class="row"><span class="mark">M</span><span class="name">Mika</span><span class="label seatname">Design</span></div>
-    <div class="swap"><div class="stance a">Sketch first, polish last</div><div class="stance b">Drawing the journey with Noor</div><div class="stance c">Rough journey, on the table</div></div>
+    <div class="swap"><div class="stance a">Sketch first, polish last</div><div class="stance b">Drawing the journey with Wren</div><div class="stance c">Rough journey, on the table</div></div>
     <div class="swap"><div class="agent a">Agent</div><div class="agent b">Working on it</div><div class="agent c">Agent</div></div>
     <span class="pencil"></span>
   </div>
@@ -163,8 +163,8 @@
     <div class="row"><span class="mark">T</span><span class="name">Theo</span><span class="label seatname">Data</span></div>
     <div class="swap"><div class="stance a">Only what we’ll measure</div></div><div class="swap"><div class="agent a">Agent</div></div>
   </div>
-  <div class="place paper p-research" data-seat="research" id="noor">
-    <div class="row"><span class="mark">N</span><span class="name">Noor</span><span class="label seatname">Research</span></div>
+  <div class="place paper p-research" data-seat="research" id="wren">
+    <div class="row"><span class="mark">N</span><span class="name">Wren</span><span class="label seatname">Research</span></div>
     <div class="swap"><div class="stance a">What’s known, with sources</div><div class="stance b">Who comes to a small bakery</div><div class="stance c">Rough journey, on the table</div></div>
     <div class="swap"><div class="agent a">Agent</div><div class="agent b">Working on it</div><div class="agent c">Agent</div></div>
     <span class="pencil"></span>
@@ -192,7 +192,7 @@
     <h1>A website for a small bakery, so customers can order bread ahead.</h1>
   </div>
   <div class="jhead">
-    <div class="by up" id="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Rough journey by Noor and Mika</span></div>
+    <div class="by up" id="by"><span class="mark sm" data-seat="research">N</span><span class="mark sm" data-seat="design">M</span><span class="label">Rough journey by Wren and Mika</span></div>
     <span class="label up" id="axis">Who, and the stages they go through</span>
   </div>
   <div class="jwrap"><div class="jline" id="jline"></div><div class="journey" id="journey">
@@ -285,7 +285,7 @@
   // ---- 5. the team gets going (11.8 – 16.6 s) ----
   const jS = iS + 3100;
   at(jS - 500, () => { $('ask').classList.add('gone'); $('scrap').classList.add('becomes'); });
-  at(jS, () => { $('mika').classList.add('busy'); $('noor').classList.add('busy'); });
+  at(jS, () => { $('mika').classList.add('busy'); $('wren').classList.add('busy'); });
   at(jS + 300, () => { on($('by')); on($('axis')); });
   $$('#journey .stage').forEach((s, i) => at(jS + 500 + i * 110, () => on(s)));
   at(jS + 520, () => on($('jline')));
@@ -295,7 +295,7 @@
     steps.slice(r * 3, r * 3 + 3).forEach((s, i) => at(jS + 1080 + r * 1050 + i * 300, () => on(s)));
   });
   const drawn = jS + 1080 + 2 * 1050 + 2 * 300 + 900;       // last box and its words are down: ~4.7 s after the start
-  at(drawn, () => { ['mika', 'noor'].forEach(id => { $(id).classList.remove('busy'); $(id).classList.add('done'); }); });
+  at(drawn, () => { ['mika', 'wren'].forEach(id => { $(id).classList.remove('busy'); $(id).classList.add('done'); }); });
 
   document.fonts.ready.then(() => {
     sizeOutlines();

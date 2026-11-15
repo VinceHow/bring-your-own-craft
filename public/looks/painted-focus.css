@@ -307,7 +307,7 @@ html #room [data-component="focus-doc"] [data-component="meeting"] [data-slot="n
 /* the takeaways only once she ends the meeting: never an empty card while the team reads (#20) */
 html #room [data-component="focus-doc"] [data-component="meeting"]:not([data-state="ended"]) [data-component="takeaways"]:not([data-state="shown"]) { display: none !important; }
 html #room [data-component="focus-doc"] [data-component="takeaways"] { box-sizing: border-box; width: auto; }
-/* builder 7: a quiet italic helper line; the ack ("Noor is listening…") fades in, no box; Send's nudge is one soft lift */
+/* builder 7: a quiet italic helper line; the ack ("Wren is listening…") fades in, no box; Send's nudge is one soft lift */
 html #room [data-component="focus-doc"] [data-slot="help"] { margin: 0; font: italic 400 16px/1.4 var(--display); color: var(--ink-2); background: none; border: 0; box-shadow: none; }
 html #room [data-component="focus-doc"] [data-slot="ack"] { margin: 0; font: italic 400 16px/1.4 var(--display); color: var(--ink-2); background: none; border: 0; box-shadow: none; animation: pfd-fade-in .6s ease both; }
 html #room [data-component="focus-doc"] [data-slot="ack"]:is([hidden], [data-state="hidden"]) { display: none !important; }

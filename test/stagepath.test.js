@@ -62,11 +62,11 @@ const fake2 = async (o) => o.schema === STEPS_SCHEMA
 test('the stage path raises exactly its moments, in order: Focus 1, the unblock, Focus 2; the selector brings none', async () => {
   const run = newRun(true);
   assert.equal((await firstSketch({ run, callModel: fake, dripMs: 0, withGuest: false })).code, 200);
-  // 1. Focus 1: Noor asks who to build it for first, with the verified finding (quote, URL, date) in front of her.
+  // 1. Focus 1: Wren asks who to build it for first, with the verified finding (quote, URL, date) in front of her.
   const a1 = firstAsk({ run, finding: FINDING });
   assert.equal(a1.code, 200);
   assert.equal(a1.body.question, 'Who should we build this for first?');
-  assert.deepEqual([a1.body.seat, a1.body.by, a1.body.artifact.kind], ['research', 'Noor', 'finding']);
+  assert.deepEqual([a1.body.seat, a1.body.by, a1.body.artifact.kind], ['research', 'Wren', 'finding']);
   assert.equal(a1.body.artifact.ref.quote, FINDING.quote);
   assert.equal(a1.body.artifact.ref.url, FINDING.url);
   assert.deepEqual(a1.body.users, SHAPE.users);
@@ -184,7 +184,7 @@ test('Focus 1 says why it fell back to the journey (never silently): no finding,
   assert.ok(regularsFinding().quote.startsWith('A third (33%)'), 'the repo\'s verified finding');
 });
 
-test('an old client (no stagePath sent) with the team started before Design\'s sketch: Focus 1 with Noor\'s finding is still her first question', async () => {
+test('an old client (no stagePath sent) with the team started before Design\'s sketch: Focus 1 with Wren\'s finding is still her first question', async () => {
   const { gateFirst } = await import('../lib/first.js');
   const run = newRunId(`s-${Math.random().toString(36).slice(2, 10)}`);
   initTaste(run);
@@ -195,6 +195,6 @@ test('an old client (no stagePath sent) with the team started before Design\'s s
   const asks = readEvents(run).filter(e => e.type === 'ask');
   assert.equal(asks.length, 1);
   assert.equal(asks[0].first, true);
-  assert.equal(asks[0].artifact.kind, 'finding', "Noor's finding, not a model-written question");
+  assert.equal(asks[0].artifact.kind, 'finding', "Wren's finding, not a model-written question");
   assert.match(asks[0].artifact.ref.quote, /^A third \(33%\)/);
 });

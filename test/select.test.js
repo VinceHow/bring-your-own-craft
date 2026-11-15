@@ -87,7 +87,7 @@ test('the Ask shape: one open question by a named teammate, on one piece of her 
   assert.equal(r.asks.length, 3);
   for (const a of r.asks) assert.ok(validAsk(a), JSON.stringify(a));
   const by = Object.fromEntries(r.asks.map(a => [a.id, a]));
-  assert.deepEqual([by.c1.by, by.c2.by, by.c3.by], ["Product's teammate", 'Noor', 'Mika']);
+  assert.deepEqual([by.c1.by, by.c2.by, by.c3.by], ["Product's teammate", 'Wren', 'Mika']);
   assert.deepEqual(by.c1.artifact, { kind: 'journey', ref: 'n1' });
   assert.deepEqual(by.c2.artifact, { kind: 'finding', ref: finding.url });
   assert.equal(by.c3.artifact.kind, 'wires');

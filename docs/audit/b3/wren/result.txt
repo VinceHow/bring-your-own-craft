@@ -1,0 +1,6 @@
+meet card 3: Wren · Research agent “A source for every claim.” Brings a real finding with its link, researched before the demo Loaded
+replay: Wren on screen true, Noor on screen false
+wren asset requests: 9 ["200 cast/living/mask-wren.png","200 cast/living/rest-wren.jpg","200 cast/living/lightmap-wren-night.png","200 cast/living/lightmap-wren-evening.png","200 cast/living/mask-wren-night.png","206 cast/living/wren-working.webm","200 cast/intro/wren.jpg","206 cast/intro/wave-wren.mp4"]
+any noor request: false
+responses >= 400: []
+page errors: []

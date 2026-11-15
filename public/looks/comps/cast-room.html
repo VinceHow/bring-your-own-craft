@@ -78,8 +78,8 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     <div class="who cat" id="cat" style="left:550px;top:1170px;width:340px;height:225px" title="Pet the cat">
       <div class="lean"><div class="breath"><img class="base" src="../cast/cat.webp" alt=""><img class="pet" src="../cast/cat-pet.webp" alt=""></div></div>
     </div>
-    <div class="who" id="noor" style="left:985px;top:540px;width:360px;height:340px">
-      <div class="lean"><div class="breath"><img class="base" src="../cast/noor.webp" alt=""><img class="blink" src="../cast/noor-blink.webp" alt=""><img class="look" src="../cast/noor-look.webp" alt=""><img class="sig" src="../cast/noor-sig.webp" alt=""></div></div>
+    <div class="who" id="wren" style="left:985px;top:540px;width:360px;height:340px">
+      <div class="lean"><div class="breath"><img class="base" src="../cast/wren.webp" alt=""><img class="blink" src="../cast/wren-blink.webp" alt=""><img class="look" src="../cast/wren-look.webp" alt=""><img class="sig" src="../cast/wren-sig.webp" alt=""></div></div>
     </div>
     <div class="who" id="theo" style="left:1345px;top:585px;width:190px;height:225px">
       <div class="lean"><div class="breath"><img class="base" src="../cast/theo.webp" alt=""><img class="blink" src="../cast/theo-blink.webp" alt=""><img class="sig" src="../cast/theo-sig.webp" alt=""></div></div>
@@ -115,7 +115,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
   // Who they are, in motion. Breath: period (s) and depth. Blink: gap range (s) and how long the lids stay down.
   const CAST = {
     mika: { name: 'Mika', c: 'var(--design)',      breath: [2.6, .016], blink: [2.4, 4.2, 110], head: [205, 18] },
-    noor: { name: 'Noor', c: 'var(--research)',    breath: [3.6, .012], blink: [4, 6.5, 140],   head: [180, 30] },
+    wren: { name: 'Wren', c: 'var(--research)',    breath: [3.6, .012], blink: [4, 6.5, 140],   head: [180, 30] },
     theo: { name: 'Theo', c: 'var(--data)',        breath: [3.1, .010], blink: [5.5, 7.5, 100], head: [95, 20] },
     ines: { name: 'Ines', c: 'var(--strategy)',    breath: [4.6, .011], blink: [5, 8, 200],     head: [190, 60] },
     bo:   { name: 'Bo',   c: 'var(--engineering)', breath: [5.2, .014], blink: null,            head: [175, 20], side: 'right' },
@@ -136,8 +136,8 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     },
     building: {
       label: 'Afternoon, building her page', light: 'none', sun: 'rgba(255,214,140,.75)', sunOp: .6, lamp: 0, motes: 1, bulbs: .5,
-      steam: [[1316, 556]], habits: { mika: 'work', noor: 'look', ines: 'work' }, busy: true,
-      talk: [[['noor', 'Found a source on what sells out first.', 'noor'], ['theo', 'Regulars who order again within a week: that’s my one number.', 'theo'], ['bo', 'I’ll take the booking form.']]],
+      steam: [[1316, 556]], habits: { mika: 'work', wren: 'look', ines: 'work' }, busy: true,
+      talk: [[['wren', 'Found a source on what sells out first.', 'wren'], ['theo', 'Regulars who order again within a week: that’s my one number.', 'theo'], ['bo', 'I’ll take the booking form.']]],
     },
     evening: {
       label: 'Evening', light: 'brightness(.95) saturate(1.02) sepia(.06)', sun: 'rgba(120,140,220,.5)', sunOp: .25, lamp: .85, motes: 0, bulbs: .85,
@@ -233,7 +233,7 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
     await wait(hold); if (j) j.cancel(); show(id, 'base', 380); await wait(380); busy[id] = null;
   }
   const HOLD = { work: 2600, yawn: 1900, sip: 2400, look: 2600 };
-  for (const id of ['mika', 'noor', 'ines']) {
+  for (const id of ['mika', 'wren', 'ines']) {
     (async function loop() {
       await wait(rnd(900, 3000));
       for (;;) {
@@ -243,8 +243,8 @@ html.still *, html.still *::before, html.still *::after { transition: none !impo
       }
     })();
   }
-  // small nods: Noor turns a page, Theo squares the cards, Bo types (faster while building)
-  (async function noorRead() { for (;;) { await wait(rnd(7000, 10000)); if (!busy.noor) await animate($('.lean', el('noor')), { rotate: [0, -1.4, 0], y: [0, 4, 0] }, { duration: 1.6, ease: 'easeInOut' }); } })();
+  // small nods: Wren turns a page, Theo squares the cards, Bo types (faster while building)
+  (async function wrenRead() { for (;;) { await wait(rnd(7000, 10000)); if (!busy.wren) await animate($('.lean', el('wren')), { rotate: [0, -1.4, 0], y: [0, 4, 0] }, { duration: 1.6, ease: 'easeInOut' }); } })();
   (async function theoTidy() { for (;;) { await wait(rnd(TIMES[now].busy ? 4000 : 8000, TIMES[now].busy ? 7000 : 12000)); if (!busy.theo) await animate($('.lean', el('theo')), { y: [0, -5, 0, -3, 0] }, { duration: 1.1, ease: 'easeInOut' }); } })();
   (async function boType() {
     for (;;) {

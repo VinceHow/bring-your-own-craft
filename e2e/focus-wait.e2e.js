@@ -43,7 +43,7 @@ const waitFor = (fn, what, arg, ms = WAIT_MS) => page.waitForFunction(fn, arg, {
 const dispatch = ev => page.evaluate(e => BYOC.dispatch({ run: 'stub-run', ...e }, 'live'), ev);
 const team = () => page.evaluate(() => { const t = document.querySelector('#focus-doc .fd-team'); return { text: t.textContent, state: t.closest('[data-component="team-reading"]').dataset.state, retry: !document.querySelector('#focus-doc .fd-retry').hidden }; });
 async function openAsk(id) {
-  await dispatch({ type: 'ask', id, seat: 'research', by: 'Noor', question: 'Who walks into this bakery most often?', artifact: { kind: 'journey' } });
+  await dispatch({ type: 'ask', id, seat: 'research', by: 'Wren', question: 'Who walks into this bakery most often?', artifact: { kind: 'journey' } });
   await page.evaluate(i => BYOC.openNote(i), id);
   await waitFor(i => BYOC.focusDoc.isOpen() && BYOC.focusDoc.openId() === i, 'her document', id);
 }
@@ -53,14 +53,14 @@ async function sendIt() { await page.fill('#focus-doc .fd-input', SAID); await p
 test('at once: "The team is reading…", then within 300 ms the routed teammates by name; their first reply clears it', async () => {
   answers.length = 0;
   // The server logs thread.start before any model call; the stub does the same the moment the request arrives.
-  onAnswer = async (r, body) => { await dispatch({ type: 'thread.start', askId: body.askId, seats: ['research', 'design'], by: ['Noor', 'Mika'] }); };
+  onAnswer = async (r, body) => { await dispatch({ type: 'thread.start', askId: body.askId, seats: ['research', 'design'], by: ['Wren', 'Mika'] }); };
   await openAsk('w1');
   await page.fill('#focus-doc .fd-input', SAID);
   // Click Send and read the line in the same tick: something shows before the request even leaves.
   const sync = await page.evaluate(() => {
     const t = document.querySelector('#focus-doc .fd-team');
     window.__sentAt = performance.now(); window.__namedAt = null;
-    new MutationObserver(() => { if (/Noor and Mika are reading what you said/.test(t.textContent) && !window.__namedAt) window.__namedAt = performance.now(); })
+    new MutationObserver(() => { if (/Wren and Mika are reading what you said/.test(t.textContent) && !window.__namedAt) window.__namedAt = performance.now(); })
       .observe(t, { childList: true, characterData: true, subtree: true });
     document.querySelector('#focus-doc .fd-send').click();
     return t.textContent;
@@ -72,7 +72,7 @@ test('at once: "The team is reading…", then within 300 ms the routed teammates
   assert.strictEqual(answers.length, 1);
   assert.deepStrictEqual(answers[0], { askId: 'w1', text: SAID });
   assert.match(await page.locator('#focus-doc .fd-said').innerText(), /same few regulars/);
-  await dispatch({ type: 'chime', askId: 'w1', seat: 'research', by: 'Noor', text: 'Regulars are a third of bakery visitors.', turn: 1 });
+  await dispatch({ type: 'chime', askId: 'w1', seat: 'research', by: 'Wren', text: 'Regulars are a third of bakery visitors.', turn: 1 });
   await waitFor(() => !document.querySelector('#focus-doc .fd-team').textContent, 'the reading line clears on the first reply');
   assert.deepStrictEqual(await team(), { text: '', state: 'heard', retry: false });
   await page.evaluate(() => BYOC.focusDoc.close(true));

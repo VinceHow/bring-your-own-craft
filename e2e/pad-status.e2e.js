@@ -118,10 +118,10 @@ test('her workspace: empty parts say what happens next; a live run with her idea
   // The server's own events land while it's open: the panel follows (takeaways line names who's asking).
   await p.evaluate(i => { BYOC.dispatch({ run: 'live-run', type: 'run.start', mode: 'craft', idea: i, seat: 'product' }, 'live');
     BYOC.dispatch({ run: 'live-run', type: 'teammate.start', seat: 'design' }, 'live');
-    BYOC.dispatch({ run: 'live-run', type: 'ask', id: 'q1', seat: 'research', by: 'Noor', question: 'Who walks in most often?', artifact: { kind: 'journey' } }, 'live'); }, IDEA);
+    BYOC.dispatch({ run: 'live-run', type: 'ask', id: 'q1', seat: 'research', by: 'Wren', question: 'Who walks in most often?', artifact: { kind: 'journey' } }, 'live'); }, IDEA);
   assert.ok(await p.isVisible('#room-panel[data-component="workspace"]'), 'still open: it redrew in place');
   assert.strictEqual((await part('idea')).idea, IDEA);
-  assert.strictEqual((await part('takeaways')).status, 'Your first takeaway comes when you answer Noor’s question.');
+  assert.strictEqual((await part('takeaways')).status, 'Your first takeaway comes when you answer Wren’s question.');
   assert.strictEqual((await part('team-space')).status, 'What the team agrees lands here as they work.');
   assert.deepStrictEqual(errs, []);
   await p.close();

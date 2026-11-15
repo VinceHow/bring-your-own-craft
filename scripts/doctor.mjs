@@ -102,7 +102,7 @@ async function sendBurst(M) {
   const THREAD = process.env.THREAD_MODEL || 'haiku', FIRST = process.env.FIRST_MODEL || 'haiku';
   const shapes = [
     ['reading (sonnet)', 'sonnet', 'You read what a small business owner said about who her bakery website is for, and sum up what she believes in one sentence, in her voice.'],
-    [`first reply (${THREAD})`, THREAD, 'You are Noor, the researcher on a small team. React to what she said in one short line (under 15 words). Never a question.'],
+    [`first reply (${THREAD})`, THREAD, 'You are Wren, the researcher on a small team. React to what she said in one short line (under 15 words). Never a question.'],
     ['redraw (sonnet)', 'sonnet', 'You are Design. Redraw a customer journey as 3 to 5 short stage names, from what she said. Reply with the stages joined by " -> " in text.'],
     [`decisions (${FIRST})`, FIRST, 'You are a small product team. Name three short product calls her answer settles, joined by "; " in text.'],
   ];
@@ -162,7 +162,7 @@ if (tryKey('LINKUP_API_KEY')) await call('Linkup (search)', async () => {
   const t = await r.text();
   return r.ok ? true : `HTTP ${r.status} ${short(t, 100)}`;
 }, 'check LINKUP_API_KEY in .env.local; Research falls back to its prepared finding without it');
-// Noor's Focus 1 finding found live (lib/live-finding.js) when Linkup answers; otherwise the prepared one. Never the key.
+// Wren's Focus 1 finding found live (lib/live-finding.js) when Linkup answers; otherwise the prepared one. Never the key.
 console.log(`NOTE  app v1 on Team, go: ${process.env.APP_V1 === '0' ? 'off (APP_V1=0: her press builds v1)' : 'on (APP_V1=0 turns it off)'}`);
 console.log(`NOTE  live research: ${tryKey('LINKUP_API_KEY') && results.at(-1) === true ? 'on' : 'off (prepared finding)'}`);
 

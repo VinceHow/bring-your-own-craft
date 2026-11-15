@@ -18,7 +18,7 @@ const [W, H] = (process.argv[2] || '1440x900').split('x').map(Number), mode = pr
     const k = fe.width / r.iw; return { x: Math.round(fe.x + r.x * k), y: Math.round(fe.y + r.y * k), w: Math.round(r.w * k), h: Math.round(r.h * k) }; };
   const marks = {};
   // 1. the team getting to work: everyone starts, a beat apart, as a real run does
-  const mk = await box('mika'), nr = await box('noor'); marks.team = { t: at(), crop: null }; marks.teamclose = { t: 0, crop: { x: mk.x, y: Math.min(mk.y, nr.y), w: nr.x + nr.w - mk.x, h: Math.max(mk.y + mk.h, nr.y + nr.h) - Math.min(mk.y, nr.y) } };
+  const mk = await box('mika'), nr = await box('wren'); marks.team = { t: at(), crop: null }; marks.teamclose = { t: 0, crop: { x: mk.x, y: Math.min(mk.y, nr.y), w: nr.x + nr.w - mk.x, h: Math.max(mk.y + mk.h, nr.y + nr.h) - Math.min(mk.y, nr.y) } };
   await page.evaluate(async () => { for (const s of ['research', 'design', 'engineering', 'data', 'strategy']) { BYOC.emit('teammate.start', { seat: s }); await new Promise(r => setTimeout(r, 250)); } });
   marks.teamclose.t = marks.team.t;
   await page.waitForTimeout(7000);

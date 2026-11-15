@@ -26,13 +26,13 @@ const IDEA = 'A website for a small bakery, so customers can order bread ahead.'
 
 test('the table: whose craft she takes moves to Product; a flex seat or her own craft moves Ines to Product', () => {
   const row = craft => C.TEAM.map(s => `${C.AGENTS[s]}:${C.rolesFor(craft)[s]}`).join(' ');
-  assert.equal(row('product'), 'Mika:design Theo:data Noor:research Ines:strategy Bo:engineering');
-  assert.equal(row('design'), 'Mika:product Theo:data Noor:research Ines:strategy Bo:engineering');
-  assert.equal(row('research'), 'Mika:design Theo:data Noor:product Ines:strategy Bo:engineering');
-  assert.equal(row('engineering'), 'Mika:design Theo:data Noor:research Ines:strategy Bo:product');
-  assert.equal(row('data'), 'Mika:design Theo:flex Noor:research Ines:product Bo:engineering');
-  assert.equal(row('strategy'), 'Mika:design Theo:data Noor:research Ines:product Bo:engineering');
-  assert.equal(row('diy'), 'Mika:design Theo:flex Noor:research Ines:product Bo:engineering');
+  assert.equal(row('product'), 'Mika:design Theo:data Wren:research Ines:strategy Bo:engineering');
+  assert.equal(row('design'), 'Mika:product Theo:data Wren:research Ines:strategy Bo:engineering');
+  assert.equal(row('research'), 'Mika:design Theo:data Wren:product Ines:strategy Bo:engineering');
+  assert.equal(row('engineering'), 'Mika:design Theo:data Wren:research Ines:strategy Bo:product');
+  assert.equal(row('data'), 'Mika:design Theo:flex Wren:research Ines:product Bo:engineering');
+  assert.equal(row('strategy'), 'Mika:design Theo:data Wren:research Ines:product Bo:engineering');
+  assert.equal(row('diy'), 'Mika:design Theo:flex Wren:research Ines:product Bo:engineering');
   // Product, Design, Research and Engineering are always at the table, whatever she takes
   for (const craft of [...C.CRAFTS, 'diy']) {
     const worn = new Set([craft, ...Object.values(C.rolesFor(craft))]);

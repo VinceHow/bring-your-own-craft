@@ -8,7 +8,7 @@
 (function () {
   'use strict';
   const B = (window.BYOC = window.BYOC || {});
-  const NAME = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo', product: 'Product' };
+  const NAME = { design: 'Mika', research: 'Wren', data: 'Theo', strategy: 'Ines', engineering: 'Bo', product: 'Product' };
   const SEAT = { design: 'Design', research: 'Research', data: 'Data', strategy: 'Strategy', engineering: 'Engineering', product: 'Product' };
   // Structure and a sane default place only; the look is polish.css's.
   const css = `

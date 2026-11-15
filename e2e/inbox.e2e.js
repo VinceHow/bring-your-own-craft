@@ -90,14 +90,14 @@ test('empty at the top right: "Nothing needs you yet", one clickable; open, it t
   assert.strictEqual(await box.getAttribute('data-state'), 'empty');
 });
 
-test('asks arrive after a natural pause; closed, it says only who ("Noor has a question →"), one clickable, no preview; the full inbox in two clicks, the rest folded; no numbers', async () => {
+test('asks arrive after a natural pause; closed, it says only who ("Wren has a question →"), one clickable, no preview; the full inbox in two clicks, the rest folded; no numbers', async () => {
   await page.evaluate(a => a.forEach(e => BYOC.dispatch(e, 'live')), [
-    ask('q1', 'research', 'Noor', 'What makes someone come back to a studio week after week?'),
+    ask('q1', 'research', 'Wren', 'What makes someone come back to a studio week after week?'),
     ask('q2', 'design', 'Mika', 'What should booking feel like?'),
   ]);
   await waitFor(() => document.getElementById('inbox').dataset.needs === 'yes', 'an item needs her');
   // Only who, never the question (no preview in the room), and never "<seat>'s teammate".
-  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Noor has a question →');
+  assert.strictEqual((await page.locator('#inbox .inbox-now').innerText()).trim(), 'Wren has a question →');
   assert.deepStrictEqual(await clickables(), ['now'], 'an item waits: exactly one clickable, the line');
   assert.strictEqual(await page.getAttribute('#inbox', 'data-state'), 'new');
   assert.ok(!(await page.locator('#room').innerText()).includes('What makes someone come back'), 'the question shows nowhere in the room');

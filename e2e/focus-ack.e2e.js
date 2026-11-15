@@ -30,7 +30,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await page.waitForFunction(() => window.BYOC && BYOC.dispatch && BYOC.focusDoc);
   await page.evaluate(() => {
     BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?',
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Wren', question: 'Who should we build this for first?',
       artifact: { kind: 'finding', ref: { title: 'A finding', quote: 'A third of visitors buy weekly.', url: 'https://example.org/f', label: 'researched before the demo' } } }, 'live');
     BYOC.openNote('first');
   });
@@ -40,7 +40,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await page.fill('#focus-doc .fd-input', "It's really for the regulars");
   await page.click('#focus-doc [data-slot="add-piece"]');
   await page.waitForFunction(() => document.querySelector('#focus-doc [data-slot="ack"]')?.dataset.state === 'shown', null, { timeout: 1000 });
-  assert.equal((await page.textContent('#focus-doc [data-slot="ack"]')).trim(), 'Noor is listening · Send when you’re done and the team will reply');
+  assert.equal((await page.textContent('#focus-doc [data-slot="ack"]')).trim(), 'Wren is listening · Send when you’re done and the team will reply');
   assert.ok(await page.isVisible('#focus-doc [data-slot="ack"]'));
   assert.equal(await page.getAttribute('#focus-doc [data-slot="send"]', 'data-state'), 'nudge', 'Send pulses');
   await page.waitForFunction(() => document.querySelector('#focus-doc [data-slot="send"]')?.dataset.state === 'idle', null, { timeout: 2500 });

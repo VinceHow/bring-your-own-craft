@@ -12,8 +12,8 @@
 @font-face { font-family: 'Hanken Grotesk'; src: url(../fonts/hanken-grotesk-var.woff2) format('woff2'); font-weight: 100 900; font-display: block; }
 :root {
   --sheet: #FBF5EA; --sheet-2: #F4EADA; --ink: #33261C; --ink-2: #5E4A3A; --ink-3: #7D6855; --rule: rgba(84,58,38,.16);
-  --mika: #3E5C8E; --noor: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
-  --mika-t: #34507F; --noor-t: #9E4A2E; --theo-t: #4A6B47; --ines-t: #82591C; --bo-t: #7A5C0E; --her-t: #A84862; --her-soft: #F6DCE2;
+  --mika: #3E5C8E; --wren: #C0603F; --theo: #6B8C67; --ines: #B4843A; --bo: #E0B94E; --her: #D27A8D;
+  --mika-t: #34507F; --wren-t: #9E4A2E; --theo-t: #4A6B47; --ines-t: #82591C; --bo-t: #7A5C0E; --her-t: #A84862; --her-soft: #F6DCE2;
   --serif: 'Newsreader', Georgia, serif; --sans: 'Hanken Grotesk', system-ui, sans-serif;
   --tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .30 0 0 0 0 .18 0 0 0 .075 0'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .40 0 0 0 0 .22 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
   --shadow: 1px 2px 2px rgba(110,70,32,.16), 5px 10px 20px -8px rgba(110,70,32,.34);
@@ -50,11 +50,11 @@ body.show-notes .notes { display: block; }
 .pill.is-working .dot { animation: breathe 3.6s ease-in-out infinite; }
 .pill .now { font: italic 400 14px/1 var(--serif); color: var(--ink-2); }
 @keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 40%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--c) 0%, transparent); } }
-[data-mate="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-mate="noor"] { --c: var(--noor); --t: var(--noor-t); }
+[data-mate="mika"] { --c: var(--mika); --t: var(--mika-t); } [data-mate="wren"] { --c: var(--wren); --t: var(--wren-t); }
 [data-mate="theo"] { --c: var(--theo); --t: var(--theo-t); } [data-mate="ines"] { --c: var(--ines); --t: var(--ines-t); }
 [data-mate="bo"] { --c: var(--bo); --t: var(--bo-t); } [data-mate="her"] { --c: var(--her); --t: var(--her-t); }
 /* placed beside each head in the afternoon painting (1612×900, centred) */
-.room-pills .p-mika { left: 330px; top: 352px; } .room-pills .p-noor { left: 538px; top: 268px; }
+.room-pills .p-mika { left: 330px; top: 352px; } .room-pills .p-wren { left: 538px; top: 268px; }
 .room-pills .p-theo { left: 868px; top: 330px; } .room-pills .p-ines { left: 1092px; top: 282px; } .room-pills .p-bo { left: 1250px; top: 400px; }
 
 /* ================= her-seat: three quiet versions ================= */
@@ -153,7 +153,7 @@ body.show-notes .notes { display: block; }
   <!-- the five teammates' pills, beside their heads -->
   <div class="room-pills" id="pills">
     <button class="pill paper p-mika tail-br is-working" data-mate="mika" data-component="name-pill" data-state="working"><i class="dot"></i>Mika<span class="agent">agent</span></button>
-    <button class="pill paper p-noor tail-br is-working" data-mate="noor" data-component="name-pill" data-state="working"><i class="dot"></i>Noor<span class="agent">agent</span></button>
+    <button class="pill paper p-wren tail-br is-working" data-mate="wren" data-component="name-pill" data-state="working"><i class="dot"></i>Wren<span class="agent">agent</span></button>
     <button class="pill paper p-theo tail-bl" data-mate="theo" data-component="name-pill" data-state="idle"><i class="dot"></i>Theo<span class="agent">agent</span></button>
     <button class="pill paper p-ines tail-bl is-working" data-mate="ines" data-component="name-pill" data-state="working"><i class="dot"></i>Ines<span class="agent">agent</span></button>
     <button class="pill paper p-bo tail-bl" data-mate="bo" data-component="name-pill" data-state="idle"><i class="dot"></i>Bo<span class="agent">agent</span></button>
@@ -162,7 +162,7 @@ body.show-notes .notes { display: block; }
   <!-- her seat, A -->
   <div data-seat-v="a">
     <div class="glow breathing"></div>
-    <i class="tuck t1" data-st="work" style="--c:var(--noor)"></i><i class="tuck t2" data-st="work" style="--c:var(--mika)"></i>
+    <i class="tuck t1" data-st="work" style="--c:var(--wren)"></i><i class="tuck t2" data-st="work" style="--c:var(--mika)"></i>
     <button class="pill paper her-pill tail-bl" data-st="work" data-mate="her" data-component="her-seat" data-state="seated"><i class="dot"></i>Priya<span class="title">the Customer Whisperer</span></button>
     <button class="pill paper her-pill setup tail-bl" data-st="setup" data-mate="her" data-component="her-seat" data-state="empty"><i class="dot"></i>Take your seat</button>
   </div>
@@ -203,13 +203,13 @@ body.show-notes .notes { display: block; }
       <div class="me"><div class="nm">Priya</div><div class="ti">the Customer Whisperer</div>
         <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
       <h4 style="margin-top:6px">Waiting for you, when you’re ready</h4>
-      <div class="slip" data-mate="noor"><span class="by">Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="slip" data-mate="wren"><span class="by">Wren</span>What sells out first, and what should we do about it?</div>
       <div class="slip" data-mate="mika"><span class="by">Mika</span>If ordering could feel like one thing, what should it feel like?</div>
     </div>
     <div class="col mid">
       <span class="kicker">Your idea</span>
       <h2>A website for a small bakery, so customers can order bread ahead.</h2>
-      <div class="by2">Rough journey by Noor and Mika</div>
+      <div class="by2">Rough journey by Wren and Mika</div>
       <div class="tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
       <div class="jr">
         <span></span><span class="h">Choose</span><span class="h">Order</span><span class="h">Pick up</span>
@@ -223,7 +223,7 @@ body.show-notes .notes { display: block; }
       <h4>Decided by the team</h4>
       <div class="dec">Orders close at 8pm for the next morning.<div class="marks"><i data-mate="bo">Bo</i><i data-mate="ines">Ines</i><i data-mate="mika">Mika</i></div></div>
       <div class="dec">Regulars cancel in one tap, up to the cut-off.<div class="marks"><i data-mate="ines">Ines</i><i data-mate="bo">Bo</i></div></div>
-      <div class="dec">Sold out shows as sold out, never hidden.<div class="marks"><i data-mate="noor">Noor</i><i data-mate="mika">Mika</i></div></div>
+      <div class="dec">Sold out shows as sold out, never hidden.<div class="marks"><i data-mate="wren">Wren</i><i data-mate="mika">Mika</i></div></div>
       <h4 style="margin-top:6px">Your takeaways</h4>
       <div class="take">People come for bread that’s still warm, and for being known.</div>
     </div>
@@ -240,11 +240,11 @@ body.show-notes .notes { display: block; }
       <button class="pill paper tail-br is-hover" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button>
       <button class="pill paper tail-br is-focus" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button>
       <button class="pill paper tail-br is-open" data-mate="mika"><i class="dot"></i>Mika<span class="agent">agent</span></button></div>
-    <div class="row"><span class="lab">Noor · Research</span>
-      <button class="pill paper tail-br" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
-      <button class="pill paper tail-br is-hover" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
-      <button class="pill paper tail-br is-focus" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button>
-      <button class="pill paper tail-br is-open" data-mate="noor"><i class="dot"></i>Noor<span class="agent">agent</span></button></div>
+    <div class="row"><span class="lab">Wren · Research</span>
+      <button class="pill paper tail-br" data-mate="wren"><i class="dot"></i>Wren<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-hover" data-mate="wren"><i class="dot"></i>Wren<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-focus" data-mate="wren"><i class="dot"></i>Wren<span class="agent">agent</span></button>
+      <button class="pill paper tail-br is-open" data-mate="wren"><i class="dot"></i>Wren<span class="agent">agent</span></button></div>
     <div class="row"><span class="lab">Theo · Data</span>
       <button class="pill paper tail-bl" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button>
       <button class="pill paper tail-bl is-hover" data-mate="theo"><i class="dot"></i>Theo<span class="agent">agent</span></button>

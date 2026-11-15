@@ -22,7 +22,7 @@ html:root { /* html:root, not :root: the gallery links a look before room.css, s
   --rule-c: rgba(84,58,38,.20);
   /* the gouache inks, sampled from the painting */
   --design: #3E5C8E;           /* Mika blue */
-  --research: #C0603F;         /* Noor terracotta */
+  --research: #C0603F;         /* Wren terracotta */
   --data: #6B8C67;             /* Theo sage */
   --strategy: #B4843A;         /* Ines ochre */
   --engineering: #E6C15E;      /* Bo butter */
@@ -682,7 +682,7 @@ html.painted-on #viewport { z-index: auto; }
 html #room .seat .card .card-character:empty { display: none !important; }
 
 /* ---- her sheet, at a glance (handover fix): real size, not scaled; the idea line and the first journey row, 13px+.
-   Clipped to a small card on the table, right of Mika's writing hand and clear of Noor's book. A click on it opens
+   Clipped to a small card on the table, right of Mika's writing hand and clear of Wren's book. A click on it opens
    large once the room's sheet.open hook lands. ---- */
 html #room .her-sheet:not(.big), html #room .her-sheet.big { scale: 1; translate: none; left: 660px; top: 470px; width: 380px; height: 150px; overflow: hidden;
   padding: 14px 20px 12px; border-radius: 30px 26px 32px 24px / 26px 32px 24px 30px; }
@@ -843,7 +843,7 @@ html #room .inbox-item[data-action] { font-weight: 500; }
 html #room .inbox-action .ia-face { display: inline-block; background-repeat: no-repeat; background-size: 260%; }
 html #room .inbox-action .ia-face[data-seat="engineering"] { background-image: url(cast/living/rest-bo.jpg); background-position: 50% 40%; }
 html #room .inbox-action .ia-face[data-seat="design"] { background-image: url(cast/living/rest-mika.jpg); background-position: 28% 42%; }
-html #room .inbox-action .ia-face[data-seat="research"] { background-image: url(cast/living/rest-noor.jpg); background-position: 45% 40%; }
+html #room .inbox-action .ia-face[data-seat="research"] { background-image: url(cast/living/rest-wren.jpg); background-position: 45% 40%; }
 html #room .inbox-action .ia-face[data-seat="data"] { background-image: url(cast/living/rest-theo.jpg); background-position: 46% 52%; }
 html #room .inbox-action .ia-face[data-seat="strategy"] { background-image: url(cast/living/rest-ines.jpg); background-position: 42% 45%; }
 html #room .inbox-action .ia-blocked { font: 500 17px/1.2 var(--display); color: var(--ink); }
@@ -1032,7 +1032,7 @@ html #room [data-component="team-space"] [data-slot="cards"]:has(> :nth-child(3)
   font: 500 14px/1 var(--ui); color: var(--ink-2); padding: 4px 6px; }
 html #room [data-component="decision-card"][data-state="open"] { width: 360px !important; z-index: 3; }
 /* (10) visible thinking on the pills: the "agent" mark becomes three ink dots stepping in, quiet, no ring. The room sets
-   thinking / working from the team's start; while Mika and Noor draw the first sketch painted.js marks their seats
+   thinking / working from the team's start; while Mika and Wren draw the first sketch painted.js marks their seats
    (#room[data-sketching]) and the painting plays them at work. */
 html #room :is([data-component="place-card"][data-state="thinking"], [data-component="place-card"][data-state="working"]) [data-slot="agent-mark"],
 html #room[data-sketching~="design"] [data-component="place-card"][data-seat="design"] [data-slot="agent-mark"],
@@ -1270,7 +1270,7 @@ html #room [data-component="meet-card"] [data-slot="face"] { position: absolute;
   border: 0; border-radius: 34px; overflow: hidden; background: #EADBC0 center / cover no-repeat;
   box-shadow: 0 0 0 12px #FBF5EA, 0 0 0 13.6px rgba(51,38,28,.75), 12px 14px 0 13px var(--mc), 14px 18px 26px 10px rgba(50,28,12,.28); }
 html #room [data-component="meet-card"][data-seat="design"] [data-slot="face"] { background-image: url(cast/intro/mika.jpg); }
-html #room [data-component="meet-card"][data-seat="research"] [data-slot="face"] { background-image: url(cast/intro/noor.jpg); }
+html #room [data-component="meet-card"][data-seat="research"] [data-slot="face"] { background-image: url(cast/intro/wren.jpg); }
 html #room [data-component="meet-card"][data-seat="data"] [data-slot="face"] { background-image: url(cast/intro/theo.jpg); }
 html #room [data-component="meet-card"][data-seat="strategy"] [data-slot="face"] { background-image: url(cast/intro/ines.jpg); }
 html #room [data-component="meet-card"][data-seat="engineering"] [data-slot="face"] { background-image: url(cast/intro/bo.jpg); }

@@ -22,7 +22,7 @@ const SECS = +(process.argv[2] || 60);
   const frozen = {}, hidden = {}, run = {}, maxRun = {}, fz = {}, maxFz = {}; let samples = 0;
   const t0 = Date.now();
   while (Date.now() - t0 < SECS * 1000 + 3000) {
-    const r = await fr.evaluate(() => [...document.querySelectorAll('.patch')].filter(p => ['noor','theo','ines','mika','bo'].includes(p.dataset.who)).map(p => [p.dataset.who, [...p.querySelectorAll('video')].some(v => !v.paused && +getComputedStyle(v).opacity > .5), [...p.querySelectorAll('video')].filter(v => !v.paused && +getComputedStyle(v).opacity < .01).length]));
+    const r = await fr.evaluate(() => [...document.querySelectorAll('.patch')].filter(p => ['wren','theo','ines','mika','bo'].includes(p.dataset.who)).map(p => [p.dataset.who, [...p.querySelectorAll('video')].some(v => !v.paused && +getComputedStyle(v).opacity > .5), [...p.querySelectorAll('video')].filter(v => !v.paused && +getComputedStyle(v).opacity < .01).length]));
     samples++; for (const [w, ok, hid] of r) { if (!ok) frozen[w] = (frozen[w] || 0) + 1; if (hid) hidden[w] = (hidden[w] || 0) + 1; run[w] = hid ? (run[w] || 0) + 1 : 0; maxRun[w] = Math.max(maxRun[w] || 0, run[w]); fz[w] = ok ? 0 : (fz[w] || 0) + 1; maxFz[w] = Math.max(maxFz[w] || 0, fz[w]); }
     await page.waitForTimeout(250);
   }

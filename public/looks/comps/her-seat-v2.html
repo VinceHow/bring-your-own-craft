@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="painted-system.css">
 <style>
 /* Her seat, the teammate popover and her workspace, in the painted system (painted-system.css).
-   Views: ?seat=a|b|c &st=setup|choose|after · &pop=noor|bo · &ws=1 · &still=1. No params: the walk-through autoplays.
+   Views: ?seat=a|b|c &st=setup|choose|after · &pop=wren|bo · &ws=1 · &still=1. No params: the walk-through autoplays.
    Rules kept: no square corners, the UI never covers a character, text on solid paper, no counts or red. */
 * { box-sizing: border-box; }
 html, body { margin: 0; background: #2B1F17; }
@@ -158,23 +158,23 @@ html, body { margin: 0; background: #2B1F17; }
   </div>
 
   <div class="abs rest" id="rest">
-    <div class="ps-note" data-who="noor" style="left:0;top:0;rotate:-3deg"><span class="ps-label"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+    <div class="ps-note" data-who="wren" style="left:0;top:0;rotate:-3deg"><span class="ps-label"><i></i>Wren</span>What sells out first, and what should we do about it?</div>
     <div class="ps-note" data-who="mika" style="left:178px;top:14px;rotate:2.5deg"><span class="ps-label"><i></i>Mika</span>If ordering could feel like one thing…</div>
   </div>
 
   <!-- the team: a pill by every head -->
   <div class="team" id="team">
     <button class="ps-pill" data-who="mika" style="left:420px;top:306px"><span class="dot"></span>Mika<span class="agent">agent</span></button>
-    <button class="ps-pill" data-who="noor" style="left:612px;top:290px" id="pNoor"><span class="dot"></span>Noor<span class="agent">agent</span></button>
+    <button class="ps-pill" data-who="wren" style="left:612px;top:290px" id="pWren"><span class="dot"></span>Wren<span class="agent">agent</span></button>
     <button class="ps-pill" data-who="theo" style="left:790px;top:322px"><span class="dot"></span>Theo<span class="agent">agent</span></button>
     <button class="ps-pill" data-who="ines" style="left:1060px;top:232px"><span class="dot"></span>Ines<span class="agent">agent</span></button>
     <button class="ps-pill" data-who="bo" style="left:1150px;top:372px" id="pBo"><span class="dot"></span>Bo<span class="agent">agent</span></button>
   </div>
 
-  <!-- Noor's popover: opens above the window, clear of every face -->
-  <div class="abs ps-paper pop hide" data-who="noor" id="popNoor" style="left:226px;top:22px;width:372px">
-    <div class="head"><span class="dot"></span><div><b>Noor</b> <span class="craft">· Research</span></div>
-      <button class="x" data-close aria-label="Close Noor’s work"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></div>
+  <!-- Wren's popover: opens above the window, clear of every face -->
+  <div class="abs ps-paper pop hide" data-who="wren" id="popWren" style="left:226px;top:22px;width:372px">
+    <div class="head"><span class="dot"></span><div><b>Wren</b> <span class="craft">· Research</span></div>
+      <button class="x" data-close aria-label="Close Wren’s work"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></div>
     <div class="sec"><span class="ps-label">On now</span><div class="on">What sells out first at small bakeries</div></div>
     <div class="sec"><span class="ps-label">Settled</span>
       <ul><li><div>Sourdough and morning buns go first, often before nine.
@@ -203,13 +203,13 @@ html, body { margin: 0; background: #2B1F17; }
         <div class="traits"><span>customer-obsessed</span><span>hands-on builder</span><span>problem hunter</span></div></div>
       <div class="gap"></div>
       <h4>Waiting for you, when you’re ready</h4>
-      <div class="ps-note" data-who="noor"><span class="ps-label"><i></i>Noor</span>What sells out first, and what should we do about it?</div>
+      <div class="ps-note" data-who="wren"><span class="ps-label"><i></i>Wren</span>What sells out first, and what should we do about it?</div>
       <div class="ps-note" data-who="mika"><span class="ps-label"><i></i>Mika</span>If ordering could feel like one thing, what should it feel like?</div>
     </div>
     <div class="mid">
       <span class="ps-label">Your idea</span>
       <h2>A website for a small bakery, so customers can order bread ahead.</h2>
-      <div class="by">Rough journey by Noor and Mika</div>
+      <div class="by">Rough journey by Wren and Mika</div>
       <div class="ps-tabs"><span class="on">Journey</span><span>Screens</span><span>Page</span></div>
       <div class="board">
         <div class="jr">
@@ -227,7 +227,7 @@ html, body { margin: 0; background: #2B1F17; }
       <h4>Decided by the team</h4>
       <div class="ps-decision">Orders close at 8pm for the next morning.<div class="ps-who"><span class="marks"><i data-who="bo"></i><i data-who="ines"></i><i data-who="mika"></i></span><span class="ps-label" style="margin-left:6px">Bo, Ines and Mika</span></div></div>
       <div class="ps-decision">Regulars cancel in one tap, up to the cut-off.<div class="ps-who"><span class="marks"><i data-who="ines"></i><i data-who="bo"></i></span><span class="ps-label" style="margin-left:6px">Ines and Bo</span></div></div>
-      <div class="ps-decision">Sold out shows as sold out, never hidden.<div class="ps-who"><span class="marks"><i data-who="noor"></i><i data-who="mika"></i></span><span class="ps-label" style="margin-left:6px">Noor and Mika</span></div></div>
+      <div class="ps-decision">Sold out shows as sold out, never hidden.<div class="ps-who"><span class="marks"><i data-who="wren"></i><i data-who="mika"></i></span><span class="ps-label" style="margin-left:6px">Wren and Mika</span></div></div>
       <div class="gap"></div>
       <h4>Your takeaways</h4>
       <div class="ta"><p>People come for bread that’s still warm, and for being known.</p><em>Guidance</em><p>Their usual loaf first, one tap away.</p></div>
@@ -316,7 +316,7 @@ html, body { margin: 0; background: #2B1F17; }
   let openPop = null;
   async function popover(who) {
     if (openPop) await closePop();
-    const pop = who === 'noor' ? $('#popNoor') : $('#popBo'), pill = who === 'noor' ? $('#pNoor') : $('#pBo');
+    const pop = who === 'wren' ? $('#popWren') : $('#popBo'), pill = who === 'wren' ? $('#pWren') : $('#pBo');
     show(pop); pill.classList.add('is-open'); openPop = [pop, pill];
     const r = pill.getBoundingClientRect(), p = pop.getBoundingClientRect();
     pop.style.transformOrigin = `${r.left + r.width / 2 - p.left}px ${r.top + r.height / 2 - p.top}px`;
@@ -327,7 +327,7 @@ html, body { margin: 0; background: #2B1F17; }
     await go(pop, { opacity: 0, scale: .6 }, { duration: .28, ease: [.4, 0, .6, 1] }).finished;
     hide(pop); pill.classList.remove('is-open');
   }
-  $('#pNoor').addEventListener('click', () => popover('noor'));
+  $('#pWren').addEventListener('click', () => popover('wren'));
   $('#pBo').addEventListener('click', () => popover('bo'));
   document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closePop));
 
@@ -356,7 +356,7 @@ html, body { margin: 0; background: #2B1F17; }
     return;
   }
 
-  /* ---------- the walk-through: take the seat, meet Noor and Bo, open her workspace ---------- */
+  /* ---------- the walk-through: take the seat, meet Wren and Bo, open her workspace ---------- */
   setup();
   const ptr = $('#pointer');
   const at = (el, dx = .5, dy = .5) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width * dx, y: r.top + r.height * dy }; };
@@ -368,7 +368,7 @@ html, body { margin: 0; background: #2B1F17; }
     await moveTo(at($('#invite'))); await wait(300); await tap(); openPick();
     await wait(1100); await moveTo(at($('#product'))); $('#product').classList.add('is-hover'); await wait(300); await tap(); $('#product').classList.remove('is-hover'); await choose();
     await wait(1600);
-    await moveTo(at($('#pNoor'))); $('#pNoor').classList.add('is-hover'); await wait(300); await tap(); $('#pNoor').classList.remove('is-hover'); popover('noor');
+    await moveTo(at($('#pWren'))); $('#pWren').classList.add('is-hover'); await wait(300); await tap(); $('#pWren').classList.remove('is-hover'); popover('wren');
     await wait(3200);
     await moveTo(at($('#pBo'))); await tap(); popover('bo');
     await wait(3000);

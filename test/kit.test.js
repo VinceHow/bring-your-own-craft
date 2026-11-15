@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { kitFor, madeFor } from '../lib/kit.js';
 import { findingFor } from '../lib/teammates.js';
 
-test('the bakery: Noor names the verified finding that fits (its site and the date read), Bo the bakery template', () => {
+test('the bakery: Wren names the verified finding that fits (its site and the date read), Bo the bakery template', () => {
   const k = kitFor("An ordering website for my friend's small bakery", { start: null });
   const f = findingFor("An ordering website for my friend's small bakery").finding;
   assert.match(k.research[0], /^Linkup finding: .+, \d{1,2} [A-Z][a-z]{2}$/, 'the finding, found with Linkup (its how_verified), with the day read');
@@ -14,7 +14,7 @@ test('the bakery: Noor names the verified finding that fits (its site and the da
   for (const [seat, l] of Object.entries(k)) assert.ok(l.some(x => /\bClaude\b/.test(x)), `${seat} names Claude`);
   assert.ok(Object.values(k).every(l => l.length >= 2 && l.length <= 3), '2-3 items each');
 });
-test('no finding fits: Noor says so and claims none; the taste-skill deal is listed only when its scripts are on this machine', () => {
+test('no finding fits: Wren says so and claims none; the taste-skill deal is listed only when its scripts are on this machine', () => {
   const k = kitFor('A sign-up page for a neighbourhood tool library', { start: null });
   assert.match(k.research[0], /No verified finding fits yet/);
   assert.ok(!k.design.some(x => /live palette/.test(x)), 'no deal without the scripts');
@@ -77,7 +77,7 @@ test('the meet cards (the PO copy): every teammate has an intro, loves, live and
   assert.deepEqual(cards.strategy.built, ['Claude Code']); assert.deepEqual(cards.data.built, ['Claude Code']);
 });
 
-test('live research on (a Linkup key): Noor is loaded with a live web search, and "before the demo" is not claimed', () => {
+test('live research on (a Linkup key): Wren is loaded with a live web search, and "before the demo" is not claimed', () => {
   const was = { k: process.env.LINKUP_API_KEY, l: process.env.LIVE_FINDING };
   try {
     process.env.LINKUP_API_KEY = 'test-only-not-a-key'; delete process.env.LIVE_FINDING;

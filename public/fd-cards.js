@@ -1,5 +1,5 @@
 // The two Act 2 cards in her focus document, built here so a unit test can read their text (test/fd-cards.test.js):
-// Noor's research card (Focus 1) and Mika's morning in words (Focus 2). Every part keeps its own element and hooks
+// Wren's research card (Focus 1) and Mika's morning in words (Focus 2). Every part keeps its own element and hooks
 // (docs/COMPONENTS.md), and a text separator sits between parts, so the words never run together when read as text
 // ("7:05 Sam…", "…once a week. — Bakery Business").
 (function (root) {

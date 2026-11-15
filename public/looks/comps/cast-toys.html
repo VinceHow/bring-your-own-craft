@@ -7,7 +7,7 @@
 <style>
 /* Three close views of the studio's lived-in corners. Paintings are fal-made gouache (public/looks/cast/toys/),
    everything that moves is code. Gentle only: no scores, no counters, nothing flashes. */
-:root { --pink: #E7A3B1; --ines: #B8862F; --bo: #D9AE2C; --mika: #3D5C8E; --noor: #C8662F; --theo: #6E9772; }
+:root { --pink: #E7A3B1; --ines: #B8862F; --bo: #D9AE2C; --mika: #3D5C8E; --wren: #C8662F; --theo: #6E9772; }
 body { background: #E9DCC6; }
 .canvas { background:
   radial-gradient(ellipse 80% 70% at 50% 40%, #F3E9D8 0%, #EADDC8 60%, #DCCBB0 100%); }
@@ -78,7 +78,7 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
 .card p { margin: 0; font: 400 19px/1.22 var(--serif); color: #2E2219; letter-spacing: -.005em; }
 .card .who { margin-top: 7px; display: flex; align-items: center; gap: 4px; font: 400 13px/1 var(--sans); color: #7A6048; }
 .card .who i { width: 8px; height: 8px; border-radius: 50%; }
-#noor { left: 69px; top: 128px; width: 150px; }
+#wren { left: 69px; top: 128px; width: 150px; }
 .knob-hit { position: absolute; left: 430px; top: 140px; width: 56px; height: 150px; cursor: pointer; border-radius: 28px; }
 
 /* demo pointer */
@@ -135,13 +135,13 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
       <div class="screen" id="screen">
         <div class="glow" id="glow"></div>
         <div class="on" id="on">
-          <div class="chan"><span>The team’s evening news</span><span>Noor</span></div>
+          <div class="chan"><span>The team’s evening news</span><span>Wren</span></div>
           <div class="cards" id="cards">
             <div class="card"><p>Orders close at 8pm for the next morning.</p><div class="who"><i style="background:var(--bo)"></i><i style="background:var(--ines)"></i><i style="background:var(--mika)"></i>&nbsp;Bo, Ines and Mika</div></div>
             <div class="card"><p>Cancel with one tap, any time before 8pm.</p><div class="who"><i style="background:var(--bo)"></i><i style="background:var(--theo)"></i>&nbsp;Bo and Theo</div></div>
-            <div class="card"><p>Their usual loaf sits first, one tap away.</p><div class="who"><i style="background:var(--mika)"></i><i style="background:var(--noor)"></i>&nbsp;Mika and Noor</div></div>
+            <div class="card"><p>Their usual loaf sits first, one tap away.</p><div class="who"><i style="background:var(--mika)"></i><i style="background:var(--wren)"></i>&nbsp;Mika and Wren</div></div>
           </div>
-          <img class="sprite" id="noor" src="../cast/toys/noor-anchor.webp" alt="">
+          <img class="sprite" id="wren" src="../cast/toys/wren-anchor.webp" alt="">
         </div>
         <div class="lines" id="lines"></div>
         <div class="vig"></div>
@@ -273,8 +273,8 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
     go('#glow', { opacity: [0, 1] }, { duration: 1.4, ease: 'easeInOut' });
     go('#lines', { opacity: [0, 1] }, { duration: 1.4 });
     go('#on', { opacity: [0, 1] }, { duration: 1.2, delay: .5 });
-    go('#noor', { y: [40, 0] }, spring(1.4));
-    if (!still) animate('#noor', { scaleY: [1, 1.02, 1] }, { duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.4 });
+    go('#wren', { y: [40, 0] }, spring(1.4));
+    if (!still) animate('#wren', { scaleY: [1, 1.02, 1] }, { duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.4 });
     await wait(900 * T);
     nextCard();
   }
@@ -283,7 +283,7 @@ header p { margin: 0; font: 400 16px/1.4 var(--serif); font-style: italic; color
     const prev = cards[card]; card = (card + 1) % cards.length; const now = cards[card];
     if (prev) go(prev, { opacity: 0, y: -8 }, { duration: .6, ease: 'easeInOut' });
     go(now, { opacity: [0, 1], y: [10, 0] }, { ...spring(1), delay: prev ? .35 : 0 });
-    if (!still) animate('#noor', { rotate: [0, -2.5, 0] }, { duration: 1.2, ease: 'easeInOut' });
+    if (!still) animate('#wren', { rotate: [0, -2.5, 0] }, { duration: 1.2, ease: 'easeInOut' });
   }
   $('#knob').addEventListener('click', nextCard);
   $('#screen').addEventListener('click', nextCard);

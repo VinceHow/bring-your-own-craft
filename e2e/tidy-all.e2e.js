@@ -101,7 +101,7 @@ for (const [lookName, look] of [['plain', ''], ['painted', 'look=painted']]) tes
   ({ page, errors, seen } = await fresh(look));
   await page.evaluate(() => {
     BYOC.stage(4, { instant: true }); BYOC.run = 'stub-run';
-    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Noor', question: 'Who should we build this for first?',
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'first', first: true, seat: 'research', by: 'Wren', question: 'Who should we build this for first?',
       artifact: { kind: 'finding', ref: { title: 'A finding', quote: 'A third of visitors buy weekly.', url: 'https://example.org/f', label: 'researched before the demo' } } }, 'live');
     BYOC.openNote('first');
   });
