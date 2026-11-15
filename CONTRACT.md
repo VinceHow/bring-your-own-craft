@@ -23,7 +23,7 @@ spec; this only fixes the seams so four people can build at once.
 |---|---|---|
 | 1. Room and look | `build/room` | `public/index.html`, `public/room.css`, `public/room.js`, `public/fonts/`, `public/vendor/` (motion copied in), `public/stage.js`, `public/replay.js`, `routes/room.js` |
 | 2. Her flow and grey frames | `build/flow` | `lib/flow.js`, `public/flow.js`, `public/flow.css`, `public/sketches.js`, `public/blocks/`, `routes/flow.js`, `test/flow.test.js` |
-| 3. Selector, cap, her file, inference, log | `build/select` | `lib/teammates.js`, `lib/select.js`, `lib/policy.js`, `lib/taste.js`, `lib/tally.js`, `prompts/`, `vendor/product-management/`, `data/taste.seed.md`, `data/research-finding.json`, `routes/run.js`, `test/select.test.js`, `test/policy.test.js`, `test/tally.test.js`, `test/leak.test.js` |
+| 3. Selector, ask policy, her file, inference, log | `build/select` | `lib/teammates.js`, `lib/select.js`, `lib/policy.js`, `lib/taste.js`, `lib/tally.js`, `prompts/`, `vendor/product-management/`, `data/taste.seed.md`, `data/research-finding.json`, `routes/run.js`, `test/select.test.js`, `test/policy.test.js`, `test/tally.test.js`, `test/leak.test.js` |
 | 4. Template and live fill | `build/page` | `~/taste-template/` (outside the repo), `vendor/taste-skill/`, `templates/`, `lib/fill.js`, `routes/build.js`, `routes/book.js`, `test/fill.test.js` |
 
 Anyone may add a line to `README.md` credits. Nobody else edits a file another piece owns; if you need a change there,

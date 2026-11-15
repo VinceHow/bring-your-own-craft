@@ -341,7 +341,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 **Build order:**
 1. event log and meter;
-2. the ranking, cap and ask policy, with their tests;
+2. the ranking, threshold and ask policy, with their tests;
 3. the baseline run;
 4. the room and walk-in;
 5. lines → boxes;

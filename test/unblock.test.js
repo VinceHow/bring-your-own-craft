@@ -67,5 +67,3 @@ test('a topic makes the team-space headline from her choice ("Orders close 8pm t
   assert.equal(body.decided.headline, 'Orders close 8pm the night before');
 });
 
-// The mixed case (the lead's condition): two asks through the selector's own door plus one unblock spend her three;
-// after that a further unblock AND a further selector ask are both refused, and the log never holds a fourth ask.

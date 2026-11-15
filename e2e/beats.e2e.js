@@ -1,7 +1,7 @@
 // End-to-end: the keyboard-driven demo, walk-in to the close, in stage mode, with real model calls.
 // Run: npm run e2e (or node --test e2e/beats.e2e.js). Owned by build/beats.
 //   1. stage mode: body >= 20px, no chrome, no help card; the live path to the three asks at 1280x720, from a clicker
-//   2. the close with a real judge's idea: contrast before the questions land, <= 3 questions, M from the run's log
+//   2. the close with a real judge's idea: contrast before the questions land, the questions that passed the bar, M from the run's log
 //   3. replays: record-run, R in stage mode, the close's yoga fallback, the REPLAY label throughout
 //   4. fallbacks: a slow or failing call shows its step (never a spinner) and offers R
 import { test, before, after } from 'node:test';

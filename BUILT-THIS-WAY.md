@@ -61,8 +61,8 @@ him.* In practice that meant:
   (`docs/baseline/run-3-bakery/GUESSES.md`).
 - **The key never leaks.** The fal key lives only in server memory or the network proxy; a leak test checks every
   place it could escape.
-- **The ceiling of three is code, with its test.** The model ranks; code counts. When the question bar was redesigned
-  (twice), the ceiling and its test stayed untouched.
+- **The ranking and threshold are code, with their tests.** The model scores; code decides what passes the bar. (A
+  ceiling of three lived in code until Sunday morning; Vincent had it removed: no number is promised, anywhere.)
 - **Skeleton first, look second.** From 16:30, builders built structure and `data-component` / `data-slot` hooks only;
   the design studio owned every visual (`docs/COMPONENTS.md`).
 
