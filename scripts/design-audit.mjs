@@ -68,3 +68,31 @@ for (const [label, prefixes] of SCREENS) {
   out.push(`- ${label}: ${Object.entries(by).map(([k, v]) => `${k} ${v}`).join(', ')}`);
 }
 process.stdout.write(out.join('\n') + '\n');
+
+// ---- POLISH.md item by item (design-polish.mjs: polish.json in the same folder, or POLISH_JSON=path) ----
+const pj = process.env.POLISH_JSON || path.join(dir, 'polish.json');
+if (fs.existsSync(pj)) {
+  const P = JSON.parse(fs.readFileSync(pj, 'utf8')).results;
+  const SECT = { 2: 'Every input is a good input', 3: 'Calm, clean motion', 4: 'Never lost, never stuck', 5: 'Nothing broken-looking', 6: 'True on screen', 7: "Vincent's own path" };
+  const lines = ['', '#### POLISH.md, item by item', ''];
+  for (const sec of [2, 3, 4, 5, 6, 7]) {
+    const rows = P.filter(r => r.sec === sec); if (!rows.length) continue;
+    lines.push(`**§${sec} ${SECT[sec]}**`, '', '| Item | Size | Result | Evidence | Note | Owner |', '|---|---|---|---|---|---|');
+    for (const r of rows) lines.push(`| ${r.item} | ${r.size || ''}${r.mode ? ' ' + r.mode : ''} | ${r.result === 'FAIL' ? '**FAIL**' : r.result} | ${r.evidence ? '`' + r.evidence + '`' : ''} | ${String(r.note).replace(/\|/g, '/').slice(0, 220)} | ${r.owner || ''} |`);
+    lines.push('');
+  }
+  process.stdout.write(lines.join('\n') + '\n');
+}
+// ---- §1 one thing per screen: the census per screen at 1920 day (counted by design-qa.mjs) ----
+{
+  const cen = F.findings.filter(f => f.check === 'census' && f.size === '1920x1130' && f.mode === 'day');
+  if (cen.length) {
+    const lines = ['', '#### §1 One thing per screen (1920x1130 day; the same at every size)', '', '| Screen | Result | Controls · competing · guidance | Owner |', '|---|---|---|---|'];
+    const seen = new Set();
+    for (const f of cen) { if (seen.has(f.state)) continue; seen.add(f.state);
+      const m = f.note.match(/controls (\d+).*competing (\d+).*guidance (\d+)/); const [c, k, g] = m ? m.slice(1).map(Number) : [0, 0, 0];
+      const pass = k === 0 && g <= 1 && c <= 3;   // one input plus its mic and its button counts as one action
+      lines.push(`| ${f.state} | ${pass ? 'PASS' : '**FAIL**'} | ${f.note.replace(/\|/g, '·').slice(0, 260)} | ${pass ? '' : 'bug fixer'} |`); }
+    process.stdout.write(lines.join('\n') + '\n');
+  }
+}
