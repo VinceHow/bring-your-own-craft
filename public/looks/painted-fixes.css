@@ -62,3 +62,16 @@ html body #room[data-fill="cover"] #room-panel[data-component="sketchpad-open"][
 /* the close and her page are wide sheets placed 60px from the stage's right edge: they shift left by the crop, so they
    keep that same 60px from the window's edge */
 html body #room[data-fill="cover"] :is([data-component="close-view"], #page-sheet) { margin-left: calc(-1 * var(--crop-x, 0px)); }
+
+/* ---- QA #37 and #27: the inbox drawer scrolled sideways (and lost its first letters) ----
+   The cause: the action card's painted crayon layer (its ::before) sits ~7px past the card's right edge, so the
+   drawer's content ran 13px wider than the drawer. The drawer now keeps room for that offset on its right, never
+   scrolls sideways (the backstop), and scrolls up and down with no visible bar (QA rule). The receipt after Yes
+   wraps inside the card. */
+html body #room [data-component="inbox"] [data-slot="drawer"] {
+  padding-right: 14px; overflow-x: hidden !important; scrollbar-width: none; }
+html body #room [data-component="inbox"] [data-slot="drawer"]::-webkit-scrollbar { display: none; }
+html body #room [data-component="inbox-action"] > [data-pt-receipt] { max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+
+/* ---- QA #38: the "No app yet" tag stays hidden on the setup pages (her idea, her name tag, meeting the team) ---- */
+html body:has(#room[data-setup]:not([data-setup="off"])) [data-component="app-button"] { display: none !important; }
