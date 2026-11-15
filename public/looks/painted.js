@@ -75,6 +75,25 @@
   B.on('focus', f => { if (f && typeof f.open === 'boolean') focus(f.open); });
   B.on('reset', () => focus(false));
 
+  // ---- meet the team: each teammate's face slot waves (their intro clip, muted and looping; the portrait is the poster).
+  // A tap on the face plays their tap reaction once, then the wave again. Hooks: meet-card[data-seat], [data-slot="face"].
+  const WAVE = { design: 'mika', research: 'noor', data: 'theo', strategy: 'ines', engineering: 'bo' };
+  const waveIn = card => {
+    const face = card.querySelector('[data-slot="face"]'), who = WAVE[card.dataset.seat];
+    if (!face || !who || face.querySelector('video')) return;
+    const v = document.createElement('video'); v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute('aria-hidden', 'true');
+    v.poster = base + `cast/intro/${who}.jpg`; v.src = base + `cast/intro/wave-${who}.mp4`; v.preload = 'auto';
+    v.addEventListener('error', () => { if (v.dataset.clip !== 'tap') v.remove(); else { v.dataset.clip = 'wave'; v.loop = true; v.src = base + `cast/intro/wave-${who}.mp4`; v.play().catch(() => {}); } });
+    v.addEventListener('ended', () => { if (v.dataset.clip === 'tap') { v.dataset.clip = 'wave'; v.loop = true; v.src = base + `cast/intro/wave-${who}.mp4`; v.play().catch(() => {}); } });
+    face.addEventListener('click', e => { e.stopPropagation(); if (v.dataset.clip === 'tap') return; v.dataset.clip = 'tap'; v.loop = false; v.src = base + `cast/intro/tap-${who}.mp4`; v.play().catch(() => {}); });
+    face.appendChild(v); v.play().catch(() => {});
+  };
+  const setupEl = document.getElementById('setup');
+  if (setupEl) {
+    setupEl.querySelectorAll('[data-component="meet-card"]').forEach(waveIn);
+    new MutationObserver(() => setupEl.querySelectorAll('[data-component="meet-card"]').forEach(waveIn)).observe(setupEl, { childList: true, subtree: true });
+  }
+
   // ---- 1. the living painting: it puts itself first in #room at z 0 and sets #room[data-scene] ----
   js('painted-living.js').then(() => {
     document.addEventListener('studio:time', e => {
