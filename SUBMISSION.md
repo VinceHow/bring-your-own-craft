@@ -27,7 +27,7 @@ You start with your idea, rough as you'd say it, on a blank sheet: "What do you 
 tag: your craft (today that's Product; "Your own craft" lets anyone bring theirs) and, in your own words, what you
 love. Then you meet your team up close, each with a line tailored to your idea: Mika (Design), Noor (Research), Theo
 (Data), Ines (Strategy) and Bo (Engineering), each an agent with its own craft and tools (Noor: Linkup search;
-Mika: taste-skill and fal images; Bo: the build). The door opens on a
+Mika: taste-skill, fal images and an ElevenLabs soundtrack; Bo: the build). The door opens on a
 hand-painted studio, everyone already round the table, and your stool waiting.
 
 In the demo, Priya, a product manager, wants an ordering website for a friend's small bakery. As she sits down, Noor
@@ -137,7 +137,7 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
 ## Built with
 Node.js (`node:sqlite`), JavaScript, HTML, CSS, server-sent events, Railway, Claude (via fal's OpenRouter router in the
 demo, and Claude Code headless as the fallback), Anthropic product-management plugin (`write-spec`),
-taste-skill, ElevenLabs (live speech-to-text), fal (Claude via OpenRouter; flux/schnell for her page's emblem, live, and
+taste-skill, ElevenLabs (live speech-to-text, and the studio's soundtrack with ElevenLabs Music), fal (Claude via OpenRouter; flux/schnell for her page's emblem, live, and
 the live bakery's photos and logo, made ahead; the painted cast, clips and music), Linkup (Noor's live research), motion,
 Playwright.
 
