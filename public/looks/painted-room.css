@@ -9,8 +9,10 @@
    follow the role, so the role never disappears. */
 html body #room [data-component="place-card"] [data-slot="band"] > :has(> [data-slot="agent"]) { display: contents !important; }
 html body #room [data-component="place-card"] [data-slot="agent"] { order: 1; }
-/* Theo's pill sits a little higher and further left than painted.css put it, so "Theo | Data" ends before Ines's face */
-html body #room [data-component="seat"][data-seat="data"] { left: 836px; top: 302px; }
+/* Theo's pill sits higher and further left than painted.css put it: over his own head, its right end (x 950) clear of Ines's hat brim and face (from x 965) */
+html body #room [data-component="seat"][data-seat="data"] { left: 761px; top: 302px; }
+/* Mika's pill 12px higher, so it floats over her head instead of resting on it */
+html body #room [data-component="seat"][data-seat="design"] { top: 340px; }
 html body #room [data-component="place-card"] [data-slot="band"] > [data-slot="name"] {
   display: inline-block !important; order: 2; padding: 1px 0 0 9px; border-left: 1px solid rgba(80,55,35,.24);
   font: 500 15px/1 var(--ui); color: var(--ink-2); text-transform: none; letter-spacing: 0; }
@@ -48,6 +50,6 @@ html body #room [data-component="her-place-card"] [data-slot="title"]:empty { di
 html body #room [data-component="chatter-line"] { margin: 0 !important; max-width: 290px; }
 html body #room [data-component="chatter-line"][data-seat="design"] { translate: calc(-100% - 24px) 18px; border-radius: var(--r-md) 6px var(--r-md) var(--r-md); }
 html body #room [data-component="chatter-line"][data-seat="research"] { translate: 0 calc(-100% - 48px); }
-html body #room [data-component="chatter-line"][data-seat="data"] { translate: 0 calc(-100% - 96px); }
+html body #room [data-component="chatter-line"][data-seat="data"] { translate: 100px calc(-100% - 96px); }
 html body #room [data-component="chatter-line"][data-seat="strategy"] { translate: 210px -44px; max-width: 270px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
 html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 64px 18px; max-width: 250px; border-radius: 6px var(--r-md) var(--r-md) var(--r-md); }
