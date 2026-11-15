@@ -17,8 +17,18 @@ FAL_KEY=your-fal-key-here
 ELEVENLABS_API_KEY=your-elevenlabs-key-here
 LINKUP_API_KEY=your-linkup-key-here
 ADMIN_TOKEN=any-long-random-word
-# MODEL_BACKEND=fal   (remove the # to use fal instead of Claude Code, e.g. if Claude Code hits a usage limit)
+MODEL_BACKEND=fal
+# Fallback B (company Claude Code): comment out MODEL_BACKEND=fal above, uncomment these six, restart.
+# TAG_MODEL=sonnet
+# THREAD_MODEL=sonnet
+# JOINT_MODEL=sonnet
+# FIRST_MODEL=sonnet
+# GUEST_MODEL=sonnet
+# TIDY_MODEL=sonnet
 ```
+
+The demo runs on fal. `npm run local` and `npm run doctor` print the route on their first line (`route: fal`). If fal
+fails on stage, see "Fallback B" in `docs/REHEARSAL.md`.
 
 **Pages:** `/` (the studio, plain look) · `/?look=painted` (the painted look) · `/gallery` (every component).
 **Keys:** **S** stage mode (big type, no chrome) · **R** replay the rehearsal · **?** the help card (all the keys).

@@ -5,9 +5,12 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadEnvLocal, describe, ROOT, pickPort, portFree, PID_FILE, PORT_FILE, PORT_FROM, PORT_TO } from './env-local.mjs';
+import { loadEnvLocal, describe, routeLine, ROOT, pickPort, portFree, PID_FILE, PORT_FILE, PORT_FROM, PORT_TO } from './env-local.mjs';
 
 const r = loadEnvLocal();
+const route = routeLine();
+console.log(route.line); // first line: the active route (docs/REHEARSAL.md)
+if (route.warn) console.log(route.warn);
 console.log(describe(r));
 console.log(`model backend: ${process.env.MODEL_BACKEND || 'claude-code'}`);
 let port;
