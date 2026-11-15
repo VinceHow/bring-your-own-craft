@@ -129,3 +129,9 @@ html body #room [data-component="owner-task"] [data-slot="tick"]:checked {
   background: var(--ink, #2B1F17) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23FFF6EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 html body #room [data-component="owner-task"] [data-slot="tick"]:focus-visible { outline: 2px solid var(--ink-2, #4E3A2B); outline-offset: 2px; }
 html body #room [data-component="owner-task"] [data-slot="title"], html body .replay-label, html body .replay-label * { font-weight: 500 !important; }
+/* the close, asking: the sheet hugs its one column (the idea, the mic, Build it) instead of a 1130 px sheet with a
+   blank band either side; centred in the room, and on Build it the sheet opens out to make room for the contrast */
+html body #room [data-component="close-view"] { transition: left 460ms cubic-bezier(.2,.8,.2,1), width 460ms cubic-bezier(.2,.8,.2,1); }
+html body #room [data-component="close-view"][data-state="asking"] { width: 812px; left: calc(50% - 406px + var(--crop-x, 0px)); } /* + crop-x: the cover block above pulls the sheet left by it */
+html body #room [data-component="close-view"][data-state="asking"] > :last-child { width: 100%; }
+@media (prefers-reduced-motion: reduce) { html body #room [data-component="close-view"] { transition: none; } }
