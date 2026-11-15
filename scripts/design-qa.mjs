@@ -279,7 +279,7 @@ async function checks(p, slides) {
         if (gap < 3 && r.width > 40 && !['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName)) out.push({ check: 'text on edge', hook: hook(a), note: `${gap.toFixed(1)}px from its box: “${txt}”` });
         break; }
       // clipped text
-      if (el.scrollWidth > el.clientWidth + 2 && /(hidden|clip)/.test(cs.overflowX) && cs.textOverflow !== 'ellipsis') out.push({ check: 'clipped text', hook: hook(el), note: `cut off: “${txt}”` });
+      if (el.clientWidth > 4 && el.scrollWidth > el.clientWidth + 2 && /(hidden|clip)/.test(cs.overflowX) && cs.textOverflow !== 'ellipsis') out.push({ check: 'clipped text', hook: hook(el), note: `cut off: “${txt}”` });
     }
     // default browser controls
     for (const el of document.querySelectorAll('button, input, select, textarea')) {
