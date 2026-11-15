@@ -17,7 +17,7 @@ Building with AI today pulls me away from my craft. Coding agents ask about ever
 me: approvals, "continue?", questions nobody signed up for. AI app builders assume everything, so my judgement never
 gets in. Both get it backwards: they hand me the busywork and take away the judgement.
 
-![Slide 3, the shift: AI will outdo us, so we get to choose](docs/readme/slides/03-the-shift.jpg)
+![Slide 3, the shift: AI takes the busywork, so we choose what we love](docs/readme/slides/03-the-shift.jpg)
 It doesn't have to be that way. AI will be more productive than us at much of the work. Built the right way, it
 takes the busywork we dislike and leaves the judgement with us.
 
@@ -30,7 +30,7 @@ So I built a team that works that way. You take the seat of your craft; agents t
 work, and bring you only the few big questions about what you love, your craft among them. The result is what I wanted all along: 90% of
 your time on the craft you love, in flow.
 
-![Slide 6, how it feels: four real clips of the product](docs/readme/slides/06-how-it-feels.jpg)
+![Slide 6, how it feels: four real clips of the product, and only the decisions you love reach you](docs/readme/slides/06-how-it-feels.jpg)
 Here's how that feels, in real clips from the product. The team gets to know you. When you speak, your words are
 kept and the team builds on them. You only see the decisions that matter, and when one reaches you, the room goes
 quiet: just you and the question.
