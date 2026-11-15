@@ -50,11 +50,14 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   const inp = page.locator('#her-input');
   // her idea: tidying (raw kept), then tidied; the cleaned idea starts the run
   const raw = 'um so the idea is, uh, a website for a small bakery so people can order bread ahead';
+  // it moves up to the sheet's idea line at once, raw, and is tidied there (the field clears for her first step)
   await inp.fill(raw); await inp.press('Enter');
-  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidying');
-  assert.equal(await inp.getAttribute('data-raw'), raw);
-  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidied');
-  assert.equal(await inp.getAttribute('data-tidy'), 'cut', 'her words with some removed');
+  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidying');
+  assert.equal(await page.getAttribute('#her-idea', 'data-raw'), raw);
+  assert.equal(await page.textContent('#her-idea'), raw, 'her raw words where she is looking');
+  assert.equal(await inp.inputValue(), '');
+  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidied');
+  assert.equal(await page.getAttribute('#her-idea', 'data-tidy'), 'cut', 'her words with some removed');
   for (let i = 0; i < 40 && !sent.idea; i++) await page.waitForTimeout(50);
   assert.equal(sent.idea, 'A website for a small bakery so people can order bread ahead.');
   assert.equal(await page.textContent('#her-idea'), 'A website for a small bakery so people can order bread ahead.');
@@ -63,6 +66,10 @@ for (const [lookName, look] of [['plain', ''], ['painted', '?look=painted']]) te
   await inp.fill('uh regulars come every, every morning'); await inp.press('Enter');
   for (let i = 0; i < 60 && !sent.line; i++) await page.waitForTimeout(50);
   assert.equal(sent.line, 'Regulars come every morning.');
+  // the tidied line holds in her field for a moment (data-hold), sent once; her next key clears it for her
+  assert.equal(await inp.inputValue(), 'Regulars come every morning.'); assert.equal(await inp.getAttribute('data-hold'), 'on');
+  sent.line = null; await inp.press('Enter'); await page.waitForTimeout(150); assert.equal(sent.line, null, 'Enter on the held line sends nothing');
+  await inp.press('r'); assert.equal(await inp.inputValue(), 'r', 'her next key ends the hold'); assert.equal(await inp.getAttribute('data-hold'), null);
   // a reordered tidy is marked so (design animates it differently)
   sent.line = null;
   await inp.fill('regulars first and then the bread i think'); await inp.press('Enter');
