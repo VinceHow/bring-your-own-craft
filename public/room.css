@@ -240,6 +240,14 @@ body.stage .her-hint { display: none; }
 .close-input { width: 100%; font: 500 24px var(--ui); color: var(--ink); background: transparent; border: 0; border-bottom: 2px solid var(--ink);
   outline: 0; padding: 4px 0; caret-color: var(--product); }
 .close-step { font: 500 14px var(--mono); }
+#close-form { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+#close-form .close-input { flex: 1 1 100%; min-width: 0; } /* the idea gets the whole line; the mic and Build it sit under it */
+.close-make { flex: none; appearance: none; cursor: pointer; font: 500 17px/1 var(--ui); padding: 12px 20px; border: 2px solid var(--ink);
+  background: var(--ink); color: var(--paper, #fff); box-shadow: 3px 3px 0 var(--product, #FF48B0); white-space: nowrap;
+  transition: opacity .2s ease, translate .2s ease; }
+.close-make[data-state="off"], .close-make[data-state="done"] { opacity: .4; cursor: default; box-shadow: none; }
+.close-make[data-state="working"] { opacity: .75; cursor: progress; translate: 2px 2px; box-shadow: 1px 1px 0 var(--product, #FF48B0); }
+.close-make:focus-visible { outline: 3px solid var(--product, #FF48B0); outline-offset: 2px; }
 .close-count { font: 500 20px var(--ui); }
 .close-count b { font: 400 40px var(--display); }
 .close-count b.pink { background: var(--product); padding: 0 6px; border: var(--line); border-radius: 3px; }
@@ -517,3 +525,7 @@ body:has(.replay-label:not([hidden])) .app-button { bottom: 74px; }
 .app-change, .app-live { margin: 0; padding: 4px 10px; font: 400 14px/1.2 var(--ui, sans-serif); background: var(--sheet, #fff); border: var(--line, 2px solid #141414); border-radius: var(--r, 6px); }
 .app-button[data-pulse] .app-open { animation: app-pulse 1.6s ease-out 1; }
 @keyframes app-pulse { 0% { transform: scale(1); } 20% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+/* the idea paper: Next waits for words; an empty Enter nudges the box (room.js nudgeEmpty) */
+.idea-make[data-state="off"] { opacity: .45; cursor: default; }
+.idea-card[data-nudge="empty"] .idea-input, [data-nudge="empty"] #intro-input { outline: 2px solid var(--product, #FF48B0); outline-offset: 2px; }

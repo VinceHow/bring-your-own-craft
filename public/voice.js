@@ -22,9 +22,10 @@
   // ---- which field ----------------------------------------------------------------------------
   const intro = () => document.getElementById('intro-input');
   const herInput = () => document.getElementById('her-input');
+  // Her sheet's input is open (her idea, then her journey lines and her sketch reaction): the mic shows the whole time.
   const ideaOpen = () => {
-    const f = document.getElementById('her-form'), idea = document.getElementById('her-idea');
-    return !!(f && !f.hidden && idea && !idea.textContent.trim());
+    const f = document.getElementById('her-form');
+    return !!(f && !f.hidden && f.offsetParent !== null);
   };
   // Any other spoken field opts in with data-voice="<name>" (e.g. her reaction to Design's first sketch):
   // the mic mark appears right after it, and the words land in it as editable text.
