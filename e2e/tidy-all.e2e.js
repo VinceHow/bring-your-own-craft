@@ -153,3 +153,31 @@ for (const [lookName, look] of [['plain', ''], ['painted', 'look=painted']]) tes
   assert.deepStrictEqual(errors, []);
   await page.close();
 });
+
+// A tidy that fails, or changes nothing: her raw words stand, marked skipped (nothing plays over them), no error on
+// screen, and a line on her sheet still clears for the next one. Feedback within 300 ms of Enter: data-state tidying.
+test('a failed or unchanged tidy: her words stand, skipped, no error shown; tidying shows at once', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e))); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  await page.route('**/api/tidy', async r => { const { text } = JSON.parse(r.request().postData()); await new Promise(f => setTimeout(f, 300));
+    if (/fails/.test(text)) return r.fulfill({ status: 500, json: { error: 'stubbed' } }); r.fulfill({ status: 200, json: { text, tidied: false } }); });
+  await page.route('**/api/run', r => r.fulfill({ status: 200, json: { run: 'stub-fail' } }));
+  await page.route('**/api/run/stub-fail/**', r => r.fulfill({ status: 200, json: { nodes: [], edges: [] } }));
+  await page.goto(BASE + '/?look=painted');
+  await page.evaluate(() => BYOC.stage(3, { instant: true }));
+  await page.waitForSelector('#her-input', { state: 'visible' });
+  await page.fill('#her-input', 'A website for my bakery'); await page.press('#her-input', 'Enter');
+  await page.waitForFunction(() => document.getElementById('her-idea').dataset.state === 'tidied');
+  assert.equal(await page.getAttribute('#her-idea', 'data-tidy'), 'skipped', 'unchanged: skipped');
+  await page.waitForFunction(() => document.getElementById('her-input').offsetParent !== null);
+  await page.fill('#her-input', 'this line fails to tidy so it stays as she said');
+  const t0 = Date.now(); await page.press('#her-input', 'Enter');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidying', null, { timeout: 300 });
+  assert.ok(Date.now() - t0 < 300, 'tidying within 300 ms');
+  await page.waitForFunction(() => document.getElementById('her-input').dataset.state === 'tidied');
+  assert.equal(await page.getAttribute('#her-input', 'data-tidy'), 'skipped');
+  assert.equal(await page.inputValue('#her-input'), '', 'the box clears for her next line');
+  assert.ok(!/error|undefined|failed/i.test(await page.evaluate(() => document.body.innerText)), 'no error on screen');
+  assert.deepStrictEqual(errors.filter(e => !/404|500|Failed to load resource/.test(e)), []);
+  await page.close();
+});
