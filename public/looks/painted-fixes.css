@@ -129,3 +129,13 @@ html body #room [data-component="owner-task"] [data-slot="tick"]:checked {
   background: var(--ink, #2B1F17) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23FFF6EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 html body #room [data-component="owner-task"] [data-slot="tick"]:focus-visible { outline: 2px solid var(--ink-2, #4E3A2B); outline-offset: 2px; }
 html body #room [data-component="owner-task"] [data-slot="title"], html body .replay-label, html body .replay-label * { font-weight: 500 !important; }
+
+/* ---- JANK 16: at night the setup pages are night too (TASTE: night is really night) ----
+   The idea paper, the name tag and meeting the team sat on the bright, blurred day door while the room behind was the
+   rainy night. There's no night door painting (and no new art tonight), so the same door is graded to dusk: darker,
+   cooler, under a deep blue wash. The papers stay cream, lamp-lit against it. */
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"]) { background: #1E2236; }
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"])::before {
+  filter: blur(9px) brightness(.42) saturate(.7) hue-rotate(-12deg) !important; }
+html body #room[data-time="night"] [data-component="setup"]:is([data-step="idea"], [data-step="nametag"], [data-step="team"])::after {
+  background: radial-gradient(70% 70% at 50% 45%, rgba(255, 196, 120, .10), rgba(16, 20, 44, .55)) !important; }
