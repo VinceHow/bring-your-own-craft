@@ -10,6 +10,16 @@ The demo bakery, deployed on Railway from branch `build/first-sketch`. Nothing h
 ## Start command
 `sh -c 'cd deploy/app 2>/dev/null; exec node server.js'` works whether the service's Root Directory is the repo root or `deploy/app`. The studio's `server.js` never starts. Both cases were tested locally; not yet tested on Railway itself.
 
+## How the app was made
+- **The run:** `deploy/run/` (run-2026-11-15T00-11-38-840Z-k9iw, the real room on the fal backend, driven by `deploy/record-bakery-run.mjs`).
+- **The prompt:** `deploy/bo/PROMPT.md`, built by `deploy/bo/make-prompt.mjs` from the run plus `deploy/bo/inputs/` (brief, contract, look, admin wireframe).
+- **The build:** one headless attempt by Bo, the team's engineer agent (15 Nov, 00:16–00:23 UTC, 47 turns, medium effort, no retry), working only in `deploy/app/`. Its own account is `deploy/app/BUILT.md`.
+- **The photos:** `deploy/make-images.mjs` (fal flux/schnell, 4 images, about 1.2¢), compressed with ImageMagick.
+
+## Hand edits to Bo's app (each one listed)
+1. `app/public/style.css`, line 1: `[hidden] { display: none !important; }`. Bo's `.hand { display: inline-block }` beat the `hidden`
+   attribute, so "Sold out for today" showed on every loaf. Found by a browser check (Bo's tests are HTTP-only). No other change.
+
 ## Hand edits (deploy plumbing only)
 - `app/package.json`, `app/server.js`, `app/config.js`: placeholder with /health and the defaults above.
 - `../railway.json`: build watch paths, start command, healthcheck, 1 replica.
