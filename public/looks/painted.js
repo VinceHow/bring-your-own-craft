@@ -281,6 +281,13 @@
   // underneath. Never blocks: a load or play error, or no frame within 1.5 s, goes straight to the room; a tap skips.
   // Not for replays, jumps (BYOC.stage(n, {instant})), ?instant, or reduced motion.
   const DOOR = base + 'cast/intro/door-open.mp4';
+  // The plaque in door-open.mp4 (1280 x 720) spans x 513-777, y 54-127; the lettering keeps 8% of its width clear each side.
+  const DOOR_SIGN = `<svg data-slot="sign" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g font-family="Newsreader, Georgia, serif" font-weight="540" font-size="25" text-anchor="middle" textLength="214" lengthAdjust="spacing">
+      <text x="645.8" y="99.9" fill="#FFE9C8" fill-opacity=".55" textLength="214" lengthAdjust="spacing">Bring your own craft</text>
+      <text x="644.5" y="98.5" fill="#2A170C" fill-opacity=".35" textLength="214" lengthAdjust="spacing" data-slot="shade">Bring your own craft</text>
+      <text x="645" y="99" fill="#4A2E1C" fill-opacity=".8" textLength="214" lengthAdjust="spacing" data-slot="ink">Bring your own craft</text>
+    </g></svg>`;
   let doorVid = null;
   const doorPreload = () => { if (doorVid) return; doorVid = document.createElement('video');
     doorVid.muted = true; doorVid.playsInline = true; doorVid.preload = 'auto'; doorVid.src = DOOR; doorVid.load(); };
@@ -295,6 +302,12 @@
     const layer = document.createElement('div'); layer.dataset.component = 'door-open'; layer.dataset.state = 'opening';
     layer.setAttribute('aria-hidden', 'true');
     v.dataset.slot = 'clip'; layer.appendChild(v); room.appendChild(layer);
+    // "Bring your own craft" carved into the plaque: drawn in the clip's own 1280 x 720 frame with the clip's cover crop
+    // (xMidYMid slice), so it sits on the board at every window size. The board is still until ~0.6 s, then the doors
+    // swing in front of it: the lettering shows once the clip plays and fades out by 1.0 s, before anything crosses it.
+    layer.insertAdjacentHTML('beforeend', DOOR_SIGN);
+    v.addEventListener('playing', () => { layer.dataset.sign = 'on'; }, { once: true });
+    v.addEventListener('timeupdate', () => { if (v.currentTime >= 0.6 && layer.dataset.sign === 'on') layer.dataset.sign = 'off'; });
     let done = false, off = null;
     const finish = fade => { if (done) return; done = true; clearTimeout(guard);
       if (!fade) { layer.remove(); off && off(); return; }
