@@ -1,0 +1,123 @@
+// Builds Bo's prompt (deploy/bo/PROMPT.md) from two labelled sources, so the "Built by the team" card can say where
+// each rule came from: (1) the recorded run's decision log (deploy/run/events.jsonl), (2) the brief and its
+// contract, plus the design direction. Plumbing only: no app logic is written here.
+//   node deploy/bo/make-prompt.mjs
+import fs from 'node:fs';
+const here = p => new URL(p, import.meta.url).pathname;
+const read = p => fs.readFileSync(here(p), 'utf8');
+const evs = read('../run/events.jsonl').trim().split('\n').map(l => JSON.parse(l));
+const run = JSON.parse(read('../run/RECORDED.json'));
+const start = evs.find(e => e.type === 'run.start');
+
+// The team's decisions: the last word on each id wins (a joint session can revise one).
+const decided = new Map();
+for (const e of evs) if (e.type === 'decided' && e.choice) decided.set(e.id, e);
+for (const e of evs) if ((e.type === 'joint.kept' || e.type === 'joint.revised') && decided.has(e.candidateId)) {
+  decided.set(e.candidateId, { ...decided.get(e.candidateId), choice: e.choice, joint: e.type.split('.')[1] });
+}
+const asks = evs.filter(e => e.type === 'ask');
+const answers = new Map(evs.filter(e => e.type === 'answer').map(e => [e.askId, e.text]));
+const takeaways = evs.filter(e => e.type === 'takeaways');
+
+const NAMES = { design: 'Mika', research: 'Noor', data: 'Theo', strategy: 'Ines', engineering: 'Bo', product: 'Priya' };
+const lines = [];
+const P = s => lines.push(s);
+P(`# Build the bakery: Bo, the team's engineer`);
+P('');
+P(`You are Bo, the engineer on a small product team. The team ran a real working session on a bakery idea and made the`);
+P(`decisions below. Your job: build the app they decided on, to the brief's bar, in this folder only, and prove it with`);
+P(`tests. This is one attempt: work carefully, run the tests, fix what fails, and stop when everything passes.`);
+P('');
+P(`## Where you work`);
+P(`- Your working directory is the app folder. Create and edit files only here. Don't read or write anything outside it,`);
+P(`  except reading \`../bo/inputs/\` and running \`../acceptance/bakery.acceptance.js\`.`);
+P(`- No network except what Node itself needs. No npm dependencies: plain Node 22 and the built-in \`node:sqlite\`.`);
+P(`- Keep \`config.js\` (it sets DB_PATH, PORT and DEMO with safe defaults; use it). Keep \`GET /health\`.`);
+P(`- \`package.json\`: keep \`engines\` and \`"start": "node server.js"\`; add \`"test": "node --test test/"\`.`);
+P(`- Static files go in \`public/\`. The photos are already there: \`public/img/{sourdough,rye,brioche,logo}.jpg\`.`);
+P(`- Never write a model name, a key or a token into any file, comment or log line.`);
+P(`- Log only what's needed to run (e.g. "bakery on 8787"). Never log a first name, the admin token, a header or a body.`);
+P('');
+P(`## The shelf (given by the builders, so the photos match)`);
+P(`| id | name | tier | starting stock | photo |`);
+P(`|---|---|---|---|---|`);
+P(`| sourdough | Sourdough | rare | 3 | /img/sourdough.jpg |`);
+P(`| rye | Seeded rye | medium | 8 | /img/rye.jpg |`);
+P(`| brioche | Butter brioche | plentiful | 40 | /img/brioche.jpg |`);
+P(`Write each loaf's one-line description yourself, in the baker's voice. The bakery's name: **Priya's** (the baker in`);
+P(`the brief). The logo is \`/img/logo.jpg\`, an icon only; the name is real text beside it.`);
+P('');
+P(`## Source 1: the team's decisions (run ${run.from}, recorded ${run.recordedAt.slice(0, 16)}Z)`);
+P(`The idea, in the baker's words: "${start.idea}"`);
+P('');
+P(`### What the baker said`);
+for (const a of asks) P(`- **${a.by || 'The team'} asked:** "${a.question}" **She said:** "${answers.get(a.id) || '(no answer)'}"`);
+P('');
+P(`### Her takeaways (what she believes, and her guidance to the team)`);
+for (const t of takeaways) { P(`- **Believes:** ${t.believe}`); P(`  **Guidance:** ${t.guidance}`); }
+P('');
+P(`### The decisions (id · who · decision → choice)`);
+for (const d of decided.values()) P(`- \`${d.id}\` · ${d.by || NAMES[d.seat] || d.seat} · ${d.decision} → **${d.choice}**${d.joint ? ` (joint session, ${d.joint})` : ''}`);
+P('');
+P(`## Source 2: the brief (the bar). Where the brief and a decision differ, the brief wins for this demo.`);
+P(`Some decisions above don't fit a live demo (text messages, paying at collection, regulars only, one loaf in total,`);
+P(`a month's history). The brief overrides them. Build what the brief says; list each decision you set aside, and why,`);
+P(`in BUILT.md (below). **The collection (loyalty stamps) is cut**: don't build \`/api/collection\` or a collection page.`);
+P('');
+P(read('inputs/BAKERY-BRIEF.md').replace(/^# /m, '### '));
+P('');
+P(`## The contract: this is exactly what the gate checks, over HTTP`);
+P(read('inputs/ACCEPTANCE.md').replace(/^# /m, '### '));
+P('');
+P(`## The look (design direction, for the storefront and the moments)`);
+P(read('inputs/BAKERY-LOOK.md').replace(/^# /m, '### '));
+P('');
+P(`## The admin page: readability (screen-shared at 1920×1080, read from the back of a room)`);
+P(`Exact sizes are in \`../bo/inputs/admin-wireframe.html\`. Six elements, nothing else on screen:`);
+P(`1. Title strip: the name (44px serif) and "Demo bakery, no real bread" (24px). Restock and Reset demo as two quiet`);
+P(`   outline pills at top right (22px text, 2px border). Reset asks to confirm first.`);
+P(`2. Orders, left, newest first: rows 92px tall; first name 44px bold serif, loaf 34px, time 30px muted, status pill`);
+P(`   28px bold. Reserved = filled warm pill; Delivered = outline stamp, slightly rotated, green, with that row muted. At`);
+P(`   most 5 rows, then "and N more" (28px). No scrolling, no table borders, a 2px rule between rows.`);
+P(`3. Stock, right: one 150px row per loaf, name 40px serif, count 88px bold right-aligned. Sold out: the row greys and a`);
+P(`   "Sold out" stamp (54px, heavy, 5px border, rotated −8°) sits over the count, never over the name.`);
+P(`4. Deliver, bottom left: THE one big button, full width of the orders column, 120px tall, 48px bold, with the live`);
+P(`   count ("Deliver all 4 reserved"). Dark, high contrast. Nothing else at that weight.`);
+P(`5. Bottom right: one quiet line, "Held until the end of the talk" (26px). Hold length and stock settings sit behind a`);
+P(`   small settings link, not on this screen.`);
+P(`Contrast ≥ 4.5:1 everywhere; nothing under 22px except the demo line; live updates change numbers in place (no`);
+P(`flashing, no toasts, no sound). Everything fits 1920×1080 with no scroll, even with 40 orders.`);
+P(`The admin page must work when opened in a browser: accept the token as \`Authorization: Bearer\`, and also from a`);
+P(`one-time \`?t=\` that you swap for an HttpOnly, SameSite=Strict cookie and then redirect to a clean /admin (so the`);
+P(`token doesn't sit in the address bar). Send \`Referrer-Policy: no-referrer\` on admin pages. Compare tokens in`);
+P(`constant time. With ADMIN_TOKEN unset, every admin route is 401.`);
+P('');
+P(`## Build order (stop and test after each)`);
+P(`1. The database (migrations on boot), the shelf, \`/api/loaves\`, reservations with the one-per-device-per-drop limit`);
+P(`   (a unique constraint), atomic stock, sold out, the rate limit.`);
+P(`2. Admin: locked routes, orders, stock, Deliver, Restock (new drop), settings, Reset demo; the hold (release lazily,`);
+P(`   on each read and write, from timestamps, honouring \`X-Test-Now\` only with a valid admin token).`);
+P(`3. The event stream per reservation, and the storefront and admin pages.`);
+P(`4. The look and the moments: the sticker, the stamp on Delivered (with a short vibration where allowed), the`);
+P(`   hand-drawn sold out.`);
+P('');
+P(`## Your tests`);
+P(`Write \`test/*.test.js\` with \`node:test\`, starting the app on a free port with a temporary DB_PATH. Name every test`);
+P(`after the decision or brief rule it proves, with its source in brackets, e.g.`);
+P(`\`[first-d2 · Bo] one loaf per person per batch\` or \`[brief · rules] stock never below 0\`.`);
+P('');
+P(`## The gate (run it before you stop)`);
+P('```');
+P(`ADMIN_TOKEN=test-token PORT=8787 DB_PATH=/tmp/bakery-gate.db node server.js > /tmp/bakery-app.log 2>&1 &`);
+P(`BASE_URL=http://localhost:8787 ADMIN_TOKEN=test-token APP_LOG=/tmp/bakery-app.log node --test ../acceptance/bakery.acceptance.js`);
+P('```');
+P(`Expect every test to pass and one skipped (3b, the collection, cut). Also \`npm test\` must pass. Stop the server you`);
+P(`started (only that process) when you're done.`);
+P('');
+P(`## When you finish: BUILT.md`);
+P(`Write \`BUILT.md\` for the "Built by the team" card: the tables (one line each), the rules (each with the decision id`);
+P(`and who made it, or "brief"), the tests (name → what it proves), and the decisions you set aside because the brief`);
+P(`overrides them. Plain words. Then reply with one paragraph: what you built and the final test results.`);
+
+fs.writeFileSync(here('PROMPT.md'), lines.join('\n') + '\n');
+console.log(`PROMPT.md: ${lines.length} lines, ${decided.size} decisions, ${asks.length} asks, ${takeaways.length} takeaways`);

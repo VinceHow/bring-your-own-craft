@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Baker's view · readability wireframe</title>
+<!-- A readability wireframe for builder 6, not a style: the bakery's own look comes from the team's run.
+     Sizes are the point: 1920x1080 screen-shared, read from the back of a room. Six elements. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 1080px; background: #F4EEE4; color: #241A12; font-family: system-ui, sans-serif; }
+  .wire { display: grid; grid-template-columns: 1140px 1fr; grid-template-rows: 110px 1fr 150px; gap: 0 56px; height: 100%; padding: 40px 64px 48px; }
+  .note { position: absolute; font: 500 18px/1.3 system-ui; color: #8A3B22; background: #FFF3D6; padding: 6px 10px; border-radius: 8px; border: 1px dashed #C9873F; }
+  /* 1. title strip */
+  header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 28px; }
+  header h1 { margin: 0; font: 600 44px/1 Georgia, serif; }
+  header .demo { font: 500 24px/1 system-ui; color: #6A5A4A; }
+  header .quiet { margin-left: auto; display: flex; gap: 14px; }
+  header .quiet span { font: 500 22px/1 system-ui; color: #6A5A4A; padding: 12px 20px; border: 2px solid #CDBFAE; border-radius: 999px; }
+  /* 2. orders */
+  .orders h2, .stock h2 { margin: 0 0 18px; font: 600 30px/1 system-ui; color: #6A5A4A; }
+  .row { display: grid; grid-template-columns: 300px 1fr 150px 230px; align-items: center; height: 92px; border-bottom: 2px solid #E2D7C7; }
+  .row .who { font: 600 44px/1 Georgia, serif; }
+  .row .loaf { font: 400 34px/1 system-ui; }
+  .row .t { font: 400 30px/1 system-ui; color: #6A5A4A; }
+  .row .st { justify-self: end; font: 600 28px/1 system-ui; padding: 12px 22px; border-radius: 999px; background: #F9D98A; }
+  .row.done .st { background: none; border: 3px solid #3E7A4C; color: #3E7A4C; transform: rotate(-4deg); }
+  .row.done .who, .row.done .loaf { color: #8A7A6A; }
+  .more { font: 400 28px/1 system-ui; color: #6A5A4A; margin-top: 16px; }
+  /* 3. stock */
+  .loafrow { display: grid; grid-template-columns: 1fr 140px; align-items: center; height: 150px; border-bottom: 2px solid #E2D7C7; position: relative; }
+  .loafrow .n { font: 600 40px/1.1 Georgia, serif; }
+  .loafrow .c { font: 700 88px/1 Georgia, serif; text-align: right; }
+  .loafrow.out .n, .loafrow.out .c { color: #B0A090; }
+  .loafrow.out::after { content: "Sold out"; position: absolute; right: 0; top: 50%; transform: translateY(-50%) rotate(-8deg);
+    font: 800 54px/1 Georgia, serif; color: #A33A22; border: 5px solid #A33A22; border-radius: 14px; padding: 6px 22px; background: rgba(244,238,228,.9); }
+  /* 4. the one big button */
+  .deliver { grid-column: 1; align-self: end; height: 120px; border-radius: 28px; background: #3E2A1C; color: #FFF6E8; display: flex; align-items: center; justify-content: center;
+    font: 700 48px/1 system-ui; }
+  .hold { grid-column: 2; align-self: end; font: 400 26px/1.3 system-ui; color: #6A5A4A; padding-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="wire">
+  <header><h1>Hearth · the baker's view</h1><span class="demo">Demo bakery, no real bread</span>
+    <div class="quiet"><span>Restock</span><span>Reset demo</span></div></header>
+  <section class="orders">
+    <h2>Orders, newest first</h2>
+    <div class="row"><span class="who">Ana</span><span class="loaf">Country sourdough</span><span class="t">21:42</span><span class="st">Reserved</span></div>
+    <div class="row"><span class="who">Tom</span><span class="loaf">Seeded rye</span><span class="t">21:41</span><span class="st">Reserved</span></div>
+    <div class="row"><span class="who">Mei</span><span class="loaf">Country sourdough</span><span class="t">21:41</span><span class="st">Reserved</span></div>
+    <div class="row"><span class="who">Ola</span><span class="loaf">Morning bun</span><span class="t">21:40</span><span class="st">Reserved</span></div>
+    <div class="row done"><span class="who">Sam</span><span class="loaf">Seeded rye</span><span class="t">21:38</span><span class="st">Delivered</span></div>
+    <div class="more">and 9 more</div>
+  </section>
+  <section class="stock">
+    <h2>On the shelf</h2>
+    <div class="loafrow out"><span class="n">Country sourdough</span><span class="c">0</span></div>
+    <div class="loafrow"><span class="n">Seeded rye</span><span class="c">5</span></div>
+    <div class="loafrow"><span class="n">Morning bun</span><span class="c">31</span></div>
+  </section>
+  <div class="deliver">Deliver all 4 reserved</div>
+  <div class="hold">Held until the end of the talk</div>
+</div>
+<div class="note" style="left:64px;top:8px">1 · title + 2 quiet buttons (confirm before Reset)</div>
+<div class="note" style="left:64px;top:150px">2 · orders: names 44px, loaf 34px, max 5 rows</div>
+<div class="note" style="left:1260px;top:150px">3 · stock: counts 88px, sold out stamped</div>
+<div class="note" style="left:64px;top:888px">4 · Deliver: the one big button, 120px tall</div>
+</body>
+</html>
