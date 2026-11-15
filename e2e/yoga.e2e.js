@@ -47,7 +47,7 @@ after(async () => { console.log('beat timings:', JSON.stringify(T)); await brows
 const has = expr => page.evaluate(expr).catch(() => false);
 
 test('1. the room loads with no console errors', async () => {
-  await page.goto(BASE + '/?path=full&meeting=0&setup=classic'); // all three focus moments, the single-Send flow (off the stage path)
+  await page.goto(BASE + '/?path=full&meeting=0&setup=classic&hold=2000'); // all three focus moments, the single-Send flow (off the stage path)
   await page.waitForTimeout(1500);
   assert.deepStrictEqual(consoleErrors, []);
 });

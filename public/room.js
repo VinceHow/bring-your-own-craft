@@ -18,7 +18,10 @@
     engineering: { name: 'Engineering', agent: 'Bo', stance: 'boring and correct', loves: 'Boring, correct, shipped.', brings: 'the page template and the live build' },
   };
   // How long each teammate's big card holds mid-table (DEMO 0:06-0:26: about 2 s). ?hold=<ms> for tests.
-  const HOLD_MS = Number(new URLSearchParams(location.search).get('hold')) || 2000;
+  // Meet the team waits for her (Vincent, Sun 01:31: he talks over each card): no auto-advance unless ?hold=<ms> is
+  // given (the tests and unattended walks use it).
+  const HOLD_PARAM = Number(new URLSearchParams(location.search).get('hold'));
+  const HOLD_MS = HOLD_PARAM > 0 ? HOLD_PARAM : Infinity;
   // One simple geometric glyph per seat. No faces, no emoji.
   const GLYPH = {
     product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3l14 6-14 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>',
@@ -1211,8 +1214,18 @@
         new Promise(res => setTimeout(() => res({}), MEET_LIMIT_MS)),
       ]).catch(() => ({})).then(lines => { if (tok === walkToken) BYOC.meetLines = lines; emit('meet.lines', { tailored: Object.keys(lines).length }); return lines; });
     }
+    loadKit(text);
     emit('idea.paper', { idea: text });
     openPaper();
+  }
+  // "Loaded with": what each teammate really has for this idea (GET /api/kit, lib/kit.js: computed from the files and the
+  // finding this server has). Asked for with her idea; without one (classic order), as she meets the team.
+  function loadKit(idea) {
+    const tok = walkToken;
+    BYOC.kit = null;
+    BYOC.kitReq = BYOC.api('/api/kit?idea=' + encodeURIComponent(idea || ''), undefined, { step: false })
+      .then(k => { if (tok === walkToken) BYOC.kit = k || {}; return k; }).catch(() => null);
+    return BYOC.kitReq;
   }
   BYOC.ideaOpen = () => !!ideaCard && BYOC.beat === 0;
   BYOC.ideaDone = ideaDone;
@@ -1391,15 +1404,19 @@
       <div class="meet-who"><span class="meet-name" data-slot="name">${esc(t.agent)}</span> · <span class="meet-role" data-slot="role">${esc(t.name)}</span> <span class="agent-mark" data-slot="agent-mark">agent</span></div>
       <p class="meet-line" data-slot="line">“${esc(tailored || t.loves)}”</p>
       <p class="meet-brings" data-slot="brings"><span class="meet-label">Brings</span> ${esc(t.brings)}</p>
-      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>`;
+      ${(BYOC.kit && Array.isArray(BYOC.kit[seat]) && BYOC.kit[seat].length) ? `<div class="meet-kit-wrap"><span class="meet-label" data-slot="kit-label">Loaded with</span><ul class="meet-kit" data-slot="kit">${BYOC.kit[seat].slice(0, 3).map(k => `<li class="meet-kit-item" data-slot="kit-item">${esc(k)}</li>`).join('')}</ul></div>` : ''}
+      <span class="meet-count" data-slot="count">${i + 1} of ${TEAM.length}</span>
+      <button type="button" class="meet-next" data-slot="next" data-state="${i === TEAM.length - 1 ? 'last' : 'next'}">${i === TEAM.length - 1 ? 'Into the studio' : 'Next'}</button>`;
+    $('.meet-next', c).addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); BYOC.meetNext(); });
     return c;
   }
-  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; }
+  async function holdFor(ms) { const end = Date.now() + ms; while (Date.now() < end && !meetSkip && !meetAdvance) await wait(50); meetAdvance = false; } // ms may be Infinity: her click, →, Enter or the clicker
   async function meetTeam(animate, tok) {
     if (!setup || !animate || BYOC.replay) return;
     setSetup('team');
     const st = $('#setup-stage');
     meeting = true; meetSkip = false; meetAdvance = false;
+    if (!BYOC.kit) { if (!BYOC.kitReq) loadKit(''); await Promise.race([BYOC.kitReq, wait(800)]); } // never more than a beat
     try {
       for (let i = 0; i < TEAM.length; i++) {
         if (tok !== walkToken || meetSkip) return;
@@ -1535,7 +1552,7 @@
     document.body.dataset.beat = '0';
     status('');
     emit('reset', {});
-    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; ideaCard = null;
+    BYOC.pendingIdea = null; BYOC.meetLines = null; BYOC.meetLinesReq = null; BYOC.kit = null; BYOC.kitReq = null; ideaCard = null;
     if (CLASSIC) openPaper(); else openIdea(); // the room hides again: her idea first (classic: her name tag)
   }
   BYOC.reset = reset;
