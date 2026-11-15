@@ -183,6 +183,25 @@ for (const look of LOOKS) for (const size of SIZES) {
     await ctx.p.close();
   });
 
+  test(`her idea's Enter: Design's line shows within 300 ms, while a slow tidy runs (${tag})`, async () => {
+    const ctx = await newPage(look, size); const { p } = ctx;
+    await p.route('**/api/tidy', async r => { await new Promise(f => setTimeout(f, 2000)); r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } }); });
+    await p.route('**/api/run', async r => { await new Promise(f => setTimeout(f, 1500)); r.fulfill({ json: { run: 'stub-run' } }); });
+    await p.evaluate(() => BYOC.stage(3, { instant: true })); await p.waitForTimeout(400);
+    await p.click('#her-input'); await p.keyboard.insertText('A booking page for a small yoga studio');
+    const t = Date.now(); await p.keyboard.press('Enter');
+    // her box (empty, on screen) says who is working; plain also shows Design's bar (painted keeps it for the open sheet)
+    await p.waitForFunction(() => { const i = document.getElementById('her-input'); return !i.value && i.offsetParent && /Design is sketching/.test(i.placeholder); }, null, { timeout: 1000 });
+    const ms = Date.now() - t;
+    assert.ok(ms < 300, `Design's line within 300 ms of Enter (took ${ms} ms)`);
+    if (look === 'plain') assert.ok(await p.evaluate(() => { const b = document.querySelector('.fs-bar'); return !!(b && b.offsetParent && /Design is sketching/.test(b.textContent)); }), 'the bar too');
+    // the tidy and the run come back later: the line is still there, never a blank wait
+    await p.waitForTimeout(2600);
+    assert.match(await p.getAttribute('#her-input', 'placeholder'), /Design is sketching/, 'still said once the run is open');
+    assert.deepStrictEqual(ctx.errors, []);
+    await p.close();
+  });
+
   test(`a meeting's piece and reply, and Bo's unblock answer (${tag})`, async () => {
     const ctx = await newPage(look, size); const { p } = ctx;
     await inRoom(p);

@@ -531,6 +531,7 @@
     setIdea(idea);
     setInputMode('line');
     stage(4);
+    if (BYOC.firstSketch && BYOC.firstSketch.soon) BYOC.firstSketch.soon(); // Design's line shows now, not when the run answers
     try {
       const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
@@ -541,6 +542,7 @@
     } catch (e) {
       BYOC.run = 'local-' + Date.now();
       status(`no run API yet (${e.status || e.message}): drawing here only`);
+      if (BYOC.firstSketch && BYOC.firstSketch.quiet) { BYOC.firstSketch.quiet(); setInputMode('line'); } // no run: no sketch is coming
     }
     loadFileForRun(BYOC.run);
   }
@@ -668,6 +670,7 @@
       if (!raw) return;
       // Her idea moves up to the sheet's idea line at once (her raw words, data-state tidying) and is tidied there.
       submitting = true; el.herInput.value = '';
+      if (BYOC.firstSketch && BYOC.firstSketch.soon) BYOC.firstSketch.soon(); // who's working, at once (the tidy can take 2.5 s)
       try { const idea = await tidyLine(el.herIdea, raw); startRun(idea); } finally { submitting = false; }
     } else if (inputMode === 'line') {
       if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
@@ -1495,7 +1498,10 @@
         if (tok !== walkToken || meetSkip) return;
         const c = meetCard(TEAM[i], i);
         st.replaceChildren(c);
-        place(c, { x: [60, 0], opacity: [0, 1] }, true);
+        // Dealt, not sprung (design lead, POLISH §3): ~380 ms ease-out, no overshoot; reduced motion: a fade only.
+        const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        place(c, still ? { opacity: [0, 1] } : { x: [40, 0], opacity: [0, 1] }, true,
+          { type: 'tween', duration: 0.38, ease: [0.22, 0.61, 0.36, 1], opacity: { duration: still ? 0.2 : 0.3, ease: 'easeOut' } });
         emit('meet', { seat: TEAM[i], index: i });
         await holdFor(HOLD_MS);
       }
