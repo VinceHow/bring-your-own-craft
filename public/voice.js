@@ -207,7 +207,8 @@
       body: JSON.stringify({ text: raw, run: BYOC.run || undefined, ...(opts.field ? { field: String(opts.field) } : {}) }) })
       .then(r => r.ok ? r.json() : null).then(j => (j && typeof j.text === 'string' && j.text.trim()) ? j.text : raw)
       // Her card's "I love …" line is a fragment: begun in lower case, it stays so ("I love getting…", never "Getting").
-      .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
+      // ...but the pronoun I stays a capital ("uh i love…" tidies to "I love…", never "i love…").
+      .then(t => opts.field === 'intro' && /^[a-z]/.test(raw.trim()) && !/^\s*I(\b|[’'])/.test(t) ? t.replace(/^\s*\S/, c => c.toLowerCase()) : t)
       .catch(() => raw).finally(() => clearTimeout(timer));
   };
 
@@ -220,7 +221,7 @@
   // "reordered" (anything else the tidy may do: reorder, merge, small joining words, grammar).
   const tidyWords = t => String(t || '').toLowerCase().split(/\s+/).map(w => w.replace(/[^\p{L}\p{N}']+/gu, '')).filter(Boolean);
   const isCut = (raw, clean) => { const a = tidyWords(raw), b = tidyWords(clean); let i = 0; for (const w of b) { while (i < a.length && a[i] !== w) i++; if (i++ >= a.length) return false; } return true; };
-  BYOC.tidyKind = (raw, clean) => (isCut(raw, clean) ? 'cut' : 'reordered');
+  BYOC.tidyKind = (raw, clean) => (clean === raw ? 'skipped' : isCut(raw, clean) ? 'cut' : 'reordered');
   BYOC.tidyInto = async function (el, text, opts = {}) {
     const raw = String(text ?? '').trim();
     if (!raw) return raw;
@@ -231,7 +232,8 @@
     // She typed (or spoke) on while it tidied: what she has now is never overwritten, and this line goes untidied.
     // She typed while it tidied (a field, or a contenteditable answer): her edit wins.
     if (el && (isField ? el.value !== raw : el.isContentEditable && el.textContent.trim() !== raw)) { el.dataset.tidy = 'skipped'; el.dataset.state = 'tidied'; return raw; }
-    if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
+    // Nothing changed (slow, failed, refused or already clean): 'skipped', so no tidy plays over her own words.
+    if (el) { if (isField) el.value = clean; else el.textContent = clean; el.dataset.tidy = clean === raw ? 'skipped' : isCut(raw, clean) ? 'cut' : 'reordered'; el.dataset.state = 'tidied'; }
     return clean;
   };
 
