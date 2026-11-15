@@ -59,3 +59,6 @@ html body #room[data-fill="cover"] [data-component="time-pill"] { margin-left: v
 html body #room[data-fill="cover"] [data-component="focus-doc"] { margin: var(--crop-y, 0px) var(--crop-x, 0px); }
 html body #room[data-fill="cover"] #room-panel[data-component="sketchpad-open"][data-state="open"] {
   margin: var(--crop-y, 0px) var(--crop-x, 0px); }
+/* the close and her page are wide sheets placed 60px from the stage's right edge: they shift left by the crop, so they
+   keep that same 60px from the window's edge */
+html body #room[data-fill="cover"] :is([data-component="close-view"], #page-sheet) { margin-left: calc(-1 * var(--crop-x, 0px)); }
