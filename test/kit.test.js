@@ -82,9 +82,9 @@ test('live research on (a Linkup key): Wren is loaded with a live web search, an
   try {
     process.env.LINKUP_API_KEY = 'test-only-not-a-key'; delete process.env.LIVE_FINDING;
     const idea = "An ordering website for my friend's small bakery";
-    assert.equal(kitFor(idea).research[0], 'Linkup web search, live');
+    assert.equal(kitFor(idea).research[0], 'Looks for a live finding with Linkup');
     assert.deepEqual(madeFor(idea).research, [], 'the prepared finding is only the fallback: no "before the demo" line');
-    assert.notEqual(kitFor('A sign-up page for a tool library').research[0], 'Linkup web search, live', 'only ideas that search');
+    assert.notEqual(kitFor('A sign-up page for a tool library').research[0], 'Looks for a live finding with Linkup', 'only ideas that search');
     process.env.LIVE_FINDING = '0';
     assert.match(kitFor(idea).research[0], /^Linkup finding: /, 'off: the prepared finding, as before');
     assert.deepEqual(madeFor(idea).research, ['Researched with Linkup, before the demo']);
