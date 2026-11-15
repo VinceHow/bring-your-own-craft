@@ -28,3 +28,5 @@ at list rates: Sonnet 4.5 $3 / $15 and Haiku 4.5 $1 / $5 per million tokens in /
 
 Running total after these rows: about **$4.1–4.6 of $10** (the 00:44 row's "≈$4.0–4.5" was a slip; builder 1's two voice runs add ≈$0.02). Rows are not strictly in time order where two branches each logged runs.
 | 15 Nov 00:58 (merger) | e2e/beats.e2e.js on fal: main 0ab877f + build/questions b6227f3 + build/beats ce11d6a | 52 (29 Sonnet 4.5, 23 Haiku 4.5), all HTTP 200 | 69,814 / 10,489 | $0.32 | ≈$4.4–4.9 | 11/11, including 1b (one name tag, her own craft) and 2c |
+| 15 Nov, reported by 00:58 (builder 8, via the tech lead) | one Build decide replay | 1 (Sonnet 4.5) | 2,742 / 562 | ≈$0.02 | ≈$4.4–4.9 | for the yoga:186 cite gap |
+| 15 Nov, reported by 01:07 (builder 8, via the tech lead) | the 4.5 vs 5.5 check: id probes, decide replay, yoga 8/8 and beats 11/11 on 5.5, tag timings | not metered | not metered | ≈$0.45 (estimate) | ≈$4.9–5.4 | decision: fal stays on the 4.5 ids, no code change |
