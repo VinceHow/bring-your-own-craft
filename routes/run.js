@@ -14,12 +14,13 @@ import { interpret, saveTakeaways } from '../lib/interpret.js';
 import { buildProfile } from '../lib/profile.js';
 import { SEATS } from '../lib/teammates.js';
 import { selectorMax, gateFirst } from '../lib/first.js';
+import { makeCast, castOf, arrival } from '../lib/cast.js';
 const SEAT_IDS = [...SEATS, 'diy'];
 import path from 'node:path';
 
 const running = new Set();
 // Only this piece's endpoints, so /api/run/:id/sketches (piece 2) and /api/run/:id/build (piece 4) pass by.
-const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|takeaways|intro|tag)$/;
+const MINE_POST = /^\/api\/run\/[^/]+\/(line|propose|answer|pin|taste|brief|takeaways|intro|tag|arrive)$/;
 const MINE_GET = /^\/api\/run\/[^/]+\/tally$/;
 
 function state(run) {
@@ -101,6 +102,13 @@ const handlers = {
     return [200, { tag }];
   },
 
+  // Any seat is hers: the flex teammate's card landed after the run started. It joins from the next round on (no backfill).
+  async arrive(run, body) {
+    const a = arrival(castOf(run), body?.flex);
+    if (!a) return [409, { error: 'no one to arrive' }];
+    logEvent(run, 'seat.arrived', { pane: 'sheet', mode: 'craft', seat: a.seat, flex: a.flex });
+    return [200, a];
+  },
   async taste(run, body) {
     const text = String(body?.text || '').trim();
     if (!cleanRule(text)) return [400, { error: 'text required' }];
@@ -140,7 +148,9 @@ export default [
       // "Your own craft": her seat is 'diy' and her name tag travels with the run (lib/craft.js).
       const seat = SEAT_IDS.includes(body?.seat) ? body.seat : 'product';
       const tag = seat === 'diy' ? cleanTag(body?.tag) : null;
-      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(body?.path === 'full' || body?.full === true ? {} : { stagePath: true }) }); // the stage path unless the room asks for the full one (an old client still gets it)
+      // Any seat is hers (lib/cast.js): a craft other than Product records its cast on run.start; Product adds nothing.
+      const cast = makeCast(seat === 'diy' ? 'diy' : String(body?.craft || 'product'), body?.flex);
+      logEvent(run, 'run.start', { pane: 'sheet', mode: 'craft', idea, seat, ...(tag ? { tag } : {}), ...(seat === 'diy' ? { template: templateFor(idea) } : {}), ...(intro ? { intro } : {}), ...(cast ? { cast } : {}), ...(body?.path === 'full' || body?.full === true ? {} : { stagePath: true }) }); // the stage path unless the room asks for the full one (an old client still gets it)
       if (intro || tag) buildProfile(run).catch(() => {}); // her sentence + idea: the private profile starts, never waited on
       return sendJson(res, 200, { run });
     },

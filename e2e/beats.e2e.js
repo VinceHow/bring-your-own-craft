@@ -86,7 +86,7 @@ test('1b. "Your own craft" on her paper name tag: a seat choice on the one tag, 
   assert.strictEqual(await p.locator('.seat-diy').count(), 0, 'no seventh seat');
   // Her paper name tag: the role choice is on it (Product prefilled).
   assert.strictEqual(await p.textContent('.nt-paper .pick-q'), 'What do you bring to the table?');
-  assert.deepStrictEqual(await p.locator('.nt-paper .pick-option').allInnerTexts(), ['Product', 'Your own craft']);
+  assert.deepStrictEqual(await p.locator('.nt-paper .pick-option').allInnerTexts(), ['Product', 'Design', 'Data', 'Research', 'Engineering', 'Strategy', 'Your own craft']); // any seat
   assert.strictEqual(await p.getAttribute('.nt-paper .pick-card', 'data-pick'), 'product');
   // "Your own craft" only selects the seat (the old DIY popup is retired): one name tag, her words next.
   await p.click('.nt-paper [data-pick="craft"]');

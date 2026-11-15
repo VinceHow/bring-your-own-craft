@@ -187,7 +187,7 @@ for (const [lookName, look] of LOOKS) test(`${lookName}: "Your own craft" is a s
     await page.click(`.nt-paper .pick-option[data-pick="${seat}"]`);
     await page.waitForTimeout(150);
     assert.equal(await oneTag(), 1, `exactly one name tag after picking ${seat}`);
-    assert.deepEqual(await labels(), ['Product', 'Your own craft'], `both seat labels show after picking ${seat}`);
+    assert.deepEqual(await labels(), ['Product', 'Design', 'Data', 'Research', 'Engineering', 'Strategy', 'Your own craft'], `every seat label shows after picking ${seat}`); // any seat
     assert.equal(await page.getAttribute(`.nt-paper .pick-option[data-pick="${seat}"]`, 'aria-pressed'), 'true');
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'intro-input', 'her words are next');
   }
