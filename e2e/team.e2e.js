@@ -80,6 +80,10 @@ test('the team talks out its joint decisions, and the agreements land in the tea
   const cards = page.locator('.team-space .ts-card');
   assert.strictEqual(await cards.count(), agreed.length, 'one card per agreement');
   const first = cards.first();
+  // The cards fold behind a "Team notes · N" tab, closed by default (cd16dc3, 15 Nov): she taps it to see them.
+  const notes = page.locator('.team-space [data-component="team-notes"]');
+  if (await notes.getAttribute('data-state') !== 'open') await notes.click();
+  assert.strictEqual(await notes.getAttribute('data-state'), 'open');
   assert.ok(await first.isVisible(), 'the card shows');
   assert.strictEqual(await first.locator('.ts-headline').innerText(), agreed[0].headline);
   assert.strictEqual(await first.locator('.ts-mark').count(), agreed[0].seats.length);
