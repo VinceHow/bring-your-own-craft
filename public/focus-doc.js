@@ -355,8 +355,20 @@
   const wait = ms => new Promise(r => setTimeout(r, ms));
   // The swap: removed words leave (data-state leaving, then gone), changed words take their new spelling, added
   // words arrive, and the kept ones slide together. Identical raw and tidy: no animation, just the tidy state.
+  // The tidy hooks on her piece's words, as on every input (public/voice.js tidyInto): data-raw (what she said),
+  // data-state tidying -> tidied, data-tidy cut | reordered | skipped. No tidy within PIECE_TIDY_MS: her raw words stand
+  // (skipped) and a late tidy doesn't swap in, so nothing flickers.
+  const PIECE_TIDY_MS = 2500;
+  function pieceHooks(p, state) {
+    const w = p.words; clearTimeout(p.tidyT);
+    w.dataset.raw = p.raw;
+    if (state === 'tidying') { w.dataset.state = 'tidying'; delete w.dataset.tidy; p.tidyT = setTimeout(() => { if (w.dataset.state === 'tidying') pieceHooks(p, 'skipped'); }, PIECE_TIDY_MS); return; }
+    w.dataset.state = 'tidied';
+    w.dataset.tidy = state === 'skipped' || !p.tidy || p.tidy === p.raw ? 'skipped' : (B.tidyKind ? B.tidyKind(p.raw, p.tidy) : 'cut');
+  }
   async function landPieceTidy(p, tidy) {
     p.tidy = tidy;
+    pieceHooks(p, 'tidied');
     p.diff = B.wordDiff ? B.wordDiff(p.raw, tidy) : null;
     if (!p.diff || p.diff.same || p.showRaw || p.use === 'mine') { p.li.dataset.anim = 'none'; return pieceState(p); }
     p.animating = true; p.li.dataset.state = 'tidying'; p.li.dataset.anim = 'swapping';
@@ -381,6 +393,7 @@
     pieceState(p);
   }
   function dropPiece(p) {
+    clearTimeout(p.tidyT);
     pieces = pieces.filter(x => x !== p); p.li.remove();
     if (cur) pieceApi({ askId: cur.id, pieceId: p.id, remove: true }).catch(() => {});
     if (!pieces.length) { capturing(false); ack(false); }
@@ -406,6 +419,7 @@
     rm.addEventListener('click', () => dropPiece(p));
     p.li.append(p.words, p.see, p.mine, redo, rm);
     $('.fd-pieces').appendChild(p.li); pieces.push(p); pieceState(p);
+    pieceHooks(p, o.post === false ? 'restored' : 'tidying'); // restored from the log: its tidy (or none) is already in
     capturing(true);
     if (o.post === false) return p;
     if (M) M.animate(p.li, { y: [8, 0] }, SPRING);
@@ -446,6 +460,7 @@
   B.on('answer.piece.tidy', ev => {
     const p = pieces.find(x => x.id === ev.pieceId && x.askId === ev.askId);
     if (!p || sent || ev.raw !== p.raw || !ev.text) return;
+    if (p.words.dataset.state !== 'tidying') return; // skipped after PIECE_TIDY_MS: her raw words stay, no late swap
     landPieceTidy(p, ev.text);
   });
   $('.fd-add').addEventListener('click', () => {
