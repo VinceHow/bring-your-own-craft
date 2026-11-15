@@ -346,9 +346,6 @@
     }
   }, true);
 
-  // ---- 4. bug fixes from testing, last so they win over painted.css (selectors on data-* only) ----
-  css('painted-fixes.css');
-  // ---- 5. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----
   // ---- 4a. the table's layout: roles on the pills, her pill clear of the sheet, chatter clear of pills and faces ----
   css('painted-room.css');
 
