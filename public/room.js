@@ -534,6 +534,7 @@
     try {
       const r = await BYOC.api('/api/run', { idea, ...(BYOC.stagePath ? { stagePath: true } : { path: 'full' }), ...(BYOC.intro ? { intro: BYOC.intro } : {}), ...(BYOC.herSeat === 'diy' ? { seat: 'diy', tag: BYOC.herTag } : {}) }); // her own craft: public/name-tag.js
       BYOC.run = r.run;
+      remember(r.run);
       status(`run ${r.run}`);
       flushPending();
       if (BYOC.firstSketch) BYOC.firstSketch.start(r.run, idea); // Design's first sketch (public/first-sketch.js)
@@ -1603,5 +1604,86 @@
   BYOC.reset = reset;
   BYOC.setInstant = v => { instantMode = !!v; };
 
-  document.addEventListener('DOMContentLoaded', () => { reset(); connectSSE(); });
+  // ---- a refresh resumes (Vincent, Sun 02:17: "an accidental refresh should keep the build and the room's state") ----
+  // Her live run is kept per viewer: localStorage 'byoc.run' (in try/catch: private windows) and ?run=<id> in the URL as
+  // a backup, plus who she is ('byoc.me': her name, tag, seat and intro, which only this page knows). On load, a run
+  // that still exists is rebuilt from its own event log, instantly, as HER live run (no REPLAY label, no model call, no
+  // ask re-raised: events are only re-read), then the SSE stream carries on. Replays never write these keys.
+  // "Start over" ([data-component="start-over"], Shift+N) asks once, forgets the run (kept in runs/) and goes back to
+  // the start. Hooks: #room[data-resume="resumed|fresh"].
+  const RUN_KEY = 'byoc.run', ME_KEY = 'byoc.me';
+  const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch {} }, del: k => { try { localStorage.removeItem(k); } catch {} } };
+  function urlWithRun(id) { const u = new URL(location.href); if (id) u.searchParams.set('run', id); else u.searchParams.delete('run'); return u.pathname + u.search + u.hash; }
+  function remember(id) {
+    if (BYOC.replay || !id || String(id).startsWith('local-')) return;
+    store.set(RUN_KEY, id);
+    store.set(ME_KEY, JSON.stringify({ name: BYOC.herName || null, tag: BYOC.herTag || null, seat: BYOC.herSeat || null, intro: BYOC.intro || null }));
+    try { history.replaceState(history.state, '', urlWithRun(id)); } catch {}
+  }
+  function forget() { store.del(RUN_KEY); store.del(ME_KEY); try { history.replaceState(history.state, '', urlWithRun(null)); } catch {} }
+  BYOC.forgetRun = forget;
+  async function resume(id) {
+    let data = null;
+    try { data = await BYOC.api('/api/replay/' + encodeURIComponent(id), undefined, { step: false }); } catch { data = null; }
+    const events = (data && Array.isArray(data.events) ? data.events : []).filter(e => e && e.type).sort((a, b) => a.t - b.t);
+    if (!events.some(e => e.type === 'run.start')) return false;
+    let me = {}; try { me = JSON.parse(store.get(ME_KEY) || '{}') || {}; } catch { me = {}; }
+    const prev = instantMode; instantMode = true;
+    try {
+      if (me.name) BYOC.herName = me.name;
+      if (me.tag) BYOC.herTag = me.tag;
+      if (me.seat === 'diy') BYOC.herSeat = 'diy';
+      if (me.intro) BYOC.intro = me.intro;
+      meetSkip = true; introCard = null; ideaCard = null;
+      stage(2, { instant: true }); stage(3, { instant: true });
+      BYOC.run = id;
+      firstAskedFor = id; // resume only re-reads: Focus 1 is never asked for again
+      if (data.taste && BYOC.file && BYOC.file.load) BYOC.file.load(data.taste, '');
+      for (const ev of events) dispatch(ev, 'resume');
+    } finally { instantMode = prev; }
+    const seenKey = new Set(events.map(e => `${e.t}|${e.type}`));
+    pending = pending.filter(e => e.run === id && !seenKey.has(`${e.t}|${e.type}`)); flushPending();
+    // A build that was under way: say so; build.done arrives on the stream.
+    const building = events.some(e => e.type === 'build.step') && !events.some(e => e.type === 'build.done' || e.type === 'build.error');
+    if (building) { buildStep = stepBegin('Your app is still building'); }
+    if (BYOC.beat === 4 && inputMode !== 'line') setInputMode('line');
+    // Her empty field isn't focused after a pickup: the inbox never slides a note in while a field has focus.
+    setTimeout(() => { if (document.activeElement === el.herInput && !el.herInput.value.trim()) el.herInput.blur(); }, 80);
+    loadFileForRun(id);
+    el.room.dataset.resume = 'resumed';
+    remember(id); // keep it (and put ?run= back in the URL) for the next refresh
+    emit('run.resumed', { run: id, events: events.length, beat: BYOC.beat, building });
+    status(building ? 'Your app is still building' : `picked up run ${id} where you left off`);
+    return true;
+  }
+  BYOC.resume = resume;
+  // Start over: a quiet control that asks once.
+  const startOver = h('div', 'start-over'); startOver.dataset.component = 'start-over'; startOver.dataset.state = 'idle';
+  startOver.innerHTML = `<button type="button" class="so-open" data-slot="open">Start over</button>
+    <div class="so-ask" data-slot="ask" hidden><span class="so-q" data-slot="question">Start a new studio? This one is kept in your past runs.</span>
+    <button type="button" class="so-yes" data-slot="yes">Start a new studio</button> <button type="button" class="so-no" data-slot="no">Keep this one</button></div>`;
+  (document.getElementById('chrome') || document.body).appendChild(startOver); // in the top bar (hidden in stage mode: Shift+N there)
+  const soAsk = on => { startOver.dataset.state = on ? 'asking' : 'idle'; $('.so-ask', startOver).hidden = !on; if (on) $('.so-yes', startOver).focus(); };
+  $('.so-open', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(startOver.dataset.state !== 'asking'); });
+  $('.so-no', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(false); });
+  $('.so-yes', startOver).addEventListener('click', e => { e.preventDefault(); soAsk(false); forget(); el.room.dataset.resume = 'fresh'; reset(); emit('start.over', {}); });
+  BYOC.startOver = { ask: () => soAsk(true), confirm: () => $('.so-yes', startOver).click(), cancel: () => soAsk(false) };
+
+  async function boot() {
+    const q = new URLSearchParams(location.search);
+    const id = q.get('run') || store.get(RUN_KEY);
+    const fixtureOrReplay = q.has('fixture') || q.has('replay');
+    reset();
+    connectSSE();
+    if (!id || fixtureOrReplay) return;
+    const ok = await resume(id).catch(() => false);
+    if (!ok) {
+      forget();
+      el.room.dataset.resume = 'fresh';
+      status('Couldn’t pick up where you left off: starting fresh.');
+      emit('run.resume.failed', { run: id });
+    }
+  }
+  document.addEventListener('DOMContentLoaded', boot);
 })();
