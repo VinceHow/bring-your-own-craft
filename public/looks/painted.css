@@ -447,7 +447,7 @@ html #room .team-space { left: 1000px; right: auto; top: 438px; bottom: auto; wi
 html #room .team-space .ts-title { display: none; }
 html #room .team-space .ts-cards { display: flex; flex-direction: column; gap: 8px; }
 html #room .team-space .ts-card { width: 200px; padding: 10px 12px 11px; font-size: 14px; border-radius: var(--cut-sm); }
-html #room .team-space .ts-card:nth-child(n+4) { display: none; }
+
 html #room .team-space .ts-card :is(.ts-label, .ts-takeaways) { display: none; }
 html #room .team-space .ts-headline { font: 500 15px/1.3 var(--display); }
 html #room .team-space .ts-mark { font-size: 13px; padding: 2px 8px 3px; }
@@ -787,7 +787,7 @@ html #room .close-pile i { background: #FBF5EA !important; border-radius: 12px !
   box-shadow: inset 0 0 0 1px rgba(80,55,35,.28), 3px 5px 10px -6px rgba(60,35,15,.45) !important; }
 html #room .close-pile i:nth-child(odd) { rotate: -3deg; } html #room .close-pile i:nth-child(even) { rotate: 2.5deg; }
 /* decisions on the table: two at a time, clear of the Replay label */
-html #room .team-space .ts-card:nth-child(n+3) { display: none !important; }
+/* (two at a time: now the newest two, with "+N more", in the jank-sweep block at the end) */
 html #room:has(.close-sheet:not([hidden])) :is(.seat, .tray, .her-sheet:not([data-open="true"]), .team-space, .chatter) { visibility: hidden; }
 /* the close: sized to what it holds and centred in the room, not a fixed tall sheet (follow-up a) */
 html #room .close-sheet:not([hidden]) { top: 50%; height: auto; max-height: 820px; translate: 0 -50%; grid-template-rows: auto; align-items: start; }
@@ -955,12 +955,21 @@ html #room [data-component="character-card"][data-state="shown"] [data-field="in
 html #room [data-component="character-card"][data-state="shown"] [data-slot="input"] { min-height: 0; padding: 10px 14px; font-size: 19px; }
 html #room [data-component="character-card"][data-state="shown"] [data-slot="name"] { margin-bottom: 16px; }
 html #room [data-component="character-card"][data-state="shown"] [data-component="pick-card"] { margin-bottom: 16px; }
-/* ---- the team at work (painted.js): one calm status line on the table's near edge, cream paper, no counts ---- */
-html #room .painted-status { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; z-index: 8; margin: 0; max-width: 760px; padding: 9px 20px 10px;
-  border-radius: 999px; background: rgba(251,245,234,.94); color: var(--ink); font: italic 400 18px/1.3 var(--display); text-align: center; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; box-shadow: var(--paper-shadow); }
-html #room .painted-status.in { animation: pt-status 700ms var(--ease-land) backwards; }
-@keyframes pt-status { from { opacity: 0; translate: -50% 6px; } }
+/* chatter: at most two on screen, each fades, and each sits ABOVE its speaker's pill (the room places it under), clear of every face */
+html #room [data-component="chatter-line"]:nth-last-child(n+3) { display: none; }
+html #room [data-component="chatter-line"][data-state="leaving"] { opacity: 0; transition: opacity 700ms var(--ease-glide); }
+html #room [data-component="chatter-line"] { translate: 0 calc(-100% - 58px); border-radius: var(--r-md) var(--r-md) var(--r-md) 6px; max-width: 300px; }
+/* a new note in flight to her inbox (painted.js, data-component="note-flight"): a small ink-paper card in its teammate's crayon */
+html #room [data-component="note-flight"] { position: absolute; left: 0; top: 0; z-index: 20; width: 220px; padding: 10px 14px 11px; border-radius: var(--r-md); pointer-events: none;
+  isolation: isolate; color: var(--ink); font: 400 16px/1.3 var(--display); transform-origin: 0 0; }
+html #room [data-component="note-flight"] [data-slot="who"] { display: block; font: 500 13px/1.2 var(--ui); color: var(--ct, var(--ink-2)); margin-bottom: 3px; }
+html #room [data-component="note-flight"]::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: var(--cc, var(--kraft));
+  -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; translate: 5px 6px; rotate: 1.4deg; }
+html #room [data-component="note-flight"]::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--sheet) var(--tooth); background-clip: padding-box;
+  border: 2px solid transparent; border-image: var(--ink-card) 34 / 34px / 2px stretch; box-shadow: var(--paper-shadow-hi); }
+/* the inbox holds its new line back until the note has landed (#inbox[data-pt-awaiting], set by painted.js) */
+html #room [data-component="inbox"][data-pt-awaiting] [data-component="inbox-item"] > * { opacity: 0; }
+html #room [data-component="inbox"] [data-component="inbox-item"] > * { transition: opacity 400ms var(--ease-land); }
 
 /* chatter: at most two on screen, and each fades */
 html #room .chatter .chatter-line:nth-last-child(n+3) { display: none; }
@@ -1036,3 +1045,87 @@ html body.focus-open #room .focus-doc { bottom: 96px; }
 html body.focus-open [data-component="app-button"] [data-slot="hint"] { display: none; }
 html body.focus-open [data-component="app-button"] [data-slot="open"] { padding: 8px 16px; }
 @media (prefers-reduced-motion: reduce) { html [data-component="app-button"] [data-slot="open"] { animation: none !important; } }
+/* =====================================================================================================================
+   Jank sweep 1 + the team at work, on builder hooks (15 Nov). Selectors here use data-component / data-slot / data-state
+   only (docs/COMPONENTS.md); the two look-owned elements carry their own data-component (team-doing, glance-more).
+   ===================================================================================================================== */
+/* (5) the team-status line gets its own small ink strip, attached under the glance card, so the journey keeps its row.
+   The glance card lets the strip hang below it; the journey row and the idea line still clip themselves. */
+html #room [data-component="idea-sheet"]:not([data-open="true"]) { overflow: visible !important; }
+html #room [data-component="idea-sheet"]:not([data-open="true"]) > :has(> [data-component="journey"]) { overflow: hidden; }
+html #room [data-component="team-status"], html #room [data-component="team-doing"] {
+  position: absolute; left: 0; top: calc(100% + 8px); z-index: 2; box-sizing: border-box; width: max-content; min-width: 100%; max-width: 420px; margin: 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 16px 9px; isolation: isolate;
+  border-radius: 20px 16px 22px 14px / 16px 22px 14px 20px; color: var(--ink); font: italic 400 17px/1.35 var(--display); text-align: left; white-space: normal; }
+html #room [data-component="team-status"][hidden], html #room [data-component="team-doing"][hidden] { display: none !important; }
+html #room :is([data-component="team-status"], [data-component="team-doing"])::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit;
+  background: var(--kraft); -webkit-mask: var(--wax) 0 0 / 240px 240px; mask: var(--wax) 0 0 / 240px 240px; translate: 4px 5px; rotate: .8deg; }
+html #room :is([data-component="team-status"], [data-component="team-doing"])::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+  background: var(--sheet) var(--tooth); background-clip: padding-box; border: 2px solid transparent !important; border-image: var(--ink-pill) 34 / 20px / 2px stretch !important;
+  box-shadow: var(--paper-shadow-hi); }
+/* the team at work, teammate by teammate (painted.js, from real events): the same strip, a line per teammate */
+html #room [data-component="team-doing"] { position: absolute; left: 838px; top: 684px; min-width: 290px; white-space: pre-line; display: block; z-index: 7; }
+html #room [data-component="team-doing"][data-state="in"] { animation: pt-doing 700ms var(--ease-land) backwards; }
+@keyframes pt-doing { from { opacity: 0; translate: 0 6px; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-component="team-doing"][data-state="in"] { animation: none; } }
+/* one strip at a time: while the team is plainly working, the teammate lines say it better than the count; anything
+   for her (a question, a failure, slow) takes the strip; her sheet opened large or her document takes the room */
+html #room:has([data-component="team-doing"]:not([hidden]))[data-team="working"] [data-component="team-status"] { display: none !important; }
+html #room:is([data-team="question"], [data-team="failed"], [data-team="slow"]) [data-component="team-doing"],
+html #room:has([data-component="idea-sheet"][data-open="true"]) [data-component="team-doing"],
+html #room:has([data-component="idea-sheet"][hidden]) [data-component="team-doing"] { display: none !important; }
+html #room [data-component="idea-sheet"][data-open="true"] [data-component="team-status"] { display: none !important; }
+/* (6) "Open it" and "Retry": a quiet ink link, never a grey button */
+html #room [data-component="team-status"] :is([data-slot="open"], [data-slot="retry"]) { all: unset; cursor: pointer; font: 500 15px/1.2 var(--ui); font-style: normal;
+  color: var(--ink); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+html #room [data-component="team-status"] :is([data-slot="open"], [data-slot="retry"]):hover { text-decoration-color: var(--ink); }
+html #room [data-component="team-status"] :is([data-slot="open"], [data-slot="retry"]):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+html #room [data-component="team-status"][data-state="question"] [data-slot="text"] { color: var(--ink); }
+html #room [data-component="team-status"][data-state="failed"] [data-slot="text"] { color: var(--ink-2); }
+/* (7) the journey on the glance card: whole pills only (painted.js hides the ones that don't fit) and "+2" in ink */
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] { -webkit-mask: none !important; mask: none !important; }
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-slot="box"]:nth-of-type(n) { display: inline-flex !important; }
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-slot="box"][data-glance="off"] { display: none !important; }
+html #room [data-component="glance-more"] { position: absolute; z-index: 1; font: 500 14px/28px var(--ui); color: var(--ink-2); padding: 0 4px; pointer-events: none; }
+html #room [data-component="glance-more"][hidden], html #room [data-component="idea-sheet"][data-open="true"] [data-component="glance-more"] { display: none; }
+/* (8) the team space is a pinned sheet by the kitchen window, clear of Bo and the plant: the newest two cards, then
+   "+N more" in ink (a counter over the folded cards). An opened card reads at full width from there. */
+html #room [data-component="team-space"] { left: 128px; top: 120px; right: auto; bottom: auto; width: 230px; z-index: 6; }
+html #room [data-component="team-space"] [data-slot="cards"] { display: flex; flex-direction: column; gap: 8px; counter-reset: pt-more; }
+html #room [data-component="decision-card"] { width: 230px !important; translate: none !important; }
+html #room [data-component="team-space"] [data-slot="cards"] > [data-component="decision-card"]:nth-child(n) { display: block; }
+html #room [data-component="team-space"] [data-slot="cards"] > [data-component="decision-card"]:nth-last-child(n+3):not([data-state="open"]) {
+  position: absolute; visibility: hidden; pointer-events: none; counter-increment: pt-more; }
+html #room [data-component="team-space"] [data-slot="cards"]:has(> :nth-child(3))::after { content: '+' counter(pt-more) ' more'; align-self: flex-start;
+  font: 500 14px/1 var(--ui); color: var(--ink-2); padding: 4px 6px; }
+html #room [data-component="decision-card"][data-state="open"] { width: 360px !important; z-index: 3; }
+/* (10) visible thinking on the pills: the "agent" mark becomes three ink dots stepping in, quiet, no ring. The room sets
+   thinking / working from the team's start; while Mika and Noor draw the first sketch painted.js marks their seats
+   (#room[data-sketching]) and the painting plays them at work. */
+html #room :is([data-component="place-card"][data-state="thinking"], [data-component="place-card"][data-state="working"]) [data-slot="agent-mark"],
+html #room[data-sketching~="design"] [data-component="place-card"][data-seat="design"] [data-slot="agent-mark"],
+html #room[data-sketching~="research"] [data-component="place-card"][data-seat="research"] [data-slot="agent-mark"] {
+  font-size: 0 !important; min-width: 30px; }
+html #room :is([data-component="place-card"][data-state="thinking"], [data-component="place-card"][data-state="working"]) [data-slot="agent-mark"]::after,
+html #room[data-sketching~="design"] [data-component="place-card"][data-seat="design"] [data-slot="agent-mark"]::after,
+html #room[data-sketching~="research"] [data-component="place-card"][data-seat="research"] [data-slot="agent-mark"]::after {
+  content: '·'; display: inline-block; width: 22px; font: 700 20px/13px var(--ui); letter-spacing: 2px; color: var(--ct, var(--ink-2)); animation: pt-dots 1.8s steps(1) infinite; }
+@keyframes pt-dots { 0% { content: '·'; } 33% { content: '··'; } 66% { content: '···'; } }
+@media (prefers-reduced-motion: reduce) { html #room [data-slot="agent-mark"]::after { animation: none !important; content: '···' !important; } }
+/* (7, cont.) the glance card: the idea on one line, the journey on up to two rows of whole pills */
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-slot="idea"], html #room [data-component="idea-sheet"]:not([data-open="true"]) #her-idea {
+  -webkit-line-clamp: 1 !important; line-clamp: 1; margin-bottom: 6px !important; }
+html #room [data-component="idea-sheet"]:not([data-open="true"]) > :has(> [data-component="journey"]),
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] { height: 62px !important; overflow: hidden; }
+html #room [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] > div:has(> [data-slot="box"]) { flex-wrap: wrap !important; row-gap: 5px !important; }
+/* (5, cont.) the glance card keeps the rough journey in view: the sheet's later layers (screens, page) are not drawn on
+   the glance, so the journey doesn't step back for them here (it still does on her sheet opened large) */
+html #room [data-component="idea-sheet"]:not([data-open="true"]) > :has(> [data-component="journey"]),
+html #room [data-component="idea-sheet"]:not([data-open="true"]) > :has(> [data-component="journey"]) * { visibility: visible !important; }
+/* (8, cont.) "+N more": a small cream pill in ink, readable on the window */
+html #room [data-component="team-space"] [data-slot="cards"]:has(> :nth-child(3))::after { background: var(--sheet); border-radius: 999px; padding: 6px 12px 7px;
+  box-shadow: 0 0 0 1.5px rgba(80,55,35,.25), var(--paper-shadow); color: var(--ink); margin-left: 4px; }
+/* the app tag and her big sheets share the window's bottom right: her sheet opened large and her page leave the same
+   foot strip as her focus document, and the tag drops its change note (label + hint only) while a big sheet is open */
+html body:has(#her-sheet[data-open="true"]) #room .her-sheet[data-open="true"] { height: 752px !important; }
+html body:is(.focus-open, :has(#her-sheet[data-open="true"])) [data-component="app-button"] [data-slot="change"] { display: none !important; }
