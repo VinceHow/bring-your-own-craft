@@ -1465,3 +1465,6 @@ html #room [data-component="setup"] :is([data-component="idea-card"], [data-comp
    padding, so the min-height must count the padding too, or the paper grows and jumps for a frame on Enter */
 html #room [data-component="character-card"][data-seat="product"] { box-sizing: border-box; }
 html #room [data-component="character-card"][data-seat="product"][data-state="thinking"] { height: var(--pt-nt-h, auto); max-height: var(--pt-nt-h, none); overflow: hidden; }
+/* End meeting → takeaways: the card lands as soon as the column has scrolled to it (focus-doc.js lifts it 16px); a fade
+   from nothing on top left the column blank for a beat between "writing the takeaways…" and the card */
+html #room [data-component="focus-doc"] [data-component="meeting"] [data-component="takeaways"] { animation: none !important; }
