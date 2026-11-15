@@ -1,12 +1,61 @@
 # Bring your own craft: Devpost write-up
 
 Paste each section into the matching Devpost field. Anything marked **TBD** is not measured yet: fill it from a real run
-or delete it before submitting. Source of truth for the product: `VISION.md`.
+or delete it before submitting. There is no demo video: we present live. Source of truth for the product: `VISION.md`.
 
 **Track:** Autonomous Agents (Imperial AI hackathon).
 
 **Tagline:** Bring your own craft: spend 90% of your time on the craft you love, with a team that handles the rest
 and brings you only the few big questions that need you.
+
+## Short description (problem · what we built · how it works)
+**Problem.** Most projects die in the questions nobody signed up for. AI app builders guess everything, so a product
+person's expertise never gets in; coding agents ask about everything. A default coding agent given one bakery prompt
+asked 0 questions, guessed 24 things that were the owner's call, and stopped for 20 approvals.
+
+**What we built.** A hand-painted studio where you take the seat of your craft and a team of AI agents fills the rest.
+Priya, a product manager, says her bakery idea in one sentence; the team handles everything else and brings her only
+three moments that need her: who it's for (research found live with Linkup), when orders close (a one-tap unblock),
+and how it should feel. One press fills her ordering page. Then the judges scan a QR code and reserve a real loaf
+from The Usual, a live bakery the same team built ahead.
+
+**How it works.** Every model call goes through one function and returns schema-checked JSON. Each teammate is its own
+call; discussions are turn by turn, each reading the thread. Off the demo path a selector brings her only what's big
+and in her craft (on stage the three moments are set; everything inside them is live). Her words are tidied without
+changing them; replies come from the teammates her words touch; takeaways sum up what she believes. The build fills
+one of three designed templates with her decisions, with an emblem painted live on fal. Every number comes from the
+run's log.
+
+## APIs, models and datasets used
+- **fal**, OpenRouter router: the models behind the demo. Claude Sonnet 4.5 for the teammates, the selector, her
+  profile, the sketch and the page fill; Claude Haiku 4.5 for the fast calls (the tidy, her name tag, the team's
+  replies and discussion); Claude Opus for her takeaways and revisiting decisions (`lib/model.js`, `FAL_MODELS` and
+  each `*_MODEL` default).
+- **fal**, flux/schnell: her page's emblem, painted live; the live bakery's photos, made ahead. The studio's painted
+  cast, clips and music were made ahead on fal.
+- **Claude via Claude Code**, headless: the fallback route for the same calls (`MODEL_BACKEND=claude-code`).
+- **ElevenLabs**: Scribe speech-to-text, live, for her voice; ElevenLabs Music (through fal) for the record player's
+  soundtrack.
+- **Linkup**: Wren's live web search.
+- **taste-skill** (MIT, third-party, vendored in `vendor/taste-skill/`): the Design teammate's rules and the page's
+  palette and type.
+- **Anthropic product-management skills** (Apache-2.0, vendored): `write-spec`, in the Product teammate's prompt.
+- **Playwright**: end-to-end tests.
+- **Photographs**: the bakery and café templates use Wikimedia Commons photos under CC BY and CC BY-SA, credited per
+  photo on each template's `credits.html` (the bakery: Johann Jaritz, CC BY-SA 3.0 AT; Chmee2, CC BY 3.0;
+  Wald1siedel, CC BY-SA 4.0).
+- **Datasets**: none. Wren's prepared finding is one public web page, cited in `data/research-finding-bakery.json`.
+
+## Built during the hackathon
+All project code was written during the hackathon (14–15 Nov 2026). The third-party pieces are open source and
+credited: taste-skill (MIT) and Anthropic's product-management skills (Apache-2.0), vendored with their licences, plus
+the fonts, `motion` and Playwright listed below. The models are used through their APIs.
+
+## Figma
+We went from code to Figma. The running room was measured in the browser and rebuilt as editable Figma frames, with
+its colours and spacing as a Figma variable collection ("Room tokens"), its type and its seat glyphs, so a designer
+can pick it up and tweak it: [the Figma file](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB). How it was done,
+frame by frame: [`design/FIGMA.md`](design/FIGMA.md). The frames show the room's early look, before the painted one.
 
 ## Inspiration
 Most projects don't die from bad ideas. They die in the questions nobody signed up for. A product manager with a great
@@ -57,9 +106,10 @@ first, their usual loaf one tap away, reserve by first name, no account, no paym
 writes code; other ideas get the yoga layout. Every filled slot traces to her or her team; the layout is prepared.
 The page's emblem is painted live with fal during the build (symbol only; the name is real text).
 
-**The proof: the judges are the regulars.** Before the talk, the judges scan a QR code and reserve a loaf, by first
-name only, from a live bakery deployed on Railway: three tiers (a rare drop of 3, 8 of a medium loaf, 40 of a
-plentiful one), one of each per person. That bakery was drafted earlier by Bo's agent, from a differently worded brief, and
+**The proof: the judges are the regulars.** When she presses **Open the app** on stage, a QR card appears for The
+Usual, a live bakery deployed on Railway. The judges scan it and reserve a real loaf, by first name only: three tiers
+(a rare drop of 3, 8 of a medium loaf, 40 of a plentiful one), one of each per phone. The Usual was built ahead,
+not in the room: drafted earlier by Bo's agent, from a differently worded brief, and
 finished by our builders to pass the acceptance suite in `deploy/ACCEPTANCE.md`; its source is in `deploy/app/`,
 and we say so on stage. Vincent opens the baker's admin page (orders arriving live, what's sold out)
 and taps **Deliver**, and every judge's open page flips at once to "Delivered: your sourdough is here." Real software
@@ -85,9 +135,9 @@ with a database, rules and tests. (Demo bread: nothing real is delivered or paid
   in the demo; Claude Code headless is the fallback. fal was tested 9/9 schema-valid against Claude Code on 3
   real calls per step, and it runs the demo because, in our tests on the demo laptop, Claude Code's fast model through a
   company gateway took over 25 s a call while fal answered in about 1 s.
-- The live bakery (`deploy/app/`, with Bo's own account in `deploy/app/BUILT.md`): Bo's agent drafted it from the
+- The live bakery, The Usual (`deploy/app/`, with Bo's own account in `deploy/app/BUILT.md`): Bo's agent drafted it from the
   brief and a recorded run's decisions (`deploy/run/`; his prompt is `deploy/bo/PROMPT.md`); our builders finished what
-  failed its 11-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
+  failed its 13-test acceptance suite (`deploy/ACCEPTANCE.md`, with the black-box tests beside it), so its credit reads "Built by Bo, the
   team's engineer. Polished by our builders." Plain Node 22 with `node:sqlite` on a Railway volume, server-sent events
   for the Deliver flip, stock that can't go below zero, one of each per device per drop, a 15-minute hold, and an
   admin page locked behind a token. Its photos and logo were made ahead with fal flux/schnell
@@ -142,5 +192,6 @@ the live bakery's photos and logo, made ahead; the painted cast, clips and music
 Playwright.
 
 ## Try it
-Repo: **TBD** (public repo URL). Run `npm start`, open http://localhost:3000. Tests: `npm test`, `npm run e2e`.
-Demo video: **TBD**.
+Repo: **TBD** (public repo URL). Node 22, nothing to install: put `FAL_KEY` and `MODEL_BACKEND=fal` in `.env.local`,
+run `npm run local` and open the address it prints (port 3000–3010). Tests: `npm test`; `npm run e2e` also needs
+Playwright (`npm i -g playwright && npx playwright install chromium`).

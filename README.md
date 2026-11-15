@@ -9,37 +9,42 @@ You spend 90% of your time on the craft you love, in flow, with a team you'd lov
 your craft; a team of AI agents fills every other seat, handles its own work, and brings you only the few big
 questions that need you.
 
-## The 30-second story
-Priya is a product manager. Her friend runs a small bakery and wants customers to order bread ahead.
+## The problem
+Most projects don't die from bad ideas. They die in the questions nobody signed up for. AI app builders guess
+everything, so a product manager's expertise never makes it in. Coding agents ask about everything: approvals,
+databases, fonts. We measured it: a default coding agent given one bakery prompt asked 0 questions, guessed 24 things
+that were the owner's call, and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
 
-Priya says her idea in one rough sentence. She meets her team: Mika (Design), Wren (Research), Theo (Data), Ines
-(Strategy) and Bo (Engineering). Then she sits down, and they get to work.
+## What I built
+A hand-painted studio where you take the seat of your craft, and a team of AI agents fills the rest: Mika (Design),
+Wren (Research), Theo (Data), Ines (Strategy) and Bo (Engineering), each with its own craft and tools.
 
-Nobody asks her about databases, logins or fonts. The team settles all of that itself. On the demo path we set which
-three moments reach her: who the bakery is really for, when orders should close, and how ordering ahead should feel
-for a regular. Everything inside them is live: Wren's research, the team's replies, her takeaways, the decisions
-they unlock, and the build. In our audited run the team made 14 decisions that cite her file, plus others on its
-own defaults. Then one press, and her ordering page is filled live from her answers.
+In the demo, Priya, a product manager, wants an ordering site for her friend's bakery. She says the idea in one rough
+sentence, gets a name tag, meets her team, and sits down. Nobody asks her about databases or logins. Three moments
+reach her, each about what she knows best: who the bakery is really for (Wren's research, found live), when orders
+should close (one tap to unblock Bo), and how ordering ahead should feel for a regular. Then one press, and her
+ordering page is filled from her answers.
 
-At the end of the talk, the judges are the bakery's regulars. Before we started, they ordered a loaf from a live
-bakery site that Bo's agent drafted earlier and our builders finished; its source and acceptance tests are in
-[`deploy/`](deploy/README.md). We tap **Deliver**, and every judge's phone flips at once:
-*"Delivered: your sourdough is here."*
+At the end, the judges become the bakery's regulars. Pressing **Open the app** shows a QR card for The Usual, a live
+bakery that Bo's agent drafted earlier and our builders finished (built ahead, not in the room; source in
+[`deploy/`](deploy/README.md)). The judges scan it and reserve a real loaf; we tap **Deliver**, and every phone flips
+at once to *"Delivered: your sourdough is here."*
 
-## Why it's different
-- **Only the big questions that need her craft.** Off the demo path, the team's selector brings her a question only if
-  it changes the shape of the product and draws on what she's best at or loves (on stage, the three moments are set).
-  Everything else, the team assumes and keeps moving. For contrast, a
-  default coding agent given the same bakery prompt asked 0 questions, guessed 24 things that were the owner's call,
-  and stopped for 20 approvals ([every guess, with evidence](docs/baseline/run-3-bakery/GUESSES.md)).
-- **A real meeting, not a form.** Each big question opens a quiet focus moment. She speaks in pieces; **Send** starts
-  a round of live discussion, where one or two teammates, picked by which crafts her words touch, reply live and build on her and on each other;
-  **End meeting** gives the takeaways: what she believes, and her guidance to the team.
-- **Her words, kept.** Say it out loud, ums and all. A gentle pen strikes the filler and keeps her sentence, in her
-  voice.
-- **Honest labels.** Every number about her run is counted from its log; the baseline's numbers are a hand count,
-  linked. Anything made ahead is labelled where it's shown as hers: Wren's research says "found just now with
-  Linkup" (or "researched before the demo" when the prepared finding stands in), and recorded runs say REPLAY.
+## How it works
+- **One model function.** Every call goes through `callModel` (`lib/model.js`) and returns JSON checked against a
+  schema. Each teammate is its own call with its own craft and stance; in a discussion each turn is a separate call
+  that reads the thread so far.
+- **Only the big questions.** The team proposes decisions as it works and settles the small ones itself, citing her
+  file or its own defaults. Off the demo path, a selector ranks every candidate and brings her only what's big and in
+  her craft. On stage, the three moments are set so the talk fits three minutes; everything inside them is live.
+- **A real meeting.** She speaks in pieces (a guarded tidy removes the ums and keeps her words). **Send** starts a
+  round where one or two teammates, picked by which crafts her words touch, reply live. **End meeting** writes her
+  takeaways: what she believes, and her guidance to the team.
+- **Live tools.** Wren searches with Linkup and quotes a finding only when the quote matches the source page word for
+  word (otherwise a prepared finding, labelled). The build fills one of three designed page templates (bakery, café,
+  yoga) with her decisions; the model never writes code. Her page's emblem is painted live with fal.
+- **Honest labels.** Every number about her run is counted from its event log. Anything made ahead is labelled where
+  it shows: "researched before the demo", PREPARED, REPLAY.
 
 ## See it
 **The door opens on the studio.**
@@ -65,27 +70,48 @@ bakery site that Bo's agent drafted earlier and our builders finished; its sourc
 
 <img src="docs/readme/unblock.webp" alt="Bo is blocked on when orders close; she taps Yes to the suggested 8pm, and the room carries on" width="80%">
 
-**The live bakery the judges order from:**
+**The Usual, the live bakery the judges order from:**
 [bring-your-own-craft-production.up.railway.app](https://bring-your-own-craft-production.up.railway.app). A demo
 bakery: no real bread, nothing to pay, first name only.
 
 <img src="docs/readme/delivered.webp" alt="On a phone: she puts her name down for a sourdough, it proves in the oven, then flips to Delivered: your sourdough is here" width="30%">
 
-## Built with our sponsors
-- **[fal](https://fal.ai):** the painted cast, the room's living clips and its record-player music (ElevenLabs Music
-  via fal), the live bakery site's photos (made ahead with flux), and the emblem on her page, painted live with flux during the
-  build (symbol only; the name is real text). The demo's chat runs on Claude through fal's
-  OpenRouter router.
-- **[ElevenLabs](https://elevenlabs.io):** live speech-to-text, so she can just talk, and the studio's soundtrack on
-  the record player (ElevenLabs Music, generated through fal).
-- **[Linkup](https://www.linkup.so):** Wren's live research: she looks it up during the run and quotes her source,
-  only when the quote checks out against the page.
-- **[Figma](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB):** the room's design as editable frames and tokens
-  (they show the early look, before the painted one).
-- **[Anthropic](https://www.anthropic.com):** Claude, Claude Code (the agents that built this) and the
-  product-management skills.
+## APIs, models and datasets used
+- **fal**, OpenRouter router: the models behind the demo. Claude Sonnet 4.5 for the teammates, the selector, her
+  profile, the sketch and the page fill; Claude Haiku 4.5 for the fast calls (the tidy, her name tag, the team's
+  replies and discussion); Claude Opus for her takeaways and revisiting decisions (`lib/model.js`, `FAL_MODELS` and
+  each `*_MODEL` default).
+- **fal**, flux/schnell: her page's emblem, painted live; the live bakery's photos, made ahead. The studio's painted
+  cast, clips and music were made ahead on fal.
+- **Claude via Claude Code**, headless: the fallback route for the same calls (`MODEL_BACKEND=claude-code`).
+- **ElevenLabs**: Scribe speech-to-text, live, for her voice; ElevenLabs Music (through fal) for the record player's
+  soundtrack.
+- **Linkup**: Wren's live web search.
+- **taste-skill** (MIT, third-party, vendored in `vendor/taste-skill/`): the Design teammate's rules and the page's
+  palette and type.
+- **Anthropic product-management skills** (Apache-2.0, vendored): `write-spec`, in the Product teammate's prompt.
+- **Playwright**: end-to-end tests.
+- **Photographs**: the bakery and café templates use Wikimedia Commons photos under CC BY and CC BY-SA, credited per
+  photo on each template's `credits.html` (the bakery: Johann Jaritz, CC BY-SA 3.0 AT; Chmee2, CC BY 3.0;
+  Wald1siedel, CC BY-SA 4.0).
+- **Datasets**: none. Wren's prepared finding is one public web page, cited in `data/research-finding-bakery.json`.
 
-Built 14–15 Nov 2026 at the Imperial AI hackathon, Autonomous Agents track.
+The full table, with fonts and libraries, is under [Credits and licence](#credits-and-licence).
+
+## Built during the hackathon
+All project code was written during the hackathon (14–15 Nov 2026). The third-party pieces are open source and
+credited: taste-skill (MIT) and Anthropic's product-management skills (Apache-2.0), vendored with their licences, plus
+the fonts, `motion` and Playwright listed below. The models are used through their APIs.
+
+## Figma
+We went from code to Figma. The running room was measured in the browser and rebuilt as editable Figma frames, with
+its colours and spacing as a Figma variable collection ("Room tokens"), its type and its seat glyphs, so a designer
+can pick it up and tweak it: [the Figma file](https://www.figma.com/design/EwqOeVqbMUWXHEzM6pqOvB). How it was done,
+frame by frame: [`design/FIGMA.md`](design/FIGMA.md). The frames show the room's early look, before the painted one.
+
+## Built with our sponsors
+fal, ElevenLabs, Linkup, Figma and Anthropic, as above. Built 14–15 Nov 2026 at the Imperial AI hackathon, Autonomous
+Agents track.
 
 ## Run it yourself
 You need Node 22. There is nothing to install.
@@ -95,8 +121,9 @@ You need Node 22. There is nothing to install.
 2. `npm run doctor` checks the machine is ready.
 3. `npm run local` starts the studio and prints its address.
 
-Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser). The full
-guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
+Tests: `npm test` (offline, no model calls) and `npm run e2e` (the demo, walked through in a real browser; it needs
+Playwright: `npm i -g playwright && npx playwright install chromium`). The room listens on this machine only (loopback);
+`HOST=0.0.0.0` opens it to the network on purpose. The full guide is [`docs/RUN-LOCALLY.md`](docs/RUN-LOCALLY.md).
 
 ## How it was built
 The same way it works. Vincent sat in the Product seat; agents did the rest overnight. A product-owner agent shaped
@@ -104,7 +131,7 @@ the experience with him, a lead agent split the work across builder agents worki
 got an independent agent review ([`docs/DECISIONS.md`](docs/DECISIONS.md)), with an independent audit before the
 demo ([`docs/AUDIT.md`](docs/AUDIT.md)).
 
-On that audited run, her page built in 22 seconds, and the team's own work, plus choosing what reaches her, took 33.
+On that audited run, her page built in 22 seconds, and the team's own work took 33.
 The story of the build: [`BUILT-THIS-WAY.md`](BUILT-THIS-WAY.md). The inner workings: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md).
 The product picture: [`VISION.md`](VISION.md).
 
@@ -113,7 +140,6 @@ The product picture: [`VISION.md`](VISION.md).
   `vendor/taste-skill/`.
 - Anthropic's [product-management skills](https://github.com/anthropics/knowledge-work-plugins) (Apache-2.0),
   vendored unchanged with their licence in `vendor/product-management/`.
-- All project code was written during the hackathon. The full list of APIs, libraries, fonts and photos is below.
 - Licence: [PolyForm Noncommercial 1.0.0](LICENSE).
 
 <details>
@@ -135,6 +161,4 @@ The product picture: [`VISION.md`](VISION.md).
 | [fal](https://fal.ai) | the model backend that runs in the demo (Claude via OpenRouter); flux/schnell for her page's emblem (live) and the live bakery site's photos (made ahead); the cast portraits, room clips and music | fal terms; API only |
 | Node.js 22 (`node:http`, `node:test`) | the server and unit tests | MIT |
 
-The page the team builds in the room uses credited Wikimedia Commons photos; the live bakery's photos were made ahead
-with fal. Datasets: none. Research's finding is a public web page, cited in `data/research-finding-bakery.json`.
 </details>
