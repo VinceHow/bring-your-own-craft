@@ -57,8 +57,8 @@ You say your idea in one rough sentence and meet your team. They get to know you
 
 What it feels like:
 - **You stay in your craft.** Whatever sits outside it, the team settles itself, so your time goes to what you care about.
-- **You're asked only what you're the expert on**, with the work in front of you, so you react instead of starting
-  from a blank page.
+- **You're asked about what you love.** The questions that reach you are in your craft, with the work in front of
+  you, so you react instead of starting from a blank page.
 - **Your words are kept.** Say it out loud, ums and all; the team tidies it without changing what you meant, and
   builds on it.
 - **You watch your app take shape**, a new version each time you decide something.
