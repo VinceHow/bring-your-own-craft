@@ -1287,7 +1287,7 @@ html #room [data-component="meet-card"] [data-slot="line"] { margin: 22px 0 14px
 html #room [data-component="meet-card"] [data-slot="brings"] { margin: 0; font: 400 17px/1.4 var(--ui); color: var(--ink-2); }
 html #room [data-component="meet-card"] [data-slot="brings"] > span { display: block; margin-bottom: 3px; font: 500 13px/1 var(--ui); color: var(--mt, var(--ink)); text-transform: none; letter-spacing: 0; }
 html #room [data-component="meet-card"] [data-slot="count"] { position: absolute; right: 30px; bottom: 24px; margin: 0; font: 500 14px/1 var(--ui); color: var(--ink-2); }
-@media (max-width: 1500px) { html #room [data-component="meet-card"] { --fw: 340px; --gap: 32px; width: calc(var(--fw) + var(--gap) + 430px); }
+@media (max-width: 0px) /* was max-width 1500px: off under the fixed 16:9 stage, every width lays out as 1600 x 900 */ { html #room [data-component="meet-card"] { --fw: 340px; --gap: 32px; width: calc(var(--fw) + var(--gap) + 430px); }
   html #room [data-component="meet-card"] [data-slot="name"] { font-size: 46px; } html #room [data-component="meet-card"] [data-slot="line"] { font-size: 23px; } }
 /* tap their face: a small reaction (their tap clip, once), then back to the wave. The pointer is the only hint. */
 html #room [data-component="meet-card"] [data-slot="face"] { cursor: pointer; transition: translate .25s cubic-bezier(.2,.7,.2,1); }
@@ -1355,7 +1355,7 @@ html #room [data-component="idea-card"][data-nudge="empty"] [data-slot="input"] 
 @keyframes byoc-nudge { 25% { translate: -6px 0; } 60% { translate: 5px 0; } 100% { translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { html #room [data-nudge="empty"] [data-slot="input"] { animation: none; } }
 html #room [data-component="idea-card"][data-state="done"] { opacity: .85; }
-@media (max-width: 1500px) { html #room [data-component="idea-card"] [data-slot="question"] { font-size: 34px; } html #room [data-component="idea-card"] [data-slot="input"] { font-size: 23px; min-height: 130px; } }
+@media (max-width: 0px) /* was max-width 1500px: off under the fixed 16:9 stage, every width lays out as 1600 x 900 */ { html #room [data-component="idea-card"] [data-slot="question"] { font-size: 34px; } html #room [data-component="idea-card"] [data-slot="input"] { font-size: 23px; min-height: 130px; } }
 
 /* her cursor: a paper-cut triangle in her pink with an inked, torn edge (Vincent's pick, option C, 15 Nov). Over anything
    she can click, its corner folds over to show the cream underside. Text fields keep the text I-beam; the window keeps its
@@ -1560,3 +1560,5 @@ html.painted-on :has(> [data-component="tidy-moment"][data-tidy="reordered"][dat
 html.painted-on [data-raw][data-pt-tidy="show"] { animation: pt-tidy-ink .35s ease-out both !important; }
 html.painted-on :has(> [data-component="tidy-moment"][data-tidy="reordered"][data-state="close"]) [data-raw][data-pt-tidy="hold"] { animation: pt-tidy-ink .35s ease-out .22s both !important; }
 @keyframes pt-tidy-ink { from { color: transparent; } }
+/* the fixed 16:9 stage's letterbox: the room's own dark, not the paper */
+html.painted-on body, html.painted-on #viewport { background: #1F1813; }

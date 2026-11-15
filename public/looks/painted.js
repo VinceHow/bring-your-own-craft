@@ -473,12 +473,14 @@
     const vw = window.innerWidth, vh = window.innerHeight - top;
     // cover, but never crop more than ~110 stage px off a side (or 130 off top and bottom), so all five faces, the table
     // and her stool always stay in view; a window shaped far from 16:9 (portrait) letterboxes a little instead
-    const s = Math.max(Math.min(vw / 1600, vh / 900), Math.min(Math.max(vw / 1600, vh / 900), vw / 1380, vh / 640));
+    // Vincent, Sun 09:30: a fixed 16:9 stage. The whole 1600 x 900 room scales uniformly to FIT, centred, letterboxed in
+    // the room's dark; every window shows the identical layout (no crop, no reflow). The crop vars stay at 0.
+    const s = Math.min(vw / 1600, vh / 900);
     want = `scale(${s.toFixed(4)})`;
     if (room.style.transform !== want) room.style.transform = want;
     room.style.setProperty('--crop-x', Math.max(0, (1600 * s - vw) / 2 / s).toFixed(1) + 'px');
     room.style.setProperty('--crop-y', Math.max(0, (900 * s - vh) / 2 / s).toFixed(1) + 'px');
-    room.dataset.fill = 'cover';
+    room.dataset.fill = 'contain';
     const sky = playful(); if (sky && !sky.dataset.component) sky.dataset.component = 'time-pill'; // a data hook for painted-fixes.css
     const track = room.querySelector('.painted-playful .pi-track'); if (track && !track.dataset.component) track.dataset.component = 'toy-track'; // the record player's pill
   }
