@@ -129,3 +129,15 @@ html body #room [data-component="owner-task"] [data-slot="tick"]:checked {
   background: var(--ink, #2B1F17) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23FFF6EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 html body #room [data-component="owner-task"] [data-slot="tick"]:focus-visible { outline: 2px solid var(--ink-2, #4E3A2B); outline-offset: 2px; }
 html body #room [data-component="owner-task"] [data-slot="title"], html body .replay-label, html body .replay-label * { font-weight: 500 !important; }
+
+/* ---- #25: the room's small labels at 14px when the room fills the window ----
+   The room is drawn at 1600 x 900 and scaled to the window; on a 1440 or 1280 screen a 13px label landed at 12-12.6px,
+   under the 13px floor. These are the room's 13px labels (measured at 1440 across the demo's beats): each steps up to
+   14px, so it lands at 13.5px on 1440. The labels are short (names, "agent", the journey's step words). */
+html body #room[data-fill="cover"] [data-component="place-card"] [data-slot="agent-mark"],
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) h1,
+html body #room[data-fill="cover"] [data-component="idea-sheet"]:not([data-open="true"]) [data-component="journey"] [data-slot="label"],
+html body #room[data-fill="cover"] :is([data-component="inbox"], [data-component="inbox-item"], [data-component="note-flight"], [data-component="chatter-line"]) [data-slot="who"],
+html body #room[data-fill="cover"] [data-component="team-space"] :is([data-slot="mark"], [data-slot="label"]),
+html body #room[data-fill="cover"] [data-component="sketchpad"] [data-slot="tag"],
+html body #room[data-fill="cover"] [data-component="workspace"] [data-slot] > h3 { font-size: 14px !important; }
