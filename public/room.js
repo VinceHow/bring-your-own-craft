@@ -572,11 +572,7 @@
     el.herForm.hidden = mode === 'off' || BYOC.replay;
     if (mode !== 'off' && !BYOC.replay) setTimeout(() => inp.focus(), 30);
   }
-  function setIdea(text) {
-    el.herIdea.textContent = text || '';
-    // the flex teammate is still late: the note now names what her idea needs (e.g. "morning bake lists")
-    if (BYOC.flexSeat && BYOC.flexState === 'writing' && el.seat[BYOC.flexSeat]?.querySelector('.late-note')) showLate(BYOC.flexSeat, lateNote());
-  }
+  function setIdea(text) { el.herIdea.textContent = text || ''; if (!text) for (const k of ['raw', 'state', 'tidy']) delete el.herIdea.dataset[k]; }
   let flowMounted = false;
   function mountFlow() {
     if (flowMounted) return;
@@ -715,21 +711,37 @@
   // most 2.5 s, else her raw words), then sent.
   const tidyLine = async (inp, raw) => (typeof BYOC.tidyInto === 'function' ? BYOC.tidyInto(inp, raw) : raw);
   let submitting = false;
+  // A tidied line stays in her field for a moment (TIDY_HOLD_MS, ?tidyhold=) so the tidy plays where she's looking;
+  // the line is sent at once. Her next keystroke ends the hold early (the box clears for her), and Enter on the
+  // held line doesn't send it twice.
+  const TIDY_HOLD_MS = Number(new URLSearchParams(location.search).get('tidyhold') ?? 1700);
+  let held = null;
+  const endHold = () => { if (!held) return; clearTimeout(held.t); if (el.herInput.value === held.text) el.herInput.value = ''; delete el.herInput.dataset.hold; held = null; };
+  function holdLine(text) {
+    endHold();
+    if (!TIDY_HOLD_MS || instantMode) { el.herInput.value = ''; return; }
+    el.herInput.dataset.hold = 'on';
+    held = { text: el.herInput.value, t: setTimeout(endHold, TIDY_HOLD_MS) };
+  }
+  el.herInput.addEventListener('keydown', e => { if (held && e.key.length === 1 && !e.ctrlKey && !e.metaKey) endHold(); });
   el.herForm.addEventListener('submit', async e => {
     e.preventDefault();
+    if (held && el.herInput.value === held.text) return; // the held line was sent already
+    endHold();
     const raw = el.herInput.value.trim();
     if (submitting) return;
     if (inputMode === 'idea') {
       if (!raw) return;
-      submitting = true;
-      try { const idea = await tidyLine(el.herInput, raw); if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = ''; startRun(idea); } finally { submitting = false; }
+      // Her idea moves up to the sheet's idea line at once (her raw words, data-state tidying) and is tidied there.
+      submitting = true; el.herInput.value = '';
+      try { const idea = await tidyLine(el.herIdea, raw); startRun(idea); } finally { submitting = false; }
     } else if (inputMode === 'line') {
       if (!raw || isGo(raw)) { el.herInput.value = ''; setInputMode('off'); stage(5); return; }
       submitting = true;
       let text = raw;
       try { text = await tidyLine(el.herInput, raw); } finally { submitting = false; }
       // she typed on while it tidied: her new words stay in the box; this line goes as she sent it
-      if (el.herInput.dataset.tidy !== 'skipped') el.herInput.value = '';
+      if (el.herInput.dataset.tidy !== 'skipped') holdLine(text);
       if (!(BYOC.firstSketch && BYOC.firstSketch.takes(text))) addHerLine(text);
     }
   });
