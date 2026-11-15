@@ -109,7 +109,7 @@ Most of our design effort goes into the studio, because feeling settled and safe
 
 ## Still open
 
-- [ ] **The question bar (settled).** Big, draws on what she's good at or loves, asked naturally with the work in front of her. Everything granular is the team's call. No number promised; a hidden ceiling of 3 stays in code.
+- [ ] **The question bar (settled).** Big, draws on what she's good at or loves, asked naturally with the work in front of her. Everything granular is the team's call. No number and no ceiling: what reaches her is only the selector's judgement of what's big and in her craft.
 - [ ] **Build.** Focus moments, chime-ins, the takeaways, the character card, the private profile, the team space, the "Your own craft" seat and the bakery switch are priced or being priced. The 20:00 look may mix old and new pieces; the full new path should land around 21:00, before core at 00:00.
 - [ ] **ElevenLabs key** for live voice. Without it, she types and we say so.
 - [ ] **Timing.** Measured: the rough journey draws in about 4 s, a redraw about 2.5 s. Not yet timed: the chime-ins and takeaways after her answer, and the final page build.
