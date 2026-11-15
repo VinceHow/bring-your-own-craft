@@ -208,3 +208,171 @@ up · 3 brought, builder 7), #1 and #2 (the idea input and the name tag hold in 
 | 30 | After End meeting at 1440 and 1280, the takeaways card's Keep button and the help line sit 12–15 px past the column's visible bottom; the column scrolls, so they're reachable, but Keep is half cut at first sight. | `takeaways` · shown; `help` | `jank/focus-meeting-end-1280.jpg` | 1440, 1280 | DESIGN | sent (minor) |
 
 Next: #27–30 from the design studio, then the clean bill by 05:00.
+<!-- PASS-2 -->
+### Pass 2 · main 3fd9fbc · 14 Nov 23:52 UTC (after the look merges: team at work, cat tail, her idea on the glance card)
+
+The pixel diff shows 245 shots changed, as expected after the look merges and with the living video moving. The pass-1 findings above all still stand. Of the 549 new flags, most come from the two checks added since pass 1 (overflow measured numerically, and clipped frames), and they confirm findings 23 and 24. Genuinely new:
+
+27. [design] **The inbox drawer scrolls sideways and cuts its own text.** In the unblock card's speaking state, focusing her words scrolls the 13–24px-too-wide drawer to the right. Every line loses its first letters ("eeds you", "ings only you can do", "ur meeting notes…"), and the card's frame is cut by 18px. This is finding 23's overflow, now visible on stage.
+    - Shot: `design/studio/qa/2026-11-14-23-52/1920x1130-day/11-unblock-speaking.jpg`
+    - Where: all three sizes, day and night
+    - Hooks: `[data-component="inbox"] [data-slot="drawer"]`, `[data-component="inbox-action"][data-state="speaking"]`
+    - Fix: `overflow-x: hidden` on the drawer, and find the child that's wider than 268px (most likely the speaking card with its frame offset, or the field at `width:100%` plus padding).
+28. [design] **Every teammate pad scrolls sideways, even when empty.** `[data-component="sketchpad-open"]` has 432 wide in 420 in all 12 pad states (5 teammates + hers, empty and full), at every size and mode. A Mac shows a horizontal bar under "Nothing on the pad yet."
+    - Shot: `design/studio/qa/2026-11-14-23-52/1920x1130-day/07-design-empty.jpg`
+    - Where: every size and mode
+    - Hook: `[data-component="sketchpad-open"]`
+    - Fix: as in finding 23: `overflow-x: hidden`, or remove the 12px of extra width.
+29. [design] **The new mic pill on the glance card has a hard black outline.** It reads as a different kit from the soft paper pills, and at 1440 and 1280 it sits on the card's right edge.
+    - Shot: `design/studio/qa/2026-11-14-23-52/1440x900-day/03.jpg`
+    - Where: 1440x900 and 1280x800 (on the edge); 1920 (the look)
+    - Hook: `[data-component="her-idea"]` mic (the "tap or hold to speak" button)
+    - Fix: use the name tag's mic pill (pink, no black frame), with at least 12px of right padding.
+
+Checked, fine: "the team is visibly at work" (`design/studio/qa/2026-11-14-23-52/1920x1130-day/06.jpg`): the captions read well and sit on paper. The name tag frame flags as cut by 24px at `#room`, but by eye the paper and its pink edge are whole, so it's left as is.
+
+<!-- PASS-3 (takeaways, asked by the lead) -->
+### Focus 1 after Send, long takeaways (~60 words of guidance) · main 03a7a59 · 15 Nov 00:20 UTC
+
+30. [design] **At 1440 and 1280 the takeaways card cuts the guidance off and hides Keep.** The card's content is 345x520 in 336x416 (1280) or 336x468 (1440): the guidance stops mid-line ("…not at"), Keep sits inside a scroll box, and a Mac shows a bar. Meanwhile the right column has free space under the card. At 1920 everything fits, Keep included. In all three sizes the takeaways card is also 9px too wide (a horizontal bar), and its text sits 0px from the box edge.
+    - Shots: `design/studio/qa/2026-11-15-takeaways/1280x800-day-09-focus1-takeaways.jpg`, `design/studio/qa/2026-11-15-takeaways/1440x900-day-09-focus1-takeaways.jpg`, and the 1920 one for comparison
+    - Hook: `[data-component="takeaways"][data-state="shown"]`, plus `[data-slot="keep"]`
+    - Fix: let the card grow into the column (no fixed height); take the 9px of extra width away (padding plus `width:100%`); keep `keep` outside any scrolling part; give it an inner padding of at least 14px.
+31. [design] **Pin replies put the colon on its own line.** They read "Noor / : / That matches the finding…" over three lines.
+    - Shots: the same three
+    - Hook: `[data-component="pin-reply"] [data-slot="who"]`
+    - Fix: `who` inline with the text ("Noor: …"), or drop the colon and keep `who` as a small label above.
+32. [design] **The app button sits on top of the focus document's bottom-right corner.** "No app yet · Bo starts once you agree the page" overlaps the document's edge at every size.
+    - Shots: the same three
+    - Hooks: `[data-component="app-button"]` over `[data-component="focus-doc"]`
+    - Fix: hide or dim the app button while a focus document is open (`body.focus-open`), or move it into the room's safe box below the document. Its label is also weight 600 (taste rule: 400/500).
+- Checked, fine: the takeaways show fully within 6 s at 1920. Before then the guidance is still animating in, so a shot at 2.8 s shows it blank: not a bug, but the walk now waits 6 s. Nothing at the top of the document is clipped at any size.
+- Pending: meeting modes (3 rounds of the conversation column, End meeting, then the takeaways). The walk adds them once b3 lands.
+
+### Pass 3 · main 03a7a59 · 15 Nov 00:07 UTC (the app button, /slides/, painted-focus.css)
+
+Fixed since pass 2:
+- "Add this" is no longer a browser-default button, and Send is no longer weight 600 (finding 2, partly).
+- The focus doc's frame is no longer clipped (part of finding 24).
+- The pads no longer scroll sideways (finding 28). Only Bo's full list scrolls inside `[data-slot="items"]`, which is real overflow, so it needs a quiet scroll style.
+- `/slides/` serves (finding 15).
+
+New:
+
+33. [design] **The app button hangs off the room.** In all four states (no app yet, building, ready, new version) it sits half below the room's bottom edge, over the dark band. Its label is weight 600. The states themselves read well: the new-version note "v2 · orders close at 8pm, sold-out loaves greyed" and "v2, just now" are clear.
+    - Shots: `design/studio/qa/2026-11-15-00-07/1920x1130-day/16-app-none.jpg`, `16-app-building.jpg`, `16-app-ready.jpg`, `16-app-new-version.jpg`
+    - Where: every size; worst at 1440 and 1280, where the band is 40–45px
+    - Hook: `[data-component="app-button"]`, plus `[data-slot="label"]`
+    - Fix: anchor it inside the room's safe box (bottom ≥ 16px inside `#room`); label at weight 500. See also finding 32: hide it while a focus document is open.
+
+### Pass 4 · main 25c285f · 15 Nov 00:24 UTC (targeted: the app button's shop tag, the focus-doc strip, her page)
+
+A targeted pass: only the states the look change touches (the room, Focus 1 and 2, her page, the app button), at all sizes, day and night. Meeting modes are not on main as UI yet: that merge changed only DEMO.md and VISION.md.
+
+Fixed:
+- Finding 32: while a focus document is open, the app button now sits in a strip under it, compact.
+- The app button's label weight (finding 33, partly).
+
+Still open:
+- Finding 30, at 1280 and 1440: the guidance is still cut mid-line, and Keep is still inside the scroll box.
+  - Shot: `design/studio/qa/2026-11-15-00-24/1280x800-day-09-focus1-takeaways.jpg`
+- Finding 33, at 1440 and 1280: the tag still sits half on the band below the room.
+  - Shot: `design/studio/qa/2026-11-15-00-24/1440x900-night-16-app-ready.jpg`
+
+New:
+
+34. [design] **With her page open, the app tag and the Replay label sit on the page sheet's bottom-right corner.**
+    - Shot: `design/studio/qa/2026-11-15-00-24/1920x1130-day-13-her-page.jpg`
+    - Where: 1920x1130 day
+    - Hooks: `[data-component="app-button"]`, `[data-component="replay-label"]` over `[data-component="idea-layer"]` (`#page-sheet`)
+    - Fix: give the open sheet the same foot strip the focus document now has, or tuck the tag left of the Replay label inside it.
+
+### Pass 5 · main 8019281 · 15 Nov 00:42 UTC (full walk: jank sweep 1, the app tag's strip, the note flight)
+
+Fixed, checked by eye and by the numbers:
+- Finding 10: an empty pad now says what's coming ("Theo joins once the team gets going").
+- Finding 7, at a glance: the chips wrap, with "+3".
+- Finding 27: the drawer no longer cuts its text while she speaks.
+- Finding 14: no ButtonFace Retry.
+- Finding 12, part: the app tag's weight.
+- Finding 24, part: the idea sheet and team status frames are no longer shaved.
+- The team-at-work strip now sits under her glance card, clear of the cat.
+
+Still open:
+- Finding 8: meeting the team is still a bare square card with an empty face circle.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-02.jpg`
+- Finding 7, opened large: the journey still runs off the right edge ("Pick u…"), and the lower half is empty.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-05.jpg`
+- Finding 4: after Yes, the drawer is still a blank column.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-11-unblock-yes.jpg`
+- Finding 5: native ▶ and checkboxes, and the 700 title, remain in the drawer.
+  - Shot: `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-drawer.jpg`
+- Finding 17: the 25px bands remain until the room-cover change lands.
+- Flags for the idea layer's `::before` frame (2px) and for the note flight's frame cut at `#room` (finding 24).
+
+New:
+
+35. [design] **While a new note flies to her inbox, the inbox shows a blank card for about 3.5 s.** The note arcs from the teammate (`note-flight`). Meanwhile `[data-component="inbox-item"] [data-slot="text"]` sits at opacity 0 from the moment the ask lands until about 4 s, so the collapsed inbox reads as an empty paper with only "Open your inbox". Opened during that time, the drawer shows an empty white box under "Needs you". Measured at 300, 800, 1500, 2500 and 4000 ms (opacity 0, 0, 0, 0, 1).
+    - Shots: `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-new.jpg` (600 ms), `design/studio/qa/2026-11-15-00-42/1920x1130-day-08-drawer.jpg`
+    - Hooks: `[data-component="inbox-item"][data-state="top"] [data-slot="text"]`, `[data-component="note-flight"]`
+    - Fix: show who is asking at once ("Bo asks…"), and fade the question in as the flight lands; keep the flight at 1.5 s or less. In the drawer, show the item's text at once.
+
+### Pass 6 · main 92e5225 · 15 Nov 01:01 UTC (day/night, rain, the handwritten name tag; plus the meeting walk)
+
+Passing at all three sizes:
+- Day/night: the labels match each mode; within 1 s exactly one room video is playing; no patch is frozen; Day survives a reload; 4 quick clicks during a replay land right.
+- Sound: Day is silent and the window is hidden; at night, rain.mp3 plays; the record cycles piano → electronic → chiptune → off, with no rain track; the window toggles only the rain, and the music keeps playing; both choices survive a reload; `?stage=1` is silent until a tap.
+- The mic: idle, listening and writing are all ink-paper (fake microphone, stubbed speech-to-text).
+- The name tag, all but its height: after Enter the form is gone, the pen writes her name and then the title, and the fallback says plainly that the tag is in her own words.
+- `?look=plain` (checked on design/meetcard): no painted layers.
+- The meet cards (on design/meetcard, ahead of its merge): each wave plays, a tap plays the reaction and then the wave, and the frame is inked and rounded with a 34px radius, at all three sizes.
+
+Name tag height:
+- The card still gets shorter at Enter, by 147, 111 and 98px at 1920, 1440 and 1280. design/nametag-2 should fix this; re-check when it lands.
+
+New:
+
+36. [design, blocks the demo] **In the painted look, Focus 1 breaks as soon as she sends a round.** Walked with the real meeting flow: Send, the team's replies, three rounds, End meeting, then the takeaways.
+    - The question, the research quote and her answer print on top of each other.
+    - The replies spill over the work.
+    - The right column collapses to an empty pink bar.
+    - End meeting is a grey ButtonFace button, and "New replies ↓" is another.
+    - After End meeting, the takeaways card is a 32px strip, and its guidance sits below the window (top 1045px at 1920x1130).
+    - Cause: main has the meeting's code (focus-doc.js, `[data-component="meeting"]` composing · discussing · ended) but not its painted CSS.
+    - Shots: `design/studio/qa/2026-11-15-01-01/main-1920-09-meeting-r1.jpg`, `design/studio/qa/2026-11-15-01-01/main-1920-09-meeting-ended.jpg`, `design/studio/qa/2026-11-15-01-01/main-1280-09-meeting-ended.jpg`
+    - Hooks: `[data-component="focus-doc"]`, `[data-component="meeting"]`, `[data-component="end-meeting"]`, `[data-component="takeaways"]`
+    - Fix: merge design/meetcard (b3037ad). On that branch the same walk is clean: one conversation column, an inked End meeting, and full takeaways with Keep inside the card at 1920 and 1280. That also closes finding 30.
+      - Shots: `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-r3.jpg`, `design/studio/qa/2026-11-15-01-01/meetcard-1920-09-meeting-ended.jpg`
+
+### Pass 7 · main c24f7a8 · 15 Nov 01:35 UTC (meeting look, meetcard, nametag-2, painted by default, sweep fixes)
+
+Fixed, checked by eye and by the numbers:
+- Finding 36, the focus meeting: one conversation column over three rounds, an inked End meeting, and full takeaways with Keep inside the card, at all three sizes. Finding 30 is fixed too.
+  - Shots: `design/studio/qa/2026-11-15-01-35/1920x1130-day-09-meeting-r3.jpg`, `design/studio/qa/2026-11-15-01-35/1280x800-day-09-focus1-takeaways.jpg`
+- The name tag keeps one size from asking to tag: 864x772, 648x579 and 576x514 at 1920, 1440 and 1280, in spin and fallback, day and night.
+- Finding 8: meeting the team is now a waving portrait in an inked, rounded frame beside its card. Each wave plays, and a tap plays the reaction and then the wave, at all three sizes.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-02.jpg`
+- Finding 7, opened large: the journey fits on the sheet.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-05.jpg`
+- Finding 35: "Bo's blocked" shows at once while the note flies.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-08-new.jpg`
+- Finding 4: after Yes, a receipt shows ("Told Bo: 8pm the night before").
+- `?look=plain` has no painted layers.
+- Day/night, the sound and the mic still pass at all three sizes.
+
+Still open:
+- Finding 5: the native ▶ and checkboxes in the drawer.
+  - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-08-drawer.jpg`
+- Finding 17: the bands.
+
+New:
+
+37. [design] **After Yes, the drawer scrolls sideways again and cuts its text.** The new receipt chip ("Told Bo: 8pm the night before", with its offset frame) is wider than the drawer, so the drawer scrolls to it, and every line loses its first letters: "eeds you", "hings only you can do", "othing only you can do". This is finding 27 again, in the yes state.
+    - Shot: `design/studio/qa/2026-11-15-01-35/1920x1130-day-11-unblock-yes.jpg`
+    - Where: all sizes
+    - Hooks: `[data-component="inbox"] [data-slot="drawer"]`, `[data-component="inbox-action"][data-state="yes"]`
+    - Fix: `overflow-x: hidden` on the drawer (once, for every state), and keep the receipt's frame inside its box (`max-width: 100%` with its offset inside the padding).
+38. [question for the lead] **The "No app yet" tag shows on the setup pages.** It sits bottom-right on both the name tag and meet-the-team, the same at every size: 240x63 at 1664,1053 (1920x1130), 1184,823 (1440x900) and 1024,723 (1280x800). Its hint, "Bo starts once you agree the page", means nothing before she has met Bo.
+    - Shots: `design/studio/qa/2026-11-15-01-35/1920x1130-day-01.jpg`, `design/studio/qa/2026-11-15-01-35/1920x1130-day-02.jpg`
+    - Hooks: `[data-component="app-button"]` while `[data-component="setup"]` has `data-step` nametag or team
+    - Suggestion: hide it until the reveal (`#room[data-setup]` or `setup[data-step] ≠ off`); it has nothing to say before the room.
