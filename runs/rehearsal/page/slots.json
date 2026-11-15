@@ -3,7 +3,7 @@
     "answers": [
       {
         "decision": "Who should we build this for first?",
-        "choice": "It's really for the regulars. They come every morning, and they hate it when the sourdough's gone by nine.",
+        "choice": "It's really for the regulars. They come every morning. Hold their usual loaf if the sourdough's gone by nine. They hate it when that happens.",
         "recommendation": null,
         "overruled": false,
         "attachTo": null,
@@ -19,7 +19,7 @@
       },
       {
         "decision": "What should this feel like for a regular?",
-        "choice": "Like the baker already knows you. Don't ask for anything you already know.",
+        "choice": "Like the baker already knows you. I don't ask for anything I already know.",
         "recommendation": null,
         "overruled": false,
         "attachTo": null,
@@ -30,35 +30,35 @@
   },
   "model": {
     "words": {
-      "title": "Hearth: your bread, reserved for the morning in Walkley",
+      "title": "Hearth: bread to order ahead in Walkley, Sheffield",
       "brand": "Hearth",
-      "heroTitle": "Your usual loaf, waiting for you in Walkley",
-      "heroLead": "Reserve tonight, collect it warm in the morning, Tuesday to Sunday. Pay at the counter.",
-      "cutoffLine": "Order by 20:00 the night before.",
+      "heroTitle": "Your usual loaf, held for you in Walkley",
+      "heroLead": "Order tonight, collect it warm on your way to work, Tuesday to Sunday.",
+      "cutoffLine": "Order by 20:00 the night before for the next morning’s bake.",
       "regularsTitle": "Your usual loaf",
-      "regularsLead": "Remembered from your last order on this device. One tap and it is reserved for tomorrow.",
+      "regularsLead": "Remembered on this device. One tap holds it for tomorrow morning.",
       "regularsUsual": "One country sourdough",
       "regularsWhen": "Tomorrow at 07:30",
-      "regularsAction": "Reserve my usual",
-      "regularsSent": "Your usual is reserved. The confirmation email is on its way.",
-      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here next time.",
-      "standingLine": "Every morning we are open, skip any day you like",
-      "standingLabel": "Repeat this reservation each morning",
+      "regularsAction": "Hold my usual",
+      "regularsSent": "Your usual is held. The confirmation is on its way.",
+      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here the next evening.",
+      "standingLine": "Every Tuesday and Saturday, until you stop it",
+      "standingLabel": "Make this a standing weekly order",
       "breadTitle": "Tomorrow’s bread",
-      "breadLead": "Baked overnight, out of the oven by 06:30. Some sourdough is held back for regulars.",
+      "breadLead": "Baked overnight, out of the oven by 06:30. Sold-out loaves are greyed out with the next day to order.",
       "loafBody": "Flour, water, salt and a starter older than the bakery, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out.",
-      "confirmTitle": "Reserve for tomorrow",
-      "confirmLead": "No account needed. Your loaf is held under your name. Pay at the counter when you collect.",
-      "confirmSent": "Your bread is reserved. The confirmation email is on its way.",
-      "phoneLabel": "Phone",
+      "confirmTitle": "Order for tomorrow",
+      "confirmLead": "No account needed. Pay online at shelf prices, and your loaf is held at the counter under your name.",
+      "confirmSent": "Your bread is ordered. The confirmation is on its way.",
+      "phoneLabel": "Phone (optional)",
       "rememberLabel": "Remember me on this device",
-      "orderedTitle": "After you reserve",
-      "orderedBody": "The confirmation email arrives once the reservation is in. Change or cancel until the evening before.",
-      "cancelLine": "Cancel in one tap from your confirmation email.",
-      "cancelReasonLine": "Tell us why",
+      "orderedTitle": "After you order",
+      "orderedBody": "The confirmation arrives once the order is in.",
+      "cancelLine": "Cancel in one tap from your confirmation.",
+      "cancelReasonLine": "Tell us why (optional)",
       "decidedTitle": "Decided for you",
-      "decidedLead": "Five choices behind this page, each with where it came from.",
-      "heroAction": "Reserve my bread"
+      "decidedLead": "Five choices behind this order page, each with where it came from.",
+      "heroAction": "Hold my usual"
     },
     "steps": [
       "regulars",
@@ -75,73 +75,76 @@
       "regulars": true,
       "regularsFirst": true,
       "remember": true,
-      "standingOrder": true
+      "standingOrder": false
     },
     "decidedShown": [
       {
-        "id": "c24",
-        "label": "Reserve now, pay at the counter when collecting"
+        "id": "c18",
+        "label": "Your usual loaf and pickup time come first, the menu below"
       },
       {
-        "id": "c7",
-        "label": "Same price as in the shop"
+        "id": "c1",
+        "label": "Your usual is remembered on this device, one tap to order"
       },
       {
-        "id": "c22",
-        "label": "Some loaves held back for regulars only"
+        "id": "c9",
+        "label": "You pay online when you order"
       },
       {
-        "id": "c10",
-        "label": "Your name, contact and last order remembered on this device, no account"
+        "id": "c12",
+        "label": "Same shelf prices as in the shop, no fees"
       },
       {
         "id": "c23",
-        "label": "Pick a day up to 7 days ahead, change or cancel until the evening before"
+        "label": "Sold-out loaves show early with a close alternative"
       }
     ],
     "tokens": {
-      "p-accent": "#8a5a2b",
-      "p-action": "#8a5a2b"
+      "p-bg": "#f5eee1",
+      "p-surface": "#eadfcb",
+      "p-ink": "#2b2118",
+      "p-accent": "#8a5a33",
+      "p-action": "#8a5a33"
     }
   },
   "used": {
     "words": {
-      "title": "Hearth: your bread, reserved for the morning in Walkley",
+      "title": "Hearth: bread to order ahead in Walkley, Sheffield",
       "brand": "Hearth",
-      "heroTitle": "Your usual loaf, waiting for you in Walkley",
-      "heroLead": "Reserve tonight, collect it warm in the morning, Tuesday to Sunday. Pay at the counter.",
-      "cutoffLine": "Order by 20:00 the night before.",
+      "heroTitle": "Your usual loaf, held for you in Walkley",
+      "heroLead": "Order tonight, collect it warm on your way to work, Tuesday to Sunday.",
+      "cutoffLine": "Order by 20:00 the night before for the next morning’s bake.",
       "regularsTitle": "Your usual loaf",
-      "regularsLead": "Remembered from your last order on this device. One tap and it is reserved for tomorrow.",
+      "regularsLead": "Remembered on this device. One tap holds it for tomorrow morning.",
       "regularsUsual": "One country sourdough",
       "regularsWhen": "Tomorrow at 07:30",
-      "regularsAction": "Reserve my usual",
-      "regularsSent": "Your usual is reserved. The confirmation email is on its way.",
-      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here next time.",
-      "standingLine": "Every morning we are open, skip any day you like",
-      "standingLabel": "Repeat this reservation each morning",
+      "regularsAction": "Hold my usual",
+      "regularsSent": "Your usual is held. The confirmation is on its way.",
+      "regularsNote": "Tick “Remember me on this device” when you order, and your usual waits here the next evening.",
+      "standingLine": "Every Tuesday and Saturday, until you stop it",
+      "standingLabel": "Make this a standing weekly order",
       "breadTitle": "Tomorrow’s bread",
-      "breadLead": "Baked overnight, out of the oven by 06:30. Some sourdough is held back for regulars.",
+      "breadLead": "Baked overnight, out of the oven by 06:30. Sold-out loaves are greyed out with the next day to order.",
       "loafBody": "Flour, water, salt and a starter older than the bakery, proved slowly overnight and baked dark on the stone. The crust crackles for an hour after it comes out.",
-      "confirmTitle": "Reserve for tomorrow",
-      "confirmLead": "No account needed. Your loaf is held under your name. Pay at the counter when you collect.",
-      "confirmSent": "Your bread is reserved. The confirmation email is on its way.",
-      "phoneLabel": "Phone",
+      "confirmTitle": "Order for tomorrow",
+      "confirmLead": "No account needed. Pay online at shelf prices, and your loaf is held at the counter under your name.",
+      "confirmSent": "Your bread is ordered. The confirmation is on its way.",
+      "phoneLabel": "Phone (optional)",
       "rememberLabel": "Remember me on this device",
-      "orderedTitle": "After you reserve",
-      "orderedBody": "The confirmation email arrives once the reservation is in. Change or cancel until the evening before.",
-      "cancelLine": "Cancel in one tap from your confirmation email.",
-      "cancelReasonLine": "Tell us why",
+      "orderedTitle": "After you order",
+      "orderedBody": "The confirmation arrives once the order is in.",
+      "cancelLine": "Cancel in one tap from your confirmation.",
+      "cancelReasonLine": "Tell us why (optional)",
       "decidedTitle": "Decided for you",
       "decidedLead": "Six choices the team made for this page.",
-      "heroAction": "Reserve my bread"
+      "heroAction": "Hold my usual"
     },
     "switches": {
       "regulars": true,
       "regularsFirst": true,
       "standingOrder": false,
       "cutoff": true,
-      "phone": false,
+      "phone": true,
       "remember": true,
       "oneTapCancel": true,
       "cancelReason": false
@@ -154,59 +157,59 @@
       "ordered"
     ],
     "tokens": {
-      "p-bg": "#efe9e0",
-      "p-surface": "#e2d9cb",
-      "p-ink": "#22261f",
-      "p-accent": "#8a5a2b",
-      "p-action": "#8a5a2b"
+      "p-bg": "#f5eee1",
+      "p-surface": "#eadfcb",
+      "p-ink": "#2b2118",
+      "p-accent": "#8a5a33",
+      "p-action": "#8a5a33"
     },
     "decided": [
       {
-        "id": "c10",
+        "id": "c1",
         "seat": "engineering",
-        "label": "Your name, contact and last order remembered on this device, no account",
+        "label": "Your usual is remembered on this device, one tap to order",
         "cites": "L4",
-        "lineText": "Ordering should feel like being known: never ask for anything you could remember or skip.",
+        "lineText": "For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.",
         "newest": true
       },
       {
-        "id": "c2",
-        "seat": "data",
-        "label": "What we measure at 'Reserve your usual': Count one-tap usual reservations per returning customer per week",
+        "id": "c18",
+        "seat": "design",
+        "label": "Your usual loaf and pickup time come first, the menu below",
         "cites": "L4",
-        "lineText": "Ordering should feel like being known: never ask for anything you could remember or skip.",
+        "lineText": "For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.",
         "newest": true
-      },
-      {
-        "id": "c4",
-        "seat": "data",
-        "label": "What we keep about a customer's orders and for how long: Keep name, contact and usual loaf; delete after 12 months of inactivity",
-        "cites": "L4",
-        "lineText": "Ordering should feel like being known: never ask for anything you could remember or skip.",
-        "newest": true
-      },
-      {
-        "id": "c24",
-        "seat": "product",
-        "label": "Reserve now, pay at the counter when collecting",
-        "cites": "L2",
-        "lineText": "Ship the smallest version that works end to end; extras wait for evidence.",
-        "newest": false
       },
       {
         "id": "c7",
+        "seat": "research",
+        "label": "How a regular holds their usual: one tap, or the normal ordering flow: Both, usual shown first",
+        "cites": "L4",
+        "lineText": "For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.",
+        "newest": true
+      },
+      {
+        "id": "c9",
         "seat": "strategy",
-        "label": "Same price as in the shop",
+        "label": "You pay online when you order",
         "cites": "team default",
         "lineText": null,
         "newest": false
       },
       {
-        "id": "c22",
+        "id": "c12",
+        "seat": "strategy",
+        "label": "Same shelf prices as in the shop, no fees",
+        "cites": "team default",
+        "lineText": null,
+        "newest": false
+      },
+      {
+        "id": "c23",
         "seat": "product",
-        "label": "Some loaves held back for regulars only",
+        "label": "Sold-out loaves show early with a close alternative",
         "cites": "L3",
-        "lineText": "I believe we build first for the morning regulars, the people who come every day and hate it when the sourdough is gone by nine.",
+        "lineText": "I believe we should build this first for the morning regulars, who hate finding their usual sourdough gone by nine.",
         "newest": false
       }
     ],
