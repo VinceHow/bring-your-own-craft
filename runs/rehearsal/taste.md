@@ -1,4 +1,4 @@
 - [L1] I love talking to customers and turning what they say into what we build (her own words, today)
 - [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
-- [L3] I believe we should build this first for the morning regulars, who hate finding their usual sourdough gone by nine.
-- [L4] For a regular, ordering should feel like the baker already knows you, so I never ask for anything I already know.
+- [L3] Our first users are the regulars who come every morning and get frustrated when their favourite bread sells out.
+- [L4] The experience should feel like walking into a shop where they know your name and your usual order.
