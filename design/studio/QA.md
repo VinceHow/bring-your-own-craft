@@ -25,3 +25,15 @@ Vincent, 14 Nov (~23:25 UTC): "I don't want to flag them one by one." Every desi
 **Design QA (a separate designer from the fixers)** walks the whole painted flow end to end after every merge to
 main, from the name tag to the close, using the replay (R) and one real run. It files findings in `docs/JANK.md`
 next to builder 7's sweep, marked `[design]`, with a screenshot path and a size.
+
+## Magical and simple: the bar for every screen (Vincent, 15 Nov)
+Above all the opening (door → idea → tidy → name tag → meet the team), every screen must feel magical and simple: she does
+exactly ONE thing per screen.
+1. **One action.** Exactly one primary thing to do is visible (one input or one button). Anything else competing for
+   attention (counters, pills, hints, toolbars, chatter, the app tag, previews) is hidden on that screen. Secondary things
+   appear only when needed. Hiding beats restyling.
+2. **One line of guidance at most.** Cut every sentence not needed to do the one thing.
+3. **The magic moments land.** Score each "magical / fine / flat" with a still or a short clip; fix anything flat:
+   the door (the plaque reads before it opens), the tidy (her words visibly rearrange, unhurried, never a flicker;
+   a skipped tidy never glitches), the handwritten name tag, each meet card's entrance.
+4. **Nothing distracts.** No jitter, layout shift, overlap, scrollbars or default browser controls.
