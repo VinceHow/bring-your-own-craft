@@ -505,6 +505,32 @@ There are two test flakes, and a few notes that aren't on stage.
 - the Claude-backed routes beyond the calls listed above;
 - the vendor commit.
 
+### Builder 9's build/role-card (merged as d361a1a on top of bbb49aa): PASS for the diff; N2 NOT fixed
+
+Verified by stub only, with the proxy env and keys removed.
+
+**What the diff does:** when she takes another seat, the teammate who holds Product shows a product card in its own
+name. That's `lib/kit.js` `cardFor` plus a product card, mirrored in `public/room.js` `meetCardFor`. That teammate's
+meet line is asked for as Product (`lib/meet.js` `meetSystem(wearing)`; `routes/meet.js` passes `wearing`).
+
+**Off-stage only:** the Product path is untouched. With no worn role, `meetCardFor` returns the home card and
+`askCastLine` returns early, so it makes no extra call.
+
+**Tests:**
+- `test/kit.test.js` + `test/meet.test.js`: 12/0.
+- `e2e/role-card.e2e.js`: 2/0.
+- anyseat: 12/0.
+- reorder: 10/0.
+- meet-paced: 2/0.
+- `npm test`: 310 tests, 309 pass, 0 fail, 1 skipped.
+
+**N2 is not fixed by this diff.** The meet-card "live" chips still follow the configuration, not the run's outcome:
+- `lib/kit.js:85`: `liveResearchOn(idea) ? ['Linkup web search, live', …]`.
+- `lib/kit.js:89`: `logoOn() ? ['The page's emblem, painted live on fal']`.
+
+On fal, a logo timeout still leaves Mika's card having said "painted live on fal". A minimal fix is to reword the
+chip as an intent ("Paints the page's emblem live on fal, if it can") or drop it.
+
 ## What I did not test, and why
 - **Mac-only:** Finder double-click, Gatekeeper and `open -a Chrome` in the launchers; Chrome CPU in Activity
   Monitor; the real cursor drawn (headless draws none, so I checked computed styles).
