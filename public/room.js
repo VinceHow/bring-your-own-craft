@@ -813,8 +813,10 @@
         if (ev.key === 'Escape') { words.blur(); return; }
         if (ev.key !== 'Enter') return;
         ev.preventDefault();
-        const t = words.textContent.trim();
-        if (!t) return;
+        let t = words.textContent.trim();
+        if (!t || words.dataset.state === 'tidying') return;
+        // Her rewording is tidied in place (data-raw / data-state / data-tidy on the words); the team's own line is kept as is.
+        if (t !== text && typeof BYOC.tidyInto === 'function') t = String(await BYOC.tidyInto(words, t) || t).trim() || t;
         words.contentEditable = 'false'; hint.textContent = 'writing it into your file';
         try { await BYOC.api(`/api/run/${encodeURIComponent(BYOC.run)}/taste`, { text: t }); }
         catch (e) { status(`file not written (${e.status || e.message})`); hint.textContent = 'Not written. Enter to try again.'; words.contentEditable = 'true'; }
@@ -1358,7 +1360,8 @@
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
       tagStatus(c, 'thinking', 'The team is making your name tag…');
       let said = raw;
-      if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
+      // Tidied in place on #intro-input (data-raw / data-state tidying → tidied / data-tidy) while the form still shows.
+      if (typeof BYOC.tidyInto === 'function') { try { said = String(await BYOC.tidyInto(inp, raw, { field: 'intro' }) || raw).trim() || raw; } catch { said = raw; } }
       if (introCard !== c) return;
       inp.value = said;
       return makeCharacter(c, said);
