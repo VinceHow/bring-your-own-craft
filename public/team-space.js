@@ -15,6 +15,8 @@
 .team-space { position: absolute; left: 430px; right: 80px; bottom: 112px; z-index: 8; pointer-events: none;
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .team-space[hidden] { display: none !important; }
+.team-space .ts-notes { pointer-events: auto; cursor: pointer; font: 600 12px var(--mono, monospace); padding: 2px 8px; border: 1.5px solid var(--ink, #141414); border-radius: 3px; background: var(--sheet, #FBF9F4); color: var(--ink, #141414); }
+html body #room .team-space[data-notes="closed"] :is(.ts-title, .ts-cards) { display: none; } /* folded into "Team notes · N" */
 .team-space .ts-title { font: 600 11px var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--ink, #141414);
   background: var(--table, #E7E1D5); padding: 1px 6px; }
 .team-space .ts-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
@@ -48,7 +50,13 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     if (!room) return null;
     box = h('section', 'team-space'); box.setAttribute('aria-label', 'Team space'); box.hidden = true;
     box.dataset.component = 'team-space'; box.dataset.state = 'empty';
-    box.append(slot(h('div', 'ts-title', 'Team space'), 'title'));
+    // "Team notes · N" (Vincent's screenshot, 15 Nov): a look can fold the cards into this small tab; the tab opens and
+    // closes them. data-component="team-notes" data-state closed | open (mirrored on the space as data-notes).
+    const notes = slot(h('button', 'ts-notes', 'Team notes'), 'notes'); notes.type = 'button';
+    notes.dataset.component = 'team-notes'; notes.dataset.state = 'closed'; notes.setAttribute('aria-expanded', 'false');
+    box.dataset.notes = 'closed';
+    notes.addEventListener('click', () => setNotes(notes.dataset.state !== 'open'));
+    box.append(notes, slot(h('div', 'ts-title', 'Team space'), 'title'));
     list = slot(h('ol', 'ts-cards'), 'cards');
     box.appendChild(list);
     list.addEventListener('click', e => { const c = e.target.closest('.ts-card'); if (c) toggle(c); });
@@ -58,6 +66,10 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     });
     room.appendChild(box);
     return box;
+  }
+  function setNotes(open) {
+    const n = box && box.querySelector('[data-component="team-notes"]'); if (!n) return;
+    n.dataset.state = open ? 'open' : 'closed'; n.setAttribute('aria-expanded', String(open)); box.dataset.notes = n.dataset.state;
   }
   function toggle(card) {
     const open = card.getAttribute('aria-expanded') !== 'true';
@@ -125,6 +137,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     if (wasEmpty && agreed.length && flying && typeof box.animate === 'function' && !B.replay) // the sheet unrolls from its top edge
       box.animate([{ opacity: 0, transform: 'translateY(-10px) scaleY(.55)', transformOrigin: '50% 0' }, { opacity: 1, transform: 'none', transformOrigin: '50% 0' }], { duration: 300, easing: 'ease-out' });
     B.teamSpace.count = agreed.length;
+    { const n = box.querySelector('[data-component="team-notes"]'); if (n) { n.textContent = `Team notes · ${agreed.length}`; n.dataset.count = String(agreed.length); } }
   }
   // A first-decision card settles: data-state settling while it flies from its owner's seat to the team space on a ~1 s
   // arc (150 ms apart), then closed; emits studio:settled { id } as it lands. Replays and no-motion land at once.
@@ -159,7 +172,7 @@ body[data-beat="9"] .team-space, body[data-beat="10"] .team-space, body[data-bea
     B.on('joint.agreed', () => requestAnimationFrame(render));
     B.on('decided', ev => { if (ev && (ev.unblock || ev.round === 'first')) requestAnimationFrame(render); });
     B.on('joint.revised', () => requestAnimationFrame(render));
-    B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; } B.teamSpace.count = 0; });
+    B.on('reset', () => { if (list) list.innerHTML = ''; if (box) { box.hidden = true; box.dataset.state = 'empty'; setNotes(false); } B.teamSpace.count = 0; });
     B.on('run.start', () => requestAnimationFrame(render));
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
