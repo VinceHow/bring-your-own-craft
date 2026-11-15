@@ -416,6 +416,7 @@ test('2b. her document: words land, the team chimes in one after another, the ta
   assert.match((await p.locator('.chatter-line[data-seat="research"]').innerText()).replace(/\s+/g, ' ').trim(), /^Noor: Found a source on full classes\.$/i);
   await p.locator('#inbox .inbox-now').click();
   await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'the document', null, p);
+  assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies', 'the old flow keeps two clauses');
   assert.ok(!(await p.isVisible('.chatter-line')), 'the room and its chatter are gone from view');
   assert.match(await p.textContent('#focus-doc .fd-kicker'), /Noor · Research/);
   assert.match(await p.textContent('#focus-doc .fd-work'), /Small studios fill their popular classes/);
@@ -487,6 +488,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.ok(await p.locator('#focus-doc .fd-end').isHidden(), 'no End meeting before a round');
   const wide = await p.evaluate(s => [document.querySelector(s + ' .fd-input').getBoundingClientRect().width, document.querySelector(s).clientWidth], side);
   assert.ok(wide[0] >= wide[1] - 40, `her words get the column's whole width (${wide[0]} of ${wide[1]} px)`);
+  assert.strictEqual(await p.textContent('#focus-doc [data-slot="help"]'), 'Add this keeps a thought · Send when you’re ready, and the team replies · End meeting for the takeaways');
   // Round 1: a long answer (~300 words).
   const long = Array.from({ length: 30 }, (_, i) => `Regulars come in every morning, ${i + 1} of them know the sourdough sells out by nine.`).join(' ');
   await p.locator('#focus-doc .fd-input').fill(long);
