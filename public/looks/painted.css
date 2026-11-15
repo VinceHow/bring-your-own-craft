@@ -909,7 +909,7 @@ html #room [data-component="character-card"] [data-slot="option"] { appearance: 
   background: #FFFBF3; box-shadow: inset 0 0 0 1.5px rgba(51,38,28,.55); font: 500 17px/1 var(--ui); color: var(--ink); outline: none;
   transition: translate .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s; }
 html #room [data-component="character-card"] [data-slot="option"]:hover { translate: 0 -2px; }
-html #room [data-component="character-card"] [data-slot="option"][aria-pressed="true"] { background: #FCEBEF; color: #93374F;
+html #room [data-component="character-card"] [data-slot="option"]:is([aria-pressed="true"], [data-state="picked"]) { background: #FCEBEF; color: #93374F;
   box-shadow: inset 0 0 0 1.7px #93374F, 3px 3px 0 0 var(--product); }
 html #room [data-component="character-card"] [data-slot="option"]:focus-visible { box-shadow: inset 0 0 0 2.4px #93374F, 3px 3px 0 0 var(--product); }
 /* what she loves: her words on her paper */
