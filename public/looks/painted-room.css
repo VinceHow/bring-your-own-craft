@@ -65,3 +65,10 @@ html body #room [data-component="chatter-line"][data-seat="engineering"] { trans
    idea sheet doesn't repeat it ("Noor has a question for you" over "Noor asks…"). The strip stays for a failure or a
    slow team, and comes back if the inbox has no ask on show (while a new note is still flying in, the strip keeps it). */
 html body #room[data-team="question"]:has([data-component="inbox"]:not([data-pt-awaiting]) > [data-slot="now"][data-ask]) [data-component="team-status"] { display: none !important; }
+/* Bo's note sat right of his pill and ran off the window's right edge (the warmer lines are longer): it now sits above
+   his pill, over the bookshelf, clear of his face, of Ines's pill and of the window edge at 1920, 1440 and 1280. */
+html body #room [data-component="chatter-line"][data-seat="engineering"] { translate: 0px calc(-100% - 42px); max-width: 230px !important; border-radius: var(--r-md) var(--r-md) 6px var(--r-md); }
+/* and the two outer notes stay 16px+ inside the window at 1440 and 1280 (the cover crop eats the room's edges):
+   Mika's, left of her pill, and Ines's, right of hers, are a little narrower */
+html body #room [data-component="chatter-line"][data-seat="design"] { max-width: 220px !important; }
+html body #room [data-component="chatter-line"][data-seat="strategy"] { max-width: 245px !important; }
