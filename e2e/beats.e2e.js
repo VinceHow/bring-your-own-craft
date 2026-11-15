@@ -476,7 +476,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
   const posted = [];
-  await p.route('**/api/run/stub-run/**', async r => { posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });
+  await p.route('**/api/run/stub-run/**', async r => { if (r.request().method() === 'POST') posted.push([new URL(r.request().url()).pathname.split('/').pop(), JSON.parse(r.request().postData() || '{}')]); await r.fulfill({ status: 202, json: { ok: true } }); });   // her POSTs only (a look's counters may GET the tally)
   await p.goto(L(BASE + '/?stage=1'));
   await p.waitForTimeout(300);
   await p.evaluate(() => {

@@ -323,3 +323,5 @@ html #room [data-component="focus-doc"] [data-slot="side"] [data-slot="ack"] { f
 html #room [data-component="focus-doc"]:has([data-component="pieces"] > *, [data-slot="conversation"] > *, [data-component="her-answer"]:not(:empty)) > [data-pfd="sheet"] { color: transparent; }
 /* in the meeting her words live in the conversation as her turn; the older "You said" block would say them twice */
 html #room [data-component="focus-doc"] [data-component="meeting"]:has([data-turn="her"]) > [data-component="her-answer"] { display: none !important; }
+/* her words get the column's whole width: the column's side padding is 18px (was 22), so the box is within 40px of it (beats 2c) */
+html #room [data-component="focus-doc"] > [data-slot="side"] { padding-left: 18px !important; padding-right: 18px !important; }
