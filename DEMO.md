@@ -133,7 +133,7 @@ the claim.
      "Then no logins. I'll remember them."* *Ines: "Hmm, regulars might want a standing weekly order. Show that first?"*). Style:
      - spoken, short (about 15 words or fewer), contractions, plain words, the way colleagues talk;
      - nothing that sounds like AI: no "Great point!", no summaries of what she said, no lists, no hedging boilerplate;
-     - **never end in a question to her** ("what do you think?"): that would be a back door past the question ceiling.
+     - **never end in a question to her** ("what do you think?"): that would be a back door past the selector's bar.
        Teammates state what they will do, or build on each other;
      - each line grounded in that teammate's real work in the run; reactions only promise what the build will show;
      - disagreement is welcome but light, and resolves in the thread or in the takeaways.
@@ -241,7 +241,7 @@ card isn't ready when the intro reaches it, the room is honest, with humour: a s
 with no spinner or timer; Theo pops into the chair with the new card the moment it's ready, even mid-flow. If the call
 fails outright, the note stays light (*"Still on the way"*) and the run carries on with the others. "Brings"
 stays true (a role only promises what that teammate's prompt really does), her questions follow her domains, and no
-number is promised (the hidden ceiling stays in code). **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
+number is promised. **The stage demo is unchanged: Priya in Product.** This is for judges' off-script runs.
 **Cut line:** if it isn't ready, the role choice stays Product · Your own craft.
 
 **Her card's rules.** One spoken or typed sentence about what she loves, in her own words; never a form. One fast call
@@ -296,12 +296,11 @@ in, labelled REPLAY, and the presenter says what was replayed.
 - **What reaches her (the rule, adapted from Vincent's Rodi harness, rewritten here, no Rodi code):** the team
   decides almost everything itself, from the idea and her file, and logs why. It brings her a question only if the
   answer **would change what gets built and needs her expertise**. No fixed number is promised: on stage, say the
-  real count ("her team asked 3"). A hidden ceiling stays in code with its test, as a safety net nobody sees; it is never a promise.
+  real count ("her team asked 3").
   - **Candidates:** every teammate proposes decisions as it works.
   - **Ranking:** one model call ranks them by the question bar above: big? draws on what she's good at or loves
     (her words and profile)? can the page show the answer? Granular candidates are decided, never asked. The selector
     writes each question as an open, natural question attached to one piece of work.
-  - **The ceiling:** code never lets more than 3 reach her (test unchanged).
   - **Everything else:** decided and logged, citing a line of her file or "team default".
   - If rehearsal picks a weak question, we fix the ranking, not the script.
 - **Her file grows from her decisions.** It starts with two lines, labelled "prepared for the demo". When she makes a
@@ -314,7 +313,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 ## 3. Real vs prepared
 **Real, and tested:**
-1. the ranking and its threshold (tests: a low-stakes candidate is never asked; a different idea changes the picks; a hidden safety ceiling holds);
+1. the ranking and its threshold (tests: a low-stakes candidate is never asked; a different idea changes the picks);
 2. nothing else can ask her: refused questions are decided and logged;
 3. the counter and its reasons, and the meter, all from the log;
 4. the meeting takeaways and her rewording, and the hidden philosophy file updated from them;
@@ -342,7 +341,7 @@ in, labelled REPLAY, and the presenter says what was replayed.
 
 **Build order:**
 1. event log and meter;
-2. the ranking, cap and ask policy, with their tests;
+2. the ranking, threshold and ask policy, with their tests;
 3. the baseline run;
 4. the room and walk-in;
 5. lines → boxes;

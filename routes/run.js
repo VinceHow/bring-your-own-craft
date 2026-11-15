@@ -158,7 +158,7 @@ export default [
   { method: 'POST', match: url => MINE_POST.test(url.pathname), handler: dispatch },
   { method: 'GET', match: url => MINE_GET.test(url.pathname), handler: dispatch },
   {
-    // The close: a judge's idea -> the three questions it would bring, plus the counter. Logs a fresh run.
+    // The close: a judge's idea -> the questions it would bring, plus the counter. Logs a fresh run.
     method: 'POST', path: '/api/select-for-idea', handler: async (req, res, { body }) => {
       const idea = String(body?.idea || '').trim();
       if (!idea) return sendJson(res, 400, { error: 'idea required' });

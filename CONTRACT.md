@@ -23,7 +23,7 @@ spec; this only fixes the seams so four people can build at once.
 |---|---|---|
 | 1. Room and look | `build/room` | `public/index.html`, `public/room.css`, `public/room.js`, `public/fonts/`, `public/vendor/` (motion copied in), `public/stage.js`, `public/replay.js`, `routes/room.js` |
 | 2. Her flow and grey frames | `build/flow` | `lib/flow.js`, `public/flow.js`, `public/flow.css`, `public/sketches.js`, `public/blocks/`, `routes/flow.js`, `test/flow.test.js` |
-| 3. Selector, cap, her file, inference, log | `build/select` | `lib/teammates.js`, `lib/select.js`, `lib/policy.js`, `lib/taste.js`, `lib/tally.js`, `prompts/`, `vendor/product-management/`, `data/taste.seed.md`, `data/research-finding.json`, `routes/run.js`, `test/select.test.js`, `test/policy.test.js`, `test/tally.test.js`, `test/leak.test.js` |
+| 3. Selector, ask policy, her file, inference, log | `build/select` | `lib/teammates.js`, `lib/select.js`, `lib/policy.js`, `lib/taste.js`, `lib/tally.js`, `prompts/`, `vendor/product-management/`, `data/taste.seed.md`, `data/research-finding.json`, `routes/run.js`, `test/select.test.js`, `test/policy.test.js`, `test/tally.test.js`, `test/leak.test.js` |
 | 4. Template and live fill | `build/page` | `~/taste-template/` (outside the repo), `vendor/taste-skill/`, `templates/`, `lib/fill.js`, `routes/build.js`, `routes/book.js`, `test/fill.test.js` |
 
 Anyone may add a line to `README.md` credits. Nobody else edits a file another piece owns; if you need a change there,
@@ -61,7 +61,7 @@ a line with `→` (or `->`) is a branch, e.g. `regulars → "Book your usual"`. 
 `{ id, seat, decision, options: [string, string, ...], recommendation, reason, cost: 'low'|'high', undoable: bool,
 attachTo: nodeId|null, source?: { title, url } }`. Research cites only its prepared finding.
 
-**Ask** (only the selector creates these; only the big questions in her craft, no number promised; a hidden ceiling in `lib/policy.js`): a candidate plus `{ kind: 'fork'|'pin', why }`.
+**Ask** (only the selector creates these; only the big questions in her craft, no number promised): a candidate plus `{ kind: 'fork'|'pin', why }`.
 
 **Decided:** `{ id, seat, decision, choice, cites: 'L<n>'|'team default' }`. Code rejects a `cites` to a missing line.
 
@@ -97,7 +97,7 @@ shown as a demand on her; waiting events have no mode.
 timings, and everything shown is labelled **REPLAY**.
 
 ## Rules (from CLAUDE.md)
-The fal key is never written anywhere. Questions reach her only if big and in her craft (the selector's ranking and threshold, with their tests); no number is promised, and a hidden ceiling stays in code with its test. Every number on stage comes from a
+The fal key is never written anywhere. Questions reach her only if big and in her craft (the selector's ranking and threshold, with their tests); no number is promised. Every number on stage comes from a
 real run. Commits as `Vincent Hao <49104178+VinceHow@users.noreply.github.com>`, no model names in commits or comments.
 
 ## Studio version seams (Sat 14:00, po/studio)
@@ -146,8 +146,8 @@ The room shows it as a dashed-border GUEST card: "a stand-in for your customer, 
 | The document's look (words landing, chime-ins, her brief), room chatter's look | BYOC builder 1 (polish) | `public/polish.css`, `design/` |
 
 **Ask (replaces fork/pin):** `{ id, seat, by?: 'Noor', question, artifact: { kind: 'journey'|'finding'|'wires'|'page', ref? },
-decisionIds: [candidate ids this question settles] }`. No options, recommendation or "why". The hidden ceiling and its
-test are unchanged; `lib/policy.js` still guards every `ask` event.
+decisionIds: [candidate ids this question settles] }`. No options, recommendation or "why".
+`lib/policy.js` still guards every `ask` event.
 
 **API:**
 - `POST /api/run/:id/answer` `{ askId, text }` → streams (SSE events) `chime { by, seat, text }` ×1–2, then

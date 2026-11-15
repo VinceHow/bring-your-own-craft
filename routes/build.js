@@ -67,7 +67,7 @@ export async function buildRun(run, { call = STUB ? stubCall : undefined, backgr
   const dir = path.join(RUNS_DIR, run);
   const bg = background ? { background: true } : {};
   const step = s => logEvent(run, 'build.step', { step: s, pane: 'engineering', ...bg });
-  step(background ? 'A first version from her idea and the team’s first proposals' : 'Reading her flow, her three answers and her file');
+  step(background ? 'A first version from her idea and the team’s first proposals' : 'Reading her flow, her answers and her file');
   // A joint talk still going when she pressed Build finishes first, so its agreement is revisited against her file.
   if (!background && !STUB) await jointSettled(run);
   const events = readEvents(run);

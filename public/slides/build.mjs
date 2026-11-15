@@ -18,11 +18,10 @@ const read = p => readFileSync(join(ROOT, p), 'utf8');
 const jsonl = p => read(p).split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
 const fail = m => { console.error('build.mjs: ' + m); process.exit(1); };
 
-// 1. What reached her: the ask events in the recorded run's log (the policy caps them at MAX_ASKS).
+// 1. What reached her: the ask events in the recorded run's log (the selector's ranking and threshold decide them).
 const events = jsonl(`${RUN}/events.jsonl`);
 const asks = events.filter(e => e.type === 'ask').length;
-const cap = Number((read('lib/policy.js').match(/export const MAX_ASKS = (\d+)/) || [])[1]);
-if (!(asks >= 1 && asks <= cap)) fail(`${asks} asks in ${RUN}, cap ${cap}`);
+if (!(asks >= 1)) fail(`no asks in ${RUN}`);
 
 // 2. The baseline: a default coding agent on the bakery prompt (run 3).
 // Questions: AskUserQuestion calls in its transcript. Cross-checked against the hand count in GUESSES.md.
@@ -44,7 +43,7 @@ if (approvals == null) fail('no "Approvals: N" line in GUESSES.md');
 
 const numbers = {
   builtAt: new Date().toISOString(),
-  reachedHer: { value: asks, source: `${RUN}/events.jsonl (ask events; capped at ${cap} in lib/policy.js)` },
+  reachedHer: { value: asks, source: `${RUN}/events.jsonl (ask events; the selector decides them)` },
   baseline: {
     asked: { value: questions, source: `${BASE}/transcript.jsonl (AskUserQuestion calls)` },
     guessed: { value: guesses, source: `${BASE}/GUESSES.md (one row per guess)` },

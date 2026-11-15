@@ -18,7 +18,7 @@ const GUEST = { persona: 'A regular at a small yoga studio', reaction: "I book t
     { text: 'I would pay for a pass up front.', confidence: 'low' }, { text: 'a fourth', confidence: 'high' }] };
 const SHAPE = { users: ['Regulars', 'First-timers'], stages: ['Find a class', 'Pick one', 'Confirm', 'Booked'] };
 
-test('the guest: persona from the main user type; G ids; a few, within the safety ceiling; low confidence says check with a real one', async () => {
+test('the guest: persona from the main user type; G ids; at most three points; low confidence says check with a real one', async () => {
   const run = newRun();
   let seen;
   const g = await pullUpGuest({ run, idea: YOGA, ...SHAPE, callModel: async a => { seen = a; return GUEST; } });

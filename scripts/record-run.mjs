@@ -23,7 +23,7 @@ const finished = evs => evs && evs.some(e => e.type === 'select.done' || e.type 
 
 let src = id;
 if (!src) {
-  // The newest finished run; a built one wins over one that only got as far as the three asks.
+  // The newest finished run; a built one wins over one that only got as far as her questions.
   const runs = fs.existsSync(RUNS) ? fs.readdirSync(RUNS).filter(d => d !== name && d !== 'rehearsal' && d !== 'yoga' && d !== 'cafe') : [];
   const done = runs.map(d => ({ d, evs: read(d) })).filter(r => finished(r.evs))
     .map(r => ({ d: r.d, built: r.evs.some(e => e.type === 'build.done'), t: r.evs.at(-1).t }))

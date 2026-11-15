@@ -1,7 +1,7 @@
 // End-to-end: the keyboard-driven demo, walk-in to the close, in stage mode, with real model calls.
 // Run: npm run e2e (or node --test e2e/beats.e2e.js). Owned by build/beats.
 //   1. stage mode: body >= 20px, no chrome, no help card; the live path to the three asks at 1280x720, from a clicker
-//   2. the close with a real judge's idea: contrast before the questions land, <= 3 questions, M from the run's log
+//   2. the close with a real judge's idea: contrast before the questions land, the questions that passed the bar, M from the run's log
 //   3. replays: record-run, R in stage mode, the close's yoga fallback, the REPLAY label throughout
 //   4. fallbacks: a slow or failing call shows its step (never a spinner) and offers R
 import { test, before, after } from 'node:test';
@@ -12,7 +12,6 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-import { MAX_ASKS } from '../lib/policy.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const PORT = 4100 + Math.floor(Math.random() * 80); // 4100-4179: clear of 4045, a port Chromium refuses (ERR_UNSAFE_PORT)
@@ -403,8 +402,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   await waitFor(() => BYOC.events().some(e => e.type === 'select.done' || e.type === 'propose.error'), 110000, 'the team and the selector');
   const evs = await page.evaluate(() => BYOC.events());
   assert.ok(!evs.some(e => e.type === 'propose.error'), 'propose ran');
-  assert.deepStrictEqual(evs.filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel'], 'the three, in order');
-  assert.ok(evs.filter(e => e.type === 'ask').length <= MAX_ASKS);
+  assert.deepStrictEqual(evs.filter(e => e.type === 'ask').map(e => e.first ? 'first' : e.unblock ? 'unblock' : e.feel ? 'feel' : 'other'), ['first', 'unblock', 'feel'], 'the stage path\'s moments, in order, and nothing else');
   assert.deepStrictEqual(errors, []);
 });
 
@@ -700,7 +698,7 @@ test('3. the close: a real judge idea; contrast first, then the questions that r
   assert.ok(judgeLog.some(e => e.type === 'run.start' && e.idea === JUDGE_IDEA), 'the judge’s run is logged with the idea');
   assert.ok(judgeLog.filter(e => e.type === 'flow.line').length >= 2, 'the sketch’s stages went in as her flow');
   const jAsks = judgeLog.filter(e => e.type === 'ask');
-  assert.ok(jAsks.length >= 1 && jAsks.length <= MAX_ASKS, `1 to ${MAX_ASKS} asks (the cap in lib/policy.js), got ${jAsks.length}`);
+  assert.ok(jAsks.length >= 1, `at least one question that passed the bar, got ${jAsks.length}`);
   assert.strictEqual(await page.locator('#close-asks li').first().getAttribute('data-ask'), jAsks[0].id, 'the first check-in is the run’s first ask');
   const cm = (await page.textContent('#close-count')).match(/(\d+) handled by the team · (\d+) for you/);
   assert.ok(cm, 'the caption'); assert.strictEqual(+cm[2], jAsks.length, '"for her" is the run’s asks');

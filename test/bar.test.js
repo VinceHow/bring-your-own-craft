@@ -1,5 +1,5 @@
 // The question bar (DEMO.md): a question reaches her only if it is big, draws on what she's good at or loves, is
-// natural to ask and can be shown on the page. Granular decisions are always the team's. No number is promised; the hidden safety ceiling holds.
+// natural to ask and can be shown on the page. Granular decisions are always the team's. No number is promised.
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { pickAsks, clearsBar, isGranular } from '../lib/select.js';
@@ -44,12 +44,6 @@ test('fewer than three is fine: no fixed number is promised', () => {
   assert.strictEqual(picks.length, 1);
 });
 
-test('safety ceiling: the hidden ceiling still holds when every question passes the bar', () => {
-  const cs = Array.from({ length: 10 }, (_, i) => cand(i + 1, { attachTo: null, decision: `Topic ${'abcdefghij'[i]}xxxx` }));
-  const { picks } = pickAsks(cs, scores(cs.map(c => ({ id: c.id, question: `What does ${'qwertyuiopasdf'[Number(c.id.slice(1))]}zzzzz mean to people?` }))), { flow, max: 99 });
-  assert.strictEqual(picks.length, 3);
-});
-
 test('each decision is settled by at most one question', () => {
   const cs = [cand(1, { attachTo: 'n1' }), cand(2, { attachTo: 'n2', decision: 'Mornings at the counter' }), cand(3, { attachTo: 'n3', decision: 'Another topic entirely' })];
   const { picks } = pickAsks(cs, scores([{ id: 'c1', settles: ['c1', 'c3'] }, { id: 'c2', settles: ['c2', 'c3'], question: 'Who comes back every single week?' },
@@ -70,7 +64,8 @@ test('spread across her work: the journey, the finding and the wireframes before
   const cs = [cand(1, { attachTo: 'n1', decision: 'Alpha topic' }), cand(2, { attachTo: 'n2', decision: 'Bravo topic' }),
     cand(3, { seat: 'design', attachTo: 'n3', decision: 'Charlie topic' }), cand(4, { seat: 'research', attachTo: 'n4', decision: 'Delta topic', source: finding })];
   const { picks } = pickAsks(cs, scores([{ id: 'c1' }, { id: 'c2', question: 'Who comes back every single week?' },
-    { id: 'c3', hers: 2, question: 'How should booking feel late at night?' }, { id: 'c4', hers: 2, big: 2, question: 'When a class is full, what then?' }]), { flow });
+    { id: 'c3', hers: 2, question: 'How should booking feel late at night?' }, { id: 'c4', hers: 2, big: 2, question: 'When a class is full, what then?' }]), { flow, max: 3 });
+  // With a budget of three (max is an optional argument, not a rule), the spread fills each piece before a second on any one.
   assert.deepStrictEqual(picks.map(p => [p.candidate.id, p.artifact.kind]), [['c1', 'journey'], ['c4', 'finding'], ['c3', 'wires']]);
 });
 
