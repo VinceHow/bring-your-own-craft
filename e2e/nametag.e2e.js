@@ -86,7 +86,7 @@ for (const [lookName, look] of LOOKS) {
   test(`${lookName}: the click path: "Make my tag" makes it, then "Meet your team" meets the team`, async () => {
     const { page } = await card(ok(500), { look });
     await page.click('.nt-make');
-    await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
+    await page.waitForFunction(() => ['thinking', 'polishing', 'slow', 'rough', 'done'].includes(document.querySelector('.nt-status')?.dataset.state), null, { timeout: 15000 }); // the 300 ms contract is checked in the Enter test (its tidy holds 'thinking'); here it may already be past it
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
     await page.click('.nt-make');
     await page.waitForFunction(() => BYOC.beat === 1, null, { timeout: 3000 });
@@ -146,7 +146,7 @@ test('after the mic (her words land through BYOC.typeInto), Enter still makes th
   await page.evaluate(s => BYOC.typeInto(s), SAID);
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'intro-input');
   await page.keyboard.press('Enter');
-  await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
+  await page.waitForFunction(() => ['thinking', 'polishing', 'slow', 'rough', 'done'].includes(document.querySelector('.nt-status')?.dataset.state), null, { timeout: 15000 }); // the 300 ms contract is checked in the Enter test (its tidy holds 'thinking'); here it may already be past it
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
   await page.close();
 });
