@@ -323,3 +323,14 @@ html #room [data-component="focus-doc"] [data-slot="side"] [data-slot="ack"] { f
 html #room [data-component="focus-doc"]:has([data-component="pieces"] > *, [data-slot="conversation"] > *, [data-component="her-answer"]:not(:empty)) > [data-pfd="sheet"] { color: transparent; }
 /* in the meeting her words live in the conversation as her turn; the older "You said" block would say them twice */
 html #room [data-component="focus-doc"] [data-component="meeting"]:has([data-turn="her"]) > [data-component="her-answer"] { display: none !important; }
+
+/* ---------- POLISH §1 in her composer: Send is THE one primary (the dark pill); "Add this" and End meeting are secondary
+   (quiet ink text / an outline). Keyed on b3's [data-rank] where it exists, else on the slot. ---------- */
+html #room [data-component="focus-doc"] form :is([data-rank="primary"], [data-slot="send"]:not([data-rank])) {
+  font: 500 17px/1 var(--ui); color: #FFF8F2; background: #3A2A1F; border: 0; padding: 12px 22px; cursor: pointer;
+  border-radius: 22px 20px 23px 19px / 20px 23px 19px 22px; box-shadow: 3px 4px 0 -1px rgba(210,122,141,.85); }
+html #room [data-component="focus-doc"] form :is([data-rank="secondary"][data-slot="add-piece"], [data-slot="add-piece"]:not([data-rank])) {
+  font: 500 15px/1 var(--ui); color: var(--ink-2); background: none; border: 0; box-shadow: none; padding: 6px 2px 5px;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1.2px; background-position: 0 100%; background-repeat: no-repeat; }
+html #room [data-component="focus-doc"] form :is([data-rank="secondary"][data-slot="end-meeting"], [data-slot="end-meeting"]:not([data-rank])) {
+  color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1.4px rgba(51,38,28,.7); font: 500 15px/1 var(--ui); padding: 9px 14px; }
