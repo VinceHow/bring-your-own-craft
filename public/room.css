@@ -635,3 +635,12 @@ html:not(.painted-on) body #room #inbox [data-component="inbox-action"] :is([dat
 .qr-close:hover { background: rgba(51,38,28,.08); }
 @media (prefers-reduced-motion: no-preference) { .qr-card-wrap[data-state="open"] .qr-card { animation: qr-in .35s cubic-bezier(.2,.9,.3,1.2) both; } }
 @keyframes qr-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }
+/* Vincent, Sun 10:30: during the demo the QR is the whole screen, nothing else. The card's own cream (#FBF6EC) fills the
+   window edge to edge, so the card disappears into it: just "The Usual", the code and "Scan to reserve a loaf", as large
+   as fits. No dim, no frame, no room behind, no page sheet, no app button. Esc, the × or a click on the cream closes it. */
+.qr-card-wrap { z-index: 2147483000 !important; background: #FBF6EC !important; }
+.qr-card { box-shadow: none !important; border-radius: 0 !important; }
+.qr-img { height: min(94vh, calc(94vw * 1240 / 980)) !important; border-radius: 0 !important; }
+.qr-close { position: fixed !important; top: 18px; right: 22px; opacity: .35; }
+.qr-close:hover { opacity: .8; }
+.qr-card-wrap { cursor: pointer; } .qr-card-wrap .qr-card { cursor: default; }
