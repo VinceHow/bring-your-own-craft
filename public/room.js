@@ -1215,9 +1215,17 @@
     place(c, { y: [24, 0], opacity: [0, 1] }, !instantMode);
   }
   // Her idea, down: kept for the run, the tailored lines asked for (never waited on), then her name tag.
-  function ideaDone() {
-    const c = ideaCard; if (!c || BYOC.beat !== 0) return;
-    const text = $('#idea-input', c).value.trim();
+  async function ideaDone() {
+    const c = ideaCard; if (!c || BYOC.beat !== 0 || c.dataset.state === 'tidying') return;
+    const inp = $('#idea-input', c);
+    const raw = inp.value.trim();
+    // Her line, tidied in place first (BYOC.tidyInto, builder 8: cut, never reworded; her raw words if slow or refused).
+    let text = raw;
+    if (raw && typeof BYOC.tidyInto === 'function' && !BYOC.replay) {
+      c.dataset.state = 'tidying';
+      try { text = String(await BYOC.tidyInto(inp, raw) || raw).trim() || raw; } catch { text = raw; }
+      if (ideaCard !== c || BYOC.beat !== 0) return;
+    }
     c.dataset.state = 'done';
     ideaCard = null;
     BYOC.pendingIdea = text || null;
