@@ -40,7 +40,7 @@ The proof: I built it the same way. One human with an idea and a team of agents:
 decisions I'm good at, and agents did the rest, as builders, designers, reviewers and a merger. That's over 1,000
 commits in about 23 hours.
 
-![Slide 8, the future: a table with room for everyone, people and agents side by side](docs/readme/slides/08-the-future.jpg)
+![Slide 8, the future: a table with room for everyone, people and agents side by side; tomorrow your team is sales reps, writers and marketers too](docs/readme/slides/08-the-future.jpg)
 Next, the table gets bigger. Today the other seats are agents; next, real people join them: a real engineer takes
 the Engineering seat and brings their own team of agents. A table with room for everyone, each doing what they're
 best at.
@@ -179,6 +179,17 @@ emerges from what you say. It uses that to decide the way you would, and asks yo
 **Every craft gets a seat.** I'm starting with product managers like Priya, because they know customers and journeys
 inside out and have more ideas than people to build them. The same shape fits a designer, a researcher, or a baker
 with a business idea: you take the seat of your craft, and the team fills the rest.
+
+**Any work, not just apps.** The app is only the first table. Bring your craft to any work, and the team fills
+whatever seats it needs: sales reps, writers, marketers, support.
+- **A baker opening a second shop** perfects the recipes. Her team runs the launch: a writer drafts the menu and the
+  opening-week posts, a marketer gets the local press in, and a sales rep signs the café that wants her sourdough.
+- **A designer launching a course** makes the lessons. Her team builds the landing page, writes the email sequence,
+  sets up payments and answers the students' questions.
+- **A researcher with a breakthrough** does the science. Her team drafts the grant application, finds industry
+  partners and handles the paperwork.
+
+Whatever the work, only what you love comes back to you.
 
 **A table with room for everyone.** Next, real people join the table: invite a real engineer to the Engineering seat,
 and they bring their own team of agents. People and agents side by side, everyone doing what they're best at.
