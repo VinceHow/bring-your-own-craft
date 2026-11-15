@@ -1,4 +1,4 @@
-- [L1] I love i'm working on the customer journey, understanding the problems customers face, and building products that solve them. (her own words, today)
+- [L1] I love talking to customers and turning what they say into what we build (her own words, today)
 - [L2] Ship the smallest version that works end to end; extras wait for evidence. (prepared for the demo)
-- [L3] I believe we build first for the morning regulars, the people who come every day and hate it when the sourdough is gone by nine.
-- [L4] Ordering should feel like being known: never ask for anything you could remember or skip.
+- [L3] Our first users are the regulars who come every morning and get frustrated when their favourite bread sells out.
+- [L4] The experience should feel like walking into a shop where they know your name and your usual order.

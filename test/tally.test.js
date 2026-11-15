@@ -51,3 +51,10 @@ test('tally has the API shape', () => {
   assert.deepEqual(Object.keys(t).sort(), ['brought', 'came', 'decided', 'meter', 'reasons']);
   assert.equal(t.reasons.length, 6);
 });
+
+test('counter: an ask raised before the team proposes came up too (never "0 came up, 3 brought")', () => {
+  const ev = [{ type: 'ask', id: 'first' }, { type: 'ask', id: 'u-engineering-1' }, { type: 'ask', id: 'feel' }];
+  assert.deepEqual(counter(ev), { came: 3, brought: 3, decided: 0 });
+  const later = [...ev, ...['c1', 'c2'].map(id => ({ type: 'candidate', id })), { type: 'ask', id: 'c1' }];
+  assert.equal(counter(later).came, 5, 'two candidates and the three asks raised without one');
+});

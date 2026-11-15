@@ -60,12 +60,12 @@ for (const [lookName, look] of LOOKS) {
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
     assert.ok(Date.now() - t0 <= 300 + 150, `progress shown in ${Date.now() - t0} ms`);
-    assert.match((await status(page)).text, /making your name tag/i);
+    assert.match((await status(page)).text, /writing your tag/i);
     assert.ok(await visible(page), 'the progress line is on screen');
     // The tidy (800 ms) done, her rough card is up before the team answers (1.5 s), Meet your team ready.
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'rough', null, { timeout: 2000 });
     assert.equal((await status(page)).state, 'polishing');
-    assert.match((await status(page)).text, /polishing your tag/i);
+    assert.match((await status(page)).text, /adding its spin/i);
     assert.ok(await visible(page), 'the polishing line is on screen');
     assert.equal(await page.textContent('.nt-make'), 'Meet your team');
     assert.ok(await shown(page, '.nt-make'), 'Meet your team on screen');
@@ -86,7 +86,7 @@ for (const [lookName, look] of LOOKS) {
   test(`${lookName}: the click path: "Make my tag" makes it, then "Meet your team" meets the team`, async () => {
     const { page } = await card(ok(500), { look });
     await page.click('.nt-make');
-    await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
+    await page.waitForFunction(() => ['thinking', 'polishing', 'slow', 'rough', 'done'].includes(document.querySelector('.nt-status')?.dataset.state), null, { timeout: 15000 }); // the 300 ms contract is checked in the Enter test (its tidy holds 'thinking'); here it may already be past it
     await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
     await page.click('.nt-make');
     await page.waitForFunction(() => BYOC.beat === 1, null, { timeout: 3000 });
@@ -110,7 +110,7 @@ test('slow: it says it is still polishing; it still lands in place', async () =>
   const { page } = await card(ok(7500));
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'slow', null, { timeout: 8000 });
-  assert.match((await status(page)).text, /still polishing your tag/i);
+  assert.match((await status(page)).text, /still adding its spin/i);
   assert.equal(await page.textContent('.nt-make'), 'Meet your team', 'never blocked while slow');
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 8000 });
   await page.close();
@@ -146,7 +146,7 @@ test('after the mic (her words land through BYOC.typeInto), Enter still makes th
   await page.evaluate(s => BYOC.typeInto(s), SAID);
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'intro-input');
   await page.keyboard.press('Enter');
-  await page.waitForFunction(() => document.querySelector('.nt-status')?.dataset.state === 'thinking', null, { timeout: 300 });
+  await page.waitForFunction(() => ['thinking', 'polishing', 'slow', 'rough', 'done'].includes(document.querySelector('.nt-status')?.dataset.state), null, { timeout: 15000 }); // the 300 ms contract is checked in the Enter test (its tidy holds 'thinking'); here it may already be past it
   await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
   await page.close();
 });
@@ -164,5 +164,32 @@ for (const [lookName, look] of LOOKS) test(`${lookName}: after the team, her ide
   await page.keyboard.type('srb'); // shortcut letters (S, R, B) go into her input, not to the room
   assert.equal(await page.inputValue('#her-input'), 'srb');
   assert.ok(await page.evaluate(() => !BYOC.replay && !document.body.classList.contains('stage')), 'no shortcut fired');
+  await page.close();
+});
+
+for (const [lookName, look] of LOOKS) test(`${lookName}: "Your own craft" is a seat choice on the same paper: one name tag, both labels, and she sits in her own craft`, async () => {
+  const { page } = await card(async r => r.fulfill({ status: 200, json: { ...TAG, craft: 'Tattoo artist', goodAt: 'fine lines', loves: 'flowers' } }), { look });
+  const oneTag = () => page.evaluate(() => [...document.querySelectorAll('.name-tag, .nt-paper, [data-component="character-card"]')]
+    .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; }).length);
+  const labels = () => page.evaluate(() => [...document.querySelectorAll('.nt-paper .pick-option')].map(b => {
+    const r = b.getBoundingClientRect(), cs = getComputedStyle(b);
+    return r.width > 0 && cs.visibility !== 'hidden' && cs.color !== cs.backgroundColor && +cs.opacity > 0 ? b.innerText.trim() : '';
+  }));
+  for (const seat of ['craft', 'product', 'craft']) {
+    await page.click(`.nt-paper .pick-option[data-pick="${seat}"]`);
+    await page.waitForTimeout(150);
+    assert.equal(await oneTag(), 1, `exactly one name tag after picking ${seat}`);
+    assert.deepEqual(await labels(), ['Product', 'Your own craft'], `both seat labels show after picking ${seat}`);
+    assert.equal(await page.getAttribute(`.nt-paper .pick-option[data-pick="${seat}"]`, 'aria-pressed'), 'true');
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'intro-input', 'her words are next');
+  }
+  await page.fill('#intro-input', 'I do fine-line tattoos and I love flowers');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('.nt-paper')?.dataset.state === 'shown', null, { timeout: 5000 });
+  await page.waitForFunction(() => window.__profile, null, { timeout: 5000 });
+  assert.equal(await oneTag(), 1, 'still one name tag');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => BYOC.beat === 1, null, { timeout: 3000 });
+  assert.deepEqual(await page.evaluate(() => [BYOC.herSeat, BYOC.herTag.craft, BYOC.herTag.title]), ['diy', 'Tattoo artist', 'the Journey Mapper']);
   await page.close();
 });

@@ -31,9 +31,11 @@ function writeWav(file, secs = 3, rate = 16000) {
 before(async () => {
   writeWav(WAV);
   // This server has no route to ElevenLabs (proxy variables dropped), so it stands for "no key" whatever this
-  // environment has; the voice tests below stub the browser's calls.
+  // environment has; the voice tests below stub the browser's calls. On fal the model calls (the tidy) need the
+  // proxy (it injects the fal key), so there the proxy stays and only ElevenLabs bypasses it (NO_PROXY): still no route.
   const env = { ...process.env, PORT: String(PORT), RUNS_DIR: RUNS };
-  for (const k of ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy', 'NODE_USE_ENV_PROXY']) delete env[k];
+  if (env.MODEL_BACKEND === 'fal') { const np = [env.NO_PROXY || env.no_proxy, 'api.elevenlabs.io'].filter(Boolean).join(','); env.NO_PROXY = env.no_proxy = np; }
+  else for (const k of ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy', 'NODE_USE_ENV_PROXY']) delete env[k];
   srv = spawn('node', ['server.js'], { cwd: ROOT, env });
   srv.stdout.on('data', d => (logs += d)); srv.stderr.on('data', d => (logs += d));
   for (let i = 0; i < 50 && !logs.includes('room on'); i++) await new Promise(r => setTimeout(r, 100));

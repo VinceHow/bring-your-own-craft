@@ -264,20 +264,15 @@
   }
 
   // ---- her role on her paper name tag: Product, or her own craft ------------------------------------
-  // Product is prefilled (the stage path). "Your own craft" makes her name tag with builder 6's flow (public/name-tag.js);
-  // once she keeps it, she meets the team and sits in her seat with that craft.
-  async function pick(what) {
+  // Product is prefilled (the stage path). "Your own craft" is only a seat choice on this same paper: her "I love…"
+  // words carry her craft (the name tag's background call names it), and she sits in her own-craft seat. The old
+  // separate DIY popup (public/name-tag.js) is retired from the room: one name tag, one input, one mic.
+  function pick(what) {
     if (BYOC.beat !== 0 || BYOC.replay || !introCard) return;
     const pc = $('.pick-card', introCard); if (!pc) return;
     pc.dataset.pick = what;
     pc.querySelectorAll('.pick-option').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.pick === what)); b.dataset.state = b.dataset.pick === what ? 'picked' : 'idle'; });
     emit('pick.done', { pick: what });
-    if (what === 'craft') {
-      BYOC.herName = herNameField();
-      const tag = await takeDiySeat();
-      if (!tag && BYOC.beat === 0 && pc.isConnected) { pc.dataset.pick = 'product'; pc.querySelectorAll('.pick-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pick === 'product'))); }
-      return;
-    }
     $('#intro-input', introCard)?.focus();
   }
   BYOC.pick = { choose: pick, current: () => (introCard && $('.pick-card', introCard)?.dataset.pick) || null };
@@ -746,9 +741,11 @@
   // meter = craft / (craft + stamp) over events that carry a mode.
   function tallyFromEvents(events) {
     let came = 0, brought = 0, decided = 0, craft = 0, stamp = 0;
+    // An ask raised before the team proposes (Focus 1, an unblock, Focus 2) came up too: never "0 came up, 3 brought".
+    const cand = new Set(events.filter(e => e.type === 'candidate').map(e => e.id));
     for (const e of events) {
       if (e.type === 'candidate') came++;
-      else if (e.type === 'ask') brought++;
+      else if (e.type === 'ask') { brought++; if (!cand.has(e.id)) came++; }
       else if (e.type === 'decided') decided++;
       if (e.mode === 'craft') craft++;
       else if (e.mode === 'stamp') stamp++;
@@ -799,7 +796,9 @@
   const sk = { sheet: $('#sketch-sheet'), inner: $('#sketch-inner'), wait: $('#sketch-wait'), req: null };
   BYOC.el.sketchSheet = sk.sheet;
   BYOC.timings = {};
-  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.run)}/sketches`; }
+  // In a replay the frames come from the recording's own folder (its cached sketches), never the original run's id,
+  // which this server may not have (a 404 in the console during R).
+  function sketchUrl() { return `/api/run/${encodeURIComponent(BYOC.replay && BYOC.replayName ? BYOC.replayName : BYOC.run)}/sketches`; }
   // One request for Design's frames, shared by the sketch sheet and her focus document.
   BYOC.getSketches = () => sk.req || (sk.req = BYOC.api(sketchUrl(), undefined, { step: false }).catch(e => { sk.req = null; throw e; }));
   // Her journey changed (a line, a reshape, her answer redrawing it): frames fetched for the old boxes are stale.
@@ -1187,9 +1186,9 @@
           <button type="button" class="pick-option" data-pick="craft" data-slot="option" data-state="idle" aria-pressed="false">Your own craft</button>
         </div>
       </div>
-      <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">What do you love, and what do you bring?</span>
+      <label class="nt-row nt-love-row"><span class="nt-label" data-slot="label">In a sentence: what do you love about it?</span>
         <textarea class="bc-love-input nt-love" id="intro-input" data-slot="input" data-voice="intro" rows="2" spellcheck="false" maxlength="240" placeholder="I love…" aria-label="What you love and bring"></textarea></label>
-      <div class="nt-hint" data-slot="hint">Say it in your own words · Enter: the team makes your name tag</div>
+      <div class="nt-hint" data-slot="hint">Type it or say it · Enter, and the team writes your tag</div>
       <div class="nt-status" data-slot="status" role="status" aria-live="polite" data-state="idle"></div>
       <div class="nt-actions" data-slot="actions"><button type="button" class="nt-make" data-slot="make" data-state="make">Make my tag</button></div>`;
     st.appendChild(c);
@@ -1231,24 +1230,32 @@
     const drawTraits = () => { traits.innerHTML = cur.traits.map((t, i) => `<li class="char-trait" data-slot="trait"><button type="button" class="char-swap" data-i="${i}">${esc(t)}</button></li>`).join(''); };
     drawTraits();
     const power = cur.superpower ? h('p', 'char-power', `<span class="char-label">Superpower</span> <button type="button" class="char-swap char-power-text" data-slot="superpower">${esc(cur.superpower)}</button>`) : null;
-    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · click any piece to swap it · Enter: meet your team' : 'Your name tag, in your words · Enter: meet your team'); hint.dataset.slot = 'hint';
+    const hint = h('div', 'char-hint', cur.title ? 'The team’s read of you · tap any piece to swap it · Enter: meet your team' : 'Enter: meet your team'); hint.dataset.slot = 'hint';
     title.addEventListener('click', e => { if (!e.target.closest('.char-title')) return; cur.title = swap('titles', cur.title); e.target.closest('.char-title').textContent = cur.title; });
-    traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits(); c.focus(); });
+    traits.addEventListener('click', e => { const b = e.target.closest('.char-swap'); if (!b) return; const i = +b.dataset.i; cur.traits[i] = swap('traits', cur.traits[i]); drawTraits();
+      traits.dataset.state = 'swapped'; const li = traits.children[i]; if (li) li.dataset.state = 'new'; c.focus(); });   // a look re-inks only the one she swapped
     if (power) power.addEventListener('click', e => { const b = e.target.closest('.char-power-text'); if (!b) return; cur.superpower = swap('superpowers', cur.superpower); b.textContent = cur.superpower; });
-    body.append(title, traits); if (power) body.appendChild(power); body.appendChild(hint);
+    // her own words stay on her tag, small, under the team's read (or as the whole tag if the team couldn't add its spin)
+    const said = cur.loves ? h('p', 'char-said', `<span>In your words</span>“${esc(cur.loves)}”`) : null; if (said) said.dataset.slot = 'said';
+    body.append(title, traits); if (power) body.appendChild(power); if (said) body.appendChild(said); body.appendChild(hint);
     c.appendChild(body);
   }
   // Her name tag's second call, in the background: the swaps land on her card (or on her kept tag if she has moved on),
   // and her words for the team's profile; 'tag.profile' says it arrived. On failure the team keeps her raw words.
   function tagMore(c, cur, said) {
     const card = { title: cur.title, traits: cur.traits, superpower: cur.superpower };
-    BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'more', card, seat: 'product' }, { step: false }).then(m => {
+    const diy = $('.pick-card', c)?.dataset.pick === 'craft';
+    BYOC.api('/api/name-tag', { text: 'I love ' + said.replace(/^i love\s*/i, ''), part: 'more', card, ...(diy ? {} : { seat: 'product' }) }, { step: false }).then(m => {
       if (!m) return;
       const alt = m.alternates || {};
       for (const k of ['titles', 'traits', 'superpowers']) if (Array.isArray(alt[k])) cur.alternates[k] = alt[k].filter(x => x && x !== cur.title && !cur.traits.includes(x) && x !== cur.superpower);
       if (m.goodAt) cur.goodAt = m.goodAt;
       if (m.loves) cur.loves = m.loves;
-      if (introCard !== c && BYOC.herTag) BYOC.herTag = { ...BYOC.herTag, goodAt: cur.goodAt, loves: cur.loves };
+      if (diy && m.craft) cur.craft = m.craft;
+      if (introCard !== c && BYOC.herTag) {
+        BYOC.herTag = { ...BYOC.herTag, goodAt: cur.goodAt, loves: cur.loves, ...(diy ? { craft: cur.craft } : {}) };
+        const name = diy && el.seat.product.querySelector('.card-diy .card-name'); if (name && cur.craft) name.textContent = cur.craft;
+      }
       emit('tag.profile', { rough: !!m.rough });
     }).catch(() => emit('tag.profile', { rough: true }));
   }
@@ -1258,13 +1265,13 @@
     c._char = cur;
     drawCharacter(c, cur);
     c.dataset.state = 'rough';
-    tagStatus(c, 'polishing', 'The team is polishing your tag…');
+    tagStatus(c, 'polishing', 'The team is adding its spin… meet them whenever you like.');
     if (!c._keys) {
       c._keys = true;
       c.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id !== 'intro-input') { ev.preventDefault(); ev.stopPropagation(); introDone(); } });
     }
     c.tabIndex = -1; c.focus(); // Enter or the clicker: meet the team
-    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'rough') tagStatus(c, 'slow', 'Still polishing your tag… meet the team whenever you like.'); }, TAG_SLOW_MS);
+    const slow = setTimeout(() => { if (introCard === c && c.dataset.state === 'rough') tagStatus(c, 'slow', 'Still adding its spin… meet the team whenever you like.'); }, TAG_SLOW_MS);
     let r = null;
     try {
       r = await Promise.race([
@@ -1282,7 +1289,7 @@
     tagMore(c, cur, said);
     // She already met the team: the team's read still reaches her place card.
     if (introCard !== c) { if (usable && BYOC.herTag && !BYOC.herTag.title) { BYOC.herTag = { ...BYOC.herTag, ...cur, alternates: undefined }; drawHerCharacter(el.seat.product && el.seat.product.querySelector('.card')); emit('tag.polished', { title: cur.title }); } return; }
-    if (!usable) { tagStatus(c, 'rough', 'Your name tag, in your own words.'); return; }
+    if (!usable) { tagStatus(c, 'rough', 'The team couldn’t add its spin this time, so your tag is in your own words.'); return; }
     drawCharacter(c, cur);
     c.dataset.state = 'shown';
     tagStatus(c, 'done', '');
@@ -1296,8 +1303,9 @@
     const inp = $('#intro-input', c);
     const raw = inp.value.trim();
     if (raw && c.dataset.state === 'asking') {
+      c.style.setProperty('--pt-nt-h', c.offsetHeight + 'px'); // the paper keeps its size as it turns into her tag (a look may use it)
       inp.readOnly = true; c.dataset.state = 'thinking'; BYOC.introRaw = raw;
-      tagStatus(c, 'thinking', 'The team is making your name tag…');
+      tagStatus(c, 'thinking', 'The team is writing your tag…');
       let said = raw;
       if (typeof BYOC.tidy === 'function') { try { said = String(await BYOC.tidy(raw, { field: 'intro', timeoutMs: 2500 }) || raw).trim() || raw; } catch { said = raw; } }
       if (introCard !== c) return;
@@ -1308,6 +1316,10 @@
     introCard = null;
     BYOC.herName = herNameField();
     if (c._char) BYOC.herTag = { ...c._char, alternates: undefined };
+    if ($('.pick-card', c)?.dataset.pick === 'craft') {
+      BYOC.herSeat = 'diy';
+      BYOC.herTag = { ...(BYOC.herTag || {}), craft: (c._char && c._char.craft !== 'Product' && c._char.craft) || 'Your own craft' };
+    }
     const said = inp.value.trim();
     BYOC.intro = said ? 'I love ' + said.replace(/^i love\s*/i, '') : null;
     inp.blur();
