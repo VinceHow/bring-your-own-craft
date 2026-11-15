@@ -37,6 +37,9 @@ presses to reach the build, not one).
 - **Check the fal balance** on the fal dashboard before the talk. A 401, 402 or "balance" line in the Terminal means
   stop and top up; never switch silently.
 - R replays `runs/rehearsal`: re-recorded on fal on the meeting model (Focus 1 in rounds, the unblock, Focus 2, her page).
+- **R is a fallback for single moments, not the whole talk.** It plays the recorded run on its own timings (4:24 in full,
+  longer than the talk); → moves the beat on but does not skip the replay's clock. If you need it shorter, open the room
+  with `?speed=2` (about 2:12).
 
 ## If fal fails on stage: Fallback B, company Claude Code
 
