@@ -1483,3 +1483,8 @@ html #room [data-component="focus-doc"] [data-component="meeting"] [data-compone
   html #room [data-component="setup"] :is([data-component="idea-card"], [data-component="character-card"], [data-component="meet-card"]) { transform: none !important; translate: none !important; opacity: 1 !important; }
   html #room [data-component="note-flight"] { display: none !important; }
 }
+
+/* P0 (b8, 1440×900): the room is a clip, never a scroller. With overflow: hidden a focus() or scrollIntoView() on anything
+   reaching past its right edge (a tidy overlay, a wide note) scrolled #room 24 px sideways, so her document's title read
+   "Vho should we build…". overflow: clip cannot be scrolled at all. */
+html body #room { overflow: clip !important; }

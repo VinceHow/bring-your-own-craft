@@ -545,8 +545,7 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.ok(await p.locator('#focus-doc [data-slot="new-replies"]').isVisible(), '"New replies ↓" while she has scrolled up');
   assert.ok(await p.evaluate(s => document.querySelector(s).scrollTop < 50, side), 'her place is kept');
   await p.click('#focus-doc [data-slot="new-replies"]');
-  await p.waitForTimeout(100);
-  assert.ok(await p.evaluate(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, side), 'the pill takes her to the newest reply');
+  await waitFor(s => { const c = document.querySelector(s); return c.scrollHeight - c.scrollTop - c.clientHeight < 60; }, 2000, 'the pill glides her to the newest reply', side, p);
   assert.ok(await p.locator('#focus-doc [data-slot="new-replies"]').isHidden(), 'and goes away');
   assert.ok(await p.locator('#focus-doc .fd-brief').isHidden(), 'still no takeaways');
   // Leaving mid-meeting asks her plainly.
@@ -566,6 +565,48 @@ test('2c. a meeting (stubbed): a long answer, two rounds, then End meeting; the 
   assert.ok(await p.evaluate(s => { const c = document.querySelector(s), b = c.querySelector('.fd-brief'); const cr = c.getBoundingClientRect(), br = b.getBoundingClientRect(); return br.top >= cr.top - 2 && br.top < cr.bottom; }, side), 'the column ends on the takeaways');
   const order = await p.evaluate(s => [...document.querySelector(s).children].filter(e => !e.hidden).map(e => e.className.split(' ')[0]), side);
   assert.ok(order.indexOf('fd-chimes') < order.indexOf('fd-brief'), `the takeaways come after the conversation: ${order}`);
+  assert.deepStrictEqual(perrs, []);
+  await p.close();
+});
+
+test('2d. never stuck in a meeting (stubbed): one primary (Send), End meeting secondary; Send while the team is still replying gives her words back', async () => {
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const perrs = []; p.on('pageerror', e => perrs.push(String(e)));
+  let busy = false;
+  await p.route('**/api/run/stub-run/**', async r => {
+    if (busy && /\/round$/.test(new URL(r.request().url()).pathname)) return r.fulfill({ status: 409, json: { error: 'the team is still replying' } });
+    await r.fulfill({ status: 202, json: { ok: true } });
+  });
+  await p.goto(L(BASE + '/?stage=1'));
+  await p.waitForTimeout(300);
+  await p.evaluate(() => {
+    BYOC.stage(5, { instant: true }); BYOC.run = 'stub-run';
+    BYOC.dispatch({ run: 'stub-run', type: 'ask', id: 'q1', seat: 'design', by: 'Mika', question: 'What should ordering feel like?', artifact: { kind: 'journey' } }, 'live');
+    BYOC.openNote('q1');
+  });
+  await waitFor(() => BYOC.focusDoc.isOpen(), 2000, 'her document', null, p);
+  assert.strictEqual(await p.getAttribute('#focus-doc .fd-send', 'data-rank'), 'primary', 'Send is the one primary action');
+  assert.strictEqual(await p.getAttribute('#focus-doc .fd-end', 'data-rank'), 'secondary');
+  await p.locator('#focus-doc .fd-input').fill('Their usual, one tap.');
+  await p.keyboard.press('Enter');
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'chime', askId: 'q1', by: 'Mika', seat: 'design', text: 'One tap it is.', round: 1 }, 'live'));
+  await waitFor(() => document.querySelectorAll('#focus-doc [data-turn="team"]').length === 1, 3000, 'a reply', null, p);
+  // A second Send before the round is done: the server says the team is still replying. Nothing is lost.
+  busy = true;
+  await p.locator('#focus-doc .fd-input').fill('And never ask twice.');
+  await p.locator('#focus-doc .fd-input').focus();
+  await p.keyboard.press('Enter');
+  await waitFor(() => document.querySelector('#focus-doc .fd-input').value === 'And never ask twice.', 3000, 'her words back in the box', null, p);
+  assert.match(await p.textContent('#focus-doc .fd-team'), /still replying/);
+  assert.strictEqual(await p.locator('#focus-doc [data-turn="her"]').count(), 1, 'the unsent turn is taken back off the conversation');
+  assert.strictEqual(await p.locator('#focus-doc .fd-round-sep').count(), 0);
+  assert.strictEqual(await p.getAttribute('#focus-doc [data-slot="side"]', 'data-state'), 'composing');
+  // Once the round is done, the same words go.
+  busy = false;
+  await p.evaluate(() => BYOC.dispatch({ run: 'stub-run', type: 'round.done', askId: 'q1', round: 1, replies: 1 }, 'live'));
+  await p.locator('#focus-doc .fd-input').focus();
+  await p.keyboard.press('Enter');
+  await waitFor(() => document.querySelectorAll('#focus-doc [data-turn="her"]').length === 2, 3000, 'round 2 sent', null, p);
   assert.deepStrictEqual(perrs, []);
   await p.close();
 });

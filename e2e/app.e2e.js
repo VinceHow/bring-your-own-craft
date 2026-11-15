@@ -101,6 +101,15 @@ test('the app button: there from the first frame, never covered, a sensible stat
   // reset (a new run): back to none
   await p.evaluate(() => BYOC.reset && BYOC.reset());
   if (await p.evaluate(() => typeof BYOC.reset === 'function')) assert.equal(await state(), 'none');
+  // never stuck (docs/POLISH.md §4): a first build that stops offers "Build again"; pressed, it tries again, and if the
+  // request gets no word from the build, it says so again rather than hang on "Starting again".
+  await p.evaluate(() => { BYOC.run = 'stub-app'; BYOC.dispatch({ run: 'stub-app', type: 'build.step', step: 'Build failed: model timeout', t: Date.now() }, 'replay'); });
+  assert.equal(await state(), 'failed');
+  assert.match(await p.textContent('.app-label'), /Build again/);
+  assert.ok(!(await p.isDisabled('.app-open')), 'a way on');
+  await p.click('.app-open');
+  await p.waitForFunction(() => document.querySelector('[data-component="app-button"]').dataset.state === 'failed', null, { timeout: 5000 });
+  assert.match(await p.textContent('.app-hint'), /stopped/);
   assert.deepStrictEqual(errors, []);
   await p.close();
 });
