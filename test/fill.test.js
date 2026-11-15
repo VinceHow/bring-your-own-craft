@@ -99,7 +99,9 @@ for (const template of ['yoga', 'cafe', 'bakery']) {
     assert.notEqual(order(read(b))[1], 'regulars');
     const o = order(read(a));
     const last = loadTemplate(template).defaults.steps.at(-1);
-    assert.ok(o.indexOf('decided') > o.indexOf(last), '"decided for you" stays under the booking steps');
+    // Her bakery page has no "Decided for you" section (audit F9, BRIEF §2); the other templates keep theirs, hidden, last.
+    if (template === 'bakery') assert.ok(!o.includes('decided') && !/Decided for you/.test(read(a)), 'no "Decided for you" on her bakery page');
+    else assert.ok(o.indexOf('decided') > o.indexOf(last), '"decided for you" stays under the booking steps');
   });
 }
 
@@ -336,3 +338,31 @@ test('the phone field is opt-in: the two phrasings from the yoga run, c16 and c1
   assert.equal(phone('How the customer is told the order went through, and what shows if it fails', 'On-screen confirmation plus text message, with a clear retry and phone fallback on failure'), false);
   assert.equal(phone('How we tell them it is ready', "Collect customers' phone for pickup texts"), true);
 });
+
+// Audit F9: her page honours her Focus 2 line, whatever the model wrote ("her sentence from two minutes ago").
+test('bakery: her Focus 2 line wins: first name only, no email or how-many field, no text promised, regulars first, no "Decided for you"', async () => {
+  const out = tmp();
+  const answers = [{ askId: 'first', text: 'Regulars first. Nothing to fill in: they just tell me their first name, and one loaf each.' }];
+  await fillPage({ run: 'r', outDir: out, idea: BAKERY_IDEA, taste: TASTE, answers, template: 'bakery', call: fakeModel({ template: 'bakery',
+    words: { orderedBody: 'A text arrives once your loaf is set aside. Collect it warm.', confirmSent: 'Ordered. The confirmation email is on its way.' },
+    switches: { regulars: true, regularsFirst: false, email: true, quantity: true } }) });
+  const html = read(out);
+  assert.match(html, /<label for="f-name">First name<\/label>/);
+  assert.doesNotMatch(html, /id="f-email"/, 'no email field');
+  assert.doesNotMatch(html, /id="f-qty"/, 'no how-many field');
+  assert.match(html, /name="quantity" value="1"/, 'one loaf by default');
+  assert.doesNotMatch(html, /id="f-phone"/, 'no phone field');
+  assert.doesNotMatch(html, /\ba text\b|text message/i, 'no text promised without a phone field');
+  assert.doesNotMatch(html, /confirmation email/i, 'no email promised without an email field');
+  assert.match(html, /Collect it warm\./, 'the rest of her line stays');
+  assert.doesNotMatch(html, /Decided for you/);
+  assert.deepEqual(sections(html).slice(0, 2), ['hero', 'regulars'], 'regulars first, as she said');
+});
+
+test('bakery: an email or how-many field comes back only when her own words ask for it', async () => {
+  const out = tmp();
+  const answers = [{ askId: 'first', text: 'Ask for their email address, and how many loaves they want.' }];
+  await fillPage({ run: 'r', outDir: out, idea: BAKERY_IDEA, taste: TASTE, answers, template: 'bakery', call: fakeModel({ template: 'bakery' }) });
+  assert.match(read(out), /id="f-email"/); assert.match(read(out), /id="f-qty"/);
+});
+
