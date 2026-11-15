@@ -121,7 +121,7 @@ test('1c. her character card on the Product seat: her sentence, the team\'s play
   await p.route('**/api/name-tag', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
     craft: 'Product', title: 'the Customer Whisperer', traits: ['customer-obsessed', 'hands-on builder', 'problem hunter'], superpower: 'hears the problem behind the request',
     goodAt: 'customer journeys', loves: 'working on the customer journey', alternates: { titles: ['the Journey Mapper'], traits: ['question asker'], superpowers: [] } }) }));
-  await p.goto(L(BASE + '/?stage=1&hold=200&setup=classic'));
+  await p.goto(L(BASE + '/?stage=1&hold=1500&setup=classic')); // each card holds 1.5 s, long enough to read the first one
   await p.waitForTimeout(300);
   // The setup: no room yet; her name tag on paper (name, role, what she loves and brings).
   assert.ok(await p.isVisible('#setup'), 'the room is hidden');
@@ -325,7 +325,7 @@ test('2. the live path in stage mode (the bakery), driven like a clicker, as far
   assert.strictEqual(await page.getAttribute('#focus-doc', 'data-doc'), 'finding');
   assert.match(await page.textContent('#focus-doc .ff-claim'), /A third \(33%\) of UK adults who visit artisan bakeries/);
   assert.match(await page.getAttribute('#focus-doc a.ff-src', 'href'), /^https:\/\/bakerybusiness\.com\//);
-  assert.deepStrictEqual(await pronouns(page), [], 'no pronouns in her document');
+  { const pr = await pronouns(page); if (pr.length) console.log('pronouns in her document:', JSON.stringify(await page.evaluate(() => [...document.body.innerText.matchAll(/.{0,50}\b(he|she|his|him|her|hers)\b.{0,30}/gi)].map(m => m[0])))); assert.deepStrictEqual(pr, [], 'no pronouns in her document'); }
   // Readable at both sizes: the question >= 18 px at 1280x720 and >= 22 px at 1600x900, rendered.
   for (const [w, hgt, floor] of [[1280, 720, 18], [1600, 900, 22]]) {
     await page.setViewportSize({ width: w, height: hgt }); await page.waitForTimeout(300);
@@ -656,6 +656,9 @@ test('5. fallbacks: a slow or failing call shows its step and offers R; the clos
   await p.route('**/api/run', async r => { await new Promise(f => setTimeout(f, 3500)); await r.fulfill({ status: 500, body: '{"error":"model down"}' }); });
   await p.route('**/api/sketch-for-idea', r => r.fulfill({ status: 502, body: '{"error":"no sketch"}' }));
   await p.route('**/api/select-for-idea', async r => { await new Promise(f => setTimeout(f, 3000)); await r.fulfill({ status: 502, body: '{"error":"bad gateway"}' }); });
+  // Her typed idea is tidied before it's sent (BYOC.tidyInto, up to 2.5 s): answered at once here, so the clock below
+  // times only the failing run call, not a slow tidy (in either setup order).
+  await p.route('**/api/tidy', r => r.fulfill({ json: { text: JSON.parse(r.request().postData() || '{}').text || '', tidied: false } }));
   await p.goto(L(BASE + '/?stage=1&slow=1500'));
   await p.waitForTimeout(300);
   await p.evaluate(() => BYOC.stage(3, { instant: true }));
