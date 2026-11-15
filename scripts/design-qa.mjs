@@ -94,6 +94,9 @@ const toNameTag = async p => { const idea = p.locator('[data-component="idea-car
   if (await idea.count() && await idea.isVisible()) { await idea.fill("An ordering website for my friend's small bakery"); await idea.press('Enter'); await wait(900); } };
 add('01b', 'her name tag (setup, paper)', async p => { await p.evaluate(() => BYOC.reset()); await wait(700); await toNameTag(p); });
 add('02', 'meeting the team', async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(700); });
+for (const [id, ms] of [['02m-a', 120], ['02m-b', 350], ['02m-c', 700], ['02m-d', 1300]])
+  add(id, `meeting the team: the next card's entrance at ${ms} ms`, async p => { await p.goto(BASE + '/?look=painted&stage=1&hold=600000'); await wait(1500); await helpers(p);
+    await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(1500); await p.evaluate(() => BYOC.meetNext && BYOC.meetNext()); await wait(ms); });
 for (const [id, ms] of [['02r-a', 300], ['02r-b', 1200], ['02r-c', 2200], ['02r-d', 3200], ['02r-e', 4800]])
   add(id, `the reveal, ${ms} ms after the last teammate`, async p => { await p.evaluate(() => { BYOC.reset(); BYOC.stage(1); }); await wait(800);
     await p.evaluate(() => BYOC.stage(2)); await wait(ms); });
@@ -286,6 +289,20 @@ async function checks(p, slides) {
       if (buttonface || (el.tagName === 'SELECT' && cs.appearance !== 'none') || (el.tagName === 'INPUT' && ['checkbox', 'radio', 'range', 'file'].includes(el.type) && cs.appearance !== 'none'))
         out.push({ check: 'default control', hook: hook(el), note: `${el.tagName.toLowerCase()} looks like the browser default (${cs.appearance}, ${cs.backgroundColor}): “${(el.textContent || el.value || el.placeholder || '').trim().slice(0, 30)}”` });
     }
+    // "magical and simple" (QA.md): one action, at most one line of guidance. A census for the eye: every visible control,
+    // everything that competes with it, and every guidance line. The audit judges it per screen.
+    const visible = el => vis(el) && (() => { const r = el.getBoundingClientRect(); return r.right > 0 && r.bottom > 0 && r.left < W && r.top < H; })();
+    const label = el => (el.innerText || el.value || el.placeholder || el.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    const topLayer = document.querySelector('[data-component="focus-doc"]:not([hidden])') && vis(document.querySelector('[data-component="focus-doc"]')) ? document.querySelector('[data-component="focus-doc"]')
+      : document.querySelector('#room-panel:not([hidden])') && vis(document.querySelector('#room-panel')) ? document.querySelector('#room-panel')
+      : document.querySelector('[data-component="setup"]') && vis(document.querySelector('[data-component="setup"]')) && document.querySelector('[data-component="setup"]').dataset.step !== 'off' ? document.querySelector('[data-component="setup"]') : document.body;
+    const controls = [...topLayer.querySelectorAll('button:not(:disabled), input:not([type=hidden]), textarea, [role="button"], [data-component="mic"]')].filter(e => visible(e) && !e.matches('[data-spot]'));
+    const competing = [...document.querySelectorAll('[data-component="app-button"], [data-component="tally"], [data-component="chatter-line"], [data-component="team-status"], [data-component="replay-label"], [data-component="inbox"], button[aria-label^="Time of day"], button[aria-label^="Always"]')]
+      .filter(e => visible(e) && !topLayer.contains(e) && topLayer !== document.body);
+    const guidance = [...topLayer.querySelectorAll('[data-slot="hint"], [data-slot="help"], [data-slot="status"], .nt-hint, .idea-hint, .fd-help, .char-hint')].filter(visible).map(label).filter(Boolean);
+    const sentences = guidance.join(' · ').split(/[.·]\s+|\s·\s/).map(x => x.trim()).filter(x => x.length > 3);
+    out.push({ check: 'census', hook: topLayer === document.body ? 'room' : hook(topLayer), soft: true,
+      note: `controls ${controls.length}: ${controls.map(label).map(x => `“${x}”`).join(', ')} | competing ${competing.length}: ${competing.map(e => e.dataset.component || e.getAttribute('aria-label')).join(', ')} | guidance ${sentences.length}: ${sentences.map(x => `“${x.slice(0, 50)}”`).join(', ')}` });
     // room roles: the teammates' name pills never overlap each other
     const pills = [...document.querySelectorAll('[data-component="place-card"], [data-component="her-place-card"]')].filter(vis).map(e => ({ e, r: e.getBoundingClientRect() }));
     for (let i = 0; i < pills.length; i++) for (let j = i + 1; j < pills.length; j++) { const a = pills[i].r, b = pills[j].r;
