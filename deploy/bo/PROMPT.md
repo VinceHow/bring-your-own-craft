@@ -27,7 +27,7 @@ the brief). The logo is `/img/logo.jpg`, an icon only; the name is real text bes
 The idea, in the baker's words: "A small bakery where neighbours reserve a loaf from each bake under their first name, and I hand them out when the batch is ready."
 
 ### What the baker said
-- **Noor asked:** "Who should we build this for first?" **She said:** "Just a first name, nothing else. One of each loaf per person per bake, so the rare ones go round. When something is gone, say so warmly."
+- **Wren asked:** "Who should we build this for first?" **She said:** "Just a first name, nothing else. One of each loaf per person per bake, so the rare ones go round. When something is gone, say so warmly."
 - **Bo asked:** "When do orders close?" **She said:** "There's no closing time: you can reserve while a bake lasts, and I restock for the next one."
 - **Mika asked:** "What should this feel like for a regular?" **She said:** "Hold a reservation for about fifteen minutes, then let it go back on the shelf. I hand everything out at once when I say the batch is ready."
 
@@ -41,7 +41,7 @@ The idea, in the baker's words: "A small bakery where neighbours reserve a loaf 
 - `first-d1` · Mika · Reservation interface complexity → **Single name input only**
 - `first-d2` · Bo · Inventory management approach → **One loaf per person per batch**
 - `first-d3` · Ines · Out of stock communication → **Warm message when sold out**
-- `first-d4` · Noor · User authentication needs → **No login required**
+- `first-d4` · Wren · User authentication needs → **No login required**
 - `first-d5` · Theo · Data collection scope → **Record name and loaf type only**
 - `u-engineering-1` · Bo · When do orders close. → **There's no closing time: you can reserve while a bake lasts, and I restock for the next one.**
 - `c1` · Bo · What happens when a reservation isn't picked up within fifteen minutes → **Release back to walk-ins and notify the customer their slot is gone**
@@ -60,10 +60,10 @@ The idea, in the baker's words: "A small bakery where neighbours reserve a loaf 
 - `c14` · Mika · How much visual detail each loaf type gets → **Name, short description, and available count**
 - `c15` · Mika · What customers see when all loaves of a type are reserved → **Name greyed out with '0 available'**
 - `c16` · Mika · What the pickup notification shows when the batch is ready → **Time ready, loaf name, pickup deadline**
-- `c17` · Noor · How long regulars can go between visits and still count as active → **One month without a reservation** (joint session, kept)
-- `c18` · Noor · Whether to show sold-out loaves on the reservation page → **Show them greyed out with sold out label**
-- `c19` · Noor · What counts as not picking up within the fifteen minute window → **Fifteen minutes from when they were notified**
-- `c20` · Noor · Whether first-time visitors can make a reservation or must walk in first → **Must visit in person once before reserving online**
+- `c17` · Wren · How long regulars can go between visits and still count as active → **One month without a reservation** (joint session, kept)
+- `c18` · Wren · Whether to show sold-out loaves on the reservation page → **Show them greyed out with sold out label**
+- `c19` · Wren · What counts as not picking up within the fifteen minute window → **Fifteen minutes from when they were notified**
+- `c20` · Wren · Whether first-time visitors can make a reservation or must walk in first → **Must visit in person once before reserving online**
 - `c21` · Priya · Whether first-name-only reservations are open to anyone or require being a known regular → **Only established regulars can reserve by first name**
 - `c22` · Priya · What happens to a reservation when someone doesn't pick up within the hold window → **Released with a note to the customer explaining they can try again next bake**
 - `c23` · Priya · Whether customers can reserve multiple loaf types in one batch or are limited to one loaf total → **One loaf total per batch regardless of type**
